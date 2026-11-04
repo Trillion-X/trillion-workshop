@@ -5,10 +5,10 @@
   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
  },
  "counts": {
-  "being_moved": 766,
-  "moved": 549,
+  "being_moved": 991,
+  "moved": 558,
   "retired": 26,
-  "to_move": 317
+  "to_move": 83
  },
  "rows": [
   {
@@ -6102,38 +6102,50 @@
   },
   {
    "path": "scripts/advance-shared-checkout.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/advance-shared-checkout.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/agent-tool-eval-core.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/agent-tool-eval-core.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/agent-tool-eval-models.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/agent-tool-eval-models.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/annotate-activity-proof.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/annotate-activity-proof.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/annotate-audience-question-screenshot.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/annotate-audience-question-screenshot.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/annotate-marketplace-tour-proof.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/annotate-marketplace-tour-proof.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6156,26 +6168,34 @@
   },
   {
    "path": "scripts/attach-site-worker-bundle.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/attach-site-worker-bundle.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/audit-action-surfaces.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/audit-action-surfaces.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/backfill-done-when-rules.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/backfill-done-when-rules.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/backfill-done-when-rules.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/backfill-done-when-rules.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6192,8 +6212,10 @@
   },
   {
    "path": "scripts/build-chatgpt-plugin.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/build-chatgpt-plugin.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6210,14 +6232,17 @@
   },
   {
    "path": "scripts/build-formula-evaluator.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/scripts/build-formula-evaluator.mjs",
+   "evidence": "Adapted home, not the same bytes and no receipt row of its own: c4a49d2 \"web: the shell builds again with the engine at trillion-rust main, and its formula-engine tests read the Workshop\"; diff vs old: the shipped folder is the Workshop checkout beside it (--into) instead of parts/formula-engine. Not carried again (adapted_homes in trillion-workshop move-rows/trillion-sweep-scripts.json). Needs a human to accept as adapted if a receipt is required.",
    "group": "scripts"
   },
   {
    "path": "scripts/build.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/build.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6228,8 +6253,10 @@
   },
   {
    "path": "scripts/carry-public-app-name-claims.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/carry-public-app-name-claims.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6246,20 +6273,24 @@
   },
   {
    "path": "scripts/check-committed-credentials.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-committed-credentials.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/check-copy.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
    "group": "scripts"
   },
   {
    "path": "scripts/check-delight.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-delight.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
@@ -6270,8 +6301,10 @@
   },
   {
    "path": "scripts/check-generated-files.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-generated-files.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6282,92 +6315,121 @@
   },
   {
    "path": "scripts/check-person-facts.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-person-facts.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/check-port-fidelity.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-port-fidelity.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/check-port-fidelity.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-port-fidelity.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/check-pushed-person-facts.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-pushed-person-facts.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/check-reaches.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-reaches.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/check-shell-strings.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/check-shell-strings.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/ci-usage.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/ci-usage.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/classify-legacy-passkeys.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/classify-legacy-passkeys.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/commit-on-current-main.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/commit-on-current-main.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/commit-paths.sh",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/commit-paths.sh",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/compare-early-metadata.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/compare-early-metadata.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/compare-share-poster-priority.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/compare-share-poster-priority.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/compiled-modules.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/scripts/compiled-modules.mjs",
+   "evidence": "Adapted home, not the same bytes and no receipt row of its own: 2d79a95 \"compiled-modules.mjs moves from the root into web/scripts\"; diff vs old: copy_from paths point at node_modules/trillion-workshop, plus workspace/lock measures; this lane's receipt web/moved-from.json names it reused+adapted. Not carried again (adapted_homes in trillion-workshop move-rows/trillion-sweep-scripts.json). Needs a human to accept as adapted if a receipt is required.",
    "group": "scripts"
   },
   {
    "path": "scripts/correct-message-authored-at.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/correct-message-authored-at.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/correct-message-provenance.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/correct-message-provenance.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6378,44 +6440,58 @@
   },
   {
    "path": "scripts/credential-shapes.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/credential-shapes.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-collaboration.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-collaboration.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-conversation-fixtures.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-conversation-fixtures.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-conversation-methodology.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-conversation-methodology.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-conversation-scenarios.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-conversation-scenarios.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-driver-reply.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-driver-reply.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-proof-outcome.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-proof-outcome.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6438,164 +6514,218 @@
   },
   {
    "path": "scripts/customer-source-pin.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-source-pin.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-test-evidence.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-test-evidence.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/customer-usability.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/customer-usability.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deleted-code-homes.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deleted-code-homes.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-build-progress.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-build-progress.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-gate.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-gate.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-guard-suite.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-guard-suite.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-guard-tests.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-guard-tests.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-guard.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-guard.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-lock.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-lock.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/deploy-order.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/deploy-order.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/dispatch-failure-text.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/dispatch-failure-text.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/embed-proof-images.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/embed-proof-images.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/export-public-app-name-claim-inventory.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/export-public-app-name-claim-inventory.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/failed-tests-reporter.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/failed-tests-reporter.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/fill-answer.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/fill-answer.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/fill-purchase-names.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/fill-purchase-names.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/first-paint-evidence.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/first-paint-evidence.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/generated-files.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/generated-files.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/git-hooks/post-checkout",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/git-hooks/post-checkout",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/git-hooks/pre-commit",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/git-hooks/pre-commit",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/git-hooks/pre-push",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/git-hooks/pre-push",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/git-hooks/pre-rebase",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/git-hooks/pre-rebase",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/git-hooks/reference-transaction",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/git-hooks/reference-transaction",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/growing-tables.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/growing-tables.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/guard-continue.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/guard-continue.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/guard-selection.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/guard-selection.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6606,20 +6736,25 @@
   },
   {
    "path": "scripts/heavy-work-claim.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/scripts/heavy-work-claim.mjs",
+   "evidence": "cmp: byte-identical to trillion-apps main scripts/heavy-work-claim.mjs (added by 9183581 'The Mac release's heavy-work entry scripts come with it', called by scripts/release-macos-app.sh:51-52). No receipt row there. (home not on trillion-apps main yet)",
    "group": "scripts"
   },
   {
    "path": "scripts/hooks-from-main.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/hooks-from-main.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/inspect-payment-episode.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/inspect-payment-episode.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6630,20 +6765,25 @@
   },
   {
    "path": "scripts/keep-bundle-names.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/scripts/keep-bundle-names.mjs",
+   "evidence": "Adapted home, not the same bytes and no receipt row of its own: 9d2e7e7 \"The web client builds in web/: what the build needs comes from old trillion at old-trillion-before-worker-retire\"; diff vs old: two outputs with the same bytes may share a name. Not carried again (adapted_homes in trillion-workshop move-rows/trillion-sweep-scripts.json). Needs a human to accept as adapted if a receipt is required.",
    "group": "scripts"
   },
   {
    "path": "scripts/keep-platform-key.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/keep-platform-key.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/keychain-read-allowance.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/keychain-read-allowance.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6666,20 +6806,26 @@
   },
   {
    "path": "scripts/limits-only-go-down.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/limits-only-go-down.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/lint-unbounded-reads.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/lint-unbounded-reads.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/local-catalogue-publication.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/local-catalogue-publication.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6690,32 +6836,42 @@
   },
   {
    "path": "scripts/local-cost-runtime.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/local-cost-runtime.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/local-cost-source-map.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/local-cost-source-map.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/local-cost-worker.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/local-cost-worker.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/local-host-calls.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/local-host-calls.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/local-proxy.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/local-proxy.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6726,20 +6882,26 @@
   },
   {
    "path": "scripts/make-device-looks.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/make-device-looks.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/make-embedded-faces.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/make-embedded-faces.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/make-embedded-shell-css.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/make-embedded-shell-css.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6750,62 +6912,82 @@
   },
   {
    "path": "scripts/marketplace-content-actions.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/marketplace-content-actions.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/marketplace-content-inventory.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/marketplace-content-inventory.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/measure-attention.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/measure-attention.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/measure-decision-evals.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/measure-decision-evals.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/measure-shared-video-speed.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/measure-shared-video-speed.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/measure-visual-embeddinggemma2.py",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/measure-visual-embeddinggemma2.py",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/merge-method-classifications.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/merge-method-classifications.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/method-checks.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/method-checks.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/method-sources.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/method-sources.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/miniflare-config-grows-by-doubling.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/miniflare-config-grows-by-doubling.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6822,32 +7004,41 @@
   },
   {
    "path": "scripts/namespace-import-state.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/namespace-import-state.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/narrow-width-findings.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/narrow-width-findings.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/native-baseline-source-comparison.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/native-baseline-source-comparison.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/native-frontend-wrapper.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/scripts/native-frontend-wrapper.mjs",
+   "evidence": "Adapted home, not the same bytes and no receipt row of its own: bd1b0c3 \"The Mac release road's own files come here from Trillion-X/trillion, byte for byte\"; later changed: frontend_root from macos/native-release.json and import of ../web/scripts/workspace-source-record.mjs. Not carried again (adapted_homes in trillion-workshop move-rows/trillion-sweep-scripts.json). Needs a human to accept as adapted if a receipt is required.",
    "group": "scripts"
   },
   {
    "path": "scripts/native-preview-proof.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/native-preview-proof.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6858,8 +7049,10 @@
   },
   {
    "path": "scripts/one-checkout.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/one-checkout.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6870,14 +7063,18 @@
   },
   {
    "path": "scripts/one-shared-checkout-guard.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/one-shared-checkout-guard.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/one-shared-checkout-guard.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/one-shared-checkout-guard.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6894,14 +7091,18 @@
   },
   {
    "path": "scripts/page-steps.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/page-steps.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/paid-proof-account.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/paid-proof-account.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6912,14 +7113,18 @@
   },
   {
    "path": "scripts/person-facts-known.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/person-facts-known.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/person-facts.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/person-facts.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -6930,182 +7135,235 @@
   },
   {
    "path": "scripts/portable-service-connection.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/portable-service-connection.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/portable-service-host-setup.sh",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/portable-service-host-setup.sh",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/portable-tls-host.py",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/renew-a-tls-certificate/do-work/tls-host-owner.py",
+   "evidence": "ADAPTED port: trillion-workshop tools/renew-a-tls-certificate/ports/tls-host-owner.json (status ADAPTED, directive quote \"Port both files and their tests one to one.\"); its sources[].path_multihash is the identity of this path",
    "group": "scripts"
   },
   {
    "path": "scripts/portable-tls.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
+   "evidence": "ADAPTED port: trillion-workshop tools/renew-a-tls-certificate/ports/renew-a-tls-certificate.json (status ADAPTED, directive quote \"Port both files and their tests one to one.\"); its sources[].path_multihash is the identity of this path",
    "group": "scripts"
   },
   {
    "path": "scripts/prepare-compiled-modules.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/scripts/prepare-compiled-modules.mjs",
+   "evidence": "Adapted home, not the same bytes and no receipt row of its own: 80a9c3e (as above); diff vs old: imports ../web/scripts/compiled-modules.mjs and chdirs into web/. Not carried again (adapted_homes in trillion-workshop move-rows/trillion-sweep-scripts.json). Needs a human to accept as adapted if a receipt is required.",
    "group": "scripts"
   },
   {
    "path": "scripts/presentation-budget.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/presentation-budget.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/proof-ai-switches.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/proof-ai-switches.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-anatomy-explainer.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-anatomy-explainer.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-audience-question-live.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-audience-question-live.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-catalogue-screens.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-catalogue-screens.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-chat-intake-live.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-chat-intake-live.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-dynamic-controls-showcase.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-dynamic-controls-showcase.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-events.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-events.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-isolated-saved-screen-browser.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-isolated-saved-screen-browser.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-mounted-namespace-metadata.py",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-mounted-namespace-metadata.py",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/prove-send-to-trillion.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/prove-send-to-trillion.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/public-app-domain-deployment.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/public-app-domain-deployment.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/public-app-domain-deployment.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/public-app-domain-deployment.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
    "path": "scripts/publish-current-main.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/publish-current-main.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
    "path": "scripts/publish-marketplace-screens.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports records/marketplace-screens.json, which stays in the source (keep row records/marketplace-screens.json). Waits for that file's home on main (trillion-workshop PR #203), then the same row moves it.",
    "group": "scripts"
   },
   {
    "path": "scripts/publish-public-app-manifest.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/publish-public-app-manifest.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/publish-registry.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: scripts/publish-registry.mjs reads server.json by its address, and its home trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/server.json is in a package. Waits for that file's home on main (a home the tool can follow: server.json is read by new URL and its home is in the trillion-workshop package), then the same row moves it.",
    "group": "scripts"
   },
   {
    "path": "scripts/pushed-work-kept.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/pushed-work-kept.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/pushed-work-kept.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/pushed-work-kept.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/qualify-marketplace-method-consumers.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/qualify-marketplace-method-consumers.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/reaches-baseline.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/reaches-baseline.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/reaches.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/reaches.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/read-file-identities.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/read-file-identities.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/README.md",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/README.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/record-marketplace-public-app.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/record-marketplace-public-app.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -7116,56 +7374,73 @@
   },
   {
    "path": "scripts/render-worldview.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/render-worldview.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/reopen-incorrect-handoff-finish.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/reopen-incorrect-handoff-finish.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/repo-copy-owners.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/repo-copy-owners.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/repository-config-witness.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/repository-config-witness.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/retired-paths.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/retired-paths.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/review-public-surface.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/review-public-surface.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/run-always-guards.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/run-always-guards.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/run-heavy-work.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/scripts/run-heavy-work.mjs",
+   "evidence": "cmp: byte-identical to trillion-apps main scripts/run-heavy-work.mjs (added by 9183581 'The Mac release's heavy-work entry scripts come with it', called by scripts/release-macos-app.sh:51-52). No receipt row there. (home not on trillion-apps main yet)",
    "group": "scripts"
   },
   {
    "path": "scripts/screen-matrix-screens.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/screen-matrix-screens.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -7176,14 +7451,18 @@
   },
   {
    "path": "scripts/screen-mount-inventory.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/screen-mount-inventory.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/set-site-worker-backend.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/set-site-worker-backend.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -7194,56 +7473,74 @@
   },
   {
    "path": "scripts/smoke-routes.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/smoke-routes.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/source-lifecycle-preflight.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/source-lifecycle-preflight.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/staged-imports-resolve.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/staged-imports-resolve.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/staged-imports-resolve.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/staged-imports-resolve.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/start-built-workers.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/start-built-workers.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
    "path": "scripts/stored-file-parts.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/stored-file-parts.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/test-cache-folder.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/test-cache-folder.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/test-runs.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/test-runs.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
@@ -7254,32 +7551,42 @@
   },
   {
    "path": "scripts/unbounded-reads-baseline.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/unbounded-reads-baseline.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/visual-check-account.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/visual-check-account.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/visual-check.Dockerfile",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/visual-check.Dockerfile",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/visual-checks.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/visual-checks.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/waiting-for-an-ai.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/waiting-for-an-ai.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -7296,50 +7603,66 @@
   },
   {
    "path": "scripts/worked-example.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/worked-example.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/worked-example.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/worked-example.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/worker-bundle-plugins.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/worker-bundle-plugins.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/workerd-production-clock.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/workerd-production-clock.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/workshop-typescript-env.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/workshop-typescript-env.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/workshop-typescript-hooks.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/workshop-typescript-hooks.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/workshop-typescript.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/workshop-typescript.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/workspace-budgets.json",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/workspace-budgets.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -7356,20 +7679,25 @@
   },
   {
    "path": "scripts/workspace-source-record.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-apps/web/scripts/workspace-source-record.mjs",
+   "evidence": "Adapted home, not the same bytes and no receipt row of its own: 80a9c3e \"The web client builds in web/, and the App Store road and the compiled-modules prepare step come here from Trillion-X/trillion\"; diff vs old: a prefix argument for a build kept in web/. Not carried again (adapted_homes in trillion-workshop move-rows/trillion-sweep-scripts.json). Needs a human to accept as adapted if a receipt is required.",
    "group": "scripts"
   },
   {
    "path": "scripts/worldview-speakers.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/worldview-speakers.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
    "path": "scripts/wrangler-credential-reader.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/scripts/wrangler-credential-reader.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity",
    "group": "scripts"
   },
   {
@@ -8959,8 +9287,10 @@
   },
   {
    "path": "test/advance-shared-checkout.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/advance-shared-checkout.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9069,8 +9399,10 @@
   },
   {
    "path": "test/backfill-done-when-rules.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/backfill-done-when-rules.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9157,8 +9489,10 @@
   },
   {
    "path": "test/check-bundle-part-boundaries.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/check-bundle-part-boundaries.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9183,8 +9517,10 @@
   },
   {
    "path": "test/check-retired-paths.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/check-retired-paths.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9208,8 +9544,10 @@
   },
   {
    "path": "test/ci-usage.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/ci-usage.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9229,14 +9567,18 @@
   },
   {
    "path": "test/commit-on-current-main.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/commit-on-current-main.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/committed-credentials-guard.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/committed-credentials-guard.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -9335,8 +9677,10 @@
   },
   {
    "path": "test/concurrent-gates-share-nothing.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/concurrent-gates-share-nothing.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -9378,13 +9722,13 @@
   {
    "path": "test/copy-owner-placement.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
    "group": "scripts"
   },
   {
    "path": "test/copy-required-owner.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
    "group": "scripts"
   },
   {
@@ -9404,8 +9748,10 @@
   },
   {
    "path": "test/credential-file.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/credential-file.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9424,20 +9770,26 @@
   },
   {
    "path": "test/customer-notification-navigation.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/customer-notification-navigation.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (fails the same way in old trillion 5dc302be)",
    "group": "scripts"
   },
   {
    "path": "test/customer-proof-outcome.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/customer-proof-outcome.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/customer-remote-browser.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/customer-remote-browser.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9448,14 +9800,18 @@
   },
   {
    "path": "test/customer-test-evidence.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/customer-test-evidence.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/customer-video-output.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/customer-video-output.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9474,62 +9830,82 @@
   },
   {
    "path": "test/deleted-code-homes.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deleted-code-homes.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deploy-build-progress.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-build-progress.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deploy-guard-bucket-read-retry.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-guard-bucket-read-retry.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (fails the same way in old trillion 5dc302be)",
    "group": "scripts"
   },
   {
    "path": "test/deploy-guard-file-timeout.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-guard-file-timeout.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deploy-guard-stop-when.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-guard-stop-when.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deploy-guard-suite.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-guard-suite.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deploy-guard-timing.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-guard-timing.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deploy-guards.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-guards.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
    "path": "test/deploy-provider-read-recovery.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deploy-provider-read-recovery.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/deployment-gate.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/deployment-gate.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9551,7 +9927,7 @@
   {
    "path": "test/derived-tool-controls.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports records/workshop-tool-records.json, which stays in the source (keep row records/workshop-tool-records.json). Waits for that file's home on main (trillion-workshop PR #203), then the same row moves it.",
    "group": "scripts"
   },
   {
@@ -9642,8 +10018,10 @@
   },
   {
    "path": "test/failed-tests-reporter.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/failed-tests-reporter.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -9699,7 +10077,7 @@
   {
    "path": "test/film-copy-owner.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
    "group": "scripts"
   },
   {
@@ -10126,8 +10504,10 @@
   },
   {
    "path": "test/guard-known-failures.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/guard-known-failures.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10144,8 +10524,10 @@
   },
   {
    "path": "test/guard-trailer-keeps-core-and-failed.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/guard-trailer-keeps-core-and-failed.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10188,8 +10570,10 @@
   },
   {
    "path": "test/hooks-from-main.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/hooks-from-main.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -10241,7 +10625,7 @@
   {
    "path": "test/interactive-lesson-copy-owner.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
    "group": "scripts"
   },
   {
@@ -10302,8 +10686,10 @@
   },
   {
    "path": "test/limits-only-go-down.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/limits-only-go-down.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10387,8 +10773,10 @@
   },
   {
    "path": "test/marketplace-content-shrink-only.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/marketplace-content-shrink-only.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -10431,8 +10819,10 @@
   },
   {
    "path": "test/method-sources.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/method-sources.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -10453,8 +10843,10 @@
   },
   {
    "path": "test/module-download-graph.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/module-download-graph.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10561,8 +10953,10 @@
   },
   {
    "path": "test/native-preview-proof.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/native-preview-proof.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10609,8 +11003,10 @@
   },
   {
    "path": "test/no-mac-vault-road.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/no-mac-vault-road.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10652,26 +11048,34 @@
   },
   {
    "path": "test/one-checkout.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/one-checkout.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/one-copy-of-each-rule.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/one-copy-of-each-rule.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/one-shared-checkout-guard.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/one-shared-checkout-guard.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/open-source-notices.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/open-source-notices.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10703,26 +11107,34 @@
   },
   {
    "path": "test/paid-proof-account-grant.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/paid-proof-account-grant.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/paid-proof-account.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/paid-proof-account.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/paid-proof-owner.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/paid-proof-owner.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/portable-service-connection.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/portable-service-connection.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10734,8 +11146,9 @@
   },
   {
    "path": "test/portable-tls.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "moved",
+   "home": "trillion-workshop/tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs",
+   "evidence": "ADAPTED port: trillion-workshop tools/renew-a-tls-certificate/ports/renew-a-tls-certificate.json (status ADAPTED, directive quote \"Port both files and their tests one to one.\"); its test_refs name the ported tests in tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs (this old test is the one-to-one test of scripts/portable-tls.mjs)",
    "group": "scripts"
   },
   {
@@ -10748,8 +11161,10 @@
   },
   {
    "path": "test/pre-push-always-guards.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/pre-push-always-guards.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -10770,20 +11185,26 @@
   },
   {
    "path": "test/public-app-domain-config.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/public-app-domain-config.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff); node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/public-app-domain-deployment.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/public-app-domain-deployment.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/public-app-name-claim-inventory.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/public-app-name-claim-inventory.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10800,8 +11221,10 @@
   },
   {
    "path": "test/publish-current-main-mode.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/publish-current-main-mode.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10812,8 +11235,10 @@
   },
   {
    "path": "test/pushed-work-kept.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/pushed-work-kept.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10832,8 +11257,10 @@
   },
   {
    "path": "test/read-file-identities.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/read-file-identities.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10889,8 +11316,10 @@
   },
   {
    "path": "test/repository-config-witness.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/repository-config-witness.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -10967,8 +11396,10 @@
   },
   {
    "path": "test/retired-paths-stay-retired.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/retired-paths-stay-retired.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -11040,8 +11471,10 @@
   },
   {
    "path": "test/screen-mount-shrink-only.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/screen-mount-shrink-only.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -11201,13 +11634,15 @@
   {
    "path": "test/source-composition-copy.test.mjs",
    "verdict": "to_move",
-   "evidence": "no home found yet",
+   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
    "group": "scripts"
   },
   {
    "path": "test/source-lifecycle-preflight.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/source-lifecycle-preflight.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -11294,8 +11729,10 @@
   },
   {
    "path": "test/support/fixture-git-env.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/support/fixture-git-env.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff)",
    "group": "scripts"
   },
   {
@@ -11312,20 +11749,26 @@
   },
   {
    "path": "test/test-cache-folder.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/test-cache-folder.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/test-launcher-checks-settings.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/test-launcher-checks-settings.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (fails the same way in old trillion 5dc302be)",
    "group": "scripts"
   },
   {
    "path": "test/test-runs-strict-guards.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/test-runs-strict-guards.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (passes in old trillion; fails here because it judges the repository it lives in, see report)",
    "group": "scripts"
   },
   {
@@ -11411,8 +11854,10 @@
   },
   {
    "path": "test/trigger-engine.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/trigger-engine.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (fails the same way in old trillion 5dc302be)",
    "group": "scripts"
   },
   {
@@ -11423,8 +11868,10 @@
   },
   {
    "path": "test/unbounded-reads-lint.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/unbounded-reads-lint.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -11436,8 +11883,10 @@
   },
   {
    "path": "test/visual-check-account.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/visual-check-account.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -11532,14 +11981,18 @@
   },
   {
    "path": "test/without-git-location.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/without-git-location.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json identity differs from source only in import lines (checked by diff); node --test passes in web/",
    "group": "scripts"
   },
   {
    "path": "test/workerd-production-clock.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/workerd-production-clock.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
@@ -11550,8 +12003,10 @@
   },
   {
    "path": "test/workflow-engine.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/workflow-engine.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test FAILS in web/ (fails the same way in old trillion 5dc302be)",
    "group": "scripts"
   },
   {
@@ -11572,8 +12027,10 @@
   },
   {
    "path": "test/wrangler-credential-reader.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/wrangler-credential-reader.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Moved byte for byte by tools/move-code-between-trees (trillion-workshop move-rows/trillion-sweep-scripts.json); receipt trillion-apps web/moved-from.json source_identity = identity; node --test passes in web/",
    "group": "scripts"
   },
   {
