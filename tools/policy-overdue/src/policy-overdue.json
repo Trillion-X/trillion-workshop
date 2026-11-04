@@ -1,0 +1,20 @@
+{
+  "check_every_ms": 3600000,
+  "pending_age_ms": 3600000,
+  "page": 16,
+  "_why": "An account's store, when an alarm it already had fires, asks its policy owner at most once per check_every_ms whether anything of the account's is overdue (src/person-store.mjs alarm, src/account-policy-update-recovery.mjs driveOverduePolicy): an outstanding rights-change recovery past its due time, a deletion continuation armed under an older retry rule, and one page of quota permits still pending after pending_age_ms, each reconciled at the resource that holds it; while pages keep settling with more behind them the policy owner answers 'more' and the store skips the hourly wait on its next existing alarm. It never arms an alarm or constructs an idle store.",
+  "index": {
+    "max_owners": 2000,
+    "page": 8,
+    "retry_first_ms": 300000,
+    "retry_longest_ms": 21600000,
+    "name": "overdue-index"
+  },
+  "_seed_owners_remove_after_applied": "Remove seed_owners (and the seed code) in a later commit once both accounts have cleared from the index: they were found locked on 2026-10-20 with no alarm for the recovery to ride on.",
+  "gate_permits": { "lifetime_ms": 3600000, "page": 16, "next_page_ms": 1000, "retry_ms": 300000, "_why": "A gate permit whose request ended without completing it (5,381 on one gate, 2026-10-20) is settled by the gate's own alarm after lifetime_ms: a page of this many a pass, the next page after next_page_ms, the next look after retry_ms while any stay pending (src/gate-permit-sweep.mjs)." },
+  "seed_owners": [
+    "d83886385480bf6d3dd96eda066e1b3c8caf4fb7a4c30d8f7c5083331644bf01",
+    "f8b6df620dd768b202510d0958581a9e3066b0ea99c2c166590f7293c2d3a839"
+  ],
+  "_index_why": "An account's store, when an alarm it already had fires, asks its policy owner at most once per check_every_ms whether anything of the account's is overdue (src/person-store.mjs alarm, src/account-policy-update-recovery.mjs driveOverduePolicy): an outstanding rights-change recovery past its due time, a deletion continuation armed under an older retry rule, and one page of quota permits still pending after pending_age_ms, each reconciled at the resource that holds it; while pages keep settling with more behind them the policy owner answers 'more' and the store skips the hourly wait on its next existing alarm. It never arms an alarm or constructs an idle store. Accounts whose store never has an alarm are brought along by the index: one fixed policy object (index.name) keeps at most index.max_owners owners whose rights-change recovery is outstanding (written once per update when its recovery is armed, and once from seed_owners: accounts found locked with a drained change and no alarm on 2026-10-20), takes one page of them per alarm, drives each owner's driveOverduePolicy, and clears an owner that has nothing outstanding; an unfinished one is asked again after retry_first_ms doubling to retry_longest_ms. A store touches the index once in its life (store setting policy_overdue_index_seeded), only until the index answers that its seed is applied; that touch constructs it and applies the seed, and after that the writers (recovery arming) and the index's own alarm keep it going, so accounts do not funnel through one object."
+}

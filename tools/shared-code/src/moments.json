@@ -1,0 +1,85 @@
+{
+  "_what": "Which arrivals belong together as one moment, read by src/moments.mjs (the code names no row, no app and no kind of file). A moment is the things that came in close together in time and/or subject (photos, screenshots, voice memos, camera clips, recordings, the same words sent to several AIs): they are handed to the person's AIs as ONE job instead of one job each. `kinds` says what an arrival or an asked record is (source_kind): the first row whose `when` holds names it, over the facts kind (arrival or asked), route, job_id, file (the first file's name, or the recording's audio file) and from_person. `rows` say how each source_kind joins, the first row whose `when` holds is the one used, over those facts plus source_kind and has_text. A row is { id, label, when, window_minutes, quiet_minutes, most_members, most_span_minutes, late_minutes, signals }: an item joins a moment of the same row when any listed signal holds and it was written within window_minutes of a member (near_in_time: of the nearest member's time; same_conversation: the same source_id; same_text_across_apps: the same words after normalising, sent through a different app or conversation; shared_words: shares shared_words.min_shared words of shared_words.min_length letters or more); a moment never spans more than most_span_minutes or holds more than most_members. A row with window_minutes 0 means do not wait: the item is handed off at once as it always was (a chat the person is waiting on). A row with quiet_minutes above 0 holds its arrivals back and hands the whole moment off once nothing joined it for quiet_minutes; a row with quiet_minutes 0 holds nothing back: the first item is handed off at once and a later one that says the same joins that handoff, so the same words sent to two AIs are one job. late_minutes is how long after a moment closed an item may still join it while nobody has taken its job. A screenshot is told by its route, or by its file name only when the person took it (from_person true). `same_text` says how long a message must be (min_characters and min_words) before sending it to several AIs counts as one pasted brief: a short go-ahead line meaning continue your own job is never merged. `gather` bounds gather_moment: most_arrivals and most_asked read per call, most_range_minutes of range, most_folds open jobs closed per call, and pointer_most ids listed per kind in a job's pointer. A kind with `hear_first` true is a sound or video whose words are not in the arrival: the moment's job lists each such file and tells the taker to hear every one before acting, and never claims to know what was said. Changing a number or adding a kind of file is a row, never code. Why it exists: on 2026-10-08 one person's voice memos, photos and camera clips taken around one place were each handed to an AI as a separate job (about 4,400 jobs were open) and the same sentence typed into two AIs was worked twice.",
+  "record_kind": "moment",
+  "open_list": "moments-open",
+  "kinds": [
+    { "id": "screenshot", "label": "screenshot", "plural": "screenshots", "when": { "kind": "group", "combinator": "or", "negate": false, "rules": [
+      { "kind": "rule", "field": "route", "operator": "is_any_of", "params": { "values": ["Screenshots"] } },
+      { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "file", "operator": "contains", "params": { "text": "screenshot" } },
+        { "kind": "rule", "field": "from_person", "operator": "is_any_of", "params": { "values": ["true"] } }
+      ] }
+    ] } },
+    { "id": "photo", "label": "photo", "plural": "photos", "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+      { "kind": "rule", "field": "route", "operator": "is_any_of", "params": { "values": ["Photos"] } }
+    ] } },
+    { "id": "camera-clip", "label": "camera clip", "plural": "camera clips", "hear_first": true, "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+      { "kind": "rule", "field": "job_id", "operator": "is_any_of", "params": { "values": ["hand-recording", "hand-script-recording", "hand-take", "hand-recording-about-share"] } },
+      { "kind": "group", "combinator": "or", "negate": false, "rules": [
+        { "kind": "rule", "field": "file", "operator": "contains", "params": { "text": ".mp4" } },
+        { "kind": "rule", "field": "file", "operator": "contains", "params": { "text": ".mov" } },
+        { "kind": "rule", "field": "file", "operator": "contains", "params": { "text": ".mts" } }
+      ] }
+    ] } },
+    { "id": "voice-memo", "label": "voice memo", "plural": "voice memos", "hear_first": true, "when": { "kind": "group", "combinator": "or", "negate": false, "rules": [
+      { "kind": "rule", "field": "route", "operator": "is_any_of", "params": { "values": ["Voice Memos"] } },
+      { "kind": "rule", "field": "job_id", "operator": "is_any_of", "params": { "values": ["hand-recording", "hand-script-recording", "hand-take", "hand-recording-about-share"] } }
+    ] } }
+  ],
+  "rows": [
+    {
+      "id": "pictures-and-recordings",
+      "label": "Photos, screenshots, voice memos and camera clips taken close together are one moment",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "source_kind", "operator": "is_any_of", "params": { "values": ["photo", "screenshot", "voice-memo", "camera-clip"] } }
+      ] },
+      "window_minutes": 30,
+      "quiet_minutes": 10,
+      "most_members": 40,
+      "most_span_minutes": 240,
+      "late_minutes": 30,
+      "signals": ["near_in_time"]
+    },
+    {
+      "id": "same-words-to-several-ais",
+      "label": "The same words sent to different AIs are one job",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [
+        { "kind": "rule", "field": "kind", "operator": "is_any_of", "params": { "values": ["arrival"] } },
+        { "kind": "rule", "field": "from_person", "operator": "is_any_of", "params": { "values": ["true"] } },
+        { "kind": "rule", "field": "has_text", "operator": "is_any_of", "params": { "values": ["true"] } }
+      ] },
+      "window_minutes": 10,
+      "quiet_minutes": 0,
+      "most_members": 6,
+      "most_span_minutes": 10,
+      "late_minutes": 10,
+      "signals": ["same_text_across_apps"]
+    }
+  ],
+  "most_open_moments": 50,
+  "same_text": { "min_characters": 160, "min_words": 25 },
+  "gather": { "most_arrivals": 1000, "most_asked": 1000, "most_range_minutes": 1440, "most_folds": 200, "pointer_most": 20 },
+  "earlier_handoffs": { "handed_within_minutes": 60, "most": 500 },
+  "shared_words": { "min_length": 4, "min_shared": 3 },
+  "words": {
+    "title": "Moment, {from}-{until} UTC: {counts}",
+    "title_other": "other",
+    "count": "{n} {what}",
+    "count_join": ", ",
+    "lead": "These {n} things arrived close together and belong together: treat them as one moment, read all of them, and finish this one job once. Each member's own words follow, with where to read it whole.",
+    "hear_first": "Hear first: these members are sound or video, and their words are NOT in this job. Before you act on anything, hear every one of these files (list_files / read_file, or transcribe it): {files}. Do not assume what was said in any of them.",
+    "read_transcripts": "Already written down: these members come with a transcript file beside the recording. Read each one whole with read_file before you act: {files}. Check it against the recording if anything looks wrong; do not assume more than it says.",
+    "member": "{n}. {at}Z {what}, {route}{label}{files} ({id})",
+    "member_label": " \"{label}\"",
+    "member_files": ", files: {files}",
+    "member_words": " - {words}",
+    "part": "--- {n}. {what} ---",
+    "late_lead": "More of the same moment arrived after the first were handed to you ({n} more):",
+    "pointer": "Nothing is lost: every member is kept. Messages: {messages}. Files: {files}. Asked records: {asked}. Read any of them whole with read_message, read_file or read_record.",
+    "pointer_none": "none",
+    "pointer_more": "{shown} and {more} more (read them with gather_moment dry_run or read_record on the moment id)",
+    "clipped": "(shortened: the rest is in the member above)",
+    "words_excerpt": 90,
+    "same_words_job": "The same words also came to {route} ({message_id}); they are already in this job, so there is nothing more to do for it."
+  }
+}

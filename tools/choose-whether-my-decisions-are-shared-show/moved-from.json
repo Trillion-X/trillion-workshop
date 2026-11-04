@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/sharing-choice.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-whether-my-decisions-are-shared-show/src/sharing-choice.mjs",
+      "source_identity": "1f:378f778e9af7de56278377e91f1ef10f1da2e76abe2006791bf428cf7af8974d",
+      "identity": "1f:378f778e9af7de56278377e91f1ef10f1da2e76abe2006791bf428cf7af8974d"
+    },
+    {
+      "from": "src/sharing-state.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-whether-my-decisions-are-shared-show/src/sharing-state.mjs",
+      "source_identity": "1f:f60a387340de3989b6d467b9c38805c68fb8c926962888a78590ff1aeac75f2a",
+      "identity": "1f:30ccf208d7e6dcb122cb0361938150423c21d9a3541d2e8a20adbd22505d5202"
+    },
+    {
+      "from": "test/sharing-choice.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-whether-my-decisions-are-shared-show/test/sharing-choice.test.mjs",
+      "source_identity": "1f:247f5b38275f7a08fb5c0d5d474673aeedb7a0943e34df52237779741e1cc366",
+      "identity": "1f:bb3c17bf5cedb8a5c4d36cbe77edf7edc2bb559852930cfbce34639aaa011444"
+    }
+  ]
+}

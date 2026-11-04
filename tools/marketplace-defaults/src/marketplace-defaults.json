@@ -1,0 +1,24 @@
+{
+  "_what": "Whose published Marketplace items every account uses by default (src/marketplace-defaults.mjs). Each row names a publishing account; their published items on any shelf (methods, workflows and the rest) are every account's defaults, read from the Marketplace like anyone's, so no code names an item. `account.from: env` reads the account id from the Worker setting `key`. The operator's row keeps what it already published a default; Trillion's own publishing goes through the dedicated Marketplace publisher account, an ordinary account made through sign-up, so it never reaches the operator's store.",
+  "default_publishers": [
+    {
+      "account": {
+        "from": "env",
+        "key": "OPERATOR_ACCOUNT_ID"
+      }
+    },
+    {
+      "account": {
+        "from": "env",
+        "key": "MARKETPLACE_PUBLISHER_ACCOUNT_ID"
+      },
+      "features": [
+        "workshop",
+        "agents",
+        "files"
+      ]
+    }
+  ],
+  "refresh_seconds": 300,
+  "_features_why": "A row's `features` are the plan features (src/plan-comparison.json ids) the account it resolves to holds whatever its plan: the Marketplace publisher saves and publishes tools (workshop), keeps their source files in its Namespace (files: src/namespace-native-routing.mjs ensureNativeNamespace installs it only for an account holding files, and a tool's source files are read through it, src/standalone-resource-behavior.mjs namespaceTarget) and hands its own work to its agents (agents) on the free plan. Only that one account, found by the row's setting, holds them; every other account keeps its own plan."
+}

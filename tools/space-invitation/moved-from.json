@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-invitation.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/space-invitation/src/space-invitation.json",
+      "source_identity": "1f:107ca13826876a37e29ece3c0d19333c53320fc0016930b29bc09ab8702f8187",
+      "identity": "1f:107ca13826876a37e29ece3c0d19333c53320fc0016930b29bc09ab8702f8187"
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+// The Mac's copy merges its runs a few bounded steps at a time, never with the full maintain (which walked the checksum, indexes and model
+// and took a copy of 1,342 runs to 3 GB). Merged, the records and the checksum are the same and the copy reads through fewer runs.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { deviceCopy } from '../parts/device-copy/do-work/device-copy.mjs';
+import { mergeTicker } from '../computer/device-copy.mjs';
+
+const rules = JSON.parse(readFileSync(new URL('../computer/device-copy.json', import.meta.url), 'utf8')).merge;
+const never = async () => { throw new Error('synthetic transport failure'); };
+const runsOf = host => host.sql.exec('SELECT COUNT(*) AS n FROM record_keys_runs').toArray()[0].n;
+const note = n => ({ id: `note:${String(n).padStart(5, '0')}`, type: 'note', value: { text: `synthetic ${n} ${'x'.repeat(200)}` } });
+
+function manyRuns(runs, perRun = 20) {
+  const host = sqliteHost(':memory:');
+  const copy = deviceCopy(host, { send: never });
+  for (let r = 0; r < runs; r += 1) {
+    copy.store.write(Array.from({ length: perRun }, (_, n) => note(r * perRun + n)));
+    copy.store.checkpoint();
+  }
+  return { host, copy };
+}
+
+test('the merge is in DATA, with a step, time, gap and memory budget', () => {
+  assert.ok(rules.steps_per_tick > 0 && rules.most_ms_per_tick > 0 && rules.tick_gap_ms > 0 && rules.rss_ceiling_mb > 0);
+});
+
+test('bounded ticks merge a copy down to the store\'s own limit and change no record or checksum', () => {
+  const { host, copy } = manyRuns(120);
+  try {
+    const before = runsOf(host);
+    const root = copy.store.checksum().root;
+    assert.ok(before >= 120 && root);
+    let ticks = 0;
+    for (let result; ticks < 1000; ticks += 1) {
+      result = copy.mergeSome({ steps: 5, most_ms: 5000 });
+      assert.ok(result.steps <= 5, 'a tick keeps to its step budget');
+      if (!result.more) break;
+    }
+    assert.ok(ticks > 1, 'the merge took more than one tick');
+    assert.ok(runsOf(host) <= 24, `${runsOf(host)} runs left`);
+    assert.equal(copy.store.checksum().root, root);
+    for (const n of [0, 17, 1199, 2399]) assert.equal(copy.store.read(note(n).id).text, note(n).value.text);
+  } finally { host.db.close(); }
+});
+
+test('a tick stops at its time budget', () => {
+  const { host, copy } = manyRuns(60);
+  try {
+    let now = 0;
+    const result = copy.mergeSome({ steps: 1000, most_ms: 10, clock: () => (now += 4) });
+    assert.ok(result.steps >= 1 && result.steps <= 4, `${result.steps} steps in a 10 ms tick`);
+    assert.equal(result.more, true);
+  } finally { host.db.close(); }
+});
+
+test('a copy with nothing to merge answers that no more is due, writing nothing', () => {
+  const { host, copy } = manyRuns(3);
+  try {
+    const before = runsOf(host);
+    const result = copy.mergeSome({ steps: 5, most_ms: 5000 });
+    assert.equal(result.more, false);
+    assert.equal(result.pages, 0);
+    assert.equal(runsOf(host), before);
+  } finally { host.db.close(); }
+});
+
+test('merging holds memory flat: a copy of many runs grows the process by no more than its ceiling allows', () => {
+  const { host, copy } = manyRuns(200);
+  try {
+    const start = process.memoryUsage.rss();
+    let most = 0;
+    for (let tick = 0; tick < 1000; tick += 1) {
+      const result = copy.mergeSome({ steps: rules.steps_per_tick, most_ms: rules.most_ms_per_tick });
+      most = Math.max(most, process.memoryUsage.rss() - start);
+      if (!result.more) break;
+    }
+    assert.ok(most < 80 * 1048576, `the merge grew the process by ${Math.round(most / 1048576)} MB`);
+  } finally { host.db.close(); }
+});
+
+test('the ticker runs one tick at a time, follows a tick that wrote with another, and ends when one writes nothing', () => {
+  const calls = [];
+  const queued = [];
+  const log = [];
+  const answers = [{ pages: 4, more: true, runs: 90, steps: 5 }, { pages: 3, more: true, runs: 60, steps: 5 }, { pages: 0, more: false, runs: 19, steps: 1 }, { pages: 0, more: false, runs: 19, steps: 1 }];
+  const copy = { mergeSome: budget => { calls.push(budget); return answers[calls.length - 1]; } };
+  const ticker = mergeTicker({ copy, rules, log: entry => log.push(entry), timers: { setTimeout: (run, wait) => { queued.push({ run, wait }); return queued.length; } }, rss: () => 100 });
+  ticker.soon(); ticker.soon(); ticker.soon();
+  assert.equal(queued.length, 1, 'a second wake while one is waiting adds none');
+  while (queued.length) queued.shift().run();
+  assert.equal(calls.length, 3);
+  assert.deepEqual(calls[0], { steps: rules.steps_per_tick, most_ms: rules.most_ms_per_tick });
+  assert.equal(log.at(-1).device_copy_merged.done, true);
+  assert.equal(log.at(-1).device_copy_merged.pages, 7);
+  ticker.soon(); queued.shift().run();
+  assert.equal(log.length, 2, 'a settle that finds nothing to merge logs nothing');
+});
+
+test('the ticker does not merge while the process is over its memory ceiling, and says so once', () => {
+  let called = 0;
+  const log = [];
+  const ticker = mergeTicker({ copy: { mergeSome: () => { called += 1; return { pages: 0, more: false, runs: 1, steps: 1 }; } }, rules,
+    log: entry => log.push(entry), timers: { setTimeout: () => 1 }, rss: () => rules.rss_ceiling_mb + 1 });
+  ticker.tick(); ticker.tick();
+  assert.equal(called, 0);
+  assert.equal(log.length, 1);
+  assert.ok(log[0].device_copy_merge_waits);
+});
+
+test('a merge that throws is logged and does not stop the helper', () => {
+  const log = [];
+  const ticker = mergeTicker({ copy: { mergeSome: () => { throw new Error('synthetic disk full'); } }, rules, log: entry => log.push(entry), timers: { setTimeout: () => 1 }, rss: () => 100 });
+  ticker.tick();
+  assert.match(log[0].device_copy_merge_failed, /synthetic disk full/);
+});

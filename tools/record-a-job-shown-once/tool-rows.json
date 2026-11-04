@@ -118,7 +118,24 @@
         "result_selector": "$.result",
         "provenance": {
           "source": "Moved from Trillion-X/trillion demonstration (computer/, deleted in dc79bb0a87)"
-        }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "seconds": 5
+            },
+            "laid_files": [
+              {
+                "path": "/opt/record-a-job-shown-once/read-data/demonstration.json",
+                "text": "{\"_what\":\"How read-data/demonstration.mjs (tool:record-a-demonstration) turns a short, bounded recording of what the person does on this Mac into a draft workflow for save_workflow. The recording is made by do-work/demonstration-recorder.swift (listen only; needs Input Monitoring, and Accessibility to name what was clicked). Typed text in a secure field is never recorded. The gates are the person's grant of the row's capability to this tool and the Mac's own Input Monitoring permission. Every word of a step is a template here.\",\"driver\":{\"program\":\"demonstration-recorder\",\"script\":\"../do-work/demonstration-recorder.swift\"},\"default_seconds\":30,\"most_seconds\":300,\"most_events\":400,\"most_steps\":60,\"text_chars\":200,\"stop_key_code\":53,\"steps\":{\"click\":\"In {app}, click {target}.\",\"right_click\":\"In {app}, right-click {target}.\",\"type\":\"In {app}, type: {text}\",\"chord\":\"In {app}, press {keys}.\",\"key\":\"In {app}, press {keys}.\",\"secret\":\"In {app}, type the secret the person supplies (it was not recorded).\"},\"draft\":{\"id_prefix\":\"workflow:demonstrated-\",\"label\":\"A job shown once\",\"job\":\"Repeat the job the person showed on this Mac, step by step\",\"submit\":{\"type\":\"object\",\"required\":[\"done\"],\"properties\":{\"done\":{\"type\":\"string\",\"description\":\"What was done in this step\"}}}},\"words\":{\"needs_input_monitoring\":\"This Mac has not given Input Monitoring to the program that records. The person turns it on in System Settings > Privacy & Security; this is a Mac permission, separate from the person's yes in Trillion.\",\"nothing\":\"Nothing was recorded in that time. Ask the person to show the job again.\",\"ended\":{\"time\":\"The time was up.\",\"stop_key\":\"The person pressed the stop key.\",\"most_events\":\"The recording reached its most events.\"}}}"
+              }
+            ],
+            "stand_in_programs": {
+              "demonstration-recorder": "cat >/dev/null\nprintf '%s\\n' '{\"ended\":\"stop_key\",\"secrets_skipped\":0,\"events\":[{\"event\":\"click\",\"app\":\"Notes Example\",\"at\":0.4,\"title\":\"New Note\",\"role\":\"AXButton\"},{\"event\":\"key\",\"app\":\"Notes Example\",\"at\":1.1,\"key_code\":0,\"text\":\"H\"},{\"event\":\"key\",\"app\":\"Notes Example\",\"at\":1.2,\"key_code\":34,\"text\":\"i\"},{\"event\":\"chord\",\"app\":\"Notes Example\",\"at\":2,\"key_code\":1,\"text\":\"s\",\"modifiers\":[\"command\"]}]}'"
+            }
+          }
+        ]
       }
     }
   ]

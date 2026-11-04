@@ -1,0 +1,133 @@
+{
+  "kind": "walkthrough-definition",
+  "id": "whats-new-2026-10-04-one-place-to-book",
+  "revision": 1,
+  "order": 6,
+  "title": "Every session is booked in one place",
+  "summary": "A booking link from your email now opens Book a session: a month of open days, the day's times beside it, and your booked session to move or cancel right there.",
+  "entry_step": "intro",
+  "progress_style": {
+    "style": "segmented"
+  },
+  "look": {
+    "targeting": {
+      "retry_timeout_ms": 6000,
+      "retry_interval_ms": 100,
+      "scroll_behavior": "smooth",
+      "scroll_block": "center",
+      "scroll_inline": "nearest"
+    }
+  },
+  "triggers": [
+    {
+      "reason": "changed-since-first-tour",
+      "on_event": {
+        "event_kind": "app-opened"
+      },
+      "once_key": "whats-new-2026-10-04-one-place-to-book",
+      "requires": [
+        {
+          "once_key": "first-run",
+          "consumed_before": "2026-10-04T21:00:00Z"
+        }
+      ]
+    },
+    {
+      "reason": "replay",
+      "on_event": {
+        "event_kind": "walkthrough-requested",
+        "match": {
+          "walkthrough_id": "whats-new-2026-10-04-one-place-to-book"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "id": "intro",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Book, move and cancel in one place",
+          "body": "The link in a booking email opens Book a session, the same screen as in your sidebar. Pressing Book this time says Booking… then Booked inside the button, and a paid session goes to checkout before a time is kept."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "advance",
+            "label": "Show me"
+          }
+        ]
+      }
+    },
+    {
+      "id": "calendar",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Pick a day, then a time",
+          "body": "Days with open times are lit. Choose one and its times show beside it, in your own time zone."
+        }
+      },
+      "target_ref": {
+        "from": "selector",
+        "query": ".time-slot-picker"
+      },
+      "cutout": {
+        "shapes": [
+          {
+            "shape": "rounded-rect",
+            "padding": 8,
+            "radius": 12
+          }
+        ]
+      },
+      "placement": {
+        "prefer": "right",
+        "auto_flip": true,
+        "gap": 14
+      },
+      "target_preparation": {
+        "surface": {
+          "id": "trillion.book"
+        }
+      },
+      "centered_when_target_missing": true,
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Next"
+          }
+        ]
+      }
+    },
+    {
+      "id": "move",
+      "content": {
+        "content_kind": "text",
+        "payload": {
+          "title": "Move it from the same screen",
+          "body": "Once you have booked, Move to another time opens the open times again here. Cancel frees the time, and you can pick another."
+        }
+      },
+      "nav": {
+        "buttons": [
+          {
+            "role": "back",
+            "label": "Back"
+          },
+          {
+            "role": "advance",
+            "label": "Done"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-carried-automation-owner.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-the-connections-and-automations-my-computers-carry-keeping/src/native-carried-automation-owner.mjs",
+      "source_identity": "1f:965e00b45e944847bcb3c7b2cc43c5194ad1de733cabac1eba4c2731f90409aa",
+      "identity": "1f:a0f99dab048ac54cd19e312b97c8a60479610ed7cbcb446ef8fa662c387c7c09"
+    }
+  ]
+}

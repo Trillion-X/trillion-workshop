@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-browser-work-adapter.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-my-browser-start-and-follow-ai-work/src/native-browser-work-adapter.mjs",
+      "source_identity": "1f:9b5ad037d8407487e782d2189eff143016a6614689cc4b014fcae193670a6b78",
+      "identity": "1f:9b5ad037d8407487e782d2189eff143016a6614689cc4b014fcae193670a6b78"
+    }
+  ]
+}

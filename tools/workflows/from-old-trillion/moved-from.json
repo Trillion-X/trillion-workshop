@@ -1,0 +1,33 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on with no home and no backlog row, moved here byte for byte from the parent of the commit that deleted each (commit; deleted_by names the deleting commit). Nothing here is rewritten: a file waits here for its wiring, under its old path, so the files keep importing each other as they did. A redaction replaces a real person's name or address with a made-up one, and is listed on the file; source_identity is the BLAKE3 identity of the bytes at commit, identity of the bytes here.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "methods/quintillion-mode.md",
+      "commit": "0d856be2c912876e3464d89471045f8e410c5833",
+      "deleted_by": "8f4c58b762",
+      "to": "tools/workflows/from-old-trillion/methods/quintillion-mode.md",
+      "source_identity": "1f:4379253502db2f752fb38ea3154ab44ba77cf0cec2d8be285e8e5b2b6ad6cd2d",
+      "identity": "1f:4379253502db2f752fb38ea3154ab44ba77cf0cec2d8be285e8e5b2b6ad6cd2d"
+    },
+    {
+      "from": "records/quintillion-mode-records.json",
+      "commit": "0d856be2c912876e3464d89471045f8e410c5833",
+      "deleted_by": "8f4c58b762",
+      "to": "tools/workflows/from-old-trillion/records/quintillion-mode-records.json",
+      "source_identity": "1f:37878c473d8a74ca2beb33e551a828279829dbe203d063f3a656adb035cb2b22",
+      "identity": "1f:37878c473d8a74ca2beb33e551a828279829dbe203d063f3a656adb035cb2b22"
+    },
+    {
+      "from": "test/quintillion-modes.test.mjs",
+      "commit": "0d856be2c912876e3464d89471045f8e410c5833",
+      "deleted_by": "8f4c58b762",
+      "to": "tools/workflows/from-old-trillion/test/quintillion-modes.test.mjs.held",
+      "source_identity": "1f:cd93ff1b663686532e02d1cb1c49876aadace6bd82b6485d433cb40bf28c9ea4",
+      "identity": "1f:cd93ff1b663686532e02d1cb1c49876aadace6bd82b6485d433cb40bf28c9ea4",
+      "held": "renamed from .test so the Workshop suite does not run it before its wiring: ERR_MODULE_NOT_FOUND"
+    }
+  ]
+}

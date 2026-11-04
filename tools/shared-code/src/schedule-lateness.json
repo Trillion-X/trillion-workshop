@@ -1,0 +1,8 @@
+{
+  "_what": "How late a recurring run may be and still count as its own time (src/schedule-lateness.mjs, read by src/automations.mjs when a schedule's run starts). The grace is `grace_fraction` of the schedule's period, never under `grace_min_seconds` and never over `grace_max_seconds`, so a daily schedule still counts a run after a long outage as late while a schedule every few minutes does not. A run within `on_time_seconds` of its time is on time (ticker slack, not downtime); within the grace it is late; beyond it, it is a catch-up: the run still happens once, and the times missed in between are not replayed. The class is kept on the schedule's last_run, so a missed stretch is said, not silent.",
+  "on_time_seconds": 300,
+  "grace_fraction": 0.5,
+  "grace_min_seconds": 120,
+  "grace_max_seconds": 7200,
+  "classes": { "on_time": "on_time", "late": "late", "catch_up": "catch_up" }
+}

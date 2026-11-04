@@ -46,7 +46,8 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [{"kind":"sample-run","input":{"calls":[{"name":"read_note","args":{"title":"Plan"}},{"name":"read_note","args":{"title":"Plan"}},{"name":"read_note","args":{"title":"Plan"}},{"name":"list_notes","args":{}}]}}]
       }
     }
   ]

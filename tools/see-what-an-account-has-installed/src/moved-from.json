@@ -1,0 +1,16 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/marketplace-trust.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-what-an-account-has-installed/src/marketplace-trust.json",
+      "source_identity": "1f:0fd271274668b624a260abf67aac0d3374378ea46d871cd045b1e6237c89c635",
+      "identity": "1f:0fd271274668b624a260abf67aac0d3374378ea46d871cd045b1e6237c89c635",
+      "reused": true
+    }
+  ]
+}

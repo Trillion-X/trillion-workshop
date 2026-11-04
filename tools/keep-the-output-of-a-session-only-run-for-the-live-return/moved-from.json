@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/native-terminal-retention.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-output-of-a-session-only-run-for-the-live-return/src/native-terminal-retention.mjs",
+      "source_identity": "1f:f6d0a24192ca4af220cfe526e36623b2a0d6840b93f14f2af0cfe4c25860af1d",
+      "identity": "1f:53f4b81054d8c4107dafd9a4cfffb033bf831d1bea33e5f114e098ff00640f40"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/queued-work.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-a-button-press-like-ask-my-ai/src/queued-work.json",
+      "source_identity": "1f:44f0ec404a5584f112ba1759265cba45a16574dfc136f5aa1faf1a1207daa466",
+      "identity": "1f:44f0ec404a5584f112ba1759265cba45a16574dfc136f5aa1faf1a1207daa466"
+    },
+    {
+      "from": "src/queued-work.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/turn-a-button-press-like-ask-my-ai/src/queued-work.mjs",
+      "source_identity": "1f:2a1bf6aeec3289cc33b7a07294259780eded70aafbccdc05f50bdd79e7ac8683",
+      "identity": "1f:7554ca01a8b5bf6e691a2a2eccbf91951221dec665188a5fc64b887ec5c19949"
+    }
+  ]
+}

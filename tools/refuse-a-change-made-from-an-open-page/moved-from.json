@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/kept-answers.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refuse-a-change-made-from-an-open-page/src/kept-answers.mjs",
+      "source_identity": "1f:6ab408c6f19b13477bf50fc44882ae4822ca32de4c846b6cf839ff735f69af81",
+      "identity": "1f:8709a2724b540dad7914ee7ba209c698ab0b3089fb1dd0ce6ccc04ba60cf4110"
+    },
+    {
+      "from": "src/page-account.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refuse-a-change-made-from-an-open-page/src/page-account.json",
+      "source_identity": "1f:769f85c983e7a170bfb1f4a9e41bfc1a746212fd96ee514a14f43f4c32ff3d3f",
+      "identity": "1f:769f85c983e7a170bfb1f4a9e41bfc1a746212fd96ee514a14f43f4c32ff3d3f"
+    },
+    {
+      "from": "src/page-account.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refuse-a-change-made-from-an-open-page/src/page-account.mjs",
+      "source_identity": "1f:ac3962263a8c990492a5f391e9bc1b138298a56866ba09ef12e177feee3d8067",
+      "identity": "1f:ac3962263a8c990492a5f391e9bc1b138298a56866ba09ef12e177feee3d8067"
+    },
+    {
+      "from": "test/page-account.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refuse-a-change-made-from-an-open-page/test/page-account.test.mjs",
+      "source_identity": "1f:2a396bbe0cab83ae5d49022b33caa7c68f006e0404451ee0039e14165efad7d7",
+      "identity": "1f:2a396bbe0cab83ae5d49022b33caa7c68f006e0404451ee0039e14165efad7d7"
+    }
+  ]
+}

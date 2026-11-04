@@ -1,0 +1,15 @@
+{
+  "_what": "The Recent screen's rules, read by its owner (src/recent-files.mjs) and by the page (src/workspace/recent-screen.tsx and the one-file screen that reports uses, src/workspace/file-screen.tsx). A use is DATA: which file and what happened, one short word from an open set. `words` only says how a word reads on screen; a word with no row here reads as itself with its first letter raised and dashes as spaces, so a new kind of use needs no row at all. `keep` is how many files each person's list holds; the file used longest ago leaves first. `list_default` and `list_max` bound one read. `watched_seconds` is how long a recording must really play (seeking does not count) before it counts as watched. `repeat_minutes`: the same file and word again from one page within this many minutes is not sent again, so a kept tab drawn again is not a new use. `kind_pattern` is what a word may look like.",
+  "keep": 2000,
+  "list_default": 100,
+  "list_max": 500,
+  "watched_seconds": 5,
+  "repeat_minutes": 30,
+  "kind_pattern": "^[a-z][a-z0-9-]{0,39}$",
+  "words": {
+    "opened": "Opened",
+    "watched": "Watched",
+    "edited": "Edited",
+    "published": "Published"
+  }
+}

@@ -1,0 +1,409 @@
+{
+  "what_this_is": "The jobs a button in the Trillion app can ask the person's own AIs to do, read by src/queued-work.mjs. A press keeps one record of kind `record_kind`; the person's rules over that kind decide which of their AIs is handed it (records/starting-rules.json starts every account with one that hands it to whichever AI takes it first). Trillion never runs a model for these. Per job: `id` (what a button names), `label` (the button's words), `said` (the work as the person sees it wherever it shows, on their notifications and AI work: their own words or a plain title, never a tool name or the AI's instructions, with {name} filled from the press's context), `job` (what the AI is asked, with {name} filled from the press's context and {label} from the label), and `context` (every value the press must send, each a short line of text such as an id or a title; a name listed in `optional_context` may be sent empty, and the job's words then read it as nothing). A new button job is one row here; nothing that keeps or routes it changes. `words` are what the screen says after a press: `done` when a paid plan kept the job for the person's rules to hand on, `held` when a plan that keeps nothing holds it for an hour for the AI connected now, then deletes it (src/live-work.mjs), and `connect_first` when no AI is connected yet, which opens the step that connects one.",
+  "record_kind": "asked",
+  "context_max": 300,
+  "press_key_max": 100,
+  "steps": {
+    "_what": "What the person did on the page just before pressing (parts/ui/show/recent-steps), sent with any press as `steps`: each { at, kind, label, where }. Kept with the record and added to the job's words, so the AI sees the path that led to the request. A step that is not one line of text, or is longer than its max, is left out; never more than `max`.",
+    "max": 40,
+    "kind_max": 40,
+    "label_max": 120,
+    "where_max": 300,
+    "heading": "What the person did on the page just before asking, oldest first (their own steps; nothing they typed is included):",
+    "line": "- {at} {kind}: {label} (on {where})"
+  },
+  "jobs": [
+    {
+      "id": "change-what-i-pointed-at",
+      "label": "Ask my AI to change it",
+      "said": "Change what I pointed at on {page}",
+      "job": "The person pointed at one element on their Trillion screen {page} and asked: {request}. The element as it was rendered (its selector, words, attributes, place and computed styles) is {selection}. Work out what the change is about. If it is how every element like it looks (a colour, a corner, a font, a size), change the person's look: read it with read_look, change the token with save_look, and say which token you changed. If it is the person's own content shown there (a title, a list's columns or rows, a note, a layout), change those records with the tools that keep them (put_list_rows, save_list, save_layout and the like) and open what you changed. If it can only be done by changing Trillion itself, say so plainly with the element's selector and the exact change, so it reaches the people who build Trillion. Finish with finish_work saying what changed and where to see it.",
+      "context": [
+        "page",
+        "selection",
+        "request"
+      ],
+      "multiline_context": [
+        "selection",
+        "request"
+      ],
+      "context_max": 8000
+    },
+    {
+      "id": "edit-public-app-selection",
+      "label": "Ask my AI to edit",
+      "said": "Edit the selected element in my public app",
+      "job": "The person selected an element in public app installation {installation_id} and asked: {request}. The selected rendered element is {selection}. Its saved draft revision is {revision}. Read the installation and draft first. Treat this selection as rendered-page context, not proof of an original source file. If the person has connected the original project, locate one current source file and element unambiguously, verify its revision, make the targeted edit through that project's supported source adapter, build and read back the changed page. If no original project or unique source location can be verified, say exactly what is unsupported or ambiguous; do not claim that changing imported HTML changed the original project. If the requested change is to the installed HTML/CSS draft itself, use edit_public_app_draft with the current expected revision and verify the draft. Finish with the changed files, saved version, visible result, and any behavior that could not be preserved.",
+      "context": [
+        "installation_id",
+        "revision",
+        "selection",
+        "request"
+      ],
+      "multiline_context": [
+        "selection",
+        "request"
+      ],
+      "context_max": 8000
+    },
+    {
+      "id": "look-into-goal",
+      "label": "Ask my AI to look into this",
+      "said": "Look into my goal \"{title}\"",
+      "job": "The person pressed \"{label}\" on their goal \"{title}\" (pursuit {pursuit_id}) in the Trillion app. Read it with list_pursuits: where it stands now and where they want it to get. Find the single move that would take it furthest this week, weigh it against their other pursuits, and do as much of it yourself as you can. Then finish_work with what you found, what you did, and the one thing left for them, if any.",
+      "context": [
+        "pursuit_id",
+        "title"
+      ]
+    },
+    {
+      "id": "pick-needle-mover",
+      "label": "Have my AI pick",
+      "said": "Pick my biggest needle mover",
+      "job": "The person pressed \"{label}\" on their Trillion Home, where none of their {count} pursuits is marked as their biggest needle mover. Work out which one it is right now: the one that, done, moves the others most and serves the greater good of humanity furthest. Read their pursuits with list_pursuits, their map with read_awareness (what each pursuit serves and lives, and what none of them touch), their decisions and recent files, then record it with record_pursuits by sending that pursuit whole with needle_mover set to true (and any other that has it, with needle_mover false). Then finish_work with why, in one sentence.",
+      "context": [
+        "count"
+      ]
+    },
+    {
+      "id": "brief-me-on-goal",
+      "label": "Brief me on this",
+      "said": "Brief me on \"{title}\"",
+      "job": "The person pressed \"{label}\" on their goal \"{title}\" (pursuit {pursuit_id}) in the Trillion app. Start the workflow for purpose \"research-brief-and-study\" with start_workflow (purpose \"research-brief-and-study\"), subject \"{title}\" and pursuit_id {pursuit_id}, and since_briefing set to the newest file under /Briefings/ for this goal when there is one (list_files). Carry it through every step with the person, share nothing without their approval of the exact words, and finish_work with the briefing's file name, how many questions they answered and whether anything was shared.",
+      "context": [
+        "pursuit_id",
+        "title"
+      ]
+    },
+    {
+      "id": "introduce-person",
+      "label": "Ask my AI to introduce us",
+      "said": "Introduce me to {name}",
+      "job": "The person pressed \"{label}\" next to {name}, a member of their space {space_id}, in the Trillion app. Work out from their pursuits (list_pursuits) and what the space holds (read_space) why the two of them should talk and what each could give the other. Draft a short, specific introduction and show it to the person. Send nothing to {name} until the person approves the exact words; then add it to the space with add_to_space. Finish with finish_work saying what you drafted and whether it was sent.",
+      "context": [
+        "name",
+        "space_id"
+      ]
+    },
+    {
+      "id": "decide-space-item",
+      "label": "Ask your AI to decide this",
+      "said": "Decide what to do about an item in a pursuit",
+      "job": "The person pressed \"{label}\" on item {item_id} in space {space_id}. Read that exact item and its conversation with read_space, then use Trillion to decide the next action in light of the person's pursuits. Do what you can now, and finish_work with the decision and result. Keep the item and space IDs in the result so this work remains linked to the source message.",
+      "context": [
+        "space_id",
+        "item_id"
+      ]
+    },
+    {
+      "id": "make-funnel",
+      "label": "Ask my AI to make this funnel",
+      "said": "Make my {name} funnel",
+      "job": "The person pressed \"{label}\" in the empty Funnels screen. Build their sales funnel in their Trillion files as /Funnels/{name}.json using their real offers, prices and records. Use the funnel-graph shape described by the existing Funnels screen, leave facts_file out when there are no records, and finish_work with the file path and what you measured.",
+      "context": [
+        "name"
+      ]
+    },
+    {
+      "id": "draft-post",
+      "label": "Ask my AI to draft a post",
+      "said": "Draft a post",
+      "job": "The person pressed \"{label}\" on their {screen} screen, which has no post yet. See where they can post with list_post_destinations (give them a connect link for a place they want that is not connected). Pick a video or picture from their files that moves one of their pursuits forward (list_pursuits, list_media), read how they write with read_voice, write the words the way they write, and keep it with draft_post. Fix everything its ready answer says is missing for each place, then show them the draft. Approve nothing yourself; finish_work with the post_id and where it is going.",
+      "context": [
+        "screen"
+      ]
+    },
+    {
+      "id": "fix-post",
+      "label": "Ask my AI to fix this post",
+      "said": "Fix a post so it is ready everywhere it is going",
+      "job": "The person pressed \"{label}\" on post {post_id} in their Posts screen, which is not ready for every place it is going. Read what is missing with check_post, then fix each place with draft_post (caption_by_platform for words too long, settings_by_platform for a setting such as a title, media for a file a place does not take, media_facts for a video's length or size you know). Check again until every place is ready, show the person the changes, and finish_work with what you changed. Approve and publish nothing yourself.",
+      "context": [
+        "post_id"
+      ]
+    },
+    {
+      "id": "post-in-my-voice",
+      "label": "Ask my AI to write it like me",
+      "said": "Rewrite a post in the person's own voice",
+      "job": "The person pressed \"{label}\" on post {post_id} in their Posts screen. Read how they write with read_voice (kind post): the saved profile, their recent edits to words an AI wrote (before and after), and posts they sent. Rewrite post {post_id}'s words the way they write, keep it with draft_post (same post_id), and show them the change. Approve and publish nothing yourself. If their edits show something the profile lacks, save it with save_voice. Finish with finish_work saying what you changed.",
+      "context": [
+        "post_id"
+      ]
+    },
+    {
+      "id": "rework-post",
+      "label": "Ask my AI to rework it",
+      "said": "Rework a post the way the person asked",
+      "job": "The person pressed \"{label}\" on post {post_id} in their Posts screen and asked: {how}. Read the post, then rework its words as asked, keeping its meaning and what it links to. When the change is about their voice, read read_voice first and write the way it shows. Keep the result with draft_post (same post_id), approve and publish nothing, and finish with finish_work saying what you changed.",
+      "context": [
+        "post_id",
+        "how"
+      ]
+    },
+    {
+      "id": "learn-my-voice",
+      "label": "Ask my AI to learn how I write",
+      "said": "Learn how the person writes",
+      "job": "The person pressed \"{label}\" on their {screen} screen. Read read_voice: their edits to words an AI wrote, the posts they sent, and any profile saved so far. Work out how they write from what they changed and what they sent, in their own terms, and keep it with save_voice (one profile per kind of writing; use the fields read_voice lists). Finish with finish_work saying what you learned and what it was based on, in a few lines they can correct.",
+      "context": [
+        "screen"
+      ]
+    },
+    {
+      "id": "canvas-follow-up",
+      "label": "Send follow-up to my AI",
+      "said": "{words}",
+      "job": "The person wrote this on {source_kind} {source_id} in their work map: {words}. Read the linked item and the source behind it, do what they asked, and report what changed. Keep the result connected to this request.",
+      "context": [
+        "source_id",
+        "source_kind",
+        "words"
+      ],
+      "multiline_context": [
+        "words"
+      ],
+      "context_max": 8000
+    },
+    {
+      "id": "hand-recording",
+      "label": "Send my recording to my AI",
+      "said": "Work through my recording",
+      "job": "A recording of mine is in my files (my voice, a video, a meeting or a dictation, from any device). Its known content identity is {audio_identity}; its name is {audio_file}. Its duration in minutes, if supplied: {minutes}. Its transcript file, if supplied: {transcript_file}. When audio_identity is supplied, use it directly for all reads and results; otherwise find_file by the exact recording path {audio_file}, confirm its returned names include that exact path and keep the returned content identity for every result below. If it cannot be found or the exact name does not match, do not attach results to another file; finish_work with that limitation. Read_file_results for this identity and kinds summary and action-items before working. Reuse each saved result as-is on a retry; never replace it with a fresh or guessed value. For every summary or action-items record_file_results row, set only_if_absent to true. The result owner atomically refuses a different value already saved for the same immutable file, including its aliases; an identical retry succeeds unchanged. A late overlapping review may fill a still-missing kind, but cannot replace a saved result. Without asking me: read all of the transcript, using the supplied transcript file when present and otherwise the transcript result for this exact identity, and work out who is speaking and what it is (a meeting, a note to myself, an idea, or a casual clip with nothing to act on). Decide which of my pursuits and which of my shared spaces it belongs to, if any (list_pursuits), and share the transcript with a short summary into each space it belongs to (share_to_space, add_to_space), so everyone there has it. Turn every request, decision and action item in it into work: do what you can now, and hand_off each other part to the AI or person it belongs to. If it is footage that fits a content format I have approved a post in before (list_posts: an approved, scheduled or posted post with that format_id; content_formats for the format's spec), make a new post from it in that same format the way the approved ones were made (cut, reframe, captions, words, to the same places) and keep it with draft_post and that format_id, as a draft for me to review; approve and publish nothing yourself. A recording with nothing to act on is kept as context. Parts of it may already have been acted on while I was still recording: read_handoff lists those as jobs said 'Act on \"...\"' with their results; never redo one, build on it. For video footage, start_workflow with purpose \"find-moments-in-a-recording\" with file set to the recording's content identity, and carry it through the saved moments and content result. Read the pictures as well as the words; a transcript alone proves nothing about what is seen. Reuse existing moment rows and finished content work rather than repeating them. When the analysis is complete, record only missing result kinds for this exact identity with record_file_results: summary is a concise account of what the recording actually says and action-items is the complete list of requests, decisions and actions found. Use your actual findings, not inferred content. Save an empty action-items list only when you completed the full review and found none; if you could not read or analyze the source, leave that result absent and report the failure. Never replace a result already present. Include produced_by only when you know the actual producing AI or tool; never invent an attribution. Then finish_work with what you did and where each part went. If calendar_context is present ({calendar_context}), this recording was opened from that event. Keep its event identity and pursuit with the meeting notes and action items; verify the people and source before sharing anything. If summary_template is present, write the summary result the way it asks: {summary_template}. If summary_language is present, write the summary and action items in {summary_language}.",
+      "context": [
+        "minutes",
+        "audio_file",
+        "transcript_file",
+        "calendar_context",
+        "audio_identity",
+        "summary_template",
+        "summary_language"
+      ],
+      "optional_context": [
+        "calendar_context",
+        "minutes",
+        "transcript_file",
+        "audio_identity",
+        "summary_template",
+        "summary_language"
+      ],
+      "multiline_context": [
+        "summary_template"
+      ],
+      "context_max": 2000
+    },
+    {
+      "id": "hand-script-recording",
+      "label": "Send my recording to my AI",
+      "said": "Turn my recording into a {format_label}",
+      "job": "I recorded a {minutes}-minute recording (my voice, or a video of me) in the Trillion app reading my {format_label} script about: {about}. The recording is {audio_file} and the script with what I said is in {transcript_file}, both in my files (read_file). {source_reference} Turn it into that {format_label}, in my words, save it to my files and finish_work with where it is.",
+      "context": [
+        "minutes",
+        "audio_file",
+        "transcript_file",
+        "format_label",
+        "about",
+        "source_reference"
+      ],
+      "optional_context": [
+        "source_reference"
+      ]
+    },
+    {
+      "id": "hand-take",
+      "label": "Send my take to my AI",
+      "said": "Make my take into a post: {about}",
+      "job": "I recorded a {minutes}-minute take in the Trillion app, reading the script of row {row_id} of my list {list_id} ({about}); the next take came up straight after, so I am not waiting on you. The recording is {audio_file} and the script with what I said is in {transcript_file}, both in my files (read_file). Without asking me: make it into a post the way my approved posts in the content format that row names (or the one that fits best among the formats I approved posts in: list_posts, content_formats) were made, from this recording, with captions in that format's caption style, and keep it with draft_post and that format_id as a draft for me to review; approve and publish nothing. Then set that row (put_list_rows on {list_id}) to show it is made and waiting for my review, using the row's own fields and choices (read_list), and finish_work with the post_id.",
+      "context": [
+        "minutes",
+        "audio_file",
+        "transcript_file",
+        "about",
+        "list_id",
+        "row_id"
+      ]
+    },
+    {
+      "id": "hand-recording-about-share",
+      "label": "Send my recording to my AI",
+      "said": "Do what I asked with my recording about what I shared",
+      "job": "I shared something to Trillion and recorded myself about it: a {minutes}-minute recording (my voice, or a video of me). The recording is {audio_file} and what I said is in {transcript_file}. What I shared, what I asked you to do with it (job, saved_instructions, own_words), where it should go (spaces) and which AI should take it (to_agent) are in {share_file}. Read all three (read_file). If to_agent names another of my AIs, hand_off this whole job to it with these three files and stop. Otherwise do what I asked with the recording and the share together, without asking me (for example: edit the video with my saved workflow and post it, find_workflow and find_tool_for_job for how), save what you make to my files, and finish_work with what you did and where it is.",
+      "context": [
+        "minutes",
+        "audio_file",
+        "transcript_file",
+        "share_file"
+      ]
+    },
+    {
+      "id": "hand-corrected-transcript",
+      "label": "Send my corrected words to my AI",
+      "said": "Use my corrected words for my voice memo",
+      "job": "I corrected the words of my recording made in the Trillion app. The recording is {audio_file} and the corrected words are now in {transcript_file}, in my files (read_file). {source_reference} Use these words instead of the earlier transcript for any work on this recording, and finish_work with what changed.",
+      "context": [
+        "audio_file",
+        "transcript_file",
+        "source_reference"
+      ],
+      "optional_context": [
+        "source_reference"
+      ]
+    },
+    {
+      "id": "write-in-page",
+      "label": "Ask AI",
+      "said": "Write in my page: {ask}",
+      "job": "The person is writing a page in Trillion's Write and asked you, right where they are writing: {ask}\nHow they want you to write: {instructions}\nThe page's title: {title}\nWhat the page says before that spot:\n{body}\nWrite only the finished words that go into the page there, in plain paragraphs (markdown headings, bullets and dividers are fine), with no questions back, no offers and nothing about yourself. Then finish_work with result { \"show\": [{ \"title\": \"Write\", \"text\": <exactly those words> }] }: the page places that text where they asked.",
+      "context": [
+        "ask",
+        "instructions",
+        "title",
+        "body"
+      ],
+      "optional_context": [
+        "instructions",
+        "title",
+        "body"
+      ],
+      "multiline_context": [
+        "ask",
+        "instructions",
+        "body"
+      ],
+      "context_max": 8000
+    },
+    {
+      "id": "write-in-format",
+      "label": "Have my AI write it",
+      "said": "Write this as a {format_label}: {about}",
+      "job": "Write this out as a {format_label} in my own voice, part by part: {about}. The format's parts, in order:\n{parts}\nSave it to my files, then finish_work with result { \"show\": [{ \"title\": \"{format_label}\", \"text\": <the whole script, part by part> }] } and where you saved it in the summary, so the script shows where I asked for it.",
+      "context": [
+        "format_label",
+        "about",
+        "parts"
+      ],
+      "multiline_context": [
+        "parts"
+      ],
+      "context_max": 4000
+    },
+    {
+      "id": "do-card-job",
+      "label": "Hand this to my AI",
+      "said": "{title}",
+      "job": "The person pressed \"{label}\" on the job card \"{title}\" in the Trillion app. Do this for them now, with Trillion's tools and what you know of their pursuits (list_pursuits): {request} Then finish_work with what you did and the one thing left for them, if any.",
+      "context": [
+        "title",
+        "request"
+      ]
+    },
+    {
+      "id": "tidy-files",
+      "label": "Ask my AI to tidy these",
+      "said": "Tidy these files in {folder}",
+      "job": "The person pressed \"{label}\" on these files in their Trillion files, in the folder {folder}:\n{names}\nFor each file, read what is already known about it (read_file_results: its transcript, summary, facts); for one with nothing known yet, transcribe or summarize it first and record_file_results. Then propose_file_tidy with a short plain title for what each file is and, where it clearly belongs somewhere, the folder to move it into (an existing folder when one fits, list_files), citing in evidence the results each suggestion comes from. Suggest only what those results say. The person accepts or rejects each on their Tidy up screen; nothing moves until they do. finish_work with how many you suggested and any file you could not.",
+      "context": [
+        "folder",
+        "names"
+      ],
+      "multiline_context": [
+        "names"
+      ],
+      "context_max": 8000
+    },
+    {
+      "id": "board-make-pictures",
+      "label": "Make pictures with my AI",
+      "said": "Make pictures for {space_title}: {what}",
+      "job": "The person pressed \"{label}\" on the board of the space \"{space_title}\" (space_id {space_id}) and asked for pictures of: {what}\nWhat is on the board now: {items}\nMake them with your own image tools (ChatGPT image generation, Ideogram or any other you can use), a few distinct takes unless they asked for a number. Keep each picture in their Trillion files with write_file, then share each into the space with share_to_space (space_id {space_id}, file): every picture shared into the space appears on its board for everyone in it. Then finish_work with what you made and where.",
+      "context": [
+        "space_id",
+        "space_title",
+        "what",
+        "items"
+      ],
+      "context_max": 2000
+    },
+    {
+      "id": "board-act-on-selection",
+      "label": "Ask my AI",
+      "said": "{what} ({space_title})",
+      "job": "On the board of the space \"{space_title}\" (space_id {space_id}) the person chose: {items}\nThey asked: {what}\nRead the space with read_space and any picture with read_shared_file (each \"space item\" above is an item_id in that space). Do it yourself with your own tools and Trillion's: for a post, draft_post with the picture and words, sent to the accounts it belongs on (list_post_destinations), approved and published as they asked; for anything else, the tools the job needs. Put what you make back in the space with add_to_space or share_to_space, so it shows on the board. Then finish_work with what you did and where it went.",
+      "context": [
+        "space_id",
+        "space_title",
+        "what",
+        "items"
+      ],
+      "context_max": 2000
+    },
+    {
+      "id": "act-on-live-words",
+      "label": "Act on what was just said",
+      "said": "Act on \"{heading}\"",
+      "job": "I am recording right now (a meeting, a call or a note to myself) and these words were just said: \"{words}\". What was said just before: \"{earlier}\". Recording started {started}. Without waiting for the recording to finish, decide whether these words call for a concrete piece of work worth starting now, during the meeting. They do only when someone asks for or commits to something specific, or names a company, person or product that is worth looking up for what is being discussed, or describes a feature or change someone wants built, or someone should be contacted. Then do it at once and keep it short so I see it during the meeting: research what was named, start building or speccing what was discussed, draft the outreach or follow-up, or note the commitment with who owns it; hand_off any part that belongs to another AI or person. Opinions, brainstorming, agreement, small talk, private remarks and anything already acted on earlier in this recording ({already}) are nothing to act on: then finish_work with result \"nothing to act on\" and do nothing else. Finish_work with what you did in one or two plain sentences: I see it beside the live words. The whole recording and its transcript arrive later as their own job; work finished here is done, do not repeat it there.",
+      "context": [
+        "heading",
+        "words",
+        "earlier",
+        "already",
+        "started"
+      ],
+      "multiline_context": [
+        "words",
+        "earlier",
+        "already"
+      ],
+      "context_max": 4000
+    },
+    {
+      "id": "set-up-free-models",
+      "label": "Set up free AI on my device",
+      "said": "Set up free AI models on my device",
+      "job": "The person pressed \"{label}\" to have free AI models on their device. Run tool:get-free-models with no input to see the device's chip, memory and free space and the models that fit, then run it again with get \"fitting\" to download every model that fits and is missing (it puts the model server on the device first when needed). Downloads take minutes; wait for the run with read_task. If one could not be got, say why in plain words, and ask the person to do something only when nothing else works. Finish with finish_work naming the models now on their device and what each is for.",
+      "context": [],
+      "context_max": 200
+    },
+    {
+      "id": "ask-my-ai",
+      "label": "Have my AI do this",
+      "said": "{title}",
+      "job": "The person pressed \"{label}\" in the Trillion app at {page}, where they met this: {title}. More about it: {request}. Work out what happened with your Trillion tools (read_activity with failed true for what did not work, and the records that screen reads), then fix it, or do what the person was trying to do another way. Send nothing outside Trillion without the person's approval of the exact words. Finish with finish_work saying in plain words what you found and what you did.",
+      "context": [
+        "title",
+        "request",
+        "page"
+      ],
+      "context_max": 2000
+    },
+    {
+      "id": "finish-trillion-setup",
+      "label": "Have my AI finish setup",
+      "said": "Finish my Trillion setup",
+      "context": [
+        "focus"
+      ],
+      "job": "The person asked you to finish their Trillion setup, with attention to {focus}. Call start_setup and resume its saved workflow. Discover and reuse what is already present. Complete every authorized machine-doable action, using the current AI host, existing Marketplace owners and actual devices. Keep the person's deliberate choices and authority. Ask only for missing facts or a prepared device action that only they can perform, in their current conversation. Continue independent work while that waits. Do not stop at copying a prompt, adding the MCP, queueing a job, recording a handoff or listing instructions. Use read_setup and the workflow's owner-backed verification of an actual useful result before finish_work. A long initial import may remain active with a tracked backlog after a verified first arrival; never describe it as fully imported."
+    },
+    {
+      "id": "hand-silent-video",
+      "label": "Look through my video",
+      "said": "Look through my video",
+      "job": "A video of mine just arrived in my files: {audio_file}, with content identity {audio_identity}. Its hearing finished with no spoken words; the transcript beside it is {transcript_file}. Silence is not a description of its pictures. Without asking me, start_workflow with purpose \"find-moments-in-a-recording\" with file set to {audio_identity}, inspect the footage, keep its observed moments as rows, and carry any useful content into drafts. Use that identity directly; names can change or match another file. Never treat the transcript placeholder as something I said. Do not invent a duration, people, activities or a purpose from the name. If the pictures cannot be inspected, say exactly which tool or device could not supply them, leave the same job open for recovery, and do not claim analysis or content completed. Preserve existing results and drafts; approve and publish nothing. Finish_work only with what was actually kept and its links.",
+      "context": [
+        "audio_file",
+        "audio_identity",
+        "transcript_file"
+      ]
+    }
+  ],
+  "words": {
+    "sent": "Sent to your AI",
+    "done": "Sent to your AI. Whichever of your AIs your rules pick takes it the next time it connects.",
+    "held": "Sent to your AI. On the free plan this job and what your AI sends back are deleted an hour after you sent it.",
+    "waiting": "Waiting for your AI to connect.",
+    "waiting_held": "Waiting for your AI to connect. On the free plan this job and its result expire an hour after you sent it.",
+    "connect_first": "Connect Trillion to your AI first, so there is an AI to hand this to.",
+    "unknown_job": "That button is not offered any more. Reload the page and try again."
+  }
+}

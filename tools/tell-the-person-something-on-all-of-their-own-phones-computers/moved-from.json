@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/tell-devices.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/tell-the-person-something-on-all-of-their-own-phones-computers/src/tell-devices.mjs",
+      "source_identity": "1f:32eb4523a174e7448b681e4e2195ccb379242145ba5a0e478e4750e996719f6a",
+      "identity": "1f:fda87ecbac2c744447516255bf34cf5c72f091886362b285185958476bb312e5"
+    }
+  ]
+}

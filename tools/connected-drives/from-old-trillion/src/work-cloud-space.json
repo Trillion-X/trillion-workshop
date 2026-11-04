@@ -1,0 +1,15 @@
+{
+  "_what": "The words of the person's Trillion space totals (src/work-cloud-space.mjs cloudSpace, read by tool:drives): {name} marks are filled in, and `units` are the size units, each 1000 times the one before, as Finder counts them.",
+  "units": [
+    "bytes",
+    "KB",
+    "MB",
+    "GB",
+    "TB"
+  ],
+  "body": "{files} in all, taking {size}.",
+  "files": [
+    "{n} file",
+    "{n} files"
+  ]
+}

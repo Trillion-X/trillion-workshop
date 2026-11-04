@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/published-workflow-privacy.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/leave-a-makers-private-starting-values-out/src/published-workflow-privacy.mjs",
+      "source_identity": "1f:e32ad6d28e768372f836bdcd1e0f3ae41aa0281cd3b02278af08f2be32653d73",
+      "identity": "1f:e32ad6d28e768372f836bdcd1e0f3ae41aa0281cd3b02278af08f2be32653d73"
+    }
+  ]
+}

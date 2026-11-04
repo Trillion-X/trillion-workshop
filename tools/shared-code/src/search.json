@@ -1,0 +1,465 @@
+{
+  "_what": "How one search finds a person's things, as DATA read by src/search.mjs. A result is one thing (a file, a record, an item on a connected service) with the places it matched and, for a recording, its moments. `places` are where a match can be, in the words people filter by. `sources` are where things come from. `lanes` are the ways of matching: each names its place, its source and its mechanism (`match`); a new place, kind of result, record type or service is a new row here, never code. Mechanisms: `words-in-results` finds every asked word in the text at `text_path` of results of `kind` (timed by `segments_path` when present); `words-in-names` finds the words in the names files are kept under; `meaning-in-results` turns the question into a vector with `encoder` (a lane with `sets_path` has no encoder of its own: its results hold one vector set per model space and place, written by src/meaning-sets.mjs for each installed Marketplace tool serving `encode`, and the question is encoded by each of those tools; each set is searched as its own lane and keeps its `top` nearest) and compares it with the vectors in each result of `kind` (`items_path` lists them, each with `v` as float16 base64 and the fields named in `time_fields`), where `keep` says whether each item is kept (`each`) or one unit average per result (`average`, with the best moment found afterwards for the top `refine_top`), and a match under `floor` is not a match (a passage holding every asked word needs only `floor_with_every_word`); `words-in-records` finds the words at `text_paths` of the person's records of `record_type` (a list's rows are records of type `record:<row_type>`; with `prefer` { path, equals }, a record whose value at path is not `equals` is listed after the ones that are, so what an AI or a rule wrote never crowds out the person's own words, and stays reachable), counting a record only while the value at `when.path` is one of `when.is` when the lane has `when`, and answering its `url` from `url_path` and its `at` (when it last changed, so an answer shows how fresh each source is) from `at_path`; a `words-in-records` lane with `rows_of` reads every list instead of one record type: the records of `rows_of.record_type` each describe rows (their type `row_type_prefix` and the value at `row_type_path`, their fields at `fields_path`, the field naming a row at `title_field_path`), and each list's rows are matched by the words in its fields of `text_kinds`, titled by the field naming them and opened in their own list (`open.definition_as` names the list), a row type another lane reads being left to that lane (src/record-search-index.mjs); `words-in-index` keeps the text at `text_path` of results of `kind` in one word index (SQLite FTS5, filled by the counted catch-up like the meaning vectors) and answers the files holding any asked word, the best first (bm25, so a rare word outweighs a common one), each with the words around the match; a word held by more than `common_ratio` times as many documents as the rarest asked word is left out of the index query of either word mechanism, since it ranks nothing yet makes the index walk every document holding it; `service-search` runs the source's `first` request once, then the lane's `tool_id` with `input` (`{words}` is the question, `{name}` a value kept by `first`) and reads `items_path` with `title_path`, `url_path` and `said_path`. `rank` weighs a lane; a thing found in several places adds its lanes' weights, so it ranks higher. An encoder `via` `workers-ai` embeds with `model` (after `query_prefix`); `via` `workshop-tool` runs `tool_id`. Every Workshop run (an encoder, a service's first request and its search) is waited on at most `tool_wait_seconds`; one still working is named in `pending` and the same words reuse the same run when the screen asks again, so a slow service never holds back what is already found. The picture and speech floors are the measured ones of the Mac meaning index (media-workspace/meaning-index.mjs). A found file carries `open_url`, the address that opens it in Trillion (`open_path` then its identity), so a person or an AI can open the source. The words written inside documents (PDF, Office, text) are the `contents` result src/file-words.mjs keeps. A recording tied to a meeting keeps the `meeting` result src/workspace/recordings.ts writes (the meeting's title, when, and the people invited, as `search_text`), so the meeting-details lane finds the recording by them. `describe` says how a found file is named and described: its entry result (`entry_kind`, fields read at `entry_fields`) and further fields read from other result kinds (`fields`, each { as, kind, path }; several rows with the same `as` read the first that holds a value, so a title the person accepted, kind `title` from src/file-tidy.mjs, wins over the summary's). `vector_index` is the nearest-bucket index over each meaning lane's vectors (src/search-vector-index.mjs): a lane holding at least min_vectors learns round(sqrt(vectors)) centroids (between min_buckets and max_buckets) by `iterations` rounds of k-means over a sample of `sample` vectors, as idle work, again once it holds `regrow` times what it was trained at; vectors are given their nearest centroid's bucket `assign_page` at a time; a meaning search reads only the `probe` nearest buckets and the vectors with no bucket yet.",
+  "trust": {
+    "_what": "Where a result's words come from, said on every result and source as `trust`: own is the person's own files and Trillion records, connected is what a connected service holds (someone else's words may be in it), unclassified is a source whose row names none. A source row sets it with `trust`; a reader that must not mix the person's own data with other people's words reads this field and nothing else.",
+    "unclassified": "unclassified"
+  },
+  "places": [
+    {
+      "id": "name",
+      "label": "Name"
+    },
+    {
+      "id": "said",
+      "label": "Said"
+    },
+    {
+      "id": "seen",
+      "label": "Seen"
+    },
+    {
+      "id": "written",
+      "label": "Notes and text"
+    },
+    {
+      "id": "meeting",
+      "label": "Meeting"
+    }
+  ],
+  "sources": [
+    {
+      "id": "files",
+      "label": "Files",
+      "trust": "own"
+    },
+    {
+      "id": "trillion",
+      "label": "Trillion",
+      "trust": "own"
+    },
+    {
+      "id": "sent-in",
+      "label": "Sent in by apps",
+      "trust": "connected"
+    },
+    {
+      "id": "github",
+      "label": "GitHub",
+      "trust": "connected",
+      "connect_words": "Connect GitHub in Connections to search it.",
+      "first": {
+        "tool_id": "tool:github-find_my_account",
+        "input": {},
+        "keep": {
+          "login": "$.login"
+        }
+      }
+    }
+  ],
+  "fusion": {
+    "_what": "How lanes are merged and weighed (src/search.mjs finish, src/search-answers.mjs): reciprocal rank fusion with `k`; a word-index lane whose best hit holds under `word_confidence_floor` of the asked words sits the question out (chosen held-out at 0.1 to 0.2, find-by-meaning plan section 9); each lane's weight is learned from searches followed within `followed_within_seconds` by a use of a shown file, starting from `prior_answers` answers at `prior_reciprocal_rank`; searches older than that window are let go; a model space whose weight stays under `retire_below` after `retire_after` answers is no longer asked or encoded.",
+    "k": 60,
+    "word_confidence_floor": 0.15,
+    "followed_within_seconds": 900,
+    "prior_answers": 5,
+    "prior_reciprocal_rank": 0.5,
+    "retire_below": 0.1,
+    "retire_after": 50
+  },
+  "lanes": [
+    {
+      "id": "transcript-words",
+      "place": "said",
+      "source": "files",
+      "match": "words-in-results",
+      "kind": "transcript",
+      "text_path": "$.text",
+      "segments_path": "$.segments",
+      "rank": 1.2
+    },
+    {
+      "id": "speech-meaning",
+      "place": "said",
+      "source": "files",
+      "match": "meaning-in-results",
+      "kind": "speech-vectors",
+      "items_path": "chunks",
+      "time_fields": {
+        "start": "start",
+        "end": "end",
+        "said": "text"
+      },
+      "keep": "each",
+      "encoder": {
+        "via": "workers-ai",
+        "model": "@cf/baai/bge-small-en-v1.5",
+        "query_prefix": "Represent this sentence for searching relevant passages: "
+      },
+      "floor": 0.62,
+      "floor_with_every_word": 0.45,
+      "rank": 1
+    },
+    {
+      "id": "meaning",
+      "source": "files",
+      "match": "meaning-in-results",
+      "kind": "meaning",
+      "sets_path": "$.sets",
+      "time_fields": {
+        "start": "start",
+        "end": "end",
+        "said": "said"
+      },
+      "floor": 0,
+      "top": 50,
+      "rank": 1
+    },
+    {
+      "id": "picture-meaning",
+      "place": "seen",
+      "source": "files",
+      "match": "meaning-in-results",
+      "kind": "picture-vectors",
+      "items_path": "frames",
+      "time_fields": {
+        "start": "t"
+      },
+      "keep": "average",
+      "encoder": {
+        "via": "workshop-tool",
+        "tool_id": "tool:words-as-picture-vector",
+        "model": {
+          "name": "ViT-B-32",
+          "pretrained": "openai"
+        }
+      },
+      "floor": 0.25,
+      "relative_floor": 0.72,
+      "rank": 0.9
+    },
+    {
+      "id": "picture-colours",
+      "place": "seen",
+      "source": "files",
+      "match": "colour-in-results",
+      "kind": "facts",
+      "colour_path": "$.palette",
+      "rank": 0.9
+    },
+    {
+      "id": "file-names",
+      "place": "name",
+      "source": "files",
+      "match": "words-in-names",
+      "rank": 0.8
+    },
+    {
+      "id": "titles",
+      "place": "name",
+      "source": "files",
+      "match": "words-in-results",
+      "kind": "summary",
+      "text_path": "$.title",
+      "rank": 0.8
+    },
+    {
+      "id": "meeting-details",
+      "place": "meeting",
+      "source": "files",
+      "match": "words-in-index",
+      "kind": "meeting",
+      "text_path": "$.search_text",
+      "rank": 1.2
+    },
+    {
+      "id": "notes",
+      "place": "written",
+      "source": "files",
+      "match": "words-in-results",
+      "kind": "note",
+      "text_path": "$.text",
+      "rank": 1
+    },
+    {
+      "id": "contents-words",
+      "place": "written",
+      "source": "files",
+      "match": "words-in-index",
+      "kind": "contents",
+      "text_path": "$.text",
+      "rank": 1.1
+    },
+    {
+      "id": "file-organization",
+      "place": "name",
+      "source": "files",
+      "match": "words-in-index",
+      "kind": "organization",
+      "text_path": "$.search_text",
+      "rank": 0.8
+    },
+    {
+      "id": "decisions",
+      "place": "written",
+      "source": "trillion",
+      "match": "words-in-records",
+      "record_type": "decision",
+      "text_paths": [
+        "$.input.goal",
+        "$.decision.move",
+        "$.decision.reason"
+      ],
+      "title_path": "$.input.goal",
+      "kind_label": "Decision",
+      "open": {
+        "surface": "trillion.decision",
+        "input": {
+          "screen": "decision"
+        },
+        "id_as": "id"
+      },
+      "rank": 1
+    },
+    {
+      "id": "pursuits",
+      "place": "written",
+      "source": "trillion",
+      "match": "words-in-records",
+      "record_type": "pursuit",
+      "text_paths": [
+        "$.title",
+        "$.now",
+        "$.after",
+        "$.why_it_matters"
+      ],
+      "title_path": "$.title",
+      "kind_label": "Pursuit",
+      "open": {
+        "surface": "trillion.progress",
+        "input": {}
+      },
+      "rank": 1
+    },
+    {
+      "id": "messages",
+      "place": "written",
+      "source": "trillion",
+      "match": "words-in-records",
+      "record_type": "message",
+      "text_paths": [
+        "$.text"
+      ],
+      "title_path": "$.text",
+      "kind_label": "Message",
+      "open": {
+        "surface": "trillion.messages",
+        "input": {}
+      },
+      "prefer": { "path": "$.speaker", "equals": "person" },
+      "rank": 0.9
+    },
+    {
+      "id": "indexed-content",
+      "place": "written",
+      "source": "sent-in",
+      "match": "words-in-records",
+      "record_type": "record:indexed-content",
+      "text_paths": [
+        "$.title",
+        "$.text"
+      ],
+      "title_path": "$.title",
+      "url_path": "$.url",
+      "at_path": "$.updated_at",
+      "kind_label": "Sent in",
+      "open": {
+        "surface": "trillion.list",
+        "input": {
+          "id": "indexed-content"
+        },
+        "id_as": "row"
+      },
+      "rank": 1
+    },
+    {
+      "id": "corrected-answers",
+      "place": "written",
+      "source": "trillion",
+      "match": "words-in-records",
+      "record_type": "record:answer-report",
+      "text_paths": [
+        "$.question",
+        "$.corrected_answer"
+      ],
+      "title_path": "$.question",
+      "at_path": "$.solved_at",
+      "when": {
+        "path": "$.status",
+        "is": [
+          "solved"
+        ]
+      },
+      "kind_label": "Corrected answer",
+      "open": {
+        "surface": "trillion.list",
+        "input": {
+          "id": "answer-reports"
+        },
+        "id_as": "row"
+      },
+      "rank": 1.3
+    },
+    {
+      "id": "list-rows",
+      "place": "written",
+      "source": "trillion",
+      "match": "words-in-records",
+      "rows_of": {
+        "record_type": "list",
+        "row_type_prefix": "record:",
+        "row_type_path": "$.row_type",
+        "fields_path": "$.fields",
+        "title_field_path": "$.title_field",
+        "text_kinds": ["text", "long-text", "choice", "email", "phone", "link-address"]
+      },
+      "kind_label": "List row",
+      "open": {
+        "surface": "trillion.list",
+        "input": {},
+        "id_as": "row",
+        "definition_as": "id"
+      },
+      "rank": 1
+    },
+    {
+      "id": "github-code",
+      "place": "written",
+      "source": "github",
+      "match": "service-search",
+      "tool_id": "tool:github-search_code",
+      "input": {
+        "query": "{words} user:{login}"
+      },
+      "items_path": "$.items",
+      "title_path": "$.path",
+      "detail_path": "$.repository.full_name",
+      "url_path": "$.html_url",
+      "said_path": "$.text_matches[0].fragment",
+      "kind_label": "Code",
+      "rank": 1
+    },
+    {
+      "id": "github-issues",
+      "place": "written",
+      "source": "github",
+      "match": "service-search",
+      "tool_id": "tool:github-search_issues_and_pull_requests",
+      "input": {
+        "query": "{words} involves:{login}"
+      },
+      "items_path": "$.items",
+      "title_path": "$.title",
+      "detail_path": "$.repository_url",
+      "url_path": "$.html_url",
+      "said_path": "$.text_matches[0].fragment",
+      "kind_label": "Issue or pull request",
+      "rank": 1
+    },
+    {
+      "id": "github-repositories",
+      "place": "name",
+      "source": "github",
+      "match": "service-search",
+      "tool_id": "tool:github-search_repositories",
+      "input": {
+        "query": "{words} user:{login}"
+      },
+      "items_path": "$.items",
+      "title_path": "$.full_name",
+      "url_path": "$.html_url",
+      "said_path": "$.description",
+      "kind_label": "Repository",
+      "rank": 0.8
+    }
+  ],
+  "report": {
+    "_what": "Every answer names where a wrong or missing answer is reported (src/answer-tools.mjs): the tool that files it as a card someone fixes, and the words that offer it.",
+    "tool": "report_answer",
+    "said": "Wrong or missing? Report it so someone fixes it; the fix is cited next time."
+  },
+  "describe": {
+    "entry_kind": "library-entry",
+    "entry_fields": {
+      "name": "$.name",
+      "path": "$.path",
+      "media_kind": "$.media_kind"
+    },
+    "fields": [
+      {
+        "as": "title",
+        "kind": "title",
+        "path": "$.title"
+      },
+      {
+        "as": "title",
+        "kind": "meeting",
+        "path": "$.title"
+      },
+      {
+        "as": "title",
+        "kind": "summary",
+        "path": "$.title"
+      },
+      {
+        "as": "title",
+        "kind": "organization",
+        "path": "$.title"
+      },
+      {
+        "as": "title",
+        "kind": "note",
+        "path": "$.text"
+      },
+      {
+        "as": "duration",
+        "kind": "facts",
+        "path": "$.duration"
+      }
+    ]
+  },
+  "open_path": "/file/",
+  "tool_wait_seconds": 3,
+  "min_word_length": 2,
+  "common_ratio": 50,
+  "merge_seconds": 4,
+  "moments_per_thing": 3,
+  "limit": 60,
+  "refine_top": 40,
+  "vector_scan_page_size": 256,
+  "moment_seconds": 6,
+  "said_characters": 280,
+  "manage": {
+    "what_this_is": "How the lane index service answers (src/search.mjs laneIndex): stats counts what a lane keeps up to count_most (then says at_least), and prune drops prune_page results a call.",
+    "count_most": 1000,
+    "prune_page": 200
+  },
+  "catch_up": {
+    "_why": "How a catch-up wake is bounded (src/search.mjs catchUp): `values_per_wake` values and `bytes_per_wake` bytes of them derived, at most `admit_per_wake` results a wake moved from a lane's backfill into its changed list (never more than half the wake's values), and lanes named in `rebuild_last` admitted after every other lane, so the others become whole and answer first while those still build: a file-organization result is kept for every file, so its lane is the largest on every account (114,267 of 193,046 results on store f281a627, 2026-10-19).",
+    "values_per_wake": 50,
+    "bytes_per_wake": 8000000,
+    "admit_per_wake": 2000,
+    "rebuild_last": ["file-organization"],
+    "seconds_between_wakes": 20,
+    "rows_per_hour": 100000
+  },
+  "vector_index": {
+    "min_vectors": 4096,
+    "sample": 4096,
+    "iterations": 8,
+    "probe": 16,
+    "min_buckets": 16,
+    "max_buckets": 1024,
+    "regrow": 4,
+    "assign_page": 2000
+  }
+}

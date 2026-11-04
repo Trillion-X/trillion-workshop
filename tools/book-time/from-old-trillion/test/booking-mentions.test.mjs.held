@@ -1,0 +1,59 @@
+// What a person said about a bookable session, and when an AI last brought it up (src/booking.mjs bookingMentions):
+// one EEAF setting of the person's. An earlier version's APP_KV keys are carried into it key by key the first time
+// each is read, then removed; nothing already in the setting is replaced by an earlier key.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../src/decision-store.mjs';
+import { bookables, bookingMentions, earlierBookingMentions, keepBookingMention } from '../src/booking.mjs';
+import { handleBookingCall } from '../src/booking-routes.mjs';
+
+const row = bookables()[0];
+
+function person(kvRows = {}) {
+  const host = sqliteHost(':memory:');
+  const records = decisionStore(host.sql, { transaction: host.transaction });
+  const kv = new Map(Object.entries(kvRows).map(([key, value]) => [key, JSON.stringify(value)]));
+  const store = { get: async (key, type) => (kv.has(key) ? (type === 'json' ? JSON.parse(kv.get(key)) : kv.get(key)) : null), put: async (key, value) => { kv.set(key, value); }, delete: async key => { kv.delete(key); } };
+  const owner = userId => ({ setting: { read: () => records.setting('booking_mentions'), write: value => records.setSetting('booking_mentions', value) }, earlier: earlierBookingMentions(store, userId) });
+  return { kv, store, records, owner };
+}
+
+test('an earlier key is carried into the setting when its session is first read, then removed', async () => {
+  const { kv, records, owner } = person({ [`booking-mention:ana:${row.id}`]: { mentioned_at: '2026-09-01T10:00:00.000Z', case_id: 'case-1' } });
+  const said = await bookingMentions(owner('ana'), [row.id, 'another-session']);
+  assert.deepEqual(said, { [row.id]: { mentioned_at: '2026-09-01T10:00:00.000Z', case_id: 'case-1' } });
+  assert.deepEqual(records.setting('booking_mentions'), said);
+  assert.equal(kv.has(`booking-mention:ana:${row.id}`), false, 'the key goes once it is a record');
+});
+
+test('a no said after the move is kept beside what was carried, and a later earlier key never replaces it', async () => {
+  const { kv, records, owner } = person({ [`booking-mention:ana:${row.id}`]: { mentioned_at: '2026-09-01T10:00:00.000Z' } });
+  const entry = await keepBookingMention(owner('ana'), row.id, { declined_at: '2026-09-30T10:00:00.000Z' });
+  assert.deepEqual(entry, { mentioned_at: '2026-09-01T10:00:00.000Z', declined_at: '2026-09-30T10:00:00.000Z' });
+  kv.set(`booking-mention:ana:${row.id}`, JSON.stringify({ mentioned_at: '2020-01-01T00:00:00.000Z' }));
+  assert.deepEqual((await bookingMentions(owner('ana'), [row.id]))[row.id], entry);
+  assert.deepEqual(records.setting('booking_mentions')[row.id], entry);
+});
+
+test('session_offers with not_interested keeps the no in the person\'s records, and mentions stop', async () => {
+  const { store, owner } = person();
+  const people = new Map();
+  const personStore = name => {
+    if (!people.has(name)) people.set(name, {
+      readAccess: async () => ({ capabilities: [], active_offers: [] }),
+      paymentEffects: async () => [],
+      bookingMentions: (userId, ids) => bookingMentions(owner(userId), ids),
+      keepBookingMention: (userId, id, fields) => keepBookingMention(owner(userId), id, fields),
+    });
+    return people.get(name);
+  };
+  const env = {
+    APP_KV: store,
+    PERSON: { idFromName: name => name, idFromString: text => text, get: personStore },
+    BOOKING: { idFromName: name => name, get: () => ({ state: async () => ({ grants: [] }) }) },
+  };
+  await handleBookingCall(env, { userId: 'ana', origin: 'https://t.example', path: '/booking/offers', body: { not_interested: [row.id] } });
+  assert.ok((await bookingMentions(owner('ana'), [row.id]))[row.id].declined_at);
+  assert.deepEqual(await handleBookingCall(env, { userId: 'ana', origin: 'https://t.example', path: '/booking/mention', body: { record: {} } }), {});
+});

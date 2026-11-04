@@ -1,0 +1,264 @@
+{
+  "_what": "Labels and saved-result kinds shown by the meeting recording review in src/workspace/file-screen.tsx.",
+  "tabs": [
+    {
+      "id": "notes",
+      "label": "Private notes",
+      "content": "notes"
+    },
+    {
+      "id": "summary",
+      "label": "Summary",
+      "kind": "summary",
+      "review_action": true,
+      "empty": "No summary has been saved for this recording.",
+      "refresh": "Refresh summary",
+      "failed": "The saved summary could not be read.",
+      "management_action": "record-file-result",
+      "manage": "Add a summary",
+      "unreadable": "Saved text is available in Files."
+    },
+    {
+      "id": "actions",
+      "label": "Action Items",
+      "kind": "action-items",
+      "empty": "No action items have been saved for this recording.",
+      "completed_empty": "No action items were found in this recording.",
+      "refresh": "Refresh action items",
+      "failed": "Saved action items could not be read.",
+      "management_action": "record-file-result",
+      "manage": "Add action items",
+      "unreadable": "Saved text is available in Files."
+    },
+    {
+      "id": "transcript",
+      "label": "Transcript",
+      "empty": "A transcript has not been saved for this recording.",
+      "content": "transcript"
+    }
+  ],
+  "summary_tools": {
+    "templates": [
+      {
+        "id": "general",
+        "label": "General",
+        "ask": ""
+      },
+      {
+        "id": "brief",
+        "label": "Brief",
+        "ask": "At most five short bullet points: what was decided and what is next."
+      },
+      {
+        "id": "decisions",
+        "label": "Decisions and open questions",
+        "ask": "Two lists only: what was decided, and what is still open."
+      },
+      {
+        "id": "one-to-one",
+        "label": "One to one",
+        "ask": "Grouped by person: what each person said they would do, and anything they raised."
+      }
+    ],
+    "languages": [
+      {
+        "id": "",
+        "label": "Same as the recording",
+        "ask": ""
+      },
+      {
+        "id": "en",
+        "label": "English",
+        "ask": "English"
+      },
+      {
+        "id": "es",
+        "label": "Spanish",
+        "ask": "Spanish"
+      },
+      {
+        "id": "fr",
+        "label": "French",
+        "ask": "French"
+      },
+      {
+        "id": "de",
+        "label": "German",
+        "ask": "German"
+      },
+      {
+        "id": "pt",
+        "label": "Portuguese",
+        "ask": "Portuguese"
+      },
+      {
+        "id": "ja",
+        "label": "Japanese",
+        "ask": "Japanese"
+      }
+    ],
+    "own_tag": "summary-template",
+    "words": {
+      "template": "Summary template",
+      "language": "Summary language",
+      "own_group": "Your templates",
+      "copy": "Copy summary",
+      "copied": "Summary copied",
+      "copy_failed": "The summary could not be copied",
+      "copy_detail": "Nothing was copied. Try again.",
+      "pdf": "Export PDF",
+      "pdf_done": "Summary saved as a PDF",
+      "pdf_failed": "The summary could not be saved",
+      "pdf_detail": "There is no summary to save yet.",
+      "pdf_heading": "Summary",
+      "rate_up": "Good summary",
+      "rate_down": "Poor summary",
+      "rated": "Thanks. Your rating is kept with this note.",
+      "rate_failed": "Your rating could not be kept",
+      "rating_prompt": "Was this summary useful?",
+      "edit_templates": "Your templates",
+      "done_templates": "Close templates",
+      "new_template": "Add a template",
+      "template_name": "Template name",
+      "template_text": "What the summary should look like",
+      "save_template": "Save template",
+      "remove_template": "Remove",
+      "edit_template": "Edit",
+      "templates_empty": "You have no templates of your own yet.",
+      "templates_failed": "Your templates could not be read.",
+      "template_saved": "Template saved",
+      "template_removed": "Template removed",
+      "template_error": "The template was not changed",
+      "rerun_hint": "The next review uses this template and language."
+    },
+    "feedback_kind": "summary-feedback",
+    "feedback_by": "trillion note"
+  },
+  "action_tools": {
+    "minutes": 30,
+    "read_cap": 30,
+    "words": {
+      "no_speaker": "Everyone",
+      "add_all": "Add all to Inbox",
+      "add_one": "Add to Inbox",
+      "adding": "Adding",
+      "added_all": "All action items are in your Inbox",
+      "added_some": "Some action items could not be added",
+      "added": "In Inbox",
+      "done": "Done",
+      "mark_done": "Mark done",
+      "mark_open": "Mark not done",
+      "failed": "The action item could not be changed",
+      "unread": "Whether these are already in your Inbox could not be read.",
+      "list_label": "Action items",
+      "export_pdf": "Export PDF",
+      "pdf_heading": "Action items",
+      "pdf_done": "Action items saved as a PDF",
+      "pdf_failed": "The action items could not be saved",
+      "pdf_detail": "There are no action items to save yet.",
+      "copy": "Copy action items",
+      "copied": "Action items copied",
+      "copy_failed": "The action items could not be copied",
+      "copy_detail": "Nothing was copied. Try again."
+    }
+  },
+  "loading": "Loading",
+  "aria_label": "Recording review",
+  "transcript_read": {
+    "loading": "Reading the saved transcript link",
+    "failed": "The saved transcript link could not be read.",
+    "retry": "Retry transcript link"
+  },
+  "review": {
+    "label": "Ask my AI to review this recording",
+    "retry": "Retry recording review",
+    "sending": "Sending to your AI",
+    "queued": "Waiting for your AI",
+    "running": "Your AI is reviewing this recording",
+    "refused": "Your AI could not complete this review",
+    "finished_without_results": "The review finished without saving the current results. Retry it to continue.",
+    "result_current": "The saved results are current for this recording.",
+    "job_id": "hand-recording"
+  },
+  "metadata": {
+    "created": "Created",
+    "updated": "Updated",
+    "audio": "Audio",
+    "unknown": "Not known"
+  },
+  "association": {
+    "screen": "trillion.calendar",
+    "words": {
+      "title": "Meeting",
+      "unreadable": "Meeting link could not be read.",
+      "missing": "This recording is no longer in your library.",
+      "detached": "No meeting linked.",
+      "loading": "Loading calendar…",
+      "failed": "Calendar could not be read.",
+      "retry": "Try again",
+      "partial": "Some calendar sources are unavailable. Available meetings can still be linked.",
+      "empty": "No meetings found around this recording.",
+      "choose": "Choose a meeting",
+      "link": "Link meeting",
+      "change": "Change meeting",
+      "unlink": "Unlink",
+      "open": "Open meeting",
+      "refresh": "Refresh",
+      "search": "Search meetings",
+      "linked": "Meeting linked.",
+      "unlinked": "Meeting unlinked.",
+      "readback_failed": "The meeting change was saved, but its current link could not be read. Refresh to check it.",
+      "readback_changed": "The meeting link changed again. Its current state is shown.",
+      "refresh_changed": "This meeting changed or its calendar connection changed. The saved link was kept.",
+      "change_short": "Change",
+      "meetings_group": "Meetings around this recording",
+      "actions_group": "This meeting"
+    },
+    "composition": {
+      "arrangement": {
+        "kind": "split",
+        "dir": "column",
+        "unit": "px",
+        "keep": true,
+        "sizes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "children": [
+          {
+            "kind": "pane",
+            "surfaces": [
+              "current"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "choice"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "actions"
+            ]
+          },
+          {
+            "kind": "pane",
+            "surfaces": [
+              "message"
+            ]
+          }
+        ]
+      },
+      "kept_at": "screen-arrangement-of::trillion.file::meeting-association",
+      "words": {
+        "arrange": "Arrange meeting controls",
+        "done": "Done arranging",
+        "layout": "Meeting association"
+      }
+    }
+  }
+}

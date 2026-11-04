@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { atomsOf, pieceRow, pieceRows } from '../do-work/pieces.mjs';
+import { atomsOf, keepPieces, pieceRow, pieceRows } from '../do-work/pieces.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
@@ -35,7 +35,7 @@ test('a piece row carries its id, lead, text, identity, key and where it stands,
   assert.deepEqual(row, {
     id: `piece-${atom.identity.slice(3, 27)}`, kind: 'piece', says: 'Made-up lead', text: '**Made-up lead.** Then the rest.', identity: atom.identity,
     key: 'Made-up part / Made-up lead', sources: [{ file: 'made-up.md', section: 'Made-up part / Made-up lead', file_identity: '1f:' + 'a'.repeat(64), at: 3 }],
-    groups: [], kinds: [], checked_by: [],
+    tags: [], kinds: [], checked_by: [],
   });
   assert.equal(row.id.length, 'piece-'.length + 24);
   assert.equal('no_check' in row, false);
@@ -86,4 +86,25 @@ test('tool:split-a-document-into-pieces keeps the pieces of its text as piece ro
     assert.equal(refused.code, 1);
     assert.match(refused.last.error, /Send text/);
   }
+});
+
+test('a piece kept before pieces carried tags has its groups moved to tags when it is kept again, its words left alone', async () => {
+  const text = '## Made-up\n\nMade-up kept words.\n';
+  const [row] = pieceRows([{ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }]);
+  const { tags, ...old } = row;
+  const held = new Map([[`record:check:${row.id}`, { ...old, groups: ['made-up-tag'], checked_by: ['made-up-check'] }]]);
+  const written = [];
+  const door = { async read(_type, id) { return held.get(id) ?? null; }, async write(batch) { written.push(...batch); } };
+  const answer = await keepPieces({ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }, door);
+  assert.equal(answer.unchanged, 0);
+  assert.equal(written.length, 1);
+  const value = written[0].value;
+  assert.equal('groups' in value, false);
+  assert.deepEqual(value.tags, ['made-up-tag']);
+  assert.deepEqual(value.checked_by, ['made-up-check']);
+  assert.deepEqual(written[0].expected.value.groups, ['made-up-tag'], 'the write is conditional on the row as it was read');
+  held.set(`record:check:${row.id}`, value);
+  written.length = 0;
+  const again = await keepPieces({ text, file: 'made-up.md', file_identity: '1f:' + 'f'.repeat(64) }, door);
+  assert.deepEqual([again.unchanged, written.length], [1, 0]);
 });

@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/tool-call-refusal.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refuse-a-tool-call-that-is-not-on-the-callers-current/src/tool-call-refusal.mjs",
+      "source_identity": "1f:2210ff150b84637fd7b7e0768e023e8bc796f199f6fea4292d086a70f4d1a67e",
+      "identity": "1f:4bce9f45658bf3bcae39499040dc629350db316879aa4beef799cdf7fd6fc7bf"
+    }
+  ]
+}

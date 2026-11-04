@@ -1,0 +1,288 @@
+{
+  "_what": "Every file and folder the Trillion programs on this computer keep under the person's home (computer/device-stores.mjs): where it is, what it holds (secret, content, settings or cache), the access it must have, how long it may be kept, and whether it is sealed. `audit` says what differs from this list and what lies under a root that no row names; `repair` puts modes right, makes missing folders and links, deletes what has outlived its retention, and writes a receipt. A new store is a new row. Nothing here names a store in code. At every start the Mac host asks for an `audit` in a worker of its own (mac-tools.json on_start) and keeps its counts in `audit_file`; `repair_at_start` lists the row ids it also repairs then (none by default).",
+  "roots": [
+    ".trillion"
+  ],
+  "receipt": ".trillion/device-stores-receipt.json",
+  "defaults": {
+    "dir_mode": "0700",
+    "file_mode": "0600"
+  },
+  "rows": [
+    {
+      "id": "cli",
+      "path": ".trillion/cli",
+      "kind": "dir",
+      "holds": "secret",
+      "what": "The folder holding the trillion command's own copy; its files keep their program modes.",
+      "mode": "0700"
+    },
+    {
+      "id": "cli-link",
+      "path": ".local/bin/trillion",
+      "kind": "link",
+      "link_target": ".trillion/cli/program/trillion.mjs",
+      "holds": "settings",
+      "what": "The trillion command on the person's PATH (harness/trillion.json install.link); remade when it points elsewhere or is gone."
+    },
+    {
+      "id": "cli-key",
+      "path": ".trillion/cli/key",
+      "kind": "file",
+      "holds": "secret",
+      "what": "The key this computer's trillion command made, when it is kept in a file.",
+      "mode": "0600"
+    },
+    {
+      "id": "installed-programs",
+      "path": ".trillion/installed-programs.json",
+      "kind": "file",
+      "holds": "settings",
+      "what": "Which tool programs the account installed for this Mac.",
+      "mode": "0600"
+    },
+    {
+      "id": "mac-tool-results",
+      "path": ".trillion/mac-tool-results.json",
+      "kind": "file",
+      "holds": "content",
+      "what": "Completed tool answers waiting for the account to accept them (and their numbered copies).",
+      "mode": "0600",
+      "name_prefix": true
+    },
+    {
+      "id": "computer-sources",
+      "path": ".trillion/computer-sources",
+      "kind": "dir",
+      "holds": "content",
+      "what": "What the computer reader read, with its drives and lock.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "carry-connections",
+      "path": ".trillion/carry-connections",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Messages and sessions of services carried on this computer.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "listening",
+      "path": ".trillion/listening",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Audio and notes of listening.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "hearing",
+      "path": ".trillion/hearing",
+      "kind": "dir",
+      "holds": "content",
+      "what": "The speech-to-text socket and its working files.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "speaking",
+      "path": ".trillion/speaking",
+      "kind": "dir",
+      "holds": "content",
+      "what": "The speaker socket and its notices.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "people",
+      "path": ".trillion/people",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Who people are, learned from contacts.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "records",
+      "path": ".trillion/records",
+      "kind": "dir",
+      "holds": "content",
+      "what": "The Mac's copy of the person's records.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "drive",
+      "path": ".trillion/drive",
+      "kind": "dir",
+      "holds": "content",
+      "what": "The Trillion drive's journals and cache.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "wake-sessions",
+      "path": ".trillion/wake-sessions",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Events and settings of the chats Trillion wakes.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "keep-written-files",
+      "path": ".trillion/keep-written-files",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Files written by AIs and what was sent.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "keep-web-chats",
+      "path": ".trillion/keep-web-chats",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Web chats kept.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "record-every-message",
+      "path": ".trillion/record-every-message",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Messages recorded as they are sent.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "hold-this-mac",
+      "path": ".trillion/hold-this-mac",
+      "kind": "dir",
+      "holds": "settings",
+      "what": "Holds that keep this Mac awake.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "decisions-owed",
+      "path": ".trillion/decisions-owed.jsonl",
+      "kind": "file",
+      "holds": "content",
+      "what": "Decisions owed, and their draining and pace files.",
+      "mode": "0600",
+      "name_prefix": true
+    },
+    {
+      "id": "decisions-owed-archive",
+      "path": ".trillion/decisions-owed-archive",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Decisions already drained.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "ai-chat-history",
+      "path": ".trillion/ai-chat-history",
+      "kind": "dir",
+      "holds": "content",
+      "what": "Chats kept from the person's AI apps.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "work-consumer",
+      "path": ".trillion/work-consumer",
+      "kind": "dir",
+      "holds": "settings",
+      "what": "The work-taking helper's state.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "take-open-work",
+      "path": ".trillion/take-open-work",
+      "kind": "dir",
+      "holds": "settings",
+      "what": "The work-taking hook's state.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "setup",
+      "path": ".trillion/setup",
+      "kind": "dir",
+      "holds": "settings",
+      "what": "Setup progress.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "screen-driving",
+      "path": ".trillion/screen-driving",
+      "kind": "dir",
+      "holds": "settings",
+      "what": "The person's screen permissions and taint.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "loopback-executor",
+      "path": ".trillion/loopback-executor",
+      "kind": "dir",
+      "holds": "secret",
+      "what": "The loopback executor's per-install secret.",
+      "mode": "0700",
+      "child_mode": "0600"
+    },
+    {
+      "id": "helpers",
+      "path": ".trillion/helpers",
+      "kind": "dir",
+      "holds": "cache",
+      "what": "Helpers fetched on first use (computer/helper-runtimes.mjs); their files keep their own execute bit.",
+      "mode": "0700"
+    },
+    {
+      "id": "receipt",
+      "path": ".trillion/device-stores-receipt.json",
+      "kind": "file",
+      "holds": "settings",
+      "what": "What the last repair changed.",
+      "mode": "0600"
+    },
+    {
+      "id": "audit",
+      "path": ".trillion/device-stores-audit.json",
+      "kind": "file",
+      "holds": "settings",
+      "what": "The counts of the last start-up audit of this list (names and modes only).",
+      "mode": "0600"
+    },
+    {
+      "id": "host-sealed-log",
+      "path": ".trillion/host.sealed.log",
+      "kind": "file",
+      "holds": "content",
+      "sealed": true,
+      "what": "The Mac host's own log, sealed for a reader; written only when a reader key is set (mac-tools.json host_log).",
+      "mode": "0600"
+    }
+  ],
+  "words": {
+    "missing": "{path} is not there.",
+    "wrong_mode": "{path} is open to more than its owner ({have}, should be {want}).",
+    "wrong_link": "{path} should point to {want}.",
+    "expired": "{path} is older than the {days} days it may be kept.",
+    "unlisted": "{path} is kept here but no row says what it holds, who may read it or how long it stays.",
+    "plaintext_content": "{id} holds the person's content in files anyone with this account on this Mac can read; no row seals it.",
+    "repaired": "Put right: {count} thing(s)."
+  },
+  "audit_file": ".trillion/device-stores-audit.json",
+  "audit_sample": 20,
+  "repair_at_start": []
+}

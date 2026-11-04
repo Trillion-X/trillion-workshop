@@ -1,0 +1,20 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {availabilityPageSections} from '../parts/calendar-booker/read-data/availability-page-sections.mjs';
+import {pageShellHtml} from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
+const slots=Array.from({length:80},(_,index)=>({startMs:Date.parse('2026-10-15T00:00:00Z')+index*15*60000,endMs:Date.parse('2026-10-15T00:00:00Z')+(index*15+30)*60000}));
+const offered={link:{id:'one',title:'Meet with us',timezone:'UTC',duration_min:30},slots};
+test('booking DATA uses shared accessible choices with current offered values, timezone and stable request key',()=>{
+ const sections=availabilityPageSections({code:'code',offered,verified:true,requestKey:'original'});
+ const choices=sections.find(section=>section.choices)?.choices;
+ assert.equal(choices.values.request_key,'original');assert.equal(choices.groups[0].options.length,48);assert.equal(choices.groups[0].options[0].value,String(slots[0].startMs));
+ const html=pageShellHtml({title:'Book',sections});assert.match(html,/name="start_ms"/);assert.match(html,/Book meeting/);assert.match(html,/UTC/);
+ const more=sections.at(-1).actions[0].href;assert.match(more,/after_ms=/);
+ const second=availabilityPageSections({code:'code',offered,verified:true,requestKey:'second',afterMs:Number(new URL(more,'https://test').searchParams.get('after_ms'))});
+ const secondChoices=second.find(section=>section.choices)?.choices;
+ assert.equal(secondChoices.groups[0].options.length,32);assert.equal(secondChoices.groups[0].options[0].value,String(slots[48].startMs));
+});
+test('unproved visitors use the existing email proof form and cannot submit booking fields',()=>{
+ const sections=availabilityPageSections({code:'code',offered,requestKey:'unused'});
+ const choices=sections.find(section=>section.choices).choices;assert.equal(choices.href,'/share/code/prove');assert.deepEqual(choices.fields.map(field=>field.name),['email']);assert.equal(choices.values.request_key,undefined);
+});

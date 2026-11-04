@@ -5,7 +5,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BranchRefusal, checksOfBranch, lineageOf } from '../do-work/branch.mjs';
 import { checkABranch, rulesOfBranch } from '../do-work/check-a-branch.mjs';
-import { makeJudge } from '../../judge-words/do-work/judge-words.mjs';
+import { makeJudge, SELECTOR_NAMES } from '../../judge-words/do-work/judge-words.mjs';
+import { atomsOf, pieceRow, pieceRows } from '../do-work/pieces.mjs';
 import { readFileSync } from 'node:fs';
 import SETTINGS_OF_BRANCH from '../read-data/branch.json' with { type: 'json' };
 
@@ -128,7 +129,7 @@ test('the row may read, and only read, the method rows, the Checks list, lists a
 
 test('a row that states no test never reaches makeJudge: it is counted, listed for a model to read, and the rest of the branch is judged', async () => {
   const noTest = { id: 'made-up-belief', method: 'made-up-branch', says: 'A made-up belief with no test to run.' };
-  const piece = { id: 'piece-000000000000000000000000', kind: 'piece', method: 'made-up-base', says: 'Made-up lead', text: 'Made-up lead text.', groups: [], kinds: [], checked_by: [] };
+  const piece = { id: 'piece-000000000000000000000000', kind: 'piece', method: 'made-up-base', says: 'Made-up lead', text: 'Made-up lead text.', tags: [], kinds: [], checked_by: [] };
   assert.throws(() => makeJudge([noTest]), /needs words/, 'the row would refuse the whole branch');
   const door = memoryDoor({ checkRows: [...checks(), noTest, piece] });
   const { rules, rows_used, read_by_a_model } = await rulesOfBranch(door, 'made-up-branch');
@@ -162,4 +163,34 @@ test('a branch with only rows that state no test answers no-applicable-rule, nev
   assert.match(answer.lines[0], /no row that states a test/);
   // A branch with no rows at all is still refused: there is nothing to read either.
   await assert.rejects(rulesOfBranch(memoryDoor({ checkRows: [] }), 'made-up-base'), /has no check rows/);
+});
+
+test('a piece row from pieceRow, in a branch with one word row, never reaches makeJudge, and the branch judges the word row', async () => {
+  const [atom] = atomsOf('## Made-up part\n\n**Made-up lead.** Made-up words of a made-up file.\n');
+  const piece = { ...pieceRow(atom, { file: 'made-up.md', file_identity: '1f:' + 'e'.repeat(64) }), method: 'made-up-base' };
+  const word = { id: 'no-glitter', method: 'made-up-base', words: ['glitter'], says: 'No glitter.' };
+  // Under the old field name the piece reached makeJudge as a groups rule and refused the whole branch.
+  const { tags, ...untagged } = piece;
+  assert.throws(() => makeJudge([word, { ...untagged, kind: undefined, groups: tags }]), /groups/);
+  // Even without its kind, the piece names no selector, so it is not a test.
+  for (const row of [piece, { ...piece, kind: undefined }]) {
+    const { rules, rows_used, read_by_a_model } = await rulesOfBranch(memoryDoor({ checkRows: [word, row] }), 'made-up-base');
+    assert.deepEqual(rules.map(rule => rule.id), ['no-glitter']);
+    assert.equal(rows_used.skipped.no_test, 1);
+    assert.deepEqual(read_by_a_model.rows.map(entry => entry.id), [piece.id]);
+  }
+  const door = memoryDoor({ checkRows: [word, piece] });
+  const failed = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Made-up glitter', kind: 'line' }] }, door);
+  assert.equal(failed.status, 'failed');
+  assert.ok(failed.results.some(result => result.rule === 'no-glitter' || JSON.stringify(result).includes('no-glitter')));
+  const passed = await checkABranch({ branch: 'made-up-base', units: [{ text: 'Made-up plain words', kind: 'line' }] }, door);
+  assert.notEqual(passed.status, 'failed');
+});
+
+test('no row pieceRow or pieceRows makes names any judge-words selector', () => {
+  const text = '# Made-up\n\nA paragraph.\n\n## Part\n\n**Lead.** Words.\n\n1. An item\n\n| A | B |\n|---|---|\n| Row | b |\n\n```\nfenced\n```\n';
+  const rows = [...atomsOf(text).map(atom => pieceRow(atom)), ...pieceRows([{ text, file: 'made-up.md' }, { text, file: 'again.md' }])];
+  assert.ok(rows.length > 0);
+  for (const row of rows) for (const name of SELECTOR_NAMES) assert.equal(name in row, false, `${row.id} must not carry ${name}`);
+  assert.ok(SELECTOR_NAMES.includes('groups'), 'groups is a selector, which is why a piece row carries tags');
 });
