@@ -156,7 +156,7 @@ test('one page covers what it read and says where the next starts; the whole vie
   door.put('pursuit:ended', 'pursuit', { title: 'Old', status: 'ended' });
   door.put('plan:one', 'plan', { title: 'Plan', goal: 'Go', status: 'active', updated_at: '2026-01-01T00:00:00Z' });
   door.put('record-stance:decision-101', 'record-stance', { stance: { said: 'agree' } });
-  door.put('check-row-1', 'record:method-check', { id: 'check-a', check: 'Is it a?' });
+  door.put('check-row-1', 'record:check', { id: 'check-a', check: 'Is it a?' });
   door.put('setting:agent-work:one', 'setting', { value: { harness: 'made-up', checks: [] } });
   const page = await seeMyDecisions({ native_collection_page: true }, { door });
   assert.equal(page.summaries.length, 100);
