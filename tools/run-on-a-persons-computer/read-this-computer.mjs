@@ -39,16 +39,16 @@
 //      programs the account installed allow them (installedGate, from ~/.trillion/installed-programs.json that the
 //      helper writes, computer/program-host.mjs); with no such file, or none installed, they all run as before.
 //
-import { bearerControl, namespaceClient } from '../parts/live-namespace/do-work/namespace-client.mjs';
-import { loadChunking } from '../parts/live-namespace/do-work/content-chunks.mjs';
-import { fileSource, sendFile } from '../parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs';
+import { bearerControl, namespaceClient } from '../browse-and-upload-my-files/do-work/namespace-client.mjs';
+import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { fileSource, sendFile } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { randomUUID } from 'node:crypto';
 import { closeSync, copyFileSync, existsSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { computerSources } from './computer-sources.mjs';
-import { readNewItems } from './read-new-items.mjs';
+import { readNewItems } from '../bring-in-new-items-from-this-computer/computer/read-new-items.mjs';
 import { hearWith, hearingHere, hearingState, resultsOver, startKeepers } from './keep-drive-files.mjs';
 import { observeVisual, captionWith } from './observe-visual.mjs';
 import { startListening } from './listen.mjs';
