@@ -1,0 +1,19 @@
+{
+  "_what": "Whether a tool changes anything, derived from the tool itself and never declared beside it (src/tool-write-class.mjs). A tool marked `read_only` is a read; otherwise the verb its operation starts with decides: the operation is the tool's `invoke.action` (or its id without the `tool:` prefix), and an operation starting with one of `read_verbs` followed by `-` is a read. Anything else is a write, so a tool whose operation is not understood is treated as changing things. A pursuit can refuse writes by its own rules (action `run_write_tool`, src/space-permission-rules.json); with no such rule writes are allowed.",
+  "read_verbs": [
+    "read",
+    "list",
+    "find",
+    "show",
+    "check",
+    "recent",
+    "what",
+    "my",
+    "voice",
+    "look",
+    "search",
+    "get",
+    "view",
+    "open"
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "records": [
+    {
+      "id": "package::sync-files-between-my-computers::tool::say-where-file-sync-stands",
+      "address": "package::sync-files-between-my-computers::tool::say-where-file-sync-stands",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:say-where-file-sync-stands",
+        "label": "Say where file sync stands",
+        "status": "active",
+        "job": "Say where the sync of a person's files on one computer stands: starting, synced, syncing, offline, conflict or error, why Trillion was not reached, and how many saves are still moving",
+        "description": "Gives one typed sync status record from what the computer's change feed and write journal observed. The state is the first DATA row (sync-files.json sync_status) whose every condition holds; a failed ask is filed under the cause its answer status names (no_network, signed_out, storage_full, busy, trillion_unavailable, else refused). A feed that was never answered is starting, never read as empty or synced. Names, file identities and keys never enter the record: only counts, a cause and a status.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "feed"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "feed": {
+              "type": "object",
+              "required": [
+                "version",
+                "reached_at",
+                "failure"
+              ],
+              "properties": {
+                "version": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ],
+                  "description": "The change count read up to"
+                },
+                "reached_at": {
+                  "type": [
+                    "number",
+                    "null"
+                  ],
+                  "description": "When Trillion last answered, in ms since 1970; null when never"
+                },
+                "failure": {
+                  "type": [
+                    "object",
+                    "null"
+                  ],
+                  "properties": {
+                    "status": {
+                      "type": "integer"
+                    },
+                    "at": {
+                      "type": "number"
+                    }
+                  },
+                  "description": "The last failed ask: its answer status (left out when no answer came) and when, in ms"
+                }
+              }
+            },
+            "writes": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "owing": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "size": {
+                        "type": "integer"
+                      }
+                    }
+                  }
+                },
+                "conflicts": {
+                  "type": "array"
+                },
+                "failed": {
+                  "type": "array"
+                }
+              },
+              "description": "The write journal's status: saves still moving, kept aside as conflicts, and failed. Null when nothing is written from this computer"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "state",
+            "said"
+          ],
+          "properties": {
+            "state": {
+              "type": "string"
+            },
+            "version": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            },
+            "network": {
+              "type": "object"
+            },
+            "error": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "moving": {
+              "type": "object"
+            },
+            "conflicts": {
+              "type": "integer"
+            },
+            "failed": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "sync-files-between-my-computers",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/sync-files-between-my-computers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/sync-files-between-my-computers",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/sync-files-between-my-computers/do-work/drive-sync-status.mjs",
+            "sayWhereFileSyncStands"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:sync-files-between-my-computers",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion computer/drive-sync-status.mjs at 3d6dc7f9e^ (deleted from origin/main by 3d6dc7f9e)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "feed": {
+                "version": 7,
+                "reached_at": 1792404000000,
+                "failure": null
+              },
+              "writes": {
+                "owing": [
+                  {
+                    "size": 10
+                  },
+                  {
+                    "size": 5
+                  }
+                ],
+                "conflicts": [],
+                "failed": []
+              }
+            },
+            "output_selector": "$.state",
+            "contains": "syncing"
+          }
+        ]
+      }
+    }
+  ]
+}

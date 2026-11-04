@@ -1,0 +1,11 @@
+{
+  "_what": "How a connection's state reads wherever connections are listed. The key is the state the caller derived from real checks; a state with no row still draws with its key made readable and the fallback tone.",
+  "fallback": {"tone": "grey"},
+  "states": {
+    "connected": {"label": "Connected", "tone": "green"},
+    "not-connected": {"label": "Not connected", "tone": "grey"},
+    "not-checked": {"label": "Not checked yet", "tone": "yellow"},
+    "needs-attention": {"label": "Needs attention", "tone": "red"},
+    "saved": {"label": "Saved", "tone": "blue"}
+  }
+}

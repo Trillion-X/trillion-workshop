@@ -1,0 +1,50 @@
+{
+  "_what": "How another party's words are made safe to quote inside a turn an AI reads (src/untrusted-text.mjs quoteUntrusted). Every step is DATA: a step can be switched off or retuned by editing this file, with no code change. Order: normalise, strip, escape, truncate.",
+  "normalize": "NFC",
+  "strip": {
+    "_what": "Unicode general categories removed outright (control characters, and format characters such as bidi overrides, zero-width joiners and the byte order mark), except the characters listed in keep.",
+    "categories": [
+      "Cc",
+      "Cf"
+    ],
+    "keep": [
+      "\n",
+      "\t"
+    ]
+  },
+  "escape": {
+    "_what": "Each character on the left is replaced by the text on the right so quoted words can never close or open a tag around themselves. The full-width and angle-bracket lookalikes are written as code points so the file stays readable.",
+    "rows": [
+      {
+        "from": "<",
+        "to": "&lt;"
+      },
+      {
+        "from": "＜",
+        "to": "&lt;"
+      },
+      {
+        "from": "‹",
+        "to": "&lt;"
+      },
+      {
+        "from": "〈",
+        "to": "&lt;"
+      },
+      {
+        "from": "〈",
+        "to": "&lt;"
+      },
+      {
+        "from": "⟨",
+        "to": "&lt;"
+      },
+      {
+        "from": "﹤",
+        "to": "&lt;"
+      }
+    ]
+  },
+  "ellipsis": "…",
+  "default_max_code_points": 8000
+}

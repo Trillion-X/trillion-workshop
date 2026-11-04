@@ -1,0 +1,336 @@
+/* packages/screen-look/show/floating-menus.css
+ *
+ * Purpose: ONE look for everything that floats over the page: the shared
+ * ActionMenu (packages/ui/show/action-menu) and its hover submenus, and the
+ * shared popovers (the rule filter's builder, value checklist and range, the
+ * sidebar's "Add a list" picker). Same
+ * surface, same corners, same shadow, same row anatomy, same entry motion.
+ *
+ * The row is the sidebar row the owner picked as the good one: left-aligned, an
+ * icon then the words, a soft fill on hover, and its secondary controls (the
+ * drag grip) appearing only on the row under the pointer.
+ *
+ *   [grip] [icon] Label ...................... [hint] [check | ⌘K | ›]
+ *
+ * Anatomy adapted from 21st.dev originui "Dropdown Menu — Menu with icons"
+ * (id 385) and coss "Menu" (id 11567, nested submenus), checked against
+ * Linear's filter menu (Mobbin ed670cda-0527-4716-a1a6-0159f12c4f42: search
+ * box, icon rows, a chevron for rows that open more, counts at the end).
+ * Entry motion from the owner's bookmark of @ozzyxs1a: start at scale .97, never
+ * 0, so a menu settles instead of inflating. On a phone the same surfaces are
+ * sheets at the bottom edge (the last section, after Amie).
+ */
+
+/* The surface. */
+.coss-ui [data-slot=menu-sub-content].action-menu,
+.coss-ui [data-slot=menu-popup].action-menu,
+.coss-ui [data-slot=popover-popup]:is(.rule-filter-popup,.rule-filter-values-popup,.rule-filter-range-popup,.sidebar-list-popover) {
+  box-sizing: border-box;
+  padding: 0;
+  border: 1px solid var(--color-input);
+  border-radius: 12px;
+  background: var(--color-popover);
+  color: var(--color-popover-foreground, var(--color-foreground));
+  box-shadow: var(--elevation-2);
+  transform-origin: var(--transform-origin);
+  transition: opacity var(--motion-base, 200ms) var(--ease-enter, ease), transform var(--motion-base, 200ms) var(--ease-snap, ease);
+}
+.coss-ui :is([data-slot=menu-sub-content],[data-slot=menu-popup]).action-menu:is([data-starting-style],[data-ending-style]),
+.coss-ui [data-slot=popover-popup]:is(.rule-filter-popup,.rule-filter-values-popup,.rule-filter-range-popup,.sidebar-list-popover):is([data-starting-style],[data-ending-style]) {
+  opacity: 0;
+  transform: scale(.97);
+}
+/* Leaving eases out of the way on the look's exit curve. */
+.coss-ui :is([data-slot=menu-sub-content],[data-slot=menu-popup]).action-menu[data-ending-style],
+.coss-ui [data-slot=popover-popup]:is(.rule-filter-popup,.rule-filter-values-popup,.rule-filter-range-popup,.sidebar-list-popover)[data-ending-style] {
+  transition-timing-function: var(--ease-exit, ease);
+}
+.coss-ui :is([data-slot=menu-sub-content],[data-slot=menu-popup]).action-menu {
+  min-width: 232px;
+  max-width: min(380px, calc(100vw - 24px));
+}
+.coss-ui :is([data-slot=menu-popup],[data-slot=menu-sub-content]).action-menu > div {
+  padding: 4px;
+  max-height: min(460px, var(--available-height, 460px));
+}
+/* A row's panel (a message box, a form) opens beside it as its own level: wide enough to write in, never wider than
+ * the screen, its own content scrolling when it is taller than the room left. */
+.coss-ui [data-slot=menu-sub-content].action-menu.action-menu-panel {
+  width: min(420px, calc(100vw - 24px));
+  max-width: min(420px, calc(100vw - 24px));
+}
+.coss-ui .action-menu-panel [data-slot=menu-panel] {
+  padding: 6px;
+  max-height: min(560px, var(--available-height, 560px));
+  overflow: auto;
+}
+
+/* The row: left-aligned, never centred, the same height everywhere. */
+.coss-ui .action-menu [data-slot=menu-sub-trigger],
+.coss-ui .action-menu [data-slot=menu-item] {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 32px;
+  padding: 0 8px;
+  border-radius: 7px;
+  color: var(--color-popover-foreground, var(--color-foreground));
+  font-size: 13px;
+  font-weight: 450;
+  line-height: 1;
+  text-align: left;
+  cursor: default;
+  white-space: nowrap;
+}
+.coss-ui .action-menu [data-slot=menu-sub-trigger]:is([data-highlighted],[data-popup-open]),
+.coss-ui .action-menu [data-slot=menu-item][data-highlighted] {
+  background: var(--color-accent);
+  color: var(--color-accent-foreground, var(--color-foreground));
+}
+.coss-ui .action-menu [data-slot=menu-item-icon] {
+  display: block;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: var(--color-muted-foreground);
+  font-size: 14px;
+  line-height: 16px;
+  text-align: center;
+}
+.coss-ui .action-menu svg[data-slot=menu-item-icon] { stroke-width: 1.5 }
+.coss-ui .action-menu :is([data-slot=menu-item],[data-slot=menu-sub-trigger])[data-highlighted] [data-slot=menu-item-icon] {
+  color: var(--color-popover-foreground, var(--color-foreground));
+}
+.coss-ui .action-menu [data-slot=menu-item-label] {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 18px;
+}
+.coss-ui .action-menu [data-slot=menu-item-hint] {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.coss-ui .action-menu svg[data-slot=menu-item-check] {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  color: var(--color-primary);
+}
+.coss-ui .action-menu [data-slot=menu-item-shortcut] {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 3px;
+  margin-left: 16px;
+}
+.coss-ui .action-menu [data-slot=menu-item-shortcut] kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border: 1px solid color-mix(in srgb, var(--color-foreground) 13%, transparent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-foreground) 4%, transparent);
+  color: var(--color-muted-foreground);
+  font: 500 10.5px/1 var(--font-heading);
+  letter-spacing: 0;
+}
+.coss-ui .action-menu [data-slot=menu-sub-trigger] > svg:last-child {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+  color: var(--color-muted-foreground);
+}
+
+/* The grip: seen on every row that can move, so a list that reorders says so
+ * before the pointer finds it, and full strength on the row under the pointer.
+ * A pinned row keeps the space, empty. */
+.coss-ui .action-menu [data-slot=menu-item-grip] {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  margin-right: -4px;
+  color: var(--color-muted-foreground);
+  opacity: .6;
+  cursor: grab;
+  transition: opacity 120ms ease;
+}
+.coss-ui .action-menu [data-slot=menu-item-grip] svg { width: 12px; height: 12px }
+.coss-ui .action-menu :is([data-slot=menu-item],[data-slot=menu-sub-trigger]):is(:hover,[data-highlighted]) [data-slot=menu-item-grip]:not([data-pinned]) { opacity: 1 }
+.coss-ui .action-menu [data-dragging='true'] { opacity: .45 }
+
+/* The search box at the top of a long menu. */
+.coss-ui .action-menu [data-slot=menu-search] {
+  padding: 2px 2px 6px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--color-input);
+}
+.coss-ui .action-menu [data-slot=menu-search] [data-slot=input] {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+}
+.coss-ui .action-menu [data-slot=menu-empty] {
+  margin: 0;
+  padding: 10px 8px;
+  color: var(--color-muted-foreground);
+  font-size: 13px;
+}
+
+.coss-ui .action-menu [data-slot=menu-separator] { height: 1px; margin: 4px -4px; background: var(--color-input) }
+.coss-ui .action-menu [data-slot=menu-label] {
+  padding: 8px 8px 4px;
+  color: var(--color-muted-foreground);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .02em;
+  text-align: left;
+}
+/* A destructive row (Remove, Delete) rests in the menu's own quiet colour like every other row and turns red only when
+ * pointed at or focused, so a menu never shouts about the one thing you rarely want. */
+.coss-ui .action-menu [data-slot=menu-item][data-variant=destructive] { color: var(--color-foreground) }
+.coss-ui .action-menu [data-slot=menu-item][data-variant=destructive] [data-slot=menu-item-icon] { color: var(--color-muted-foreground) }
+.coss-ui .action-menu [data-slot=menu-item][data-variant=destructive][data-highlighted],
+.coss-ui .action-menu [data-slot=menu-item][data-variant=destructive][data-highlighted] [data-slot=menu-item-icon] {
+  color: var(--color-destructive-muted);
+}
+.coss-ui .action-menu [data-slot=menu-item][data-variant=destructive][data-highlighted] {
+  background: color-mix(in srgb, var(--color-destructive) 10%, transparent);
+}
+.coss-ui .action-menu [data-slot=menu-item][data-confirming] {
+  background: color-mix(in srgb, var(--color-destructive) 12%, transparent);
+  font-weight: 550;
+}
+
+/* The expandable toolbar's badge (a count or value beside an icon: 3, 100%,
+ * H2) and the detail an item holds ("Group by · Project"). A badge is a quiet
+ * value, never the accent: in a look whose accent is red it read as an error. */
+.expandable-tabs-badge {
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  margin-left: 3px;
+  padding: 0 4px;
+  border-radius: var(--radius-chip, 0.375rem);
+  background: color-mix(in srgb, var(--text-primary, currentColor) 10%, transparent);
+  color: var(--text-primary, var(--color-foreground));
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.expandable-tabs-detail {
+  margin-left: 6px;
+  color: var(--text-muted, var(--color-muted-foreground));
+  font-weight: 450;
+}
+.expandable-tabs-detail::before { content: '· '; }
+
+/* Hidden copies of an expandable group's labels, measured so the group can
+ * reserve the room a label needs and hovering never moves its neighbours. The
+ * text comes from an attribute so it never joins the group's own text. */
+[data-expandable-tabs-sizer] [data-label]::before { content: attr(data-label); }
+[data-expandable-tabs-sizer] [data-label] { padding-left: 6px; }
+[data-expandable-tabs-sizer] { width: 0; overflow: hidden; }
+[data-expandable-tabs-sizer] [data-label] { flex-shrink: 0; }
+
+/* A row of choices wider than its place scrolls inside itself, so choosing one never slides the whole screen sideways
+ * (a list's views in a 390px pane). */
+[data-expandable-tabs][aria-orientation=horizontal] { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+[data-expandable-tabs][aria-orientation=horizontal]::-webkit-scrollbar { display: none; }
+
+/* On a phone (a finger and a small screen, parts/ui/show/phone-sheet) every menu, popover and select is a sheet
+ * at the bottom edge, after Amie (Mobbin d055271a-e29a-4014-93f0-3a6b95cd89f6, d00daa2e-1094-48ea-87ba-c1a1ee192586):
+ * the page dims, the sheet runs the full width with round top corners and a small grip, it slides up from below,
+ * and its rows end above the home indicator. The positioner is pinned here over the placement the primitive
+ * computed (hence !important: an inline position must lose); the primitive and its rows are unchanged, so every
+ * look above still draws the rows. A finger dragging the grip moves the sheet with it (--phone-sheet-drag). */
+[data-phone-sheet] {
+  position: fixed !important;
+  inset: auto 0 0 0 !important;
+  width: auto !important;
+  max-width: none !important;
+  height: auto !important;
+  transform: translateY(var(--phone-sheet-drag, 0px)) !important;
+  transition: transform var(--motion-sheet) var(--ease-snap);
+  --available-height: calc(88dvh - env(safe-area-inset-top, 0px)) !important;
+  --available-width: 100vw !important;
+}
+[data-phone-sheet][data-phone-sheet-dragging] { transition: none; }
+[data-phone-sheet] > * {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  transform-origin: 50% 100% !important;
+  transition: transform var(--motion-sheet) var(--ease-snap), opacity var(--motion-base) ease !important;
+  scale: none !important;
+}
+[data-phone-sheet] > :is([data-starting-style], [data-ending-style]) {
+  transform: translateY(100%) !important;
+  opacity: 1 !important;
+}
+[data-phone-sheet] [data-phone-sheet-surface] {
+  position: relative;
+  box-sizing: border-box;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  border-width: 1px 0 0 !important;
+  border-radius: 20px 20px 0 0 !important;
+  padding-top: 20px !important;
+  padding-bottom: env(safe-area-inset-bottom, 0px) !important;
+  box-shadow: 0 -8px 32px rgb(0 0 0 / 0.12) !important;
+}
+[data-phone-sheet] [data-phone-sheet-surface]::before { border-radius: 20px 20px 0 0 !important; }
+/* The rows read at a finger's size. */
+@media (pointer: coarse) {
+  .glass-popover [role=option] { min-height: 44px; }
+}
+[data-phone-sheet] [data-phone-sheet-surface] :is([role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option]) {
+  min-height: 44px;
+}
+/* The grip: a wide area a thumb can catch, drawn as a small pill. */
+.phone-sheet-grip {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 22px;
+  touch-action: none;
+  cursor: grab;
+  z-index: 1;
+}
+.phone-sheet-grip::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 36px;
+  height: 5px;
+  border-radius: 3px;
+  translate: -50% 0;
+  background: color-mix(in srgb, var(--color-foreground, #1f1f1f) 22%, transparent);
+}
+.phone-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 0.32);
+  transition: opacity 260ms ease;
+}
+.phone-sheet-backdrop:is([data-starting-style], [data-ending-style]) { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  [data-phone-sheet], [data-phone-sheet] > *, .phone-sheet-backdrop { transition: none !important; }
+}

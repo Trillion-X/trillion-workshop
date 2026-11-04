@@ -1,0 +1,11 @@
+{
+  "_what": "What is checked before a recording starts, and what is held while it runs (capture-preflight.mjs). Each check names a `probe` (a fact about this device that the page can read, answered by the caller), and fails when the fact is on the wrong side of a limit. `block` stops the recording before anything is asked of the person, with the plain words of `problem` (a key of capture-sources.json problems); a check without `block` only warns, and the recording still starts. A probe the device cannot answer (null) never fails a check. `hold` rows name things kept for the length of the recording, each answered by a holder the caller supplies: the device stays awake while recording. Adding a check is one row.",
+  "checks": [
+    { "id": "room-to-keep", "probe": "storage_free_bytes", "below": 52428800, "block": true, "problem": "preflight-no-room" },
+    { "id": "little-room", "probe": "storage_free_bytes", "below": 524288000, "block": false, "problem": "preflight-little-room" },
+    { "id": "battery-low", "probe": "battery_level", "below": 0.1, "only_when": { "probe": "battery_charging", "is": false }, "block": false, "problem": "preflight-battery" }
+  ],
+  "hold": [
+    { "id": "stay-awake", "holder": "wake_lock" }
+  ]
+}

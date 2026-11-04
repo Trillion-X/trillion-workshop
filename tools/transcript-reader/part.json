@@ -1,0 +1,8 @@
+{
+  "public": [
+    "read-data/read-transcript-records.ts",
+    "show/TranscriptReaderSurface.tsx",
+    "read-data/edit-transcript.ts",
+    "show/transcript-tools.json"
+  ]
+}

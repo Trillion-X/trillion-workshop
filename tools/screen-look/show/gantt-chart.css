@@ -1,0 +1,156 @@
+/*
+ * The Gantt chart (ui/show/gantt-chart/GanttChart.tsx): bars on a time axis, the names kept in view at the left.
+ * Reference review: a calm project-management workspace's timeline (names column, week and month headings, faint
+ * weekend bands, today line, curved joins), studied for its anatomy; no code copied. Every colour is a look token, and
+ * today is drawn in the colour the calendar already uses for it. Handle hit zones below are NEW, based on the shared
+ * component's start/end edge markup; no original transcript styling or external handle reference was recovered.
+ */
+.gantt-chart-scroll {
+  position: relative;
+  display: flex;
+  overflow: auto;
+  overscroll-behavior: contain;
+  max-height: 100%;
+  border: 1px solid var(--border-primary);
+  border-radius: var(--radius-card, .75rem);
+  background: var(--glass-bg-primary, var(--surface-primary));
+}
+.gantt-chart-names {
+  position: sticky;
+  left: 0;
+  z-index: 4;
+  flex: 0 0 clamp(9rem, 26%, 15rem);
+  background: var(--glass-bg-primary, var(--surface-primary));
+  border-inline-end: 1px solid var(--border-primary);
+}
+.gantt-chart-corner,
+.gantt-chart-head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  height: calc(var(--gantt-row) * 2);
+  box-sizing: border-box;
+  border-block-end: 1px solid var(--border-primary);
+  background: var(--glass-bg-primary, var(--surface-primary));
+}
+.gantt-chart-corner {
+  display: flex;
+  align-items: flex-end;
+  padding: 0 .75rem .5rem;
+  color: var(--text-muted);
+  font-size: var(--font-size-caption, .75rem);
+}
+.gantt-chart-name {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: 100%;
+  height: var(--gantt-row);
+  box-sizing: border-box;
+  padding: 0 .75rem;
+  border: 0;
+  border-block-end: 1px solid color-mix(in srgb, var(--border-primary) 45%, transparent);
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-body-sm, .875rem);
+  text-align: start;
+}
+button.gantt-chart-name { cursor: pointer; }
+button.gantt-chart-name:hover { background: var(--surface-hover, var(--surface-secondary)); }
+button.gantt-chart-name:focus-visible,
+.gantt-chart-bar:focus-visible { outline: 2px solid var(--border-focus, var(--accent-primary)); outline-offset: -2px; }
+.gantt-chart-name[data-group] {
+  background: color-mix(in srgb, var(--text-muted) 7%, transparent);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.gantt-chart-name[data-undated] .gantt-chart-name-text { color: var(--text-muted); }
+.gantt-chart-name-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gantt-chart-count { color: var(--text-muted); font-weight: 400; font-variant-numeric: tabular-nums; }
+.gantt-chart-time { position: relative; flex: 0 0 var(--gantt-width); width: var(--gantt-width); }
+.gantt-chart-head { color: var(--text-muted); font-size: var(--font-size-caption, .75rem); }
+.gantt-chart-months,
+.gantt-chart-ticks { position: relative; height: var(--gantt-row); }
+.gantt-chart-months span,
+.gantt-chart-ticks span {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding-inline: .5rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.gantt-chart-months span { border-inline-start: 1px solid color-mix(in srgb, var(--border-primary) 70%, transparent); color: var(--text-primary); font-weight: 600; }
+.gantt-chart-ticks span { justify-content: center; padding-inline: 0; font-variant-numeric: tabular-nums; }
+.gantt-chart-ticks span[data-today] { color: var(--calendar-today-fill, var(--accent-primary)); font-weight: 700; }
+.gantt-chart-grid { position: relative; }
+.gantt-chart-weekend,
+.gantt-chart-weekline,
+.gantt-chart-group,
+.gantt-chart-today { position: absolute; pointer-events: none; }
+.gantt-chart-weekend { top: 0; bottom: 0; background: color-mix(in srgb, var(--text-muted) 6%, transparent); }
+.gantt-chart-weekline { top: 0; bottom: 0; width: 1px; background: color-mix(in srgb, var(--border-primary) 55%, transparent); }
+.gantt-chart-group { left: 0; right: 0; height: var(--gantt-row); background: color-mix(in srgb, var(--text-muted) 7%, transparent); }
+.gantt-chart-today { top: 0; bottom: 0; width: 2px; margin-inline-start: -1px; background: var(--calendar-today-fill, var(--accent-primary)); z-index: 2; }
+.gantt-chart-bar {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: calc(var(--gantt-row) - 14px);
+  margin-block-start: 7px;
+  box-sizing: border-box;
+  padding: 0 .5rem;
+  border: 0;
+  border-radius: var(--radius-chip, .375rem);
+  background: color-mix(in srgb, var(--gantt-bar) 78%, var(--surface-primary));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--gantt-bar) 55%, transparent);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--font-size-caption, .75rem);
+  cursor: pointer;
+  overflow: hidden;
+  transition: filter .14s ease-out;
+}
+.gantt-chart-bar:hover { filter: brightness(.94); }
+.gantt-chart-bar[data-clipped] { border-start-start-radius: 0; border-end-start-radius: 0; }
+.gantt-chart-bar[data-edit="move"] { cursor: grab; }
+.gantt-chart-bar[data-edit="move"][data-dragging] { cursor: grabbing; }
+.gantt-chart-bar[data-edit="refused"] { cursor: not-allowed; }
+.gantt-chart-handle {
+  position: absolute;
+  z-index: 2;
+  inset-block: 0;
+  width: .75rem;
+  touch-action: none;
+  cursor: col-resize;
+}
+.gantt-chart-handle[data-edge="start"] {
+  inset-inline-start: 0;
+  border-start-start-radius: inherit;
+  border-end-start-radius: inherit;
+}
+.gantt-chart-handle[data-edge="end"] {
+  inset-inline-end: 0;
+  border-start-end-radius: inherit;
+  border-end-end-radius: inherit;
+}
+.gantt-chart-handle:hover,
+.gantt-chart-bar:hover .gantt-chart-handle {
+  background: color-mix(in srgb, var(--gantt-bar) 18%, transparent);
+}
+.gantt-chart-bar-text { pointer-events: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gantt-chart-joins { position: absolute; inset: 0; z-index: 1; overflow: visible; pointer-events: none; color: var(--text-muted); }
+.gantt-chart-joins path { fill: none; stroke: currentColor; stroke-width: 1.3; }
+.gantt-chart-joins path[data-out-of-order] { stroke-dasharray: 3 3; }
+.gantt-chart-joins marker path { fill: currentColor; stroke: none; }
+@media (max-width: 640px) {
+  .gantt-chart-names { flex-basis: 7.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gantt-chart-bar { transition: none; }
+}

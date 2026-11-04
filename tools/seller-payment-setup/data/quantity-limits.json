@@ -1,0 +1,5 @@
+{
+  "comment": "Payment-provider transport limits, not a product or organization cap. A customer may buy additional quantities in separate purchases. Adjustable quantity limit: Stripe Payment Links create API adjustable_quantity.maximum. Amount limit: Stripe supported currencies, maximum eight digits (conservative default; provider-specific higher currency limits are not assumed). Source: https://docs.stripe.com/api/payment_links/payment_links/create and https://docs.stripe.com/currencies#minimum-and-maximum-charge-amounts. Checked 2026-10-04.",
+  "adjustable_maximum": 999999,
+  "maximum_amount_minor_units": 99999999
+}
