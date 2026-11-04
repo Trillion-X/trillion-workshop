@@ -5,14 +5,15 @@
 //   tool:send-an-email-with-amazon-ses), and through them the sign-in codes its door sends. Who it comes from, how many
 //   may go and how each provider's refusals read are one DATA row, the account's own `mail-settings` record
 //   `settings:mail` (copied from read-data/mail-settings.json the first time), read here and nowhere else. Every email
-//   is drawn by the sending seam (send-a-message.mjs) in the person's look.
+//   is drawn here (read-data/draw-an-email.mjs) in the person's look, with the account's mark (`brand`, `made_with`).
 //
 // Non-negotiable invariants
 //   1. The sender comes only from the mail row (the one `from`, or for a written email the
 //      sending account's own row of `senders.rows`); a caller may add only its own `reply_to`.
 //   2. Never throws: → { sent: true, id } or { sent: false, error } in words a screen can show.
 //   3. Every message carries its plain text and its drawn html. A caller gives the email part's fields (markdown,
-//      preheader, action, footer_lines, footer_links) or plain `text`, which is drawn as its words.
+//      preheader, action, footer_lines, footer_links) or plain `text`, which is drawn as its words. An email whose look
+//      cannot be read is not sent (draw-an-email.mjs BRAND_UNREAD), never drawn in other colours.
 //   4. A written email (sendWrittenEmail) also goes, as a BCC, to whoever the mail row's
 //      `written_email_copies` names (the sending account's own address), never twice to the same person, and answers
 //      with `sent_copy`: exactly what the binding was given.
@@ -37,6 +38,7 @@ import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { MessageRejectedError } from '../read-data/check-message-headers.ts';
+import { currentPalette, drawEmail } from '../read-data/draw-an-email.mjs';
 import { heldKeys, providerOf, sendMessage } from './send-a-message.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -188,9 +190,10 @@ export function bindingFor(provider, credentials, row, options = {}) {
 
 /**
  * The mail rules over one account: `row` its mail row, `door` its records door, `binding` the provider's sending
- * binding (bindingFor), `provider` the provider row's id, whose refusals the mail row lists under `providers`.
+ * binding (bindingFor), `provider` the provider row's id, whose refusals the mail row lists under `providers`,
+ * `readLook` the reader of the look its emails wear (draw-an-email.mjs currentPalette: none, the shipped look).
  */
-export function mailSender({ row, door, binding, provider }) {
+export function mailSender({ row, door, binding, provider, readLook }) {
   const rules = row.providers?.[provider] ?? {};
   const settings = {
     ...row, send_binding: 'provider',
@@ -277,12 +280,16 @@ export function mailSender({ row, door, binding, provider }) {
     return { sent: false, error: 'Email could not be sent while its sending limit is unavailable. Try again shortly.' };
   }
 
-  /** The message the binding is given, exactly: { from, to, bcc?, replyTo?, subject, and the words and fields the
-   * sending seam draws }. mail: the sending row's own choices, { reply_to?, sender_name? }, or nothing. */
-  function composeMail(mail, { to, subject, bcc = null, headers = null, ...shown }) {
+  /** The message the binding is given, exactly: { from, to, bcc?, replyTo?, subject, text, html, headers? }, its words
+   * drawn in `palette` with the account's mark; a caller's own html, or a template the sending seam fills, goes as it
+   * is. mail: the sending row's own choices, { reply_to?, sender_name? }, or nothing. */
+  function composeMail(mail, { to, subject, bcc = null, text = null, markdown = null, headers = null, ...shown }, palette) {
+    const own = Boolean(shown.html || shown.template);
+    const { preheader, action, footer_lines, footer_links, mark, people, ...kept } = shown;
+    const drawn = own ? null : drawEmail({ preheader, action, footer_lines, footer_links, mark, people, markdown: markdown ?? text }, settings.brand ?? null, palette, settings.made_with ?? null);
     return {
       from: mail?.sender_name ? { email: settings.from.email, name: mail.sender_name } : mail?.from ?? settings.from, to, ...(bcc?.length ? { bcc } : {}), ...(mail?.reply_to ? { replyTo: mail.reply_to } : {}), subject,
-      ...shown,
+      ...(own ? { ...kept, ...(text ? { text } : {}) } : { ...kept, text: drawn.text, html: drawn.html }),
       ...(headers ? { headers } : {}),
     };
   }
@@ -297,7 +304,9 @@ export function mailSender({ row, door, binding, provider }) {
     // written-email owner selects its own declared sender directly below.
     const { from: ignoredFrom, send_binding: ignoredBinding, ...row } = mail ?? {};
     const { from: ignoredMessageFrom, ...words } = message;
-    const composed = composeMail(mail ? row : null, words);
+    const look = await currentPalette(readLook);
+    if (look.error) return { sent: false, error: look.error };
+    const composed = composeMail(mail ? row : null, words, look.palette);
     const sent = await deliver(env, composed, kind);
     return sent;
   }
@@ -354,10 +363,12 @@ export function mailSender({ row, door, binding, provider }) {
     if (replyTo !== null && !EMAIL_SHAPE.test(String(replyTo).trim())) throw new Error(`${replyTo} is not an email address to reply to.`);
     const bcc = writtenCopies(address, owner);
     const sender = senderFor(owner), subscribed = subscriptionMail(subscription, sender);
+    const look = await currentPalette(readLook);
+    if (look.error) return { sent: false, error: look.error, said: `The email to ${address} did not go out: ${look.error}` };
     const composed = composeMail({ from: sender, ...(replyTo ? { reply_to: String(replyTo).trim() } : {}) }, {
       to: address, subject: subject.trim(), markdown, bcc, ...subscribed, ...(preheader ? { preheader } : {}), ...(action?.href && action?.label ? { action } : {}),
       ...(idempotencyKey ? { idempotencyKey } : {}),
-    });
+    }, look.palette);
     const result = await deliver(env, composed);
     if (!result.sent) return { ...result, said: `The email to ${address} did not go out: ${result.error}` };
     const sent_copy = {
