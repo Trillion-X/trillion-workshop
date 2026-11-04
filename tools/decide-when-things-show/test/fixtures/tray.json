@@ -1,0 +1,127 @@
+{
+  "_what": "Your tray (src/workspace/tray.ts, tray-screen.tsx): what a person picks anywhere in Trillion, and what they can do with it. `pick` is what counts as a thing on the page, nearest first (parts/ui/show/selection/pick-things.ts): a selector, the kind of thing it is in plain words, its icon, the attribute holding its identity and whether it is named by its screen. `ignore` is the tray's own controls, never picked. Where the tray can go is the places a person shares to (src/share-destinations.mjs), tool places among them: every tool whose input takes what is shared is one, so a new place is a tool row. `picture_folder` is where a picture of the screen is kept in their Files. `menu` is what the right-click menu adds. Every word here is what the person reads; `composer` is laid over the shared composer's own words (parts/ui/show/composer/composer-words.json) for the note box at the tray's foot. `control` names the show-rules control the tray is (declared with its words in parts/ui/part.json `controls`, where every control is listed): hidden, the tray, its menu rows and its picking are not offered. `contexts` says where things are worked on: a thing picked inside a pane that holds one of these kinds (a pursuit, marked by main.tsx from surfaces.json opens_kinds) carries that place, so the tray offers that pursuit first and a note says which pursuit it came from.",
+  "control": "selection.tray",
+  "storage_key": "trillion-tray",
+  "limit": null,
+  "page_size": 32,
+  "picture_folder": "/Pictures of the screen",
+  "ignore": "[data-trillion-screen=\"tray\"],[data-trillion-tray-control],[role=menu],[role=dialog],[data-sidebar-surface-id]",
+  "contexts": {
+    "kinds": [
+      "space"
+    ],
+    "kindAttribute": "data-trillion-opened-kind",
+    "idAttribute": "data-trillion-opened-id"
+  },
+  "pick": [
+    {
+      "selector": "[data-record-id]",
+      "kind": "Row",
+      "icon": "Rows3",
+      "id_attribute": "data-record-id",
+      "share_attribute": "data-share-record"
+    },
+    {
+      "selector": "[data-message-id]",
+      "kind": "Message",
+      "icon": "MessageSquare",
+      "id_attribute": "data-message-id"
+    },
+    {
+      "selector": "[data-tree-id]",
+      "kind": "File",
+      "icon": "FileText",
+      "id_attribute": "data-tree-id",
+      "share_prefix": "file:"
+    },
+    {
+      "selector": "[data-sidebar-surface-id]",
+      "kind": "Screen",
+      "icon": "PanelLeft",
+      "id_attribute": "data-sidebar-surface-id"
+    },
+    {
+      "selector": "button,a[href],[role=button],[role=tab],h1,h2,h3,img,video,canvas,input,textarea,select",
+      "kind": "Part of the screen",
+      "icon": "MousePointerClick",
+      "share_url_attribute": "href",
+      "share_text": true
+    },
+    {
+      "selector": "[data-trillion-screen]",
+      "kind": "Screen",
+      "icon": "AppWindow",
+      "id_attribute": "data-trillion-screen",
+      "named_by_screen": true
+    }
+  ],
+  "menu": {
+    "add": {
+      "label": "Add to tray",
+      "icon": "Inbox"
+    },
+    "send": {
+      "label": "Send…",
+      "icon": "Send"
+    }
+  },
+  "words": {
+    "title": "Your tray",
+    "dead_title": "Could not send",
+    "dead_one": "{said}",
+    "dead_again": "Send again",
+    "dead_discard": "Discard",
+    "dead_sent": "Sent.",
+    "lead": "Pick anything in Trillion, then send it on.",
+    "count": "{count} picked",
+    "pick": "Pick things",
+    "picking": "Done picking",
+    "picking_hint": "Click anything to add it, or drag a box over several. Press Esc when you are done.",
+    "drop_hint": "Drop the selected things into your tray.",
+    "more": "More for your tray",
+    "share_link": "Share with one link",
+    "share_link_icon": "Link",
+    "clear": "Clear your tray",
+    "clear_icon": "Trash2",
+    "remove": "Take out {name}",
+    "things": "In your tray",
+    "empty_title": "Nothing in your tray yet",
+    "empty_body": "Pick things across Trillion, drag your selection here, or right-click something and choose Add to tray.",
+    "empty_icon": "Inbox",
+    "loading": "Loading where your tray can go",
+    "load_failed": "Where your tray can go could not load",
+    "picked_on": "Picked on",
+    "picked_on_icon": "AppWindow",
+    "on_screen": "on {screen}",
+    "in_place": "in {place}",
+    "your_work": "your own work",
+    "send_to": "Send to",
+    "send_to_icon": "Send",
+    "private_icon": "Sparkles",
+    "space_icon": "Users",
+    "pursuit_icon": "Target",
+    "tool_icon": "MessageSquareHeart",
+    "picture": "Picture of this screen",
+    "picture_icon": "Camera",
+    "picture_failed": "The picture could not be taken: {reason}",
+    "sent_place": "Sent to {place}.",
+    "sent_tool": "Done.",
+    "added": "Added to your tray",
+    "already_added": "Already in your tray",
+    "nothing_here": "There is nothing to add here.",
+    "link_needs_share_value": "{name} does not carry a link, words or record that can go in one share link yet. Take it out or pick its shareable item.",
+    "link_text_too_long": "{name} has more than 20,000 characters. Shorten the selected words before sharing.",
+    "link_nothing": "Pick something that can be shared first.",
+    "link_title_many": "{count} things",
+    "showing": "Showing {first}–{last} of {count}",
+    "previous": "Previous",
+    "next": "Next",
+    "sending": "Sending"
+  },
+  "composer": {
+    "label": "Send your tray",
+    "placeholder": "Add a note: what should happen, what went wrong, or an idea",
+    "busy": "Sending your tray",
+    "tray": "Going with your tray"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "_what": "Find anything (src/workspace/command-palette.tsx, the ported palette in parts/command-palette): the screen it is (its screen row's `surface_id`, whose open_placement floats it in the middle over a dimmed, blurred backdrop), the keys that open and close it from anywhere (the `find-anything` rows of src/workspace/keymap.json, the one keymap), and where results come from. Each `sources` row is one place results are read: `read` names the reader (`screens`: every screen this person is offered, as the sidebar holds them; `mentions`: everything `@` offers from src/mention-sources.json, with kinds named by `typed_kinds` asked again as words are typed; `calendar`: the person's events from now through `calendar.look_ahead_days` (GET /work/api/calendar), each under the heading of the `calendar.buckets` row its day falls in, with its time as its words; `search`: src/search.mjs, the indexed word search used by the MCP `search` tool, with `ask` naming its `sources` and `matches` options), `group` the heading its results show under (a mention takes its kind's own label when `group` is left out; a `calendar` event takes its bucket's label), `blank` whether it fills the palette before anything is typed, and `limit` how many it gives at most. Each `actions` row is offered under the results once anything is typed: `run` names what it does (`message-box`: opens the message box with the words, to send to your AIs or the ones you @mention; `send-to-all-ais`: sends the words to every AI now, as one job one of them takes), `title` and `description` its words with {query} the words typed, `done` what is said once it was sent. The other places a result can open, offered on its hover card, are the shared open choices (parts/ui/show/placeable-surface-intent/open-choices.json).",
+  "surface_id": "trillion.command-palette",
+  "most_results": 30,
+  "sources": [
+    {
+      "id": "calendar",
+      "read": "calendar",
+      "group": "Calendar",
+      "blank": true,
+      "limit": 12
+    },
+    {
+      "id": "screens",
+      "read": "screens",
+      "group": "Screens",
+      "blank": true,
+      "limit": 30
+    },
+    {
+      "id": "mentions",
+      "read": "mentions",
+      "blank": false,
+      "limit": 24,
+      "typed_kinds": [
+        "action"
+      ]
+    },
+    {
+      "id": "search",
+      "read": "search",
+      "blank": false,
+      "limit": 12,
+      "ask": {
+        "sources": "files,trillion",
+        "matches": "words-in-names,words-in-results,words-in-index,words-in-records",
+        "limit": "12"
+      }
+    }
+  ],
+  "actions": [
+    {
+      "id": "ask",
+      "run": "message-box",
+      "group": "Ask",
+      "icon": "MessageSquarePlus",
+      "title": "Ask your AIs: “{query}”",
+      "description": "Opens the message box with this, to send to every AI or the ones you @mention."
+    },
+    {
+      "id": "need",
+      "run": "send-to-all-ais",
+      "group": "Ask",
+      "icon": "Sparkles",
+      "title": "I need this: “{query}”",
+      "description": "Hands it to your AIs now; one of them takes it and works it out.",
+      "done": "Sent to your AIs. One of them takes it."
+    }
+  ],
+  "calendar": {
+    "_what": "The Calendar source's DATA: events are read from the start of today for `look_ahead_days` days; a `buckets` row names the heading (`label`) of the events on its day: `day` is the number of days from today it holds alone, `from_day` the first of the days it holds from there on. An event's words are its time (`all_day` for a whole day) and then its place when it has one.",
+    "look_ahead_days": 7,
+    "icon": "CalendarDays",
+    "open_screen": "trillion.calendar",
+    "buckets": [
+      {
+        "id": "today",
+        "label": "Today",
+        "day": 0
+      },
+      {
+        "id": "tomorrow",
+        "label": "Tomorrow",
+        "day": 1
+      },
+      {
+        "id": "later",
+        "label": "Later this week",
+        "from_day": 2
+      }
+    ],
+    "words": {
+      "all_day": "All day",
+      "untitled": "Event with no title"
+    }
+  },
+  "frecency": {
+    "half_life_days": 14,
+    "store_key": "trillion.palette.frecency",
+    "max_items": 200,
+    "max_terms": 6,
+    "bonus": 1.5,
+    "term_bonus": 1
+  }
+}
