@@ -1,0 +1,14 @@
+{
+  "_what": "What an AI app that registered no name is called on Account & security, read from where its sign-in returns (its redirect address). The first row whose `starts_with` begins that address names it; an address no row matches keeps the plain name `unknown_name`. Read by src/account-routes.mjs appName, when an app connects (src/worker.mjs) and when the list is drawn.",
+  "places": [
+    { "starts_with": "https://claude.ai/", "name": "Claude on the web" },
+    { "starts_with": "https://claude.com/", "name": "Claude on the web" },
+    { "starts_with": "https://chatgpt.com/", "name": "ChatGPT" },
+    { "starts_with": "https://chat.openai.com/", "name": "ChatGPT" },
+    { "starts_with": "trillion-share://", "name": "Trillion for iPhone" },
+    { "starts_with": "chrome-extension://", "name": "A browser extension" },
+    { "starts_with": "http://localhost:", "name": "An app on this computer" },
+    { "starts_with": "http://127.0.0.1:", "name": "An app on this computer" }
+  ],
+  "unknown_name": "An AI app"
+}

@@ -187,6 +187,30 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/hosts/local/sqlite-host.mjs",
       "source_identity": "1f:afa8f5be249525e7ec80983345207525204aabd81a0f76e0f1ec9125fd8127d7",
       "identity": "1f:afa8f5be249525e7ec80983345207525204aabd81a0f76e0f1ec9125fd8127d7"
+    },
+    {
+      "from": "src/decision-store.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs",
+      "source_identity": "1f:9fa77b2f232b46a4b2c957237815dc548547ce479fa275ea0396ba6e5c21b2bd",
+      "identity": "1f:227da794d38137771b1e4d1bedfdc96251e404fc13906bd67a73754893ee972b",
+      "reused": true
+    },
+    {
+      "from": "src/failure.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/failure.mjs",
+      "source_identity": "1f:b2d2caec290a2a4fad02a20a2f2d9992086dfe091ae7d0038e060b1d86e3479c",
+      "identity": "1f:cc08f431988cb888be8ce80797a55636a1fc7a001e2de7e7516561d4ad092fa7",
+      "reused": true
+    },
+    {
+      "from": "src/your-records.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/src/your-records.mjs",
+      "source_identity": "1f:a9558aae34c876e2b80758b1cb4cffb893ca693e473d159a25c547461aefbf6a",
+      "identity": "1f:a9558aae34c876e2b80758b1cb4cffb893ca693e473d159a25c547461aefbf6a",
+      "reused": true
     }
   ]
 }

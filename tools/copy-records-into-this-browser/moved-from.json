@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/browser-record-copy.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/copy-records-into-this-browser/src/browser-record-copy.mjs",
+      "source_identity": "1f:d499c4dab4eeb8ba6629bd80e47a57d64428908efb381d1ba8d3b87e6a86516c",
+      "identity": "1f:4ba28f72442efda205b4514f9a0f200840176d102a97b638816aefeec004f106"
+    },
+    {
+      "from": "src/browser-session-recorder.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/copy-records-into-this-browser/src/browser-session-recorder.mjs",
+      "source_identity": "1f:9f95038df0e77ddb93d5327fdc7eec86ac4048f20259f6682352ebd98720503a",
+      "identity": "1f:9f95038df0e77ddb93d5327fdc7eec86ac4048f20259f6682352ebd98720503a"
+    },
+    {
+      "from": "src/record-copies.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/copy-records-into-this-browser/src/record-copies.json",
+      "source_identity": "1f:faec6e34b5cb030cc83ab8d3c427cb9518b8057436e6576bf74ccbe28f75c2fc",
+      "identity": "1f:faec6e34b5cb030cc83ab8d3c427cb9518b8057436e6576bf74ccbe28f75c2fc"
+    },
+    {
+      "from": "test/frame-compression.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/copy-records-into-this-browser/test/frame-compression.test.mjs",
+      "source_identity": "1f:7efbcdb1847cdda5e24d83f711a186461b0e96a2310bf8878c46412547701c65",
+      "identity": "1f:5e85a883fbb128538468901ff00e40328438c05265c5ade4393ba1b8ee932cf0"
+    }
+  ]
+}
