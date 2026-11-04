@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SEE-WHAT-MY-AIS-DID-KEEP-AND-READ-ACTIVITY",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: tool rows for the 31 Workshop folders nothing loads",
+  "message_multihash": "1f:9368b18deabf434f8d934b66ab4d0c5439141a414c7c3430f194beb9573bcc73",
+  "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists, newest first",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/see-what-my-ais-did/do-work/keep-and-read-activity.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/see-what-my-ais-did/",
+   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "turn the tool calls an AI made on a person's account into the activity rows the AI activity screen lists, newest first",
+    "keep and read activity"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "keepAndReadActivity"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9fcfd41235745096f6560577635117307cbf85dd"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/see-what-my-ais-did/tool-rows.json sample run (tool:list-what-my-ais-did)"
+  ]
+ }
+}
