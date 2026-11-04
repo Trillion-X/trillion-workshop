@@ -107,7 +107,7 @@ test('Calendar HTTP manual order reads and moves exact persisted rows through th
     const lists = makeLists({ eeaf: store.eeaf });
     const first = changeCalendarTask(lists, { action: 'create', request_key: 'http-first', title: 'Z first', duration_minutes: 15 }).task;
     const second = changeCalendarTask(lists, { action: 'create', request_key: 'http-second', title: 'A second', duration_minutes: 15 }).task;
-    lists.fillOrdering(data.list.id);
+    await lists.fillOrdering(data.list.id);
     for (let page = 0; page < 100 && !store.eeaf.indexReady(`record:${data.list.row_type}`, data.list.ordering.index); page++) {
       store.eeaf.backfillTables({ limit: 10 });
     }
@@ -302,7 +302,7 @@ test('calendar task detail fields reject unknown priorities and out-of-bounds te
   assert.throws(() => create({ labels: Array.from({ length: data.limits.labels_per_task + 1 }, (_, index) => `Label ${index}`) }), /non-empty labels/);
 });
 
-test('task provenance is validated and survives create, update, Lists storage and calendar reads', () => {
+test('task provenance is validated and survives create, update, Lists storage and calendar reads', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf, newId: () => 'provenance-task' });
   const created = changeCalendarTask(lists, {
@@ -311,8 +311,8 @@ test('task provenance is validated and survives create, update, Lists storage an
   });
   assert.equal(created.task.source_id, 'amie-task-81');
   assert.equal(created.task.source_url, 'https://app.amie.so/tasks/81');
-  assert.equal(lists.row(data.list.id, created.task.id).values.source_id, 'amie-task-81');
-  assert.deepEqual(lists.find(data.list.id).fields.map(field => field.id), data.list.fields.map(field => field.id));
+  assert.equal((await lists.row(data.list.id, created.task.id)).values.source_id, 'amie-task-81');
+  assert.deepEqual((await lists.find(data.list.id)).fields.map(field => field.id), data.list.fields.map(field => field.id));
 
   const updated = changeCalendarTask(lists, { action: 'update', task_id: created.task.id, source_id: 'amie-task-82' });
   assert.equal(updated.task.source_id, 'amie-task-82');
@@ -326,34 +326,34 @@ test('task provenance is validated and survives create, update, Lists storage an
   }), /500 characters or fewer/);
 });
 
-test('Calendar task DATA works against the real in-memory Lists owner', () => {
+test('Calendar task DATA works against the real in-memory Lists owner', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf, newId: () => 'test-task' });
   const made = changeCalendarTask(lists, { action: 'create', request_key: 'memory-owner', title: 'Read the brief', duration_minutes: 25, due: '2026-10-20' });
-  assert.deepEqual(lists.find(data.list.id).fields.map(field => field.id), data.list.fields.map(field => field.id));
-  assert.equal(lists.row(data.list.id, made.task.id).values.title, 'Read the brief');
+  assert.deepEqual((await lists.find(data.list.id)).fields.map(field => field.id), data.list.fields.map(field => field.id));
+  assert.equal((await lists.row(data.list.id, made.task.id)).values.title, 'Read the brief');
   const scheduled = changeCalendarTask(lists, { action: 'schedule', task_id: made.task.id, start: '2026-10-14T09:00:00Z', end: '2026-10-14T09:35:00Z' });
   assert.equal(scheduled.task.duration_minutes, 35);
   assert.equal(readCalendarTasks(lists, { from: '2026-10-14T00:00:00Z', to: '2026-10-15T00:00:00Z' }).tasks[0].id, made.task.id);
   assert.equal(changeCalendarTask(lists, { action: 'complete', task_id: made.task.id }).task.status, 'Done');
 });
 
-test('Calendar task DATA adds provenance fields to an existing Lists definition without replacing its rows', () => {
+test('Calendar task DATA adds provenance fields to an existing Lists definition without replacing its rows', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf, newId: () => 'legacy-task' });
   const legacy = { ...data.list, fields: data.list.fields.filter(field => !['source_id', 'source_url', 'collection_id'].includes(field.id))
     .map(field => field.id === 'parent_id' ? (({ link_constraints, ...rest }) => rest)(field) : field) };
-  lists.ensure(legacy, { actor: { by: 'test' } });
-  lists.putRows(data.list.id, { rows: [{ id: 'old', values: { title: 'Existing task', duration_minutes: 20 } }] }, { actor: { by: 'test' } });
+  await lists.ensure(legacy, { actor: { by: 'test' } });
+  await lists.putRows(data.list.id, { rows: [{ id: 'old', values: { title: 'Existing task', duration_minutes: 20 } }] }, { actor: { by: 'test' } });
   const answer = readCalendarTasks(lists);
-  assert.deepEqual(lists.find(data.list.id).fields.map(field => field.id), data.list.fields.map(field => field.id));
-  assert.deepEqual(lists.find(data.list.id).fields.find(field => field.id === 'parent_id').link_constraints,
+  assert.deepEqual((await lists.find(data.list.id)).fields.map(field => field.id), data.list.fields.map(field => field.id));
+  assert.deepEqual((await lists.find(data.list.id)).fields.find(field => field.id === 'parent_id').link_constraints,
     { max_links: 1, require_target: true, acyclic: true }, 'calendar schema reconciliation installs the current parent rules');
   assert.equal(answer.tasks[0].title, 'Existing task');
   assert.equal(answer.tasks[0].source_id, null);
 });
 
-test('task lists use generic Lists rows for create, read, rename, move, duplicate and delete', () => {
+test('task lists use generic Lists rows for create, read, rename, move, duplicate and delete', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf, newId: () => 'unused-list-row' });
   const created = changeCalendarTask(lists, { action: 'create_collection', request_key: 'work', title: 'Work' });
@@ -381,9 +381,9 @@ test('task lists use generic Lists rows for create, read, rename, move, duplicat
   changeCalendarTask(lists, { action: 'move', task_id: task.task.id, collection_id: created.collection.id });
   changeCalendarTask(lists, { action: 'move', task_id: duplicate.task.id, collection_id: created.collection.id });
   assert.deepEqual(changeCalendarTask(lists, { action: 'delete_collection', collection_id: created.collection.id }), { id: created.collection.id, removed: true });
-  assert.equal(lists.row(data.list.id, task.task.id).values.collection_id, undefined,
+  assert.equal((await lists.row(data.list.id, task.task.id)).values.collection_id, undefined,
     'the Lists owner atomically detaches task links when their collection row is removed');
-  assert.equal(lists.row(data.list.id, duplicate.task.id).values.collection_id, undefined);
+  assert.equal((await lists.row(data.list.id, duplicate.task.id)).values.collection_id, undefined);
   assert.deepEqual(readCalendarTaskCollections(lists).collections, []);
   assert.throws(() => changeCalendarTask(lists, { action: 'move', task_id: task.task.id, collection_id: created.collection.id }), /still exists/);
 });
@@ -408,7 +408,7 @@ test('task reads expose bounded pages without imposing a total task limit', () =
   assert.equal(count, 2001);
 });
 
-test('Calendar task parents are validated against the exact ancestor chain and detached on removal', () => {
+test('Calendar task parents are validated against the exact ancestor chain and detached on removal', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf });
   const parent = changeCalendarTask(lists, { action: 'create', request_key: 'parent', title: 'Parent', duration_minutes: 20 });
@@ -417,7 +417,7 @@ test('Calendar task parents are validated against the exact ancestor chain and d
   assert.throws(() => changeCalendarTask(lists, { action: 'update', task_id: parent.task.id, parent_id: child.task.id }), /ancestor/);
   assert.throws(() => changeCalendarTask(lists, { action: 'update', task_id: child.task.id, parent_id: 'missing-task' }), /parent task is not/);
   changeCalendarTask(lists, { action: 'delete', task_id: parent.task.id });
-  assert.equal(lists.row(data.list.id, child.task.id).values.parent_id, undefined);
+  assert.equal((await lists.row(data.list.id, child.task.id)).values.parent_id, undefined);
 });
 
 test('planning fields (deadline kind, earliest start, blockers, pin, who placed it) persist through the real Lists owner', () => {
@@ -460,9 +460,9 @@ const realLists = () => {
   let next = 0;
   return makeLists({ eeaf: store.eeaf, newId: () => `row-${++next}` });
 };
-const stored = (lists, id) => lists.row(data.list.id, id)?.values;
+const stored = async (lists, id) => (await lists.row(data.list.id, id))?.values;
 
-test('every change answers with the restore that undoes exactly it, and a restore refuses once the task has changed again', () => {
+test('every change answers with the restore that undoes exactly it, and a restore refuses once the task has changed again', async () => {
   const lists = realLists();
   const made = changeCalendarTask(lists, { action: 'create', request_key: 'undo', title: 'Write', duration_minutes: 30, due: '2026-10-20' });
   assert.deepEqual(made.undo, { action: 'restore', rows: [{ task_id: made.task.id, remove: true }] }, 'the way back from a create is to remove it');
@@ -473,28 +473,28 @@ test('every change answers with the restore that undoes exactly it, and a restor
   const moved = changeCalendarTask(lists, { action: 'schedule', task_id: made.task.id, start: '2026-10-14T13:00:00Z' });
   const back = changeCalendarTask(lists, moved.undo);
   assert.equal(back.restored, 1);
-  assert.equal(stored(lists, made.task.id).starts_at, '2026-10-14T09:00:00.000Z', 'undoing the move puts the planner\'s time back');
-  assert.equal(stored(lists, made.task.id).pinned_until ?? null, null, 'and lifts the pin the move made');
+  assert.equal((await stored(lists, made.task.id)).starts_at, '2026-10-14T09:00:00.000Z', 'undoing the move puts the planner\'s time back');
+  assert.equal((await stored(lists, made.task.id)).pinned_until ?? null, null, 'and lifts the pin the move made');
   assert.deepEqual(back.undo.rows[0].values.starts_at, '2026-10-14T13:00:00.000Z', 'a restore can itself be undone');
 
   changeCalendarTask(lists, { action: 'schedule', task_id: made.task.id, start: '2026-10-14T15:00:00Z' });
   assert.throws(() => changeCalendarTask(lists, scheduled.undo), /changed since/, 'the task is no longer as the schedule left it');
-  assert.equal(stored(lists, made.task.id).starts_at, '2026-10-14T15:00:00.000Z', 'a refused restore writes nothing');
+  assert.equal((await stored(lists, made.task.id)).starts_at, '2026-10-14T15:00:00.000Z', 'a refused restore writes nothing');
 
   const edited = changeCalendarTask(lists, { action: 'update', task_id: made.task.id, title: 'Write the brief', priority: 'high', labels: ['Client'] });
   changeCalendarTask(lists, edited.undo);
-  assert.deepEqual([stored(lists, made.task.id).title, stored(lists, made.task.id).priority ?? null, stored(lists, made.task.id).labels ?? []], ['Write', null, []]);
+  assert.deepEqual([(await stored(lists, made.task.id)).title, (await stored(lists, made.task.id)).priority ?? null, (await stored(lists, made.task.id)).labels ?? []], ['Write', null, []]);
 
   const done = changeCalendarTask(lists, { action: 'complete', task_id: made.task.id });
   changeCalendarTask(lists, done.undo);
-  assert.equal(stored(lists, made.task.id).status ?? 'To do', 'To do');
+  assert.equal((await stored(lists, made.task.id)).status ?? 'To do', 'To do');
 
   const removed = changeCalendarTask(lists, { action: 'delete', task_id: made.task.id });
-  assert.equal(lists.row(data.list.id, made.task.id), null);
+  assert.equal(await lists.row(data.list.id, made.task.id), null);
   changeCalendarTask(lists, removed.undo);
-  assert.deepEqual([stored(lists, made.task.id).title, stored(lists, made.task.id).due, stored(lists, made.task.id).duration_minutes], ['Write', '2026-10-20', 30], 'a deleted task comes back with its fields');
+  assert.deepEqual([(await stored(lists, made.task.id)).title, (await stored(lists, made.task.id)).due, (await stored(lists, made.task.id)).duration_minutes], ['Write', '2026-10-20', 30], 'a deleted task comes back with its fields');
   changeCalendarTask(lists, made.undo);
-  assert.equal(lists.row(data.list.id, made.task.id), null, 'undoing the create removes it');
+  assert.equal(await lists.row(data.list.id, made.task.id), null, 'undoing the create removes it');
   assert.throws(() => changeCalendarTask(lists, made.undo), /changed since/);
   assert.throws(() => changeCalendarTask(lists, { action: 'restore', rows: [{ task_id: 'calendar-ghost', create: { title: 'x', duration_minutes: 5, recurrence: '{}' } }] }), /Restore needs/, 'a repeat rule is never restored');
   assert.throws(() => changeCalendarTask(lists, { action: 'restore', rows: [] }), /Restore needs/);
@@ -507,7 +507,7 @@ test('a change that touches a repeat rule answers no undo, because restore never
   assert.equal(repeating.undo, undefined);
 });
 
-test('rollover clears yesterday\'s blocks, moves date-only dues to today, leaves the rest with a reason, and undoes as one', () => {
+test('rollover clears yesterday\'s blocks, moves date-only dues to today, leaves the rest with a reason, and undoes as one', async () => {
   const lists = realLists();
   const make = (key, extra = {}) => changeCalendarTask(lists, { action: 'create', request_key: key, title: key, duration_minutes: 30, ...extra }).task;
   const missed = make('missed');
@@ -524,21 +524,21 @@ test('rollover clears yesterday\'s blocks, moves date-only dues to today, leaves
   assert.deepEqual(Object.fromEntries(result.skipped.map(row => [row.task_id, row.reason])), {
     [today.id]: 'nothing_to_carry', [timed.id]: 'due_has_time_of_day', [future.id]: 'nothing_to_carry',
   });
-  assert.deepEqual([stored(lists, missed.id).starts_at ?? null, stored(lists, missed.id).placed_by ?? null], [null, null], 'the missed block is gone and the task is unscheduled again');
-  assert.equal(stored(lists, overdue.id).due, '2026-10-14');
-  assert.equal(stored(lists, today.id).starts_at, '2026-10-14T14:00:00.000Z', 'today\'s block stays');
-  assert.equal(stored(lists, timed.id).due, '2026-10-12T09:00:00Z', 'a due with a time of day is a commitment and is left');
+  assert.deepEqual([(await stored(lists, missed.id)).starts_at ?? null, (await stored(lists, missed.id)).placed_by ?? null], [null, null], 'the missed block is gone and the task is unscheduled again');
+  assert.equal((await stored(lists, overdue.id)).due, '2026-10-14');
+  assert.equal((await stored(lists, today.id)).starts_at, '2026-10-14T14:00:00.000Z', 'today\'s block stays');
+  assert.equal((await stored(lists, timed.id)).due, '2026-10-12T09:00:00Z', 'a due with a time of day is a commitment and is left');
 
   const again = changeCalendarTask(lists, { action: 'rollover', today: '2026-10-14', time_zone: 'America/New_York', request_key: 'roll' });
   assert.deepEqual(again.carried, [], 'rolling over twice carries nothing the second time');
 
   changeCalendarTask(lists, result.undo);
-  assert.equal(stored(lists, missed.id).starts_at, '2026-10-13T14:00:00.000Z');
-  assert.equal(stored(lists, missed.id).placed_by, 'planner');
-  assert.equal(stored(lists, overdue.id).due, '2026-10-12', 'one undo puts every carried task back');
+  assert.equal((await stored(lists, missed.id)).starts_at, '2026-10-13T14:00:00.000Z');
+  assert.equal((await stored(lists, missed.id)).placed_by, 'planner');
+  assert.equal((await stored(lists, overdue.id)).due, '2026-10-12', 'one undo puts every carried task back');
   const named = changeCalendarTask(lists, { action: 'rollover', today: '2026-10-14', time_zone: 'America/New_York', task_ids: [overdue.id] });
   assert.deepEqual(named.carried.map(row => row.task_id), [overdue.id]);
-  assert.equal(stored(lists, missed.id).starts_at, '2026-10-13T14:00:00.000Z', 'only the named task was carried');
+  assert.equal((await stored(lists, missed.id)).starts_at, '2026-10-13T14:00:00.000Z', 'only the named task was carried');
   assert.throws(() => changeCalendarTask(lists, { action: 'rollover', today: 'yesterday', time_zone: 'America/New_York' }), /time zone/);
   assert.throws(() => changeCalendarTask(lists, { action: 'rollover', today: '2026-10-14', time_zone: 'Mars/Base' }), /time zone/);
 });
@@ -549,9 +549,9 @@ test('the Calendar tasks route answers rollover and restore the same way the act
   const made = await post({ action: 'create', request_key: 'http', title: 'Over the wire', duration_minutes: 20, due: '2026-10-01' });
   const rolled = await post({ action: 'rollover', today: '2026-10-14', time_zone: 'UTC' });
   assert.equal(rolled.carried.length, 1);
-  assert.equal(stored(lists, made.task.id).due, '2026-10-14');
+  assert.equal((await stored(lists, made.task.id)).due, '2026-10-14');
   assert.equal((await post(rolled.undo)).restored, 1);
-  assert.equal(stored(lists, made.task.id).due, '2026-10-01');
+  assert.equal((await stored(lists, made.task.id)).due, '2026-10-01');
 });
 
 test('day hours are set, read back for the planner, undone and cleared as stored rows, and bad hours are refused', () => {
@@ -606,7 +606,7 @@ test('working hours are set, read back, undone and cleared, and the quiet-hours 
   }
 });
 
-test('a task placed in slices becomes child tasks the planner placed, retries safely, and one undo removes the slices', () => {
+test('a task placed in slices becomes child tasks the planner placed, retries safely, and one undo removes the slices', async () => {
   const lists = realLists();
   const long = changeCalendarTask(lists, { action: 'create', request_key: 'long', title: 'Write the report', duration_minutes: 150, minimum_duration_minutes: 60, priority: 'high' }).task;
   assert.equal(long.minimum_duration_minutes, 60);
@@ -616,7 +616,7 @@ test('a task placed in slices becomes child tasks the planner placed, retries sa
   assert.deepEqual(placed.tasks.map(task => [task.title, task.duration_minutes, task.parent_id, task.slice_of, task.auto_placed, task.priority]), [
     ['Write the report (1/2)', 60, long.id, long.id, true, 'high'], ['Write the report (2/2)', 90, long.id, long.id, true, 'high'],
   ]);
-  assert.equal(stored(lists, long.id).starts_at ?? null, null, 'the task keeps its whole length and is not itself scheduled');
+  assert.equal((await stored(lists, long.id)).starts_at ?? null, null, 'the task keeps its whole length and is not itself scheduled');
   assert.equal(changeCalendarTask(lists, { action: 'schedule_slices', task_id: long.id, slices }).kept, true, 'a retry answers the same slices');
   assert.throws(() => changeCalendarTask(lists, { action: 'schedule_slices', task_id: long.id, slices: [{ start: '2026-10-12T12:00:00Z', end: '2026-10-12T13:00:00Z' }, slices[1]] }), /different times/);
   for (const bad of [[], [slices[0]], [slices[1], slices[0]], [{ start: 'x', end: 'y' }, slices[1]]]) {
@@ -624,7 +624,7 @@ test('a task placed in slices becomes child tasks the planner placed, retries sa
   }
   const back = changeCalendarTask(lists, placed.undo);
   assert.equal(back.restored, 2);
-  assert.equal(lists.row(data.list.id, `${long.id}-slice-1`), null);
+  assert.equal(await lists.row(data.list.id, `${long.id}-slice-1`), null);
 });
 
 test('a device zone that differs from the zone plans are kept in is asked about once, and moving or keeping is remembered', () => {
@@ -648,7 +648,7 @@ test('a device zone that differs from the zone plans are kept in is asked about 
   assert.throws(() => changeCalendarTask(lists, { action: 'answer_zone_drift', device_zone: 'Asia/Tokyo' }), /Zone drift needs/);
 });
 
-test('an event is pulled into the tasks once, unless a default filter refuses it; the filters are rows the caller may replace', () => {
+test('an event is pulled into the tasks once, unless a default filter refuses it; the filters are rows the caller may replace', async () => {
   const lists = realLists();
   const event = (extra = {}) => ({ id: 'ev1', source: 'google-calendar', title: 'Design review', starts_at: '2026-10-14T15:00:00Z', ends_at: '2026-10-14T16:00:00Z', attendee_count: 4, ...extra });
   const pulled = changeCalendarTask(lists, { action: 'from_event', event: event() });
@@ -664,12 +664,12 @@ test('an event is pulled into the tasks once, unless a default filter refuses it
   assert.equal(changeCalendarTask(lists, { action: 'from_event', event: event({ id: 'no-count', attendee_count: undefined }) }).pulled, true, 'an event with no attendee count is not called solo');
   assert.deepEqual(changeCalendarTask(lists, { action: 'from_event', event: event({ id: 'long', ends_at: '2026-10-16T16:00:00Z' }) }), { pulled: false, refused: ['longer_than_a_day'] });
   changeCalendarTask(lists, pulled.undo);
-  assert.equal(lists.row(data.list.id, pulled.task.id), null, 'undo removes the pulled task');
+  assert.equal(await lists.row(data.list.id, pulled.task.id), null, 'undo removes the pulled task');
   assert.throws(() => changeCalendarTask(lists, { action: 'from_event', event: { id: 'a' } }), /An event to pull in needs/);
   assert.throws(() => changeCalendarTask(lists, { action: 'from_event', event: event(), filters: ['mood'] }), /Filters name/);
 });
 
-test('when a person chooses it, moving a task over planner-placed tasks takes those off the calendar with one undo; pinned and person-placed tasks stay', () => {
+test('when a person chooses it, moving a task over planner-placed tasks takes those off the calendar with one undo; pinned and person-placed tasks stay', async () => {
   const lists = realLists();
   const now = () => Date.parse('2026-10-14T00:00:00Z');
   const make = (key, minutes = 60) => changeCalendarTask(lists, { action: 'create', request_key: key, title: key, duration_minutes: minutes }).task;
@@ -685,19 +685,19 @@ test('when a person chooses it, moving a task over planner-placed tasks takes th
   assert.equal(readCalendarTasks(lists).preferences.refit_on_move, true);
   const moved = changeCalendarTask(lists, { action: 'schedule', task_id: mover.id, start: '2026-10-14T13:15:00Z' }, { now });
   assert.deepEqual(moved.displaced, [planned.id]);
-  assert.equal(stored(lists, planned.id).starts_at ?? null, null);
-  assert.equal(stored(lists, pinned.id).starts_at, '2026-10-14T13:30:00.000Z', 'a pinned task stays');
-  assert.equal(stored(lists, mine.id).starts_at, '2026-10-14T13:00:00.000Z', 'a task the person placed stays');
+  assert.equal((await stored(lists, planned.id)).starts_at ?? null, null);
+  assert.equal((await stored(lists, pinned.id)).starts_at, '2026-10-14T13:30:00.000Z', 'a pinned task stays');
+  assert.equal((await stored(lists, mine.id)).starts_at, '2026-10-14T13:00:00.000Z', 'a task the person placed stays');
   changeCalendarTask(lists, moved.undo);
-  assert.equal(stored(lists, planned.id).starts_at, '2026-10-14T13:00:00.000Z');
-  assert.equal(stored(lists, planned.id).placed_by, 'planner');
-  assert.equal(stored(lists, mover.id).starts_at ?? null, null, 'one undo puts the moved task and the displaced one back');
+  assert.equal((await stored(lists, planned.id)).starts_at, '2026-10-14T13:00:00.000Z');
+  assert.equal((await stored(lists, planned.id)).placed_by, 'planner');
+  assert.equal((await stored(lists, mover.id)).starts_at ?? null, null, 'one undo puts the moved task and the displaced one back');
   assert.equal(changeCalendarTask(lists, { action: 'set_preferences', refit_on_move: false }).preferences.refit_on_move, false);
   assert.throws(() => changeCalendarTask(lists, { action: 'set_preferences', refit_on_move: 'yes' }), /planning preference/);
   assert.equal(changeCalendarTask(lists, { action: 'quiet_hours' }).quiet, false, 'a preference alone is not working hours');
 });
 
-test('a bulk repair applies one DATA-row change to many tasks, lists what could not take it, and has one undo', () => {
+test('a bulk repair applies one DATA-row change to many tasks, lists what could not take it, and has one undo', async () => {
   const lists = realLists();
   const make = (key, extra = {}) => changeCalendarTask(lists, { action: 'create', request_key: key, title: key, duration_minutes: 30, ...extra }).task;
   const one = make('one'), two = make('two'), three = make('three');
@@ -705,22 +705,22 @@ test('a bulk repair applies one DATA-row change to many tasks, lists what could 
   assert.deepEqual(high.changed, [one.id, two.id]);
   assert.equal(high.refused.length, 1);
   assert.equal(high.refused[0].task_id, 'calendar-missing');
-  assert.equal(stored(lists, one.id).priority, 'high');
-  assert.equal(stored(lists, two.id).priority, 'high');
-  assert.notEqual(stored(lists, three.id).priority, 'high', 'a task not named is left alone');
+  assert.equal((await stored(lists, one.id)).priority, 'high');
+  assert.equal((await stored(lists, two.id)).priority, 'high');
+  assert.notEqual((await stored(lists, three.id)).priority, 'high', 'a task not named is left alone');
   changeCalendarTask(lists, high.undo);
-  assert.notEqual(stored(lists, one.id).priority, 'high');
-  assert.notEqual(stored(lists, two.id).priority, 'high', 'one undo takes back all that changed');
+  assert.notEqual((await stored(lists, one.id)).priority, 'high');
+  assert.notEqual((await stored(lists, two.id)).priority, 'high', 'one undo takes back all that changed');
   const firm = changeCalendarTask(lists, { action: 'bulk', repair: 'make_deadlines_firm', task_ids: [one.id, three.id] });
-  assert.equal(stored(lists, three.id).deadline_type, 'hard');
+  assert.equal((await stored(lists, three.id)).deadline_type, 'hard');
   const done = changeCalendarTask(lists, { action: 'bulk', repair: 'complete', task_ids: [one.id, three.id] });
-  assert.equal(stored(lists, one.id).status, 'Done');
+  assert.equal((await stored(lists, one.id)).status, 'Done');
   changeCalendarTask(lists, done.undo);
-  assert.notEqual(stored(lists, one.id).status, 'Done');
+  assert.notEqual((await stored(lists, one.id)).status, 'Done');
   const removed = changeCalendarTask(lists, { action: 'bulk', repair: 'remove', task_ids: [two.id] });
-  assert.equal(lists.row(data.list.id, two.id), null);
+  assert.equal(await lists.row(data.list.id, two.id), null);
   changeCalendarTask(lists, removed.undo);
-  assert.equal(stored(lists, two.id).title, 'two', 'a removed task comes back with its undo');
+  assert.equal((await stored(lists, two.id)).title, 'two', 'a removed task comes back with its undo');
   assert.ok(firm.changed.length === 2);
   assert.throws(() => changeCalendarTask(lists, { action: 'bulk', repair: 'nope', task_ids: [one.id] }), /Choose a repair/);
   assert.throws(() => changeCalendarTask(lists, { action: 'bulk', repair: 'complete', task_ids: [] }), /Choose a repair/);

@@ -18,9 +18,9 @@ const { outputFiles } = await build({
 const { listKeeper } = await import(`data:text/javascript;base64,${Buffer.from(outputFiles[0].text).toString('base64')}`);
 
 const fields = [{ id: 'name', label: 'Task', read: row => row.values.name }, { id: 'subtasks', label: 'Sub-tasks', editable: false, read: row => row.values.subtasks ?? null }];
-function listOver(lists) {
-  const read = () => {
-    const { rows } = lists.read('tasks');
+async function listOver(lists) {
+  const read = async () => {
+    const { rows } = await lists.read('tasks');
     const ref = id => ({ family: 'list-row', parts: { id } });
     const groups = Object.fromEntries(rows.filter(row => row.values.subtasks?.length).map(row => [row.id, {
       groupRef: ref(row.id), memberOrder: row.values.subtasks, members: Object.fromEntries(row.values.subtasks.map(id => [id, { memberId: id, nodeRef: ref(id) }])),
@@ -28,9 +28,9 @@ function listOver(lists) {
     return { records: rows, nesting: { graph: { groups } } };
   };
   const context = {
-    ...read(), fields, label: 'Tasks', identify: row => row.id,
-    write: async changes => { lists.putRows('tasks', { rows: changes.filter(c => !c.remove).map(c => ({ id: c.id, values: { ...(c.values ?? {}), ...(c.members ? { subtasks: c.members } : {}) } })), remove: changes.filter(c => c.remove).map(c => c.id) }); },
-    reread: async () => read(),
+    ...await read(), fields, label: 'Tasks', identify: row => row.id,
+    write: async changes => { await lists.putRows('tasks', { rows: changes.filter(c => !c.remove).map(c => ({ id: c.id, values: { ...(c.values ?? {}), ...(c.members ? { subtasks: c.members } : {}) } })), remove: changes.filter(c => c.remove).map(c => c.id) }); },
+    reread: async () => await read(),
   };
   return context;
 }
@@ -38,34 +38,34 @@ function listOver(lists) {
 test('the list keeper keeps quick sub-tasks, moves across levels and refuses a move into a task\'s own sub-task', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf });
-  lists.save({ id: 'tasks', label: 'Tasks', fields: [{ id: 'name', label: 'Task' }, { id: 'subtasks', label: 'Sub-tasks', kind: 'link', links_to: 'tasks' }] });
-  lists.putRows('tasks', { rows: [{ id: 'a', values: { name: 'Launch' } }, { id: 'b', values: { name: 'Ads' } }] });
-  const context = listOver(lists);
+  await lists.save({ id: 'tasks', label: 'Tasks', fields: [{ id: 'name', label: 'Task' }, { id: 'subtasks', label: 'Sub-tasks', kind: 'link', links_to: 'tasks' }] });
+  await lists.putRows('tasks', { rows: [{ id: 'a', values: { name: 'Launch' } }, { id: 'b', values: { name: 'Ads' } }] });
+  const context = await listOver(lists);
   const keeper = listKeeper(() => context);
-  const under = id => lists.read('tasks').rows.find(row => row.id === id).values.subtasks ?? [];
+  const under = async id => (await lists.read('tasks')).rows.find(row => row.id === id).values.subtasks ?? [];
 
   // Two sub-tasks added to "Launch" at the same moment, both from the same drawn list: neither undoes the other.
   await Promise.all([
     keeper.writeRecord({ addressLabel: 'list-record::page::1', payload: { name: 'Sales page', 'nested-under': 'a' } }),
     keeper.writeRecord({ addressLabel: 'list-record::price::2', payload: { name: 'Price', 'nested-under': 'a' } }),
   ]);
-  assert.deepEqual(under('a'), ['list-record::page::1', 'list-record::price::2']);
+  assert.deepEqual(await under('a'), ['list-record::page::1', 'list-record::price::2']);
   assert.deepEqual((await keeper.writeRecord.readCurrent('list-record::price::2')).payload, { name: 'Price', subtasks: null, 'nested-under': 'a' });
 
   // "Price" moves before "Sales page"; then "Ads" moves under "Price" (top level to level 3).
   await keeper.place({ record: 'list-record::price::2', under: 'a', before: 'list-record::page::1' });
-  assert.deepEqual(under('a'), ['list-record::price::2', 'list-record::page::1']);
+  assert.deepEqual(await under('a'), ['list-record::price::2', 'list-record::page::1']);
   await keeper.place({ record: 'b', under: 'list-record::price::2', before: null });
-  assert.deepEqual(under('list-record::price::2'), ['b']);
+  assert.deepEqual(await under('list-record::price::2'), ['b']);
 
   // "Launch" cannot go inside "Ads", which sits under it: refused, nothing changes.
   await assert.rejects(keeper.place({ record: 'a', under: 'b', before: null }), /cannot go inside itself/);
-  assert.deepEqual(under('b'), []);
+  assert.deepEqual(await under('b'), []);
 
   // Out to the top level, then deleted: "Price" leaves "Launch", and a deleted "Sales page" leaves it too.
   await keeper.place({ record: 'list-record::price::2', under: null, before: null });
-  assert.deepEqual(under('a'), ['list-record::page::1']);
+  assert.deepEqual(await under('a'), ['list-record::page::1']);
   await keeper.writeRecord({ addressLabel: 'list-record::page::1', payload: null });
-  assert.deepEqual(under('a'), []);
-  assert.equal(lists.read('tasks').rows.some(row => row.id === 'list-record::page::1'), false);
+  assert.deepEqual(await under('a'), []);
+  assert.equal((await lists.read('tasks')).rows.some(row => row.id === 'list-record::page::1'), false);
 });

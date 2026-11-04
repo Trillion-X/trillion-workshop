@@ -9,7 +9,7 @@ const weekly = {
   ends: { kind: 'count', value: 8 }, nextTodo: 'when_done',
 };
 
-test('task recurrence is validated, normalized and saved through the shared Lists owner', () => {
+test('task recurrence is validated, normalized and saved through the shared Lists owner', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf });
   const created = changeCalendarTask(lists, {
@@ -20,7 +20,7 @@ test('task recurrence is validated, normalized and saved through the shared List
     ends: { kind: 'count', value: 8 }, nextTodo: 'when_done',
     timeZone: 'UTC',
   });
-  assert.equal(typeof lists.row('calendar-tasks', created.task.id).values.recurrence, 'string');
+  assert.equal(typeof (await lists.row('calendar-tasks', created.task.id)).values.recurrence, 'string');
   assert.deepEqual(readCalendarTasks(lists).tasks[0].recurrence, created.task.recurrence);
   assert.equal(changeCalendarTask(lists, {
     action: 'create', request_key: 'weekly-review', title: 'Review the plan', duration_minutes: 30, recurrence: weekly,
@@ -102,15 +102,15 @@ test('recurrence keeps its local clock across daylight-saving changes', () => {
   assert.equal(completed.next_task.due, '2026-03-08T16:00:00.000Z');
 });
 
-test('direct recurrence creates one immediate successor, then advances on scheduled days', () => {
+test('direct recurrence creates one immediate successor, then advances on scheduled days', async () => {
   const recurrence = { frequency: 'week', interval: 1, weekdays: ['mon'], ends: { kind: 'count', value: 3 }, nextTodo: 'direct_even_if_open' };
   const { lists, task } = recurrenceFixture(recurrence, { due: '2026-10-12' });
-  const immediate = lists.row('calendar-tasks', `${task.id}-repeat-2`);
+  const immediate = await lists.row('calendar-tasks', `${task.id}-repeat-2`);
   assert.equal(immediate.values.due, '2026-10-19');
   assert.equal(runCalendarTaskRecurrencePage(lists, { now: Date.parse('2026-10-19T00:00:00Z') }).created, 0);
   const next = runCalendarTaskRecurrencePage(lists, { now: Date.parse('2026-10-26T00:00:00Z') });
   assert.equal(next.created, 1);
-  assert.equal(lists.row('calendar-tasks', `${task.id}-repeat-3`).values.due, '2026-10-26');
+  assert.equal((await lists.row('calendar-tasks', `${task.id}-repeat-3`)).values.due, '2026-10-26');
   assert.equal(runCalendarTaskRecurrencePage(lists, { now: Date.parse('2026-10-26T00:00:00Z') }).created, 0, 'retry does not create a duplicate');
 });
 

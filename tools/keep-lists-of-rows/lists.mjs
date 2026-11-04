@@ -2365,7 +2365,7 @@ async function withDepends(lists, id, viewId, read) {
   const answer = await read();
   if (typeof lists.dependsOf !== 'function') return answer;
   const view = viewId === null ? null : (answer.list?.views ?? []).find(row => row.id === viewId) ?? null;
-  return { ...answer, depends: lists.dependsOf(id, { view, row_ids: (answer.rows ?? []).map(row => row.id), version }) };
+  return { ...answer, depends: await lists.dependsOf(id, { view, row_ids: (answer.rows ?? []).map(row => row.id), version }) };
 }
 
 const pageOptionsFrom = url => {
@@ -2408,7 +2408,7 @@ export async function handleListsRequest(lists, request, views = null, { files =
     if (request.method === 'GET' && parts.length === 3 && parts[2] === 'document-types') return Response.json(await readDocumentTypes(namespace(), documentsFolderOf(await lists.find(parts[1]), parts[1])));
     if (request.method === 'GET' && parts.length === 3 && parts[2] === 'backlinks') return Response.json(await backlinks(lists, parts[1], url.searchParams.get('row_id')));
     if (request.method === 'GET' && parts.length === 3 && parts[2] === 'changes') {
-      return Response.json(lists.changes(parts[1], url.searchParams.get('since') ?? undefined));
+      return Response.json(await lists.changes(parts[1], url.searchParams.get('since') ?? undefined));
     }
     if (request.method === 'GET' && parts.length === 3 && parts[2] === 'field-history') return Response.json(await lists.fieldHistory(parts[1], { row_id: url.searchParams.get('row_id'), field_id: url.searchParams.get('field_id') }));
     // reads-ok: rowsNeedingReview reads at most review.scan_rows rows a view and lists at most review.rows_listed (src/lists.json).
@@ -2452,20 +2452,20 @@ export async function handleListsRequest(lists, request, views = null, { files =
     const raw = await request.text();
     if (raw.length > 1_000_000) throw new ListsError('Request too large');
     const input = JSON.parse(raw || '{}');
-    if (parts.length === 1) return Response.json(lists.save(input, { actor }));
+    if (parts.length === 1) return Response.json(await lists.save(input, { actor }));
     if (parts.length === 2 && parts[1] === 'file-names') return Response.json(await rewriteFileNames(lists, input, { actor }));
     if (parts.length === 2 && parts[1] === 'import-files') return Response.json(await importListFiles(lists, { folder: input.folder, list_id: input.list_id, match_on: input.match_on, after: input.after }, { files: namespace(), actor }));
     if (parts.length === 3 && parts[2] === 'export-files') return Response.json(await exportListFiles(lists, parts[1], { folder: input.folder, cursor: input.cursor }, { files: namespace() }));
     if (parts.length === 3 && parts[2] === 'document-types') return Response.json(await saveDocumentTypes(namespace(), documentsFolderOf(await lists.find(parts[1]), parts[1]), input));
     if (parts.length === 4 && parts[2] === 'rows' && parts[3] === 'restore') return Response.json(await lists.restoreRows(parts[1], input, { actor }));
     if (parts.length === 3 && parts[2] === 'snapshots') return Response.json(await takeSnapshot(lists, parts[1], input, { actor, readView: views ? options => readThroughView(lists, options.list_id, options.view_id, views, undefined, { limit: options.limit, ...(options.cursor ? { cursor: options.cursor } : {}) }) : undefined }));
-    if (parts.length === 5 && parts[2] === 'views' && parts[4] === 'move') return Response.json(lists.moveView(parts[1], { ...input, view_id: parts[3] }, { actor }));
+    if (parts.length === 5 && parts[2] === 'views' && parts[4] === 'move') return Response.json(await lists.moveView(parts[1], { ...input, view_id: parts[3] }, { actor }));
     if (parts.length === 4 && parts[2] === 'settlement') return handleSettlementRequest(lists, parts[1], parts[3], input);
     if (parts.length === 4 && parts[2] === 'rows' && parts[3] === 'copy') {
       try { return Response.json(await transferRows(lists, parts[1], input.to_list_id, input, { actor })); }
       catch (error) { if (error instanceof ListTransferError) return Response.json({ error: error.message }, { status: 400 }); throw error; }
     }
-    if (parts.length === 4 && parts[2] === 'rows' && parts[3] === 'move') return Response.json(lists.moveRow(parts[1], input, { actor }));
+    if (parts.length === 4 && parts[2] === 'rows' && parts[3] === 'move') return Response.json(await lists.moveRow(parts[1], input, { actor }));
     if (parts.length === 4 && parts[2] === 'rows' && parts[3] === 'preview') return Response.json(await lists.previewRows(parts[1], input, { actor }));
     if (parts.length === 3 && parts[2] === 'aggregate') return Response.json(await aggregateRows(lists, parts[1], input, { evaluateBinding: views?.evaluateBinding, readSnapshot: snapshotPages(lists),
       readView: views ? options => readThroughView(lists, options.list_id, options.view_id, views, undefined, { limit: options.limit, ...(options.cursor ? { cursor: options.cursor } : {}) }) : undefined }));
@@ -2482,11 +2482,11 @@ export async function handleListsRequest(lists, request, views = null, { files =
       for (const one of plan.requests) answers.push(await lists.putRows(parts[1], one, { actor }));
       return Response.json(await withDangling(lists, parts[1], joinAnswers(answers, plan)));
     }
-    if (parts.length === 3 && parts[2] === 'ensure') return Response.json(lists.ensure({ ...input, id: parts[1] }, { actor }));
+    if (parts.length === 3 && parts[2] === 'ensure') return Response.json(await lists.ensure({ ...input, id: parts[1] }, { actor }));
     if (parts.length === 3 && parts[2] === 'filters') return Response.json(await lists.saveFilter(parts[1], input, { actor }));
     if (parts.length === 4 && parts[2] === 'filters') return Response.json(input.remove === true ? await lists.removeFilter(parts[1], { filter_id: parts[3] }, { actor }) : await lists.saveFilter(parts[1], { ...input, id: parts[3] }, { actor }));
-    if (parts.length === 3 && parts[2] === 'views') return Response.json(lists.saveView(parts[1], input, { actor }));
-    if (parts.length === 4 && parts[2] === 'views') return Response.json(input.remove === true ? lists.removeView(parts[1], parts[3], { actor }) : lists.saveView(parts[1], { ...input, id: parts[3] }, { actor }));
+    if (parts.length === 3 && parts[2] === 'views') return Response.json(await lists.saveView(parts[1], input, { actor }));
+    if (parts.length === 4 && parts[2] === 'views') return Response.json(input.remove === true ? await lists.removeView(parts[1], parts[3], { actor }) : await lists.saveView(parts[1], { ...input, id: parts[3] }, { actor }));
     return Response.json({ error: 'Not found' }, { status: 404 });
   } catch (error) {
     const refusal = listRefusal(error);

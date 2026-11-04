@@ -6,16 +6,16 @@ import { decomposedRecords, openRecords, RECORD_MODEL } from '../src/record-engi
 import { makeLists } from '../../keep-lists-of-rows/lists.mjs';
 import { eeafStore } from '../parts/eeaf/do-work/eeaf-sqlite-store.mjs';
 
-function fresh() {
+async function fresh() {
   const host = sqliteHost(':memory:');
   const records = openRecords(host.sql, { transaction: host.transaction });
   const lists = makeLists({ eeaf: records });
-  lists.save({
+  await lists.save({
     id: 'tasks', label: 'Tasks', row_type: 'ordered-task', title_field: 'name',
     fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'order', label: 'Order', kind: 'text' }],
     indexes: [{ name: 'manual_order', fields: ['order'] }],
   });
-  lists.putRows('tasks', { rows: [
+  await lists.putRows('tasks', { rows: [
     { id: 'c', values: { name: 'C', order: 'c' } },
     { id: 'a', values: { name: 'A', order: 'a' } },
     { id: 'b', values: { name: 'B', order: 'b' } },
@@ -32,8 +32,8 @@ function buildTables(records) {
 
 const ids = entries => entries.map(entry => entry.id.slice('record:ordered-task:'.length));
 
-test('list-authored indexes read typed SQL pages with value and id tuple bounds', () => {
-  const { host, records } = fresh();
+test('list-authored indexes read typed SQL pages with value and id tuple bounds', async () => {
+  const { host, records } = await fresh();
   try {
     assert.equal(records.indexDeclared('record:ordered-task', 'manual_order'), true);
     assert.equal(records.indexReady('record:ordered-task', 'manual_order'), false);
@@ -50,7 +50,7 @@ test('list-authored indexes read typed SQL pages with value and id tuple bounds'
   } finally { host.db.close(); }
 });
 
-test('typed dynamic indexes retain packed JSON tuple order for numbers and lists', () => {
+test('typed dynamic indexes retain packed JSON tuple order for numbers and lists', async () => {
   const host = sqliteHost(':memory:');
   try {
     const records = openRecords(host.sql, { transaction: host.transaction });
@@ -61,10 +61,10 @@ test('typed dynamic indexes retain packed JSON tuple order for numbers and lists
       { id: 'n10', values: { score: 10, tags: ['a', 'b'], note: 'a"x' } },
       { id: 'n1', values: { score: 1, tags: ['a'], note: '☃' } },
     ];
-    lists.save({ id: 'sorts', label: 'Sorts', row_type: 'sort-record', title_field: 'score',
+    await lists.save({ id: 'sorts', label: 'Sorts', row_type: 'sort-record', title_field: 'score',
       fields: [{ id: 'score', kind: 'number' }, { id: 'tags', kind: 'tags' }, { id: 'note', kind: 'text' }],
       indexes: [{ name: 'by_score', fields: ['score'] }, { name: 'by_tags', fields: ['tags'] }, { name: 'by_note', fields: ['note'] }] });
-    lists.putRows('sorts', { rows });
+    await lists.putRows('sorts', { rows });
     for (let page = 0; page < 100 && (!records.indexReady('record:sort-record', 'by_score') || !records.indexReady('record:sort-record', 'by_tags') || !records.indexReady('record:sort-record', 'by_note')); page += 1) {
       records.backfillTables({ limit: 2 });
     }
@@ -82,11 +82,11 @@ test('typed dynamic indexes retain packed JSON tuple order for numbers and lists
   } finally { host.db.close(); }
 });
 
-test('changing a list index definition makes its previous table build unready', () => {
-  const { host, records, lists } = fresh();
+test('changing a list index definition makes its previous table build unready', async () => {
+  const { host, records, lists } = await fresh();
   try {
     buildTables(records);
-    lists.save({
+    await lists.save({
       id: 'tasks', label: 'Tasks', row_type: 'ordered-task', title_field: 'name',
       fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'order', label: 'Order', kind: 'text' }],
       indexes: [{ name: 'manual_order', fields: ['name'] }],
@@ -110,15 +110,15 @@ test('changing a list index definition makes its previous table build unready', 
   } finally { host.db.close(); }
 });
 
-test('decomposed scans resolve the owning list declaration by exact record id', () => {
+test('decomposed scans resolve the owning list declaration by exact record id', async () => {
   const host = sqliteHost(':memory:');
   try {
     const legacy = eeafStore(host.sql, { transaction: host.transaction, hash: identityOf });
     const lists = makeLists({ eeaf: legacy });
-    lists.save({ id: 'tasks', label: 'Tasks', row_type: 'ordered-task', title_field: 'name',
+    await lists.save({ id: 'tasks', label: 'Tasks', row_type: 'ordered-task', title_field: 'name',
       fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'order', label: 'Order', kind: 'text' }],
       indexes: [{ name: 'manual_order', fields: ['order'] }] });
-    lists.putRows('tasks', { rows: [
+    await lists.putRows('tasks', { rows: [
       { id: 'b', values: { name: 'B', order: 'b' } },
       { id: 'a', values: { name: 'A', order: 'a' } },
     ] });
