@@ -1,0 +1,232 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/computer-pace.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/computer-pace.test.mjs",
+      "source_identity": "1f:4b53058ce17ad87f9e391580c9d66900d82eb0622ff66665f9ef2611bd4b6fd1",
+      "identity": "1f:3519c04c2b03d38cd2c10a1820d70a1af254ebbbedbc27ce8c95505ce3ad9518"
+    },
+    {
+      "from": "test/egress-relay.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/egress-relay.test.mjs",
+      "source_identity": "1f:f97e8c1d1c295222f5952c9056554c2f0dcdde8d529227b553f61ae1feee78ec",
+      "identity": "1f:ae73af47e8b60b3a267a8397a9afded9031c0b7373dcc19f0f1f6885dbc835b6"
+    },
+    {
+      "from": "test/end-with-the-app.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/end-with-the-app.test.mjs",
+      "source_identity": "1f:fbd43ef76c144126f3f04fb043bcb2ab82796b361f9d1e6b01937d416c6f4c04",
+      "identity": "1f:d99c0db1c871f7b6e202b5221b03ea139fc9d3f0a1dc809e8e6583a7e53ef94e"
+    },
+    {
+      "from": "test/fast-path-meter.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/fast-path-meter.test.mjs",
+      "source_identity": "1f:2cd3e439d0a884062684e6be6d33cc8e76a6e10a482c258000e20fb3ad642c21",
+      "identity": "1f:ae7a9f441d70f980ce1c0f52e9377e493f4c73952cf2e5390083a932b3e9e204"
+    },
+    {
+      "from": "test/file-arguments.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/file-arguments.test.mjs",
+      "source_identity": "1f:95c6d383bbc301e37f478da8077f88cfa48dd6243fa1425d136903a93287cb25",
+      "identity": "1f:d17ff03260373853b327d5d20cd3a2065021ee25f43dc36207796f009e431e22"
+    },
+    {
+      "from": "test/follow-presence.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/follow-presence.test.mjs",
+      "source_identity": "1f:c927e5dc4ebb8053aa7a5fa197666084f76b5d468ac48a3e8dbffaa5339692d4",
+      "identity": "1f:8c48fa5abe5550d88b49632a8d2574d2904026960e7445501dba480af8844bdd"
+    },
+    {
+      "from": "test/helper-sandbox.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/helper-sandbox.test.mjs",
+      "source_identity": "1f:b6fc2fa9ac0371f34665e42d114f58156a623eaccd490594e71169e47f4aea95",
+      "identity": "1f:8540539c06c5837781122cfda7198c87591f85cb6de5a9e24e828c2f7474d45a"
+    },
+    {
+      "from": "test/host-log.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/host-log.test.mjs",
+      "source_identity": "1f:d22dc078e95367c8e43cddd7ead94ca6a1e56641863ec617769bc2451a44f33a",
+      "identity": "1f:887ad19c943dc5f3a32d5d776ae5e4136cf99a5d24a9474b3ba253268a517b10"
+    },
+    {
+      "from": "test/isolated-run.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/isolated-run.test.mjs",
+      "source_identity": "1f:713945aac9ca763b40411ee2651b00628b49d8a14eb5be6c911a9e6df398eb5d",
+      "identity": "1f:7a9c534f7fcecd257684a12b854b4b08f816a2076dbb3fb0cb60b02b55e4e478"
+    },
+    {
+      "from": "test/lifecycle-hook-steps.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/lifecycle-hook-steps.test.mjs",
+      "source_identity": "1f:663d55b2915988c3f653ab4fb624c3995339f0ffea24ac910a6d814eaffdc7f5",
+      "identity": "1f:568775cc7ece4fc1a305cf5bcaa7d17ae4fb4b665b1870caecaececa5e4c1c04"
+    },
+    {
+      "from": "test/list-a-channel.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/list-a-channel.test.mjs",
+      "source_identity": "1f:433ec2c597f92116a3875288f1c6237117f876aa3b78ff76ec9d6bed4eea5252",
+      "identity": "1f:d7644e2dda8cc84cb97ee74ba11979303a12f34cffd4293aae8879bcd69889af"
+    },
+    {
+      "from": "test/listen-classifier-wait.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/listen-classifier-wait.test.mjs",
+      "source_identity": "1f:0977ab345573d69749eab83c7e482188f3321b070ae5621500de17802a01f73b",
+      "identity": "1f:d255a6a143ab40744bb20fcf3578c9ba78c099ea53b4233ce5247a7d443b7448"
+    },
+    {
+      "from": "test/listen-timer-pass.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/listen-timer-pass.test.mjs",
+      "source_identity": "1f:507da9bc561d9f79029893d79fd01737fcdf6432a6a3adf64cc81971eb4d7f0d",
+      "identity": "1f:9249b01cb88b84a025e95354b9f819ccde236c2a6811011a3888d1172a97c972"
+    },
+    {
+      "from": "test/listening-large-moment.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/listening-large-moment.test.mjs",
+      "source_identity": "1f:1b0f9086a401a79330c0ad7a4ab7a962cf4bdbfc08c4e7c88bb7ecc118a2e3f8",
+      "identity": "1f:046a02781d50bd0b89f6b7c71a1af50481409e04d267884e13f5faa7abc77461"
+    },
+    {
+      "from": "test/log-policy.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/log-policy.test.mjs",
+      "source_identity": "1f:6b97151973d7c76e0b5e7331fdcec308586db741c225ad95db4a8110dbd0c20e",
+      "identity": "1f:e2ce582f10b6d760479be95995821cea2906446ee7aed37b5fe61f951d1e12f9"
+    },
+    {
+      "from": "test/managed-settings.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/managed-settings.test.mjs",
+      "source_identity": "1f:876b866b8d3a7817c94f141f506be0db66eb0d5a10124fa8661ece2657346a12",
+      "identity": "1f:ce65b98dba8d703084944a32612db87039c5f16765ad415f22c358b47866f6c4"
+    },
+    {
+      "from": "test/meeting-ledger.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/meeting-ledger.test.mjs",
+      "source_identity": "1f:0c7bbee87ef7eab2eb53ffd92710f9c03bad9577018161979ba92e6299dfb6c9",
+      "identity": "1f:e8e07a54c5591834851cb965b6a0efa019307eb26f36479cf51ca20083c80496"
+    },
+    {
+      "from": "test/meeting-notes.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/meeting-notes.test.mjs",
+      "source_identity": "1f:964b9161e31a372ed96747d2753b5dca7b7add6aef5f702cedac21f95e195171",
+      "identity": "1f:d337f248f7426fd4a5085371212e1f4aa6498e285f904bbc370008f941294301"
+    },
+    {
+      "from": "test/model-resident.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/model-resident.test.mjs",
+      "source_identity": "1f:a4b610f16efd57984fa87af8598f5a507feeca0e3eb222f1e7d2496022057c46",
+      "identity": "1f:4beb14f7095b8a54205e6b403ce757fb1c4d98794e001e2390691d5d317905ac"
+    },
+    {
+      "from": "test/offered-endpoints.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/offered-endpoints.test.mjs",
+      "source_identity": "1f:af01f854fee2cc75ac098131068f6faf53a20041617eec18d5a0e18f8dfdfa76",
+      "identity": "1f:a3d05f3980886b6b1a2692097b47b24c426754cfd9983d33bb907e5277dfc3b6"
+    },
+    {
+      "from": "test/program-host-degrade.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/program-host-degrade.test.mjs",
+      "source_identity": "1f:6837919c36858831dd5329f5835ba8338a531cba0197b310df847d7d5b1f27ff",
+      "identity": "1f:c4b7a4dd354ef8339de69b3df3825935a867257e28bd9ca31acdc2259412607f"
+    },
+    {
+      "from": "test/reconcile-fields.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/reconcile-fields.test.mjs",
+      "source_identity": "1f:e2b18279aee3714fa54dbff7a9d67fab6adce81d59880704ea29cddc40484199",
+      "identity": "1f:1e92ce73c90851a70e3b4926b1956da2729c504c6e3ceb62bd8adfeed61dcfbc"
+    },
+    {
+      "from": "test/report-progress.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/report-progress.test.mjs",
+      "source_identity": "1f:7046212e7d18dca1586893fa2d459cba4956a785561740eba62e51c7a8331f87",
+      "identity": "1f:44bcf0d9294b1fe0d1fc00e5c0e022323fb1a444ade7d3c90d91a2e6c470a5af"
+    },
+    {
+      "from": "test/run-decision-hooks.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/run-decision-hooks.test.mjs",
+      "source_identity": "1f:fbea6a755b1c4b1aa3da71d7b93b3376608b3c8dc850e3c752d95d04d099d1c2",
+      "identity": "1f:7ef6c954ca8fa96b1fc3ef947ed171bd917cfd5288f510d35e984f805f4b1abe"
+    },
+    {
+      "from": "test/script-sandbox.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/script-sandbox.test.mjs",
+      "source_identity": "1f:f0242a032168d3ee51be92b766bcb31d0ee3224d5d367ae9597f24f7b12e41fb",
+      "identity": "1f:ddd8f22ea0a707856888e93fe1a0e441959fd44996096126ab386c8ec66666bd"
+    },
+    {
+      "from": "test/sealed-log.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/sealed-log.test.mjs",
+      "source_identity": "1f:ef052b5bb3e2c579cd7167d947d162b66f10803f3027972ea424b49cf7245ffe",
+      "identity": "1f:6e12f0155df2f7e30b07356ee521802e7913cf04dcf21996078f3b309dcfd65d"
+    },
+    {
+      "from": "test/see-a-recording.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/see-a-recording.test.mjs",
+      "source_identity": "1f:fe56a5186eb80f2069f4215a286bdeca3d3871724eb351ed8a0175e2a6d0b5f0",
+      "identity": "1f:d05ddeba6556b567a534d540eae795b269ad33de29543fa6a01586953a7d701d"
+    },
+    {
+      "from": "test/send-opened-files.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/send-opened-files.test.mjs",
+      "source_identity": "1f:a8c097f54c9dc0f1cce6441653c22d668878d19dcb1e287010791fe89a33f10b",
+      "identity": "1f:5a177baf72e357b07739558768544108af626f34f2887dd17510f0285618ecee"
+    },
+    {
+      "from": "test/shell-string-scan.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/shell-string-scan.test.mjs",
+      "source_identity": "1f:b55a0cd04018e22f358c1691f02a08b646909af715b8b8c77a2a3a2eb4248d0e",
+      "identity": "1f:e556a142d4887cba42625a942b6009fa71c807f130f8fc6ed0d2ec58ec141d36"
+    },
+    {
+      "from": "test/startup-lease.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/startup-lease.test.mjs",
+      "source_identity": "1f:36c41a69fd77778ac04373af27acc3bf55c6f796b2ea5450a2d16143434a89ac",
+      "identity": "1f:aaf7479d2b228a788d7697047a58e838084cbf00df3e4ce001d30bb7d1c84e3f"
+    },
+    {
+      "from": "test/supervised-run.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/supervised-run.test.mjs",
+      "source_identity": "1f:9a6c712e544f9b53d5b1bcca0f951891663f96b51344a60dfa80eed57c7cd864",
+      "identity": "1f:b96dc3ce981be2ff879d12a102f7f7d5c03ae6997702a7fc4a3a78bcc8327c69"
+    },
+    {
+      "from": "test/watch-this-mac.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-on-a-persons-computer/test/watch-this-mac.test.mjs",
+      "source_identity": "1f:2993513a03829b1a5c2179d278f77f0f37b75416f3f1dadad11c4252cee60427",
+      "identity": "1f:b5e186e52041221616e5b039f76f3d0b246601b20229b2237ba171d24296d463"
+    }
+  ]
+}

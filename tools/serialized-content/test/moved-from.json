@@ -1,0 +1,30 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/base64-byte-encoding.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/serialized-content/test/base64-byte-encoding.test.mjs",
+      "source_identity": "1f:902fc2935849ed3286b7d9205e4f1bd0190e7d3c3424f6da81eafbbd632ccce8",
+      "identity": "1f:4c2dcd2224af4cb72305ffd5da49602d70b8948eb59199492e1d6c9d130ec744"
+    },
+    {
+      "from": "test/content-json.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/serialized-content/test/content-json.test.mjs",
+      "source_identity": "1f:b31a4922f78e361137817cc6bf7124c3388dd7fc2c46ef2dc1e151cbe0bf38ae",
+      "identity": "1f:96170015dd5eff5324344fc58408bfa71f88546e29d8c3c65035b69a4898ab52"
+    },
+    {
+      "from": "test/segmented-transcript-fixture.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/serialized-content/test/segmented-transcript-fixture.mjs",
+      "source_identity": "1f:47426b68c9c6884c1dfd27f4bd97d1abafad144fcbeeca47f1ecf847ea85b3a0",
+      "identity": "1f:47426b68c9c6884c1dfd27f4bd97d1abafad144fcbeeca47f1ecf847ea85b3a0",
+      "reused": true
+    }
+  ]
+}

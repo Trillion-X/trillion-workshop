@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/derive-tool-rows-cli-boundary.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/ai-tool-catalog/test/derive-tool-rows-cli-boundary.test.mjs",
+      "source_identity": "1f:d1003356fa7fc0a0048e832a1a01d12ef9d87f2abcbbe1c24205b3bfbcf3aada",
+      "identity": "1f:27c7aad633d6fe8ae719e9c43a06c1014784e47380adf4cd76ed2c35426e5361"
+    }
+  ]
+}

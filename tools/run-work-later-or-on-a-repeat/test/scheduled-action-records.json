@@ -1,0 +1,102 @@
+{
+  "records": [
+    {
+      "role": "record",
+      "record_id": "work-a",
+      "fields": {
+        "title": "Launch note",
+        "group": "Queue"
+      }
+    },
+    {
+      "role": "record",
+      "record_id": "work-b",
+      "fields": {
+        "title": "Customer follow-up",
+        "group": "Queue"
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "source_id": "work-a",
+      "target_id": "target-1",
+      "relation_role": "target"
+    },
+    {
+      "source_id": "work-a",
+      "target_id": "evidence-1",
+      "relation_role": "evidence"
+    },
+    {
+      "source_id": "work-b",
+      "target_id": "target-2",
+      "relation_role": "target"
+    }
+  ],
+  "time_windows": [
+    {
+      "time_window_id": "tw-a",
+      "record_id": "work-a",
+      "start": "2026-06-22T15:00:00.000Z",
+      "timezone": "America/Chicago"
+    },
+    {
+      "time_window_id": "tw-b",
+      "record_id": "work-b",
+      "start": "2026-06-22T16:00:00.000Z",
+      "timezone": "America/Chicago"
+    }
+  ],
+  "actions": [
+    {
+      "action_id": "action-a",
+      "record_id": "work-a",
+      "dispatch": {
+        "name": "slot::workflow",
+        "input": {
+          "operation": "execute_definition",
+          "definition_id": "action:content-distribution.run-publish-intent",
+          "input": { "record_id": "work-a" }
+        }
+      }
+    },
+    {
+      "action_id": "action-b",
+      "record_id": "work-b",
+      "dispatch": {
+        "name": "slot::workflow",
+        "input": {
+          "operation": "execute_definition",
+          "definition_id": "action:any-owner.send-follow-up",
+          "input": { "record_id": "work-b" }
+        }
+      }
+    }
+  ],
+  "owner_evidence": [
+    {
+      "evidence_id": "evidence-1",
+      "record_id": "work-a",
+      "allowed": false,
+      "tone": "warning",
+      "reason_refs": ["reason-1"],
+      "next_action_refs": ["repair-1"]
+    }
+  ],
+  "receipts": [
+    {
+      "receipt_id": "receipt-a",
+      "record_id": "work-a",
+      "operation": "queued",
+      "observed_at": "2026-06-22T14:00:00.000Z"
+    }
+  ],
+  "views": [
+    {
+      "view_id": "default",
+      "group_by_field": "group",
+      "sort_by": "start"
+    }
+  ]
+}

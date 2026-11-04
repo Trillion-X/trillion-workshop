@@ -1,0 +1,25 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/record-configuration-surface.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-lists-of-rows/test/record-configuration-surface.test.mjs",
+      "source_identity": "1f:82b6c227e3d425644f7ccf0e312e11cf2d5e22eec5fdab59507fe03366ee2c20",
+      "identity": "1f:bdaa68c18964bb8206e599415199eb2e78ec7022dc8bcb90f054173bbee37304",
+      "redactions": [
+        {
+          "from_identity": "1f:0435bb1e5950599bcae0a26a43107ad90cb6b78765a8c41c89b1efc507d7da1e",
+          "to": "Avery"
+        },
+        {
+          "from_identity": "1f:ddfcbc05745d14ec9c329da6b0abd655f93406b41ad349917b3019c642d668ce",
+          "to": "Rowan"
+        }
+      ]
+    }
+  ]
+}
