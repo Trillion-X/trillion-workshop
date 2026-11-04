@@ -165,7 +165,49 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "list_id": "docs",
+              "row_kind": "record:docs",
+              "action": "set_up",
+              "expires_days": 30
+            },
+            "records": [
+              {
+                "id": "list:docs",
+                "type": "list",
+                "value": {
+                  "label": "Docs",
+                  "row_type": "docs",
+                  "indexes": [],
+                  "title_field": "title",
+                  "fields": [
+                    {
+                      "id": "title",
+                      "label": "Title"
+                    },
+                    {
+                      "id": "body",
+                      "label": "Body",
+                      "kind": "long-text"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "record:docs:onboarding",
+                "type": "record:docs",
+                "value": {
+                  "title": "Onboarding",
+                  "body": "Steps"
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
@@ -293,7 +335,46 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "list": {
+                "id": "docs",
+                "title_field": "title",
+                "fields": [
+                  {
+                    "id": "title",
+                    "label": "Title"
+                  }
+                ]
+              },
+              "rows": [
+                {
+                  "id": "a",
+                  "title": "Onboarding",
+                  "values": {
+                    "title": "Onboarding"
+                  }
+                },
+                {
+                  "id": "b",
+                  "title": "Pricing",
+                  "values": {
+                    "title": "Pricing"
+                  }
+                }
+              ],
+              "heats": {
+                "a": {
+                  "heat": 3,
+                  "at": "2026-11-01T00:00:00.000Z"
+                }
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -407,7 +488,20 @@
             ]
           }
         },
-        "result_selector": "$.result"
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "kept": {
+                "heat": 2,
+                "at": "2026-10-19T00:00:00.000Z"
+              },
+              "now": "2026-11-04T00:00:00.000Z",
+              "used": true
+            }
+          }
+        ]
       }
     }
   ]
