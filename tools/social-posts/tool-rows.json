@@ -4043,6 +4043,27 @@
                 }
               ]
             }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://sample-site.example.test/ghost/api/admin/posts/6500000000000000000000a1/"
+            },
+            "status": 200,
+            "body": {
+              "posts": [
+                {
+                  "id": "6500000000000000000000a1",
+                  "uuid": "00000000-0000-4000-8000-000000000001",
+                  "title": "A sample letter",
+                  "slug": "a-sample-letter",
+                  "status": "published",
+                  "url": "https://sample-site.example.test/a-sample-letter/",
+                  "published_at": "2026-11-03T12:00:00.000Z",
+                  "html": "<p>A made-up sample post.</p>"
+                }
+              ]
+            }
           }
         ],
         "shape_read_at": "2026-11-03"

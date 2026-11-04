@@ -12,6 +12,7 @@ import { openRecordsDoor } from 'trillion-workshop/tools/records-door/read-data/
 import { startFakeDoor } from 'trillion-workshop/tools/records-door/test/fake-door.mjs';
 import { rowOf } from 'trillion-workshop/tools/records-door/test/run-row.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
+import lookRows from '../../screen-looks/tool-rows.json' with { type: 'json' };
 import { REJECTED, SETTINGS, SETTINGS_ID, SHIPPED, bindingFor, mailSender, mailSettings, sendAnEmail } from '../do-work/mail-sender.mjs';
 import { providerOf } from '../do-work/send-a-message.mjs';
 
@@ -204,7 +205,9 @@ describe('the mail row and the email rows', () => {
     for (const id of ['tool:send-an-email-with-resend', 'tool:send-an-email-with-amazon-ses']) {
       const row = rowOf(rows, id);
       assert.equal(row.invoke.argv[1], '/opt/send-messages/do-work/mail-sender.mjs', id);
-      assert.deepEqual(row.invoke.records.rights.map(right => right.kind).sort(), ['mail-day', 'mail-sent', 'mail-settings'], id);
+      assert.deepEqual(row.invoke.records.rights.filter(right => right.kind !== '@own-records').map(right => right.kind).sort(), ['mail-day', 'mail-sent', 'mail-settings'], id);
+      // The worn look every email is drawn in is read with exactly the rights tool:read-current-worn-look holds.
+      assert.deepEqual(row.invoke.records.rights.filter(right => right.kind === '@own-records'), rowOf(lookRows, 'tool:read-current-worn-look').invoke.records.rights, id);
       assert.equal(row.invoke.records.fd, 3, id);
       assert.ok(row.invoke.credential_mounts.every(mount => mount.fd >= 4), id);
       assert.equal(row.input_schema.properties.from, undefined, `${id}: the request never chooses the sender`);

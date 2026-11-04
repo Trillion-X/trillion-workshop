@@ -39,6 +39,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 import { MessageRejectedError } from '../read-data/check-message-headers.ts';
 import { currentPalette, drawEmail } from '../read-data/draw-an-email.mjs';
+import { wornLookReader } from './read-the-worn-email-look.mjs';
 import { heldKeys, providerOf, sendMessage } from './send-a-message.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -419,7 +420,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const door = openRecordsDoor();
     const row = await mailSettings(door);
     const binding = bindingFor(provider, heldKeys(provider), row);
-    const sender = mailSender({ row, door, binding, provider: provider.id });
+    const sender = mailSender({ row, door, binding, provider: provider.id, readLook: wornLookReader(door) });
     console.log(JSON.stringify({ result: await sendAnEmail(request, { provider: provider.id, sender }) }));
   } catch (error) {
     console.error(error.message);

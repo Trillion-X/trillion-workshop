@@ -31,3 +31,5 @@ once per note (see its README).
 `show/coss/ui/menu.tsx` is the public licensed Base UI/Coss menu primitive for composed menu controls, including checkbox and radio choices with native checked state, keyboard focus and the shared phone sheet. Ordinary action lists continue to use `show/action-menu`.
 
 `show/icon/NamedIcon` renders either a named vector or a Unicode symbol through the same Icon sizing and color owner. A literal mark stays visible while vector modules are pending or unavailable; reference pickers and RecordChip use that shared rendering path.
+
+`show/` here holds the shared, non-screen ui modules that the trillion-apps web shell and this package's own data side import, so they have one home every tree can reach (trillion-apps `web/parts/ui/show` holds the screens): `canvas-history/command-history.ts`, `clipboard/copy-text.ts`, `safe-error-card/sanitize-error-text.ts` (the one failure-words gate) and `loading-mark/`. Import them as `trillion-workshop/tools/ui/show/<path>`. The group graph, node refs and layer address types are homed in `tools/turn-frames-into-slides/read-data/` (`group-graph.ts`, `node-ref.ts`, `visual-layer-types.ts`).

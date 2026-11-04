@@ -1,0 +1,12 @@
+#!/bin/sh
+# A stand-in for cargo, for tools/publish-an-engine-release's tests: `cargo build --release --bin trillion-local` writes
+# a fake engine to $CARGO_TARGET_DIR/release/trillion-local that prints the commit and sequence it was built with, and
+# writes the environment it saw to the file FAKE_CARGO_ENV names (so a test can see no credential reached the build).
+# With FAKE_CARGO_FAIL it stops the way a failed build does.
+[ "$*" = "build --release --bin trillion-local" ] || { echo "fake cargo: unexpected arguments: $*" >&2; exit 2; }
+[ -n "$FAKE_CARGO_ENV" ] && env > "$FAKE_CARGO_ENV"
+[ -n "$FAKE_CARGO_FAIL" ] && { echo "error[E0425]: cannot find value in this scope" >&2; exit 101; }
+mkdir -p "$CARGO_TARGET_DIR/release"
+printf '#!/bin/sh\necho "trillion-local %s %s"\n' "$TRILLION_RELEASE_COMMIT" "$TRILLION_RELEASE_SEQUENCE" > "$CARGO_TARGET_DIR/release/trillion-local"
+chmod 0755 "$CARGO_TARGET_DIR/release/trillion-local"
+echo "    Finished release [optimized] target(s)"

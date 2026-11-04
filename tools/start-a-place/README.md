@@ -18,12 +18,14 @@ Make a machine into a place that keeps people's accounts: rent a server through 
 
 | Name | Signature / Shape | Role |
 |------|-------------------|------|
-| request file | `{ lease_file, machine: { provider, name, placement, lifetime, expires_at?, public_key \| public_key_file }, name: { provider?, zone?, host_name }, ssh: { known_hosts, identity_file? }, port, engine: { file, data_env, data_dir, id_argv?, release_name, release: { tarball } \| { on_machine } }, place_config, config_from_release? }` | What to start. Paths are relative to the request file. The engine's file, data folder and id command are input: this folder names no engine. |
+| request file | `{ lease_file, machine: { provider, name, placement, lifetime, expires_at?, public_key \| public_key_file }, name: { provider?, zone?, host_name }, ssh: { known_hosts, identity_file? }, port, engine: { file, data_env, data_dir, id_argv?, release_name, release: { tarball } \| { on_machine } }, place_config, config_from_release?, release_feed?, default_places? }` | What to start. Paths are relative to the request file. The engine's file, data folder and id command are input: this folder names no engine. |
 | lease file | `{ schema: "place-lease/1", provider, name, serverType, location, image, lifetime, startedAt, expiresAt, state, serverId, sshKeyId, sharedSshKeyId?, address, adopted?, names?, zone?, zoneId?, hostName?, recordId? }` | Every identity the lease owns, never a credential. `start` resumes from it. |
 | `providerClient` | `(row, token, { fetchImpl? }) => request(method, path, body)` | Sends only the calls the row's `requests` declare. |
 | `rentMachine` / `releaseMachine` / `readMachine` | `({ request, file, provider, ... }) => lease` | Rent (or adopt), give back, read state. A public key the provider already holds (same fingerprint) is used as it is and never removed. |
 | `readPrice` | `({ request, provider, placement }) => { cents, currency } \| null` | The size's monthly price at the location. |
 | `pointName` / `forgetName` | `({ request, file, provider, zone?, hostName? }) => lease` | One A record, unproxied, marked with this lease's name. |
+| `release_feed` | `{ urls: [https address of feed.json], public_keys: [64 hex Ed25519], releases }` | Written into the place config as given, checked first (before anything is rented): where the place adopts new engine releases from (engine job J1), and the keys a release must be signed by. The feed is published by `tools/publish-an-engine-release`, whose install prints the public key. |
+| `default_places` | `{ holders: [place ids], answering: [place ids], voters?: [place ids] }` | Written into the place config as given: the places a new account's rows name by default. |
 | `startAPlace` | `(request, { machineToken, nameToken, run?, fetchImpl? }) => { lease, host_name, arch, price, place_id, release, sign_up_status }` | The whole start, read back. |
 
 ## Dependencies
