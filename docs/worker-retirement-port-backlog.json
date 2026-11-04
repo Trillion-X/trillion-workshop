@@ -3015,14 +3015,14 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/ai-reach-words.json",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/ai-reach.mjs",
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/ai-reach.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/ai-setup-prompt.json",
@@ -3062,7 +3062,7 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/ais.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/allowance.mjs",
@@ -3095,7 +3095,7 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/app-places.json",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/app-project-assembly.mjs",
@@ -3176,7 +3176,7 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/asks-for-your-ais.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/attention.mjs",
@@ -3189,14 +3189,14 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/gather-audience-questions/src/audience-question-admission.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/audience-question-sources.mjs",
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/gather-audience-questions/src/audience-question-sources.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/audience-send-content.mjs",
@@ -3239,7 +3239,7 @@
    "class": "workshop-tool",
    "destination": "trillion-apps:web/src/automation-open-id.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2): already had a home, found by content"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/automation-tools.mjs",
@@ -3276,7 +3276,7 @@
    "class": "workshop-tool",
    "destination": "trillion-apps:web/src/backing-automations.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2): already had a home, found by content"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/behavior-routing.mjs",
@@ -3389,14 +3389,14 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/copy-records-into-this-browser/src/browser-record-copy.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/browser-session-recorder.mjs",
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/copy-records-into-this-browser/src/browser-session-recorder.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/built-in-tools.mjs",
@@ -3493,7 +3493,7 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/recently-deleted-and-storage/carry-tables-into-records.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2): already had a home, found by content"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/catch-up-content.mjs",
@@ -3786,7 +3786,7 @@
    "class": "workshop-tool",
    "destination": "trillion-workshop:tools/see-and-limit-what-each-ai-can-reach/src/computer-sources.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2)"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153)"
   },
   {
    "path": "src/configurations.mjs",
@@ -4262,7 +4262,7 @@
    "class": "workshop-tool",
    "destination": "trillion-apps:web/src/editor-handoff.json",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2): already had a home, found by content"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/editor-handoff.mjs",
@@ -5055,7 +5055,7 @@
    "class": "workshop-tool",
    "destination": "trillion-apps:web/src/link-page.json",
    "why": "a feature a person or AI uses",
-   "batch": "slice src/ a–l round 2 (trillion-workshop PR #ROUND2): already had a home, found by content"
+   "batch": "slice src/ a–l round 2 (trillion-workshop PR #153): already had a home, found by content"
   },
   {
    "path": "src/link-page.mjs",
