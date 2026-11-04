@@ -1,0 +1,272 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:messages-screen",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:list-my-conversations-newest-first",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "List my conversations newest first",
+        "job": "List every conversation with AIs and in spaces newest first, found by words, participant or project, grouped Today, Yesterday, This Week and Older, as the messages screen's list shows them",
+        "description": "Give conversations (rows of { recordId, sessionId, participantRef, lastActivityAt, title?, projectSlug?, projectName? }; other fields are kept as given) and optionally search (words matched, ignoring case, against title, sessionId, projectSlug and recordId), participant (a participantRef) and project (a projectName). The rows are sorted by lastActivityAt newest first, filtered and grouped by date with the Messages screen's own list helpers (show/build-chat-conversation-list.ts, run by Node's type stripping); groups follow the clock of the machine the run is on. Answers groups ([{ label, conversations }]), shown, total, and participants and projects (every one named across all rows, for the filters). Refuses conversations that is not a list and a row missing recordId, sessionId, participantRef or a readable lastActivityAt. Reads no records, keeps nothing and sends nothing: the screen itself (reading the person's conversations, transcripts and the composer that sends) is not part of this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "conversations"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "conversations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "recordId",
+                  "sessionId",
+                  "participantRef",
+                  "lastActivityAt"
+                ],
+                "properties": {
+                  "recordId": {
+                    "type": "string"
+                  },
+                  "sessionId": {
+                    "type": "string"
+                  },
+                  "participantRef": {
+                    "type": "string"
+                  },
+                  "lastActivityAt": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "projectSlug": {
+                    "type": "string"
+                  },
+                  "projectName": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "search": {
+              "type": "string"
+            },
+            "participant": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "project": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "groups",
+            "shown",
+            "total",
+            "participants",
+            "projects"
+          ],
+          "properties": {
+            "groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "conversations"
+                ],
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "enum": [
+                      "Today",
+                      "Yesterday",
+                      "This Week",
+                      "Older"
+                    ]
+                  },
+                  "conversations": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "recordId",
+                        "sessionId",
+                        "participantRef",
+                        "lastActivityAt"
+                      ],
+                      "properties": {
+                        "recordId": {
+                          "type": "string"
+                        },
+                        "sessionId": {
+                          "type": "string"
+                        },
+                        "participantRef": {
+                          "type": "string"
+                        },
+                        "lastActivityAt": {
+                          "type": "string"
+                        },
+                        "title": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "projectSlug": {
+                          "type": "string"
+                        },
+                        "projectName": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "shown": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "participants": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "projects": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/messages-screen",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/messages-screen/show/list-conversations.mjs",
+            "listConversations"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "messages-screen",
+                "paths": [
+                  "show/list-conversations.mjs",
+                  "show/build-chat-conversation-list.ts"
+                ],
+                "at": "/opt/messages-screen"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion 5cd0dc3103e4f54b30b1784f0d77a67de0147064, the chat part's show/build-chat-conversation-list.ts (its header: ported from bitfield-packages packages/chat/show at e99ac5976), moved in a9ee258 (#76), run through show/list-conversations.mjs; old capability row capabilities.json:674 at 4ffa1dc4a2^ (show every conversation with AIs and in spaces in a messages screen with a composer)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "conversations": [
+                {
+                  "recordId": "rec:1",
+                  "sessionId": "s-garden",
+                  "participantRef": "participant:helper-ai",
+                  "lastActivityAt": "2026-01-05T09:00:00Z",
+                  "title": "Garden plan",
+                  "projectName": "Home"
+                },
+                {
+                  "recordId": "rec:2",
+                  "sessionId": "s-paint",
+                  "participantRef": "participant:sam",
+                  "lastActivityAt": "2026-01-07T09:00:00Z",
+                  "title": "Paint colours"
+                }
+              ],
+              "search": "garden"
+            },
+            "output_selector": "$.groups[0].conversations[0].title",
+            "contains": "Garden plan"
+          }
+        ]
+      }
+    }
+  ]
+}
