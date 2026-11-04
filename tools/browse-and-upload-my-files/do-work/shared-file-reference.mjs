@@ -1,8 +1,7 @@
 // Readable mounted names come from the existing member catalog. Exact space/item references remain
 // metadata, never a contributor-private lookup. Stable short tags prevent renamed or duplicate labels
-// from binding a cached path to a different grant. These tags use the Namespace's existing BLAKE3 owner.
-import { blake3 } from '@noble/hashes/blake3.js';
-import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils.js';
+// from binding a cached path to a different grant. These tags use the Workshop's one BLAKE3 owner (tools/content-identity).
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const ID = /^[A-Za-z0-9][A-Za-z0-9_-]{0,159}$/;
 const IDENTITY = /^1f:[a-f0-9]{64}$/;
@@ -13,7 +12,8 @@ export function sharedReference(value = {}) {
   if (![value.space_id, value.item_id].every(id => typeof id === 'string' && ID.test(id))) throw new Error('A shared file needs its exact space_id and item_id.');
   return { space_id: value.space_id, item_id: value.item_id };
 }
-const tagOf = value => bytesToHex(blake3(utf8ToBytes(value))).slice(0, 12);
+const utf8ToBytes = text => new TextEncoder().encode(text);
+const tagOf = value => makeHashCodeHexFromBytes(utf8ToBytes(value)).slice(3, 15);
 const bounded = (value, bytes = 200) => {
   let out = '', length = 0;
   for (const character of value) { const next = utf8ToBytes(character).length; if (length + next > bytes) break; out += character; length += next; }

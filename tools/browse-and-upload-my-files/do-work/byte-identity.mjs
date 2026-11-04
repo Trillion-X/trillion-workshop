@@ -13,19 +13,16 @@ export function compiledByteIdentityNow() {
   return compiledFactory ? compiledFactory() : null;
 }
 
+// Without a compiled host, the identity is the Workshop's one BLAKE3 owner (tools/content-identity); `hex` is asked once,
+// after the last update, as every caller does.
 export async function createByteIdentity() {
   if (compiledFactory) return compiledFactory();
-  const [{ blake3 }, { bytesToHex }] = await Promise.all([
-    import('./blake3.mjs'), import('@noble/hashes/utils.js'),
-  ]);
-  const digest = blake3.create();
+  const { makeHashCodeHasher } = await import('../../content-identity/read-data/identity.mjs');
+  const digest = makeHashCodeHasher();
   return {
     update: bytes => digest.update(bytes),
-    hex: () => {
-      const snapshot = digest.clone();
-      try { return bytesToHex(snapshot.digest()); } finally { snapshot.destroy(); }
-    },
-    free: () => digest.destroy(),
+    hex: () => digest.identity().slice(3),
+    free: () => {},
   };
 }
 

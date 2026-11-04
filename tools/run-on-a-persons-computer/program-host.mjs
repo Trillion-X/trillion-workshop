@@ -39,7 +39,10 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { currentToolId } from '../src/renamed-tools.mjs';
+import renamed from '../describe-the-workshop/read-data/renamed-tools.json' with { type: 'json' };
+
+// A former tool id as its current one (the Workshop's rename table), so an install saved before a rename still runs.
+const currentToolId = id => renamed.tools[id] ?? id;
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const SAVED_VERSION = 1;

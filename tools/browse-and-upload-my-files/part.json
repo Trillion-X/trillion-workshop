@@ -9,7 +9,6 @@
     "built-stored-bytes/content-chunks",
     "do-work/content-chunks-browser.mjs",
     "do-work/send-a-file-to-namespace-browser.mjs",
-    "do-work/blake3.mjs",
     "do-work/byte-identity.mjs",
     "do-work/send-window.mjs",
     "do-work/send-retry.mjs",
