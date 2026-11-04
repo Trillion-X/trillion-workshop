@@ -73,6 +73,8 @@ export function releaseFeed(feed) {
   if (!Array.isArray(feed.urls) || !feed.urls.length || !feed.urls.every(url => typeof url === 'string' && /^https:\/\/[^/\s]+\/\S*$/.test(url))) throw refused('release_feed.urls must be a list of one or more https addresses of feed.json, like https://releases.example.com/engine-releases/feed.json.');
   if (!Array.isArray(feed.public_keys) || !feed.public_keys.length || !feed.public_keys.every(key => typeof key === 'string' && /^[0-9a-f]{64}$/.test(key))) throw refused('release_feed.public_keys must be a list of one or more Ed25519 public keys as 64 lowercase hex (what the builder\'s install printed).');
   if (feed.releases === undefined || feed.releases === null) throw refused('release_feed.releases must be given: it is the engine\'s releases setting for the adopted releases.');
+  const folder = typeof feed.releases === 'string' && feed.releases.startsWith('/') ? feed.releases : null;
+  if (folder && (!/^(\/[A-Za-z0-9._-]+)+\/?$/.test(folder) || folder.split('/').some(part => part === '.' || part === '..'))) throw refused('release_feed.releases, as a folder, must be an absolute path of letters, digits, dot, dash or underscore, with no . or .. part.');
   return structuredClone(feed);
 }
 
@@ -118,10 +120,14 @@ async function signUpStatus(hostName, { fetchImpl, wait, tries }) {
 
 const asEngine = (engine, argv) => `runuser -u place -- env ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
 
+/** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
+ * place service runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
+export const adoptFolder = request => (typeof request.release_feed?.releases === 'string' && request.release_feed.releases.startsWith('/') ? request.release_feed.releases.replace(/(.)\/$/, '$1') : null);
+
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, ...deps }) {
-  const engine = request.engine;
-  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir].map(q).join(' ')}`, readFileSync(SETUP));
+  const engine = request.engine, adopt = adoptFolder(request);
+  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, ...(adopt ? [adopt] : [])].map(q).join(' ')}`, readFileSync(SETUP));
   const release = await installRelease(machine, engine, run);
   const config = await placeConfig(machine, request, price, run);
   await run(machine, 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json', `${JSON.stringify(config, null, 1)}\n`);
