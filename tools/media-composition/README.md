@@ -39,6 +39,20 @@ The colour grade files (`read-data/luts/*.cube`) are supplied by the account and
 | `master_loudnorm_linear: true` | The master loudness as two passes: the program measured, then one gain applied (`master_loudness_range`, default 11 LU). |
 | card line `font_file`, `border_px`, `border_color`; card `audio_source` | A card line's font and outline; the card's sound as a lavfi audio source (silence when absent). |
 
+## Not yet
+
+`tool:run-an-app-job` and `tool:use-an-app-on-this-computer` still run on old trillion's Mac host (old trillion `computer/app-job.mjs`, `parts/media-composition/do-work/use-an-app-here.mjs`, `apps-here.json`). Their home is this folder, as `computer` rows. They have not moved, for these reasons:
+
+- **Engine capability.** The engine cannot start an app's own tool server. `start-a-program` picks only from its `programs` rows: `ai-command`, `headless-browser` and `record-and-hear` (trillion-rust `src/runtime/workshop/computer-capabilities.json:88`, programs at `:165`). The job needs a program row `app-tool-server` with parameter `program` (the `start` command an `apps-here.json` row names, such as `filmcraft-cli` or `npx`), granting these rules:
+  - `(allow process-exec file-read* (literal "{program}"))`
+  - `(allow process-exec (literal "/usr/bin/open"))` and `(allow mach-lookup (global-name "com.apple.coreservices.launchservicesd"))`, so `/usr/bin/open -g -j -a <app>` can open a closed app quietly
+  - `(allow process-exec (literal "/bin/ps"))`, beside `read-processes`, to see whether the app runs
+  - `(allow network-outbound (remote ip "localhost:*"))`, for an app helper's signed health check on loopback
+
+  The `places` files go into the app's own folder under `change-a-folder`, which already exists.
+- **Installed-app check.** It reads `computer/computer-sources.mjs` `LOOKS` and `computer/computer-sources.json`, which move with the computer-places readers in another session. It moves after them.
+- **Files.** The old Namespace client (`namespaceClient`, `sendFile`) becomes `door.files` with a `files` right (`read_file` for inputs), and outputs become the row's `outputs` with `keep_in: files`.
+
 ## Dependencies
 
 **Depends on:** ffmpeg, ffprobe and Node in the tool container image; `tools/content-identity` for file identities; Python with onnxruntime, rembg and the face and voice models the container holds, for the `.py` scripts.
