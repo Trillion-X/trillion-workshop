@@ -1,0 +1,22 @@
+/* packages/screen-look/show/drag-reorder.css
+ * How a sortable list looks while a row is dragged (ui/show/drag-reorder-list/SortableRows.tsx):
+ * the picked-up row lifts and follows the pointer, the other rows spring aside,
+ * and the gap it will fill shows a soft slot with an accent line that moves
+ * with it. Spring timing lives in SortableRows; reduced motion moves rows instantly.
+ * Reference: 21st.dev #23550 "Reorder List" (lifted row, spring-shifted rows). */
+:root{
+  --reorder-line:var(--border-focus,var(--color-primary));
+  --reorder-lift-shadow:0 1px 2px color-mix(in srgb,var(--text-primary) 10%,transparent),0 12px 24px -14px color-mix(in srgb,var(--text-primary) 45%,transparent);
+}
+[data-reorder-handle]{touch-action:none;cursor:grab}
+[data-reorder-list][data-reorder-dragging],[data-reorder-list][data-reorder-dragging] *{cursor:grabbing}
+[data-reorder-list] [data-reorder-lifted]{z-index:10;border-radius:var(--radius-control,8px);background:var(--glass-bg,var(--bg-primary));box-shadow:var(--reorder-lift-shadow)}
+[data-reorder-list] [data-reorder-slot]{position:absolute;inset:0;z-index:-1;border-radius:var(--radius-control,8px);background:color-mix(in srgb,var(--reorder-line) 9%,transparent);pointer-events:none}
+[data-reorder-list] [data-reorder-slot]::after{content:"";position:absolute;left:6px;right:6px;top:50%;height:2px;margin-top:-1px;border-radius:999px;background:var(--reorder-line);box-shadow:0 0 0 3px color-mix(in srgb,var(--reorder-line) 18%,transparent)}
+
+/* A grouped list (DragReorderList surface="grouped"): one bordered group, a hairline between rows, rows padded as a
+ * settings list reads (Linear's settings lists). Every row carries the hairline above it and the group clips the
+ * first one, so the rule holds however the rows are wrapped. It never shrinks to fit a column: clipping hides rows. */
+[data-reorder-surface="grouped"]{flex-shrink:0;overflow:hidden;border:1px solid var(--border-primary);border-radius:var(--radius-card,12px);background:var(--glass-bg-subtle,transparent)}
+[data-reorder-surface="grouped"]>*{margin-top:-1px}
+[data-reorder-surface="grouped"] [data-reorder-row]{padding:10px 12px 10px 6px;border-top:1px solid var(--border-primary);border-radius:0}

@@ -1,0 +1,52 @@
+{
+  "kind": "bitfield-entry-to-package-data-map",
+  "package": "documents",
+  "package_data_path": "things-to-store-and-run.json",
+  "entries": [
+    {
+      "entry_name": "selected-composition",
+      "source_path": "show/mount-selected-composition.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "materialize-selection",
+      "source_path": "do-work/materialize-selection-target.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "documents",
+      "source_path": "show/mount-documents.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "authored-note",
+      "source_path": "show/AuthoredNoteEntry.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "composition-scene",
+      "source_path": "show/mount-composition-scene.tsx",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "apply-scene-patch",
+      "source_path": "do-work/apply-scene-patch.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "read-scene",
+      "source_path": "do-work/read-scene-target.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "serialize-scene",
+      "source_path": "do-work/serialize-scene-target.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    },
+    {
+      "entry_name": "append-scene-roots",
+      "source_path": "do-work/append-scene-roots-target.ts",
+      "package_data_path": "things-to-store-and-run.json"
+    }
+  ]
+}

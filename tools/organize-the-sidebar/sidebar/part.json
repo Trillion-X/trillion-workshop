@@ -1,0 +1,37 @@
+{
+  "public": [
+    "read-data/live-graph.ts",
+    "do-work/edit-surface-collections.ts",
+    "do-work/surface-collection-ops.ts",
+    "read-data/apply-list-rules.ts",
+    "read-data/merge-surface-collections.ts",
+    "read-data/sidebar-settings.ts",
+    "read-data/space-row.ts",
+    "read-data/read-surface-collections.ts",
+    "show/AppSidebar.tsx",
+    "show/DesktopSidebar.tsx",
+    "show/ProjectedCollectionNav.ts",
+    "show/SidebarContent.tsx",
+    "show/content-host.ts",
+    "show/mount-sidebar.tsx",
+    "show/use-surface-collections.ts"
+  ],
+  "controls_what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): a rule can hide any of them, or everything under a path, for anyone. DesktopSidebar draws `<controls>.<capability>` for each capability; a host that draws another frame (the pane tab bar) names its own path.",
+  "controls": [
+    { "id": "sidebar", "label": "The sidebar" },
+    { "id": "sidebar.position", "label": "Move the sidebar to another edge" },
+    { "id": "sidebar.collapse", "label": "Collapse the sidebar" },
+    { "id": "sidebar.undock", "label": "Float the sidebar" },
+    { "id": "sidebar.hide", "label": "Hide the sidebar" },
+    { "id": "sidebar.resize", "label": "Resize the sidebar" },
+    { "id": "sidebar.row-preview", "label": "Preview a screen on its sidebar row" },
+    {"id": "sidebar.list", "label": "Sidebar lists"},
+    {"id": "sidebar.list.pin", "label": "Pin a list to the sidebar"},
+    {"id": "sidebar.list.unpin", "label": "Unpin a list"},
+    {"id": "sidebar.list.auto-hide", "label": "Auto-hide a list"},
+    {"id": "sidebar.list.add", "label": "Add navigation rows to a list"},
+    {"id": "sidebar.row.actions", "label": "Actions on a navigation row"},
+    {"id": "sidebar.row.move", "label": "Move a navigation row"},
+    {"id": "sidebar.content", "label": "Embedded sidebar panels, with each host beneath its own path"}
+  ]
+}

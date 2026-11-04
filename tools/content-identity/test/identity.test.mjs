@@ -3,7 +3,26 @@
 // identity of the whole at every split; anything but bytes is refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalJson, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson } from '../read-data/identity.mjs';
+import { canonicalJson, makeHashCodeHasher, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson, makeKeyedHashHexFromBytes } from '../read-data/identity.mjs';
+
+test('a hasher fed pieces as they arrive gives the identity of the whole, and refuses anything but bytes', () => {
+  const bytes = Uint8Array.from({ length: 70000 }, (_, index) => index % 251);
+  const hasher = makeHashCodeHasher();
+  for (let at = 0; at < bytes.length; at += 4096) hasher.update(bytes.subarray(at, at + 4096));
+  assert.equal(hasher.identity(), makeHashCodeHexFromBytes(bytes));
+  assert.equal(makeHashCodeHasher().identity(), makeHashCodeHexFromBytes(new Uint8Array()));
+  assert.throws(() => makeHashCodeHasher().update('text'), /byte chunks/);
+});
+
+test('the keyed hash is BLAKE3 keyed mode (the published empty-input vector), differs by key, and needs a 32-byte key', () => {
+  const key = new TextEncoder().encode('whats the Elvish word for friend');
+  assert.equal(makeKeyedHashHexFromBytes(key, new Uint8Array()), '92b2b75604ed3c761f9d6f62392c8a9227ad0ea3f09573e783f1498a4ed60d26');
+  const other = new Uint8Array(32).fill(7);
+  assert.notEqual(makeKeyedHashHexFromBytes(key, new Uint8Array([1])), makeKeyedHashHexFromBytes(other, new Uint8Array([1])));
+  assert.notEqual(`1f:${makeKeyedHashHexFromBytes(key, new Uint8Array())}`, makeHashCodeHexFromBytes(new Uint8Array()));
+  assert.throws(() => makeKeyedHashHexFromBytes(new Uint8Array(16), new Uint8Array()), /32-byte key/);
+  assert.throws(() => makeKeyedHashHexFromBytes(key, 'text'), /requires bytes/);
+});
 
 test('the identity is 1f: and BLAKE3-256 of the bytes', () => {
   assert.equal(makeHashCodeHexFromBytes(new Uint8Array()), '1f:af1349b9f5f9a1a6a0404dea36dcc9499bcb25c9adc112b7cc9a93cae41f3262');

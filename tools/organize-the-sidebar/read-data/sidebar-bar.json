@@ -1,0 +1,10 @@
+{
+  "_what": "The thin bar the window's sidebar becomes when it is collapsed on an edge or sits on a seam between two panes: how thick it is (its width standing, its height lying across), the room each icon takes, the button and icon drawn in that room, and the room its grip and More button take. bar-fit.ts decides from these how many icons show; the rest go behind More. sidebar-bar.css draws every button at button_px with an icon_px icon.",
+  "thickness_px": 32,
+  "row_px": 32,
+  "button_px": 28,
+  "icon_px": 16,
+  "grip_px": 14,
+  "more_px": 32,
+  "padding_px": 2
+}

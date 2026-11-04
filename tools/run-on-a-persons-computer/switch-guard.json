@@ -1,0 +1,33 @@
+{
+  "_what": "What a program the Trillion app starts refuses to run with (computer/switch-guard.mjs). `switches`: regular expressions on its command-line switches and on NODE_OPTIONS. `variables`: environment variables that weaken it (with the value, when only one value is dangerous). `app_child_variable`: set by the app on its children (macos/computer-reader.json `environment`); the guard applies only when it is set. `token_variable` carries a support token; `support_token_blake3` is the list of BLAKE3 hashes (hex) of tokens that may allow one run. It ships empty.",
+  "app_child_variable": "TRILLION_APP_CHILD",
+  "token_variable": "TRILLION_SUPPORT_TOKEN",
+  "support_token_blake3": [],
+  "switches": [
+    "^--inspect",
+    "^--inspect-brk",
+    "^--inspect-wait",
+    "^--debug",
+    "^--require$",
+    "^-r$",
+    "^--import$",
+    "^--experimental-loader",
+    "^--loader",
+    "^--insecure-http-parser",
+    "^--tls-min-v1\\.0",
+    "^--use-openssl-ca"
+  ],
+  "variables": [
+    {
+      "name": "NODE_TLS_REJECT_UNAUTHORIZED",
+      "value": "0"
+    },
+    {
+      "name": "NODE_EXTRA_CA_CERTS"
+    }
+  ],
+  "words": {
+    "refused": "Trillion's program will not run with {list}: that would open it to a debugger or weaken its secure connections.",
+    "overridden": "Support override accepted for this run; it is running with {list}."
+  }
+}

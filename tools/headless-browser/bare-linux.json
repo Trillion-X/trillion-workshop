@@ -1,0 +1,26 @@
+{
+  "_what": "How a Chromium is made to start on a Linux computer where nothing may be installed system-wide (the Cloudflare build: Ubuntu 24.04, no root, no browser libraries; read by bare-linux.mjs). The browser is Playwright's own `browser` build. The libraries it lacks are the packages Playwright itself names for this distribution (`playwright install-deps --dry-run`), plus any library one of them still lacks, each fetched as a package file from the distribution's archive and unpacked into `folder` beside the checkout, never installed. Pictures compare only when every run draws the same letters, so the fonts are pinned too: only the `fonts.packages`, unpacked the same way, are visible to the browser, and each generic family a page may name is drawn with the face in `fonts.families`. `folder` is relative to the checkout's git folder. install names the deduplicated Playwright distribution bundles needed by every launch mode; chromium includes both full Chromium (extension/channel guards) and its default headless shell.",
+  "browser": "chromium-headless-shell",
+  "folder": "bare-linux-browser",
+  "fonts": {
+    "packages": [
+      "fonts-dejavu-core",
+      "fonts-noto-color-emoji"
+    ],
+    "families": {
+      "sans-serif": "DejaVu Sans",
+      "system-ui": "DejaVu Sans",
+      "-apple-system": "DejaVu Sans",
+      "BlinkMacSystemFont": "DejaVu Sans",
+      "ui-sans-serif": "DejaVu Sans",
+      "serif": "DejaVu Serif",
+      "ui-serif": "DejaVu Serif",
+      "monospace": "DejaVu Sans Mono",
+      "ui-monospace": "DejaVu Sans Mono",
+      "emoji": "Noto Color Emoji"
+    }
+  },
+  "install": [
+    "chromium"
+  ]
+}

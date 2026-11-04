@@ -1,0 +1,34 @@
+{
+  "schema": "licensed-source-revision/v1",
+  "owner": "parts/media-composition",
+  "revision_date": "2026-10-27",
+  "predecessor": {
+    "path": "source-adoption.json",
+    "blake3": "1f:bb5a0b66fbea8306158ae802970eb6a6094c523346f3892bc47446d25e7da08a"
+  },
+  "previous_producer_blake3": "1f:c928e434f99320e351286b4ff92dfa671dc12c344d5c2299d3bfc994281de627",
+  "changes": [
+    "Existing voice script CLI retained",
+    "Declared MODELS aliases and existing readiness owners composed without a new model table",
+    "Model/metadata absence, unknown metadata and unsupported engines kept distinct",
+    "Explicit selected-line recognition binds original input files and preserves failed epochs; no source narration supplied as prompt"
+  ],
+  "files": [
+    {
+      "path": "parts/media-composition/do-work/narration/produce.py",
+      "blake3": "1f:619ff09f2cd01231354218ca47cf92e54b016f9e26ec093489686949e5158e1f"
+    },
+    {
+      "path": "parts/media-composition/do-work/narration/tests/test_asr_entry.py",
+      "blake3": "1f:9f492b74c3c0e2e4717761e44e741bdee84c5a020fc4e8915023a1c02b8875ab"
+    },
+    {
+      "path": "parts/media-composition/do-work/narration/README.md",
+      "blake3": "1f:5ac1fe4bb7a09b3eafac45c624aba21233b86c5a2b2757bb11d7a662b68654eb"
+    }
+  ],
+  "tests": [
+    "tests/test_asr_entry.py"
+  ],
+  "scope": "Source revision only. Machine readiness, recognition results and historical production qualification stay in separate evidence; this file declares no installed model state."
+}

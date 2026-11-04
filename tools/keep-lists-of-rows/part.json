@@ -1,0 +1,28 @@
+{
+  "public": [
+    "read-data/saved-view-engine.mjs",
+    "read-data/configuration-controller.mjs",
+    "read-data/configuration-values.mjs",
+    "source-data/view-time-units.json",
+    "read-data/metric-aggregation.ts",
+    "show/offer-views-to-every-list.tsx",
+    "show/VisualDatabaseSurface.tsx",
+    "show/LazyOwnerBoundVisualDatabaseSurface.tsx",
+    "show/OwnerBoundVisualDatabaseSurface.tsx",
+    "show/use-addressed-cell-expression-owner.ts",
+    "do-work/addressed-cell-read-projection.ts",
+    "read-data/visual-database.ts",
+    "read-data/visual-database-input-from-list.ts",
+    "read-data/addressed-descriptors.ts",
+    "read-data/descriptor-projection.ts",
+    "do-work/visual-database-actions.ts",
+    "do-work/fractional-order.ts",
+    "do-work/migrate-descriptor-aggregates.ts",
+    "do-work/run-record-action.ts",
+    "source-data/published-for-every-consumer.json",
+    "source-data/views-offered-to-every-list.json",
+    "read-data/schedule-bars.ts",
+    "show/views/ScheduleView.tsx",
+    "source-data/schedule-zoom-levels.json"
+  ]
+}
