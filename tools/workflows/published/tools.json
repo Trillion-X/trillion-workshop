@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:fb07e7186f8427f56ce6838d2e5630211a5c812b06d19734ddda0ec1e569fdaa"
+  "blake3": "1f:56bb9a1ad3174db2b3730f4ab5141858c4df429b65dc7e0b8934cd27fd730df7"
  },
  "fields": [
   {
@@ -3993,6 +3993,25 @@
      "placement:small-container"
     ],
     "folder": "reservations"
+   }
+  },
+  {
+   "id": "tool:judge-a-new-sign-in-password",
+   "values": {
+    "title": "Say how strong a new password is",
+    "job": "Say how strong a new password is, in the words the sign-in pages show under the new password box, before I sign up with an email and a password",
+    "description": "Give password (text). It is scored as the sign-in pages score it as it is typed (password-strength.mjs, passwords.json): 0 when shorter than min_length (8), then 1, plus one for 12 characters or more and one for three kinds of character (lower case, upper case, digits, others). Answers score, said (the words for that score), min_length, max_length and too_long (whether the service would refuse it as longer than max_length). The password is judged in memory only: it is never printed back, kept or sent, and nothing is signed in, made or changed. The sign-in pages themselves (passkey.mjs, kept in this folder but not run here) do the rest of the old job: they run the passkey step through the browser's WebAuthn, send and check emailed codes and post the email-and-password form; those need a browser and the sign-in service, which this run does not have.",
+    "status": "active",
+    "maker": "maker:sign-in-with-a-passkey",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "sign-in-with-a-passkey",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -9372,6 +9391,25 @@
      "placement:small-container"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:sort-mail-into-built-in-task-lists",
+   "values": {
+    "title": "Sort mail into my built-in task lists",
+    "job": "Say which built-in to-do list (calendar, email or other) each email would become a task in when I turn my mail into tasks",
+    "description": "Give messages (at most 50, each { subject?, from?, labels?, list_unsubscribe?, has_invite? }). Each is tested against the email_split rows of calendar-tasks.json in order (an invite or invitation subject goes to calendar; a list-unsubscribe header, a promotions, updates, social, forums or spam label, or unsubscribe in the subject goes to other; anything else to email), and the first row that matches names its list. Answers messages ({ index, subject, smart_list }) and counts per list. It reads only the messages it is given: it reads no mailbox, makes and saves no task, and sends nothing. The Calendar task screen (calendar-tasks.mjs, kept in this folder but not run here) does the rest of the old job: it keeps named task lists with counts, groups and sorts them, schedules a task onto a day or time, and saves each email as a task with its title, priority, duration, deadline and repeat rule. That needs the records store and the timed-action parts, which this run does not have.",
+    "status": "active",
+    "maker": "maker:plan-tasks-and-todo-lists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "plan-tasks-and-todo-lists",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
