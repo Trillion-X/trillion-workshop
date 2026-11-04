@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/tool-choice-keep.json",
+      "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
+      "to": "tools/remember-which-tool-was-chosen-for-a-job/src/tool-choice-keep.json",
+      "source_identity": "1f:89d1b2d425b511b5fdcca58b2dc4c2fa223a33636865f42bff219f31410aeb4a",
+      "identity": "1f:89d1b2d425b511b5fdcca58b2dc4c2fa223a33636865f42bff219f31410aeb4a"
+    },
+    {
+      "from": "src/tool-choice-keep.mjs",
+      "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
+      "to": "tools/remember-which-tool-was-chosen-for-a-job/src/tool-choice-keep.mjs",
+      "source_identity": "1f:c6c26be3a58a988c7f2e7f1c640db657b40138bd3ed9302fc5c8e5446d48f354",
+      "identity": "1f:c6c26be3a58a988c7f2e7f1c640db657b40138bd3ed9302fc5c8e5446d48f354"
+    },
+    {
+      "from": "src/tool-choices.mjs",
+      "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
+      "to": "tools/remember-which-tool-was-chosen-for-a-job/src/tool-choices.mjs",
+      "source_identity": "1f:af4999c7e4977d0d08cb0783cdb7bec2aec88b58b0004031e877d6c9b7444062",
+      "identity": "1f:af4999c7e4977d0d08cb0783cdb7bec2aec88b58b0004031e877d6c9b7444062"
+    },
+    {
+      "from": "test/tool-choices.test.mjs",
+      "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
+      "to": "tools/remember-which-tool-was-chosen-for-a-job/test/tool-choices.test.mjs",
+      "source_identity": "1f:b03c26f539648a8f1539c729b32432715be3a1589ad9f311d96678cb1fd9d304",
+      "identity": "1f:b03c26f539648a8f1539c729b32432715be3a1589ad9f311d96678cb1fd9d304"
+    }
+  ]
+}

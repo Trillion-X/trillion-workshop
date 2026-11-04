@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/dead-end-search.json",
+      "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
+      "to": "tools/keep-a-search-that-found-no-tool/src/dead-end-search.json",
+      "source_identity": "1f:9e36b520b15c8e817009cf5c4d3102b4d02f63b6116a08046aaabb41badca987",
+      "identity": "1f:9e36b520b15c8e817009cf5c4d3102b4d02f63b6116a08046aaabb41badca987"
+    },
+    {
+      "from": "src/dead-end-search.mjs",
+      "commit": "3d4b99409f8fff2ca0558111018f409dce6c1df9",
+      "to": "tools/keep-a-search-that-found-no-tool/src/dead-end-search.mjs",
+      "source_identity": "1f:390e37bac7f2a950351c686733f4ec250d359ea5563a5d52dfdf184317f21d2f",
+      "identity": "1f:390e37bac7f2a950351c686733f4ec250d359ea5563a5d52dfdf184317f21d2f"
+    }
+  ]
+}
