@@ -1,0 +1,242 @@
+{
+  "schema": "trillion.harness-setup/v1",
+  "_what": "The local part of account setup, consumed by setup.mjs. Install only the person's explicitly selected harness. Commands use the existing signed Mac app's payload or an explicitly supplied clean checkout at its pinned commit; no code is downloaded by the installer. The Mac app already owns the session helper and its recurring handlers. Configuring hooks neither starts another helper nor chooses an AI or imports files. Host hooks retain their own permission and trust controls. Prompt intake has no hook of its own: the notices hook (decisions-since.mjs) starts record-every-message for a turn the person wrote, so a second intake hook would record every prompt twice. Every payload hook script keeps a receipt of its own run (hook-run-receipt.mjs); a hook another runner already runs with the current script (a guard chain of the person's own, say) counts as installed from that receipt and is never written a second time. A hook row may say `on_failure`: \"block\" so that a crash, kill or timeout of that hook stops the action (exit 2 with the reason); without it a hook that did not finish lets the action go on, and the reason is said either way.",
+  "state_folder": ".trillion/setup",
+  "retired_dispatchers_file": "retired-dispatchers.json",
+  "run_receipt_days": 14,
+  "publication": {
+    "_served_over": "The setup files are offered only from the service's own origin over this protocol (downloads run with curl --proto '=https'). A service answering on any other origin (a local run on http://localhost) offers no harness setup and says `not_served` instead, so the rest of setup still reads.",
+    "served_over": "https:",
+    "not_served": "This service answers on {origin}, not on its HTTPS service address, so it offers no harness setup files. Set up the harness from the HTTPS service.",
+    "path": "/workspace/harness",
+    "files": [
+      "setup.mjs",
+      "setup.json",
+      "hook-run-receipt.mjs",
+      "config-file.mjs",
+      "mcp-registration.mjs",
+      "local-door.mjs"
+    ],
+    "also_served": [
+      "standing-instructions.json"
+    ]
+  },
+  "platforms": [
+    "darwin"
+  ],
+  "mac_app": {
+    "path": "/Applications/Trillion.app",
+    "identifier": "ai.gettrillion.macos",
+    "team": "MFD7KJQZ8M",
+    "_team_source": "macos/release.json identity; the installer test checks these agree.",
+    "payload": "Contents/Resources/harness",
+    "runtime": "Contents/MacOS/node",
+    "executable": "Contents/MacOS/Trillion"
+  },
+  "payload": {
+    "required": [
+      "register-session.mjs",
+      "wake-sessions.mjs",
+      "wake-sessions.json",
+      "take-open-work.json",
+      "record-every-message.mjs",
+      "record-every-message.json",
+      "decisions-since.mjs",
+      "decisions-since.json",
+      "decide-before-building.mjs",
+      "decide-before-building.json",
+      "ask-trillion-first.mjs",
+      "ask-trillion-first.json"
+    ],
+    "import_checks": [
+      "wake-sessions.mjs",
+      "record-every-message.mjs",
+      "decisions-since.mjs",
+      "decide-before-building.mjs",
+      "ask-trillion-first.mjs"
+    ],
+    "import_lists": [
+      {
+        "file": "wake-sessions.json",
+        "field": "handlers"
+      }
+    ],
+    "minimum_node_major": 22
+  },
+  "hosts": [
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "command": "claude",
+      "folder": ".claude",
+      "home_variable": "CLAUDE_CONFIG_DIR",
+      "config": "settings.json",
+      "hook_review": "Start or resume Claude Code and inspect /hooks. Its next real hook events provide execution evidence.",
+      "source": "https://code.claude.com/docs/en/hooks"
+    },
+    {
+      "id": "codex",
+      "name": "Codex",
+      "command": "codex",
+      "folder": ".codex",
+      "home_variable": "CODEX_HOME",
+      "config": "hooks.json",
+      "trust": "codex-app-server",
+      "event_names": {
+        "SessionStart": "sessionStart",
+        "UserPromptSubmit": "userPromptSubmit",
+        "Stop": "stop"
+      },
+      "hook_review": "Review the exact new Trillion hooks in /hooks, or rerun apply with --trust-hooks after reviewing the installed definitions. Disabled or managed policies remain in force.",
+      "source": "https://developers.openai.com/codex/hooks/",
+      "trust_source": "https://github.com/openai/codex/blob/main/codex-rs/tui/src/hooks_rpc.rs"
+    }
+  ],
+  "hooks": [
+    {
+      "id": "session",
+      "event": "SessionStart",
+      "script": "register-session.mjs",
+      "args": [
+        "--harness",
+        "{harness}"
+      ],
+      "timeout": 8,
+      "async": true
+    },
+    {
+      "id": "notices",
+      "event": "UserPromptSubmit",
+      "script": "decisions-since.mjs",
+      "args": [],
+      "timeout": 5
+    },
+    {
+      "id": "transcript",
+      "event": "Stop",
+      "script": "record-every-message.mjs",
+      "args": [],
+      "timeout": 10,
+      "async": true
+    },
+    {
+      "id": "sweep",
+      "event": "Stop",
+      "script": "record-every-message.mjs",
+      "args": [
+        "--sweep"
+      ],
+      "timeout": 125,
+      "async": true
+    }
+  ],
+  "mcp_registration": {
+    "_what": "Trillion's MCP entry in other AIs' own config files, written only by the person's explicit setup action (harness/mcp-registration.mjs, setup.mjs --action mcp-inspect|mcp-preview|mcp-register|mcp-unregister --client <ids>). Each `clients` row is one AI app (its id is the src/ai-clients.json client id): where its config is, its format, the entry written and the signatures that identify an existing Trillion entry. Claude Code and Codex use the installed Mac app's stdio bridge; the bridge reads the current loopback port from the app-owned local-runtime descriptor for every request. It holds the existing Keychain key in memory and sends it only to that local door. If the door is unavailable it reports an error and never uses the paused hosted MCP address. Other app rows keep their configured transport. An existing entry that matches neither a Trillion signature is the person's own (custom) and is never changed or removed. `sign_in` refers to that client's current stage in the shared connect guide (src/ai-clients.json rendered by /docs); it never copies an app's commands. A new AI app is a row here.",
+    "name": "trillion",
+    "url": "https://app.gettrillion.ai/mcp",
+    "clients": [
+      {
+        "id": "claude-code",
+        "file": ".claude.json",
+        "home_variable": "CLAUDE_CONFIG_DIR",
+        "home_file": ".claude.json",
+        "installed_when": [".claude"],
+        "format": "json",
+        "path": ["mcpServers"],
+        "transport": "local-stdio",
+        "entry": { "command": "{runtime}", "args": ["{bridge}"] },
+        "remove_fields": ["url", "type"],
+        "same_when": [
+          { "url": "https://app.gettrillion.ai/mcp" },
+          { "url": "{local_mcp}" },
+          { "command": "{runtime}", "args": ["{bridge}"] }
+        ],
+        "sign_in": {"client": "claude-code", "path": "/docs", "stage": "sign_in"}
+      },
+      {
+        "id": "codex",
+        "file": ".codex/config.toml",
+        "home_variable": "CODEX_HOME",
+        "home_file": "config.toml",
+        "installed_when": [".codex"],
+        "format": "toml-table",
+        "path": ["mcp_servers"],
+        "transport": "local-stdio",
+        "entry": { "command": "{runtime}", "args": ["{bridge}"] },
+        "remove_fields": ["url"],
+        "same_when": [
+          { "url": "https://app.gettrillion.ai/mcp" },
+          { "url": "{local_mcp}" },
+          { "command": "{runtime}", "args": ["{bridge}", "{local_mcp}"] },
+          { "command": "{runtime}", "args": ["{bridge}"] }
+        ],
+        "sign_in": {"client": "codex", "path": "/docs", "stage": "sign_in"}
+      },
+      {
+        "id": "gemini-cli",
+        "file": ".gemini/settings.json",
+        "installed_when": [".gemini"],
+        "format": "json",
+        "path": ["mcpServers"],
+        "entry": { "httpUrl": "{mcp}" },
+        "same_when": "httpUrl",
+        "sign_in": {"client": "gemini-cli", "path": "/docs", "stage": "sign_in"}
+      },
+      {
+        "id": "cursor",
+        "file": ".cursor/mcp.json",
+        "installed_when": [".cursor"],
+        "format": "json",
+        "path": ["mcpServers"],
+        "entry": { "url": "{mcp}" },
+        "same_when": "url",
+        "sign_in": {"client": "cursor", "path": "/docs", "stage": "sign_in"}
+      }
+    ]
+  },
+  "boundaries": [
+    {
+      "id": "mcp",
+      "owner": "account-setup",
+      "reason": "Applying hooks never writes an MCP entry into another AI's config. An entry is written only by the person's own explicit --action mcp-register for the clients they name, after mcp-preview shows the exact change; mcp-unregister takes it out again. A local entry does not prove a signed-in MCP connection: complete each AI's sign-in and its Trillion round trip, then read its account setup result."
+    },
+    {
+      "id": "sources",
+      "owner": "computer-sources",
+      "reason": "Choose the account's intended data sources and read source health. This installer does not open browsers or import the person's files."
+    },
+    {
+      "id": "notifications",
+      "owner": "notification-devices",
+      "reason": "Read the native device's reported notification permission. The app requests the operating system's consent; this installer cannot grant it."
+    },
+    {
+      "id": "iphone-widgets",
+      "owner": "ios",
+      "reason": "Install and sign in through the published iPhone app. Widget placement and protected iPhone confirmations require the device's own supported controls; no placement is inferred from installation."
+    }
+  ],
+  "retired_hooks": [
+    {
+      "id": "intake",
+      "event": "UserPromptSubmit",
+      "script": "record-every-message.mjs",
+      "args": []
+    },
+    {
+      "id": "decision",
+      "event": "PreToolUse",
+      "script": "decide-before-building.mjs",
+      "args": []
+    },
+    {
+      "id": "consult",
+      "event": "Stop",
+      "script": "ask-trillion-first.mjs",
+      "args": [
+        "--harness",
+        "{harness}"
+      ]
+    }
+  ]
+}

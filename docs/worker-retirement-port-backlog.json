@@ -48,16 +48,16 @@
   {
    "path": "harness/account-key.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/harness/account-key.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/account-key.json",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/account-key.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/harness/account-key.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/account-key.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/ag-ui-agent.mjs",
@@ -74,114 +74,114 @@
   {
    "path": "harness/agent-receiver.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/agent-receiver.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/agent-receiver.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/ask-trillion-first.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/ask-trillion-first.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-trillion-first.json",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/ask-trillion-first.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/ask-trillion-first.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/ask-trillion-first.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/decide-before-building.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/decide-before-building.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/decide-before-building.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/decisions-since.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/decisions-since.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/decisions-since.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/hook-run-receipt.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/harness/hook-run-receipt.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/hook-run-receipt.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/keep-web-chats.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/keep-web-chats.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/keep-web-chats.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/keep-written-files.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/keep-written-files.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/keep-written-files.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/keychain-mcp-bridge.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/harness/keychain-mcp-bridge.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/keychain-mcp-bridge.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/quiet-open-source-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/quiet-open-source-work.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/quiet-open-source-work.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/recheck-source-return.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/recheck-source-return.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/recheck-source-return.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/record-every-message.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/harness/record-every-message.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/record-every-message.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/register-session.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/register-session.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/register-session.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/request-source-return-check.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/request-source-return-check.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/request-source-return-check.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/setup.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/set-up-ai-apps-on-this-computer/harness/setup.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.json",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/setup.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/harness/setup.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/setup.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/standing-instructions.mjs",
@@ -192,16 +192,16 @@
   {
    "path": "harness/take-open-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/take-open-work.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/take-open-work.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/triage-open-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/triage-open-work.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/triage-open-work.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/trillion.mjs",
@@ -212,65 +212,65 @@
   {
    "path": "harness/verify-source-return.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/verify-source-return.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/verify-source-return.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-handlers/confirm-source-return.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/wake-handlers/confirm-source-return.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/confirm-source-return.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-handlers/keep-web-chats.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/harness/wake-handlers/keep-web-chats.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/keep-web-chats.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-handlers/run-tools-here.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/wake-handlers/run-tools-here.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/run-tools-here.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-handlers/take-open-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/wake-handlers/take-open-work.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/take-open-work.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-handlers/wake-named-session.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/wake-handlers/wake-named-session.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/wake-named-session.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-handlers/wake-stopped-chats.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/wake-handlers/wake-stopped-chats.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-handlers/wake-stopped-chats.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/wake-sessions.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/wake-sessions.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-sessions.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "harness/work-consumer.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/harness/work-consumer.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/harness/work-consumer.mjs",
    "why": "AI session harness a person or AI runs",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/device-copy/do-work/frame-compression.mjs",
@@ -305,9 +305,9 @@
   {
    "path": "parts/live-namespace/do-work/shared-file-reference.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/shared-file-reference.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/record-log/do-work/erasable.mjs",
@@ -342,9 +342,9 @@
   {
    "path": "parts/record-log/do-work/record-log-store.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/parts/record-log/do-work/record-log-store.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/record-log/do-work/record-model.mjs",
@@ -361,9 +361,9 @@
   {
    "path": "parts/record-log/do-work/record-tables.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/parts/record-log/do-work/record-tables.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-tables.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/sealed-records/do-work/sealed-records.mjs",
@@ -559,21 +559,24 @@
   },
   {
    "path": "parts/ui/show/file-chip/file-kinds.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/ui/show/file-chip/file-kinds.json",
+   "why": "parts/ui/show lane; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/ui/show/file-field/file-takes.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/ui/show/file-field/file-takes.json",
+   "why": "parts/ui/show lane; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/ui/show/file-field/takes-file.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/ui/show/file-field/takes-file.mjs",
+   "why": "parts/ui/show lane; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/ui/show/file-view-document/file-view-bridge.mjs",
@@ -589,15 +592,17 @@
   },
   {
    "path": "parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/ui/show/isolated-module-surface/module-surface-requests.mjs",
+   "why": "parts/ui/show lane; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
-   "class": "app-screen",
-   "destination": "held: session_01HBVZLmruVBZGL1DDZLXbm4 owns this move (PR #243 body)",
-   "why": "parts/ui/show lane"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/parts/ui/show/isolated-module-surface/sandboxed-screen-routes.json",
+   "why": "parts/ui/show lane; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "parts/ui/show/layer-diagram/author-input.json",
@@ -2924,9 +2929,9 @@
   {
    "path": "src/agent-delivery.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/src/agent-delivery.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/agent-delivery.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/agent-loop-guard.json",
@@ -3477,9 +3482,9 @@
   {
    "path": "src/check-uses.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/src/check-uses.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/check-uses.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/checkout-return.mjs",
@@ -3496,16 +3501,16 @@
   {
    "path": "src/claimed-time.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/src/claimed-time.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/claimed-time.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/claimed-time.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/src/claimed-time.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/claimed-time.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/client-health.mjs",
@@ -3708,9 +3713,9 @@
   {
    "path": "src/configurations.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/configurations.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/configurations.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/connect-with-a-key.mjs",
@@ -3733,16 +3738,16 @@
   {
    "path": "src/connecting-without-the-store.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/connecting-without-the-store.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/connecting-without-the-store.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/connecting-without-the-store.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/connecting-without-the-store.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/connecting-without-the-store.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/connection-accounts.json",
@@ -3944,9 +3949,10 @@
   },
   {
    "path": "src/cut-off.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/cut-off.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/data-rows.mjs",
@@ -4017,9 +4023,9 @@
   {
    "path": "src/decision-store.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/decision-store.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/decision-workflows.mjs",
@@ -4221,22 +4227,24 @@
   },
   {
    "path": "src/event-route-listeners.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/event-route-listeners.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/events.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/events.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/events.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/execution-context.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/execution-context.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/execution-mode-tools.mjs",
@@ -4618,9 +4626,10 @@
   },
   {
    "path": "src/hybrid-clock.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/hybrid-clock.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/imported-history-receipt.mjs",
@@ -4661,9 +4670,9 @@
   {
    "path": "src/inbound-words.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/inbound-words.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/inbound-words.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/inbound.mjs",
@@ -4836,16 +4845,16 @@
   {
    "path": "src/let-go-of-table.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/let-go-of-table.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/let-go-of-table.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/let-go-of-table.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/let-go-of-table.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/let-go-of-table.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/life-map.json",
@@ -5060,21 +5069,23 @@
   {
    "path": "src/lists.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/lists.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/lists.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/live-protocol.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/live-protocol.json",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/live-protocol.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/live-protocol.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/live-resource.mjs",
@@ -5084,9 +5095,10 @@
   },
   {
    "path": "src/live-resume.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/live-resume.json",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/live-scopes.mjs",
@@ -5096,9 +5108,10 @@
   },
   {
    "path": "src/live-screen.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/live-screen.mjs",
+   "why": "screen or page the app shows; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/live-tool-source-config.mjs",
@@ -5109,9 +5122,9 @@
   {
    "path": "src/live-tool-sources.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/live-tool-sources.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/live-tool-sources.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/live-words.json",
@@ -5206,16 +5219,16 @@
   {
    "path": "src/maker-payouts.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/maker-payouts.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/maker-payouts.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/maker-payouts.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/maker-payouts.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/maker-payouts.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/marketplace-configuration-routes.mjs",
@@ -5322,9 +5335,9 @@
   {
    "path": "src/meaning-or-words.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/meaning-or-words.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/meaning-or-words.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/meaning-sets.mjs",
@@ -5389,9 +5402,9 @@
   {
    "path": "src/messages.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/messages.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/metered-use.json",
@@ -5420,23 +5433,23 @@
   {
    "path": "src/model-admission.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/model-admission.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/model-admission.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/model-budgets.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/model-budgets.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/model-budgets.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/model-calls.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/model-calls.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/model-calls.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/model-routes.json",
@@ -5686,9 +5699,10 @@
   },
   {
    "path": "src/namespace-preview.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/namespace-preview.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/namespace-recovery-erasure.mjs",
@@ -6977,16 +6991,16 @@
   {
    "path": "src/outcome-checks.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/outcome-checks.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/outcome-checks.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/outcome-precedence.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/src/outcome-precedence.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/outcome-precedence.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/own-ais-apps.mjs",
@@ -7081,9 +7095,9 @@
   {
    "path": "src/own-work.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/own-work.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/own-work.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/owned-upsert.json",
@@ -7412,9 +7426,9 @@
   {
    "path": "src/pool-settings.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/pool-settings.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/pool-settings.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/pool.mjs",
@@ -7683,9 +7697,9 @@
   {
    "path": "src/public-app-run-permission.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/public-app-run-permission.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/public-app-run-permission.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/public-app-tools.mjs",
@@ -7852,15 +7866,16 @@
   {
    "path": "src/reactions.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/reactions.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/reactions.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/read-bounded-json.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/read-bounded-json.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/read-fingerprint.json",
@@ -7960,9 +7975,10 @@
   },
   {
    "path": "src/record-engine.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/record-engine.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/record-find.mjs",
@@ -7985,29 +8001,30 @@
   {
    "path": "src/record-indexes.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/record-indexes.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/record-indexes.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/record-model-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/record-model-tools.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/record-model-tools.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/record-model.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/shared-code/src/record-model.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/record-model.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/record-move.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/record-move.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/record-offers.mjs",
@@ -8035,9 +8052,10 @@
   },
   {
    "path": "src/record-scope.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/record-scope.json",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/record-scope.mjs",
@@ -8120,16 +8138,16 @@
   {
    "path": "src/renamed-tools.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/renamed-tools.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/renamed-tools.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/repo-explorer.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/repo-explorer.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/repo-explorer.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/report.mjs",
@@ -8278,9 +8296,9 @@
   {
    "path": "src/responses.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/responses.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/restartable-engine.mjs",
@@ -8357,9 +8375,9 @@
   {
    "path": "src/save-tool-example.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/save-tool-example.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/save-tool-example.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/saved-instruction-provenance.json",
@@ -8429,15 +8447,17 @@
   },
   {
    "path": "src/scheduler.json",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/scheduler.json",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/scheduler.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/scheduler.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/score-candidates.mjs",
@@ -8628,9 +8648,9 @@
   {
    "path": "src/sent.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/sent.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/sent.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/server-instruction-paragraphs.mjs",
@@ -8641,8 +8661,9 @@
   {
    "path": "src/server-instructions.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop tools/<job>/",
-   "why": "a feature a person or AI uses"
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/server-instructions.json",
+   "why": "a feature a person or AI uses",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/service-actor-origins.json",
@@ -8965,9 +8986,9 @@
   {
    "path": "src/shared-namespace-file-input.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/shared-namespace-file-input.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/shared-namespace-file-input.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/shared-native-command-owner.mjs",
@@ -9320,16 +9341,16 @@
   {
    "path": "src/sold-copies.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/sold-copies.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/sold-copies.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/sold-copies.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/sold-copies.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/sold-copies.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/source-build-inputs.mjs",
@@ -9340,9 +9361,9 @@
   {
    "path": "src/source-connection.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/source-connection.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/source-connection.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/source-project-edit.mjs",
@@ -9658,9 +9679,10 @@
   },
   {
    "path": "src/sql-writes.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/sql-writes.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/standalone-resource-behavior.mjs",
@@ -9761,9 +9783,9 @@
   {
    "path": "src/table-generation.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/table-generation.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/table-generation.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/tables-into-records.mjs",
@@ -9773,9 +9795,10 @@
   },
   {
    "path": "src/tar-gz.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/task-map-reads.mjs",
@@ -10134,9 +10157,9 @@
   {
    "path": "src/voice-sessions.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/voice-sessions.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/voice-sessions.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/waited-for.mjs",
@@ -10159,9 +10182,9 @@
   {
    "path": "src/waiting-on-you.json",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/waiting-on-you.json",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/web-push.mjs",
@@ -10304,9 +10327,9 @@
   {
    "path": "src/work-progress.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/keep-every-ai-session/src/work-progress.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/work-progress.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/work-responses.mjs",
@@ -10365,9 +10388,9 @@
   {
    "path": "src/work-workshop.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/work-workshop.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/work-workshop.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/worker-api-receipt-owner.json",
@@ -10498,9 +10521,9 @@
   {
    "path": "src/workshop.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/workshop.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/workshop.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/workspace-files.mjs",
@@ -10576,9 +10599,10 @@
   },
   {
    "path": "src/workspace/file-previews.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/file-previews.json",
+   "why": "screen or page the app shows; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/workspace/first-answers.json",
@@ -10636,9 +10660,10 @@
   },
   {
    "path": "src/workspace/screens.mjs",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/screens.mjs",
+   "why": "screen or page the app shows; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/workspace/show-rules.mjs",
@@ -10666,9 +10691,10 @@
   },
   {
    "path": "src/workspace/surfaces.json",
-   "class": "app-screen",
-   "destination": "trillion-apps web/src/",
-   "why": "screen or page the app shows"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/workspace/surfaces.json",
+   "why": "screen or page the app shows; moved now as part of the harness's import closure (it was classed app-screen)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/workspace/tour-words.json",
@@ -10684,16 +10710,17 @@
   },
   {
    "path": "src/write-only-input.mjs",
-   "class": "rust-engine",
-   "destination": "trillion-rust src/<owner module>",
-   "why": "storage, door or account mechanics"
+   "class": "workshop-tool",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/write-only-input.mjs",
+   "why": "storage, door or account mechanics; moved now as part of the harness's import closure (it was classed rust-engine)",
+   "batch": "1 (harness, trillion-workshop PR #97)"
   },
   {
    "path": "src/your-records.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/take-open-work-on-this-computer/src/your-records.mjs",
+   "destination": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/src/your-records.mjs",
    "why": "a feature a person or AI uses",
-   "batch": "1 harness"
+   "batch": "1 (harness, trillion-workshop PR #97)"
   }
  ]
 }

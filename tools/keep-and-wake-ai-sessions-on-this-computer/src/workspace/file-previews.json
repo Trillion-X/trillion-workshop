@@ -1,0 +1,42 @@
+{
+  "schema": "trillion.file-previews",
+  "about": "What each file on the Files screen shows as its picture. A stored media type's matching prefix takes precedence over the name's extension for ambiguous sound and video containers; otherwise `families_by_extension` names its family. A file whose extension is not listed is `other`. A file's content type is the one it was stored with, else `content_types_by_extension`; the one file preview picks its viewer from it, else from the extension (parts/ui/show/file-preview/file-viewers.json). `made: true` means the browser makes the file's small pictures (a picture's still, or the preview a camera's raw photo carries inside it; a video's still and a strip of frames to scrub; a sound's waveform; a PDF's first page; a written file's opening lines) once and keeps them with the file (parts/ui/show/media-preview/made-preview.tsx). Rows are read in order and the first row whose `family` matches wins; a row without `family` matches every file. `renderer` names a shared MediaPreview renderer (parts/ui/show/media-preview); `moment_renderer`, when set, is the renderer for one moment inside the file (a search result, a found moment: a video's frame at that second); `picture: true` shows the file's own bytes as its picture; `icon` and `type_label` name its fallback picture and kind. New ambiguous media kinds are DATA rows here. `tree_tone`, when set, is the tone of the shared look the file's icon is drawn in wherever it shows in the folder tree.",
+  "families_by_media_type_prefix": { "audio/": "audio", "video/": "video" },
+  "families_by_extension": {
+    "jpg": "image", "jpeg": "image", "png": "image", "gif": "image", "webp": "image", "avif": "image", "svg": "image", "bmp": "image",
+    "heic": "photo", "heif": "photo", "dng": "photo", "raw": "photo", "cr2": "photo", "nef": "photo", "arw": "photo", "orf": "photo", "rw2": "photo", "pef": "photo", "srw": "photo", "tif": "photo", "tiff": "photo",
+    "mp4": "video", "mov": "video", "m4v": "video", "webm": "video", "mkv": "video", "avi": "video", "mts": "video",
+    "mp3": "audio", "m4a": "audio", "wav": "audio", "aac": "audio", "flac": "audio", "ogg": "audio", "aiff": "audio",
+    "pdf": "pdf",
+    "txt": "text", "md": "markdown", "markdown": "markdown", "rtf": "document", "csv": "sheet", "tsv": "sheet", "xls": "sheet", "xlsx": "sheet", "numbers": "sheet",
+    "doc": "document", "docx": "document", "pages": "document", "key": "slides", "ppt": "slides", "pptx": "slides",
+    "zip": "archive", "tar": "archive", "gz": "archive", "7z": "archive", "rar": "archive",
+    "json": "data", "js": "code", "ts": "code", "html": "code", "css": "code", "py": "code"
+  },
+  "content_types_by_extension": {
+    "jpg": "image/jpeg", "jpeg": "image/jpeg", "png": "image/png", "gif": "image/gif", "webp": "image/webp", "avif": "image/avif", "svg": "image/svg+xml", "bmp": "image/bmp",
+    "heic": "image/heic", "heif": "image/heif", "dng": "image/x-adobe-dng", "raw": "image/x-panasonic-raw", "cr2": "image/x-canon-cr2", "nef": "image/x-nikon-nef", "arw": "image/x-sony-arw", "orf": "image/x-olympus-orf", "rw2": "image/x-panasonic-rw2", "pef": "image/x-pentax-pef", "srw": "image/x-samsung-srw", "tif": "image/tiff", "tiff": "image/tiff",
+    "mp4": "video/mp4", "mov": "video/quicktime", "m4v": "video/x-m4v", "webm": "video/webm", "mkv": "video/x-matroska", "avi": "video/x-msvideo", "mts": "video/mp2t",
+    "mp3": "audio/mpeg", "m4a": "audio/mp4", "wav": "audio/wav", "aac": "audio/aac", "flac": "audio/flac", "ogg": "audio/ogg", "aiff": "audio/aiff",
+    "pdf": "application/pdf",
+    "txt": "text/plain", "md": "text/markdown", "markdown": "text/markdown", "rtf": "text/rtf", "csv": "text/csv", "tsv": "text/tab-separated-values",
+    "json": "application/json", "js": "text/javascript", "ts": "text/plain", "html": "text/html", "css": "text/css", "py": "text/x-python"
+  },
+  "rows": [
+    { "family": "folder", "tree_tone": "blue", "renderer": "type-icon", "icon": "Folder", "type_label": "Folder" },
+    { "family": "image", "tree_tone": "green", "renderer": "image", "made": true, "icon": "Image", "type_label": "Image" },
+    { "family": "photo", "tree_tone": "green", "renderer": "image", "made": true, "icon": "Camera", "type_label": "Photo" },
+    { "family": "video", "tree_tone": "purple", "renderer": "video-poster", "moment_renderer": "video-frame", "made": true, "icon": "Film", "type_label": "Video" },
+    { "family": "audio", "tree_tone": "yellow", "renderer": "waveform", "made": true, "icon": "AudioLines", "type_label": "Audio" },
+    { "family": "pdf", "tree_tone": "red", "renderer": "document-page", "made": true, "icon": "FileText", "type_label": "PDF" },
+    { "family": "text", "renderer": "text-snippet", "made": true, "icon": "FileText", "type_label": "Text" },
+    { "family": "markdown", "renderer": "markdown-snippet", "made": true, "icon": "FileText", "type_label": "Text" },
+    { "family": "sheet", "tree_tone": "green", "renderer": "type-icon", "icon": "Sheet", "type_label": "Sheet" },
+    { "family": "document", "renderer": "type-icon", "icon": "FileText", "type_label": "Document" },
+    { "family": "slides", "tree_tone": "yellow", "renderer": "type-icon", "icon": "Presentation", "type_label": "Slides" },
+    { "family": "archive", "renderer": "type-icon", "icon": "FileArchive", "type_label": "Archive" },
+    { "family": "code", "tree_tone": "blue", "renderer": "text-snippet", "made": true, "icon": "FileCode", "type_label": "Code" },
+    { "family": "data", "tree_tone": "purple", "renderer": "type-icon", "icon": "FileBraces", "type_label": "Data" },
+    { "renderer": "type-icon", "icon": "File", "type_label": "File" }
+  ]
+}
