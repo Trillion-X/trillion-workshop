@@ -1,3 +1,8 @@
+// tools/browse-and-publish-what-my-ai-can-use/do-work/tool-title.mjs (moved from Trillion-X/trillion src/work-workshop.mjs,
+// its title words): what a tool is called for a person.
+
+const capital = text => (text ? text.charAt(0).toUpperCase() + text.slice(1) : text);
+
 // Prose titles can contain punctuation; a single token can still be an action id.
 const looksLikeId = text => !/\s/.test(text) && (/[_:/]/.test(text) || /^[a-z0-9]+(-[a-z0-9]+)+$/.test(text));
 const wordsOf = token => capital(token.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim().toLowerCase());
