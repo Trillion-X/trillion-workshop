@@ -2,7 +2,7 @@
 // Predicates remain formula-engine rule trees; this owner only resolves the view's
 // context and hands the rule to that engine. No list or field name is special.
 
-import { timeZoneName } from '../../timed-action/do-work/wall-time.ts';
+import { timeZoneName } from '../../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
 
 const isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const stamp = value => {

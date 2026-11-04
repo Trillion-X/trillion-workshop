@@ -14,7 +14,7 @@
 // Invariants: a request goes only to `url`, or to a public address it redirects to (postWithFetch, http-client public-address); a tool's error (`isError`) is thrown with the tool's own words;
 // a server's session id is carried on every later request, and the protocol version it agreed is sent with them.
 
-import { fetchPublic } from '../../http-client/do-work/public-address.mjs';
+import { fetchPublic } from '../../refuse-requests-to-private-addresses/public-address.mjs';
 
 export const PROTOCOL_VERSION = '2025-06-18';
 
