@@ -82,6 +82,13 @@
         "at": "/opt/decide-with-a-method"
        },
        {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -271,6 +278,13 @@
          "read-data"
         ],
         "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
         "package": "records-door",
@@ -751,6 +765,13 @@
         "at": "/opt/decide-with-a-method"
        },
        {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -1053,6 +1074,13 @@
         "at": "/opt/decide-with-a-method"
        },
        {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -1323,6 +1351,13 @@
          "read-data"
         ],
         "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
         "package": "records-door",
@@ -1605,6 +1640,13 @@
         "at": "/opt/decide-with-a-method"
        },
        {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -1883,6 +1925,13 @@
         "at": "/opt/decide-with-a-method"
        },
        {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -2129,6 +2178,13 @@
          "read-data"
         ],
         "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
         "package": "records-door",
@@ -2391,6 +2447,13 @@
         "at": "/opt/decide-with-a-method"
        },
        {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -2621,6 +2684,13 @@
          "read-data"
         ],
         "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
         "package": "records-door",
@@ -2913,6 +2983,13 @@
          "read-data"
         ],
         "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
        {
         "package": "records-door",
