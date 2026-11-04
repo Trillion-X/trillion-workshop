@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:6cb3f69d557663838fb28c1b35afe497cd89ce63104cc53242eb2f589cbf9aaf"
+  "blake3": "1f:570b91467f618b09df5d9c84f0cd7a434195c885b85d86067872140b2327d168"
  },
  "fields": [
   {
@@ -4041,6 +4041,36 @@
      "placement:small-container"
     ],
     "folder": "research-a-creator-or-topic"
+   }
+  },
+  {
+   "id": "tool:keep-a-show-rule",
+   "values": {
+    "title": "Keep a show rule",
+    "job": "Keep a rule about when something shows, hides or stays quiet for me, or switch a starting rule off or on",
+    "description": "Keeps one rule in your show-rules record (rule; one with the id of a rule you keep changes it), or switches a starting rule off or on (starting: { id, on }). A rule with a problem is refused in its words. Answers the rules after the change and keep: the record to write, with the record as it was read as expected, so a record changed meanwhile is not written over.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
+   }
+  },
+  {
+   "id": "tool:keep-a-show-type",
+   "values": {
+    "title": "Keep a show type",
+    "job": "Keep a preset of show rules I can switch on, or change one I keep",
+    "description": "Keeps one type (a preset: { id, label, inherits?, rules }) in your show-rules record; one with the id of a type you keep changes it. A type inheriting one it does not find, or itself, is refused in its words. Answers keep, the record to write.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
    }
   },
   {
@@ -8731,6 +8761,24 @@
    }
   },
   {
+   "id": "tool:see-when-things-show",
+   "values": {
+    "title": "See when things show",
+    "job": "Show me the rules that decide when things show, hide or stay quiet for me, and the types I keep",
+    "description": "Reads your show-rules record and answers every rule in force (the starting rules, your own, and those of the types you have switched on), the subjects a rule can be about with their facts, the moment facts, the effects, the quick choices and the operators a rule's when can use, the types you keep and which are on (in_use). It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:see-where-each-customer-is",
    "values": {
     "title": "See where each customer is",
@@ -9281,6 +9329,21 @@
    }
   },
   {
+   "id": "tool:share-a-kept-show-type",
+   "values": {
+    "title": "Share a kept show type",
+    "job": "Share one of my show-rule presets with people so they see Trillion that way",
+    "description": "Shares a type you keep with one person or account (principal), as the Account visibility screen does: answers two records to keep, in order, the preset's copy show-types-shared:<id> = { label, types } (the preset with every preset it inherits) and its grant sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }. It makes the share key and answers it once as key, to hand to that person; the grant keeps only its BLAKE3. Someone it is already shared with is refused, and nothing is kept.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
+   }
+  },
+  {
    "id": "tool:show-what-a-tool-would-give-members",
    "values": {
     "title": "Show what a tool would give members",
@@ -9522,6 +9585,21 @@
    }
   },
   {
+   "id": "tool:stop-sharing-a-show-type",
+   "values": {
+    "title": "Stop sharing a show type",
+    "job": "Stop sharing one of my show-rule presets with someone",
+    "description": "Takes one person or account out of a shared type's grant (sharing:show-types-shared:<id>), so their share key reads nothing any more; the others it is shared with keep reading it. Answers keep, the grant to write.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
+   }
+  },
+  {
    "id": "tool:string-my-cuts-into-one-reel",
    "values": {
     "title": "Put my finished cuts one after another into one reel to watch (runs on your computer)",
@@ -9598,6 +9676,21 @@
    }
   },
   {
+   "id": "tool:switch-a-kept-show-type",
+   "values": {
+    "title": "Switch a kept show type",
+    "job": "Switch one of my show-rule presets on or off",
+    "description": "Switches a type you keep on or off (use: { type, on }); only types you keep can be on, and a type applies only while it is on. Started by a wake with no use, it makes every switch your show-type-use records ask for ({ type, on }, in id order), so writing one record switches one type. Answers in_use and keep, the record to write.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
+   }
+  },
+  {
    "id": "tool:tag-a-stripe-subscription",
    "values": {
     "title": "Tag a Stripe subscription",
@@ -9626,6 +9719,36 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "take-requests"
+   }
+  },
+  {
+   "id": "tool:take-a-show-rule-away",
+   "values": {
+    "title": "Take a show rule away",
+    "job": "Take away one of my show rules",
+    "description": "Takes one rule out of your show-rules record by its id (from see-when-things-show); a starting rule is switched off instead. Answers the rules after the change and keep, the record to write.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
+   }
+  },
+  {
+   "id": "tool:take-a-show-type-away",
+   "values": {
+    "title": "Take a show type away",
+    "job": "Take away a preset of show rules I keep",
+    "description": "Takes one type you keep out of your show-rules record (remove_type), and switches it off. A type another kept type inherits is refused, since its children would lose rules without saying. Answers keep, the record to write.",
+    "status": "active",
+    "maker": "maker:decide-when-things-show",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-when-things-show"
    }
   },
   {
@@ -9977,7 +10100,7 @@
    "values": {
     "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer)",
     "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
-    "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation. The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
+    "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation; records replay-from-transcripts brings back the rows this computer's AIs wrote, from their own transcripts (a dry run lists them, --write writes them back in batches and reads a sample back). The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
     "status": "active",
     "maker": "maker:use-trillion-from-a-shell",
     "licence_class": "licence:maker-own",
