@@ -1,0 +1,275 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:edit-a-document-together",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:edit-one-document-together",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Edit one document together",
+        "job": "Edit one document together with other people and AIs: edits merge in any order, words from different editors are kept, and undo takes back only my own edits",
+        "description": "Give blocks (the document every editor started from: [{ id, text?, props? }] in order) and edits (one per editor, at most 6: { by, blocks }, the blocks that editor made their copy into; a new id is a new block, a block left out is removed). Each edit is turned into that editor's own operations by the document engine (do-work/document-operations.mjs: words as a sequence CRDT, block places and props as last-writer registers), the batches are merged in every order they could arrive in, and the merged document comes back with same_in_every_order and orders_checked. undo names one editor whose edit is then taken back: only what that editor inserted, deleted, moved or set, never words another editor added among them. Answers document ([{ id, text, props, format_version }], new blocks under the ids the engine mints), edits ([{ by, operations }]) and undone ({ by, operations }) when undo was given. Refuses no blocks or no edits, more than 6 editors, an editor named twice, an undo naming no editor here, and anything the engine refuses (with its code). Reads no records, keeps nothing after the run, and sends nothing: the live Write screen's page, saving to the person's records and the session sync are not part of this run.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "blocks",
+            "edits"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "blocks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "props": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "edits": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 6,
+              "items": {
+                "type": "object",
+                "required": [
+                  "by",
+                  "blocks"
+                ],
+                "properties": {
+                  "by": {
+                    "type": "string",
+                    "pattern": "^[A-Za-z0-9:._~@-]+$"
+                  },
+                  "blocks": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "text": {
+                          "type": "string"
+                        },
+                        "props": {
+                          "type": "object"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "undo": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "document",
+            "same_in_every_order",
+            "orders_checked",
+            "edits"
+          ],
+          "properties": {
+            "document": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "text",
+                  "props",
+                  "format_version"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "props": {
+                    "type": "object"
+                  },
+                  "format_version": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "same_in_every_order": {
+              "type": "boolean"
+            },
+            "orders_checked": {
+              "type": "integer"
+            },
+            "edits": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "by",
+                  "operations"
+                ],
+                "properties": {
+                  "by": {
+                    "type": "string"
+                  },
+                  "operations": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "undone": {
+              "type": "object",
+              "required": [
+                "by",
+                "operations"
+              ],
+              "properties": {
+                "by": {
+                  "type": "string"
+                },
+                "operations": {
+                  "type": "integer"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/edit-a-document-together",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/edit-a-document-together/do-work/edit-together.mjs",
+            "editADocumentTogether"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "edit-a-document-together",
+                "paths": [
+                  "do-work/edit-together.mjs",
+                  "do-work/document-operations.mjs",
+                  "do-work/document-operations.json"
+                ],
+                "at": "/opt/edit-a-document-together"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion src/workspace/document-operations.mjs and document-operations.json at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (4ffa1dc4a2^), brought in byte for byte (moved-from.json; left behind by a9ee258 / #76 because it imports the hash primitive directly), run through do-work/edit-together.mjs; old capability row capabilities.json:423 at 4ffa1dc4a2^ (edit one document together with other people and AIs)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "blocks": [
+                {
+                  "id": "intro",
+                  "text": "Plan the garden"
+                }
+              ],
+              "edits": [
+                {
+                  "by": "ana",
+                  "blocks": [
+                    {
+                      "id": "intro",
+                      "text": "Plan the spring garden"
+                    }
+                  ]
+                },
+                {
+                  "by": "helper-ai",
+                  "blocks": [
+                    {
+                      "id": "intro",
+                      "text": "Plan the garden today"
+                    },
+                    {
+                      "id": "list",
+                      "text": "Buy seeds"
+                    }
+                  ]
+                }
+              ]
+            },
+            "output_selector": "$.document[0].text",
+            "contains": "Plan the spring garden today"
+          }
+        ]
+      }
+    }
+  ]
+}
