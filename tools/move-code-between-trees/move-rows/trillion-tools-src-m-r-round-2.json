@@ -1,6 +1,6 @@
 {
  "id": "move:trillion-workshop-tools-src-m-r-round-2",
- "about": "Round 2 of the src/ m-r workshop-tool rows of docs/worker-retirement-port-backlog.json that still had no home on main: the groups of move-rows/trillion-tools-m-z-scripts-parts.json that own one of those files, planned again on today's main with the same keep, read_as_rows and provider detectors. Only the groups that hold nothing were applied (planned with only: those groups, so every shared file they need lands too). Imports at the tag that named parts/ or src/ files an earlier move had already carried here (so they no longer existed at the tag) were set to those files' places here; nothing else in a moved file changed.",
+ "about": "Round 2 of the src/ m-r workshop-tool rows of docs/worker-retirement-port-backlog.json that still had no home on main. The groups are those of move-rows/trillion-tools-m-z-scripts-parts.json that own one of those files; a group that was held as a whole is split into one group per owner file (id <group>--<file stem>, same folder), so a file whose own closure holds nothing moves. keep is that row's keep without the files main already holds with the same bytes once import paths are set aside (src/decision-store.mjs, src/record-model-tools.mjs, src/namespace-store.mjs, records/starting-rules.json, harness/setup.json and the reached parts/record-log and parts/eeaf files): a moved file imports main's copy, and none of them is copied or changed. Only groups that hold nothing are listed, each applied in a plan with only the groups of its lane, so every shared file they need lands too. Imports at the tag that named parts/ or src/ files an earlier move had already carried here (so they were missing at the tag) were set to those files' places here; nothing else in a moved file changed.",
  "source": {
   "name": "Trillion-X/trillion",
   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
@@ -18,13 +18,10 @@
   "communities/",
   "computer/",
   "extension/",
-  "harness/",
   "ios/",
   "macos/",
   "methods/",
   "native-apps/",
-  "parts/eeaf/",
-  "parts/record-log/",
   "records/action-completeness.json",
   "records/commercial-offer-records.json",
   "records/content-format-starters.json",
@@ -32,7 +29,6 @@
   "records/delight-moments.json",
   "records/execution-mode-records.json",
   "records/feel-moments.json",
-  "records/starting-rules.json",
   "records/workflow-recipe-records.json",
   "src/action-completeness.mjs",
   "src/ai-conversations-list.json",
@@ -41,11 +37,9 @@
   "src/catch-up.mjs",
   "src/chat-archives.mjs",
   "src/chat-import.mjs",
-  "src/decision-store.mjs",
   "src/error-page-lines.json",
   "src/life-map.json",
   "src/local-store.mjs",
-  "src/namespace-store.mjs",
   "src/native-resource-sign-in.mjs",
   "src/operator-import-targets.json",
   "src/operator-import.mjs",
@@ -59,7 +53,6 @@
   "src/public-app-rows-import.mjs",
   "src/pursuit-plan.json",
   "src/raw-export.mjs",
-  "src/record-model-tools.mjs",
   "src/records-import.mjs",
   "src/retirable-census-classes.json",
   "src/session-cookie.mjs",
@@ -96,13 +89,12 @@
  "calls": [],
  "groups": [
   {
-   "id": "search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "id": "browse-and-search-every-marketplace-listing-without-signing",
    "owner": [
-    "src/meaning-sets.mjs",
-    "src/meaning-spaces.mjs"
+    "src/public-tool-catalog.mjs"
    ],
-   "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning",
-   "capability": "search my kept results by meaning with each installed meaning model, and fall back to matching the words when no model can answer that day"
+   "to": "tools/browse-and-search-every-marketplace-listing-without-signing",
+   "capability": "browse and search every Marketplace listing without signing in"
   },
   {
    "id": "browse-the-recordings-in-my-media-library-in-a-stable-order",
@@ -113,76 +105,12 @@
    "capability": "browse the recordings in my Media library in a stable order and find them by name quickly, for any AI or screen that reads Media"
   },
   {
-   "id": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "id": "compare-plans-side-by-side-and-tell-a-person",
    "owner": [
-    "src/native-calendar-owner.mjs"
+    "src/plan-comparison.mjs"
    ],
-   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
-   "capability": "keep my calendar in my account's own records, with its lists, files, connections and model, never in a second calendar store"
-  },
-  {
-   "id": "read-add-and-change-lists-decisions-and-work",
-   "owner": [
-    "src/native-record-consumers.mjs"
-   ],
-   "to": "tools/read-add-and-change-lists-decisions-and-work",
-   "capability": "read, add and change lists, decisions and work records from account screens, always on the records of the one account"
-  },
-  {
-   "id": "prepare-an-app-project-from-a-github-commit",
-   "owner": [
-    "src/native-xcode-source.mjs"
-   ],
-   "to": "tools/prepare-an-app-project-from-a-github-commit",
-   "capability": "prepare an app project from a GitHub commit so the Mac's Xcode builds exactly that source"
-  },
-  {
-   "id": "new-work",
-   "owner": [
-    "src/new-work.json"
-   ],
-   "to": "tools/new-work",
-   "capability": "src/new-work.json at the tag"
-  },
-  {
-   "id": "show-what-is-new-on-each-screen-since-i",
-   "owner": [
-    "src/new-work.mjs"
-   ],
-   "to": "tools/show-what-is-new-on-each-screen-since-i",
-   "capability": "show what is new on each screen since I last looked there, and the newest things my AIs made"
-  },
-  {
-   "id": "read-the-price-offers-with-each-variant-resolved-once",
-   "owner": [
-    "src/offer-rows.mjs"
-   ],
-   "to": "tools/read-the-price-offers-with-each-variant-resolved-once",
-   "capability": "read the price offers with each variant resolved once, so a price-test arm at another price reads its own price everywhere"
-  },
-  {
-   "id": "payment-platform",
-   "owner": [
-    "src/payment-platform.json"
-   ],
-   "to": "tools/payment-platform",
-   "capability": "src/payment-platform.json at the tag"
-  },
-  {
-   "id": "let-a-seller-connect-a-payment-account-in-one-click",
-   "owner": [
-    "src/payment-platform.mjs"
-   ],
-   "to": "tools/let-a-seller-connect-a-payment-account-in-one-click",
-   "capability": "let a seller connect a payment account in one click and sell through it with checkouts and schedules"
-  },
-  {
-   "id": "list-the-person-for-others-to-find-ask-the-network",
-   "owner": [
-    "src/person-network.mjs"
-   ],
-   "to": "tools/list-the-person-for-others-to-find-ask-the-network",
-   "capability": "list the person for others to find, ask the network for people who fit a need and release contact details to members"
+   "to": "tools/compare-plans-side-by-side-and-tell-a-person",
+   "capability": "compare plans side by side and tell a person what a feature needs when their plan lacks it"
   },
   {
    "id": "keep-a-lists-rows-in-one-of-the-accounts-databases-while",
@@ -193,36 +121,124 @@
    "capability": "keep a list's rows in one of the account's databases while the account keeps only the list itself"
   },
   {
-   "id": "pick-where-one-piece-of-work-runs-the-device",
+   "id": "keep-a-persons-pursuits-tidy-by-merging-duplicates",
    "owner": [
-    "src/placement.mjs"
+    "src/pursuit-consolidate.mjs"
    ],
-   "to": "tools/pick-where-one-piece-of-work-runs-the-device",
-   "capability": "pick where one piece of work runs: the device that captured it, the strongest awake device, the one opened on, or the cloud"
+   "to": "tools/keep-a-persons-pursuits-tidy-by-merging-duplicates",
+   "capability": "keep a person's pursuits tidy by merging duplicates and setting related ones under a parent"
   },
   {
-   "id": "compare-plans-side-by-side-and-tell-a-person",
+   "id": "keep-a-shared-board-live-for-several-people--native-board-live",
    "owner": [
-    "src/plan-comparison.mjs"
+    "src/native-board-live.mjs"
    ],
-   "to": "tools/compare-plans-side-by-side-and-tell-a-person",
-   "capability": "compare plans side by side and tell a person what a feature needs when their plan lacks it"
+   "to": "tools/keep-a-shared-board-live-for-several-people",
+   "capability": "keep a shared board live for several people at once, with records, who is present and changes arriving in order"
   },
   {
-   "id": "refresh-one-page-of-a-copied-site-from-its-original",
+   "id": "keep-a-task-plan-as-one-editable-record",
    "owner": [
-    "src/public-app-route-refresh.mjs"
+    "src/plan-records.mjs"
    ],
-   "to": "tools/refresh-one-page-of-a-copied-site-from-its-original",
-   "capability": "refresh one page of a copied site from its original with its pictures and styles"
+   "to": "tools/keep-a-task-plan-as-one-editable-record",
+   "capability": "keep a task plan as one editable record with a progress trail that any connected AI can read and update"
   },
   {
-   "id": "browse-and-search-every-marketplace-listing-without-signing",
+   "id": "keep-each-task-input-and-list-on-the-one-record-book--original-work-installation-shard",
    "owner": [
-    "src/public-tool-catalog.mjs"
+    "src/original-work-installation-shard.mjs"
    ],
-   "to": "tools/browse-and-search-every-marketplace-listing-without-signing",
-   "capability": "browse and search every Marketplace listing without signing in"
+   "to": "tools/keep-each-task-input-and-list-on-the-one-record-book",
+   "capability": "keep each task, input and list on the one record book that holds it, and find which book holds a list by its id"
+  },
+  {
+   "id": "keep-each-task-input-and-list-on-the-one-record-book--original-work-resource-affinity",
+   "owner": [
+    "src/original-work-resource-affinity.mjs"
+   ],
+   "to": "tools/keep-each-task-input-and-list-on-the-one-record-book",
+   "capability": "keep each task, input and list on the one record book that holds it, and find which book holds a list by its id"
+  },
+  {
+   "id": "keep-each-task-input-and-list-on-the-one-record-book--original-work-resource-catalogue",
+   "owner": [
+    "src/original-work-resource-catalogue.mjs"
+   ],
+   "to": "tools/keep-each-task-input-and-list-on-the-one-record-book",
+   "capability": "keep each task, input and list on the one record book that holds it, and find which book holds a list by its id"
+  },
+  {
+   "id": "keep-each-task-input-and-list-on-the-one-record-book--original-work-resource-selection",
+   "owner": [
+    "src/original-work-resource-selection.mjs"
+   ],
+   "to": "tools/keep-each-task-input-and-list-on-the-one-record-book",
+   "capability": "keep each task, input and list on the one record book that holds it, and find which book holds a list by its id"
+  },
+  {
+   "id": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "owner": [
+    "src/native-calendar-owner.mjs"
+   ],
+   "to": "tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+   "capability": "keep my calendar in my account's own records, with its lists, files, connections and model, never in a second calendar store"
+  },
+  {
+   "id": "keep-the-exact-first-answer-to-each-change-i--native-local-command-receipts",
+   "owner": [
+    "src/native-local-command-receipts.mjs"
+   ],
+   "to": "tools/keep-the-exact-first-answer-to-each-change-i",
+   "capability": "keep the exact first answer to each change I make, so a retry returns the same result and never makes the change twice"
+  },
+  {
+   "id": "keep-the-exact-first-answer-to-each-change-i--native-look-command-receipts",
+   "owner": [
+    "src/native-look-command-receipts.mjs"
+   ],
+   "to": "tools/keep-the-exact-first-answer-to-each-change-i",
+   "capability": "keep the exact first answer to each change I make, so a retry returns the same result and never makes the change twice"
+  },
+  {
+   "id": "keep-the-labels-people-give-each-other-in-the-network--native-network-moderation",
+   "owner": [
+    "src/native-network-moderation.mjs"
+   ],
+   "to": "tools/keep-the-labels-people-give-each-other-in-the-network",
+   "capability": "keep the labels people give each other in the network and hide a person once enough different trusted people have flagged them"
+  },
+  {
+   "id": "let-a-seller-connect-a-payment-account-in-one-click",
+   "owner": [
+    "src/payment-platform.mjs"
+   ],
+   "to": "tools/let-a-seller-connect-a-payment-account-in-one-click",
+   "capability": "let a seller connect a payment account in one click and sell through it with checkouts and schedules"
+  },
+  {
+   "id": "list-the-accounts-i-have-connected-the-ones",
+   "owner": [
+    "src/native-connection-list.mjs"
+   ],
+   "to": "tools/list-the-accounts-i-have-connected-the-ones",
+   "capability": "list the accounts I have connected, the ones my computers carry and the ones others shared with me, a page at a time"
+  },
+  {
+   "id": "list-the-person-for-others-to-find-ask-the-network",
+   "owner": [
+    "src/person-network.mjs"
+   ],
+   "to": "tools/list-the-person-for-others-to-find-ask-the-network",
+   "capability": "list the person for others to find, ask the network for people who fit a need and release contact details to members"
+  },
+  {
+   "id": "new-work",
+   "owner": [
+    "src/new-work.json"
+   ],
+   "to": "tools/new-work",
+   "capability": "src/new-work.json at the tag"
   },
   {
    "id": "open-the-billing-page-for-one-purchase-and-show-the-card",
@@ -234,12 +250,84 @@
    "capability": "open the billing page for one purchase and show the card that purchase is paid with"
   },
   {
-   "id": "keep-a-persons-pursuits-tidy-by-merging-duplicates",
+   "id": "payment-platform",
    "owner": [
-    "src/pursuit-consolidate.mjs"
+    "src/payment-platform.json"
    ],
-   "to": "tools/keep-a-persons-pursuits-tidy-by-merging-duplicates",
-   "capability": "keep a person's pursuits tidy by merging duplicates and setting related ones under a parent"
+   "to": "tools/payment-platform",
+   "capability": "src/payment-platform.json at the tag"
+  },
+  {
+   "id": "pick-where-one-piece-of-work-runs-the-device",
+   "owner": [
+    "src/placement.mjs"
+   ],
+   "to": "tools/pick-where-one-piece-of-work-runs-the-device",
+   "capability": "pick where one piece of work runs: the device that captured it, the strongest awake device, the one opened on, or the cloud"
+  },
+  {
+   "id": "place-a-sign-up-form-or-a-published-recipe-on-a-site--public-app-visitor-view",
+   "owner": [
+    "src/public-app-visitor-view.mjs"
+   ],
+   "to": "tools/place-a-sign-up-form-or-a-published-recipe-on-a-site",
+   "capability": "place a sign-up form or a published recipe on a site page and show visitors a safe view of it"
+  },
+  {
+   "id": "prepare-an-app-project-from-a-github-commit",
+   "owner": [
+    "src/native-xcode-source.mjs"
+   ],
+   "to": "tools/prepare-an-app-project-from-a-github-commit",
+   "capability": "prepare an app project from a GitHub commit so the Mac's Xcode builds exactly that source"
+  },
+  {
+   "id": "press-an-automation-once-and-keep-one-receipt-for-that-press--native-automation-command-receipts",
+   "owner": [
+    "src/native-automation-command-receipts.mjs"
+   ],
+   "to": "tools/press-an-automation-once-and-keep-one-receipt-for-that-press",
+   "capability": "press an automation once and keep one receipt for that press and for the single run it started, so a retry never runs it twice"
+  },
+  {
+   "id": "press-an-automation-once-and-keep-one-receipt-for-that-press--native-automation-run-receipts",
+   "owner": [
+    "src/native-automation-run-receipts.mjs"
+   ],
+   "to": "tools/press-an-automation-once-and-keep-one-receipt-for-that-press",
+   "capability": "press an automation once and keep one receipt for that press and for the single run it started, so a retry never runs it twice"
+  },
+  {
+   "id": "publish-change-or-take-down-a-public-item--native-published-placement",
+   "owner": [
+    "src/native-published-placement.mjs"
+   ],
+   "to": "tools/publish-change-or-take-down-a-public-item",
+   "capability": "publish, change or take down a public item with a counted allowance and a journal, and find the host that holds it"
+  },
+  {
+   "id": "publish-each-shipped-json-section-on-its-own-in-the-marketplace--marketplace-content-source-id",
+   "owner": [
+    "src/marketplace-content-source-id.mjs"
+   ],
+   "to": "tools/publish-each-shipped-json-section-on-its-own-in-the-marketplace",
+   "capability": "publish each shipped JSON section on its own in the Marketplace and read it back, rebuilding a whole document from the sections chosen"
+  },
+  {
+   "id": "publish-what-i-offer-and-seek-in-the-network--native-network-owner",
+   "owner": [
+    "src/native-network-owner.mjs"
+   ],
+   "to": "tools/publish-what-i-offer-and-seek-in-the-network",
+   "capability": "publish what I offer and seek in the network under a random id so anyone's AI can find me by meaning without seeing my contact details"
+  },
+  {
+   "id": "publish-what-i-offer-and-seek-in-the-network--network-publication-shape",
+   "owner": [
+    "src/network-publication-shape.mjs"
+   ],
+   "to": "tools/publish-what-i-offer-and-seek-in-the-network",
+   "capability": "publish what I offer and seek in the network under a random id so anyone's AI can find me by meaning without seeing my contact details"
   },
   {
    "id": "read-a-public-web-link-whole-its-card",
@@ -250,12 +338,125 @@
    "capability": "read a public web link whole: its card, every picture and video it declares, its structured data and the words a person reads on it"
   },
   {
+   "id": "read-a-saved-record-and-show-its-value-the-same",
+   "owner": [
+    "src/native-record-inspection.mjs"
+   ],
+   "to": "tools/read-a-saved-record-and-show-its-value-the-same",
+   "capability": "read a saved record and show its value the same way everywhere, without changing, indexing or running anything"
+  },
+  {
+   "id": "read-add-and-change-lists-decisions-and-work",
+   "owner": [
+    "src/native-record-consumers.mjs"
+   ],
+   "to": "tools/read-add-and-change-lists-decisions-and-work",
+   "capability": "read, add and change lists, decisions and work records from account screens, always on the records of the one account"
+  },
+  {
+   "id": "read-and-edit-the-saved-configurations-others-shared--native-configuration-command-receipts",
+   "owner": [
+    "src/native-configuration-command-receipts.mjs"
+   ],
+   "to": "tools/read-and-edit-the-saved-configurations-others-shared",
+   "capability": "read and edit the saved configurations others shared with me, by link or offer, and keep a receipt of each change"
+  },
+  {
+   "id": "read-one-workspace-record-by-its-label-and-save-a-change--native-workspace-record-reader",
+   "owner": [
+    "src/native-workspace-record-reader.mjs"
+   ],
+   "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change",
+   "capability": "read one workspace record by its label and save a change only when it names the version it read, keeping every version of documents and layouts"
+  },
+  {
+   "id": "read-one-workspace-record-by-its-label-and-save-a-change--native-workspace-records",
+   "owner": [
+    "src/native-workspace-records.mjs"
+   ],
+   "to": "tools/read-one-workspace-record-by-its-label-and-save-a-change",
+   "capability": "read one workspace record by its label and save a change only when it names the version it read, keeping every version of documents and layouts"
+  },
+  {
+   "id": "read-the-price-offers-with-each-variant-resolved-once",
+   "owner": [
+    "src/offer-rows.mjs"
+   ],
+   "to": "tools/read-the-price-offers-with-each-variant-resolved-once",
+   "capability": "read the price offers with each variant resolved once, so a price-test arm at another price reads its own price everywhere"
+  },
+  {
    "id": "referrals",
    "owner": [
     "src/referrals.json"
    ],
    "to": "tools/referrals",
    "capability": "src/referrals.json at the tag"
+  },
+  {
+   "id": "refresh-one-page-of-a-copied-site-from-its-original",
+   "owner": [
+    "src/public-app-route-refresh.mjs"
+   ],
+   "to": "tools/refresh-one-page-of-a-copied-site-from-its-original",
+   "capability": "refresh one page of a copied site from its original with its pictures and styles"
+  },
+  {
+   "id": "run-each-command-once-on-the-accounts-records-keep",
+   "owner": [
+    "src/native-tool-command-receipts.mjs"
+   ],
+   "to": "tools/run-each-command-once-on-the-accounts-records-keep",
+   "capability": "run each command once on the account's records, keep its reply and answer a retry with the same result, including saving a tool"
+  },
+  {
+   "id": "search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "owner": [
+    "src/meaning-sets.mjs",
+    "src/meaning-spaces.mjs"
+   ],
+   "to": "tools/search-my-kept-results-by-meaning-with-each-installed-meaning",
+   "capability": "search my kept results by meaning with each installed meaning model, and fall back to matching the words when no model can answer that day"
+  },
+  {
+   "id": "send-invitations-and-introductions-to-people-in-the-network-and--network-introduction-expiry",
+   "owner": [
+    "src/network-introduction-expiry.mjs"
+   ],
+   "to": "tools/send-invitations-and-introductions-to-people-in-the-network-and",
+   "capability": "send invitations and introductions to people in the network, and give each introduction a time to be answered before it lapses"
+  },
+  {
+   "id": "share-decisions-anonymously-with-other-people-by-choice--pool-embedding",
+   "owner": [
+    "src/pool-embedding.mjs"
+   ],
+   "to": "tools/share-decisions-anonymously-with-other-people-by-choice",
+   "capability": "share decisions anonymously with other people by choice, each rewritten in general words and checked by a second model"
+  },
+  {
+   "id": "show-what-is-new-on-each-screen-since-i",
+   "owner": [
+    "src/new-work.mjs"
+   ],
+   "to": "tools/show-what-is-new-on-each-screen-since-i",
+   "capability": "show what is new on each screen since I last looked there, and the newest things my AIs made"
+  },
+  {
+   "id": "work-out-from-bank-rows-and-receipt--money-out",
+   "owner": [
+    "src/money-out.mjs"
+   ],
+   "to": "tools/work-out-from-bank-rows-and-receipt",
+   "capability": "work out from bank rows and receipt emails what I pay each merchant a month, how it renews, whether the price is going up and whether it may be paid twice"
+  },
+  {
+   "id": "work-out-who-pays-for-a-tool-call--payers",
+   "owner": [
+    "src/payers.mjs"
+   ],
+   "to": "tools/work-out-who-pays-for-a-tool-call",
+   "capability": "work out who pays for a tool call, the person's own account or Trillion credit, and keep the person's tool charges"
   }
  ],
  "read_as_rows": [

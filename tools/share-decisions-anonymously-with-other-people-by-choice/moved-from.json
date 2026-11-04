@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/pool-embedding.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/share-decisions-anonymously-with-other-people-by-choice/src/pool-embedding.mjs",
+      "source_identity": "1f:61ecff18c85cdf62020d448ffc5175691f72550c17d461f69d782d4eab62038f",
+      "identity": "1f:35fde900670246eaa829c2838ca42397a51239aa417e67f438b5cd0c0f329f0e"
+    }
+  ]
+}

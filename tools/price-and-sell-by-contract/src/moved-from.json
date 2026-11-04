@@ -5,6 +5,14 @@
   "calls": [],
   "files": [
     {
+      "from": "src/credit.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/price-and-sell-by-contract/src/credit.mjs",
+      "source_identity": "1f:dc2f4253f93bae5b76baa4476e9ee0c58cd704e46ac9de42d0664cc725f7afdd",
+      "identity": "1f:82476e2fdeb79bca0ac3ed6b9a3cf38d6aa112249b39cc67077fbdb16c09f55b",
+      "reused": true
+    },
+    {
       "from": "src/usage-meters.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/usage-meters.json",
