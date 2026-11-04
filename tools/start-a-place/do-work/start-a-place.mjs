@@ -12,7 +12,7 @@
 // provider's credential (the row's vault_key), descriptor 4 the name provider's. They never reach argv, a file, the
 // environment or the answer.
 //
-// usage: start-a-place.mjs price REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE
+// usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE
 import { readFileSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -132,9 +132,8 @@ async function serve(machine, request, price, { run, ...deps }) {
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-export async function startAPlace(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
-  if (request.release_feed !== undefined) releaseFeed(request.release_feed);
-  if (request.default_places !== undefined) defaultPlaces(request.default_places);
+/** Rent (or adopt) the request's machine, point its name and wait for SSH: the machine any other tool may then set up. */
+export async function rentAMachine(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, run = onMachine } = {}) {
   const machines = machineProvider(request.machine.provider), names = request.name.provider ? nameProvider(request.name.provider) : null;
   const machineRequest = machines.base ? providerClient(machines, machineToken, { fetchImpl }) : null;
   const file = absolute(request.lease_file, 'lease_file'), m = request.machine;
@@ -144,8 +143,15 @@ export async function startAPlace(request, { machineToken, nameToken, fetchImpl 
   if (names) await pointName({ request: providerClient(names, nameToken, { fetchImpl }), file, provider: names, zone: request.name.zone, hostName: request.name.host_name });
   const machine = { ssh: request.ssh, address: lease.address };
   const arch = (await untilSsh(machine, { wait, run })).trim();
+  return { machine, price, arch, lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name };
+}
+
+export async function startAPlace(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
+  if (request.release_feed !== undefined) releaseFeed(request.release_feed);
+  if (request.default_places !== undefined) defaultPlaces(request.default_places);
+  const { machine, price, arch, lease, host_name } = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
   const served = await serve(machine, request, price, { run, fetchImpl, wait, tries });
-  return { lease: { provider: lease.provider, name: lease.name, serverId: lease.serverId, address: lease.address, state: lease.state }, host_name: request.name.host_name, arch, price, place_id: served.placeId, release: served.release, sign_up_status: served.signUp };
+  return { lease, host_name, arch, price, place_id: served.placeId, release: served.release, sign_up_status: served.signUp };
 }
 
 /** A new release on a running place: install, point current at it, restart, read back. */
@@ -198,15 +204,16 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second] = process.argv.slice(2);
-  const usage = 'usage: start-a-place.mjs price REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
+  const usage = 'usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
   const json = path => readRequest(resolvePath(path));
   try {
-    if (!first || !['price', 'start', 'status', 'install', 'remove'].includes(operation) || (operation === 'install') !== Boolean(second)) throw Object.assign(new Error(usage), { exit: 2 });
-    const asked = ['price', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
-    const needsName = operation === 'start' ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
+    if (!first || !['price', 'rent', 'start', 'status', 'install', 'remove'].includes(operation) || (operation === 'install') !== Boolean(second)) throw Object.assign(new Error(usage), { exit: 2 });
+    const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
+    const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = operation !== 'install' && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
     const tokens = { machineToken: needsMachine ? await pipe(3) : '', nameToken: needsName ? await pipe(4) : '' };
     const answer = operation === 'price' ? await priceOfAPlace(json(first), tokens)
+      : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price }) => ({ lease, host_name, arch, price }))
       : operation === 'start' ? await startAPlace(json(first), tokens)
       : operation === 'status' ? await placeStatus(resolvePath(first), tokens)
         : operation === 'install' ? await installOnPlace(resolvePath(first), json(second))
