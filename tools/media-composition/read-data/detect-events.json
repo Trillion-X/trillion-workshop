@@ -15,6 +15,12 @@
       "id": "adaptive",
       "stream": "sound-and-motion",
       "note": "No weights: a running baseline of the loudness rise and the picture change; a frame well above what the recording has been like so far is an event. The heads are rows of `streams`."
+    },
+    {
+      "id": "local-model",
+      "job": "local-model-job:detect-events",
+      "note": "A model the person's Mac serves answers for stretches of the recording; which model is a row in records/local-model-records.json.",
+      "events_key": "events"
     }
   ],
   "streams": {
