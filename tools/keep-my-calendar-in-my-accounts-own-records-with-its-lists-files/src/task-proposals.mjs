@@ -30,16 +30,16 @@ const shaped = row => ({ proposal_id: row.id, ...row.values });
 /** The id of a finding: one per source and normalised title. */
 export const proposalId = (sourceId, title) => `proposal-${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([plain(sourceId), plain(title)])))).slice(0, 32)}`;
 
-const ensure = lists => lists.ensure(LIST, { actor: ACTOR });
-const rowOf = (lists, id) => {
+const ensure = async lists => await lists.ensure(LIST, { actor: ACTOR });
+const rowOf = async (lists, id) => {
   if (typeof id !== 'string' || !id.trim() || id.includes('/')) throw new TaskProposalError(say('bad_id'));
-  const row = lists.row(LIST.id, id.trim());
+  const row = await lists.row(LIST.id, id.trim());
   if (!row) throw new TaskProposalError(say('no_proposal', { id }));
   return row;
 };
-const put = (lists, id, values) => lists.putRows(LIST.id, { rows: [{ id, values }] }, { actor: ACTOR }).kept[0];
+const put = async (lists, id, values) => (await lists.putRows(LIST.id, { rows: [{ id, values }] }, { actor: ACTOR })).kept[0];
 
-function propose(lists, input) {
+async function propose(lists, input) {
   const items = input.items;
   if (!Array.isArray(items) || !items.length || items.length > data.limits.proposals_per_call) throw new TaskProposalError(say('bad_items', { most: data.limits.proposals_per_call }));
   const sourceId = typeof input.source_id === 'string' ? input.source_id.trim().slice(0, data.limits.source_chars) : '';
@@ -49,14 +49,14 @@ function propose(lists, input) {
     const title = object(item) && typeof item.title === 'string' ? item.title.trim() : '';
     if (!title || title.length > data.limits.title_chars) throw new TaskProposalError(say('bad_title', { most: data.limits.title_chars }));
     const id = proposalId(sourceId, title);
-    const existing = lists.row(LIST.id, id);
+    const existing = await lists.row(LIST.id, id);
     if (existing) {
       const state = existing.values.state;
       results.push({ proposal_id: id, state, kept: true, said: say(state === 'rejected' ? 'already_rejected' : 'again', { title, state }) });
       continue;
     }
     const minutes = Number.isSafeInteger(item.duration_minutes) ? item.duration_minutes : data.default_duration_minutes;
-    const saved = put(lists, id, {
+    const saved = await put(lists, id, {
       title, state: 'proposed', duration_minutes: minutes, source_id: sourceId || null, proposed_by: proposedBy || null,
       due: typeof item.due === 'string' && item.due ? item.due : null,
       evidence: typeof item.evidence === 'string' ? item.evidence.slice(0, data.limits.evidence_chars) : null,
@@ -66,46 +66,46 @@ function propose(lists, input) {
   return { proposals: results };
 }
 
-function approve(lists, input) {
-  const row = rowOf(lists, input.proposal_id);
+async function approve(lists, input) {
+  const row = await rowOf(lists, input.proposal_id);
   const { title } = row.values;
   if (row.values.state === 'approved' && row.values.task_id) return { proposal_id: row.id, state: 'approved', task_id: row.values.task_id, kept: true, said: say('approved_before', { title }) };
-  const made = changeCalendarTask(lists, {
+  const made = await changeCalendarTask(lists, {
     action: 'create', request_key: row.id, title, duration_minutes: row.values.duration_minutes ?? data.default_duration_minutes,
     ...(row.values.due ? { due: row.values.due } : {}), ...(row.values.source_id ? { source_id: row.values.source_id } : {}),
     ...(typeof input.collection_id === 'string' ? { collection_id: input.collection_id } : {}),
   });
-  const saved = put(lists, row.id, { state: 'approved', task_id: made.task.id });
+  const saved = await put(lists, row.id, { state: 'approved', task_id: made.task.id });
   return { proposal_id: row.id, state: 'approved', task_id: made.task.id, proposal: shaped(saved), said: say('approved', { title }) };
 }
 
-function reject(lists, input) {
-  const row = rowOf(lists, input.proposal_id);
+async function reject(lists, input) {
+  const row = await rowOf(lists, input.proposal_id);
   const { title } = row.values;
   if (row.values.state === 'approved') throw new TaskProposalError(say('approved_cannot_reject', { title }));
-  const saved = put(lists, row.id, { state: 'rejected' });
+  const saved = await put(lists, row.id, { state: 'rejected' });
   return { proposal_id: row.id, state: 'rejected', proposal: shaped(saved), said: say('rejected', { title }) };
 }
 
-function restore(lists, input) {
-  const row = rowOf(lists, input.proposal_id);
+async function restore(lists, input) {
+  const row = await rowOf(lists, input.proposal_id);
   const { title } = row.values;
   if (row.values.state !== 'rejected') throw new TaskProposalError(say('not_rejected', { title }));
-  const saved = put(lists, row.id, { state: 'proposed' });
+  const saved = await put(lists, row.id, { state: 'proposed' });
   return { proposal_id: row.id, state: 'proposed', proposal: shaped(saved), said: say('restored', { title }) };
 }
 
-function undoApproval(lists, input) {
-  const row = rowOf(lists, input.proposal_id);
+async function undoApproval(lists, input) {
+  const row = await rowOf(lists, input.proposal_id);
   const { title } = row.values;
   if (row.values.state !== 'approved' || !row.values.task_id) throw new TaskProposalError(say('not_approved', { title }));
-  changeCalendarTask(lists, { action: 'delete', task_id: row.values.task_id });
-  const saved = put(lists, row.id, { state: 'proposed', task_id: null });
+  await changeCalendarTask(lists, { action: 'delete', task_id: row.values.task_id });
+  const saved = await put(lists, row.id, { state: 'proposed', task_id: null });
   return { proposal_id: row.id, state: 'proposed', proposal: shaped(saved), said: say('undone', { title }) };
 }
 
-function edit(lists, input) {
-  const row = rowOf(lists, input.proposal_id);
+async function edit(lists, input) {
+  const row = await rowOf(lists, input.proposal_id);
   if (row.values.state !== 'proposed') throw new TaskProposalError(say('not_editable', { title: row.values.title, state: row.values.state }));
   const values = {};
   if (Object.hasOwn(input, 'title')) {
@@ -115,23 +115,23 @@ function edit(lists, input) {
   }
   if (Object.hasOwn(input, 'due')) values.due = input.due || null;
   if (Object.hasOwn(input, 'duration_minutes')) values.duration_minutes = input.duration_minutes;
-  const saved = put(lists, row.id, values);
+  const saved = await put(lists, row.id, values);
   return { proposal_id: row.id, state: 'proposed', proposal: shaped(saved), said: say('edited', { title: saved.values.title }) };
 }
 
-function read(lists, input) {
-  if (typeof input.proposal_id === 'string' && input.proposal_id) return { proposal: shaped(rowOf(lists, input.proposal_id)) };
+async function read(lists, input) {
+  if (typeof input.proposal_id === 'string' && input.proposal_id) return { proposal: shaped(await rowOf(lists, input.proposal_id)) };
   const wanted = typeof input.state === 'string' ? input.state : null;
-  const page = lists.read(LIST.id, { limit: 50, ...(typeof input.cursor === 'string' ? { cursor: input.cursor } : {}) });
+  const page = await lists.read(LIST.id, { limit: 50, ...(typeof input.cursor === 'string' ? { cursor: input.cursor } : {}) });
   return { proposals: page.rows.map(shaped).filter(item => !wanted || item.state === wanted), page: { complete: page.page.complete, next_cursor: page.page.next_cursor } };
 }
 
 const ACTIONS = { propose, approve, reject, restore, undo_approval: undoApproval, edit, read };
 
 /** One call for every proposal action: { action, ... }. Answers the action's result, or throws TaskProposalError in plain words. */
-export function changeTaskProposals(lists, input) {
+export async function changeTaskProposals(lists, input) {
   if (!object(input) || !Object.hasOwn(ACTIONS, input.action)) throw new TaskProposalError(say('bad_action'));
-  ensure(lists);
+  await ensure(lists);
   return ACTIONS[input.action](lists, input);
 }
 
@@ -139,8 +139,8 @@ export function changeTaskProposals(lists, input) {
 export async function handleTaskProposalRequest(lists, request) {
   try {
     const url = new URL(request.url);
-    if (request.method === 'GET') return Response.json(changeTaskProposals(lists, { action: 'read', ...Object.fromEntries(url.searchParams) }));
-    if (request.method === 'POST') return Response.json(changeTaskProposals(lists, await request.json().catch(() => null)));
+    if (request.method === 'GET') return Response.json(await changeTaskProposals(lists, { action: 'read', ...Object.fromEntries(url.searchParams) }));
+    if (request.method === 'POST') return Response.json(await changeTaskProposals(lists, await request.json().catch(() => null)));
     return Response.json({ error: 'Method not allowed.' }, { status: 405 });
   } catch (error) {
     return Response.json({ error: String(error?.message ?? error) }, { status: error instanceof CalendarTasksError ? 400 : 500 });

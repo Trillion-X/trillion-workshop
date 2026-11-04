@@ -78,13 +78,13 @@ test('migration reads at most one page, resumes after restart, and never runs fr
     ids(type, options) { const ids = eeaf.ids(type, options); visited.push(ids); return ids; },
     write() { throw new Error('reading the hold may not migrate history'); },
   } });
-  assert.equal(before.openFillAt(definition.id, 123), 123);
-  assert.equal(before.read(definition.id, { open: true }).rows.length, 250, 'legacy page remains available until migration finishes');
+  assert.equal(await before.openFillAt(definition.id, 123), 123);
+  assert.equal((await before.read(definition.id, { open: true })).rows.length, 250, 'legacy page remains available until migration finishes');
   visited = [];
   const migrating = makeLists({ eeaf: { ...eeaf,
     ids(type, options) { assert.equal(options.limit, 100); const ids = eeaf.ids(type, options); visited.push(ids); return ids; },
   } });
-  assert.equal(migrating.fillOpen(definition.id), false);
+  assert.equal(await migrating.fillOpen(definition.id), false);
   assert.equal(visited[0].length, 100);
   const first = new Set(visited[0]);
   eeaf = openLog(host); lists = makeLists({ eeaf });

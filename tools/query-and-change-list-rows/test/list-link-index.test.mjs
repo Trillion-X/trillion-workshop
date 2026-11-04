@@ -74,12 +74,12 @@ test('a removal says which links still point at the rows it removed; a link that
   assert.deepEqual(removed.removed, ['acme']);
   assert.deepEqual(removed.dangling.map(link => [link.list_id, link.field_id, link.row_id, link.target]).sort(),
     [['people', 'company', 'p0', 'acme'], ['people', 'company', 'p40', 'acme'], ['people', 'company', 'p80', 'acme']]);
-  assert.deepEqual(context.lists.row('deals', 'd1').values.buyer, ['zeta'], 'the detaching link was taken away and is not reported');
-  context.lists.putRows('companies', { rows: [{ id: 'gone', values: { name: 'Gone' } }] });
+  assert.deepEqual((await context.lists.row('deals', 'd1')).values.buyer, ['zeta'], 'the detaching link was taken away and is not reported');
+  await context.lists.putRows('companies', { rows: [{ id: 'gone', values: { name: 'Gone' } }] });
   const same = (await context.ask('/lists/deals/rows', { rows: [{ id: 'd2', values: { name: 'New deal', buyer: ['gone', 'zeta'] } }] })).body;
   assert.equal(same.kept[0].id, 'd2');
   await context.ask('/lists/companies/rows', { remove: ['gone'] });
-  assert.deepEqual(context.lists.row('deals', 'd2').values.buyer, ['zeta'], 'a link written just before is found and detached');
+  assert.deepEqual((await context.lists.row('deals', 'd2')).values.buyer, ['zeta'], 'a link written just before is found and detached');
   const plain = (await context.ask('/lists/companies/rows', { rows: [{ id: 'new', values: { name: 'New' } }] })).body;
   assert.equal(plain.dangling, undefined, 'a write that removes nothing reports nothing');
 });
