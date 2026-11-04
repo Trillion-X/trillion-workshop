@@ -8,9 +8,13 @@
 # the release /opt/place/current points at. The engine's file and data folder are arguments; this script names no
 # engine. Debian and Ubuntu (apt) are supported; another system stops here with exit 3.
 #
-# usage: set-up-the-machine.sh HOST_NAME PORT ENGINE_FILE DATA_ENV DATA_DIR
+# ADOPT_DIR, when given, is the folder the engine adopts releases from its signed feed into (release_feed.releases,
+# engine job J1). The service runs with ProtectSystem=strict, so that folder is made the place user's and added to
+# the service's ReadWritePaths; without it the service can write /var/lib/place only.
+#
+# usage: set-up-the-machine.sh HOST_NAME PORT ENGINE_FILE DATA_ENV DATA_DIR [ADOPT_DIR]
 set -eu
-HOST_NAME=$1 PORT=$2 ENGINE_FILE=$3 DATA_ENV=$4 DATA_DIR=$5
+HOST_NAME=$1 PORT=$2 ENGINE_FILE=$3 DATA_ENV=$4 DATA_DIR=$5 ADOPT_DIR=${6:-}
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-place sets up Debian and Ubuntu machines." >&2; exit 3; }
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
@@ -19,6 +23,17 @@ id -u place >/dev/null 2>&1 || useradd --system --home-dir /var/lib/place --crea
 install -d -o place -g place -m 0700 /var/lib/place /var/lib/place/accounts
 test -s /var/lib/place/place.key || head -c 32 /dev/urandom | base64 -w0 | install -o place -g place -m 0400 /dev/stdin /var/lib/place/place.key
 install -d -m 0755 /opt/place /opt/place/releases
+WRITABLE=/var/lib/place
+if [ -n "$ADOPT_DIR" ]; then
+  case "$ADOPT_DIR" in
+    /*) ;;
+    *) echo "The adopt folder must be an absolute path, not $ADOPT_DIR." >&2; exit 2 ;;
+  esac
+  case "$ADOPT_DIR" in /var/lib/place|/var/lib/place/*) ;; *)
+    install -d -o place -g place -m 0755 "$ADOPT_DIR"
+    WRITABLE="$WRITABLE $ADOPT_DIR" ;;
+  esac
+fi
 printf '%s {\n\tencode zstd gzip\n\treverse_proxy 127.0.0.1:%s\n}\n' "$HOST_NAME" "$PORT" | install -m 0644 /dev/stdin /etc/caddy/Caddyfile
 ufw allow 22/tcp >/dev/null
 ufw allow 80/tcp >/dev/null
@@ -45,7 +60,7 @@ TimeoutStopSec=30
 UMask=0077
 NoNewPrivileges=true
 ProtectSystem=strict
-ReadWritePaths=/var/lib/place
+ReadWritePaths=$WRITABLE
 ProtectHome=true
 PrivateTmp=true
 LimitCORE=0
