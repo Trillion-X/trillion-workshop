@@ -1,0 +1,18 @@
+{
+  "_what": "The bounds of one shared installation-availability observation and the release sources this folder may read, as the engine's product/devices.json `distribution` block holds them (trillion-rust product/devices.json:197). A source names the hosts an installation route may point at and the channels a shared observation may hold; which app a source is (its bundle identifier and TestFlight groups) is the tool's input, never this file.",
+  "record_prefix": "device-distribution:",
+  "max_age_seconds": 300,
+  "clock_skew_seconds": 15,
+  "max_routes": 50,
+  "history_limit": 12,
+  "sources": [
+    {
+      "id": "native-ios",
+      "owner": "Trillion release owner",
+      "allowed_hosts": ["testflight.apple.com", "apps.apple.com"],
+      "refresh_tool": "tool:read-app-distribution",
+      "channels": ["public_link", "store"],
+      "product_families": ["IPHONE"]
+    }
+  ]
+}

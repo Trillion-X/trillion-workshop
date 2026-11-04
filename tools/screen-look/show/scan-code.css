@@ -1,0 +1,10 @@
+/* parts/screen-look/show/scan-code.css
+ *
+ * A code another device scans (parts/ui/show/scan-code): the code on a white tile so any phone camera reads it in
+ * every look, the words under it. In a guide row it sits under the row's buttons, and only where there is room for a
+ * phone beside the screen: a narrow pane is usually the phone itself, so the code is left out there. */
+.scan-code { display: inline-flex; flex-direction: column; align-items: center; gap: 0.4rem; margin: 0; }
+.scan-code-picture { display: block; padding: 0.5rem; border-radius: 0.75rem; background: #fff; border: 1px solid color-mix(in srgb, var(--color-foreground, #1f1f1f) 10%, transparent); }
+.scan-code-label { color: var(--color-muted-foreground, #666); font-size: 0.75rem; text-align: center; }
+.guide .guide-row-scan { align-self: flex-end; margin-top: 0.5rem; }
+@container guide (max-width: 34rem) { .guide .guide-row-scan { display: none; } }

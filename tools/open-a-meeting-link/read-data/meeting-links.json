@@ -1,0 +1,93 @@
+{
+  "_what": "Meeting links as one declared router (read-data/meeting-links.mjs). A row of `routes` says which URL schemes and host patterns it reads, which action words it knows (the first path part, or the `action` query parameter when `action_from` is query) and which parameters each action may carry. The host is checked against the row's `hosts` before any parameter is read; a parameter the row does not name is dropped, and one marked `secret` is returned for the caller to use but is shown as `secret_params` so a log never prints it. A new meeting app is one more row. `roster` says how attendee updates arrive: a `full` update replaces the roster, an `incremental` one adds, changes and removes by attendee id.",
+  "routes": [
+    {
+      "id": "zoom-links",
+      "schemes": [
+        "zoommtg",
+        "zoomus",
+        "https"
+      ],
+      "hosts": [
+        "^([a-z0-9-]+\\.)*zoom\\.us$",
+        "^([a-z0-9-]+\\.)*zoomgov\\.com$"
+      ],
+      "action_from": "path",
+      "actions": {
+        "join": {
+          "params": [
+            "confno",
+            "pwd",
+            "uname",
+            "stype",
+            "ssid",
+            "encrypted_payload"
+          ],
+          "needs": [
+            "confno"
+          ]
+        },
+        "start": {
+          "params": [
+            "confno",
+            "uname",
+            "ssid"
+          ],
+          "needs": [
+            "confno"
+          ]
+        },
+        "schedule": {
+          "params": [
+            "topic",
+            "ssid"
+          ],
+          "needs": []
+        },
+        "launch": {
+          "params": [
+            "action",
+            "ssid"
+          ],
+          "needs": []
+        }
+      },
+      "params": {
+        "confno": {
+          "match": "^\\d{9,12}$"
+        },
+        "pwd": {
+          "match": "^[A-Za-z0-9._-]{1,64}$",
+          "secret": true
+        },
+        "encrypted_payload": {
+          "match": "^[A-Za-z0-9._~+/=-]{1,2048}$",
+          "secret": true
+        },
+        "uname": {
+          "match": "^.{1,128}$"
+        },
+        "stype": {
+          "match": "^\\d{1,3}$"
+        },
+        "ssid": {
+          "match": "^[A-Za-z0-9._-]{1,128}$"
+        },
+        "topic": {
+          "match": "^.{1,256}$"
+        },
+        "action": {
+          "match": "^[a-z_-]{1,32}$"
+        }
+      }
+    }
+  ],
+  "words": {
+    "not_a_link": "That is not a link.",
+    "no_route": "No meeting app here reads a {scheme} link.",
+    "host_refused": "The host {host} is not one this meeting app reads.",
+    "no_action": "The link names no action this meeting app knows ({action}).",
+    "needs": "The {action} link is missing {name}.",
+    "bad_param": "The {name} in the link is not in the form this meeting app uses."
+  }
+}

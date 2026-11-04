@@ -16,6 +16,7 @@ Every choice is data in a move row (`move-rows/<pair>.json`):
 | `keep` | Globs that stay in the source. A group that owns or imports one is held, with the file named. |
 | `read_as_rows` | Globs of content that becomes rows of the person's own lists (moved there separately, not by this tool). A moved file that imports one is not held for it: the content is not followed, moved or deleted, the moved file keeps its import as written, and the plan names it under the group's `reads_rows` and the file's `reads_rows` (the receipt keeps them too). Once adapted, the moved file takes those rows from its caller. A file in both `keep` and `read_as_rows` is read as rows. |
 | `provider_calls` | Patterns that must not be left in a moved file. A group with one left is held, with file and line. |
+| `not_provider_calls` | `{ file, id, found, why }`: a detector match that is no provider call (a parameter named `env` that holds the process environment, say), by the source file, the detector and the exact matched text. That match holds nothing; every other match still does. |
 | `calls` | `{ id, find, replace, means }`: a provider call swapped for the call the records door offers. |
 
 `move-rows/trillion-to-workshop.json` moves the old Trillion app's features into this repository. Groups come from the

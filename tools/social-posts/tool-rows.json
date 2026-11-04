@@ -667,7 +667,57 @@
       "contains": "draft"
      }
     ],
-    "result_selector": "$.result"
+    "result_selector": "$.result",
+    "record_model": {
+      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+      "kinds": [
+        {
+          "type": "post",
+          "parts": [
+            {
+              "role": "file",
+              "path": [
+                "media"
+              ],
+              "each": [
+                "identity"
+              ]
+            }
+          ],
+          "_read_by": "src/social-posts.mjs: a post (a draft until sent) and its files",
+          "guard_properties": {
+            "abort_on_reply": "object",
+            "approved_at": "text",
+            "approved_by": "text",
+            "armed_at": "text",
+            "cancelled_because": "text",
+            "caption": "text",
+            "caption_by_platform": "object",
+            "caption_style_check": "text",
+            "created_at": "text",
+            "deliveries": "object",
+            "destinations": "list",
+            "drafted_by": "text",
+            "edited_by_person_at": "text",
+            "format_id": "text",
+            "grounded": "object",
+            "hold_seconds": "number",
+            "held_until": "text",
+            "link": "text",
+            "media": "object",
+            "post_id": "text",
+            "reaches": "objects",
+            "scheduled_for": "text",
+            "sent_at": "text",
+            "settings_by_platform": "object",
+            "source": "object",
+            "status": "text",
+            "time_zone": "text",
+            "updated_at": "text"
+          }
+        }
+      ]
+    }
    }
   },
   {
@@ -920,14 +970,46 @@
      "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "expected_values": {
+            "caption": "A made-up sample post.",
+            "media": null,
+            "caption_by_platform": {},
+            "settings_by_platform": {},
+            "destinations": [
+              "service_connection:x:sample"
+            ],
+            "link": null,
+            "scheduled_for": null,
+            "time_zone": null,
+            "source": null,
+            "format_id": null,
+            "reaches": null
+          },
+          "approved_by": "person:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "draft",
+              "destinations": [
+                "service_connection:x:sample"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -991,7 +1073,64 @@
      }
     },
     "provenance": {"source": "the posting owner of the person's posts, using the existing post wake and each place's send and delivery-record owner"},
-    "verify": [{"kind": "sample-run", "input": {"post_id": "post:that-is-not-there", "expected_values": {}}, "output_selector": "$", "contains": "There is no post"}],
+    "verify": [
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "expected_values": {
+            "caption": "A made-up sample post.",
+            "media": null,
+            "caption_by_platform": {},
+            "settings_by_platform": {},
+            "destinations": [
+              "service_connection:x:sample"
+            ],
+            "link": null,
+            "scheduled_for": null,
+            "time_zone": null,
+            "source": null,
+            "format_id": null,
+            "reaches": null
+          }
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "approved",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "approved_at": "2026-11-01T00:00:00Z",
+              "approved_by": "person:sample"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ax%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:x:sample",
+              "vendor": "x",
+              "account_label": "Sample account",
+              "plain": {
+                "user_id": "1000000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
+    ],
     "result_selector": "$.result"
    }
   },
@@ -1116,14 +1255,48 @@
      "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "approved",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "approved_at": "2026-11-01T00:00:00Z",
+              "approved_by": "person:sample",
+              "scheduled_for": "2030-01-01T12:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ax%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:x:sample",
+              "vendor": "x",
+              "account_label": "Sample account",
+              "plain": {
+                "user_id": "1000000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1236,14 +1409,34 @@
      "source": "the posting owner of the person's posts (draft, check, approve, set for its time, take back), moved here with its ready check and place rows; read and written over the person's post and connection records through the records door"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "approved_at": "2026-11-01T00:00:00Z",
+              "approved_by": "person:sample",
+              "scheduled_for": "2030-01-01T12:00:00.000Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1289,6 +1482,7 @@
      "type": "object"
     },
     "invoke": {
+     "refresh": {"token_url": "https://graph.instagram.com/refresh_access_token", "asked": {"method": "GET", "grant_type": "ig_refresh_token", "token_param": "access_token"}, "client_auth": "none", "margin_ms": 864000000, "when_expiry_unknown": true, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "access_token", "token_paths": []}},
      "kind": "http",
      "url": "https://graph.instagram.com/v21.0/me",
      "method": "GET",
@@ -1482,6 +1676,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://oauth2.googleapis.com/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "form", "client": {"id": {"name": "google-sign-in-client-id"}, "secret": {"name": "google-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "container",
      "files": {
       "package_files": [
@@ -1567,15 +1762,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:youtube"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:youtube:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:youtube:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ayoutube%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:youtube:sample",
+              "vendor": "youtube",
+              "account_label": "Sample account",
+              "plain": {
+                "youtube_channel_id": "UCsample0000000000000000"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1737,15 +1966,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:tiktok"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:tiktok:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:tiktok:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Atiktok%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:tiktok:sample",
+              "vendor": "tiktok",
+              "account_label": "Sample account",
+              "plain": {
+                "open_id": "sample-open-id"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -1822,6 +2085,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://graph.instagram.com/refresh_access_token", "asked": {"method": "GET", "grant_type": "ig_refresh_token", "token_param": "access_token"}, "client_auth": "none", "margin_ms": 864000000, "when_expiry_unknown": true, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "access_token", "token_paths": []}},
      "kind": "container",
      "files": {
       "package_files": [
@@ -1907,15 +2171,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:instagram"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:instagram:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:instagram:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ainstagram%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:instagram:sample",
+              "vendor": "instagram",
+              "account_label": "Sample account",
+              "plain": {
+                "ig_user_id": "17800000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2077,15 +2375,62 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:facebook-messenger"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:facebook-messenger:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:facebook-messenger:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Afacebook-messenger%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:facebook-messenger:sample",
+              "vendor": "facebook-messenger",
+              "account_label": "Sample account",
+              "plain": {
+                "page_id": "100000000000001"
+              },
+              "held": [
+                "page_access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://graph.facebook.com/v23.0/100000000000001/feed"
+            },
+            "status": 200,
+            "body": {
+              "id": "100000000000001_200000000000001"
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2247,15 +2592,49 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:instagram-facebook"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:instagram-facebook:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:instagram-facebook:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ainstagram-facebook%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:instagram-facebook:sample",
+              "vendor": "instagram-facebook",
+              "account_label": "Sample account",
+              "plain": {
+                "ig_user_id": "17800000000000001"
+              },
+              "held": [
+                "page_access_token"
+              ]
+            }
+          }
+        ]
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2332,6 +2711,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://graph.threads.net/refresh_access_token", "asked": {"method": "GET", "grant_type": "th_refresh_token", "token_param": "access_token"}, "client_auth": "none", "margin_ms": 864000000, "when_expiry_unknown": true, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "access_token", "token_paths": []}},
      "kind": "container",
      "files": {
       "package_files": [
@@ -2417,15 +2797,97 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:threads"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:threads:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:threads:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Athreads%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:threads:sample",
+              "vendor": "threads",
+              "account_label": "Sample account",
+              "plain": {
+                "threads_user_id": "1000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://graph.threads.net/v1.0/1000000000000001/threads"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000001"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://graph.threads.net/v1.0/17900000000000001"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000001",
+              "status": "FINISHED"
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://graph.threads.net/v1.0/1000000000000001/threads_publish"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000002"
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://graph.threads.net/v1.0/17900000000000002"
+            },
+            "status": 200,
+            "body": {
+              "id": "17900000000000002",
+              "text": "A made-up sample post.",
+              "username": "sample_account",
+              "media_type": "TEXT_POST",
+              "permalink": "https://www.threads.example.test/@sample_account/post/SAMPLE1"
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2587,15 +3049,63 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:linkedin"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:linkedin:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:linkedin:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Alinkedin%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:linkedin:sample",
+              "vendor": "linkedin",
+              "account_label": "Sample account",
+              "plain": {
+                "author_urn": "urn:li:person:sample1"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.linkedin.com/rest/posts"
+            },
+            "status": 201,
+            "headers": {
+              "x-restli-id": "urn:li:share:7000000000000000001"
+            },
+            "body": ""
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2757,15 +3267,91 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:substack"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:substack:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {
+                "substack": {
+                  "title": "A sample letter"
+                }
+              },
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:substack:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Asubstack%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:substack:sample",
+              "vendor": "substack",
+              "account_label": "Sample account",
+              "plain": {
+                "publication_url": "https://sample.substack.example.test"
+              },
+              "held": [
+                "session_cookie"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://substack.com/api/v1/user/profile/self"
+            },
+            "status": 200,
+            "body": {
+              "id": 100000001,
+              "name": "Sample Writer",
+              "handle": "samplewriter"
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://sample.substack.example.test/api/v1/drafts"
+            },
+            "status": 200,
+            "body": {
+              "id": 200000001,
+              "draft_title": "A sample letter"
+            }
+          },
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://sample.substack.example.test/api/v1/drafts/200000001/publish"
+            },
+            "status": 200,
+            "body": {
+              "id": 200000001,
+              "slug": "a-sample-letter",
+              "canonical_url": "https://sample.substack.example.test/p/a-sample-letter"
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -2842,6 +3428,7 @@
      }
     },
     "invoke": {
+     "refresh": {"token_url": "https://api.x.com/2/oauth2/token", "asked": {"method": "POST", "grant_type": "refresh_token", "token_param": "refresh_token"}, "client_auth": "basic", "client": {"id": {"name": "x-sign-in-client-id"}, "secret": {"name": "x-sign-in-client-secret"}}, "access_field": "access_token", "token_paths": [["access_token"]], "expires_path": ["expires_in"], "refresh": {"field": "refresh_token", "token_paths": [["refresh_token"]]}, "when_expiry_unknown": true},
      "kind": "container",
      "files": {
       "package_files": [
@@ -2927,15 +3514,65 @@
      "source": "the posting owner's send (publish now or at its time) with its held fetch and outcome words, and the facebook-page and substack publishers, moved here; the other places' publishers are @opencoredev/social-sdk 0.5.0 (MIT)"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:x"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:x:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {},
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:x:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Ax%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:x:sample",
+              "vendor": "x",
+              "account_label": "Sample account",
+              "plain": {
+                "user_id": "1000000000000000001"
+              },
+              "held": [
+                "access_token"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.x.com/2/tweets"
+            },
+            "status": 201,
+            "body": {
+              "data": {
+                "id": "1850000000000000001",
+                "text": "A made-up sample post."
+              }
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -3097,15 +3734,85 @@
      "source": "the request shapes of the posting owner's beehiiv sender, written as its place row (read-data/post-places.json, adapter requests) and sent by the one requests publisher"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:beehiiv"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:beehiiv:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {
+                "beehiiv": {
+                  "title": "A sample letter"
+                }
+              },
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:beehiiv:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Abeehiiv%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:beehiiv:sample",
+              "vendor": "beehiiv",
+              "account_label": "Sample account",
+              "plain": {
+                "publication_id": "pub_00000000-0000-0000-0000-000000000001"
+              },
+              "held": [
+                "api_key"
+              ]
+            }
+          }
+        ],
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://api.beehiiv.com/v2/publications/pub_00000000-0000-0000-0000-000000000001/posts"
+            },
+            "status": 201,
+            "body": {
+              "data": {
+                "id": "post_00000000-0000-0000-0000-000000000001",
+                "title": "A sample letter",
+                "status": "confirmed"
+              }
+            }
+          },
+          {
+            "request": {
+              "method": "GET",
+              "url": "https://api.beehiiv.com/v2/publications/pub_00000000-0000-0000-0000-000000000001/posts/post_00000000-0000-0000-0000-000000000001"
+            },
+            "status": 200,
+            "body": {
+              "data": {
+                "id": "post_00000000-0000-0000-0000-000000000001",
+                "title": "A sample letter",
+                "status": "confirmed",
+                "web_url": "https://sample-letters.example.test/p/a-sample-letter"
+              }
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -3267,15 +3974,79 @@
      "source": "the request shapes of the posting owner's Ghost sender, written as its place row (read-data/post-places.json, adapter requests) and sent by the one requests publisher"
     },
     "verify": [
-     {
-      "kind": "sample-run",
-      "input": {
-       "post_id": "post:that-is-not-there",
-       "account_id": "service_connection:ghost"
-      },
-      "output_selector": "$",
-      "contains": "There is no post"
-     }
+      {
+        "kind": "sample-run",
+        "input": {
+          "post_id": "post:sample-1",
+          "account_id": "service_connection:ghost:sample"
+        },
+        "records": [
+          {
+            "id": "post:sample-1",
+            "type": "post",
+            "value": {
+              "post_id": "post:sample-1",
+              "caption": "A made-up sample post.",
+              "caption_by_platform": {},
+              "settings_by_platform": {
+                "ghost": {
+                  "title": "A sample letter"
+                }
+              },
+              "created_at": "2026-11-01T00:00:00Z",
+              "updated_at": "2026-11-01T00:00:00Z",
+              "status": "scheduled",
+              "destinations": [
+                "service_connection:ghost:sample"
+              ],
+              "scheduled_for": "2026-11-02T12:00:00.000Z",
+              "approved_at": "2026-11-01T00:00:00Z",
+              "armed_at": "2026-11-01T00:00:00.000Z"
+            }
+          },
+          {
+            "id": "connection:service_connection%3Aghost%3Asample",
+            "type": "connection",
+            "value": {
+              "connection_id": "service_connection:ghost:sample",
+              "vendor": "ghost",
+              "account_label": "Sample account",
+              "plain": {
+                "site_url": "https://sample-site.example.test"
+              },
+              "held": [
+                "admin_api_key"
+              ]
+            }
+          }
+        ],
+        "held": {
+          "admin_api_key": "6500000000000000000000ff:0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f"
+        },
+        "replies": [
+          {
+            "request": {
+              "method": "POST",
+              "url": "https://sample-site.example.test/ghost/api/admin/posts/"
+            },
+            "status": 201,
+            "body": {
+              "posts": [
+                {
+                  "id": "6500000000000000000000a1",
+                  "uuid": "00000000-0000-4000-8000-000000000001",
+                  "title": "A sample letter",
+                  "slug": "a-sample-letter",
+                  "status": "published",
+                  "url": "https://sample-site.example.test/a-sample-letter/",
+                  "published_at": "2026-11-03T12:00:00.000Z"
+                }
+              ]
+            }
+          }
+        ],
+        "shape_read_at": "2026-11-03"
+      }
     ],
     "result_selector": "$.result"
    }
@@ -3436,6 +4207,1156 @@
       "input": {},
       "output_selector": "$",
       "contains": "nothing was set"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::save-a-snippet",
+   "address": "package::social-posts::tool::save-a-snippet",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:save-a-snippet",
+    "label": "Save a snippet",
+    "job": "Save words I send again and again as a snippet, with blanks like {name} to fill each time, or change one I saved",
+    "description": "Give title (what you call it) and text (the words, with {name} where something changes each time; a blank is a lowercase name in braces), and tags (short words) if you like. Without snippet_id it makes a new snippet; with snippet_id (from tool:find-snippets) it changes that one, keeping the fields left out. Give expected_set_at (the set_at tool:find-snippets showed) to refuse the change when it was saved again since. Returns snippet: snippet_id, title, text, tags, blanks, set_at, uses. Refuses a snippet with no title or no words, an unknown snippet_id, and a 501st snippet. A snippet is the person's own snippet record; saving sends nothing anywhere.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [],
+     "properties": {
+      "snippet_id": {
+       "type": "string",
+       "description": "A snippet_id from tool:find-snippets, to change that snippet"
+      },
+      "title": {
+       "type": "string",
+       "description": "What the snippet is called, at most 120 characters"
+      },
+      "text": {
+       "type": "string",
+       "description": "Its words, like Thanks {name}, see you {day}."
+      },
+      "tags": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Short words to find it by"
+      },
+      "expected_set_at": {
+       "type": "string",
+       "description": "The set_at last read; the change is refused when it was saved since"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "snippet"
+     ],
+     "properties": {
+      "snippet": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "saveASnippet"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "title": "Thanks",
+       "text": "Thanks {name}!"
+      },
+      "output_selector": "$.result.snippet.title",
+      "contains": "Thanks"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::find-snippets",
+   "address": "package::social-posts::tool::find-snippets",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:find-snippets",
+    "label": "Find snippets",
+    "job": "Find the snippets I saved, by a word in them or a tag, so I can put one into what I am writing",
+    "description": "Give query (every word must be in the title, words or tags) and tag, both optional, and limit (at most 100). Returns snippets, most recently used or saved first, each with snippet_id, title, text, tags, blanks (the {name} blanks in it), set_at, uses and used_at; and more, how many matched beyond limit. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [],
+     "properties": {
+      "query": {
+       "type": "string",
+       "description": "Words to look for"
+      },
+      "tag": {
+       "type": "string",
+       "description": "One tag the snippet carries"
+      },
+      "limit": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 100
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "snippets"
+     ],
+     "properties": {
+      "snippets": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "more": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "findSnippets"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "query": "thanks"
+      },
+      "output_selector": "$.result.snippets[0].title",
+      "contains": "Thanks",
+      "records": [
+       {
+        "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+        "type": "snippet",
+        "value": {
+         "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+         "title": "Thanks",
+         "text": "Thanks {name}!",
+         "tags": [
+          "replies"
+         ],
+         "set_at": "2026-10-01T09:00:00.000Z",
+         "uses": 0
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::use-a-snippet",
+   "address": "package::social-posts::tool::use-a-snippet",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:use-a-snippet",
+    "label": "Use a snippet",
+    "job": "Fill in one of my snippets with this time's names and give me its words to put in what I am writing",
+    "description": "Give snippet_id (from tool:find-snippets) and values: { name: words } for each {name} blank. Returns snippet_id, title, text (the words with every given blank filled wherever it appears), left_blank (the blanks given no value, left exactly as written) and said naming them, so nothing is sent with a hole unseen. It counts the use (uses, used_at) and never changes the snippet's words. It sends nothing. Refuses an unknown snippet_id.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "snippet_id"
+     ],
+     "properties": {
+      "snippet_id": {
+       "type": "string",
+       "description": "A snippet_id from tool:find-snippets"
+      },
+      "values": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "string"
+       },
+       "description": "The words for each blank, like { \"name\": \"Ana\" }"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "snippet_id",
+      "text",
+      "left_blank"
+     ],
+     "properties": {
+      "snippet_id": {
+       "type": "string"
+      },
+      "title": {
+       "type": "string"
+      },
+      "text": {
+       "type": "string"
+      },
+      "left_blank": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "useASnippet"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+       "values": {
+        "name": "Ana"
+       }
+      },
+      "output_selector": "$.result.text",
+      "contains": "Thanks Ana!",
+      "records": [
+       {
+        "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+        "type": "snippet",
+        "value": {
+         "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+         "title": "Thanks",
+         "text": "Thanks {name}!",
+         "tags": [
+          "replies"
+         ],
+         "set_at": "2026-10-01T09:00:00.000Z",
+         "uses": 0
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::remove-a-snippet",
+   "address": "package::social-posts::tool::remove-a-snippet",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:remove-a-snippet",
+    "label": "Remove a snippet",
+    "job": "Remove one of my saved snippets",
+    "description": "Give snippet_id (from tool:find-snippets). The snippet record is removed; words already sent are not touched. Returns removed, snippet_id and said. Refuses an unknown snippet_id.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "snippet_id"
+     ],
+     "properties": {
+      "snippet_id": {
+       "type": "string",
+       "description": "A snippet_id from tool:find-snippets"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "removed",
+      "said"
+     ],
+     "properties": {
+      "removed": {
+       "type": "boolean"
+      },
+      "snippet_id": {
+       "type": "string"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "removeASnippet"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "snippet",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/snippets.mjs (makeSnippets, the posts owner's snippets in src/social-posts.mjs and the AI tools list_snippets, save_snippet, use_snippet and remove_snippet), moved unchanged; its record store is the person's own snippet records through the records door (read-data/drafts-over-door.mjs)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5"
+      },
+      "output_selector": "$.result.said",
+      "contains": "Removed the snippet",
+      "records": [
+       {
+        "id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+        "type": "snippet",
+        "value": {
+         "snippet_id": "snippet:2026-10-01T09:00:00.000Z:a1b2c3d4e5",
+         "title": "Thanks",
+         "text": "Thanks {name}!",
+         "tags": [
+          "replies"
+         ],
+         "set_at": "2026-10-01T09:00:00.000Z",
+         "uses": 0
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::keep-a-thread-summary",
+   "address": "package::social-posts::tool::keep-a-thread-summary",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:keep-a-thread-summary",
+    "label": "Keep a conversation summary",
+    "job": "Keep a short summary of this conversation, so the next AI that opens it reads a few lines instead of every message",
+    "description": "Give conversation_id (and app), summary (at most 4000 characters) and latest: { id, at } of the conversation's newest message now, as the messages owner shows it (its newest message from reading the conversation). The summary covers through that message; keeping again replaces it. Returns summary (summary_id, app, conversation_id, summary, through_message_id, through_at, set_at) and said. Refuses a missing conversation_id, an empty summary, and a conversation with no latest message. The messages themselves are not touched; the words it says name trillion's read_messages and save_thread_summary tools.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "conversation_id",
+      "summary",
+      "latest"
+     ],
+     "properties": {
+      "conversation_id": {
+       "type": "string",
+       "description": "The conversation's id, as the messages it is in show it"
+      },
+      "app": {
+       "type": "string",
+       "description": "The app the conversation is in, like Email (optional)"
+      },
+      "summary": {
+       "type": "string",
+       "description": "The summary, in a few lines"
+      },
+      "latest": {
+       "type": "object",
+       "required": [
+        "id",
+        "at"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        },
+        "at": {
+         "type": "string",
+         "format": "date-time"
+        }
+       },
+       "description": "The conversation's newest message now: its id and time"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "summary",
+      "said"
+     ],
+     "properties": {
+      "summary": {
+       "type": "object"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "keepAThreadSummary"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "thread-summary",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/thread-summaries.mjs (makeThreadSummaries, the posts owner's summaries in src/social-posts.mjs and the AI tools save_thread_summary, read_thread_summary and remove_thread_summary), moved unchanged; its record store is the person's own thread-summary records through the records door (read-data/drafts-over-door.mjs), and the thread's ends, which trillion read from its messages owner, are handed in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "Email",
+       "conversation_id": "Email:t1",
+       "summary": "They ask for the Friday deck; I said yes.",
+       "latest": {
+        "id": "message:2",
+        "at": "2026-10-19T10:05:00Z"
+       }
+      },
+      "output_selector": "$.result.summary.through_message_id",
+      "contains": "message:2"
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::read-a-thread-summary",
+   "address": "package::social-posts::tool::read-a-thread-summary",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:read-a-thread-summary",
+    "label": "Read a conversation summary",
+    "job": "Read the summary kept of this conversation and whether newer messages have come since it was written",
+    "description": "Give conversation_id (and app) and message_times: the times of the conversation's newest messages as the messages owner shows them (its newest page, like the last 100, is enough). Returns summary (null when none is kept yet), newer_messages (how many of message_times come after the message the summary covers through), stale (newer_messages above 0) and said, so a stale summary is never taken for the conversation's present. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "conversation_id",
+      "message_times"
+     ],
+     "properties": {
+      "conversation_id": {
+       "type": "string",
+       "description": "The conversation's id, as the messages it is in show it"
+      },
+      "app": {
+       "type": "string",
+       "description": "The app the conversation is in, like Email (optional)"
+      },
+      "message_times": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "format": "date-time"
+       },
+       "description": "The times of the conversation's newest messages"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "summary",
+      "said"
+     ],
+     "properties": {
+      "summary": {
+       "type": [
+        "object",
+        "null"
+       ]
+      },
+      "newer_messages": {
+       "type": "integer"
+      },
+      "stale": {
+       "type": "boolean"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "readAThreadSummary"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "thread-summary",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/thread-summaries.mjs (makeThreadSummaries, the posts owner's summaries in src/social-posts.mjs and the AI tools save_thread_summary, read_thread_summary and remove_thread_summary), moved unchanged; its record store is the person's own thread-summary records through the records door (read-data/drafts-over-door.mjs), and the thread's ends, which trillion read from its messages owner, are handed in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "Email",
+       "conversation_id": "Email:t1",
+       "message_times": [
+        "2026-10-19T10:00:00Z",
+        "2026-10-19T10:05:00Z",
+        "2026-10-19T11:00:00Z"
+       ]
+      },
+      "output_selector": "$.result.said",
+      "contains": "1 newer message",
+      "records": [
+       {
+        "id": "thread-summary:Email:Email:t1",
+        "type": "thread-summary",
+        "value": {
+         "summary_id": "thread-summary:Email:Email:t1",
+         "app": "Email",
+         "conversation_id": "Email:t1",
+         "summary": "They ask for the Friday deck; I said yes.",
+         "through_message_id": "message:2",
+         "through_at": "2026-10-19T10:05:00Z",
+         "set_at": "2026-10-19T10:06:00.000Z"
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  },
+  {
+   "id": "package::social-posts::tool::remove-a-thread-summary",
+   "address": "package::social-posts::tool::remove-a-thread-summary",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:social-posts",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false
+    },
+    "id": "tool:remove-a-thread-summary",
+    "label": "Remove a conversation summary",
+    "job": "Remove the summary kept of this conversation",
+    "description": "Give conversation_id (and app). Only the summary record is removed; the messages are not touched. Returns removed and said. Refuses a conversation with no summary kept.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "conversation_id"
+     ],
+     "properties": {
+      "conversation_id": {
+       "type": "string",
+       "description": "The conversation's id, as the messages it is in show it"
+      },
+      "app": {
+       "type": "string",
+       "description": "The app the conversation is in, like Email (optional)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "removed",
+      "said"
+     ],
+     "properties": {
+      "removed": {
+       "type": "boolean"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "social-posts",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/social-posts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/social-posts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/social-posts/read-data/drafts-over-door.mjs",
+      "removeAThreadSummary"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "thread-summary",
+        "operations": [
+         "records:read",
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/thread-summaries.mjs (makeThreadSummaries, the posts owner's summaries in src/social-posts.mjs and the AI tools save_thread_summary, read_thread_summary and remove_thread_summary), moved unchanged; its record store is the person's own thread-summary records through the records door (read-data/drafts-over-door.mjs), and the thread's ends, which trillion read from its messages owner, are handed in"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "app": "Email",
+       "conversation_id": "Email:t1"
+      },
+      "output_selector": "$.result.said",
+      "contains": "Removed the summary",
+      "records": [
+       {
+        "id": "thread-summary:Email:Email:t1",
+        "type": "thread-summary",
+        "value": {
+         "summary_id": "thread-summary:Email:Email:t1",
+         "app": "Email",
+         "conversation_id": "Email:t1",
+         "summary": "They ask for the Friday deck; I said yes.",
+         "through_message_id": "message:2",
+         "through_at": "2026-10-19T10:05:00Z",
+         "set_at": "2026-10-19T10:06:00.000Z"
+        }
+       }
+      ]
      }
     ],
     "result_selector": "$.result"

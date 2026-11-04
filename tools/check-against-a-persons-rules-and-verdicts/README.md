@@ -16,6 +16,19 @@ Two more things come from the person alone:
 - **A waiver.** Their agree on one exact line that names one rule (a stand with `rule`) waives that rule on that line, and the result lists it in `waived`. Nothing else waives anything: not a stand by anyone else, not disagree or partly, not a stand with no rule, not another line however close. A stand that names a rule is never a verdict on the whole thing.
 - **Their own words.** `do-work/spoken-origins.mjs` `withSpokenOrigins(units, spans, { fold })` marks a unit `own-words` (with its `span`) when every word is literally in one recording span the caller hands in, read through the person's fold; `unverified-speaker` when that span's speaker was never checked; else `added-words`. These go in the unit's `facts`, so a row's `held_when: { path: "origin", where: "own-words" }` holds, never fails, the person's own words. The literal match is `tools/pin-files-by-content` `literalPieces`.
 
+## One check list, read by branch
+
+Every check of a person is one row of their one Checks list (`list:checks`, row type `check`, records `record:check:<id>`), and names its branch in `method`. A branch is one of their method rows (`list:methods`, row type `method`), which `extends` another, up to a base: for example a base for any decision, a branch for anything people read or hear, a branch of that for a story, post, article or script, and a branch of that for one book. A branch's checks are its own and those of every branch it extends. Ported from the old app's `src/private-method.mjs:25` (`extends`) and the check rows of `methods/checks.json`; `tools/decide-with-a-method` reads the same lineage from `do-work/branch.mjs`.
+
+Send `branch` in place of `rules` and `verdict_rules`, and the tool reads, through the person's records door, only what that branch needs:
+
+- the method rows, and the lineage of the branch, nearest first (an unknown branch, an unknown `extends` or a cycle is refused);
+- for each branch of the lineage, the check rows whose `method` is that branch (the door's `where { method }`, never the whole list), and the rows of every list the branch names in `check_lists` (a list whose rows are of a type `read-data/branch.json` does not allow is refused);
+- a row with `step` is a question of a decision step, asked by the decision tools: its `check` is question text, so it never reaches the judge; a row with `on: "Off"` is not judged; a row id is judged once, the nearest branch's row winning;
+- the nearest branch carrying `judge_settings` (a rule document's settings: `fold`, `stage`, `stance_rule`, `novel`, `agree_clears`, `kept_at`) makes the rule document: its rows and those of the branches extending it are the person's verdict rows; the rows inherited from above it are the generic `rules`.
+
+Then the same check runs, and the answer adds `branch`, `lineage` and `rows_used` (`{ branches: { <method>: n }, lists: { <list>: n }, skipped: { step, off } }`). The rules mode (`rules`, `verdict_rules`) is unchanged.
+
 ## Run it
 
 ```
@@ -31,9 +44,13 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 | File | Purpose |
 |------|---------|
 | `do-work/rules-and-verdicts.mjs` | The check: `compileVerdictRules`, `governing`, `verdictFindings`, `check`, `statusOf`, `linesOf`, `examplesFromStands`. Its header holds the invariants. |
-| `do-work/check-against-their-rules-and-verdicts.mjs` | `tool:check-against-a-persons-rules-and-verdicts`: one JSON request on standard input, `{ result }` or `{ error }` on the last line. |
+| `do-work/check-against-their-rules-and-verdicts.mjs` | `tool:check-against-a-persons-rules-and-verdicts`: one JSON request on standard input, `{ result }` or `{ error }` on the last line; with `branch` it opens the records door on descriptor 3 and runs the branch mode. |
 | `do-work/examples-from-where-they-stand.mjs` | `tool:make-examples-from-where-a-person-stands`: the person's stands as good and bad examples for their reading rows. |
 | `read-data/words.json` | Every word the tool says: its own finding ids, the words of each finding, the refusals. |
+| `do-work/branch.mjs` | Public. `lineageOf(methodRows, id)` (nearest first; refuses an unknown id or a cycle) and `checksOfBranch(rows, lineage)`: one base with branches, for this tool and `tools/decide-with-a-method`. |
+| `do-work/check-a-branch.mjs` | The branch mode: `rulesOfBranch(door, branch)` reads the method rows, each branch's check rows by `where { method }` and its `check_lists`, drops step and Off rows and splits verdict rows from inherited rules; `checkABranch(input, door)` runs `check` on them. |
+| `read-data/branch.json` | Where the branch mode finds a person's methods and checks (record types, the branch, step and on fields), the check list row types it may read, and its refusals. |
+| `test/branch.test.mjs` | The branch mode on an in-memory door with a made-up base, branch and grandchild: lineage order, step and Off rows, a check list row, verdict rows against inherited rules, refusals, one `where` call per branch, the row's rights. |
 | `do-work/check-copy.mjs` | `tool:check-copy`: the words of a site, a page, JSON, a deck or a picture reading, and the whole set, checked in one call. Reads units (`do-work/read-words.mjs`), hands them to the checker above, and adds the checks on the whole set that no unit can show: a locked line or promised feature gone (with the approval rule), an id gone from the baseline, a row for the wrong audience, an offer listing fewer lines than the others, a count that is not a published list view, a picture with no recorded reading. Exit 0 passed, 1 failed or a problem, 3 held. |
 | `do-work/check-copy-words.mjs` | The container entry for `tool:check-copy`: one JSON request on standard input, `{ result }` or `{ error }` on the last line. |
 | `do-work/read-words.mjs` | The unit readers: prose strings of any JSON, the visible lines of an HTML page and its JSON-LD, the `slide-words` block of a rendered deck, and Markdown headings, paragraphs, lists, table cells and fenced display text. It retains each block's role and mapped field; unresolved Markdown quotes and unsupported blocks become coverage problems. Three declared readers read only what a profile names: `wordsOfSections` (a title and named sections; preamble and quotes counted, never kept), `wordsOfCueNarration` (typed frontmatter, cue headings, one unit per wrapped paragraph with its `cue_id`) and `wordsOfJsonRoles` (an owner's paths, each role's kind and field, context review per role). One unit per distinct content and judging context. Reads no file. |
@@ -43,10 +60,10 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 | `read-data/copy-grammar-rules.json` | The only rows kept for `tool:check-copy`: mechanical grammar, used when the caller sends no rules. No word list, no product, no person. |
 | `read-data/copy-words.json` | Every sentence `tool:check-copy` says that is not a rule's own: its refusals, problems and required-line wording. |
 | `test/check-copy.test.mjs` | `tool:check-copy` on made-up rules, lines, pages, decks and picture readings. |
-| `part.json` | `do-work/rules-and-verdicts.mjs` is public. |
-| `tool-rows.json` | The two rows. Each packs `tools/judge-words` (`do-work`), `tools/where-a-person-stands` (the one identity of a judged thing) and `@noble/hashes`. |
+| `part.json` | `do-work/branch.mjs`, `do-work/rules-and-verdicts.mjs`, `do-work/check-copy.mjs`, `do-work/read-words.mjs` and `do-work/spoken-origins.mjs` are public. |
+| `tool-rows.json` | The rows. `tool:check-against-a-persons-rules-and-verdicts` also packs `tools/records-door` (`read-data`) and may list `record:method`, `record:check` and `record:writing-voice` rows and read `list` records, nothing else; its second sample runs the branch mode on seeded made-up records. Each packs `tools/judge-words` (`do-work`), `tools/where-a-person-stands` (the one identity of a judged thing) and `@noble/hashes`. |
 | `test/rules-and-verdicts.test.mjs` | Every rule of the order above, on made-up rules, lines and stands. |
-| `test/rows.test.mjs` | Each row's sample, run as the container runs it; refusals; a question answered by id on a second run. |
+| `test/rows.test.mjs` | Each row's sample, run as the container runs it (a sample that seeds records, with the stand-in records door); refusals; a question answered by id on a second run. |
 
 ## Key Types / Functions
 
@@ -58,11 +75,17 @@ The last line is `{ "result": { status, passed, results, questions, lines } }`. 
 | Result | `{ ...unit, verdict, breaks, uncertain, waived, advisory, qualification, applicable_rule_ids }` | `advisory` is true when only unqualified model rows or `held_when` rows found something. |
 | Question | `{ id, rule, question, options, fail, text, context?, adapter?, model?, examples? }` | One sentence a model row asks about, with the row's `ask.adapter`, `ask.model` and `ask.examples`; a finding from a row with an adapter names its `blake3` as `adapter`. |
 | `check` | `(units, rules, { answers, stands, verdictRules, stage, fieldsByKind, asOf, waivedBy }) -> { results, questions }` | The whole check. `waivedBy` (default `["person"]`) is whose stands may waive. |
+| Method row (branch) | `{ id, name, extends?, check_lists?: [list id], judge_settings?: { fold, stage, stance_rule, novel, agree_clears, kept_at? } }` | One branch. `judge_settings` makes its rows (and those of branches extending it) verdict rows. |
+| Check row | `{ id, method, came_from?: { list, record_id }, on?, step?, ...a rule row }` | One row of `list:checks`. With `step` it is a decision step's question, never judged here; `on: "Off"` is not judged. |
+| `lineageOf` | `(methodRows, id) -> [id, ..., base]` | Nearest first; throws `BranchRefusal` on an unknown id or a cycle. |
+| `checksOfBranch` | `(rows, lineage) -> rows` | The rows whose `method` is absent or in the lineage. |
+| `rulesOfBranch` | `(door, branch) -> { rules, verdict_rules \| null, lineage, rows_used }` | Reads one branch's rows through the door; writes nothing. |
+| `checkABranch` | `(input, door) -> { status, passed, results, questions, lines, branch, lineage, rows_used }` | The branch mode's whole answer. |
 | `waivers` | `(stands, { by }) -> Set` | The exact (line, rule) pairs the person's stands waive. |
 | `examplesFromStands` | `(compiled, stands) -> { items, rows }` | Good and bad examples for the reading rows. |
 
 ## Dependencies
 
-**Depends on:** `tools/judge-words` (`makeJudge`, `ruleApplies`, `valuesAt`, `wordsIn`), `tools/where-a-person-stands` (`artifactRef`, `foldWith`), `tools/pin-files-by-content` (`literalPieces`, for `do-work/spoken-origins.mjs` only), `@noble/hashes`, Node 24 in the tool container.
+**Depends on:** `tools/records-door` (`openRecordsDoor`, branch mode only), `tools/judge-words` (`makeJudge`, `ruleApplies`, `valuesAt`, `wordsIn`), `tools/where-a-person-stands` (`artifactRef`, `foldWith`), `tools/pin-files-by-content` (`literalPieces`, for `do-work/spoken-origins.mjs` only), `@noble/hashes`, Node 24 in the tool container.
 
-**Depended on by:** `tool-rows.json`; a content check that imports `do-work/rules-and-verdicts.mjs`.
+**Depended on by:** `tool-rows.json`; `tools/decide-with-a-method` (`do-work/branch.mjs`); a content check that imports `do-work/rules-and-verdicts.mjs`.

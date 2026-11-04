@@ -1,0 +1,251 @@
+/* Continuous reading surface. The selected Screen Look supplies the text faces,
+   palette and control appearance; depth never changes the type size. */
+html:has(.progressive-document),
+body:has(.progressive-document) { overflow-anchor: none; }
+
+.progressive-document {
+  --document-reading-size: clamp(1.5rem, 2.45vw, 2.25rem);
+  --document-reading-leading: 1.48;
+  /* Semantic hues follow the active thread hue while ink keeps them legible. */
+  --document-semantic-base: color-mix(in oklch, var(--thread-line, var(--accent-primary, #ff1d1d)) 60%, var(--ink-line, var(--text-primary, #191919)));
+  --document-principle: oklch(from var(--document-semantic-base) l calc(c * .8) h);
+  --document-framework: oklch(from var(--document-semantic-base) l calc(c * .8) calc(h + 231));
+  --document-practice: oklch(from var(--document-semantic-base) l calc(c * .7) calc(h + 45));
+  --document-exercise: oklch(from var(--document-semantic-base) l calc(c * .8) calc(h + 116));
+  /* Matches shared Reveal's 200ms interaction pace; JS FLIP reads this token. */
+  --document-arrival: 200ms;
+  --document-ease: ease-out;
+  position: relative;
+  width: min(100%, 78rem);
+  margin-inline: auto;
+  padding-inline: clamp(1.25rem, 5vw, 4rem);
+  box-sizing: border-box;
+  color: var(--ink-line, var(--text-primary));
+  font-family: var(--font-body, system-ui, sans-serif);
+  font-size: var(--document-reading-size);
+  line-height: var(--document-reading-leading);
+  overflow-anchor: none;
+}
+
+.progressive-document__intro {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  max-width: 64rem;
+  padding-block: 1.75rem;
+  box-sizing: border-box;
+}
+
+.progressive-document__promise {
+  max-width: 64rem;
+  margin: 0;
+  color: var(--ink-line, var(--text-primary));
+  font: 400 clamp(2.5rem, 4.7vw, 3.75rem)/1.13 var(--font-headline, var(--font-body, system-ui, sans-serif));
+  text-wrap: balance;
+}
+
+.progressive-document__suffix:not([data-visible]) { display: none; }
+.progressive-document__suffix[data-visible] {
+  animation: document-appear var(--document-arrival) var(--document-ease) both;
+}
+.progressive-document__argument {
+  max-width: 66rem;
+  padding-bottom: 3rem;
+  font: inherit;
+}
+
+/* Reveal is for whole skeleton paragraphs only. Its empty grid track occupies
+   no reading space while hidden, and the inner wrapper clips its transition. */
+.progressive-document__reveal {
+  display: grid;
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transition: grid-template-rows var(--document-arrival) var(--document-ease),
+    opacity var(--document-arrival) var(--document-ease);
+}
+.progressive-document__reveal[aria-hidden='true'] {
+  grid-template-rows: 0fr;
+  opacity: 0;
+  pointer-events: none;
+}
+.progressive-document__reveal > div { min-width: 0; min-height: 0; overflow: hidden; }
+
+/* Paragraphs remain native continuous prose. Inline parts enter in place, so
+   opening a depth reflows only the affected sentence instead of growing cards. */
+.progressive-document__paragraph {
+  margin: 0 0 1.45em;
+  color: var(--ink-line, var(--text-primary));
+  font: inherit;
+  text-wrap: pretty;
+  overflow-wrap: break-word;
+  scroll-margin-top: 7rem;
+}
+.progressive-document__inline-piece { display: inline; }
+.progressive-document__word { display: inline-block; }
+
+.progressive-document__part:not([data-visible]) { display: none; }
+.progressive-document__part[data-visible] {
+  animation: document-appear var(--document-arrival) var(--document-ease) both;
+}
+
+/* Semantic roles share the same color on prose and their hinge markers. */
+.progressive-document__inline-piece:has(.progressive-document__part[data-kind='principle']) {
+  color: var(--document-principle);
+}
+.progressive-document .progressive-document__hinge[data-kind='principle'] {
+  color: var(--document-principle);
+}
+.progressive-document__part[data-kind='principle'] {
+  color: var(--document-principle);
+}
+.progressive-document__inline-piece:has(.progressive-document__part[data-kind='practice']) {
+  color: var(--document-practice);
+}
+.progressive-document .progressive-document__hinge[data-kind='practice'] {
+  color: var(--document-practice);
+}
+.progressive-document__inline-piece:has(.progressive-document__part[data-kind='framework']) {
+  color: var(--document-framework);
+}
+.progressive-document .progressive-document__hinge[data-kind='framework'] {
+  color: var(--document-framework);
+}
+.progressive-document__inline-piece:has(.progressive-document__part[data-kind='exercise']) {
+  color: var(--document-exercise);
+}
+.progressive-document .progressive-document__hinge[data-kind='exercise'] {
+  color: var(--document-exercise);
+}
+.progressive-document__inline-piece:has(.progressive-document__part[data-kind='example']) {
+  color: var(--pencil-line, var(--grey-strong));
+}
+.progressive-document .progressive-document__hinge[data-kind='example'] {
+  color: var(--pencil-line, var(--grey-strong));
+}
+.progressive-document__part[data-kind='explanation'],
+.progressive-document__part[data-kind='programme'],
+.progressive-document__part[data-kind='argument'] { color: var(--ink-line, var(--text-primary)); }
+.progressive-document__part[data-kind='framework'] { color: var(--document-framework); }
+.progressive-document__part[data-kind='practice'] { color: var(--document-practice); }
+.progressive-document__part:is([data-kind='example']) {
+  color: var(--pencil-line, var(--grey-strong));
+}
+.progressive-document__part[data-kind='exercise'] { color: var(--document-exercise); }
+
+.progressive-document__hinge {
+  vertical-align: -0.14em;
+  margin-inline: .12em;
+  color: currentColor;
+}
+.progressive-document .progressive-document__hinge { color: currentColor; }
+.progressive-document .progressive-document__hero-hinge {
+  color: var(--thread-line, var(--text-secondary));
+  vertical-align: .03em;
+  margin-inline: .16em 0;
+  width: .8em;
+  height: .8em;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  font-size: inherit;
+}
+.progressive-document .progressive-document__hero-hinge .progressive-document__marker {
+  width: .55em;
+  height: .55em;
+  flex: 0 0 .55em;
+  opacity: 1;
+}
+.progressive-document__hinge:focus-visible {
+  outline-color: var(--border-focus);
+  outline-offset: 2px;
+}
+.progressive-document__hinge svg {
+  width: 1rem;
+  height: 1rem;
+  color: currentColor;
+  transition: transform var(--document-arrival) var(--document-ease);
+}
+.progressive-document .progressive-document__role-mark {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+.progressive-document .progressive-document__marker {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+.progressive-document__hinge[aria-expanded='true'] .progressive-document__marker {
+  transform: rotate(90deg);
+}
+.progressive-document__marker { color: currentColor; }
+.progressive-document__paragraph[data-motion='instant'] .progressive-document__part,
+.progressive-document__paragraph[data-motion='instant'] .progressive-document__hinge,
+.progressive-document__paragraph[data-motion='instant'] .progressive-document__role-mark { animation: none; }
+
+.progressive-document__read-all {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+.progressive-document__read-all:focus {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 1.25rem;
+  z-index: var(--layer-focus, 1);
+  display: inline-block;
+  width: auto;
+  height: auto;
+  clip-path: none;
+  padding: .75rem;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+@keyframes document-appear {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 42rem) {
+  .progressive-document {
+    --document-reading-size: 1.5rem;
+    padding-inline: 1.25rem;
+  }
+  .progressive-document__intro {
+    padding-block: 1.25rem;
+  }
+  .progressive-document__argument { padding-bottom: 2rem; }
+  .progressive-document__paragraph { margin-bottom: 1.35em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .progressive-document *,
+  .progressive-document *::before,
+  .progressive-document *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Named terms borrow the shared outlined Badge face, within the sentence. */
+.progressive-document .progressive-document__term {
+  display: inline-block;
+  max-width: 100%;
+  height: auto;
+  min-width: 0;
+  padding: .02em .15em .04em;
+  font: inherit;
+  font-weight: 500;
+  color: inherit;
+  white-space: normal;
+  vertical-align: baseline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}

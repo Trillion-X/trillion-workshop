@@ -1,0 +1,69 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FOLDER-BINDINGS-FROM-OLD-TRILLION-COMPUTER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:open-work-2026-11-03:rea-not-yet-moved-computer-computer",
+  "message_multihash": "1f:0138daaf63aaf9da6077efe80902c12683a1893a7063c6918ccd53b38b5ef9b6",
+  "quote": "Job: move the file sharing and drive serving modules of old trillion computer/ (WebDAV, the Trillion drive, folder bindings, LAN peers) into Trillion-X/trillion-workshop tools. Port the correct parts one to one with their original tests and assertions, and drop only what this design rules out (Cloudflare Worker coupling, fixed addresses, the old Mac host's wiring). \"move code, never rewrite it\""
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b56b1e1adfa0dd59b31a0c076c2926c9d8d08d2f",
+   "path": "computer/folder-bindings.mjs",
+   "multihash": "1f:c2c4ac1846b8b2c1b13c0cd9d9b7870d50dd84fa5f1dbf1cd4ab25b7c30443c4",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/sync-files-between-my-computers/do-work/folder-bindings.mjs",
+   "baseline_commit_message": "sync-files-between-my-computers: lan-peers, drive-sync-status and folder-bindings from old trillion computer/, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a binding is refused unless every constraint named in folder_bindings.constraints holds, and check re-runs them on a stored binding",
+  "a run only adds and updates and never removes a Trillion name; links and special files are counted and left alone",
+  "a file is read again only when its size or modified time changed; a failing file is throttled for throttle_seconds",
+  "redirect is off unless enabled and moves nothing until every file is proven stored; the folder is renamed aside whole, never deleted",
+  "restore only undoes our own redirect"
+ ],
+ "allowed_deltas": [
+  "BLAKE3 comes from @noble/hashes/blake3.js instead of the deleted Worker hot-path subclass parts/live-namespace/do-work/blake3.mjs (same digests)",
+  "the header names the tool folder and whoever keeps the files on this computer instead of computer/trillion-drive.mjs",
+  "the DATA block is read from sync-files.json instead of trillion-drive.json"
+ ],
+ "banned_substitutions": [
+  "a second binding store",
+  "a run that deletes a Trillion name",
+  "a redirect that copies and deletes instead of renaming"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:c2c4ac1846b8b2c1b13c0cd9d9b7870d50dd84fa5f1dbf1cd4ab25b7c30443c4",
+  "target_multihash_at_baseline": "1f:c2c4ac1846b8b2c1b13c0cd9d9b7870d50dd84fa5f1dbf1cd4ab25b7c30443c4",
+  "commit": "8ba157215de1f8b4b6c02899abdf8b0725f9293f",
+  "recorded_at": "2026-11-03T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function createFolderBindings",
+   "local_whole:",
+   "no_nesting:",
+   "target_writable:",
+   "async function run",
+   "async function proveStored",
+   "async function redirect",
+   "async function restore"
+  ],
+  "test_refs": [
+   "tools/sync-files-between-my-computers/test/folder-bindings.test.mjs"
+  ]
+ }
+}

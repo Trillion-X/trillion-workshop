@@ -1,0 +1,8 @@
+{
+  "_what": "How the words heard while recording are kept when one line is said again and again back to back (parts/record-audio/read-data/heard-words.mjs). A phrase of up to phrase_words_up_to words heard repeats_from times or more in a row is kept once; two phrases count as the same when at least same_share of their words match, so a misheard word in one copy does not break the run. A stretch whose three-word runs are less than distinct_share_min different (a line on repeat, not someone talking) is not handed to the person's AIs as work, once it holds at least judge_from_words words.",
+  "phrase_words_up_to": 12,
+  "repeats_from": 3,
+  "same_share": 0.75,
+  "distinct_share_min": 0.5,
+  "judge_from_words": 24
+}

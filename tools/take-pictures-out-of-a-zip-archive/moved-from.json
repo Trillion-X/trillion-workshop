@@ -1,0 +1,29 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/archive-entries.json",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/take-pictures-out-of-a-zip-archive/src/archive-entries.json",
+      "source_identity": "1f:47829f724194fa1fd8038b3da117c278281c5640dcae20517087253ee0720bab",
+      "identity": "1f:47829f724194fa1fd8038b3da117c278281c5640dcae20517087253ee0720bab"
+    },
+    {
+      "from": "src/archive-entries.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/take-pictures-out-of-a-zip-archive/src/archive-entries.mjs",
+      "source_identity": "1f:f5ad244e915328afadfd268f514517a468f713388a831e555709f0be53c4e33a",
+      "identity": "1f:f5ad244e915328afadfd268f514517a468f713388a831e555709f0be53c4e33a"
+    },
+    {
+      "from": "test/archive-entries.test.mjs",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "to": "tools/take-pictures-out-of-a-zip-archive/test/archive-entries.test.mjs",
+      "source_identity": "1f:b69e5b433624508960644cb512d3c4c6e47d2f169e9a6ca9699c9d5d40dc1c3d",
+      "identity": "1f:b69e5b433624508960644cb512d3c4c6e47d2f169e9a6ca9699c9d5d40dc1c3d"
+    }
+  ]
+}

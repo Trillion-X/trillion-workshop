@@ -1,0 +1,5 @@
+{
+  "_what": "The two Darwin notifications ./capture-shield.mjs posts around a screen capture; the Trillion Mac app (CaptureShield.swift, now in Trillion-X/trillion-apps) listens for them and leaves its own windows out of that picture. Moved from Trillion-X/trillion macos/computer-reader.json `capture_shield` (as it was before macos/ moved out).",
+  "begin": "ai.gettrillion.capture.begin",
+  "end": "ai.gettrillion.capture.end"
+}

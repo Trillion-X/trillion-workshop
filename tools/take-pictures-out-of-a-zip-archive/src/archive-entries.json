@@ -1,0 +1,37 @@
+{
+  "_what": "What a zip archive may hand an importer, as DATA read by src/archive-entries.mjs. `media_types` maps a lowercase file extension to the media type an entry is admitted as; an entry with any other extension is left out. `skip` are path patterns of archive litter that are never entries. The limits bound one archive: `max_entries` admitted entries, `max_entry_bytes` for one entry's bytes, `max_total_bytes` for all of them, and `max_ratio` the most an entry may expand beyond its compressed size. `profiles` are named overrides of the limits and the admitted types for one importer (chat_export: the conversations*.json files of an account export, src/chat-import.mjs); `title_prefix` keeps only entries whose title starts with it.",
+  "media_types": {
+    "png": "image/png",
+    "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
+    "gif": "image/gif",
+    "webp": "image/webp",
+    "avif": "image/avif",
+    "heic": "image/heic",
+    "bmp": "image/bmp",
+    "tif": "image/tiff",
+    "tiff": "image/tiff"
+  },
+  "skip": [
+    "(^|/)__MACOSX/",
+    "(^|/)\\._",
+    "(^|/)\\.DS_Store$",
+    "(^|/)Thumbs\\.db$"
+  ],
+  "max_entries": 500,
+  "max_entry_bytes": 25000000,
+  "max_total_bytes": 200000000,
+  "max_ratio": 200,
+  "profiles": {
+    "chat_export": {
+      "media_types": {
+        "json": "application/json"
+      },
+      "max_entries": 50,
+      "max_entry_bytes": 80000000,
+      "max_total_bytes": 200000000,
+      "max_ratio": 200,
+      "title_prefix": "conversations"
+    }
+  }
+}

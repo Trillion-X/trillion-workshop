@@ -1,0 +1,15 @@
+{
+  "public": [
+    "do-work/derive-open-slots.ts",
+    "do-work/availability-link-owner.ts",
+    "do-work/availability-link-eeaf-store.mjs",
+    "do-work/create-external-calendar-event.ts",
+    "do-work/external-calendar-busy-and-changes.ts",
+    "do-work/calendar-invite-file.ts",
+    "show/AvailabilityLinks.tsx",
+    "show/SlotSharing.tsx",
+    "show/slot-ranges.mjs",
+    "show/slot-ranges.d.mts",
+    "read-data/slot-sharing.json"
+  ]
+}
