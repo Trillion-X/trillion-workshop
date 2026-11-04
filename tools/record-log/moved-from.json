@@ -11,6 +11,22 @@
       "reused": true
     },
     {
+      "from": "parts/record-log/do-work/record-intents.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/do-work/record-intents.mjs",
+      "source_identity": "1f:8ecd5c1c03b95399ab5d71dda6f73c9c5987ed16fa1e993b7cfcace7ac8183ea",
+      "identity": "1f:8ecd5c1c03b95399ab5d71dda6f73c9c5987ed16fa1e993b7cfcace7ac8183ea",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-layers.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/do-work/record-layers.mjs",
+      "source_identity": "1f:668f2ebe06820ccfdb9f8f7a505b70eecee755d646a7f01646f8ec63186cfdf5",
+      "identity": "1f:668f2ebe06820ccfdb9f8f7a505b70eecee755d646a7f01646f8ec63186cfdf5",
+      "reused": true
+    },
+    {
       "from": "parts/record-log/do-work/record-model.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/record-log/do-work/record-model.mjs",
@@ -19,11 +35,35 @@
       "reused": true
     },
     {
+      "from": "parts/record-log/do-work/record-requests.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/do-work/record-requests.mjs",
+      "source_identity": "1f:7b08287f5966c53d3a3b4820b643a5c41df394abaa0e4628d7754815d1dd1e6c",
+      "identity": "1f:7b08287f5966c53d3a3b4820b643a5c41df394abaa0e4628d7754815d1dd1e6c",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-stamps.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/do-work/record-stamps.mjs",
+      "source_identity": "1f:630bd6b3c3507b5bcd13aad263922b71f1d21ee608cc0f3fdd1bab6a7b2ca5a8",
+      "identity": "1f:630bd6b3c3507b5bcd13aad263922b71f1d21ee608cc0f3fdd1bab6a7b2ca5a8",
+      "reused": true
+    },
+    {
       "from": "parts/record-log/do-work/record-sync.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/record-log/do-work/record-sync.mjs",
       "source_identity": "1f:2b875896886fd702c60840aa24cae8672f35204226abdf4daefa415b09749feb",
       "identity": "1f:2b875896886fd702c60840aa24cae8672f35204226abdf4daefa415b09749feb",
+      "reused": true
+    },
+    {
+      "from": "parts/record-log/do-work/record-time.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/do-work/record-time.mjs",
+      "source_identity": "1f:cddd5e3107a42044b60787e8f3019a967e85017fa1911c29267814b06e0c0551",
+      "identity": "1f:2179dac3a3a1cf83bc37bc3ba577b1f980d220015f0af6d6ea9d709c377c78fb",
       "reused": true
     },
     {
@@ -41,6 +81,48 @@
       "source_identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
       "identity": "1f:d3cfbc914e63446b056371f2b4b0c57c02bd920f442280574590929235ea7a03",
       "reused": true
+    },
+    {
+      "from": "test/copy-page-key-metadata.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/copy-page-key-metadata.test.mjs",
+      "source_identity": "1f:61a47a16be8b306a1a5bd02dbfefb7825f5126deeff1780c4a062d60bf83e36a",
+      "identity": "1f:a7bdef2679fbb84464b7849be18be72e445b08351befb99058dd3747ca2296c4"
+    },
+    {
+      "from": "test/copy-page-key-owners.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/copy-page-key-owners.test.mjs",
+      "source_identity": "1f:7db0b6fea0e529b5efd2a17bcb05ac3a3dd3dacf2370c90c3af96844dde7648c",
+      "identity": "1f:763fcad8451cab814be9de7f1f5caf522536e3110fa0947196d5e5c23d143419"
+    },
+    {
+      "from": "test/fixtures/record-log-store-before-bucket-directory.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/fixtures/record-log-store-before-bucket-directory.mjs",
+      "source_identity": "1f:0915bf3e3c485a2daf81894eecea14d15cfbb8c0eb5a7bda63597d66e8f8c24e",
+      "identity": "1f:a20c277bb88cce400c0286d61cf4a18857e2b79b40e45468c180477780cd7b1b"
+    },
+    {
+      "from": "test/fixtures/record-log-store-before-page-key-metadata.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/fixtures/record-log-store-before-page-key-metadata.mjs",
+      "source_identity": "1f:4188bd802712522bb074d91df3493b488f0c1fc408021f72d55b045c8c8b08e0",
+      "identity": "1f:e66e5f8b39bfebb0de91a72d599dfe29dcf33a5eb3ae086067f3f33dc06496ac"
+    },
+    {
+      "from": "test/record-bucket-directory.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/record-bucket-directory.test.mjs",
+      "source_identity": "1f:c7e75fc519744e9325bfbe537e90319c8585b565bf95413442fbeb54bec72e21",
+      "identity": "1f:9e821cc28c4d3ad6fbba0c6e7319758629a93f7947174cbbf49097976415ca69"
+    },
+    {
+      "from": "test/record-copies.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/record-log/test/record-copies.test.mjs",
+      "source_identity": "1f:029658615b7d7a91216db488f4fc443c5808466ee36b59f63396f8f88a7be4e9",
+      "identity": "1f:10dc901d4ebfa6794c62fec42bcc27399572edd92b2c748ce73f82af894e3bcb"
     },
     {
       "from": "test/record-model-inspection.test.mjs",

@@ -42,7 +42,7 @@ files declares a `files` rights item and calls `door.files(...)`. No engine chan
 
 ## What is still open
 
-Updated 2026-11-04 by trillion-rust #83 and trillion-apps #15.
+Updated 2026-11-04 by trillion-rust #83 and #107, and trillion-apps #15 and #22.
 
 1. **The person's own page reaches files.** Done in trillion-rust #83: one `owner-routes.json` row (`@namespace`,
    prefix `/files/`) and the files door's own `page_call`. `GET /work/api/files/<operation>?input=<JSON>` serves the
@@ -57,8 +57,30 @@ Updated 2026-11-04 by trillion-rust #83 and trillion-apps #15.
    - results, set-aside and storage
    This tool's `do-work/namespace-client.mjs` is still the hosted service's client.
 2. **Recent files and kept file facts are account rows.** trillion-rust #83 ports old `src/recent-files.mjs` one to
-   one, plus the `facts` merge of `src/namespace-results.mjs:424`. The rows are `@account-files/recent/files`,
-   `@account-files/recent/order` and `@account-files/facts`, in the account's files store. The door answers four
-   operations: `recent_files`, `record_file_use`, `set_file_facts` and `read_file_facts`. `write_file`,
-   `write_file_finish`, `show_file` and `read_file` (from offset 0) keep a use when they answer (DATA
-   `recent.uses`). `read_file_results` for other kinds (transcripts, summaries) still has no owner.
+   one: `@account-files/recent/files` and `@account-files/recent/order` in the account's files store, answered by
+   `recent_files` and `record_file_use`. `write_file`, `write_file_finish`, `show_file` and `read_file` (from offset
+   0) keep a use when they answer (DATA `recent.uses`).
+   The results kept about files (transcripts, summaries, facts, previews and any other kind) are owned by
+   trillion-rust `src/account_files/results.rs`. It answers `record_file_results`, `read_file_results`,
+   `read_file_result_fields`, `list_file_results`, `read_file_results_many`, `merge_file_result` and
+   `remove_file_result`. Since trillion-rust #107, `set_file_facts` is that owner's merge of kind `facts`, as old
+   `src/file-tools.mjs:135` was, and `read_file_results {kind: "facts"}` reads facts back. The separate
+   `@account-files/facts` rows and `read_file_facts` are gone. trillion-apps #27 moves every page call that read or kept
+   results (`/work/api/namespace/results...`) to these door operations (`web/src/workspace/files-door.mjs`
+   `fileResultsOf`).
+3. **Page calls with no door operation yet.** Each needs its own owner before the page can move:
+   - growing files (a recording readable while it grows, with no declared length) and leases
+   - media byte addresses (`/work/api/namespace/bytes/<identity>` as an `<img>`/`<video>` source; `read_file` answers
+     JSON of at most 256 KiB, and `share_file` is refused where no delivery owner is wired)
+   - set-aside states and recordings by identity, storage and release rules, and tidy
+4. **A read-back on a computer.** Tried 2026-11-04 against https://place-fsn1.gettrillion.ai with synthetic account
+   `98021839a09b3d1453e0b5b6806132fc6febb29b8d4aee9d99a570ab42af8bfb`, made by `/sign-up` with a passkey from a test
+   browser and signed in by OAuth. Every files operation at its door (`files_summary`, `write_file`, `list_files`)
+   answered `namespace_unavailable`, step `no_store_file`, and the token was then revoked. Three things block it:
+   - The account made by sign-up on a computer gets no files store and no byte origin (trillion-rust
+     `src/native_entry/computer/signup.rs`).
+   - The computer's account door serves MCP and sign-in but no `/work/api` (`src/native_entry.rs` `door`).
+   - A computer runs new code only from its signed release feed, and this session holds no release key or SSH key.
+
+   The same page round trip runs against a synthetic account on one machine in trillion-rust
+   `tests/local_workspace/files_page.rs`.

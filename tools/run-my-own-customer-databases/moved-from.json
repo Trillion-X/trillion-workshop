@@ -1,0 +1,43 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/customer-databases.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-my-own-customer-databases/src/customer-databases.mjs",
+      "source_identity": "1f:f985ba2aaeb799e5ccddfdc1d8118cec7dd0de8f5a294e137fab167b5eddbe76",
+      "identity": "1f:3da715e52ca4012052c62e18fd78fad987733b89886942ff03592fe55056ebda"
+    },
+    {
+      "from": "src/database-list-calls.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-my-own-customer-databases/src/database-list-calls.mjs",
+      "source_identity": "1f:013e26870c0a3a969b04b3e47b28771ea75996a5ca102a91219c090c6a021467",
+      "identity": "1f:013e26870c0a3a969b04b3e47b28771ea75996a5ca102a91219c090c6a021467"
+    },
+    {
+      "from": "src/database-supply.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-my-own-customer-databases/src/database-supply.mjs",
+      "source_identity": "1f:668c986de8aca7ee62ff173aa409871be984a2417534bd5dbf47cbee2e1f3111",
+      "identity": "1f:726404d99b2777c45320303f3b2e015c185af9c14c7305b84b6907f6880657c6"
+    },
+    {
+      "from": "src/database-workshop-provider.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-my-own-customer-databases/src/database-workshop-provider.mjs",
+      "source_identity": "1f:ae0d368b0b8be00c8659083f2185dd6f86f036079d611a83496e30a2feca4afa",
+      "identity": "1f:c54811e80240dac256850b1032d6c43c2ca845e35c8a5dbf0d61f0d0c0936e9c"
+    },
+    {
+      "from": "test/database-supply.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-my-own-customer-databases/test/database-supply.test.mjs",
+      "source_identity": "1f:3f8412acebc6af0960adb5e6ec18ce91fcb4f311d9e84e9ad8df970506b01094",
+      "identity": "1f:3f8412acebc6af0960adb5e6ec18ce91fcb4f311d9e84e9ad8df970506b01094"
+    }
+  ]
+}

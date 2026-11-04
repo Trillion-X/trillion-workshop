@@ -47,7 +47,7 @@ import { closeSync, copyFileSync, existsSync, mkdirSync, openSync, readdirSync, 
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { computerSources } from './computer-sources.mjs';
+import { computerSources } from '../bring-in-new-items-from-this-computer/computer/computer-sources.mjs';
 import { readNewItems } from '../bring-in-new-items-from-this-computer/computer/read-new-items.mjs';
 import { hearWith, hearingHere, hearingState, resultsOver, startKeepers } from './keep-drive-files.mjs';
 import { observeVisual, captionWith } from './observe-visual.mjs';
@@ -59,7 +59,9 @@ import { installedPrograms, readerGates } from './program-host.mjs';
 import { pacedEvery } from './pace.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-export const rowsOf = () => JSON.parse(readFileSync(join(HERE, 'computer-sources.json'), 'utf8'));
+// The places and their rules are rows of the Workshop tool that reads them (trillion-workshop package).
+const PLACE_ROWS = fileURLToPath(new URL('../bring-in-new-items-from-this-computer/computer/computer-sources.json', import.meta.url));
+export const rowsOf = () => JSON.parse(readFileSync(PLACE_ROWS, 'utf8'));
 export const sharedFolder = (home = homedir()) => join(home, '.trillion', 'computer-sources');
 const readJson = path => { try { return JSON.parse(readFileSync(path, 'utf8')); } catch { return null; } };
 function writeJson(path, value) {

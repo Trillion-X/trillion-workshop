@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:98d26a4cb6cad4090bb09c258c7a18c4813e2e2f35259839f1f4e8c2ea947719"
+  "blake3": "1f:31e858661300237124e191a769930d25f63272ba3767c98e52bc582ae61f6eaf"
  },
  "fields": [
   {
@@ -585,6 +585,23 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:attach_domain",
+   "values": {
+    "title": "Put my own domain on a site",
+    "job": "Put a domain name I own in front of my published website",
+    "description": "Makes your own domain (domain, like shop.example.com) show the site (installation). Give your account's address (account, the 64 characters after /a/ in your Trillion address): the TXT record names it, so only you can attach your domain. Returns the two DNS records to add at your domain's DNS host; the address answers once the TXT record is visible.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {
@@ -4635,6 +4652,23 @@
    }
   },
   {
+   "id": "tool:let_go_of_site_address",
+   "values": {
+    "title": "Let go of a site address",
+    "job": "Stop a website answering at one of its addresses",
+    "description": "The site stops answering at host (a name or your own domain), and every earlier name that sent visitors to it goes too. Another account may take a name once it has been let go.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
+   }
+  },
+  {
    "id": "tool:line-up-two-movements",
    "values": {
     "title": "Line up two movements by their phase, whatever their speed (runs on your computer)",
@@ -4767,6 +4801,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:list-every-connection",
+   "values": {
+    "title": "List everything I can connect, services and my computer's places together",
+    "job": "Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
+    "description": "One list of every connection a person can make: each service (how it connects: a key, a sign-in, or carried by their computer, with the steps for one carried) and each place on their own computer (what it arrives as, and the switch it needs). Optionally give category (one group, such as Messages or Pictures) and looked, the answer of tool:look-for-the-places-on-this-computer, so each place says whether it is on the computer (found, needs_switch, could_not_check, not_here); without it a place is not_looked. Reads rows only: it connects, looks at and sends nothing, and shows no secret. Returns said and connections ({ id, kind: service | computer-place, label, category, how, ... }), sorted by category then label.",
+    "status": "active",
+    "maker": "maker:connect-a-service-and-seal-its-key",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "connect-a-service-and-seal-its-key"
    }
   },
   {
@@ -5128,6 +5177,21 @@
     ],
     "listed_on": "2026-10-19T00:00:00Z",
     "folder": "drive-the-screen"
+   }
+  },
+  {
+   "id": "tool:look-for-the-places-on-this-computer",
+   "values": {
+    "title": "Look for the places on my computer Trillion can read",
+    "job": "Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first",
+    "description": "One look under the folder the person granted for reading (their home folder), checking each place the computer's place rows list by whether it is there and whether it may be opened, never what it holds. Optionally give places (row ids, such as messages or downloads) to look at only those, and services ({ vendor, domains }: the services the account offers) so a browser's store of sites answers only which of those services it is used for, never a cookie's value. A place that is not there is left out; one this program may not open is needs_switch with the switch it needs (gate); a place outside the granted folder (an app in /Applications, a plugged-in drive) is could_not_check with the reason. Returns said, sources ({ id, label, category, state, detail?, gate? }) and browser_sites.",
+    "status": "active",
+    "maker": "maker:bring-in-new-items-from-this-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "bring-in-new-items-from-this-computer"
    }
   },
   {
@@ -5836,6 +5900,23 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:name_site",
+   "values": {
+    "title": "Name a site",
+    "job": "Give a published website its own readable address, or rename it so old links still work",
+    "description": "Gives the site (installation) the address https://<name>.trillion.run/: name, or one made from title. A site renamed keeps its earlier names, which send visitors on to the new one. A name is 3 to 40 lowercase letters, numbers and hyphens; reserved words and code-like names are refused. Your computer hands the address to the forwarder and the site answers there while your computer is on.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {
@@ -6767,6 +6848,23 @@
      "placement:your-computer"
     ],
     "folder": "publish-an-engine-release"
+   }
+  },
+  {
+   "id": "tool:publish_site",
+   "values": {
+    "title": "Publish a site",
+    "job": "Publish a website's pages and files so it can be given its own address",
+    "description": "Keeps a site's files (files by path, index.html first, text or data: URLs; or site, the name of a site.json in your files such as copy_a_site leaves) under a new installation in your files, or a new version of one already published (installation). Returns the installation id, how many files and bytes, and a name its page title suggests. Give it an address with name_site or attach_domain. A site that already has an address also gets llms.txt, the list of its pages AI apps read, unless it ships its own.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {
@@ -10292,6 +10390,23 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:site_addresses",
+   "values": {
+    "title": "My site addresses",
+    "job": "List the addresses my published websites answer at",
+    "description": "Every address your sites answer at: each host, its https address, the installation it shows, and for an earlier name the address it sends visitors on to. told says what the forwarder last answered: answering, or refused and why.",
+    "status": "active",
+    "maker": "maker:publish-a-site-at-its-own-address",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container",
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-04T12:00:00Z",
+    "folder": "publish-a-site-at-its-own-address"
    }
   },
   {

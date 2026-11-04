@@ -1,0 +1,95 @@
+{
+  "kind": "tool-rows",
+  "record_set": "connect-a-service-and-seal-its-key-tool-rows",
+  "what_this_is": "The Workshop row for the one Connections list: every service a person can connect (this folder's records.json) and every place on their own computer Trillion can read (tools/bring-in-new-items-from-this-computer computer/computer-sources.json), in one list read from the two owners' rows.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:connect-a-service-and-seal-its-key",
+        "id": "tool:list-every-connection",
+        "placements": ["placement:small-container"],
+        "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 128 },
+        "label": "List everything I can connect, services and my computer's places together",
+        "job": "Show every service I can connect to Trillion and every place on my own computer it can read (notes, voice memos, messages, photos, downloads), in one list grouped by kind",
+        "description": "One list of every connection a person can make: each service (how it connects: a key, a sign-in, or carried by their computer, with the steps for one carried) and each place on their own computer (what it arrives as, and the switch it needs). Optionally give category (one group, such as Messages or Pictures) and looked, the answer of tool:look-for-the-places-on-this-computer, so each place says whether it is on the computer (found, needs_switch, could_not_check, not_here); without it a place is not_looked. Reads rows only: it connects, looks at and sends nothing, and shows no secret. Returns said and connections ({ id, kind: service | computer-place, label, category, how, ... }), sorted by category then label.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "category": { "type": "string", "minLength": 1, "description": "Only this group, such as Messages, Pictures or Calendar" },
+            "looked": {
+              "type": "object",
+              "required": ["sources"],
+              "description": "The answer of tool:look-for-the-places-on-this-computer",
+              "properties": { "sources": { "type": "array", "items": { "type": "object", "required": ["id", "state"], "properties": { "id": { "type": "string" }, "state": { "type": "string" }, "detail": { "type": "string" } } } } }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["said", "connections"],
+          "properties": {
+            "said": { "type": "string" },
+            "connections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "kind", "label", "category", "how"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "kind": { "enum": ["service", "computer-place"] },
+                  "label": { "type": "string" },
+                  "category": { "type": "string" },
+                  "how": { "enum": ["key", "sign-in", "carried-by-your-computer", "nothing-to-give", "found-on-your-computer"] },
+                  "about": { "type": "string" },
+                  "steps": { "type": "array", "items": { "type": "string" } },
+                  "arrives_as": { "type": "string" },
+                  "gate": { "type": "string" },
+                  "gate_label": { "type": "string" },
+                  "carries": { "type": "string" },
+                  "state": { "type": "string" },
+                  "detail": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/connect-a-service-and-seal-its-key",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/connect-a-service-and-seal-its-key/do-work/list-every-connection.mjs",
+            "/opt/connect-a-service-and-seal-its-key/records.json",
+            "/opt/bring-in-new-items-from-this-computer/computer/computer-sources.json"
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": ["do-work/list-every-connection.mjs", "do-work/connection-categories.json", "records.json"],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "bring-in-new-items-from-this-computer",
+                "paths": ["computer/computer-sources.json"],
+                "at": "/opt/bring-in-new-items-from-this-computer"
+              }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "verify": [{
+          "kind": "sample-run",
+          "input": { "category": "Messages", "looked": { "sources": [{ "id": "messages", "state": "found" }] } }
+        }]
+      }
+    }
+  ]
+}
