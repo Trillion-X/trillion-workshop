@@ -29,6 +29,10 @@
     "public_keys": ["d9e305a98d6a7001db6f493d17100a799050bf9ade9e3f1e9eb0d9c59d322fb9"],
     "releases": "/opt/place/releases"
   },
-  "_update": "How `update` brings a running computer to the product settings and the feed (do-work/update-a-computer.sh): each update keeps the files it replaces in `backups`/update-STAMP (root only), and the service must stay active `settle_seconds` after its restart; otherwise, or when the sign-up page does not answer 200, everything is put back from that backup.",
-  "update": { "backups": "/var/lib/place/backups", "settle_seconds": 5 }
+  "_update": "How `update` brings a running computer to the product settings and the feed (do-work/update-a-computer.sh), in the computer's own layout (read from its service unit, or the request's `layout`): each update keeps the files it replaces in the folder `backups` inside the computer's state folder, as update-STAMP (root only), and the service must stay active `settle_seconds` after its restart; otherwise, or when the sign-up page does not answer 200, everything is put back from that backup.",
+  "update": { "backups": "backups", "settle_seconds": 5 },
+  "_layout": "The layout set-up-the-machine.sh makes on a new machine: its releases folder. A running computer's layout is never assumed from this: `update` reads it from the computer.",
+  "layout": { "releases": "/opt/place/releases" },
+  "_copies": "The copies row a new account made at a computer starts with (trillion-rust src/account/computers/copy_rule.rs): as many copy keepers and voters as the computers the computer's default places keep it on, and no more may-answer than keepers, each at most `most` (the engine's own computer example, src/native_entry/computer.rs). A computer alone gets 1, 1, 1, 0, which it can meet.",
+  "copies": { "most": { "least_copy_keepers": 3, "least_voters": 3, "least_may_answer": 2, "least_always_on": 0 } }
 }
