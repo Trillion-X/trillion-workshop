@@ -30,11 +30,11 @@
   "missing_at_most": 20
  },
  "split": {
-  "read_bytes": 32768,
+  "read_bytes": 16384,
   "most_file_bytes": 4194304,
   "reads_at_once": 8,
   "write_rows": 64,
-  "write_bytes": 40000,
+  "write_bytes": 56000,
   "named_at_most": 40,
   "key_prefix": "split-a-document-into-pieces"
  }

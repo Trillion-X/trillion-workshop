@@ -191,3 +191,14 @@ test('a piece too large for one door write is named and not kept, and the rest o
   assert.match(answer.lines[1], /more than one write holds/);
   assert.deepEqual(ran.kept.map(record => record.value.says), ['Kept.']);
 });
+
+test('a 20 KB fenced piece is kept, and gains a second file as a source in a write that carries its expected value too', async () => {
+  const text = `## Made-up\n\n~~~\n${'made-up line\n'.repeat(1600)}~~~\n`;
+  const row = rowOf('tool:split-a-document-into-pieces');
+  const first = await runRow(row, { name: '/one.md' }, { records: [], door_files: { '/one.md': text }, doorOptions: door });
+  assert.deepEqual([first.last.result.new, first.last.result.too_large], [1, []]);
+  const second = await runRow(row, { name: '/two.md' }, { records: first.kept, door_files: { '/two.md': text }, doorOptions: door });
+  assert.deepEqual([second.last.result.sources_added, second.last.result.too_large], [1, []]);
+  assert.ok(!second.calls.some(call => call.refused_bytes));
+  assert.deepEqual(second.kept[0].value.sources.map(source => source.file), ['/one.md', '/two.md']);
+});
