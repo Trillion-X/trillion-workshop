@@ -19,6 +19,10 @@ Listens to the microphone until an end time the person gives, and writes each tu
 | `test/listen-for-a-while.test.mjs` | The loop on a fake recorder, hearing, naming and records door; the recorder reader on a fake process; pause, recording rules, the leaves list, and the microphone closed when listening ends early. |
 | `test/meeting-ledger.test.mjs` | Made-up text told apart from real words, a stale heartbeat read as finished, the notes-job words, and the loop leaving a made-up stretch out. |
 | `test/recording-rules.test.mjs` | The rules: open by default, block wins, pending, the mid-session recheck, grants, the notice step and consent events. |
+| `show/live-audio-encoding.ts` | Microphone capture in a browser: an AudioWorklet (ScriptProcessor fallback) cuts fixed-size chunks, 16-bit PCM by default, WebCodecs Opus only when wanted, supported and accepted by the route, falling back to PCM for the rest of a recording if the encoder throws. |
+| `show/live-audio-stream.ts`, `show/live-audio-stream.json` | The live-words stream that survives a dropped connection: numbered chunks in a bounded resend buffer, replay from the last confirmed turn less an overlap, a repeated line dropped by its normalised words, and the codec as DATA rows (pcm16 on; Opus, Opus with extra FEC and an Opus-plus-neural-layer row used only on the ladder's last rung, all off until the route takes them), each choice told as one structured line. |
+| `show/adaptation-ladder.ts`, `show/adaptation-ladder.json` | Readings step the stream down or up one rung at a time with named events (`downgrade_once`, `recovered`, `too_low_to_downgrade`), and a failed endpoint is skipped for a persisted cooldown. The endpoints are the page's to give; none is fixed here. |
+| `test/live-audio-stream.test.ts`, `test/live-audio-encoding.test.ts`, `test/adaptation-ladder.test.ts` | The original tests of the three files, assertions unchanged (vitest through `test-helpers/vitest-shim.mjs`). |
 | `test/private-mode.test.mjs` | Private mode: off means everything, on keeps only what the table says and anything unlisted is off; the security code is the same for the same keys in any order and changes with one key. |
 | `part.json` | Nothing here is imported by other code. |
 
@@ -32,6 +36,10 @@ Listens to the microphone until an end time the person gives, and writes each tu
 - Recording rules are asked again for every piece, here in the capture owner: the request's `recording_rules` plus the value of every `recording-rule` row, over the facts `{ kind: "listening", device }`, the request's `recording_facts` and the listening's `recording-facts:<listening>` row. A piece recorded while they say blocked is let go unheard (`let_go`, and `blocked` says why); when they allow again, the next piece is heard. With no rules nothing is blocked.
 - Every answer carries `leaves` and `stays`: what leaves this computer (the words of each turn) and what stays on it (voice numbers, the recording while it is heard), from `read-data/leaves.json`.
 - Moved from the product repo's always-on listener (`computer/listen.mjs` invariants 1c, 1d and 1e: `pausedAt`, `beforePause`, `leavesOf`, the per-piece rules check) and its rules owner (`src/recording-rules.mjs` with `src/recording-rules.json` and `test/recording-rules.test.mjs`, carried whole), and its meeting ledger (`computer/meeting-ledger.mjs` and `.json`, carried whole, with the pure assertions of `test/meeting-ledger.test.mjs`; the parts of that test that drove the Mac listener's own `listen` tool and notes job stay with that listener). The listener's own files on the Mac (the switch file, `recording-rules.json`, `recording-facts.json`) are rows here.
+
+## Moved from Trillion (browser capture)
+
+`show/` is Trillion-X/trillion `parts/record-audio/show/live-audio-encoding.ts`, `live-audio-stream.ts` (+ `.json`) and `adaptation-ladder.ts` (+ `.json`), moved unchanged except their header paths and the one fixed endpoint address (`failover.endpoints` is now empty: the page gives its own). Their tests moved with them; the test that reads `record-in-the-browser.ts` stays in Trillion with that caller, which still imports the old copies until it moves. No row runs `show/` yet: it is the browser side of listening, loaded by the page that records.
 
 ## Not yet
 

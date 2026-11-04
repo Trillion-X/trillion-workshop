@@ -1,4 +1,4 @@
-// parts/media-composition/read-data/auto-edit.mjs
+// tools/media-composition/read-data/auto-edit.mjs (moved from Trillion-X/trillion parts/media-composition/read-data/auto-edit.mjs)
 //
 // A RECORDING'S KEPT WORDS BECOME CUT PROPOSALS, STREAMED AS TYPED LINES, KEPT PER (RECORDING, MODE, ALGORITHM VERSION).
 //
