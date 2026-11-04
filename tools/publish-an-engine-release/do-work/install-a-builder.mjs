@@ -18,7 +18,8 @@ import { readFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { privateInput } from './publish-an-engine-release.mjs';
+import { filesUnder, privateInput } from './publish-an-engine-release.mjs';
+import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { readFeed, settings } from './release-feed.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-builder.sh', import.meta.url));
@@ -34,11 +35,11 @@ const absolute = (path, what) => {
 // The files the builder runs, laid out as they are here so the imports resolve unchanged.
 export const SHIPPED = [
   'tools/publish-an-engine-release/do-work', 'tools/publish-an-engine-release/read-data',
-  'tools/content-identity/read-data', 'tools/content-identity/package.json',
+  'tools/content-identity/read-data', 'tools/content-identity/package.json', 'tools/keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs',
   ...['LICENSE', 'package.json', 'blake3.js', 'blake2.js', '_blake.js', '_md.js', '_u64.js', 'utils.js'].map(file => `node_modules/@noble/hashes/${file}`),
 ];
 
-/** Run one command on the builder as root; `input` is a string, a Buffer or a readable stream. Answers stdout. */
+/** Run one command on the builder as root; `input` is a string, bytes or a readable stream. Answers stdout. */
 export function onMachine({ ssh, address }, command, input, spawnImpl = spawn) {
   const identity = ssh.identity_file ? ['-i', absolute(ssh.identity_file, 'ssh.identity_file'), '-o', 'IdentitiesOnly=yes'] : [];
   const args = ['-T', ...identity, '-o', 'BatchMode=yes', '-o', 'ConnectTimeout=10',
@@ -54,11 +55,8 @@ export function onMachine({ ssh, address }, command, input, spawnImpl = spawn) {
   });
 }
 
-/** The shipped files as one tar.gz stream, read from this checkout. */
-export function shippedTarball(root = ROOT) {
-  const tar = spawn('tar', ['--owner=0', '--group=0', '--numeric-owner', '--exclude=__pycache__', '-C', root, '-czf', '-', ...SHIPPED], { stdio: ['ignore', 'pipe', 'inherit'] });
-  return tar.stdout;
-}
+/** The shipped files as one tar.gz, read from this checkout, with no __pycache__ in it. */
+export const shippedTarball = (root = ROOT) => tarGz(filesUnder(root, SHIPPED, ['__pycache__']));
 
 /** The request checked: the builder's address and public name, how to reach it, and the repository. */
 export function checkRequest(request) {
