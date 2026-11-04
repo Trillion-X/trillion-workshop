@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:54fa467e32ea4245be5fe81983c5d988866a6f2d65f5154e40af29e3e9ceecac"
+  "blake3": "1f:4ce1f25b2df23628183b74d2a0a127b5f04ee78ef65554be6e68d0e34d6b2906"
  },
  "fields": [
   {
@@ -271,6 +271,21 @@
      "placement:deployed-container"
     ],
     "folder": "work-breakdown"
+   }
+  },
+  {
+   "id": "tool:admit-attachments-to-a-message",
+   "values": {
+    "title": "Admit the files sent with a message",
+    "job": "Decide how many of the files sent with a message are accepted, and which limit stopped the rest, in words to show the person",
+    "description": "Give files ([{ name, size }] in the order offered), and when wanted limits ({ per_turn_cap, absolute_bytes, max_bytes, binding_words }; defaults from src/attachment-admission.json), daily ({ remaining, resets_at } when the plan keeps a daily count) and now (milliseconds). A file over the size ceiling is left out; the first files that fit min(per-turn cap, remaining daily count) are accepted in order. Returns accepted (indexes), left_out ([{ index, because }]), binding (size, per_turn, daily or null), banner (the words naming the limit) and blocked. A null limit does not bind. Pure: reads no clock, plan or network.",
+    "status": "active",
+    "maker": "maker:admit-attachments-to-a-message",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "admit-attachments-to-a-message"
    }
   },
   {
@@ -1710,6 +1725,21 @@
    }
   },
   {
+   "id": "tool:compare-two-ai-builds-on-trap-tasks",
+   "values": {
+    "title": "Compare two AI builds on trap tasks",
+    "job": "Score two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and say on which tasks they differ",
+    "description": "Give left and right: each arm's trace { arm, runs: [{ task_id, state, calls: [{ tool }] }] }, written from the calls its runs recorded (never from what a run said about itself). Both are scored over the whole trap battery this tool carries (src/behavior-evals.json; each task drawn from a waste or failure class, scored by max_calls, forbids_tool, requires_tool, calls_before and ends_in), or over battery when given. A task an arm has no run for scores 0 and stays in the denominator. Returns arms (score, of, ran, classes, tasks), same_denominator and differ.",
+    "status": "active",
+    "maker": "maker:compare-two-ai-builds-on-trap-tasks",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "compare-two-ai-builds-on-trap-tasks"
+   }
+  },
+  {
    "id": "tool:compare-two-diagrams",
    "values": {
     "title": "Compare two versions of a diagram",
@@ -1948,6 +1978,21 @@
      "placement:small-container"
     ],
     "folder": "describe-the-workshop"
+   }
+  },
+  {
+   "id": "tool:describe-connected-accounts",
+   "values": {
+    "title": "Describe my connected accounts",
+    "job": "Say in plain words, for each of my connected accounts, which one is primary, what its sign-in allowed, what Trillion copies from it, what stays live and what Trillion may do with it",
+    "description": "Give connections ([{ connection_id, vendor, service, account_label, status, connected_at, grant_scopes_known, grant_scopes, can_send, visibility, carried_by, capabilityChoices }]) and when wanted chosen ({ vendor: connection_id }, the kept primary choice), arriving ({ vendor: [labels of event sources listening] }), local_copies (connection ids a computer may keep the sign-in of) and capabilities ({ vendor: [{ id, label }] }). A service with several accounts and no choice uses its earliest; a choice that no longer holds is ignored. Groups say only what the provider reported. Returns primary and accounts [{ connection_id, primary, allowed_groups, words: { copied, live, allowed }, steps }].",
+    "status": "active",
+    "maker": "maker:describe-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "describe-connected-accounts"
    }
   },
   {
@@ -2495,6 +2540,21 @@
      "placement:small-container"
     ],
     "folder": "person-list"
+   }
+  },
+  {
+   "id": "tool:find-pictures-by-colour-and-likeness",
+   "values": {
+    "title": "Find pictures by colour or likeness",
+    "job": "Find my pictures by a colour I type or name, or find pictures like one I pick",
+    "description": "Give rows (the pictures' facts: [{ id, palette: ['#rrggbb', ...], embedding? }]) and one of question (words with typed #rrggbb colours or colour words), colour (one #rrggbb) or like (the id of a picture). Colour is compared in CIE-LAB (delta-E 1976): a typed hex within 22 of any palette colour, a colour word within 16 of the top three. like ranks by embedding cosine (floor 0.30) and falls back to palette distance when embeddings are missing or weak; the picture itself is never its own result. Returns ids, by (colour, embedding or palette) and the colours asked.",
+    "status": "active",
+    "maker": "maker:find-pictures-by-colour-and-likeness",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "find-pictures-by-colour-and-likeness"
    }
   },
   {
@@ -8770,6 +8830,21 @@
    }
   },
   {
+   "id": "tool:show-what-a-tool-would-give-members",
+   "values": {
+    "title": "Show what a tool would give members",
+    "job": "Before I add a tool for my space's members, tell me what it would give each member beyond what they already hold, what it reaches or could cost, and whether I must decide it myself",
+    "description": "Give descriptor (the tool's row: id, placements, needs, price_ref...), toolVersion (the content identity of that definition, so exactly one immutable version is judged), members ([{ member_id, name }]), held ({ member_id: [operations their grants already give] }), and when wanted operations (some of discover, describe, run, read; all when left out) and memberId (one member; * for everyone now and later). Returns per member gains and already, reaches (what the descriptor says it does: runs on a member's computer, sends data off the device, can cost money, keeps results), needs_owner and says. Read-only: it grants nothing.",
+    "status": "active",
+    "maker": "maker:show-what-a-tool-would-give-members",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "show-what-a-tool-would-give-members"
+   }
+  },
+  {
    "id": "tool:show-which-offers-a-buyer-may-see",
    "values": {
     "title": "Show which offers a buyer may see",
@@ -9026,6 +9101,21 @@
    }
   },
   {
+   "id": "tool:suggest-connections-from-links",
+   "values": {
+    "title": "Suggest connections from links",
+    "job": "Offer to connect a service when words I wrote link to one I have not connected",
+    "description": "Give text (the words to read links from, with or without https://) and tools (the connection rows, each { id, invoke: { provider, connects: { domain } } }), and connected (providers already connected, left out of the answer). A link matches a domain when its host is that domain or a name under it; the longest matching domain wins, and services sharing it are all named. Returns hosts and suggestions [{ provider, host, reason }]. It only proposes: connecting stays the person's own step.",
+    "status": "active",
+    "maker": "maker:suggest-connections-from-links",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "suggest-connections-from-links"
+   }
+  },
+  {
    "id": "tool:tag-a-stripe-subscription",
    "values": {
     "title": "Tag a Stripe subscription",
@@ -9099,6 +9189,21 @@
      "placement:small-container"
     ],
     "folder": "take-me-there"
+   }
+  },
+  {
+   "id": "tool:take-pictures-out-of-a-zip-archive",
+   "values": {
+    "title": "Take the pictures out of a zip archive",
+    "job": "Take the pictures out of a zip archive as files to import, without ever unpacking it to disk by entry name",
+    "description": "Give zip_base64 (the archive's bytes), and when wanted profile (chat_export: the conversations*.json files of an account export) or limits (max_entries, max_entry_bytes, max_total_bytes, max_ratio, media_types, title_prefix). Only entries of an admitted extension are read; archive litter (__MACOSX, ._ files, .DS_Store, Thumbs.db) and folders never are. An entry's name is never a path: it gives only a title (its last segment without the extension). An archive over a limit is refused whole, naming the limit. Returns entries [{ title, media_type, byte_count, bytes_base64 }] in archive order and count.",
+    "status": "active",
+    "maker": "maker:take-pictures-out-of-a-zip-archive",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "take-pictures-out-of-a-zip-archive"
    }
   },
   {

@@ -1,0 +1,10 @@
+{
+  "_what": "Limits for how many of the files a person attaches are admitted, read by src/attachment-admission.mjs. Every limit is a row the owner can change without a build; a limit that is null or absent does not bind. `daily` is not kept here: the plan owner passes its remaining count and reset time as the `daily` input.",
+  "per_turn_cap": 10,
+  "absolute_bytes": 536870912,
+  "binding_words": {
+    "per_turn": "Only the first {admitted} of {offered} files were attached: one message holds up to {limit}.",
+    "size": "{name} was left out: it is larger than the {limit} a file may be.",
+    "daily": "Only the first {admitted} of {offered} files were attached: the daily limit of attachments is reached{reset}."
+  }
+}

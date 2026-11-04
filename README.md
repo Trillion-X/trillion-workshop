@@ -207,6 +207,13 @@ Each tool is one folder: its code, the rows that tell Trillion what it does and 
 | `invoke` (container) | `{ "kind": "container", "files": { "package_files": { "package": "<folder>", "paths": ["do-work"], "at": "/opt/<folder>" } }, "workdir", "argv": ["node", "do-work/<file>.mjs"], "stdin": { "fill": { "from": "input" } }, "stdout": "json" }` | Trillion packs the named files from this folder, runs `argv` in a sealed container with the input on standard input, and reads the last JSON line printed. |
 | Row source | `{ "kind": "tool-row-source", "id": "source:<name>", "list": { "records": { "package": "<folder>", "kind": "ai-tool-descriptor" } } }` | Lists the rows kept in a folder's `records.json` instead of `tool-rows.json`. |
 | `verify` | `[{ "kind": "sample-run", "input": {...}, "output_selector": "$.x", "contains": "..." }]` | Trillion runs the sample before offering the tool and refuses it when the output does not contain the expected text. |
+| `admit-attachments-to-a-message` | Decides how many of the files sent with a message are accepted (per-turn cap, daily quota, size ceiling) and says which limit stopped the rest | `tool:admit-attachments-to-a-message` |
+| `compare-two-ai-builds-on-trap-tasks` | Scores two builds of an AI's behaviour on the same trap tasks from the calls each run recorded, and says where they differ | `tool:compare-two-ai-builds-on-trap-tasks` |
+| `take-pictures-out-of-a-zip-archive` | Takes the pictures (or a profile's files) out of a zip archive as titled bytes, bounded, never writing an entry by its name | `tool:take-pictures-out-of-a-zip-archive` |
+| `show-what-a-tool-would-give-members` | Tells a space owner, before adding a tool for members, what it would give each member beyond their grants, what it reaches or could cost, and whether they must decide it | `tool:show-what-a-tool-would-give-members` |
+| `describe-connected-accounts` | Says for each connected account which is primary, what its sign-in allowed, what is copied, what stays live and what Trillion may do | `tool:describe-connected-accounts` |
+| `suggest-connections-from-links` | Names the services links in some words point at that are not connected yet, to offer connecting them | `tool:suggest-connections-from-links` |
+| `find-pictures-by-colour-and-likeness` | Finds pictures by a typed or named colour (CIE-LAB) or like one picture (embedding, else palette) | `tool:find-pictures-by-colour-and-likeness` |
 
 ## Folder layout
 

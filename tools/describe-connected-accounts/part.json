@@ -1,0 +1,6 @@
+{
+  "public": [
+    "src/connection-accounts.mjs",
+    "src/connection-card-words.mjs"
+  ]
+}
