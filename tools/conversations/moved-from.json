@@ -10,14 +10,18 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/read-data/chat-archives.mjs",
       "source_identity": "1f:71bafae3fbe46fd3f58e1c38623ed9e90180a6c5ea9a0e8ac3034029dfdd0ad7",
-      "identity": "1f:71bafae3fbe46fd3f58e1c38623ed9e90180a6c5ea9a0e8ac3034029dfdd0ad7"
+      "identity_at_move": "1f:71bafae3fbe46fd3f58e1c38623ed9e90180a6c5ea9a0e8ac3034029dfdd0ad7",
+      "byte_copy_commit": "e2783ba391632183c35293ee51ccff81393dd652",
+      "port_contract": "tools/conversations/ports/chat-archives.json"
     },
     {
       "from": "src/chat-import.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/read-data/chat-import.mjs",
       "source_identity": "1f:1c9fc56101d46d9dcd7a4e7dc0ea70ae69c1c50c9692b67e0c327235686c18a8",
-      "identity": "1f:1c9fc56101d46d9dcd7a4e7dc0ea70ae69c1c50c9692b67e0c327235686c18a8"
+      "identity_at_move": "1f:1c9fc56101d46d9dcd7a4e7dc0ea70ae69c1c50c9692b67e0c327235686c18a8",
+      "byte_copy_commit": "e2783ba391632183c35293ee51ccff81393dd652",
+      "port_contract": "tools/conversations/ports/chat-import.json"
     },
     {
       "from": "src/ai-conversations-list.json",
@@ -38,28 +42,32 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/test/chat-archive-parts.test.mjs",
       "source_identity": "1f:49074022ebcc73d50ee5d3bd2443c98d9c056eaba99b6478ec918cfa7f431466",
-      "identity": "1f:49074022ebcc73d50ee5d3bd2443c98d9c056eaba99b6478ec918cfa7f431466"
+      "identity_at_move": "1f:49074022ebcc73d50ee5d3bd2443c98d9c056eaba99b6478ec918cfa7f431466",
+      "byte_copy_commit": "e2783ba391632183c35293ee51ccff81393dd652"
     },
     {
       "from": "test/chat-export-zip.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/test/chat-export-zip.test.mjs",
       "source_identity": "1f:8d7bb4247d43f265ca23e1944c58859facdcb7984cf1232a7df570f0cb1f9824",
-      "identity": "1f:8d7bb4247d43f265ca23e1944c58859facdcb7984cf1232a7df570f0cb1f9824"
+      "identity_at_move": "1f:8d7bb4247d43f265ca23e1944c58859facdcb7984cf1232a7df570f0cb1f9824",
+      "byte_copy_commit": "e2783ba391632183c35293ee51ccff81393dd652"
     },
     {
       "from": "test/chat-history-identity.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/test/chat-history-identity.test.mjs",
       "source_identity": "1f:635368ecc1f45c34d9d1ac4fa10aaa23eb1ea5cd247aade7609ee58ec824cd98",
-      "identity": "1f:635368ecc1f45c34d9d1ac4fa10aaa23eb1ea5cd247aade7609ee58ec824cd98"
+      "identity_at_move": "1f:635368ecc1f45c34d9d1ac4fa10aaa23eb1ea5cd247aade7609ee58ec824cd98",
+      "byte_copy_commit": "e2783ba391632183c35293ee51ccff81393dd652"
     },
     {
       "from": "test/chat-source-time.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/test/chat-source-time.test.mjs",
       "source_identity": "1f:87b4c6da3be2dd563ede41f0f0db4027a9bfda1bc882640fd738a4a82c9bf582",
-      "identity": "1f:87b4c6da3be2dd563ede41f0f0db4027a9bfda1bc882640fd738a4a82c9bf582"
+      "identity_at_move": "1f:87b4c6da3be2dd563ede41f0f0db4027a9bfda1bc882640fd738a4a82c9bf582",
+      "byte_copy_commit": "e2783ba391632183c35293ee51ccff81393dd652"
     },
     {
       "from": "test/chat-attachments.test.mjs",

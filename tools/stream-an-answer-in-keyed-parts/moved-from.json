@@ -16,7 +16,8 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/stream-an-answer-in-keyed-parts/src/keyed-parts.mjs",
       "source_identity": "1f:f2fc426e4b78f36d55a32f94cb592c2497a646e4b709abba6e302ede4f1d3cda",
-      "identity": "1f:f2fc426e4b78f36d55a32f94cb592c2497a646e4b709abba6e302ede4f1d3cda"
+      "identity_at_move": "1f:f2fc426e4b78f36d55a32f94cb592c2497a646e4b709abba6e302ede4f1d3cda",
+      "byte_copy_commit": "dc5ca316dc7f968f61a979904e13810c802990cb"
     }
   ]
 }

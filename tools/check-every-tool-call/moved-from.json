@@ -9,7 +9,9 @@
       "commit": "81151798b4c874ff1dd475b1abc850d1808beb38",
       "to": "tools/check-every-tool-call/do-work/check_switches.py",
       "source_identity": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd",
-      "identity": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd"
+      "identity_at_move": "1f:b0292f75dbf66af953e6aff4cdbebf2c10764e55e447268fcdf950b647fb01fd",
+      "byte_copy_commit": "2e2a2fd28245ed831a825625343587d715cc5e2e",
+      "port_contract": "tools/check-every-tool-call/ports/check-switches.json"
     },
     {
       "from_path_identity": "1f:a547a74c60e4db2b87f53d0d3b7c1fc5db928bcc97860db9aaf78c236bc068ca",

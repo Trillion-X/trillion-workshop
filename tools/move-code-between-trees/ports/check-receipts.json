@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MOVE-CODE-CHECK-RECEIPTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-04: ai-job:finish:workshop-moved-from-receipts-whole",
+  "message_multihash": "1f:60a9fd02309e05a8fdec98e54e77badca49dd64dcdacfc6329adec70bcec21d8",
+  "quote": "Every moved-from receipt in the Workshop is whole (full SHAs, right shape) so tools/move-code-between-trees check runs on main"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "judge every moved-from receipt in a checkout from that checkout alone: its shape, full commits and the bytes here",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/move-code-between-trees/read-data/check-receipts.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/move-code-between-trees/read-data/check-move.mjs",
+   "why": "check-move proves receipts against the source tree (same bytes as the source commit, imports, loads, tests) and cannot run without that tree; this judges what the destination checkout alone can show, and check-move reads its bytesAt"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-deleted-code-names-its-home/",
+   "why": "that judge reads receipts to find the home of a deleted source file; it does not judge whether a receipt is whole"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "judge every moved-from receipt in a checkout from that checkout alone: its shape, full commits and the bytes here",
+    "judge every moved-from receipt in a checkout",
+    "check moved-from receipts are whole",
+    "validate receipt shape and full commits"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "checkReceipts",
+    "receiptPaths"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "6cfb983da1a5cfe4da414e304e86b4a6584c609a"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/move-code-between-trees/test/move-code.test.mjs (check with no source judges every receipt from the checkout alone)"
+  ]
+ }
+}

@@ -9,7 +9,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/build-and-send-a-sales-contract/do-work/sales-contract-builder.mjs",
       "source_identity": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
-      "identity_at_move": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763"
+      "identity_at_move": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
+      "byte_copy_commit": "734ca4592c7eeca121ecd750f07ac1e2bf7b48ff",
+      "port_contract": "tools/build-and-send-a-sales-contract/ports/sales-contract-builder.json"
     }
   ]
 }
