@@ -197,12 +197,26 @@ test('the place config carries the request\'s release feed and default places', 
   await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, public_keys: ['short'] } }, null), /64 lowercase hex/);
   await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, urls: ['http://insecure.example.com/feed.json'] } }, null), /https addresses/);
   await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, default_places: { answering: [id] } }, null), /holders must name/);
+  for (const releases of ['/opt/place/../../etc', '/opt/place releases', '/opt/place/releases\nReadWritePaths=/']) {
+    await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, releases } }, null), /absolute path of letters/);
+  }
+});
+
+test('the folder a feed adopts releases into is made writable for the place service, which runs with ProtectSystem=strict', async () => {
+  const { adoptFolder } = await import('../do-work/start-a-place.mjs');
+  const feed = releases => ({ release_feed: { urls: [], public_keys: [], releases } });
+  assert.deepEqual([adoptFolder(feed('/opt/place/releases/')), adoptFolder(feed('/opt/place/releases')), adoptFolder(feed({ keep: 3 })), adoptFolder({})], ['/opt/place/releases', '/opt/place/releases', null, null]);
+  const script = readFileSync(new URL('../do-work/set-up-the-machine.sh', import.meta.url), 'utf8');
+  assert.match(script, /ADOPT_DIR=\$\{6:-\}/);
+  assert.match(script, /install -d -o place -g place -m 0755 "\$ADOPT_DIR"/);
+  assert.match(script, /^ProtectSystem=strict\nReadWritePaths=\$WRITABLE$/m);
 });
 
 test('a start writes both fields into the place config it installs, and a bad feed is refused before anything is rented', async () => {
-  const here = folder(), written = [];
+  const here = folder(), written = [], setups = [];
   const run = async (_machine, command, input) => {
     if (command === 'uname -m') return 'x86_64\n';
+    if (command.startsWith('sh -s')) setups.push(command);
     if (command.startsWith('install -o place')) written.push(JSON.parse(input));
     return '';
   };
@@ -216,6 +230,7 @@ test('a start writes both fields into the place config it installs, and a bad fe
   };
   await startAPlace(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
   assert.deepEqual([written[0].release_feed, written[0].default_places], [release_feed, default_places]);
+  assert.match(setups[0], / 'data' '\/opt\/place\/releases'$/, 'set-up is told the folder the engine adopts releases into');
   const lease = join(here, 'second-lease.json');
   await assert.rejects(startAPlace({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
   assert.throws(() => readFileSync(lease), /ENOENT/);
