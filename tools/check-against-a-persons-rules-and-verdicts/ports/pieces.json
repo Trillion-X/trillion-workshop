@@ -1,0 +1,69 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-PIECE-ROWS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-03: pieces, piece coverage and rows with no test, in the one judge",
+  "message_multihash": "1f:d2cabe8eed31293e0b9dfc1dff7b1311b4050ceaac210b380fb89139b569e332",
+  "quote": "Brian, 2026-11-03: every piece of every file of his gauntlet tree is a row with a check or a recorded reason, never one row per file and never a byte slice."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "piece rows: each piece of a document as the row a person keeps in their checks list, one row per identity, a source for each place it stands",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/pieces.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/documents-as-list-rows/read-data/atoms.mjs",
+   "why": "The one home of old trillion's atomsOf (ported in #104): this file imports atomsOf and lead from it and keeps no copy. Its splitAtoms and atomRecords make a list's note rows from a folder mapping ({ key, heading_path, b3, sources: [{ path, line }], source_count }); a piece row is a check row of list:checks (kind piece, says, checked_by, no_check, sources with section and file identity), a different row for a different list."
+  },
+  {
+   "repository": "trillion",
+   "path": "scripts/method-atoms.mjs",
+   "why": "atomsOf itself, already moved to tools/documents-as-list-rows/read-data/atoms.mjs; it makes no rows."
+  },
+  {
+   "repository": "trillion",
+   "path": "scripts/method-sources.mjs",
+   "why": "Holds a file's pieces as a { key: { identity, no_check } } map in methods/sources.json, not as rows; its sweepAtoms moved to do-work/piece-sweep.mjs (ports/piece-sweep.json)."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "piece rows: each piece of a document as the row a person keeps in their checks list, one row per identity, a source for each place it stands",
+    "piece rows",
+    "each piece of a document as a row",
+    "one row per identity",
+    "piece row"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "pieceRows",
+    "pieceRow"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "9251986b31ea90b175d19e5dcf70205fdf31cd20"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/pieces.test.mjs",
+   "tools/check-against-a-persons-rules-and-verdicts/test/piece-sweep.test.mjs"
+  ]
+ }
+}

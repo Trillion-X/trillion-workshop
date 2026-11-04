@@ -1,0 +1,17 @@
+{
+ "what_this_is": "DATA for do-work/pieces.mjs and do-work/piece-sweep.mjs, and for the two piece rows (tool:split-a-document-into-pieces and tool:check-every-piece-is-covered, both run by do-work/check-against-their-rules-and-verdicts.mjs with the row's name as its argument). A piece is a row of the person's one Checks list (list:checks, records `record_prefix`<id> of type `check_type`) whose `kind_field` is `piece_kind`; the coverage row reads them with the door's where on that field, then reads each check row a piece names, one by one. `no_file`: the file a piece with no source counts under. `words`: every line and refusal, {name} filled from the answer.",
+ "check_type": "record:check",
+ "record_prefix": "record:check:",
+ "kind_field": "kind",
+ "piece_kind": "piece",
+ "no_file": "(no file)",
+ "words": {
+  "file": "{file}: {pieces} pieces, {with_check} with a check, {with_reason} with a recorded reason, {uncovered} uncovered",
+  "uncovered": "Uncovered in {file}: {id} ({section}) has no check and no reason. Write a check row and name it in checked_by, or record no_check: { reason, covered_by }.",
+  "missing_check": "{piece} names the check {check} in checked_by, which is not a row of list:checks.",
+  "missing_covered_by": "{piece} names {check} in no_check.covered_by, which is not a row of list:checks.",
+  "no_pieces": "The person has no piece rows (record:check rows with kind piece); split their documents into pieces first with tool:split-a-document-into-pieces.",
+  "text": "Send text: the words of the document to split, as a string.",
+  "file_name": "file, when sent, is the document's name, as a string."
+ }
+}
