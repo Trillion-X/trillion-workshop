@@ -10,8 +10,8 @@ Make a machine into a place that keeps people's accounts: rent a server through 
 | `do-work/rent-a-machine.mjs` | The lease: rent, read, price, release, point and forget a name, all through a row. Nothing is deleted without this lease's own label on it. |
 | `do-work/set-up-the-machine.sh` | Runs as root on the machine over SSH: a `place` system user owning `/var/lib/place`, Caddy for the public name, a firewall (22, 80, 443), and a `place` service running the release `/opt/place/current` points at. Debian and Ubuntu. |
 | `do-work/check-a-sign-up.mjs` | `tool:check-a-sign-up`: sign up a synthetic account at an origin with a software passkey made for the run, sign in with it and read a signed-in page. |
-| `do-work/start-a-place.mjs` | The command every row in `tool-rows.json` runs: `price`, `start`, `status`, `install`, `remove`. |
-| `tool-rows.json` | `tool:start-a-place`, `tool:read-a-place-price`, `tool:read-a-place`, `tool:check-a-sign-up`, `tool:give-a-place-a-new-release`, `tool:give-back-a-place`. |
+| `do-work/start-a-place.mjs` | The command every row in `tool-rows.json` runs: `price`, `rent` (lease a machine and point its name, nothing set up: an engine builder rents its machine this way), `start`, `status`, `install`, `remove`. |
+| `tool-rows.json` | `tool:start-a-place`, `tool:rent-a-machine`, `tool:read-a-place-price`, `tool:read-a-place`, `tool:check-a-sign-up`, `tool:give-a-place-a-new-release`, `tool:give-back-a-place`. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/start-a-place.test.mjs` | Tests for this folder, run by `npm test` at the top of the repository. |
 
