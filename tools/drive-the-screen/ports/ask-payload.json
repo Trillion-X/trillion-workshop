@@ -1,0 +1,54 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ASK-PAYLOAD-FROM-TRILLION",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "cloud job 2026-11-03: move the screen-driving computer tools into tools/drive-the-screen",
+    "message_multihash": "1f:a9193f70fed54191e24615a6a6cf26180f407904111dde73bebc373ec36fe6aa",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path": "computer/ask-payload.mjs",
+      "multihash": "1f:de26e78b7895319a8e85bc74567c47cbaa4c3cb0d33902599363307c323feb73",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T00:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/drive-the-screen/read-data/ask-payload.mjs"
+    }
+  ],
+  "preserve": [
+    "redaction is the person's choice and off until they choose"
+  ],
+  "allowed_deltas": [
+    "header path"
+  ],
+  "banned_substitutions": [
+    "a second live copy of this file in Trillion-X/trillion once its callers there are gone",
+    "a rewritten screen driver"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "commit": "4ecfcc21cedf1f20fcb6c654510b466b7cf9e72b",
+    "source_multihash": "1f:de26e78b7895319a8e85bc74567c47cbaa4c3cb0d33902599363307c323feb73",
+    "target_multihash_at_baseline": "1f:de26e78b7895319a8e85bc74567c47cbaa4c3cb0d33902599363307c323feb73",
+    "recorded_at": "2026-11-03T22:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function redactor"
+    ],
+    "test_refs": [
+      "tools/drive-the-screen/test/ask-payload.test.mjs"
+    ]
+  }
+}

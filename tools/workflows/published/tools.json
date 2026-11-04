@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:7a35ccb58ddf10884004ce4ae8726c2ec971870e0d1b83b5fecdbcac2e7a0b4a"
+  "blake3": "1f:30ce54b237050003c6e38ed59f0fb26c52b3797ce712227c2721037ffbdc4341"
  },
  "fields": [
   {
@@ -2072,6 +2072,22 @@
    }
   },
   {
+   "id": "tool:drive-the-screen",
+   "values": {
+    "title": "Operate the person's computer screen",
+    "job": "Click, press, type, scroll, drag or use keys on the person's computer, finding the target by what it is called and checking afterwards what really changed",
+    "description": "One call looks at the screen, finds the target, does the action, looks again and says what changed. action is one the computer keeps (tool:screen-actions lists them; new ones are added as data on the computer). Give expect, a list of { target, min?, max? } or { changed }, and verified says whether the screen shows it; without expect, verified is null and the change seen is reported. dry_run shows the steps without doing them. Press and set_value act through the accessibility tree and do not move the person's pointer; click, type and key do. A target that moved or vanished is refused, never guessed. Uses this Mac's existing Accessibility and Screen Recording permissions. The person can turn on an optional grant policy in their screen-driving settings folder; calls cannot change that policy.",
+    "status": "active",
+    "maker": "maker:drive-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-19T00:00:00Z",
+    "folder": "drive-the-screen"
+   }
+  },
+  {
    "id": "tool:edit-a-copy-of-a-premiere-project",
    "values": {
     "title": "Edit a copy of my Premiere project from a plan: insert, cut, move, reorder (runs on your computer)",
@@ -2525,6 +2541,22 @@
      "placement:your-computer"
     ],
     "folder": "save-what-you-watch-and-read"
+   }
+  },
+  {
+   "id": "tool:find-on-the-screen",
+   "values": {
+    "title": "Find a thing on the person's computer screen",
+    "job": "Say where a described thing is on the person's screen right now (a button, a field, a line of text) without touching it",
+    "description": "Describe the target by what it is called or what kind it is, never by coordinates. Returns the ranked matches with where each is now. Read-only. Uses this Mac's existing Accessibility and Screen Recording permissions. The person can turn on an optional grant policy in their screen-driving settings folder; calls cannot change that policy.",
+    "status": "active",
+    "maker": "maker:drive-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-19T00:00:00Z",
+    "folder": "drive-the-screen"
    }
   },
   {
@@ -4407,6 +4439,22 @@
      "placement:your-computer"
     ],
     "folder": "look-at-screen"
+   }
+  },
+  {
+   "id": "tool:look-at-the-screen",
+   "values": {
+    "title": "See what is on the person's computer screen",
+    "job": "Read the person's computer screen: the app in front (or one named), its controls from the accessibility tree and the text on its windows from the pixels, with where each is",
+    "description": "Returns the app, the displays, and the things on the screen (role, label, centre and size, and the actions each offers) in points from the top left of the main display, never coordinates guessed from a picture. Text from the pixels is kept to the app's own windows. Read-only. Uses this Mac's existing Accessibility and Screen Recording permissions. The person can turn on an optional grant policy in their screen-driving settings folder; calls cannot change that policy.",
+    "status": "active",
+    "maker": "maker:drive-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-19T00:00:00Z",
+    "folder": "drive-the-screen"
    }
   },
   {
@@ -8086,6 +8134,22 @@
      "placement:small-container"
     ],
     "folder": "opponent-game-plan"
+   }
+  },
+  {
+   "id": "tool:screen-actions",
+   "values": {
+    "title": "List what can be done on the person's computer screen",
+    "job": "List the actions this computer keeps for operating its screen, what each needs, and how to describe a target",
+    "description": "Read-only and needs no permission; it reads the computer's own list.",
+    "status": "active",
+    "maker": "maker:drive-the-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-10-19T00:00:00Z",
+    "folder": "drive-the-screen"
    }
   },
   {

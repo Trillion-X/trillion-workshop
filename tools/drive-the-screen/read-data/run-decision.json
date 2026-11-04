@@ -1,0 +1,74 @@
+{
+  "_what": "The one decision table for whether this Mac's screen driver may do an action in an app (tools/drive-the-screen/read-data/run-decision.mjs, read by tools/drive-the-screen/read-data/drive-the-screen.mjs). The lists are checked in `order`, first match wins; no match falls to `otherwise`, which is `open` (allow) unless the person's own rules file sets strict. user_* lists are the person's (their rules file); system_* lists are an organisation's controls (the controls file, optionally refreshed from a source). A rule is { action?, app?, url? }, each a text with * as the wildcard (or a list of them), all given parts must match, matched ignoring case; a rule with no parts matches everything. Nothing here is on by default: with no rules file and no controls file every action is allowed. Changing this table is a data edit.",
+  "order": [
+    "user_deny",
+    "user_allow",
+    "system_deny",
+    "system_allow"
+  ],
+  "outcomes": {
+    "user_deny": "deny",
+    "user_allow": "allow",
+    "system_deny": "deny",
+    "system_allow": "allow"
+  },
+  "otherwise": {
+    "open": "allow",
+    "strict": "deny"
+  },
+  "rules_file": ".trillion/screen-driving/rules.json",
+  "controls": {
+    "file": ".trillion/screen-driving/controls.json",
+    "source": null,
+    "refresh_minutes": 60,
+    "timeout_ms": 5000,
+    "without_last_good": "deny"
+  },
+  "proposal": {
+    "history_file": ".trillion/screen-driving/approvals.json",
+    "min_repeats": 3,
+    "keep": 200
+  },
+  "words": {
+    "denied": "{action}{app} is not allowed by {list} (rule {rule}). Nothing was read or done.",
+    "strict": "{action}{app} is not on the person's allow list and their strict setting is on. Nothing was read or done.",
+    "unreadable": "The screen rules file could not be read, so nothing was read or done.",
+    "no_controls": "The organisation's screen controls have never been fetched and could not be fetched now, so nothing was read or done.",
+    "rule_added": "Added to {list}: {rule}.",
+    "rule_removed": "Removed {count} rule(s) from {list}.",
+    "strict_set": "Strict is now {state}.",
+    "bad_rule": "A rule is { action?, app?, url? } with text values; {problem}.",
+    "bad_list": "{list} is not a list the person keeps. They are {lists}.",
+    "hook_denied": "{action}{app} was stopped by the hook {hook}: {reason} Nothing was read or done.",
+    "hook_failed": "{action}{app}: the hook {hook} could not give an answer ({problem}), so nothing was read or done."
+  },
+  "hooks": {
+    "what": "Programs the person lists in their rules file (`hooks`: [{ command: [program, ...args], timeout_ms? }]) are run before an action, each given the subject { action, app } as JSON on standard input, and answer JSON { decision: allow | deny, reason? }. Nothing runs unless the person listed one. A hook that cannot answer (it fails to start, exits non-zero, runs past its timeout, or answers something that is not a decision) is treated as `on_failure`, which is deny: a guard that cannot speak does not wave an action through. Set on_failure to allow to let a failed hook through. A hook row may name a `step` from `steps` (default before_action) and a `matcher` (a text with * as the wildcard, matched against the action or tool id); it runs only at that step.",
+    "on_failure": "deny",
+    "timeout_ms": 5000,
+    "max_hooks": 8,
+    "answer_bytes": 4096,
+    "steps": {
+      "before_action": {
+        "blocking": true,
+        "what": "Before the screen driver reads or acts in an app (tools/drive-the-screen/read-data/drive-the-screen.mjs)."
+      },
+      "before_tool_run": {
+        "blocking": true,
+        "what": "Before this Mac runs a tool it was handed (the Mac host, Trillion-X/trillion computer/mac-tools.mjs runHere; no computer run asks this step); subject { step, action: the tool id }."
+      },
+      "after_tool_run": {
+        "blocking": false,
+        "what": "After a tool run ended; subject { step, action, ok }. Told, never able to undo: its answer is read for a problem and ignored."
+      }
+    }
+  },
+  "reasons": {
+    "denied": "denied-by-list",
+    "strict": "strict-not-allowed",
+    "unreadable": "rules-unreadable",
+    "no_controls": "controls-missing",
+    "hook_denied": "hook-denied",
+    "hook_failed": "hook-failed"
+  }
+}
