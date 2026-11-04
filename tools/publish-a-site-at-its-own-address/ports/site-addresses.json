@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SITE-NAMES-FROM-TRILLION",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "ai-job:finish:public-sites-and-custom-domains (reopened 2026-11-04)",
+    "message_multihash": "1f:bb80ad309b322400e225fbb7da5407d683f4d957caa20f57d3abd55b1b292dc0",
+    "quote": "Held moves. public-app-host, names, mcp, native-public-apps, domains, app-project and the screens are still in old trillion."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/public-app-names.mjs",
+      "lines": [
+        75,
+        92
+      ],
+      "multihash": "1f:dd9bd18e7bd5f3d6f839eb62855cc895291ec029d2ad51b23a436f7b1eb46416",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T12:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/publish-a-site-at-its-own-address/read-data/site-addresses.mjs"
+    }
+  ],
+  "preserve": [
+    "a name is 3 to 40 lowercase letters, numbers and hyphens, never with --, never an installation id, never a reserved word",
+    "a site's name basis is its home page's title, cut at its first separator, made into words"
+  ],
+  "allowed_deltas": [
+    "the names list is the account's own origins list in its files, edited whole, instead of a central KV name list",
+    "a renamed name keeps moved_to to the new name (old retirePublicAppName) in that list",
+    "a code-shaped name (old readable-names LOOKS_LIKE_CODE) is refused, as the forwarder refuses it",
+    "the settings and words are this tool's own read-data/site-addresses.json"
+  ],
+  "banned_substitutions": [
+    "a second name list anywhere but the account's own files",
+    "a name check that admits a name the forwarder refuses"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "commit": "d3debb29fd56e12aab278f6aa0edd3e302239660",
+    "source_multihash": "1f:dd9bd18e7bd5f3d6f839eb62855cc895291ec029d2ad51b23a436f7b1eb46416",
+    "target_multihash_at_baseline": "1f:dd9bd18e7bd5f3d6f839eb62855cc895291ec029d2ad51b23a436f7b1eb46416",
+    "recorded_at": "2026-11-04T12:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function checkedPublicAppName",
+      "export function publicAppNameBasis"
+    ],
+    "test_refs": [
+      "tools/publish-a-site-at-its-own-address/test/site-addresses.test.mjs"
+    ]
+  }
+}
