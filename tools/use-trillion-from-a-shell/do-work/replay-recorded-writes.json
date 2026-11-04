@@ -1,0 +1,61 @@
+{
+  "about": "DATA for replay-recorded-writes.mjs (the `records replay-from-transcripts` command): where in each AI app's own folder its transcripts are, which transcript rows hold a records:write call and its result, what proves a call succeeded, which values look like a credential, where the inventory is written, and how kept rows are written back and read back. An app's own folder is the command's `skills` row for it (its home variable when set, else its folder under the home directory). The earliest call time is the person's input (--since), never a default.",
+  "transcript_roots": [
+    { "app": "claude-code", "subfolder": "projects" },
+    { "app": "codex", "subfolder": "sessions" }
+  ],
+  "suffix": ".jsonl",
+  "walk_depth": 4,
+  "line_needle": "records:write",
+  "write": { "address": "@own-records", "method": "records:write", "tool_suffix": "run_resource_operation" },
+  "shapes": {
+    "message_parts": {
+      "time_path": ["timestamp"],
+      "cwd_path": ["cwd"],
+      "parts_path": ["message", "content"],
+      "call": { "part_type": "tool_use", "id_path": ["id"], "name_path": ["name"], "input_path": ["input"] },
+      "shell": { "names": ["Bash"], "command_path": ["command"] },
+      "result": { "part_type": "tool_result", "id_path": ["tool_use_id"], "content_path": ["content"], "error_path": ["is_error"] },
+      "file_write": { "names": ["Write"], "path_path": ["file_path"], "content_path": ["content"] },
+      "file_edit": { "names": ["Edit"], "path_path": ["file_path"], "old_path": ["old_string"], "new_path": ["new_string"], "all_path": ["replace_all"] }
+    },
+    "completed_items": {
+      "time_path": ["timestamp"],
+      "started_ms_path": ["payload", "started_at_ms"],
+      "item_path": ["payload", "item"],
+      "when_type_path": ["payload", "type"],
+      "when_type": "item_completed",
+      "item_type_path": ["type"],
+      "id_path": ["id"],
+      "operation": { "item_type": "McpToolCall", "tool_path": ["tool"], "arguments_path": ["arguments"], "status_path": ["status"], "succeeded_status": "completed", "result_path": ["result"], "error_path": ["result", "isError"] },
+      "shell": { "item_type": "CommandExecution", "command_path": ["command"], "cwd_path": ["cwd"], "exit_path": ["exit_code"], "output_path": ["aggregated_output"] },
+      "file_change": { "item_type": "FileChange", "changes_path": ["changes"] }
+    }
+  },
+  "shells": ["sh", "bash", "zsh"],
+  "succeeded_words": ["\"changed\"", "write_count"],
+  "succeeded_projections": ["\\.changed\\b", "\\.write_count\\b"],
+  "refused_words": ["refused", "did not answer", "answered 4", "answered 5", "no reply to", "Unknown command", "The input is one JSON object", "Error", "error:"],
+  "credential_like": {
+    "value_patterns": [
+      "sk_(live|test)_[A-Za-z0-9]{10,}",
+      "rk_(live|test)_[A-Za-z0-9]{10,}",
+      "whsec_[A-Za-z0-9]{16,}",
+      "sk-ant-[A-Za-z0-9_-]{20,}",
+      "sk-proj-[A-Za-z0-9_-]{20,}",
+      "\\bsk-[A-Za-z0-9]{32,}",
+      "\\bgh[pousr]_[A-Za-z0-9]{30,}",
+      "github_pat_[A-Za-z0-9_]{30,}",
+      "\\bxox[abprs]-[A-Za-z0-9-]{10,}",
+      "\\bAKIA[0-9A-Z]{16}\\b",
+      "-----BEGIN [A-Z ]*PRIVATE KEY-----",
+      "\\beyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}",
+      "\\bnm_[0-9a-f]{64}\\b"
+    ],
+    "key_names": "(^|[_.\\- ])(secret|password|passwd|api[_\\-]?key|access[_\\-]?token|refresh[_\\-]?token|private[_\\-]?key|client[_\\-]?secret|bearer)($|[_.\\- ])",
+    "key_value_min_length": 16
+  },
+  "inventory_beside_state": "replay-inventory",
+  "batch": { "max_records": 256, "max_bytes": 60000, "request_key_prefix": "replay-from-transcripts" },
+  "readback": { "method": "records:read", "per_type": 3 }
+}
