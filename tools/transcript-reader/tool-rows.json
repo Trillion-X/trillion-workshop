@@ -1,0 +1,317 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:transcript-reader",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:edit-a-transcript",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Edit a transcript",
+        "job": "Edit a recording's transcript the way the transcript reader does: name a speaker or take the name back, split a passage before a chosen word, and write the passages as plain words to copy or export",
+        "description": "Give passages ([{ start, end, text, speaker?, speaker_was?, words? }], times in seconds, each word { word, start, end }) and, in order, edits: { op: name_speaker, from, name } says every passage of one label under a name and keeps the label it had in speaker_was; { op: take_name_back, name } restores it exactly; { op: split, passage, word } splits one passage just before a word, the first half ending where the second begins. Answers passages (the edited list; words, times and order never change), speakers (in the order they first speak), named_speakers (the ones named by the person) and text (each passage as 'Speaker  0:05' over its words, the Copy transcript and Export PDF text). Each edit is read-data/edit-transcript.ts's own. Refuses no passages, a passage without start, end and text, an unknown op, an empty name, and a split at the first word or past the last. It reads, saves, plays and sends nothing; the reader screen also follows playback, searches the words and reprocesses in another language, which this run does not.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "passages"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "passages": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "start",
+                  "end",
+                  "text"
+                ],
+                "properties": {
+                  "start": {
+                    "type": "number"
+                  },
+                  "end": {
+                    "type": "number"
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "speaker": {
+                    "type": "string"
+                  },
+                  "speaker_was": {
+                    "type": "string"
+                  },
+                  "words": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "word",
+                        "start",
+                        "end"
+                      ],
+                      "properties": {
+                        "word": {
+                          "type": "string"
+                        },
+                        "start": {
+                          "type": "number"
+                        },
+                        "end": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "edits": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "op"
+                ],
+                "properties": {
+                  "op": {
+                    "type": "string",
+                    "enum": [
+                      "name_speaker",
+                      "take_name_back",
+                      "split"
+                    ]
+                  },
+                  "from": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "passage": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "word": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "passages",
+            "speakers",
+            "named_speakers",
+            "text"
+          ],
+          "properties": {
+            "passages": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "start",
+                  "end",
+                  "text"
+                ]
+              }
+            },
+            "speakers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "named_speakers": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "text": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/transcript-reader",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/transcript-reader/do-work/edit-a-transcript.mjs",
+            "editATranscript"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "transcript-reader",
+                "paths": [
+                  "do-work",
+                  "read-data/edit-transcript.ts"
+                ],
+                "at": "/opt/transcript-reader"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/transcript-reader/read-data/edit-transcript.ts at 7fd88384^, moved byte for byte in a9ee258 (#76); old capability row capabilities.json:867 at 4ffa1dc4a2^ (play a recording and read its transcript as it plays; owner parts/transcript-reader/**); do-work/edit-a-transcript.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "passages": [
+                {
+                  "start": 0,
+                  "end": 4,
+                  "speaker": "Speaker 1",
+                  "text": "Welcome to the sample call. Let us begin.",
+                  "words": [
+                    {
+                      "word": "Welcome",
+                      "start": 0,
+                      "end": 0.5
+                    },
+                    {
+                      "word": "to",
+                      "start": 0.5,
+                      "end": 0.6
+                    },
+                    {
+                      "word": "the",
+                      "start": 0.6,
+                      "end": 0.7
+                    },
+                    {
+                      "word": "sample",
+                      "start": 0.7,
+                      "end": 1.1
+                    },
+                    {
+                      "word": "call.",
+                      "start": 1.1,
+                      "end": 1.6
+                    },
+                    {
+                      "word": "Let",
+                      "start": 2.5,
+                      "end": 2.8
+                    },
+                    {
+                      "word": "us",
+                      "start": 2.8,
+                      "end": 3.0
+                    },
+                    {
+                      "word": "begin.",
+                      "start": 3.0,
+                      "end": 4
+                    }
+                  ]
+                },
+                {
+                  "start": 4,
+                  "end": 6,
+                  "speaker": "Speaker 2",
+                  "text": "Thanks for having me.",
+                  "words": [
+                    {
+                      "word": "Thanks",
+                      "start": 4,
+                      "end": 4.4
+                    },
+                    {
+                      "word": "for",
+                      "start": 4.4,
+                      "end": 4.6
+                    },
+                    {
+                      "word": "having",
+                      "start": 4.6,
+                      "end": 5
+                    },
+                    {
+                      "word": "me.",
+                      "start": 5,
+                      "end": 6
+                    }
+                  ]
+                }
+              ],
+              "edits": [
+                {
+                  "op": "name_speaker",
+                  "from": "Speaker 1",
+                  "name": "Host"
+                },
+                {
+                  "op": "split",
+                  "passage": 0,
+                  "word": 5
+                }
+              ]
+            },
+            "output_selector": "$.passages[1].start",
+            "equals": 2.5
+          }
+        ]
+      }
+    }
+  ]
+}
