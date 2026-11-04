@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto';
 import { recordsDoorFromCall, RecordsDoorError } from './records-door.mjs';
 import { pagedCall } from './byte-pages.mjs';
 
-export function openStdioRecordsDoor({ argv, resource = '@own-records', timeout_ms = 30000, max_answer_bytes = 16 * 1024 * 1024 } = {}) {
+export function openStdioRecordsDoor({ argv, resource = '@own-records', files_resource = undefined, timeout_ms = 30000, max_answer_bytes = 16 * 1024 * 1024 } = {}) {
   if (!Array.isArray(argv) || !argv.length || argv.some(word => typeof word !== 'string' || !word)) throw new TypeError('The MCP client needs a nonempty argv array.');
   if (!Number.isFinite(timeout_ms) || timeout_ms <= 0) throw new TypeError('The MCP client needs a positive call timeout.');
   const child = spawn(argv[0], argv.slice(1), { stdio: ['pipe', 'pipe', 'ignore'] });
@@ -67,7 +67,7 @@ export function openStdioRecordsDoor({ argv, resource = '@own-records', timeout_
   function call(method, input, key = `${method}:${randomUUID()}`, address = resource) {
     return paged(method, input, key, address);
   }
-  return { ...recordsDoorFromCall(call, { resource }), async close() {
+  return { ...recordsDoorFromCall(call, { resource, filesResource: files_resource }), async close() {
     if (closed) return;
     const finished = new Promise(resolve => child.once('close', resolve));
     child.stdin.end();

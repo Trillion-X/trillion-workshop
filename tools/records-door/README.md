@@ -23,7 +23,7 @@ A row asks for the door in its invoke, with one rights item per record kind:
   the row's rights and the person's own key. It is never printed, logged or returned.
 - A rights item `{ "files": "/" | "/<folder>/", "operations": [...] }` reaches the person's Namespace files under that
   folder instead of a record kind. The descriptor then also holds `files_resource`, and `door.files(operation, input)`
-  calls the files door's operations there (list_files `{ folder?, after?, limit? }` answers `{ names, next_after, folders }`;
+  calls the files door's operations there (search `{ question, limit? }` answers the files whose names hold every asked word, ranked like `records:search`; list_files `{ folder?, after?, limit? }` answers `{ names, next_after, folders }`;
   read_file `{ name_or_identity, offset?, length? }` answers one part of a file's bytes). A run handed no files right is
   refused before anything is sent (`no_files`).
 - Without `"internet": true` the run can reach only the door's loopback port.
@@ -41,6 +41,10 @@ A row asks for the door in its invoke, with one rights item per record kind:
     most 64 top-level names) narrows each value to those fields; `[]` gives ids and types only. `where` (at most 64
     top-level names, each with a value) keeps only the rows whose fields equal those values as JSON; `limit` then
     bounds the rows read, so a page may show fewer rows, or none, and still name a next page.
+  - `records:search { question, type?, limit? (1..200) }` gives `{ question, terms, results, unavailable, pending }`:
+    the records holding every asked word, each kind ranked as its own lane and merged by reciprocal rank, each result
+    with its `score` and the `address` (a `records:read`) that opens it. `door.search(input)` calls it. A run's right
+    names one kind, so a run searches only with `type` set to that kind; the person's own client searches every kind.
   - `records:write { records: [{ id, type, value | null, expected? }] }` gives `{ changed, write_count }`. Every
     record carries its type, and every id must be inside a rights item, or the whole write is refused. When present,
     `expected` is `null` to require the id to be absent, or `{ type, value }` to require the exact current kind and

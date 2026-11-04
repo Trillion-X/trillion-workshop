@@ -1,0 +1,5 @@
+{
+  "_what": "What the one search asks of the engine's two storage reads, as the engine ships them (trillion-rust src/record_value/records-door.json `search` and src/account_files/account-files-door.json `search`). `records.operation` is the records door's search; `records.limit` the results answered when the question names none (records-door.json search.limit). `files.operation` is the account files' file-name search; `files.place` and `files.source` name its lane in `unavailable` when it cannot answer (account-files-door.json search.place, search.source).",
+  "records": { "operation": "records:search", "limit": 60 },
+  "files": { "operation": "search", "place": "name", "source": "files" }
+}
