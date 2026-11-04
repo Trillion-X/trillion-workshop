@@ -1,0 +1,271 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:make-things-feel-good",
+        "listed_on": "2026-11-04T00:00:00Z",
+        "id": "tool:pick-a-small-good-moment",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false,
+          "memory_mb": 64
+        },
+        "label": "Pick the small good moment to play",
+        "job": "Pick the small good moment to play when something good happens or a phrase is typed: its words and motion, from the moment rows I give, so once-only moments play once and the words change each time",
+        "description": "Give moments (the moment rows, tried in order: each { id, on: { event_kind, match?, starts_with? } or { typed }, words (one line or a list that rotates), motion?, mark?, once?, count_at? }) and exactly one of event (what happened, { event_kind, ...fields }) or typed (the text typed so far, matched by the phrase it ends with, any case); memory is the remember of the last pick (leave it out the first time). A row answers an event when its event_kind is the event's, every match field equals the event's and every starts_with field starts it; a once row is due only if it never played, a count_at row only at those running counts; {count} in words is the running count. Answers moment ({ id, motion, mark, words } or null when no row is due) and remember ({ counts, played }), the whole next memory. Nothing is played, shown, stored or sent and no clock is read. Refuses moments that are not rows with ids, neither or both of event and typed, an event without event_kind and memory that is not an object. The screens (show/mount-delight-moments.tsx, show/mount-feel.ts, show/FeelSettings.tsx, show/ambience-screen.tsx) also play the moment's motion, give it a feel in touch, sound and motion on each device under the person's show rules and move lights with music; this run does none of that.",
+        "read_only": true,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "moments"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "moments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "on": {
+                    "type": "object",
+                    "properties": {
+                      "event_kind": {
+                        "type": "string"
+                      },
+                      "match": {
+                        "type": "object"
+                      },
+                      "starts_with": {
+                        "type": "object"
+                      },
+                      "typed": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "words": {
+                    "type": [
+                      "string",
+                      "array"
+                    ],
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "motion": {
+                    "type": "string"
+                  },
+                  "mark": {
+                    "type": "string"
+                  },
+                  "once": {
+                    "type": "boolean"
+                  },
+                  "count_at": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            },
+            "event": {
+              "type": "object",
+              "required": [
+                "event_kind"
+              ],
+              "properties": {
+                "event_kind": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "typed": {
+              "type": "string"
+            },
+            "memory": {
+              "type": "object",
+              "properties": {
+                "counts": {
+                  "type": "object"
+                },
+                "played": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "moment",
+            "remember"
+          ],
+          "properties": {
+            "moment": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "motion": {
+                  "type": "string"
+                },
+                "mark": {
+                  "type": "string"
+                },
+                "words": {
+                  "type": "string"
+                }
+              }
+            },
+            "remember": {
+              "type": "object",
+              "required": [
+                "counts",
+                "played"
+              ],
+              "properties": {
+                "counts": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer"
+                  }
+                },
+                "played": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/make-things-feel-good",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/make-things-feel-good/do-work/pick-a-moment.mjs",
+            "pickAMoment"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "make-things-feel-good",
+                "paths": [
+                  "do-work",
+                  "read-data/choose-moment.mjs"
+                ],
+                "at": "/opt/make-things-feel-good"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion parts/delight-moments/read-data/choose-moment.mjs (the same bytes as at 4ffa1dc4a2^, b6ae0ebf815f2f5271eed34e6e023c7e1767ec04), moved byte for byte in a9ee258 (#76) to read-data/; old capability row capabilities.json:365 at 4ffa1dc4a2^ (play a small good moment when something good happens, and give every happening a feel); do-work/pick-a-moment.mjs written here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "moments": [
+                {
+                  "id": "moment:first-tour",
+                  "on": {
+                    "event_kind": "tour.finished"
+                  },
+                  "once": true,
+                  "words": "Your first tour is done."
+                },
+                {
+                  "id": "moment:tour",
+                  "on": {
+                    "event_kind": "tour.finished"
+                  },
+                  "words": [
+                    "Tour {count} done.",
+                    "Another one done."
+                  ],
+                  "motion": "rise"
+                }
+              ],
+              "event": {
+                "event_kind": "tour.finished"
+              },
+              "memory": {
+                "counts": {
+                  "event:tour.finished": 2
+                },
+                "played": {
+                  "moment:first-tour": 1,
+                  "moment:tour": 1
+                }
+              }
+            },
+            "output_selector": "$.moment.words",
+            "contains": "Another one done"
+          }
+        ]
+      }
+    }
+  ]
+}
