@@ -31,7 +31,7 @@
     "the sent log and the day are the account's own mail-sent and mail-day records through the records door, one write conditioned on what was read in place of the shared pool's SQL transaction (the older owner's src/mail-admission.mjs: its policy is kept here, its tables are not)",
     "the provider is a row of read-data/message-providers.json reached through the sending seam, and how its refusals read is the mail row's providers entry, not a Cloudflare Email Sending binding and its codes",
     "the older owner's KV path before the shared pool, the proof inbox keeper and the receiving side's refusal of an address are not moved: nothing here keeps KV or receives mail",
-    "the email is drawn by the sending seam in the person's look, not by this file"
+    "the email is drawn by read-data/draw-an-email.mjs (REF-DRAW-AN-EMAIL), called from composeMail as the older owner's composeMail called drawEmail"
   ],
   "banned_substitutions": [
     "a sender taken from the request",

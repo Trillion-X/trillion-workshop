@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-DRAW-AN-EMAIL",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:63b0afaf0babbfa0c0f12614247034268ee245a309302b73a8a7714d4b1ca77e",
     "quote": "Also land draw-an-email in the Workshop, so the pair can take emailed codes when it goes in."
@@ -22,6 +22,126 @@
         "deleted_by": "2026-11-06T11:00:00Z",
         "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
       }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        42,
+        48
+      ],
+      "multihash": "1f:f845c974c1285bc417caacbc78a0080c391efb69ea52e03b871850dce9fa3701",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        55,
+        60
+      ],
+      "multihash": "1f:36083592a212b527c6ea031534f6c6afd8c33fb1002238f7e42219f44f222579",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        62,
+        71
+      ],
+      "multihash": "1f:c3db6afcba965e577a68ed2fee2557180bac8b2e43d2f8ba747f612747fa91ff",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        73,
+        83
+      ],
+      "multihash": "1f:603d693f32354c360eedda8c468a78da1265e92a282ae44f9d60571379236638",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        112,
+        144
+      ],
+      "multihash": "1f:ba6ef2945e2a1eac5ba69408b0096b78702383a527d3f22a443c3e8c9288e4da",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        146,
+        227
+      ],
+      "multihash": "1f:d5a0794861964fcabbd5a20e28f4451b3bfc264129af7e7fcd243925a7d660f4",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "parts/ui/show/document-page/document-page-html.mjs",
+      "lines": [
+        283,
+        293
+      ],
+      "multihash": "1f:f693d9d33ec68e146129bc2596165aa018e092beb33c4d690cabf4b933d6da07",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "5f8fe3c11a",
+      "path": "src/mail-sender.mjs",
+      "lines": [
+        46,
+        93
+      ],
+      "multihash": "1f:a7baa810496ee8e06b9d4f4585e156bbc75610b5c775645de2cd18ce0fad13a3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T11:00:00Z",
+        "deleted_with": "the cloud job that deletes the older owner's mail sender and its callers"
+      }
     }
   ],
   "targets": [
@@ -35,7 +155,13 @@
     "the action wears the look's primary button fill, sheen and depth",
     "every kind of block the markdown reader makes is drawn, rules and code included"
   ],
-  "allowed_deltas": [],
+  "allowed_deltas": [
+    "the markdown reader's helpers the email part uses are moved beside it, not the whole document page: marks (word-marks.json) are not drawn in an email, so wordsHtml draws plain words only",
+    "the look's roles and the shipped look are DATA (read-data/email-look.json), the shipped look being the older owner's starting look resolved for those roles, in place of its mail settings rows and page-look.mjs",
+    "the mark at the top and the made-with line are the account's own (its mail row's brand and made_with), not one service's",
+    "the worn look is read by a reader the caller gives (readLook); the email rows give none, so they wear the shipped look: the account's worn look is resolved from the app owner's look DATA, which a sending row is not given",
+    "the dark-or-light test of a look is page-look.mjs's lookScheme, moved beside the palette in place of brand-assets.mjs backgroundTone"
+  ],
   "banned_substitutions": [
     "a message sent as plain text when it should have been drawn"
   ],
@@ -43,10 +169,16 @@
     "recorded_at": "2026-11-04T02:30:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:f43f7b1cfe87489655c4a38f8f8f968d64c0a23b4290252555ce81b547304041",
-    "target_multihash_at_baseline": "1f:f43f7b1cfe87489655c4a38f8f8f968d64c0a23b4290252555ce81b547304041"
+    "target_multihash_at_baseline": "1f:f43f7b1cfe87489655c4a38f8f8f968d64c0a23b4290252555ce81b547304041",
+    "commit": "e1669930fe38930750ba4186692d0164df2cbb4b"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": []
+    "test_refs": [
+      "tools/send-messages/test/mail-sender.test.mjs the sent email uses the worn dark look, shared button depth and Made with wordmark",
+      "tools/send-messages/test/mail-sender.test.mjs an email whose brand cannot be read is not sent in other colours, and one sent before any brand is published is drawn in the shipped brand",
+      "tools/send-messages/test/mail-sender.test.mjs an email draws every kind of block the markdown reader makes, rules and code included",
+      "tools/send-messages/test/mail-sender.test.mjs a sign-in code given as plain words reaches the provider drawn, with its words as text"
+    ]
   }
 }
