@@ -50,8 +50,20 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
   (`harness/record-every-message.mjs` `rowsFrom` and `messagesOf`, its bounded older-transcript reader), so only the
   rows those rules call the person's, the AI's, a peer's or generated context are kept, under `<app id>:<session id>`.
 - **Long messages** are kept in ordered parts of at most `most_text` characters, so one part fits one door write.
-- **Files a message carried** (ChatGPT and Grok attachments, images pasted into a session) are counted
-  (`attachments_not_kept`), not copied: a message of only files is not kept yet.
+- **Files a message carried** are copied into the person's files through the files door (`find_file`, then
+  `write_file_start` / `_piece` / `_finish` by records-door `writeWholeFile`, each piece fitting one door message), and
+  the message names each by its identity (`attachments`, `about`), the way old Trillion linked them:
+  - an export's file is looked for beside the export (`attachment_depth` folders down): ChatGPT's `file-XXXX-photo.png`
+    by the id its name starts with (never as the start of a longer id), Grok's `prod-mc-asset-server/<id>/content` by
+    the folder it sits in (kept as `<id>.<extension its bytes say>`), or at the path the run names for that id
+    (`attachments: { id: path }`); it is kept at `/messages/<app>/<its name>`;
+  - an image pasted into a Claude Code or Codex session is kept at `/messages/<conversation>/<message>-<n><extension>`,
+    old Trillion's recorder's own name for it;
+  - a file already there with the same identity is not written again, and a write sent again resumes under the same
+    upload id, so a rerun copies nothing twice; a message of only files is kept once its file is;
+  - a file not found, refused or over `most_attachment_bytes` is counted (`attachments_not_kept`,
+    `attachments_refused`, `attachments_too_large`), never an error. A zipped export's files are not read inside the
+    zip: unzip it first.
 
 ## Files
 
@@ -79,7 +91,9 @@ source and both identities; `ports/` holds the contracts). What is kept is what 
 | `test/rows.test.mjs` | Each row's command run the way the engine runs it. |
 | `test/import-conversations.test.mjs` | The import over the fake records door, with a synthetic export or session folder for each source: what each keeps, a second run adding nothing, a grown session read on, a 503 spell midway then a resume with nothing kept twice, a short spell waited out, a write that timed out sent again with its key. |
 | `test/import-rows.test.mjs` | The import rows run the way the engine runs them (argv, `{ input, folder }`, the door with exactly their rights). |
+| `test/import-attachments.test.mjs` | The files messages carried, copied through the files door: where each source's file is found and kept, a rerun writing no file again, a 503 in the middle of a file's pieces then a resume keeping each file once and whole. |
 | `test/chat-archive-parts.test.mjs`, `chat-export-zip.test.mjs`, `chat-history-identity.test.mjs`, `chat-source-time.test.mjs` | Moved from trillion `test/`, over the fake door where they used the Worker's store. |
+| `test/chat-attachments.test.mjs`, `native-chat-import.test.mjs` | Moved from trillion `test/`: the same made-up chat and assertions, over the namespace finder and the on-computer import instead of the Worker's PersonStore and Namespace routes. The two space tests of `chat-attachments` (a file item members of a space read from the importer's store) stay behind with the Worker's space owner. |
 
 ## Key Types
 
