@@ -1,0 +1,111 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:read-other-ais-setups",
+        "listed_on": "2026-11-03T16:00:00Z",
+        "id": "tool:read-ai-setups",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Read other AIs' setups",
+        "job": "List, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer, each with its text, so the person can bring them in as saved instructions",
+        "description": "Give sources (ids from read-data/ai-setups.json: claude-instructions, claude-commands, claude-skills, codex-instructions, codex-prompts, cursor-rules) to read only those; all are read when left out. The places are under the person's home folder, which the person grants for reading. Nothing in those places is created, changed or removed. Returns items (each { id, source, kind, name, path, text, cut }, or unreadable with the reason when a file is refused: a link out of the home folder, a protected name, too big, not text) and sources (a count per source). Each text is cut at 2000 characters and says it was cut. To save them, hand the items to the account's saved_instructions with add_instructions and imported_from: ai-setups; that adds and never replaces.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "sources"
+          ],
+          "properties": {
+            "items": {
+              "type": "array"
+            },
+            "sources": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/read-other-ais-setups",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/read-other-ais-setups/read-data/ai-setups.mjs",
+            "read"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "read-other-ais-setups",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/read-other-ais-setups"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
