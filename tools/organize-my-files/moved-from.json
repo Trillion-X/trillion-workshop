@@ -1,0 +1,239 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/ai-app-bridge/ai-app-bridge.mjs",
+      "source_identity": "1f:55af010151325f18c1078b9c474236a6ec7307cb18f3823c5b91b8a6c6ff9c27",
+      "identity": "1f:55af010151325f18c1078b9c474236a6ec7307cb18f3823c5b91b8a6c6ff9c27"
+    },
+    {
+      "from": "parts/ui/show/ai-app-bridge/ai-app-view-document.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/ai-app-bridge/ai-app-view-document.mjs",
+      "source_identity": "1f:a5643297ba1eebd45031e6b6bead2bdc9c72fd372c836eac313da9488c3148ab",
+      "identity": "1f:a5643297ba1eebd45031e6b6bead2bdc9c72fd372c836eac313da9488c3148ab"
+    },
+    {
+      "from": "parts/ui/show/document-page/document-page-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/document-page/document-page-html.mjs",
+      "source_identity": "1f:ce60e6c90c6541f52e44b9d0e22ac9e315e07fcca94a9788554f2ec94b03fd52",
+      "identity": "1f:5d04489e775f5ae0433168fc3bd50fc8ce3a087269e30d5d57dd850e293e0dce"
+    },
+    {
+      "from": "parts/ui/show/document-page/word-marks.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/document-page/word-marks.json",
+      "source_identity": "1f:7d99465f4f11a9699b44b236f02cddbd90461925489bf3c5feecaa42dbaa4b63",
+      "identity": "1f:7d99465f4f11a9699b44b236f02cddbd90461925489bf3c5feecaa42dbaa4b63"
+    },
+    {
+      "from": "parts/ui/show/file-view-document/file-view-bridge.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/file-view-document/file-view-bridge.mjs",
+      "source_identity": "1f:c8a6afc23bfc0cb4301aacfa5397066fac02ef201e67cb214fafc51473d3f0af",
+      "identity": "1f:c8a6afc23bfc0cb4301aacfa5397066fac02ef201e67cb214fafc51473d3f0af"
+    },
+    {
+      "from": "parts/ui/show/file-view-document/file-view-document.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/file-view-document/file-view-document.mjs",
+      "source_identity": "1f:e9dc586b0408809343622851cff1e9068b085bbc0ec693d109f9e684e055f32f",
+      "identity": "1f:e9dc586b0408809343622851cff1e9068b085bbc0ec693d109f9e684e055f32f"
+    },
+    {
+      "from": "parts/ui/show/loading-mark/loading-mark-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/loading-mark/loading-mark-html.mjs",
+      "source_identity": "1f:a4c2e0a07aa1fa19e5a891836e57150eef94cda18121a00f73a306c820346a46",
+      "identity": "1f:9e7e7d0b1d4636f5fc37353e439d3cad3ce624d91c98a4f4ec0f56126e76ebb1"
+    },
+    {
+      "from": "parts/ui/show/media-preview/picture-readiness.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/media-preview/picture-readiness.json",
+      "source_identity": "1f:ed4e169a2c2b0e265681582cfcdf002ff4b130e558ff5b3f544e4adb1c07b635",
+      "identity": "1f:ed4e169a2c2b0e265681582cfcdf002ff4b130e558ff5b3f544e4adb1c07b635"
+    },
+    {
+      "from": "parts/ui/show/media-preview/picture-readiness.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/media-preview/picture-readiness.mjs",
+      "source_identity": "1f:95aee010046479d31fe6c7db3b1d2505a2da91fc06873c7d8a5b7ddd8ae8245e",
+      "identity": "1f:95aee010046479d31fe6c7db3b1d2505a2da91fc06873c7d8a5b7ddd8ae8245e"
+    },
+    {
+      "from": "parts/ui/show/plan-card/plan-card-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/plan-card/plan-card-html.mjs",
+      "source_identity": "1f:77cbfef43b2bbeaae55c1afa749259ee4d82858e232e8ccb7c4c3d769c671227",
+      "identity": "1f:eedd9117e7247b90c4aeba6a7e80602881aa3f736dca0e1304c2cce66b133104"
+    },
+    {
+      "from": "parts/ui/show/request/quiet-retry.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/request/quiet-retry.json",
+      "source_identity": "1f:ad178dfab880794e8133fcd2d0e6565b11112f00b220dbb40822ae8c9030f801",
+      "identity": "1f:ad178dfab880794e8133fcd2d0e6565b11112f00b220dbb40822ae8c9030f801"
+    },
+    {
+      "from": "parts/ui/show/scroll-thread/thread-geometry.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/scroll-thread/thread-geometry.mjs",
+      "source_identity": "1f:476c59f1b2c051e6af99ebe661ff0203853168672c3cc89882298b2774b0b72f",
+      "identity": "1f:476c59f1b2c051e6af99ebe661ff0203853168672c3cc89882298b2774b0b72f"
+    },
+    {
+      "from": "parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/server-rendered-page/page-sections-html.mjs",
+      "source_identity": "1f:96f3a44bbfbce604301db538e1b6676b6b008742efda4fe0e000cdd5b4c24283",
+      "identity": "1f:f3b91d523f0e79473d6665ab981b4f2ca12e6fdfc0bf93e2bd06bf2cd36a2657"
+    },
+    {
+      "from": "parts/ui/show/share-row/share-row-html.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/share-row/share-row-html.mjs",
+      "source_identity": "1f:32bb7b6c2e7502379483dbf3c1674e6dd464edd7e447cefdc90f8b7eea6f9ad2",
+      "identity": "1f:b6dbcbdf158ef48beea54a6b94b5b00ae961ceef611a5995bc3f65e25f95d097"
+    },
+    {
+      "from": "parts/ui/show/share-row/share-row.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/share-row/share-row.json",
+      "source_identity": "1f:bcebda490816a7a5dd78acc353360db566d5187e33acef22e7e08a421188e6a6",
+      "identity": "1f:bcebda490816a7a5dd78acc353360db566d5187e33acef22e7e08a421188e6a6"
+    },
+    {
+      "from": "parts/ui/show/site-nav/site-nav-look.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/site-nav/site-nav-look.mjs",
+      "source_identity": "1f:a634f85f62124d4bcc5cfdedde6f8cfcc3c8431f5742fd175cee807263ffb60f",
+      "identity": "1f:a634f85f62124d4bcc5cfdedde6f8cfcc3c8431f5742fd175cee807263ffb60f"
+    },
+    {
+      "from": "parts/ui/show/thread-cover/thread-cover.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.json",
+      "source_identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a",
+      "identity": "1f:196791e21053fff43bef820310282f4e4d927e0017fd7553f13046967bae355a"
+    },
+    {
+      "from": "parts/ui/show/thread-cover/thread-cover.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/parts/ui/show/thread-cover/thread-cover.mjs",
+      "source_identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547",
+      "identity": "1f:d7fdcece2e1a8aafc12ff8c734a9e89658edfbf77b0017d21929ddf048cd6547"
+    },
+    {
+      "from": "src/content-tags.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/content-tags.json",
+      "source_identity": "1f:ec3fe9b1cb606aa3c9a9bc7496eb345021a2f1235a9bc36ff33c6a68ca8e6668",
+      "identity": "1f:ec3fe9b1cb606aa3c9a9bc7496eb345021a2f1235a9bc36ff33c6a68ca8e6668"
+    },
+    {
+      "from": "src/content-tags.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/content-tags.mjs",
+      "source_identity": "1f:96483718acb5081ba223ba8d80b54d047ccfd7589948550136297f4e0aa3adb1",
+      "identity": "1f:96483718acb5081ba223ba8d80b54d047ccfd7589948550136297f4e0aa3adb1"
+    },
+    {
+      "from": "src/file-organization.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-organization.json",
+      "source_identity": "1f:d1c8a53b443639abbf5022be15323cde7654dea746a1bf77bcb749ea8ae259d4",
+      "identity": "1f:d1c8a53b443639abbf5022be15323cde7654dea746a1bf77bcb749ea8ae259d4"
+    },
+    {
+      "from": "src/file-organization.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-organization.mjs",
+      "source_identity": "1f:504c510cc31e112c32a522b9470e78870592ed38b2dc8c4a86b7ddb59e63aa74",
+      "identity": "1f:504c510cc31e112c32a522b9470e78870592ed38b2dc8c4a86b7ddb59e63aa74"
+    },
+    {
+      "from": "src/file-tidy.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-tidy.json",
+      "source_identity": "1f:ea9848f2a2a797f68caa48c842355f4e54ef525b26b9c63b613e89948b14218e",
+      "identity": "1f:ea9848f2a2a797f68caa48c842355f4e54ef525b26b9c63b613e89948b14218e"
+    },
+    {
+      "from": "src/file-tidy.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-tidy.mjs",
+      "source_identity": "1f:f423121a6066ee22b0242808e8e31a76ed309aab5ded9414c4db58c8f17d48dc",
+      "identity": "1f:f423121a6066ee22b0242808e8e31a76ed309aab5ded9414c4db58c8f17d48dc"
+    },
+    {
+      "from": "src/file-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-tools.mjs",
+      "source_identity": "1f:b858a8c52b97c3dde6694ccaafcacfc3e09247fc6ca39661ca631e8439369328",
+      "identity": "1f:72ee6840b583886d3249545d26d61fc1b9b66e35fca173c63a6ceddc5b9b6c98"
+    },
+    {
+      "from": "src/file-type.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-type.mjs",
+      "source_identity": "1f:1feb0018d96810263c4bb6aa016ccac29b71112b5b1341e0186ac9f2b16f9f7c",
+      "identity": "1f:cb65eed401570a9ebd16b56ad1254e8bacf8e0bbb8d9f1c851e6a5f413cf3911"
+    },
+    {
+      "from": "src/file-versions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/file-versions.mjs",
+      "source_identity": "1f:03d76785a70910af1f901e019f0813a3404e6b9b6b40255ee0649332a6d7ae02",
+      "identity": "1f:a7c01f235bac23ddbfb6b80a4a0703e2f3b820a919bf3191e3bcdefba378a7a3"
+    },
+    {
+      "from": "src/ingest-normalization.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/ingest-normalization.mjs",
+      "source_identity": "1f:3d68d2fea7599cec33eadf869a20e7e3cc45711814870d36bd69f6a84eb7ffec",
+      "identity": "1f:d17ab76f51c484a2a26891a698ca06c2fb4172ae7f43bc228096e39abd64a32e"
+    },
+    {
+      "from": "src/namespace-byte-release.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/namespace-byte-release.json",
+      "source_identity": "1f:2d37450f551e6fe0d256042a148ea5ab7ddd09f28781982c90098a3509f88fb6",
+      "identity": "1f:2d37450f551e6fe0d256042a148ea5ab7ddd09f28781982c90098a3509f88fb6"
+    },
+    {
+      "from": "src/namespace-file-lookup.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/namespace-file-lookup.mjs",
+      "source_identity": "1f:46888ecdc7e01b98e3808db770fb31f144e1cb56b05380024e1b8ef9f10b2d4a",
+      "identity": "1f:46888ecdc7e01b98e3808db770fb31f144e1cb56b05380024e1b8ef9f10b2d4a"
+    },
+    {
+      "from": "src/namespace-request-body.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/namespace-request-body.json",
+      "source_identity": "1f:5d3dc2fbf2cadc4d9571c8c91f37fc210f0d4edbba50779270ce57e273ed4829",
+      "identity": "1f:5d3dc2fbf2cadc4d9571c8c91f37fc210f0d4edbba50779270ce57e273ed4829"
+    },
+    {
+      "from": "src/tool-reply.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/src/tool-reply.mjs",
+      "source_identity": "1f:12d29b732587a16cc1b4e16f11d16bfe23f8fca6b053f2e5d9cb265235bfa519",
+      "identity": "1f:12d29b732587a16cc1b4e16f11d16bfe23f8fca6b053f2e5d9cb265235bfa519"
+    },
+    {
+      "from": "test/namespace-file-lookup.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/organize-my-files/test/namespace-file-lookup.test.mjs",
+      "source_identity": "1f:5a5e03ae65776ddbf43cafb64a6ba6fe3dcbc4c2031d4a2784338e370c5cee81",
+      "identity": "1f:5a5e03ae65776ddbf43cafb64a6ba6fe3dcbc4c2031d4a2784338e370c5cee81"
+    }
+  ]
+}

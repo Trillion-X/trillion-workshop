@@ -1,0 +1,16 @@
+{
+  "_about": "The section that shows a person their own address for sending notes and voice memos into Trillion from a phone or computer without the Trillion app (src/account-screens.mjs inboundAddressSection), on Use Trillion in your AI and Connections; never a setup step, because the Trillion Mac app reads Notes and Voice Memos by itself. {address} is their address (src/inbound-mail.mjs).",
+  "heading": "Send notes and voice memos to Trillion",
+  "body": "On a phone or computer without the Trillion app, send notes and voice memos to this address and they arrive in Trillion, where your AI picks them up.",
+  "steps": [
+    {
+      "title": "Copy your address",
+      "body": "It is yours alone, so keep it like a phone number.",
+      "code": "{address}"
+    },
+    {
+      "title": "Share a note or voice memo to it",
+      "body": "In Apple Notes or Voice Memos, press Share, choose Mail and send it to this address. Any email you send it arrives the same way."
+    }
+  ]
+}

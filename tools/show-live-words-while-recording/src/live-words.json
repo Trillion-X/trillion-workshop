@@ -1,0 +1,6 @@
+{
+  "_what": "Live words while recording (src/work-media.mjs /work/api/media/live-words): the model the browser's microphone stream is passed to, the purpose its call is counted and budgeted under (src/model-calls.mjs start, at the account's own records: screens:startLiveWords), and the microphone sample rates it takes.",
+  "purpose": "live-transcription",
+  "model": "@cf/deepgram/flux",
+  "sample_rate": { "min": 8000, "max": 48000 }
+}

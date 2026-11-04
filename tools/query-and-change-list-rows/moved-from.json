@@ -1,0 +1,218 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/choice-kinds.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/choice-kinds.json",
+      "source_identity": "1f:29463b30093d4bdd4a908a5dc544ab89a53b8b4fc59c64263ba4a4375c8c7ad4",
+      "identity": "1f:29463b30093d4bdd4a908a5dc544ab89a53b8b4fc59c64263ba4a4375c8c7ad4"
+    },
+    {
+      "from": "src/choice-mapping.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/choice-mapping.mjs",
+      "source_identity": "1f:e2569f97dcda96c6bc9bd4f3f1c512f46d906a3a4b158e7bae95dfeb8a432d84",
+      "identity": "1f:e2569f97dcda96c6bc9bd4f3f1c512f46d906a3a4b158e7bae95dfeb8a432d84"
+    },
+    {
+      "from": "src/configurations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/configurations.mjs",
+      "source_identity": "1f:7bd734cf8e0536d8937ca8c4fca319218645d3d11b6088befbb44daee7480b57",
+      "identity": "1f:7e473e078e6dc53d4f31cd5fdd3cf0ae6c4dba8e6b1ff81427df8648707991dd"
+    },
+    {
+      "from": "src/connecting-without-the-store.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/connecting-without-the-store.mjs",
+      "source_identity": "1f:e0237efa54c792865fe4dd3506e1a26083a58e84c6ff5b3567adb487503b580b",
+      "identity": "1f:a3be46f249dfc5feaa0ef74fdc8702ab1729f6a8dc206aa130c3cdd740495118"
+    },
+    {
+      "from": "src/document-properties.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/document-properties.json",
+      "source_identity": "1f:47cc38025855d82ddd04760034054736e7c0b311e94acb81e49980a08e78a14b",
+      "identity": "1f:47cc38025855d82ddd04760034054736e7c0b311e94acb81e49980a08e78a14b"
+    },
+    {
+      "from": "src/execution-context.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/execution-context.mjs",
+      "source_identity": "1f:6763c3999501916b79567bffbd397cc85da0a63a34523af9c24d431be38ed3de",
+      "identity": "1f:adaf52cb955ccc820fb7135048bd6c2c8e3beacff5653caf8cc73751a5a8fd02"
+    },
+    {
+      "from": "src/list-aggregates.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-aggregates.mjs",
+      "source_identity": "1f:216081c6d7b58cc6dc7437d1a7a1bb39a17bd1073e978027e9f14ec75106d3ca",
+      "identity": "1f:6d4fd2e0fa3f02d038d5cf1cde8de96fead94f7d91966c349ab6e824914900fb"
+    },
+    {
+      "from": "src/list-filters.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-filters.mjs",
+      "source_identity": "1f:75f69b963f3d3135e1c7fcfb39d6500a49a91021185c27a1b2b42c65310f35cf",
+      "identity": "1f:3824aa50096711ce294cbd5cbe4371a04d69134a570c57a2799a762758a3a049"
+    },
+    {
+      "from": "src/list-identity.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-identity.mjs",
+      "source_identity": "1f:8477a765d4e4d9230b3716ae68bc23a887226f77f8120b053578e95678283c05",
+      "identity": "1f:b1785bc7e279575df9e50ec7ab9ea993633c01274e9c6c9e27760760e26d6a3f"
+    },
+    {
+      "from": "src/list-input-grammar.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-input-grammar.mjs",
+      "source_identity": "1f:3d78f0ff9bce1509e828e70939d1f04d5362c460c5686a927523cedc1a2980be",
+      "identity": "1f:eac17511cfe03bb388939972fc2aa229a3b32545978f99fef556f036f21ce5cf"
+    },
+    {
+      "from": "src/list-keys.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-keys.mjs",
+      "source_identity": "1f:8705e7857c776e5bf366f7052569b2374f169f9e176eb351a4c41d0315dbd972",
+      "identity": "1f:03498ac582a458639104d32e013a3fff01d17fff0a6d38562ceb77b94aceaeae"
+    },
+    {
+      "from": "src/list-pairs.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-pairs.mjs",
+      "source_identity": "1f:2bab040db3826d13921c96d5e1bccba57a214776f1e2502ddd34db8cebc32cab",
+      "identity": "1f:636f9e28d3f6ba1ab68527b30a2eab73d8344ffa1e02a0c930816ad20a0c9127"
+    },
+    {
+      "from": "src/list-paths.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-paths.mjs",
+      "source_identity": "1f:efe60e47ede9b6d1a1d9db202a0229ad8a0c48904fe89cd6e6157d969e06cc45",
+      "identity": "1f:6687385731b911e36d45bc77d0dee09cb21794b77c29696cc8844c45efccc6a0"
+    },
+    {
+      "from": "src/list-people.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-people.json",
+      "source_identity": "1f:862a7898b46dce514a116c3c7ed136c4cde0e43ca4af7fc242172a605bbf703d",
+      "identity": "1f:862a7898b46dce514a116c3c7ed136c4cde0e43ca4af7fc242172a605bbf703d"
+    },
+    {
+      "from": "src/list-people.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-people.mjs",
+      "source_identity": "1f:1a6230b795e12819afee93678a4d5f0cd958a767775d41bab97234f357362299",
+      "identity": "1f:67f23953418484a93c129e282e91485b2ab6cc7db419f611b70abaa881c1c42d"
+    },
+    {
+      "from": "src/list-plain-files.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-plain-files.mjs",
+      "source_identity": "1f:39948476951ac6de4a41bc7adbe7f0e3629b8f82f2ce98cfd0842f1c37c01a99",
+      "identity": "1f:2284c757649bd0d631b67ff4b5fae7f48151996ced69b74dd5421e5dbfa738bb"
+    },
+    {
+      "from": "src/list-proposals.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-proposals.mjs",
+      "source_identity": "1f:2f514179ba48dde2df3162638c8860eb4f287cc289b5519be8690012f87896e1",
+      "identity": "1f:eca573af47b586108033e076ce0de5b4f5d8c3503f3a81cf0ffe7f0693273d74"
+    },
+    {
+      "from": "src/list-refusals.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-refusals.mjs",
+      "source_identity": "1f:5a98a80cc796793160f4f43aa88de0af62414f5e09fd4b6c6a9519caf644a66c",
+      "identity": "1f:ccf6247f44138a9e84f504bd4411f3b24b2048b6ed8a6033b66437cc99e05281"
+    },
+    {
+      "from": "src/list-relationships.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-relationships.json",
+      "source_identity": "1f:15925fa9436c0415c385482a927486d884591de0c63c7939eba6df83e7598910",
+      "identity": "1f:15925fa9436c0415c385482a927486d884591de0c63c7939eba6df83e7598910"
+    },
+    {
+      "from": "src/list-relationships.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-relationships.mjs",
+      "source_identity": "1f:3cdfc765ace4e28e5d85471bc27bb06d03bedbc8011cec91a3a4f50ed0e980f1",
+      "identity": "1f:479c9bd48b6043eab3e0f5a11d271da9675400653231b9f49f9a1295b38c10f8"
+    },
+    {
+      "from": "src/list-rollups.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-rollups.mjs",
+      "source_identity": "1f:b654595f615869b1eaf000c19f0f74f32370b34b4b3a50bdbe7fd988eb4dbb40",
+      "identity": "1f:f7381768bc8b05ef6294d417016e3267ef0356bb2448d3e99c30f199d54d1961"
+    },
+    {
+      "from": "src/list-row-operations.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-row-operations.mjs",
+      "source_identity": "1f:575e364e6022ffc353c22d0f38c7beeae2b8b878df21ccec928014512640fdbd",
+      "identity": "1f:2fe602fa1571e5d5a429df4287afb2e972ecd5a5c7614434c8e46e9c8852240f"
+    },
+    {
+      "from": "src/list-row-transfer.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-row-transfer.mjs",
+      "source_identity": "1f:898196c5da86c1588284e0c7e95c15100820d0c1c4017d684f93195c8d1ebb48",
+      "identity": "1f:12928c6ef0c50663fa6dac77d178c6d8bf10903e47c55becc753be37b9ce8b26"
+    },
+    {
+      "from": "src/list-snapshots.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-snapshots.mjs",
+      "source_identity": "1f:67f1858f7a89bfa48135bbcfc5bdde15fee5c5bcc9616bb55fc8b92afb5c9c5f",
+      "identity": "1f:ec9cb5cc4c9a1e07317b18f4a33f4288ae62df13d954604cc09d4c69a4794c63"
+    },
+    {
+      "from": "src/list-stamps.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-stamps.mjs",
+      "source_identity": "1f:72613cfc2aca22351f4f6517e76610ce5e88234a3c743658f6dc9340349926ea",
+      "identity": "1f:369f79ab58317f302ff86f6f51861c05b43135058489bd2cfa13fc5bfd964784"
+    },
+    {
+      "from": "src/list-tool-actions.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-tool-actions.mjs",
+      "source_identity": "1f:35a44372e3c96d0ed19293eca0958e01d4dc1ee4e2cfdb3609fd6df0ecdd715e",
+      "identity": "1f:35a44372e3c96d0ed19293eca0958e01d4dc1ee4e2cfdb3609fd6df0ecdd715e"
+    },
+    {
+      "from": "src/list-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-tools.mjs",
+      "source_identity": "1f:4d5a26f8946d30ddde1d7abb9dba5a0be90089751e24c389f7a461c2c1c174b5",
+      "identity": "1f:f060360946cd543ce114c7b2ae0ab3b0c6c50d4a4e0c4ba52c26e3c309e41482"
+    },
+    {
+      "from": "src/list-view-parameters.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/list-view-parameters.mjs",
+      "source_identity": "1f:a54b3f26f3982242b5147352a14667cd28e0f118dd70ad1dc843a00848f7d3f6",
+      "identity": "1f:29d36b047663635f0f2c95f03a7af1e8590a6c6950cea00e4f77bb7b01e0fdd4"
+    },
+    {
+      "from": "src/namespace-preview.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/namespace-preview.mjs",
+      "source_identity": "1f:c4519cf7e6db4093f7db62ccee5218e66ed19c08730fd61e546b637b5192359c",
+      "identity": "1f:18db599cda734960c9be25ffe381184553861f076b921281fb198f377a46ca15"
+    },
+    {
+      "from": "src/record-model-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/src/record-model-tools.mjs",
+      "source_identity": "1f:1626699cce23df5e219059b94c7950015578ee355a975575bbe97112527ad78e",
+      "identity": "1f:e01d8c01fed62c92989d5e8e61aa53592f79fc4a000f896026f297648083b78d"
+    }
+  ]
+}

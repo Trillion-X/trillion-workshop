@@ -1,0 +1,55 @@
+{
+  "_what": "The words and shape of the graph document patch (graph-patch.mjs): a patch evolves a stored graph document by typed operations. `scopes` name each kind of thing a document holds, where it lives and which fields name it; `ops` are the operations, each a row of an action on a scope with the fields it takes (required or optional). Which fields a scope may have set comes from graph-contract.json's allowed_fields, never from here. `referenced_by` names the places that point at a thing, so removing it removes what pointed at it. `corrections` is the overlay of human fixes kept beside an inferred document: a row selects nodes by id or a glob (`*` matches any run of characters) and says what to exclude, rename, re-describe or move; the same rows apply again after every regeneration. Adding an operation is one row in `ops`; adding a place a document keeps things is one row in `scopes`.",
+  "version": 1,
+  "most_ops": 200,
+  "patch_fields": ["graph", "from", "to", "ops"],
+  "glob_wildcard": "*",
+  "scopes": {
+    "document": { "settable_from": "document", "settable_only": ["label", "caption"] },
+    "lane": { "collection": "lanes", "parent": "document", "keys": ["id"], "settable_from": "lane", "children": { "scope": "node", "collection": "nodes" } },
+    "node": { "collection": "nodes", "parent": "lane", "keys": ["id"], "settable_from": "node", "referenced_by": { "edge": ["from", "to"] } },
+    "edge": { "collection": "edges", "parent": "document", "keys": ["from", "to"], "settable_from": "edge" }
+  },
+  "ops": {
+    "set_document": { "action": "set", "scope": "document", "required": ["set"], "optional": [] },
+    "add_lane": { "action": "add", "scope": "lane", "required": ["value"], "optional": ["after"] },
+    "set_lane": { "action": "set", "scope": "lane", "required": ["id", "set"], "optional": [] },
+    "remove_lane": { "action": "remove", "scope": "lane", "required": ["id"], "optional": [] },
+    "add_node": { "action": "add", "scope": "node", "required": ["lane", "value"], "optional": ["after"] },
+    "set_node": { "action": "set", "scope": "node", "required": ["id", "set"], "optional": [] },
+    "move_node": { "action": "move", "scope": "node", "required": ["id", "lane"], "optional": ["after"] },
+    "remove_node": { "action": "remove", "scope": "node", "required": ["id"], "optional": [] },
+    "add_edge": { "action": "add", "scope": "edge", "required": ["value"], "optional": [] },
+    "set_edge": { "action": "set", "scope": "edge", "required": ["from", "to", "set"], "optional": [] },
+    "remove_edge": { "action": "remove", "scope": "edge", "required": ["from", "to"], "optional": [] }
+  },
+  "corrections": {
+    "fields": ["select", "exclude", "label", "detail", "lane"],
+    "most": 200,
+    "plan": [
+      { "when": "exclude", "op": "remove_node", "take": {} },
+      { "when": "label", "op": "set_node", "take": { "set.label": "label" } },
+      { "when": "detail", "op": "set_node", "take": { "set.detail": "detail" } },
+      { "when": "lane", "op": "move_node", "take": { "lane": "lane" } }
+    ]
+  },
+  "words": {
+    "errors": {
+      "NOT_AN_OBJECT": "{path} must be an object.",
+      "MISSING_FIELD": "{path} is required.",
+      "UNKNOWN_FIELD": "{path} is not a field this patch takes.",
+      "WRONG_TYPE": "{path} has the wrong type: {expected} was expected.",
+      "WRONG_GRAPH": "{path} names the graph \"{found}\"; this document is \"{expected}\".",
+      "STALE_BASE": "{path} was written against {found}, but this document is {expected}. Read the document again and rewrite the patch.",
+      "RESULT_MISMATCH": "{path} says the result is {expected}, but applying the operations gives {found}.",
+      "TOO_MANY_OPS": "{path} holds more than {most} operations.",
+      "UNKNOWN_OP": "{path} names the operation \"{found}\"; the operations are {ops}.",
+      "NOT_FOUND": "{path} points at {scope} \"{found}\", which the document does not hold.",
+      "ALREADY_EXISTS": "{path} adds {scope} \"{found}\", which the document already holds.",
+      "AFTER_NOT_FOUND": "{path} puts it after \"{found}\", which is not there.",
+      "NOT_SETTABLE": "{path} sets \"{found}\", which cannot be set on {scope}. It can set: {settable}.",
+      "INVALID_RESULT": "The patched document is not valid: {first}",
+      "UNMATCHED_SELECT": "{path} selects \"{found}\", which matches no node."
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "_what": "Every screen arranged in place (src/workspace/screen-own-arrangement.ts): each screen's own arrangement is kept per person at `kept_prefix` + the screen's id. `stack_rows_that_do_not_fit` draws a row whose pieces do not fit at their usable width as a stack (a phone), unless the row says its own width to stack below. `chrome` is which parts of the arrangement show (parts/screen-arrangement/read-data/chrome-visibility.ts zones, false hides): `arranged` while the person is looking at an arranged screen (its pieces read as one screen: no tab bars, no frames), `arranging` while they arrange it (everything shows: tab bars, each piece's …, the edges to drag). `words` are the rows the screen's … offers and what each says when done.",
+  "kept_prefix": "screen-arrangement-of::",
+  "stack_rows_that_do_not_fit": true,
+  "chrome": {
+    "arranged": { "header": false, "surface.frame": false, "container.frame": false },
+    "arranging": {}
+  },
+  "words": {
+    "arrange": "Arrange this screen",
+    "arrange_said": "Arranging: drag a screen in, split a piece from its …, drag any edge",
+    "done": "Done arranging",
+    "done_said": "Arranged",
+    "back": "Put this screen back",
+    "back_said": "This screen is as it started"
+  }
+}

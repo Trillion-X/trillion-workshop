@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/community-logic/get-path.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/match-community-members/src/community-logic/get-path.ts",
+      "source_identity": "1f:e23cca856c7d5a6da914979a772ab612adf23e7727254436a5346f3230d54495",
+      "identity": "1f:e23cca856c7d5a6da914979a772ab612adf23e7727254436a5346f3230d54495"
+    },
+    {
+      "from": "src/community-logic/match/bounded-candidates.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/match-community-members/src/community-logic/match/bounded-candidates.mjs",
+      "source_identity": "1f:b3389493789e5b40aeeb61003dcabcb837d834b438d5faf98a72c4aed81afd51",
+      "identity": "1f:b3389493789e5b40aeeb61003dcabcb837d834b438d5faf98a72c4aed81afd51"
+    },
+    {
+      "from": "src/community-logic/match/match-intake-contract.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/match-community-members/src/community-logic/match/match-intake-contract.json",
+      "source_identity": "1f:6142c2b1e7c57cf07575ffc7aa6139a7c710fd796cb6b180dd3cc19ee2fee38a",
+      "identity": "1f:6142c2b1e7c57cf07575ffc7aa6139a7c710fd796cb6b180dd3cc19ee2fee38a"
+    },
+    {
+      "from": "src/community-logic/match/match-intake-evidence.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/match-community-members/src/community-logic/match/match-intake-evidence.mjs",
+      "source_identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c",
+      "identity": "1f:8a3d06d57fbba500bbdb56de4a8cab1e73b52ebb2a7dbab90df9f2c6ba839c3c"
+    },
+    {
+      "from": "test/community-logic/get-path.test.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/match-community-members/test/community-logic/get-path.test.ts",
+      "source_identity": "1f:e4765dca653130af2174404b9defc484c6746ffb396070ddad5c7e3a2e59f4cb",
+      "identity": "1f:e4765dca653130af2174404b9defc484c6746ffb396070ddad5c7e3a2e59f4cb"
+    },
+    {
+      "from": "test/vitest-shim.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/match-community-members/test/vitest-shim.mjs",
+      "source_identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1",
+      "identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1"
+    }
+  ]
+}

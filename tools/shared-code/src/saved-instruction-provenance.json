@@ -1,0 +1,9 @@
+{
+  "default_class": "person",
+  "reader_classes": [
+    { "reader_prefix": "key:", "class": "agent" },
+    { "reader_prefix": "app:", "class": "agent" }
+  ],
+  "agent_rows_start_proposed": false,
+  "note": "A saved instruction records who wrote it: a write with no reader is the person's; a write by an AI key or a connected app is an agent's. With agent_rows_start_proposed true, a row an agent adds or changes waits as proposed and is left out of what the person picks from until the person writes it with proposed false. Off by default."
+}

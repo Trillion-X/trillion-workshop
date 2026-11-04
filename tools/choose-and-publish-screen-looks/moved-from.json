@@ -1,0 +1,50 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/looks.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-and-publish-screen-looks/src/looks.mjs",
+      "source_identity": "1f:22a2855c2cd5fdd1bc969e82fcb7d51c98df980b5d346f0da2b82428cc49d8ac",
+      "identity": "1f:41b3811b8029817b5e6dc899549a8ab927f55978da557a4da5d8c8426a9cdba4"
+    },
+    {
+      "from": "src/workspace/inputs.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-and-publish-screen-looks/src/workspace/inputs.json",
+      "source_identity": "1f:6a580e935bc7a96cebefa683da4160e185f2d63ee5321e77d6295a3090d67f93",
+      "identity": "1f:6a580e935bc7a96cebefa683da4160e185f2d63ee5321e77d6295a3090d67f93"
+    },
+    {
+      "from": "src/workspace/looks.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-and-publish-screen-looks/src/workspace/looks.json",
+      "source_identity": "1f:695728bc3942d65541aaf93bede165bf22d1b183dd426c406f65251b12302128",
+      "identity": "1f:695728bc3942d65541aaf93bede165bf22d1b183dd426c406f65251b12302128"
+    },
+    {
+      "from": "test/look-readability.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-and-publish-screen-looks/test/look-readability.test.mjs",
+      "source_identity": "1f:2103a5ea9c24843cdb41fb320f16ad83ce84b00559872c541675cabbcaff4b30",
+      "identity": "1f:fc40899eafb92113c47d02a5acacdf2ed0b87def99be0c0a5dcb0cb2de6efcf8"
+    },
+    {
+      "from": "test/theme-from-inputs.test.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-and-publish-screen-looks/test/theme-from-inputs.test.ts",
+      "source_identity": "1f:d311e2d080f6ac7a5afd15949357dc4372839b2eff32d8e8ff664a47b15cd529",
+      "identity": "1f:db7717127c4f4296f71c787fbe0b029a951b7b3b3889f327bed3b5dd3a4c1902"
+    },
+    {
+      "from": "test/type-register.test.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/choose-and-publish-screen-looks/test/type-register.test.ts",
+      "source_identity": "1f:eb1860d07a8aeb09cd6cd1f44d97fa7160f4a269743fb183ef5fb7e9c803f20c",
+      "identity": "1f:a7f8606fc5bacea5034d482f53c7fe17bffcf51842658cdef91cd8c74eaaf38d"
+    }
+  ]
+}
