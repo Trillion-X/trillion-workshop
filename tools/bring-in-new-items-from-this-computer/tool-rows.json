@@ -1,0 +1,88 @@
+{
+  "kind": "tool-rows",
+  "record_set": "bring-in-new-items-from-this-computer-tool-rows",
+  "what_this_is": "The Workshop row for one look at the places on the person's own computer, run at that computer's local door (tools:run) over the folder the person granted for reading. The places are the rows of computer/computer-sources.json; the look is computer/computer-sources.mjs lookHere, the same one the Trillion helper runs.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:bring-in-new-items-from-this-computer",
+        "id": "tool:look-for-the-places-on-this-computer",
+        "placements": ["placement:your-computer"],
+        "needs": { "expected_seconds": 10, "network_egress": false },
+        "label": "Look for the places on my computer Trillion can read",
+        "job": "Find which places on my computer (notes, voice memos, messages, mail, calendar, photos, downloads, AI apps, browsers) are there for Trillion to read, and which need a switch turned on first",
+        "description": "One look under the folder the person granted for reading (their home folder), checking each place the computer's place rows list by whether it is there and whether it may be opened, never what it holds. Optionally give places (row ids, such as messages or downloads) to look at only those, and services ({ vendor, domains }: the services the account offers) so a browser's store of sites answers only which of those services it is used for, never a cookie's value. A place that is not there is left out; one this program may not open is needs_switch with the switch it needs (gate); a place outside the granted folder (an app in /Applications, a plugged-in drive) is could_not_check with the reason. Returns said, sources ({ id, label, category, state, detail?, gate? }) and browser_sites.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "places": { "type": "array", "items": { "type": "string", "minLength": 1 }, "description": "Only these places, by their row id (messages, downloads, apple-notes...). Default: every place." },
+            "services": {
+              "type": "array",
+              "description": "The services the account offers, so a browser's sites can be matched to them",
+              "items": { "type": "object", "required": ["vendor", "domains"], "properties": { "vendor": { "type": "string" }, "domains": { "type": "array", "items": { "type": "string" } } } }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["said", "sources", "browser_sites"],
+          "properties": {
+            "said": { "type": "string" },
+            "sources": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["id", "label", "state"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "label": { "type": "string" },
+                  "category": { "type": "string" },
+                  "state": { "enum": ["found", "needs_switch", "could_not_check"] },
+                  "detail": { "type": "string" },
+                  "gate": { "type": "string" },
+                  "carries": { "type": "string" }
+                }
+              }
+            },
+            "browser_sites": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder"],
+          "workdir": "/opt/bring-in-new-items-from-this-computer",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "--no-warnings",
+            "/opt/bring-in-new-items-from-this-computer/do-work/look-at-this-computer.mjs",
+            { "fill": { "from": "task", "field": "grants.read-a-folder.folder" } }
+          ],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": {
+              "package": "bring-in-new-items-from-this-computer",
+              "paths": ["do-work/look-at-this-computer.mjs", "computer/computer-sources.mjs", "computer/computer-sources.json"],
+              "at": "/opt/bring-in-new-items-from-this-computer"
+            }
+          }
+        },
+        "result_selector": "$",
+        "verify": [{
+          "kind": "sample-run",
+          "input": { "places": ["messages", "downloads", "screenshots", "drives"] },
+          "files": [
+            { "grant": "read-a-folder", "path": "Library/Messages/chat.db", "text": "a made-up store" },
+            { "grant": "read-a-folder", "path": "Downloads/made-up report.pdf", "text": "made up" },
+            { "grant": "read-a-folder", "path": "Downloads/made-up list.txt", "text": "made up" }
+          ]
+        }]
+      }
+    }
+  ]
+}
