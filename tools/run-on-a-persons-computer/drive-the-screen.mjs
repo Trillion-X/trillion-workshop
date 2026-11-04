@@ -41,7 +41,7 @@ import { homedir, tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { redactor } from './ask-payload.mjs';
-import { withShield } from './capture-shield.mjs';
+import { withShield } from '../drive-the-screen/read-data/capture-shield.mjs';
 import { ocrPixels, run } from './observe-visual.mjs';
 import { observationVerdict } from './observation-rules.mjs';
 import { categorySettings, loadCategoryTable, withCategories } from './observation-categories.mjs';

@@ -87,7 +87,7 @@ import { loadChunking } from '../browse-and-upload-my-files/do-work/content-chun
 import { fileSource, sendWholeFiles } from '../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { askHere, askLocal, localModelSettings, refreshModelRecords } from './local-models.mjs';
 import { meetingNotes, taskProposalsFrom } from './meeting-notes.mjs';
-import { tickHybridClock } from '../src/hybrid-clock.mjs';
+import { tickHybridClock } from '../set-up-my-account/read-data/conflicts.mjs';
 import { available } from '../listen-for-a-while/read-data/private-mode.mjs';
 import { evaluate } from '../listen-for-a-while/read-data/recording-rules.mjs';
 import { factsIn, privateModeIn, rulesIn } from './listening-rules.mjs';
@@ -562,7 +562,7 @@ export async function send(turns, { listen, account, log, status, waiting, class
       // Trillion's own voice: kept as what it is, never dropped and never the person's (invariant 7).
       const sourceId = `${moment.id}#${index + 1}`;
       if (queuedIds.has(sourceId) || !String(turn.text ?? '').trim()) { if (!queuedIds.has(sourceId)) status.left_out += 1; continue; }
-      eventClockState = tickHybridClock(eventClockState, now(), moment.computer);
+      eventClockState = tickHybridClock(eventClockState, null, now(), moment.computer);
       writeJson(clockFile, { clock: eventClockState });
       const own = arrivalOf(turn, index, moment, listen, eventClockState);
       Object.assign(own, { from_person: false, from: listen.answers.own_voice_as, spoke: { notice_id: spokenWhile(turn, asked, listen.answers).notice_id }, verdict: 'context' });
@@ -578,7 +578,7 @@ export async function send(turns, { listen, account, log, status, waiting, class
     // requests, owned by whoever said them (src/attention.json); no answer sends no verdict.
     const sourceId = `${moment.id}#${index + 1}`;
     if (queuedIds.has(sourceId)) continue;
-    eventClockState = tickHybridClock(eventClockState, now(), moment.computer);
+    eventClockState = tickHybridClock(eventClockState, null, now(), moment.computer);
     writeJson(clockFile, { clock: eventClockState });
     const item = arrivalOf(turn, index, moment, listen, eventClockState);
     // An answer is the notice's own work, so the classifier is not asked about it (invariant 7).
