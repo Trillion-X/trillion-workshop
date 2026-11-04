@@ -84,6 +84,16 @@
       ],
       "most_tokens": 512
     },
+    "dictation-polish": {
+      "models": [
+        "ollama-gemma3-4b"
+      ],
+      "most_tokens": 400,
+      "timeout_seconds": 25,
+      "response_format": {
+        "type": "json_object"
+      }
+    },
     "meeting-notes": {
       "models": [
         "ollama-gemma3-4b"

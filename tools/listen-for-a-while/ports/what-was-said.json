@@ -1,0 +1,124 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LISTENING-WHAT-WAS-SAID-AFTER-IT-IS-HEARD",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "ai-job:finish:listening-and-dictation-feature-leftovers",
+  "message_multihash": "1f:abe1ea3470dc00e22ba55743d0aa86b7ad56d534ad81fe571bd2662dad0cf2b7",
+  "quote": "Listening and dictation features not carried are rebuilt on the listening tool's records: voice-turn renaming, kept moment sound, speaker write-back, captions, transcriber role, transcript cursor, ask-time flush"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "keep what a listening heard useful after it is written: name a voice once enrolled, keep each piece's sound, write who spoke beside a recording, captions, the transcriber role, the transcript cursor and the ask-time flush",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/listen-for-a-while/read-data/what-was-said.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "docs/files-in-and-out.md",
+   "why": "documentation of the account's file operations"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/audio-transcription/",
+   "why": "hear-a-link keeps the sound of a link it fetched beside its words (keep_sound there); this keeps a listening's own pieces with each heard turn's place, opted into per listening"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/bring-in-new-items-from-this-computer/",
+   "why": "the Mac's list of places, whose listening row carried the old listener's keep_sound settings; it reads places, it keeps no sound"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/",
+   "why": "the AI session's own instruction words and message handling that name the account's file and speaker operations; it does not keep, rename or write back heard turns"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/name-voices-from-the-call/",
+   "why": "names voices from a call's own participant list and applies the name through the account's name_speaker door; this renames heard rows of a listening once the enrol tool names a voice"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/organize-my-files/",
+   "why": "the account's own file tools, record_file_results among them; a computer run's door does not offer that operation, so who spoke is written beside the recording as a file here"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/run-on-a-persons-computer/listen.mjs",
+   "why": "the Mac runner's always-on listener (moved there from old trillion): it cut kept sound into the old account's arrival road and renamed voices through the old account's name_speaker and record_file_results routes, which are gone; PR #52 moved its job to tools/listen-for-a-while and listed these three parts as left, and this file builds them on the heard rows instead"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/set-up-my-account/",
+   "why": "a copy of the Mac's list of places used to set up an account; settings data, not the job"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/tell-ais-how-to-act/",
+   "why": "words that tell an AI which account operations to use"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/transcript-reader/",
+   "why": "edits the passages of one transcript the person reads (its name_speaker edit renames a label in that transcript); heard rows are not passages and are renamed in the person's records"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/turn-a-button-press-like-ask-my-ai/",
+   "why": "queued work words naming the account's file operations"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/",
+   "why": "the generated tool catalog: it lists rows, it does not do their jobs"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/listen-for-a-while/",
+   "why": "this tool's own loop, rows, tests and README, which call this file"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "keep what a listening heard useful after it is written: name a voice once enrolled, keep each piece's sound, write who spoke beside a recording, captions, the transcriber role, the transcript cursor and the ask-time flush",
+    "apply and reduce the captions of what is heard",
+    "the transcriber role holder: which device may transcribe",
+    "an ask waits while hearing is pending",
+    "ask the meeting what was said since the transcript cursor",
+    "keep each piece's sound",
+    "name a speaker heard before their voice was enrolled",
+    "record who spoke as the recording file's results"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "reduceCaptions|applyCaptions",
+    "roleHolder|mayTranscribe",
+    "hearing_pending",
+    "askTheMeeting",
+    "keep_sound",
+    "name_speaker",
+    "record_file_results"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "ea2e726b240c7d2fcead59c26e6b20d9ba07a89a"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/listen-for-a-while/test/what-was-said.test.mjs",
+   "tools/listen-for-a-while/tool-rows.json sample runs (tool:name-a-heard-voice, tool:caption-what-is-heard, tool:ask-what-was-said)"
+  ]
+ },
+ "_old_code": "F-0792 reduceCaptions/applyCaptions, F-0793 roleHolder/mayTranscribe, F-0297 the asked.json cursor and F-0298 askTheMeeting's hearing_pending wait were deleted from old trillion main by dc79bb0a (computer/meeting-ledger.mjs, computer/listen.mjs) and are not in any checkout here; PR #43 asked that they be rebuilt around the listening tool's records rather than copied."
+}
