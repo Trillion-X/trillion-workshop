@@ -180,7 +180,74 @@
       "output_selector": "$.causes[0].label",
       "contains": "Not picked up yet"
      }
-    ]
+    ],
+    "record_model": {
+     "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+     "kinds": [
+      {
+       "type": "schedule",
+       "guard_properties": {
+        "set_by": "text",
+        "backs": "objects",
+        "default": "boolean",
+        "enabled": "boolean",
+        "every": "object",
+        "label": "text",
+        "last_run": "object",
+        "once_at": "text",
+        "overlap": "text",
+        "revision": "number",
+        "scan_from": "text",
+        "schedule_id": "text",
+        "set_at": "text",
+        "starts_on": "text",
+        "then": "object"
+       }
+      },
+      {
+       "type": "schedule-state",
+       "guard_properties": {
+        "last_run": "object",
+        "scan_from": "text",
+        "schedule_id": "text"
+       }
+      },
+      {
+       "type": "schedule-removed",
+       "properties": {
+        "schedule_id": "text",
+        "removed_at": "text"
+       },
+       "_read_by": "src/starting-rules.mjs keptAsChanges: historical removed schedule marks migrate to default-change"
+      },
+      {
+       "type": "default-change",
+       "properties": {
+        "id": "text",
+        "removed": "boolean",
+        "at": "text"
+       },
+       "_read_by": "src/shipped-defaults.mjs and src/starting-rules.mjs: a person's removed shipped default remains removed across deployments"
+      },
+      {
+       "type": "made-by-trillion",
+       "properties": {
+        "rule_id": "text",
+        "schedule_id": "text",
+        "at": "text"
+       },
+       "_read_by": "src/starting-rules.mjs keptAsChanges: historical default ownership marks consumed by migration"
+      },
+      {
+       "type": "trigger-rule-removed",
+       "properties": {
+        "rule_id": "text",
+        "removed_at": "text"
+       },
+       "_read_by": "src/starting-rules.mjs keptAsChanges: historical removed rule marks migrate to default-change"
+      }
+     ]
+    }
    }
   }
  ]

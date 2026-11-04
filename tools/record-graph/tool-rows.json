@@ -532,6 +532,27 @@
                 }
               ],
               "_read_by": "src/record-model-tools.mjs relate: subject is the role of object (\"Pat\" is the \"dad\" of me), so what holds the object answers under that role and what holds the subject under subject"
+            },
+            {
+              "type": "entity-list",
+              "guard_properties": {
+                "before": "text",
+                "complete": "boolean"
+              }
+            },
+            {
+              "type": "entity-row",
+              "guard_properties": {
+                "keys": "text"
+              }
+            },
+            {
+              "type": "entity-spelling",
+              "guard_properties": {
+                "count": "number",
+                "key": "text",
+                "rows": "text"
+              }
             }
           ],
           "relations": {
@@ -567,7 +588,8 @@
             "participants_most": 50,
             "history_most": 1000,
             "summary_most": 2000
-          }
+          },
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
         }
       }
     },

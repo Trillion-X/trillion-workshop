@@ -184,7 +184,88 @@
             "output_selector": "$.kind.one",
             "contains": "Tool"
           }
-        ]
+        ],
+        "record_model": {
+          "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+          "kinds": [
+            {
+              "type": "resource-action-binding",
+              "guard_properties": {
+                "owner": "text",
+                "resource": "text",
+                "operation": "text",
+                "tool_version": "text"
+              }
+            },
+            {
+              "type": "resource-dependency",
+              "guard_properties": {
+                "owner": "text",
+                "resource": "text",
+                "operation": "text"
+              }
+            },
+            {
+              "type": "addressed-capability",
+              "properties": {
+                "id": "text",
+                "owner": "text",
+                "revision": "text",
+                "created_at": "text",
+                "changed_at": "text",
+                "deleted_at": "text",
+                "label": "text",
+                "description": "text",
+                "interface": "text",
+                "role": "text",
+                "semantics": "texts",
+                "operations": "object",
+                "placements": "texts",
+                "needs": "texts",
+                "costs": "object",
+                "admission_contract": "text",
+                "admitted_operations": "object",
+                "contract_admissions": "object"
+              }
+            },
+            {
+              "type": "resource-binding",
+              "properties": {
+                "id": "text",
+                "owner": "text",
+                "revision": "text",
+                "created_at": "text",
+                "changed_at": "text",
+                "deleted_at": "text",
+                "resource_ref": "text",
+                "capability_id": "text",
+                "capability_revision": "text",
+                "requirements": "object"
+              }
+            },
+            {
+              "type": "resource-operation-binding",
+              "properties": {
+                "id": "text",
+                "owner": "text",
+                "revision": "text",
+                "created_at": "text",
+                "changed_at": "text",
+                "deleted_at": "text",
+                "request": "object"
+              }
+            },
+            {
+              "type": "database-dependency",
+              "properties": {
+                "resource_ref": "text",
+                "interface": "text",
+                "placement": "text",
+                "revision": "text"
+              }
+            }
+          ]
+        }
       }
     }
   ]

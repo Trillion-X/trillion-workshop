@@ -121,6 +121,17 @@
                 "record": "text",
                 "spaces": "list"
               }
+            },
+            {
+              "type": "link-page",
+              "guard_properties": {
+                "about": "text",
+                "code": "text",
+                "links": "objects",
+                "on": "boolean",
+                "pending_code": "text",
+                "title": "text"
+              }
             }
           ],
           "indexes": [
@@ -135,7 +146,8 @@
               ],
               "_read_by": "src/record-sharing.mjs chainSharingRows (the choices that cover the records linked to theirs)"
             }
-          ]
+          ],
+          "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
         }
       }
     }
