@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { moveCode } from '../do-work/move-code.mjs';
 import { requestsIn } from '../read-data/imports.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const git = (folder, ...args) => execFileSync('git', ['-C', folder, ...args], { encoding: 'utf8' });
 const json = value => `${JSON.stringify(value, null, 2)}\n`;
@@ -279,4 +280,69 @@ test('a file the destination already holds where it would land, differing only i
     rmSync(source, { recursive: true, force: true });
     rmSync(destination, { recursive: true, force: true });
   }
+});
+
+test('a test whose code an earlier move carried elsewhere lands beside it and imports it there; nothing is copied twice', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/sum.mjs': "import { one } from './one.mjs';\nexport const sum = (a, b) => a + b + one - 1;\n",
+    'src/one.mjs': 'export const one = 1;\n',
+    'test/help.mjs': 'export const pair = [2, 3];\n',
+    'test/sum.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { sum } from '../src/sum.mjs';\nimport { pair } from './help.mjs';\ntest('sum', () => { assert.equal(sum(...pair), 5); });\n",
+  });
+  const commit = git(source, 'rev-parse', 'HEAD').trim();
+  const sumHere = "import { one } from '../read-data/one.mjs';\nexport const sum = (a, b) => a + b + one - 1;\n";
+  const idOf = text => makeHashCodeHexFromBytes(new Uint8Array(Buffer.from(text)));
+  const earlier = { from: 'src/sum.mjs', commit, to: 'tools/add-numbers/do-work/sum.mjs', source_identity: idOf(readFileSync(join(source, 'src/sum.mjs'), 'utf8')), identity: idOf(sumHere) };
+  const earlierOne = { from: 'src/one.mjs', commit, to: 'tools/add-numbers/read-data/one.mjs', source_identity: idOf('export const one = 1;\n'), identity: idOf('export const one = 1;\n') };
+  const destination = repository({
+    'package.json': json({ name: 'tool-box', type: 'module' }),
+    'tools/add-numbers/tool-rows.json': json({ rows: [] }),
+    'tools/add-numbers/do-work/sum.mjs': sumHere,
+    'tools/add-numbers/read-data/one.mjs': 'export const one = 1;\n',
+    'tools/add-numbers/moved-from.json': json({ about: 'made up', source: 'old-app', package: 'tool-box', calls: [], files: [earlier, earlierOne] }),
+  });
+  const tests = { id: 'move:old-app-tests', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
+    groups: [{ id: 'sum-tests', owner: ['test/sum.test.mjs'], to: 'tools/add-numbers', joins_tool: 'the tests of the code it holds' }] };
+  try {
+    const plan = moveCode({ step: 'plan', row: tests, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].held, []);
+    const to = Object.fromEntries(plan.files.map(file => [file.from, file]));
+    assert.equal(to['src/sum.mjs'].to, 'tools/add-numbers/do-work/sum.mjs');
+    assert.equal(to['src/sum.mjs'].reused, true);
+    assert.equal(to['src/one.mjs'], undefined, 'reached only through a file that is home already');
+    assert.equal(to['test/sum.test.mjs'].to, 'tools/add-numbers/test/sum.test.mjs');
+    assert.deepEqual(to['test/sum.test.mjs'].import_changes.map(change => change.specifier), ['../do-work/sum.mjs']);
+    const applied = moveCode({ step: 'apply', row: tests, source_folder: source, destination_folder: destination });
+    assert.equal(applied.applied.moved, 2);
+    const receipt = JSON.parse(readFileSync(join(destination, 'tools/add-numbers/moved-from.json'), 'utf8'));
+    assert.deepEqual(receipt.files.filter(file => file.from === 'src/sum.mjs'), [earlier], 'the earlier move keeps its entry, once');
+    git(destination, 'add', '-A'); git(destination, 'commit', '-q', '-m', 'tests');
+    const checked = moveCode({ step: 'check', row: tests, source_folder: source, destination_folder: destination, folders: ['tools/add-numbers'] });
+    assert.deepEqual(checked.folders[0].problems, []);
+    assert.equal(checked.folders[0].tests.pass, 1);
+    assert.equal(checked.ok, true);
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
+
+test('a test rides with the group it reaches when what else it imports is home already in the destination', () => {
+  const source = repository({
+    'package.json': json({ name: 'old-app', type: 'module' }),
+    'src/sum.mjs': 'export const sum = (a, b) => a + b;\n',
+    'src/twice.mjs': "import { sum } from './sum.mjs';\nexport const twice = n => sum(n, n);\n",
+    'test/twice.test.mjs': "import test from 'node:test';\nimport assert from 'node:assert/strict';\nimport { twice } from '../src/twice.mjs';\nimport { sum } from '../src/sum.mjs';\ntest('twice', () => { assert.equal(twice(2), sum(2, 2)); });\n",
+  });
+  const destination = repository({
+    'package.json': json({ name: 'tool-box', type: 'module' }),
+    'tools/add-numbers/do-work/sum.mjs': 'export const sum = (a, b) => a + b;\n',
+  });
+  const twice = { id: 'move:twice', source: { name: 'old-app', test_folders: ['test'] }, destination: { name: 'tool-box', package: 'tool-box', shared_folder: 'tools/shared-code' },
+    groups: [{ id: 'double-numbers', owner: ['src/twice.mjs'], to: 'tools/double-numbers' }] };
+  try {
+    const plan = moveCode({ step: 'plan', row: twice, source_folder: source, destination_folder: destination });
+    assert.deepEqual(plan.groups[0].tests, ['test/twice.test.mjs']);
+    const to = Object.fromEntries(plan.files.map(file => [file.from, file.to]));
+    assert.equal(to['src/sum.mjs'], 'tools/add-numbers/do-work/sum.mjs');
+    assert.equal(to['test/twice.test.mjs'], 'tools/double-numbers/test/twice.test.mjs');
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
