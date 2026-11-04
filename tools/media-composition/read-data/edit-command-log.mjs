@@ -1,4 +1,4 @@
-// parts/media-composition/read-data/edit-command-log.mjs
+// tools/media-composition/read-data/edit-command-log.mjs
 //
 // AN EDIT SESSION IS A LOG OF TYPED COMMANDS, SNAPSHOTTED EVERY FEW, SO IT SURVIVES A RELOAD EXACTLY.
 //

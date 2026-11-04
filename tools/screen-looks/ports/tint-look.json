@@ -1,0 +1,78 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-TINT-LOOK-FROM-OLD-TRILLION",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "rea pm/ws move 2026-11-03: not-yet-moved product modules and workshop tool parts",
+    "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
+    "quote": "move code, never rewrite it"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "d273ef3049fea1297f18533f798d4916a3832192",
+      "path_multihash": "1f:589367120a7ebecf2d34d11cc02eaa13dd75ed9ac5f785181af2870a252a88e8",
+      "multihash": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T12:00:00Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-looks/read-data/tint-look.ts",
+      "baseline_commit_message": "screen-looks and page-critic: move the look colour modules and build the frame, reduced-motion and page-order checks"
+    }
+  ],
+  "preserve": [
+    "pure and blind: no page, storage, look, token or colour is named; ranges, rules and words are DATA",
+    "a token the look lacks is skipped, never invented",
+    "every value written goes through changeScreenLookTokens, which keeps each token kind and bounds"
+  ],
+  "allowed_deltas": [
+    "the file header and the import and comment paths name the file's new place (baseline.redactions)"
+  ],
+  "banned_substitutions": [
+    "a second look validator or colour parser",
+    "a colour, look or font named in code"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:78f89aafac6d925eb4190c6a0923a722d90862b62754854d8c2fddb6f9cbcbab",
+    "target_multihash_at_baseline": "1f:634c540de2f41622d70f5fcd04deaf57520998ede5df72cfa11b5b1df19c9523",
+    "redactions": [
+      {
+        "from": "'../tint-rules.json'",
+        "to": "'./tint-rules.json'"
+      },
+      {
+        "from": "parts/screen-look/read-data/",
+        "to": "tools/screen-looks/read-data/"
+      },
+      {
+        "from": "parts/screen-look/tint-rules.json",
+        "to": "tools/screen-looks/read-data/tint-rules.json"
+      }
+    ],
+    "commit": "9712f603f701c4efc880979d13b8e00adb5e55b4",
+    "recorded_at": "2026-11-03T12:00:00Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export type TintRules",
+      "export type Oklch",
+      "export function oklchOfRgb",
+      "export function linearRgbOf",
+      "export function fitChroma",
+      "export function parseHex"
+    ],
+    "test_refs": [
+      "tools/screen-looks/test/tint-look.test.ts"
+    ],
+    "render_refs": [],
+    "originality_ref": null
+  }
+}
