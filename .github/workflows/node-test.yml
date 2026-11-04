@@ -1,6 +1,7 @@
 # Runs the Workshop's tests (CONTRIBUTING.md, Checks) on every pull request and on main, on Node 24. The suite is cut
 # into four shards (node --test --test-shard) that run side by side, so no one job comes near its time limit; a newer
-# push to the same branch cancels the run it replaces.
+# push to the same branch cancels the run it replaces. A file whose tests have ended exits (--test-force-exit): one test
+# that left a server open (a browser that could not start) held every earlier run until its 45 minutes ran out.
 name: node --test
 on:
   pull_request:
@@ -32,4 +33,7 @@ jobs:
         with:
           python-version: '3.12'
       - run: npm ci
-      - run: node --test --test-shard=${{ matrix.shard }}/4 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'
+      # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
+      - run: npx playwright install --with-deps chromium
+      # --test-force-exit: a test file whose tests have all ended exits, even if one left a timer or a server open.
+      - run: node --test --test-force-exit --test-shard=${{ matrix.shard }}/4 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'

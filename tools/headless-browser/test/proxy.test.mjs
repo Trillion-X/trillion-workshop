@@ -40,8 +40,11 @@ test('a browser told a proxy loads a page through it and reaches no loopback or 
   const proxyPort = await listen(proxy);
   const before = process.env.HTTPS_PROXY;
   process.env.HTTPS_PROXY = `http://127.0.0.1:${proxyPort}`;
-  const browser = await openBrowser(chromium.executablePath(), { width: 800, height: 600 });
+  // The servers close and HTTPS_PROXY is put back even when no browser starts (no Chromium on this computer): a
+  // listening server left open holds this test file open for good.
+  let browser = null;
   try {
+    browser = await openBrowser(chromium.executablePath(), { width: 800, height: 600 });
     await browser.send('Page.enable');
     assert.match(await visit(browser, 'http://site.example/'), /Loaded through the proxy/);
     for (const address of [`http://127.0.0.1:${localPort}/`, `http://localhost:${localPort}/`, 'http://10.0.0.1/', 'https://169.254.169.254/latest/meta-data/']) {
@@ -51,7 +54,7 @@ test('a browser told a proxy loads a page through it and reaches no loopback or 
     // Each address went to the proxy (the browser's own background calls do too, and are refused there).
     for (const host of ['site.example', `127.0.0.1:${localPort}`, `localhost:${localPort}`, '10.0.0.1', '169.254.169.254:443']) assert.ok(asked.includes(host), host);
   } finally {
-    browser.close();
+    browser?.close();
     if (before === undefined) delete process.env.HTTPS_PROXY; else process.env.HTTPS_PROXY = before;
     for (const server of [local, site, proxy]) { server.closeAllConnections(); server.close(); }
   }
