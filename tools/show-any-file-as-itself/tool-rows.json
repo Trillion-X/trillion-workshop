@@ -94,6 +94,13 @@
                   }
                 }
               }
+            },
+            "by_renderer": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer"
+              },
+              "description": "How many files each renderer was chosen for."
             }
           }
         },
@@ -175,8 +182,8 @@
                 }
               ]
             },
-            "output_selector": "$.classified[1].renderer",
-            "contains": "diff"
+            "output_selector": "$.by_renderer.diff",
+            "at_least": 1
           }
         ]
       }

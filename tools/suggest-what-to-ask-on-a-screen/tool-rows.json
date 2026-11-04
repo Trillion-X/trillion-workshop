@@ -150,8 +150,8 @@
             "input": {
               "screen": "calendar"
             },
-            "output_selector": "$.examples[0].title",
-            "contains": "Fill next week"
+            "output_selector": "$.count_words",
+            "contains": "2 ideas"
           }
         ]
       }

@@ -271,8 +271,8 @@
                 "style": "soft"
               }
             },
-            "output_selector": "$.controls.settings[0].widget",
-            "contains": "slider"
+            "output_selector": "$.input.style",
+            "contains": "soft"
           }
         ]
       }

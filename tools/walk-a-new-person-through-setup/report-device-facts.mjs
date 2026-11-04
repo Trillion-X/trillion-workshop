@@ -32,5 +32,5 @@ export function reportDeviceFacts({ devices = [], reports, now } = {}) {
   const answers = reports.map((report, index) => {
     try { return facts.report(report); } catch (error) { throw new Error(`Report ${index}: ${error.message}`); }
   });
-  return { answers, devices: facts.all() };
+  return { answers, changed: answers.filter(answer => answer?.changed).length, devices: facts.all() };
 }

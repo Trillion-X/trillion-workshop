@@ -202,8 +202,8 @@
                 }
               ]
             },
-            "output_selector": "$.marks[0].opacity",
-            "at_least": 0.2
+            "output_selector": "$.gone",
+            "at_least": 1
           }
         ]
       }
