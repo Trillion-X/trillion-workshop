@@ -19,7 +19,7 @@
 //
 // usage: start-a-place.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
 import { readFileSync, createReadStream } from 'node:fs';
-import { isAbsolute, dirname, resolve as resolvePath } from 'node:path';
+import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import {
@@ -66,7 +66,7 @@ async function untilSsh(machine, { wait, run, tries = 36 }) {
 /** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing
  * at it. */
 export async function copyRelease(machine, engine, run = onMachine, root = '') {
-  const name = engine.release_name, dir = `/opt/place/releases/${name}`, at = q(`${root}${dir}`);
+  const name = engine.release_name, dir = `${engine.releases ?? SETTINGS.layout.releases}/${name}`, at = q(`${root}${dir}`);
   if (!/^[A-Za-z0-9._-]{1,80}$/.test(name ?? '')) throw new Error('The release needs a release_name of letters, digits, dot, dash or underscore.');
   if (engine.release?.tarball) await run(machine, `install -d -m 0755 ${at} && tar -C ${at} -xzf -`, createReadStream(absolute(engine.release.tarball, 'engine.release.tarball')));
   else if (engine.release?.on_machine) await run(machine, `rm -rf ${at} && cp -a ${q(`${root}${engine.release.on_machine}`)} ${at}`);
@@ -101,6 +101,24 @@ export function releaseFeed(feed) {
  * product's (read-data/settings.json `release_feed`). */
 export const feedOf = request => (request.release_feed === null ? null : releaseFeed(request.release_feed ?? SETTINGS.release_feed));
 
+/** A copies row (trillion-rust src/account/computers/copy_rule.rs `valid`): at least one copy keeper, and no more
+ * computers that may answer than keep a copy. */
+export function copiesPolicy(copies) {
+  const names = ['least_copy_keepers', 'least_voters', 'least_may_answer', 'least_always_on'];
+  if (!copies || typeof copies !== 'object' || Object.keys(copies).some(key => !names.includes(key)) || !names.every(key => Number.isInteger(copies[key]) && copies[key] >= 0)) throw refused(`copies must be { ${names.join(', ')} }, each a whole number.`);
+  if (copies.least_copy_keepers < 1 || copies.least_may_answer > copies.least_copy_keepers) throw refused('copies needs least_copy_keepers of at least 1, and least_may_answer no more than least_copy_keepers.');
+  return { ...copies };
+}
+
+/** The copies a new account made at this computer can meet: as many as the computers its default places keep it on
+ * (this computer alone when it names none), up to the product's own (read-data/settings.json `copies.most`). One
+ * computer keeps one copy, votes alone and answers alone; the engine's test fixture's 3 keepers and 3 voters are
+ * never met by fewer than 3 computers, so every new account there would wait for computers it can never get. */
+export function copiesFor(config) {
+  const computers = Math.max(1, new Set(config.default_places?.holders ?? []).size), most = SETTINGS.copies.most;
+  return copiesPolicy(Object.fromEntries(Object.entries(most).map(([key, value]) => [key, Math.min(value, key === 'least_always_on' ? value : computers)])));
+}
+
 /** The places a new account's rows name by default, as the request gives them. */
 export function defaultPlaces(places) {
   if (!places || typeof places !== 'object' || Array.isArray(places)) throw refused('default_places must be { holders: [place ids], answering: [place ids], voters?: [place ids] }.');
@@ -128,6 +146,9 @@ export async function placeConfig(machine, request, price, run = onMachine) {
     for (const key of from.at.slice(0, -1)) at = at[key] ??= {};
     at[from.at.at(-1)] = value;
   }
+  // A copies row this computer's accounts can meet, whatever the release's or the request's place_config carried.
+  if (request.copies !== undefined) (config.new_accounts ??= {}).copies = copiesPolicy(request.copies);
+  else if (config.new_accounts) config.new_accounts.copies = copiesFor(config);
   return config;
 }
 
@@ -196,47 +217,100 @@ export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wa
   return { release, sign_up_status: await signUpStatus(lease.hostName ?? request.name.host_name, { fetchImpl, wait, tries }) };
 }
 
-/** The update of a running computer, in a backup folder named for this moment. */
-const backupFolder = (now = new Date()) => `${SETTINGS.update.backups}/update-${now.toISOString().replace(/[:.]/g, '-')}`;
-const updateScript = (args, { root, placeUser, settle }) => {
-  const set = [root && `ROOT=${q(root)}`, placeUser !== 'place' && `PLACE_USER=${q(placeUser)}`, `SETTLE=${q(settle)}`].filter(Boolean);
+/** The update of a running computer, in a backup folder named for this moment, inside its own state folder. */
+const backupFolder = (state, now = new Date()) => `${state}/${SETTINGS.update.backups}/update-${now.toISOString().replace(/[:.]/g, '-')}`;
+const updateScript = (args, { root, settle, layout }) => {
+  const set = [root && `ROOT=${q(root)}`, `SETTLE=${q(settle)}`, ...(layout ? Object.entries(layoutEnv(layout)).map(([key, value]) => `${key}=${q(value)}`) : [])].filter(Boolean);
   return `env ${set.join(' ')} sh -s -- ${args.map(q).join(' ')}`;
 };
+const layoutEnv = layout => ({ CONFIG: layout.config, UNIT_FILE: layout.unit_file, UNIT: layout.unit, CURRENT: layout.current, STATE: layout.state, OWNER: layout.owner });
+const PATH_PART = /^(\/[A-Za-z0-9._@-]+)+$/;
+const LAYOUT_FIELDS = ['unit', 'unit_file', 'config', 'current', 'state', 'owner', 'releases'];
 
-/** Bring a running computer to what a new one gets: copy the request's release (one that reads product settings and
- * knows release_feed, such as the feed's newest), write the product settings file, add the feed to its place config,
- * name the file in its service, point /opt/place/current at the release and restart, all from one backup folder
- * (do-work/update-a-computer.sh). A service that is not active after the restart, or a sign-up page that does not
- * answer 200, puts everything back. `root` and `placeUser` are for a made-up computer folder in tests. */
-export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', placeUser = 'place', settle = SETTINGS.update.settle_seconds, now = new Date() } = {}) {
+/** What a computer's service unit says about its layout: the place config its `serve` names, the `current` link it
+ * starts the engine through, the folder it works in (else the config's folder) and the user it runs as. */
+export function parseUnit(text) {
+  const exec = text.match(/^ExecStart=(.*)$/m)?.[1] ?? '';
+  const config = exec.match(/\bserve\s+['"]?(\/[^\s'"]+)/)?.[1];
+  const current = exec.match(/(\/[A-Za-z0-9._@/-]*\/current)(?![A-Za-z0-9._-])/)?.[1];
+  const state = text.match(/^WorkingDirectory=(\S+)$/m)?.[1] ?? (config && dirname(config));
+  return { config, current, state, owner: text.match(/^User=(\S+)$/m)?.[1] ?? 'root' };
+}
+
+/** The computer's own layout: the request's `layout` fields first (a per-computer DATA row), the rest read from the
+ * computer. The unit is the one named, else the one unit under /etc/systemd/system that serves a config through a
+ * `current` link; the releases folder is the folder `current` points into. No layout is assumed. */
+export async function readLayout(machine, request, run = onMachine, root = '') {
+  const given = request.layout ?? {};
+  const extra = Object.keys(given).filter(key => !LAYOUT_FIELDS.includes(key));
+  if (extra.length) throw refused(`layout takes ${LAYOUT_FIELDS.join(', ')} only, not ${extra.join(', ')}.`);
+  let unitFile = given.unit_file ?? (given.unit && `/etc/systemd/system/${given.unit}`);
+  if (!unitFile) {
+    const found = (await run(machine, `for f in ${q(`${root}/etc/systemd/system`)}/*.service; do [ -f "$f" ] && grep -q ' serve ' "$f" && grep -q '/current' "$f" && echo "$f"; done; true`)).split('\n').filter(Boolean);
+    if (found.length !== 1) throw refused(`Found ${found.length ? found.map(f => basename(f)).join(', ') : 'no unit'} serving a place through a current link; name it in the request's layout.unit.`);
+    unitFile = found[0].slice(root.length);
+  }
+  const unit = parseUnit(await run(machine, `cat ${q(`${root}${unitFile}`)}`));
+  const layout = { unit: basename(unitFile), unit_file: unitFile, ...unit, ...Object.fromEntries(Object.entries(given).filter(([key]) => key !== 'releases')) };
+  if (PATH_PART.test(layout.current ?? '')) {
+    const target = (await run(machine, `readlink ${q(`${root}${layout.current}`)} || true`)).trim().replace(/\/$/, '');
+    layout.release_dir = target ? posix.resolve(dirname(layout.current), target) : null;
+  }
+  layout.releases = given.releases ?? (layout.release_dir && dirname(layout.release_dir));
+  for (const key of ['unit_file', 'config', 'current', 'state', 'releases']) {
+    if (!PATH_PART.test(layout[key] ?? '') || layout[key].split('/').some(part => part === '..' || part === '.')) throw refused(`The computer's layout has no usable ${key} (${layout[key] ?? 'none found'}); give it in the request's layout.${key}.`);
+  }
+  if (!/^[a-z_][a-z0-9_-]*$/.test(layout.owner) || !/^[A-Za-z0-9@._-]+\.service$/.test(layout.unit)) throw refused('The layout\'s owner must be a user name and its unit a .service name.');
+  return layout;
+}
+
+/** Bring a running computer to what a new one gets, in its own layout (`readLayout`): copy the request's release
+ * (one that reads product settings and knows release_feed, such as the feed's newest) or keep the one `current` names
+ * when the request gives none, write the product settings file into its state folder, add the feed (adopting into the
+ * computer's own releases folder) and a copies policy it can meet (`copiesFor`) to its place config, name the file in
+ * its service, point `current` at the release and restart, all from one backup folder (do-work/update-a-computer.sh).
+ * A service that is not active after the restart, or a sign-up page that does not answer 200, puts everything back.
+ * `root` is for made-up computer folders in tests. */
+export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', settle = SETTINGS.update.settle_seconds, now = new Date() } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
-  const feed = feedOf(request), adopt = adoptFolder(request);
-  if (!feed || !adopt) throw refused('An update needs a release_feed whose releases is an absolute folder (the product\'s, read-data/settings.json, when the request names none).');
-  const release = await copyRelease(machine, request.engine, run, root);
-  const config = JSON.parse(await run(machine, `cat ${q(`${root}/var/lib/place/place.json`)}`));
+  const named = feedOf(request);
+  if (!named) throw refused('An update follows a release_feed (the product\'s, read-data/settings.json, when the request names none).');
+  if (!request.engine?.file) throw refused('An update needs engine.file: the engine program inside a release.');
+  const layout = await readLayout(machine, request, run, root);
+  const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : layout.releases };
+  const adopt = adoptFolder({ release_feed: feed });
+  const release = request.engine.release ? await copyRelease(machine, { ...request.engine, releases: layout.releases }, run, root) : layout.release_dir;
+  if (!release) throw refused('The computer\'s current link names no release, and the request gives none.');
+  const config = JSON.parse(await run(machine, `cat ${q(`${root}${layout.config}`)}`));
   config.release_feed = feed;
-  const backup = backupFolder(now), staged = `${root}${backup}/new`, options = { root, placeUser, settle };
+  if (config.new_accounts) config.new_accounts.copies = request.copies === undefined ? copiesFor(config) : copiesPolicy(request.copies);
+  const settingsFile = `${layout.state}/${basename(productSettings.file)}`;
+  const backup = backupFolder(layout.state, now), staged = `${root}${backup}/new`, options = { root, settle, layout };
   await run(machine, `install -d -m 0700 ${q(staged)}`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/place.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, PRODUCT_SETTINGS);
   try {
-    await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, productSettings.file, adopt], options), readFileSync(UPDATE));
+    await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], options), readFileSync(UPDATE));
   } catch (error) {
     throw Object.assign(new Error(`The update was put back from ${backup}: ${error.message}`), { backup });
   }
   const host = lease.hostName ?? request.name?.host_name, signUp = host ? await signUpStatus(host, { fetchImpl, wait, tries }) : null;
   if (host && signUp !== 200) {
-    await run(machine, updateScript(['rollback', backup], options), readFileSync(UPDATE));
+    await run(machine, updateScript(['rollback', backup], { root, settle }), readFileSync(UPDATE));
     throw Object.assign(new Error(`The sign-up page at ${host} answered ${signUp ?? 'nothing'} after the update, so it was put back from ${backup}.`), { backup });
   }
-  return { release, backup, product_settings: productSettings.file, release_feed: feed.urls, sign_up_status: signUp };
+  return {
+    layout: { unit: layout.unit, config: layout.config, current: layout.current, state: layout.state, releases: layout.releases },
+    release, backup, product_settings: settingsFile, release_feed: { urls: feed.urls, releases: feed.releases },
+    copies: config.new_accounts?.copies ?? null, sign_up_status: signUp,
+  };
 }
 
-/** Put a computer back from the backup an update made (its answer's `backup`). */
-export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', placeUser = 'place', settle = SETTINGS.update.settle_seconds } = {}) {
+/** Put a computer back from the backup an update made (its answer's `backup`); the backup keeps the layout. */
+export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', settle = SETTINGS.update.settle_seconds } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
-  if (!new RegExp(`^${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '')) throw refused(`BACKUP is a folder an update answered, like ${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
-  const said = await run(machine, updateScript(['rollback', backup], { root, placeUser, settle }), readFileSync(UPDATE));
+  if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/place/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
+  const said = await run(machine, updateScript(['rollback', backup], { root, settle }), readFileSync(UPDATE));
   return { backup, rolled_back: said.trim() };
 }
 
