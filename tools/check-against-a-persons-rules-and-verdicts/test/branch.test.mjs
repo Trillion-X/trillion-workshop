@@ -285,3 +285,31 @@ test('no row pieceRow or pieceRows makes names any judge-words selector', () => 
   for (const row of rows) for (const name of SELECTOR_NAMES) assert.equal(name in row, false, `${row.id} must not carry ${name}`);
   assert.ok(SELECTOR_NAMES.includes('groups'), 'groups is a selector, which is why a piece row carries tags');
 });
+
+// The live rows keep part_of as a one-element list; the link field kind allows lists. Made-up rows in that shape.
+const listed = rows => rows.map(row => (row.part_of === undefined ? row : { ...row, part_of: [row.part_of] }));
+
+test('a link kept as a list: the lineage follows its one parent, a leaf belongs when any id is in the lineage, a branch naming two parents is refused', () => {
+  const link = SETTINGS_OF_BRANCH.link_field;
+  assert.deepEqual(lineageOf(listed(methods()), 'made-up-grandchild', link), ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
+  assert.deepEqual(lineageOf([{ id: 'a', part_of: [] }], 'a', link), ['a'], 'an empty list is a root');
+  assert.throws(() => lineageOf([{ id: 'a', part_of: ['gone'] }], 'a', link), /part_of gone/);
+  assert.throws(() => lineageOf([{ id: 'a', part_of: ['b', 'c'] }, { id: 'b' }, { id: 'c' }], 'a', link), error => error instanceof BranchRefusal && /b and c/.test(error.message));
+  const lineage = lineageOf(listed(methods()), 'made-up-branch', link);
+  const rows = [...listed(checks()), { id: 'everyone', part_of: [] }, { id: 'shared', part_of: ['made-up-other', 'made-up-branch'] }, { id: 'elsewhere', part_of: ['made-up-other'] }];
+  assert.deepEqual(checksOfBranch(rows, lineage, link).map(row => row.id), ['no-glitter', 'base-question', 'no-sparkle', 'no-wibble', 'everyone', 'shared']);
+});
+
+test('the branch mode judges branches whose part_of is a list, asking the door where { part_of: [id] } as the rows keep it', async () => {
+  const door = memoryDoor({ methodRows: listed(methods()), checkRows: listed(checks()) });
+  const { lineage, rows_used } = await rulesOfBranch(door, 'made-up-grandchild');
+  assert.deepEqual(lineage, ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
+  const checkCalls = door.calls.filter(call => call.type === 'record:check');
+  assert.deepEqual(checkCalls.slice(1).map(call => call.where), lineage.map(id => ({ part_of: [id] })));
+  assert.deepEqual(rows_used.branches, { 'made-up-grandchild': 1, 'made-up-branch': 3, 'made-up-base': 4 });
+});
+
+test('the branch mode refuses a branch whose part_of names two branches', async () => {
+  const methodRows = listed(methods()).map(row => (row.id === 'made-up-grandchild' ? { ...row, part_of: ['made-up-branch', 'made-up-other'] } : row));
+  await assert.rejects(rulesOfBranch(memoryDoor({ methodRows, checkRows: listed(checks()) }), 'made-up-grandchild'), /made-up-branch and made-up-other/);
+});
