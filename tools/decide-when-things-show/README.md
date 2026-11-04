@@ -36,6 +36,7 @@ The old `/show-rules/accounts` and `/show-rules/set { give }` have no rows, beca
 | `read-data/declared-controls.mjs`, `read-data/open-choices.json` | Every declared control, moved |
 | `read-data/show-rules-tools.mjs` | The old AI tools' words, moved; the old edit-authority test reads them |
 | `read-data/work-for-ais.json`, `read-data/record-sharing.json` | The account facts and the door grant's prefixes, moved |
+| `read-data/controls.json`, `read-data/service-records.json` | Moved byte for byte from trillion-rust `product/controls.json` and `product/service-records.json` when the engine's product/ folder was deleted: the controls each part draws (by part, the rows trillion-rust `src/local_account/show_rules.rs` `controls` reads with `open-choices.json`) and the operator records every account reads (labels, prefixes, `read_seconds`). The engine reads these, and `open-choices.json`, `work-for-ais.json`, `set-up-my-account/read-data/show-rules.json`, `set-up-my-account/read-data/setup-steps.json` and `formula-engine/rules/rule-operators.json`, from the account's installed Workshop (trillion-rust `src/local_account/show_rules/data.json`); it carries no copy |
 | `tool-rows.json` | The eight Workshop rows |
 | `ports/show-rules-store.json`, `ports/show-rules-door.json` | The port contracts |
 | `test/show-rules-*.test.mjs`, `test/show-type*.test.mjs` | The five old trillion tests; only their paths changed |

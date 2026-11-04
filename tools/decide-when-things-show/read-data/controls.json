@@ -1,0 +1,289 @@
+{
+  "_what": "The controls each part draws, by part, in the order they are read (the first declaration of a path keeps its words). Each row is a show-rules `control`: a rule can hide it, or everything under its path, for anyone. The old app reads them in parts/ui/show/show-rules/declared-controls.mjs and the engine in src/local_account/show_rules.rs; each part's part.json stays its manifest.",
+  "parts": [
+    {
+      "part": "sidebar",
+      "what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): a rule can hide any of them, or everything under a path, for anyone. DesktopSidebar draws `<controls>.<capability>` for each capability; a host that draws another frame (the pane tab bar) names its own path.",
+      "controls": [
+        {
+          "id": "sidebar",
+          "label": "The sidebar"
+        },
+        {
+          "id": "sidebar.position",
+          "label": "Move the sidebar to another edge"
+        },
+        {
+          "id": "sidebar.collapse",
+          "label": "Collapse the sidebar"
+        },
+        {
+          "id": "sidebar.undock",
+          "label": "Float the sidebar"
+        },
+        {
+          "id": "sidebar.hide",
+          "label": "Hide the sidebar"
+        },
+        {
+          "id": "sidebar.resize",
+          "label": "Resize the sidebar"
+        },
+        {
+          "id": "sidebar.row-preview",
+          "label": "Preview a screen on its sidebar row"
+        }
+      ]
+    },
+    {
+      "part": "screen-arrangement",
+      "what": "The controls this part draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): every chrome zone is the control `arrangement.<zone>` (read-data/region-chrome.ts zoneControl), so a rule hides it for a person the way a layout's chrome map hides it for a layout. Each part of an empty pane is `arrangement.empty.<part>` (show/EmptyContainer.tsx); hidden, `arrangement.header.tabs.position` keeps the tabs on their default edge.",
+      "controls": [
+        {
+          "id": "arrangement",
+          "label": "Everything around the screens"
+        },
+        {
+          "id": "arrangement.header",
+          "label": "The bar above a screen"
+        },
+        {
+          "id": "arrangement.header.nav",
+          "label": "Back and forward"
+        },
+        {
+          "id": "arrangement.header.tabs",
+          "label": "Tabs"
+        },
+        {
+          "id": "arrangement.header.tabs.row-preview",
+          "label": "Preview a screen on its tab"
+        },
+        {
+          "id": "arrangement.header.tabs.position",
+          "label": "Move the tabs to another edge"
+        },
+        {
+          "id": "arrangement.header.tabs.collapse",
+          "label": "Show tabs as icons"
+        },
+        {
+          "id": "arrangement.header.tabs.undock",
+          "label": "Float the tabs"
+        },
+        {
+          "id": "arrangement.header.tabs.hide",
+          "label": "Hide the tabs"
+        },
+        {
+          "id": "arrangement.header.tabs.resize",
+          "label": "Resize the tabs"
+        },
+        {
+          "id": "arrangement.header.tabs.view",
+          "label": "Show the tabs as tabs or a list, each view by its id"
+        },
+        {
+          "id": "arrangement.header.new-tab",
+          "label": "New tab"
+        },
+        {
+          "id": "arrangement.header.actions",
+          "label": "More for this pane"
+        },
+        {
+          "id": "arrangement.header.actions.split-horizontal",
+          "label": "Split side by side"
+        },
+        {
+          "id": "arrangement.header.actions.split-vertical",
+          "label": "Split stacked"
+        },
+        {
+          "id": "arrangement.header.actions.maximize",
+          "label": "Focus on one pane"
+        },
+        {
+          "id": "arrangement.header.actions.overlay",
+          "label": "Float a pane over the screen"
+        },
+        {
+          "id": "arrangement.header.actions.move",
+          "label": "Move a pane"
+        },
+        {
+          "id": "arrangement.header.actions.close",
+          "label": "Close a pane"
+        },
+        {
+          "id": "arrangement.header.actions.layer",
+          "label": "Move a pane to another layer"
+        },
+        {
+          "id": "arrangement.header.actions.mode",
+          "label": "Change how this pane is laid out"
+        },
+        {
+          "id": "arrangement.header.actions.layouts",
+          "label": "Saved layouts"
+        },
+        {
+          "id": "arrangement.header.actions.open",
+          "label": "Open something in this pane"
+        },
+        {
+          "id": "arrangement.header.actions.draw",
+          "label": "Point and draw on a pane"
+        },
+        {
+          "id": "arrangement.header.actions.present-files",
+          "label": "Show files from your computer in a pane"
+        },
+        {
+          "id": "arrangement.header.actions.with-this",
+          "label": "Tools and your AI for what a pane shows"
+        },
+        {
+          "id": "arrangement.split",
+          "label": "Split by dropping on a pane edge"
+        },
+        {
+          "id": "arrangement.grab",
+          "label": "Move a floating window by its strip"
+        },
+        {
+          "id": "arrangement.container.frame",
+          "label": "The frame around a floating window"
+        },
+        {
+          "id": "arrangement.container.fill-height",
+          "label": "A floating window as tall as its space"
+        },
+        {
+          "id": "arrangement.empty",
+          "label": "What an empty pane offers"
+        },
+        {
+          "id": "arrangement.empty.search",
+          "label": "Search in an empty pane"
+        },
+        {
+          "id": "arrangement.empty.layouts",
+          "label": "Saved layouts in an empty pane"
+        },
+        {
+          "id": "arrangement.empty.folders",
+          "label": "Folders in an empty pane"
+        },
+        {
+          "id": "arrangement.empty.folders.create",
+          "label": "Make a folder from an empty pane"
+        },
+        {
+          "id": "arrangement.empty.open-as",
+          "label": "Open a folder's screens together, each way by its id"
+        },
+        {
+          "id": "arrangement.empty.everything",
+          "label": "Everything you can open, in an empty pane"
+        },
+        {
+          "id": "arrangement.empty.kept",
+          "label": "Screens kept at the foot of an empty pane"
+        },
+        {
+          "id": "arrangement.empty.start",
+          "label": "The start screen of an empty pane"
+        }
+      ]
+    },
+    {
+      "part": "command-palette",
+      "what": "The controls Find anything draws, each a show-rules `control` (parts/ui/show/show-rules show-of.ts controlShown): each place results come from (src/workspace/command-palette.json `sources`) is `palette.source.<its id>` and each action is `palette.action.<its id>`, so one rule on `palette` holds for every row and a new source or action needs no code.",
+      "controls": [
+        {
+          "id": "palette",
+          "label": "Find anything"
+        },
+        {
+          "id": "palette.source",
+          "label": "Results Find anything shows, each place by its id (palette.source.screens)"
+        },
+        {
+          "id": "palette.action",
+          "label": "Actions Find anything offers, each by its id (palette.action.ask)"
+        }
+      ]
+    },
+    {
+      "part": "ui",
+      "what": "The controls this part draws, each a show-rules `control` (show/show-rules/show-of.ts controlShown). Each row of show/placeable-surface-intent/open-choices.json is also the control `open.<its id>`, and each action a list or record offers is `record.action.<its id>`. The app's own screens declare theirs here too: Your tray (`selection.tray`, src/workspace/tray.json), asking your AI (`ai.*`) and automations (`automations.*`, src/workspace/workflows-screen.tsx).",
+      "controls": [
+        {
+          "id": "open",
+          "label": "Open a screen somewhere else"
+        },
+        {
+          "id": "selection",
+          "label": "What appears for something selected"
+        },
+        {
+          "id": "selection.responses",
+          "label": "Comment and react on selected words"
+        },
+        {
+          "id": "selection.tray",
+          "label": "Add selected things to your tray"
+        },
+        {
+          "id": "comments",
+          "label": "Comments on a thing"
+        },
+        {
+          "id": "sharing",
+          "label": "Sharing"
+        },
+        {
+          "id": "record.action",
+          "label": "Actions on a list or a record, each by its own id (record.action.delete)"
+        },
+        {
+          "id": "ai",
+          "label": "Asking your AI from a screen"
+        },
+        {
+          "id": "ai.automation-edit",
+          "label": "Ask your AI to change an automation"
+        },
+        {
+          "id": "ai.page-edit",
+          "label": "Ask your AI to change a part of a page"
+        },
+        {
+          "id": "automations",
+          "label": "Automations and workflows"
+        },
+        {
+          "id": "automations.switch",
+          "label": "Turn an automation on or off"
+        },
+        {
+          "id": "automations.edit",
+          "label": "Change an automation or a workflow's steps"
+        },
+        {
+          "id": "automations.run",
+          "label": "Run an automation or a workflow now"
+        },
+        {
+          "id": "automations.delete",
+          "label": "Delete an automation"
+        },
+        {
+          "id": "automations.find",
+          "label": "Find workflows others made"
+        }
+      ]
+    }
+  ]
+}
