@@ -1,0 +1,378 @@
+import { after } from 'node:test';
+// One invitation to a space, everywhere it travels: what the invite link's own page shows in each state (read by
+// anyone holding the code, signed in or not), the page, the email and the text drawn from DATA through the shared
+// parts, sending it by email and by the inviter's own text connector, the Worker's /invite addresses, and the one mail
+// sender carrying html beside text.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { sqliteHost } from '../src/local-store.mjs';
+import rules from '../../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import { withSourceImports } from './source-imports-for-tests.mjs';
+import { invitationCard, invitationEmail, invitationPage, invitationText, inviteAddress, peopleLine, sendInvitation, shownName, welcomePage } from '../src/space-invitation.mjs';
+import { emailPalette, solidColour, MAIL_SETTINGS } from '../src/mail-sender.mjs';
+import { inviteReturn, inviteRoute, isInvitePath } from '../src/invite-routes.mjs';
+import { handleSpacesRequest } from '../src/person-spaces.mjs';
+import { sendMail } from '../src/mail-sender.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+import { accountControlBinding, everyFeatureAccess } from './account-control-binding-for-tests.mjs';
+
+const source = withSourceImports(readFileSync(new URL('../src/network.mjs', import.meta.url), 'utf8')
+  .replace("import { DurableObject } from 'cloudflare:workers';", 'class DurableObject { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }')
+  .replace("import rules from './network-settings.json' with { type: 'json' };", `const rules = ${JSON.stringify(rules)};`));
+const { Network } = await importSource(source);
+
+const ORIGIN = 'https://app.gettrillion.ai';
+const ana = 'relay_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+const bo = 'relay_bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb';
+const cy = 'relay_cccccccccccccccccccccccccccccccc';
+
+// A network with Ana's space, Bo in it, and Cy outside; account names as each person's store gives them.
+async function riverside({ names = { 'store-ana': 'Morgan Rivera', 'store-bo': 'Sam Lee', 'store-cy': 'Cy Doe' } } = {}) {
+  const { db, transaction } = sqliteHost(':memory:');
+  after(() => db.close());
+  const sql = { exec: (query, ...binds) => { const statement = db.prepare(query); const rows = /^\s*(select|pragma)|returning/i.test(query) ? statement.all(...binds) : (statement.run(...binds), []); return { toArray: () => rows }; } };
+  const store = ref => ({ includesPlanFeature: async () => true, spaceChanged: async () => {}, accountName: async () => names[ref] ?? null });
+  const net = new Network({ storage: { sql, transactionSync: transaction } }, { ACCOUNT_CONTROL: accountControlBinding(everyFeatureAccess, store), PERSON: { idFromString: ref => ref, get: store } });
+  for (const [relay, ref] of [[ana, 'store-ana'], [bo, 'store-bo'], [cy, 'store-cy']]) net.remember(relay, ref);
+  const { membership_id: space } = await net.createMembership({ relay: ana, person_ref: 'store-ana', label: 'group', title: 'Riverside' });
+  const asked = await net.request({ from: ana, person_ref: 'store-ana', to: bo, why: 'Movie nights', membership_id: space });
+  await net.answer({ relay: bo, request_id: asked.request_id, accept: true });
+  return { net, space };
+}
+
+test('an invite link shows its holder who invited them and who is in the space, and nothing the space holds', async () => {
+  const { net, space } = await riverside();
+  await net.describeSpace({ relay: ana, space_id: space, description: 'Friday movie nights and what we watch next.' });
+  await net.addSpaceItems({ relay: ana, space_id: space, items: [{ kind: 'note', title: 'A private plan', body: { text: 'secret' } }] });
+  const { code } = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  const signedOut = await net.invitePreview({ code });
+  assert.equal(signedOut.state, 'open');
+  assert.equal(signedOut.inviter, 'Morgan Rivera');
+  assert.equal(signedOut.already_member, false);
+  assert.deepEqual(signedOut.space, { members_are: 'team', title: 'Riverside', label: 'group', description: 'Friday movie nights and what we watch next.', picture: null, members: 2, member_names: ['Morgan Rivera', 'Sam Lee'] });
+  assert.ok(!JSON.stringify(signedOut).includes('secret'), 'nothing the space holds is shown');
+  assert.equal((await net.invitePreview({ relay: cy, code })).already_member, false);
+  const member = await net.invitePreview({ relay: bo, code });
+  assert.equal(member.already_member, true);
+  assert.equal(member.space.space_id, space, 'only someone already in reads the space\'s id');
+  assert.equal(signedOut.space.space_id, undefined);
+});
+
+// A network where each person's store says whether its plan includes a feature (`paid`) and Ana's store may hold free
+// team seats (`seats`): what a space's kind asks of someone joining it (src/space-membership-kinds.mjs).
+async function team({ paid = { 'store-ana': true }, seats = 0 } = {}) {
+  const { db, transaction } = sqliteHost(':memory:');
+  after(() => db.close());
+  const sql = { exec: (query, ...binds) => { const statement = db.prepare(query); const rows = /^\s*(select|pragma)|returning/i.test(query) ? statement.all(...binds) : (statement.run(...binds), []); return { toArray: () => rows }; } };
+  const recorded = [];
+  const given = [];
+  const stores = ref => ({
+    includesPlanFeature: async feature => feature === 'spaces' && Boolean(paid[ref]), spaceChanged: async () => {}, accountName: async () => ({ 'store-ana': 'Morgan Rivera' })[ref] ?? null,
+    hasFreeSeat: async () => given.length < seats, readCurrentAccess: async () => ({ capabilities: [], limits: {} }),
+    giveSeat: async ({ buyer, taker }) => (given.length < seats ? (given.push({ buyer, taker }), { effects: [{ effect_id: `seat:${taker}` }] }) : { refused: 'full' }),
+    recordEffect: async effect => { recorded.push({ ref, effect }); paid[ref] = true; },
+  });
+  // A joiner is covered by their plan only once they hold one (a seat taken or a plan bought), as recordEffect sets it.
+  const planOf = owner => (paid[owner] ? everyFeatureAccess() : { capabilities: [], limits: {} });
+  const net = new Network({ storage: { sql, transactionSync: transaction } }, { ACCOUNT_CONTROL: accountControlBinding(planOf, stores), PERSON: { idFromString: ref => ref, get: stores } });
+  for (const [relay, ref] of [[ana, 'store-ana'], [bo, 'store-bo'], [cy, 'store-cy']]) net.remember(relay, ref);
+  return { net, recorded, given };
+}
+
+test('a team space lets in only someone whose plan covers it, or who takes a seat its owner pays for; the invite stays usable when refused', async () => {
+  const { net } = await team();
+  const { membership_id: space } = await net.createMembership({ relay: ana, person_ref: 'store-ana', label: 'project', title: 'Riverside' });
+  const { code } = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  const preview = await net.invitePreview({ relay: cy, person_ref: 'store-cy', code });
+  assert.equal(preview.space.members_are, 'team');
+  assert.equal(preview.needs_plan, 'Riverside is a team space: joining it comes with a paid Trillion plan, or a seat Morgan Rivera pays for.');
+  await assert.rejects(net.joinWithInvite({ relay: cy, person_ref: 'store-cy', code }), /team space: joining it comes with a paid Trillion plan/);
+  assert.equal(net.isMemberNow(space, cy), false);
+  assert.equal((await net.invitePreview({ code })).state, 'open', 'a refused join leaves the invite open');
+  // Signed out, the page says a team space comes with a plan or the owner's seat; signed in and not covered, its one
+  // button goes to the plans.
+  const page = invitationPage({ preview, origin: ORIGIN, code, signedIn: true, spaceAddress: id => `/spaces/${id}` }).description;
+  assert.equal(page.sections[0].status, preview.needs_plan);
+  assert.deepEqual(page.sections[0].actions, [{ label: 'See plans', href: '/plan', tone: 'primary' }]);
+  assert.match(invitationPage({ preview: await net.invitePreview({ code }), origin: ORIGIN, code, signedIn: false, spaceAddress: id => id }).description.sections[1].body, /^Joining a team pursuit comes with a paid Trillion plan, or a seat Morgan Rivera pays for\./);
+  // Asked by an introduction instead: the same gate.
+  const asked = await net.request({ from: ana, person_ref: 'store-ana', to: bo, why: 'Riverside', membership_id: space });
+  await assert.rejects(net.answer({ relay: bo, request_id: asked.request_id, accept: true }), /team space/);
+});
+
+test('a joiner a team space does not cover takes a free seat of its owner as they join, recorded in their own store', async () => {
+  const { net, recorded, given } = await team({ seats: 1 });
+  const { membership_id: space } = await net.createMembership({ relay: ana, person_ref: 'store-ana', label: 'group', title: 'Riverside' });
+  const { code } = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  assert.equal((await net.invitePreview({ relay: cy, person_ref: 'store-cy', code })).needs_plan, undefined, 'an open seat covers them');
+  assert.equal((await net.joinWithInvite({ relay: cy, person_ref: 'store-cy', code })).joined, true);
+  assert.deepEqual(given, [{ buyer: 'store-ana', taker: 'store-cy' }]);
+  assert.deepEqual(recorded, [{ ref: 'store-cy', effect: { effect_id: 'seat:store-cy' } }]);
+  // The seats are used up: the next one is refused.
+  const next = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  await assert.rejects(net.joinWithInvite({ relay: bo, person_ref: 'store-bo', code: next.code }), /team space/);
+});
+
+test('a space of a business\'s members or customers never asks anything of Trillion; its owner says which a space is', async () => {
+  const { net } = await team();
+  const { membership_id: space } = await net.createMembership({ relay: ana, person_ref: 'store-ana', label: 'project', title: 'Ruth\'s customers' });
+  await assert.rejects(net.setMembersAre({ relay: cy, space_id: space, members_are: 'customers' }));
+  await assert.rejects(net.setMembersAre({ relay: ana, space_id: space, members_are: 'fans' }), /members_are is one of: team, customers/);
+  assert.equal((await net.setMembersAre({ relay: ana, space_id: space, members_are: 'customers' })).members_are.id, 'customers');
+  const { code } = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  const preview = await net.invitePreview({ relay: cy, person_ref: 'store-cy', code });
+  assert.equal(preview.space.members_are, 'customers');
+  assert.equal(preview.needs_plan, undefined);
+  const html = JSON.stringify(invitationPage({ preview, origin: ORIGIN, code, signedIn: false, spaceAddress: id => id }).description);
+  assert.doesNotMatch(html, /Trillion|plan\b|seat/);
+  assert.equal((await net.joinWithInvite({ relay: cy, person_ref: 'store-cy', code })).joined, true);
+  // null goes back to the label's default: a team again, for whoever joins next; Cy stays in.
+  assert.equal((await net.setMembersAre({ relay: ana, space_id: space, members_are: null })).members_are.id, 'team');
+  assert.equal(net.isMemberNow(space, cy), true);
+  assert.equal(rules.membership_labels.community.members_are, 'customers');
+});
+
+test('a used, revoked or expired invite says which to its holder; a code no one made shows nothing', async () => {
+  const { net, space } = await riverside();
+  const used = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  await net.joinWithInvite({ relay: cy, person_ref: 'store-cy', code: used.code });
+  assert.deepEqual(await net.invitePreview({ code: used.code }), { state: 'used', already_member: false, expires_at: used.expires_at, inviter: 'Morgan Rivera', space: { title: 'Riverside' } });
+  assert.equal((await net.invitePreview({ relay: cy, code: used.code })).already_member, true, 'the person who used it is in');
+  const revoked = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  await net.revokeSpaceInvite({ relay: ana, space_id: space, invite_id: revoked.invite_id });
+  assert.equal((await net.invitePreview({ code: revoked.code })).state, 'revoked');
+  const expired = await net.makeSpaceInvite({ relay: ana, space_id: space });
+  net.sql.exec('UPDATE space_invites SET expires_at = ? WHERE invite_id = ?', new Date(Date.now() - 1000).toISOString(), expired.invite_id);
+  assert.equal((await net.invitePreview({ code: expired.code })).state, 'expired');
+  assert.deepEqual(await net.invitePreview({ code: 'f'.repeat(64) }), { state: 'unknown' });
+  // The maker leaving ends the invite: it reads like one no one made.
+  const orphan = await net.makeSpaceInvite({ relay: bo, space_id: space });
+  await net.leave({ relay: bo, membership_id: space });
+  assert.deepEqual(await net.invitePreview({ code: orphan.code }), { state: 'unknown' });
+});
+
+test('names that are email addresses or stand-ins are never shown; who is in it reads as one line', () => {
+  assert.equal(shownName('morgan@example.com'), null);
+  assert.equal(shownName('Member 3'), null);
+  assert.equal(shownName('  Sam   Lee '), 'Sam Lee');
+  assert.equal(peopleLine(['Morgan'], 1), 'Morgan is in it');
+  assert.equal(peopleLine(['Morgan', 'Sam'], 2), 'Morgan and Sam are in it');
+  assert.equal(peopleLine(['Morgan', 'Sam', 'Jo'], 3), 'Morgan, Sam and Jo are in it');
+  assert.equal(peopleLine(['Morgan', 'Sam', 'Jo'], 4), 'Morgan, Sam and 2 others are in it');
+  assert.equal(peopleLine(['Morgan', 'Sam', 'Jo'], 5), 'Morgan, Sam and 3 others are in it');
+  assert.equal(peopleLine(['Morgan', 'user-063bcf15@example.com'], 3), 'Morgan and 2 others are in it');
+  assert.equal(peopleLine(['Morgan', 'user-063bcf15@example.com'], 2), 'Morgan and one other are in it');
+  assert.equal(peopleLine(['Morgan', 'Sam'], 3), 'Morgan, Sam and one other are in it');
+  assert.equal(peopleLine([], 3), null);
+});
+
+const open = { state: 'open', already_member: false, expires_at: '2026-10-07T12:00:00.000Z', inviter: 'Morgan Rivera', space: { title: 'Riverside', label: 'group', description: 'Friday movie nights.', picture: null, members: 3, member_names: ['Morgan Rivera', 'Sam Lee', 'Jo Park'] } };
+const code = 'a'.repeat(64);
+const spaceAddress = id => `/spaces/${id}`;
+
+test('the open invite page: who invited you, the space, its faces, one join, and a link preview naming its card', async () => {
+  const signedOut = invitationPage({ preview: open, origin: ORIGIN, code, signedIn: false, spaceAddress });
+  assert.equal(signedOut.status, 200);
+  const d = signedOut.description;
+  assert.equal(d.title, 'Morgan Rivera invited you to Riverside');
+  assert.equal(d.robots, 'noindex');
+  assert.deepEqual(d.share, { type: 'website', site_name: 'Riverside', title: 'Morgan Rivera invited you to Riverside', description: 'Friday movie nights.', url: `${ORIGIN}/invite?join=${code}`, image: `${ORIGIN}/invite/card.png?join=${code}`, image_alt: 'Morgan Rivera invited you to Riverside' });
+  const [hero, fine] = d.sections;
+  assert.equal(hero.eyebrow, undefined, 'no label line above the heading');
+  assert.equal(hero.heading, 'Morgan Rivera invited you to join Riverside');
+  assert.deepEqual(hero.people, { faces: [{ name: 'Morgan Rivera' }, { name: 'Sam Lee' }, { name: 'Jo Park' }], more: 0, line: 'Morgan Rivera, Sam Lee and Jo Park are in it' });
+  assert.equal(hero.actions[0].href, `/account?create=&next=%2Finvite%3Fjoin%3D${code}`, 'signed out, joining starts with an account and comes back here');
+  assert.equal(fine.body, 'This invite works once, for you, until October 7, 2026.');
+  assert.equal(fine.actions, undefined, 'the page sends no one to Trillion');
+  const signedIn = invitationPage({ preview: open, origin: ORIGIN, code, signedIn: true, spaceAddress }).description.sections[0].actions;
+  assert.deepEqual(signedIn, [{ label: 'Join Riverside', href: '/invite', post: { join: code }, tone: 'primary' }], 'signed in, one button joins');
+  const html = (await (await import('../src/html-page.mjs')).htmlPage(signedOut.description).text());
+  assert.match(html, /<meta property="og:image" content="https:\/\/app\.gettrillion\.ai\/invite\/card\.png\?join=a+"\/>/);
+  assert.match(html, /class="page-faces"/);
+  assert.match(html, /class="page-mark page-mark--letters"[^>]*>R</);
+});
+
+test('every other state has its own words, and none of them joins', () => {
+  const words = state => invitationPage({ preview: { state, already_member: false, expires_at: '2026-10-07T12:00:00.000Z', inviter: 'Morgan', space: { title: 'Riverside' } }, origin: ORIGIN, code, signedIn: false, spaceAddress });
+  assert.equal(words('used').description.sections[0].body, 'Each invite works once. Ask Morgan to send you a new one.');
+  assert.equal(words('expired').description.sections[0].body, 'It ended on October 7, 2026. Ask Morgan to send you a new one.');
+  assert.equal(words('revoked').description.sections[0].heading, 'This invite was taken back');
+  assert.equal(words('used').status, 410);
+  const unknown = invitationPage({ preview: { state: 'unknown' }, origin: ORIGIN, code, signedIn: false, spaceAddress });
+  assert.equal(unknown.status, 404);
+  assert.equal(unknown.description.sections[0].heading, 'This invite link doesn\'t work');
+  const nameless = invitationPage({ preview: { state: 'used', inviter: 'user-40dd0b9a@example.com', space: { title: 'Riverside' } }, origin: ORIGIN, code, signedIn: false, spaceAddress });
+  assert.equal(nameless.description.sections[0].body, 'Each invite works once. Ask the person who sent it for a new one.', 'an address is never shown as a name');
+  const already = invitationPage({ preview: { ...open, already_member: true, space: { ...open.space, space_id: 'membership_p' } }, origin: ORIGIN, code, signedIn: true, spaceAddress });
+  assert.equal(already.description.sections[0].heading, 'You\'re already in Riverside');
+  assert.deepEqual(already.description.sections[0].actions, [{ label: 'Open Riverside', href: '/spaces/membership_p', tone: 'primary' }]);
+});
+
+test('the welcome after joining: connect your AI, say your name, open the space', () => {
+  const page = welcomePage({ space: { space_id: 'membership_p', title: 'Riverside', members: [{ name: 'Morgan Rivera' }, { name: 'Member 2', you: true }] }, yourName: 'Member 2', connectAddress: '/get-started', spaceAddress }).description;
+  const [hero] = page.sections;
+  assert.deepEqual(hero.items.map(item => item.heading), ['Connect your AI', 'Say your name']);
+  assert.equal(hero.items[0].actions[0].href, '/get-started');
+  assert.deepEqual(hero.choices.values, { space: 'membership_p' });
+  assert.equal(hero.choices.fields[0].placeholder, '', 'a stand-in name is not offered back');
+  assert.equal(hero.actions[0].href, '/spaces/membership_p');
+  const saved = welcomePage({ space: { space_id: 'membership_p', title: 'Riverside', members: [] }, yourName: 'Sam', saved: 'Sam', connectAddress: '/get-started', spaceAddress }).description.sections[0];
+  assert.equal(saved.status, 'Saved. People in Riverside see you as Sam.');
+});
+
+test('the email and the text: the shared email part in the workspace colours, personal words, the link', () => {
+  const url = inviteAddress(ORIGIN, code);
+  const email = invitationEmail({ preview: open, url, invitee: 'Sam', origin: ORIGIN, code });
+  assert.equal(email.subject, 'Morgan Rivera invited you to Riverside');
+  assert.match(email.text, /^Hi Sam,\n\nMorgan Rivera invited you to join Riverside\.\n\nFriday movie nights\./);
+  assert.deepEqual(email.sender, { sender_name: 'Morgan Rivera from Riverside', brand: { name: 'Riverside' } }, 'it comes in the space\'s name');
+  assert.match(email.text, new RegExp(`Join Riverside: ${url.replace(/[?.]/g, '\\$&')}`));
+  assert.match(email.html, /<strong>Morgan Rivera<\/strong> invited you to join <strong>Riverside<\/strong>/);
+  assert.match(email.html, /Morgan Rivera, Sam Lee and Jo Park are in it/);
+  assert.match(email.html, new RegExp(`href="${url.replace(/[?.]/g, '\\$&')}"`));
+  assert.match(email.html, /background-image:linear-gradient/, 'the email button uses the shared button sheen');
+  assert.deepEqual(Object.keys(MAIL_SETTINGS.palette_roles).every(role => /^#[0-9a-f]{6}$/.test(emailPalette()[role])), true);
+  assert.equal(solidColour('rgba(25, 25, 25, 0.5)', '#ffffff'), '#8c8c8c');
+  assert.equal(invitationText({ preview: open, url, invitee: 'Sam' }), `Hi Sam, come join me in Riverside: ${url}`);
+  assert.equal(invitationText({ preview: open, url }), `Hi! Come join me in Riverside: ${url}`);
+  const card = invitationCard({ preview: open, origin: ORIGIN, code });
+  assert.match(card.html, /Morgan Rivera invited you/);
+  assert.match(card.html, /card-face/);
+  assert.equal(card.key, invitationCard({ preview: open, origin: ORIGIN, code: 'b'.repeat(64) }).key, 'one card is kept for every link that shows the same thing');
+  assert.notEqual(card.key, invitationCard({ preview: { ...open, inviter: 'Sam Lee' }, origin: ORIGIN, code }).key);
+});
+
+test('sending: the link is made, the email goes through the mail sender, the text through the named connector', async () => {
+  const mailed = [];
+  const ran = [];
+  const makeLink = async days => ({ invite_id: 'invite_1', expires_at: open.expires_at, code, url: inviteAddress(ORIGIN, code), days });
+  const sent = await sendInvitation({ invite: { name: 'Sam', email: 'sam@example.com', phone: '+15555550100', text_through: 'whatsapp' }, origin: ORIGIN, makeLink, preview: async () => open,
+    mail: async message => { mailed.push(message); return { sent: true }; }, verifyRecipient: () => ({ status: 'matched' }), runTool: async call => { ran.push(call); return { ok: true }; } });
+  assert.equal(mailed.length, 1);
+  assert.equal(mailed[0].to, 'sam@example.com');
+  assert.equal(mailed[0].action.href, inviteAddress(ORIGIN, code), 'the email goes to the one sender as the email part\'s fields, with the link as its button');
+  assert.match(mailed[0].markdown, /^Hi Sam,/);
+  assert.deepEqual(ran, [{ tool_id: 'tool:send-a-whatsapp-message', input: { to: '+15555550100', text: `Hi Sam, come join me in Riverside: ${inviteAddress(ORIGIN, code)}` }, key: 'invite:invite_1:whatsapp' }]);
+  assert.equal(sent.email.said, 'Emailed the invitation to sam@example.com.');
+  assert.equal(sent.text_message.said, 'Texted the invitation to +15555550100 through WhatsApp.');
+  // No connector that can send yet: the text comes back for the AI to send.
+  const unsent = await sendInvitation({ invite: { phone: '+15555550100' }, origin: ORIGIN, makeLink, preview: async () => open, mail: async () => ({ sent: true }), verifyRecipient: () => ({ status: 'matched' }), runTool: async () => ({ ok: false }) });
+  assert.equal(unsent.text_message.through, 'imessage');
+  assert.equal(unsent.text_message.sent, false);
+  assert.equal(unsent.text_message.said, 'Send this text to +15555550100 yourself: iMessage is not connected for sending yet.');
+  assert.equal(unsent.email.said, 'No email address was given, so no email was sent.');
+  await assert.rejects(sendInvitation({ invite: { email: 'not an address' }, origin: ORIGIN, makeLink, preview: async () => open, mail: async () => ({}), runTool: async () => ({}) }), /not an email address/);
+});
+
+test('a Space text invitation checks the saved recipient before creating a link or sending', async () => {
+  let links = 0;
+  let sends = 0;
+  const base = { invite: { name: 'Sam', phone: '+15555550100' }, origin: ORIGIN,
+    makeLink: async () => { links++; return { invite_id: 'invite_1', expires_at: open.expires_at, code, url: inviteAddress(ORIGIN, code) }; },
+    preview: async () => open, mail: async () => { sends++; return { sent: true }; },
+    runTool: async () => { sends++; return { ok: true }; } };
+  await assert.rejects(sendInvitation({ ...base, verifyRecipient: () => { throw new Error('Wrong contact. Nothing was sent.'); } }), /Wrong contact/);
+  assert.equal(links, 0);
+  assert.equal(sends, 0);
+  await assert.rejects(sendInvitation(base), /recipient cannot be checked/);
+  assert.equal(links, 0);
+});
+
+test('the person store invites through the one road, making the link on the address the request came in on', async () => {
+  const mailed = [];
+  const network = { makeSpaceInvite: async () => ({ space_id: 'membership_p', invite_id: 'invite_1', expires_at: open.expires_at, code }), invitePreview: async () => open };
+  const person = { network: () => network, relay: () => ana, ctx: { id: 'store-ana' }, env: { [MAIL_SETTINGS.send_binding]: { send: async message => { mailed.push(message); return { messageId: 'm1' }; } } }, fetch: async () => Response.json({ state: 'completed' }) };
+  const answer = await (await handleSpacesRequest(person, new Request('https://person/spaces/membership_p/invite-person', { method: 'POST', headers: { 'x-trillion-origin': ORIGIN }, body: JSON.stringify({ name: 'Sam', email: 'sam@example.com' }) }))).json();
+  assert.equal(answer.url, `${ORIGIN}/invite?join=${code}`);
+  assert.equal(answer.email.sent, true);
+  assert.deepEqual(mailed[0].from, { email: MAIL_SETTINGS.from.email, name: 'Morgan Rivera from Riverside' }, 'from the one address, in the inviter\'s and the space\'s name');
+  assert.ok(mailed[0].html.includes('Join Riverside'), 'the email goes out drawn, with its text beside it');
+  assert.ok(mailed[0].text.includes(answer.url));
+});
+
+test('the one mail sender: its own address and binding, every email drawn by the shared part, a row adds only its reply-to', async () => {
+  const sent = [];
+  const env = { [MAIL_SETTINGS.send_binding]: { send: async message => { sent.push(message); return { messageId: 'x' }; } } };
+  assert.deepEqual(await sendMail(env, { reply_to: 'host@example.org', from: { email: 'user-03d72b76@example.com' }, send_binding: 'OTHER' }, { to: 'user-8c1f43b6@example.com', subject: 's', text: 'Your code is 123456' }), { sent: true, id: 'x' });
+  await sendMail(env, null, { to: 'user-8c1f43b6@example.com', subject: 's', markdown: '**Hi**', action: { label: 'Open', href: 'https://app.gettrillion.ai/x' } });
+  assert.deepEqual(sent.map(message => message.from), [MAIL_SETTINGS.from, MAIL_SETTINGS.from], 'a row can never choose the sender');
+  assert.equal(sent[0].replyTo, 'host@example.org');
+  assert.equal('replyTo' in sent[1], false);
+  assert.match(sent[0].html, /Your code is 123456/);
+  assert.ok(sent[0].html.includes(MAIL_SETTINGS.brand.image), 'every email carries Trillion\'s mark');
+  assert.match(sent[1].html, /<strong>Hi<\/strong>/);
+  assert.match(sent[1].text, /Open: https:\/\/app\.gettrillion\.ai\/x/);
+  assert.deepEqual(await sendMail({}, null, { to: 'user-8c1f43b6@example.com', subject: 's', text: 't' }), { sent: false, error: `no email-sending binding is bound as ${MAIL_SETTINGS.send_binding}` });
+});
+
+test('the Worker\'s invite addresses: the page for anyone, joining from a posted form, the card made once and kept', async () => {
+  assert.equal(isInvitePath('/invite'), true);
+  assert.equal(isInvitePath('/invite/card.png'), true);
+  assert.equal(isInvitePath('/invites'), false);
+  assert.equal(inviteReturn(`/invite?join=${code}`), `/invite?join=${code}`);
+  assert.equal(inviteReturn(`/invite?join=${code}&x=1`), null);
+  assert.equal(inviteReturn('https://evil.example/invite?join=' + code), null);
+  const kept = new Map();
+  let photographs = 0;
+  const calls = [];
+  const deps = session => ({
+    session, spaceAddress, connectAddress: '/get-started',
+    network: () => ({ invitePreview: async () => open, invitePicture: async () => { throw new Error('none'); } }),
+    picture: async () => { throw Object.assign(new Error('No current invitation picture.'), { status: 404 }); },
+    personFor: () => ({ fetch: async request => { calls.push([request.method, new URL(request.url).pathname]); return new URL(request.url).pathname.endsWith('/preview') ? Response.json(open) : Response.json({ space_id: 'membership_p', joined: true }); } }),
+    photograph: async () => { photographs += 1; return new Uint8Array([137, 80, 78, 71]); },
+    kept: { get: async key => kept.get(key) ?? null, put: async (key, value) => { kept.set(key, value); } },
+  });
+  const page = await inviteRoute(new Request(`${ORIGIN}/invite?join=${code}`), ORIGIN, deps(null));
+  assert.equal(page.status, 200);
+  assert.match(await page.text(), /Join Riverside/);
+  const post = (session, origin) => inviteRoute(new Request(`${ORIGIN}/invite`, { method: 'POST', headers: { origin, 'content-type': 'application/x-www-form-urlencoded' }, body: `join=${code}` }), ORIGIN, deps(session));
+  assert.equal((await post(null, ORIGIN)).headers.get('location'), `${ORIGIN}/account?create=&next=%2Finvite%3Fjoin%3D${code}`);
+  assert.equal((await post({ userId: 'u' }, 'https://elsewhere.example')).status, 403);
+  const joined = await post({ userId: 'u' }, ORIGIN);
+  assert.equal(joined.status, 303);
+  assert.equal(joined.headers.get('location'), `${ORIGIN}/invite/welcome?space=membership_p`);
+  assert.deepEqual(calls.at(-1), ['POST', `/spaces/join/${code}`]);
+  for (let i = 0; i < 2; i += 1) {
+    const card = await inviteRoute(new Request(`${ORIGIN}/invite/card.png?join=${code}`), ORIGIN, deps(null));
+    assert.equal(card.headers.get('content-type'), 'image/png');
+  }
+  assert.equal(photographs, 1, 'the card is photographed once and kept');
+  assert.equal((await inviteRoute(new Request(`${ORIGIN}/invite/picture?join=${code}`), ORIGIN, deps(null))).status, 404);
+});
+
+test('the invite body stays about the space; branding is confined to its shared footer', async () => {
+  const said = [];
+  const page = state => invitationPage({ preview: { ...open, state }, origin: ORIGIN, code, signedIn: false, spaceAddress }).description;
+  for (const state of ['open', 'used', 'expired', 'revoked', 'unknown']) said.push(JSON.stringify(page(state)));
+  said.push(JSON.stringify(invitationPage({ preview: open, origin: ORIGIN, code, signedIn: true, spaceAddress, failed: true }).description));
+  const url = inviteAddress(ORIGIN, code);
+  const email = invitationEmail({ preview: { ...open, space: { ...open.space, description: null } }, url, invitee: 'Sam', origin: ORIGIN, code });
+  said.push(email.subject, email.text.split('\n--')[0], JSON.stringify(email.sender), invitationText({ preview: open, url, invitee: 'Sam' }));
+  for (const words of said) assert.ok(!/Trillion|plan\b|X'er|\$\d|paid/i.test(words.replace(/https:\/\/app\.gettrillion\.ai[^"\s)]*/g, '')), words.slice(0, 200));
+  // Joining never needs a plan: a signed-in person's own store answers the invite page as it shows to anyone.
+  const deps = {
+    session: { userId: 'u' }, spaceAddress, connectAddress: '/get-started',
+    network: () => ({ invitePreview: async () => open }),
+    personFor: () => ({ fetch: async () => Response.json(open) }),
+  };
+  const shown = await (await inviteRoute(new Request(`${ORIGIN}/invite?join=${code}`), ORIGIN, deps)).text();
+  assert.match(shown, /Join Riverside/);
+  assert.doesNotMatch(shown, /Trillion X|plan/i);
+});
+
+test('an invitation email the binding may have sent but did not answer for is recorded unknown, not rejected', async () => {
+  const network = { makeSpaceInvite: async () => ({ space_id: 'membership_p', invite_id: 'invite_2', expires_at: open.expires_at, code }), invitePreview: async () => open };
+  const values = new Map();
+  const errors = console.error;
+  console.error = () => {};
+  const person = { network: () => network, relay: () => ana, ctx: { id: 'store-ana' }, env: { [MAIL_SETTINGS.send_binding]: { send: async () => { throw new Error('connection reset'); } } }, fetch: async () => Response.json({ state: 'completed' }),
+    addWorkshopValue: async (key, value) => values.set(key, value), workshopValue: key => values.get(key) };
+  try {
+    const answer = await (await handleSpacesRequest(person, new Request('https://person/spaces/membership_p/invite-person', { method: 'POST', headers: { 'x-trillion-origin': ORIGIN }, body: JSON.stringify({ name: 'Sam', email: 'sam@example.com' }) }))).json();
+    assert.equal(answer.email.sent, false);
+    assert.equal(answer.email.origin, 'unknown');
+    assert.equal(values.get('effect:invite:invite_2:email').state, 'unknown');
+  } finally { console.error = errors; }
+});

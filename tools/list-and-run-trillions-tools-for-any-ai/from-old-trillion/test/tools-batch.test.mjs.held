@@ -1,0 +1,165 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleMcpMessage, invalidToolInput, makeTools } from '../src/tools.mjs';
+import { exportCase, exportFormats } from '../src/report.mjs';
+
+const call = calls => ({ jsonrpc: '2.0', id: 'batch', method: 'tools/call', params: { calls } });
+
+test('a structured single-call error retains the information needed to correct export arguments', async () => {
+  const tools = makeTools({ call: async path => {
+    const format = new URL(path, 'https://example.test').searchParams.get('format');
+    return exportCase({ decision: 'synthetic saved choice' }, format);
+  } });
+  const tool = tools.find(row => row.name === 'export_decision');
+  assert.deepEqual(tool.inputSchema.properties.format.enum, exportFormats);
+  const request = format => ({ jsonrpc: '2.0', id: 'export', method: 'tools/call',
+    params: { name: tool.name, arguments: { case_id: 'proof-choice', format } } });
+  const refused = await handleMcpMessage(request('text'), tools);
+  assert.equal(refused.result.isError, true);
+  assert.match(refused.result.structuredContent.error.message, /Unknown export format text.*markdown, json/);
+  const corrected = await handleMcpMessage(request('json'), tools);
+  assert.equal(corrected.result.isError, undefined);
+  assert.equal(JSON.parse(corrected.result.structuredContent.body).decision, 'synthetic saved choice');
+});
+
+test('tools/call batches preserve input order, per-call errors and activity', async () => {
+  const ran = [];
+  const heard = [];
+  const tools = [
+    { name: 'first', run: async input => { ran.push('first'); return { value: input.value }; } },
+    { name: 'fails', run: async () => { ran.push('fails'); throw Object.assign(new Error('The store is resetting.'), { retryable: true }); } },
+    { name: 'last', run: async () => { ran.push('last'); return 'finished'; } },
+  ];
+
+  const reply = await handleMcpMessage(call([
+    { name: 'first', arguments: { value: 1 } },
+    { name: 'fails' },
+    { name: 'last' },
+    { name: 'not-authorized' },
+  ]), tools, { afterCall: outcome => heard.push(outcome) });
+
+  const results = reply.result.structuredContent.results;
+  assert.deepEqual(ran, ['first', 'fails', 'last']);
+  assert.deepEqual(results.map(result => [result.index, result.name, result.isError]), [
+    [0, 'first', false], [1, 'fails', true], [2, 'last', false], [3, 'not-authorized', true],
+  ]);
+  assert.equal(results[0].structuredContent.value, 1);
+  assert.ok(results[0].structuredContent.ai_instructions.length > 0);
+  assert.equal(results[1].content[0].text, 'The service was busy for a moment; send this again.');
+  assert.deepEqual(results[1].structuredContent.error, {
+    message: 'The store is resetting.', code: 'service-interrupted', retryable: true,
+    fatal: false, remediation: 'Send the same request again.', domain: 'service',
+  });
+  assert.equal(results[2].content[0].text, 'finished');
+  assert.equal(reply.result.isError, undefined);
+  assert.deepEqual(heard.map(item => [item.tool, Boolean(item.result), Boolean(item.error)]), [
+    ['first', true, false], ['fails', false, true], ['last', true, false], ['not-authorized', false, true],
+  ]);
+});
+
+test('unexpected tool failures return a reference and log only safe error frames for single and batched calls', async () => {
+  const logged = [];
+  const previousError = console.error;
+  console.error = line => logged.push(String(line));
+  let single;
+  let batch;
+  try {
+    const tools = [{ name: 'save_workflow', run: async () => { throw new TypeError('provider-body-secret\n    at private-body (secret-file.mjs:1:2)'); } }];
+    single = await handleMcpMessage({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: {
+      name: 'save_workflow', arguments: { authorization: 'header-secret', body: 'private-body' },
+    } }, tools);
+    batch = await handleMcpMessage(call([{ name: 'save_workflow', arguments: {
+      authorization: 'header-secret', body: 'private-body',
+    } }]), tools);
+  } finally {
+    console.error = previousError;
+  }
+
+  const singleError = single.result.structuredContent.error;
+  const batchError = batch.result.structuredContent.results[0].structuredContent.error;
+  assert.equal(singleError.code, 'unexpected');
+  assert.equal(batchError.code, 'unexpected');
+  assert.match(singleError.reference, /^[0-9a-f]{16}$/);
+  assert.match(batchError.reference, /^[0-9a-f]{16}$/);
+  assert.match(single.result.content[0].text, new RegExp(singleError.reference));
+  assert.match(batch.result.structuredContent.results[0].content[0].text, new RegExp(batchError.reference));
+  assert.equal(logged.length, 2);
+  const events = logged.map(line => JSON.parse(line));
+  assert.deepEqual(events.map(({ event, reference, tool, error_class }) => ({ event, reference, tool, error_class })), [
+    { event: 'unexpected_tool_failure', reference: singleError.reference, tool: 'save_workflow', error_class: 'TypeError' },
+    { event: 'unexpected_tool_failure', reference: batchError.reference, tool: 'save_workflow', error_class: 'TypeError' },
+  ]);
+  for (const event of events) {
+    assert.ok(event.frames.length > 0);
+    assert.ok(event.frames.every(frame => /^\s*at\s+/.test(frame)));
+    assert.equal(Object.keys(event).sort().join(','), 'error_class,event,frames,reference,tool');
+  }
+  assert.doesNotMatch(logged.join('\n'), /provider-body-secret|header-secret|private-body|secret-file/);
+});
+
+test('tools/call batch size is bounded before any tool runs', async () => {
+  let runs = 0;
+  const tools = [{ name: 'change', run: async () => { runs += 1; return {}; } }];
+  const reply = await handleMcpMessage(call(Array.from({ length: 51 }, () => ({ name: 'change' }))), tools);
+  assert.equal(reply.error.code, -32602);
+  assert.equal(runs, 0);
+});
+
+
+test('unexpected owner failures retain only a bounded numeric HTTP status in diagnostics', async () => {
+  const logged = [];
+  const previous = console.error;
+  console.error = line => logged.push(JSON.parse(line));
+  try {
+    // 400 is an owner refusing the request in its own words (src/platform-failures.json): the AI corrects it, nothing is logged.
+    for (const reply_status of [500, 503, '500-private', 99, 600, NaN, Infinity, { body: 'private' }]) {
+      const tools = [{ name: 'take_work', run: async () => {
+        throw Object.assign(new Error('private-owner-body'), { reply_status });
+      } }];
+      const answer = await handleMcpMessage({ jsonrpc: '2.0', id: 1, method: 'tools/call',
+        params: { name: 'take_work', arguments: { body: 'private-argument' } } }, tools);
+      assert.equal(answer.result.structuredContent.error.code, 'unexpected');
+    }
+  } finally { console.error = previous; }
+  assert.deepEqual(logged.map(row => row.reply_status), [500, 503, ...Array(6).fill(undefined)]);
+  assert.doesNotMatch(JSON.stringify(logged), /private-owner-body|private-argument|500-private|body/);
+});
+
+
+test('required inputs reject aliases before dispatch in single and batch calls, while exact Unicode identity passes', async () => {
+  const nfd = 'cafe\u0301.txt';
+  const effects = [];
+  const tool = {
+    name: 'read_file',
+    inputSchema: { type: 'object', required: ['name_or_identity'], properties: { name_or_identity: { type: 'string' } } },
+    run: async input => { effects.push(['namespace-read', input.name_or_identity]); return { name_or_identity: input.name_or_identity }; },
+  };
+  const aroundCall = async (asked, dispatch) => {
+    effects.push(['capture', asked.input.name_or_identity]);
+    return dispatch();
+  };
+  const malformed = await handleMcpMessage({ jsonrpc: '2.0', id: 'single-bad', method: 'tools/call', params: {
+    name: 'read_file', arguments: { path: nfd },
+  } }, [tool], { aroundCall });
+  assert.equal(malformed.result.structuredContent.error.code, 'request-refused');
+  assert.equal(malformed.result.structuredContent.error.message, 'Invalid input: missing required field: name_or_identity.');
+  assert.deepEqual(effects, [], 'malformed calls must not capture or read a namespace');
+  assert.equal(invalidToolInput(tool, { path: nfd })?.failure_code, 'request-refused');
+
+  const goodSingle = await handleMcpMessage({ jsonrpc: '2.0', id: 'single-good', method: 'tools/call', params: {
+    name: 'read_file', arguments: { name_or_identity: nfd },
+  } }, [tool], { aroundCall });
+  assert.equal(goodSingle.result.structuredContent.name_or_identity, nfd);
+  assert.deepEqual(effects, [['capture', nfd], ['namespace-read', nfd]]);
+
+  effects.length = 0;
+  const batch = await handleMcpMessage(call([
+    { name: 'read_file', arguments: { file: nfd } },
+    { name: 'read_file', arguments: { name_or_identity: nfd } },
+  ]), [tool], { aroundCall });
+  const results = batch.result.structuredContent.results;
+  assert.equal(results[0].structuredContent.error.code, 'request-refused');
+  assert.equal(results[0].structuredContent.error.message, 'Invalid input: missing required field: name_or_identity.');
+  assert.equal(results[1].structuredContent.name_or_identity, nfd);
+  assert.deepEqual(effects, [['capture', nfd], ['namespace-read', nfd]], 'only the exact Unicode identity may capture or read');
+});

@@ -1,0 +1,31 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/showcase-spare-facts.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-a-visitor-try-trillions-own-workspace-live/from-old-trillion/src/showcase-spare-facts.mjs",
+      "source_identity": "1f:11a42226502040e379598bb49f04b264b735fc8d5e102d3447c0e86fce926c99",
+      "identity": "1f:8e584dacfbe7558e96c744542c5ac098b41337882a26ba2379008ede2cdc288b"
+    },
+    {
+      "from": "src/showcases.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-a-visitor-try-trillions-own-workspace-live/from-old-trillion/src/showcases.mjs.held",
+      "source_identity": "1f:b896c4ecaf94d23e83f15bef2d62cce4b4add1617bc3ae4ebfd61c25b7d1308d",
+      "identity": "1f:566b55909439f7fcfc026a1c9fd6786a57e7660c1ff3665f6664c7ebaf9dd081",
+      "held": true
+    },
+    {
+      "from": "test/showcases.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/let-a-visitor-try-trillions-own-workspace-live/from-old-trillion/test/showcases.test.mjs.held",
+      "source_identity": "1f:6966cb8803c5466e1982933ab8dacde40fef19b65b89273e4b1173e38a449f25",
+      "identity": "1f:3728fb867a339dc47581ee499c5812d7fed58e20d80c8493177a4baef4849e01",
+      "held": true
+    }
+  ]
+}

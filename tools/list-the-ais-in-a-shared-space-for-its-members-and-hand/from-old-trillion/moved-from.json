@@ -1,0 +1,24 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/space-ais.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/list-the-ais-in-a-shared-space-for-its-members-and-hand/from-old-trillion/src/space-ais.mjs.held",
+      "source_identity": "1f:f2ceaac83deaac02cfd711fd8001d9cbdd58a9497350fb522abafae6d388939d",
+      "identity": "1f:1776d6c466532786710b6ab92bd96c1f66b053386bfb774c4354cb77006c38d9",
+      "held": true
+    },
+    {
+      "from": "test/space-ais-native.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/list-the-ais-in-a-shared-space-for-its-members-and-hand/from-old-trillion/test/space-ais-native.test.mjs.held",
+      "source_identity": "1f:cb70cc18dd8428addd641a32646f468d84c33d952245fe901d13f68e9bdf9967",
+      "identity": "1f:cb70cc18dd8428addd641a32646f468d84c33d952245fe901d13f68e9bdf9967",
+      "held": true
+    }
+  ]
+}

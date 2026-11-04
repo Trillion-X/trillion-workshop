@@ -1,0 +1,160 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/search.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/src/search.mjs.held",
+      "source_identity": "1f:3e65372a5db033dcd1d2066e3d22f1d663f1612832b5fe73496e9bc85943095f",
+      "identity": "1f:c3d85b33ec585feb5db757d054b498bb0958e8a2815aa6e3530f25bbf1841535",
+      "held": true
+    },
+    {
+      "from": "test/search-answers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-answers.test.mjs.held",
+      "source_identity": "1f:35a0763f445f1a77732dcdb2f2eeb6c8433c6335ea339bd278ee0c66f6de1a7d",
+      "identity": "1f:3f4c913ad405d9cdbc4bebd5d6615bf901858f90037875e148ae35b115ca76c0",
+      "held": true
+    },
+    {
+      "from": "test/search-catch-up-headroom.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-catch-up-headroom.test.mjs.held",
+      "source_identity": "1f:5778be12f0bfc222cfd6695e9722b93205299d4f4af4303f65c1faf3d2f39e59",
+      "identity": "1f:dc766708fde6a87753c072ef82a5debbd62327f01c2c24ee892d62179342de09",
+      "held": true
+    },
+    {
+      "from": "test/search-catch-up-reset-slice.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-catch-up-reset-slice.test.mjs.held",
+      "source_identity": "1f:b3ca5168c20fc317bedf572a0cecdef30fc16db2fdf7d3aa4e0f54397fba52f5",
+      "identity": "1f:b92aeca6709671162964ffc91ff7c73342a8afe6891af714910c99f4b97d0474",
+      "held": true
+    },
+    {
+      "from": "test/search-catch-up-writes-changes-only.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-catch-up-writes-changes-only.test.mjs.held",
+      "source_identity": "1f:c364041000cd098f5833b81461acd23f5fd8590ae9316e6cae6e39532253f3fc",
+      "identity": "1f:f644d339d22280028ba69e3d50f26cfbf297319be0630eb1651f06e96fe8b243",
+      "held": true
+    },
+    {
+      "from": "test/search-cold-start-flat.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-cold-start-flat.test.mjs.held",
+      "source_identity": "1f:52099d91012d9c063f98d8643868737c059cf9cceb3322dc7922700096df73be",
+      "identity": "1f:b1f48fece9ce672fab3b1546ac252cfc9476257d2253af97f30246dba63e5f69",
+      "held": true
+    },
+    {
+      "from": "test/search-colours.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-colours.test.mjs.held",
+      "source_identity": "1f:278dd3eb9175a05b71d11157518da97b5f3bff9471697f191043c85a88f1f0b9",
+      "identity": "1f:0b4eb1a791879eedfb60b5804a51ae87b69bf934701e0b85da6355e90339536e",
+      "held": true
+    },
+    {
+      "from": "test/search-constructor-remote.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-constructor-remote.test.mjs.held",
+      "source_identity": "1f:e4378ac996c8c1a81868df0c098d3fb06ed2e63d7c6c49abffd5ac45d0bf3964",
+      "identity": "1f:d7553d5ee2c8969e6005fb1c8a019260bf5c87fac0f82fb06d2c23929eb46e5a",
+      "held": true
+    },
+    {
+      "from": "test/search-execution-scope.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-execution-scope.test.mjs.held",
+      "source_identity": "1f:411a6ed1dc9fb951ad30f9e751b01ead6281755d5cfd14e4a6312ec9f92bc6c2",
+      "identity": "1f:c1d45e4330e02398f2ad6665bbf4a1472cdba8568767a0f2262172508038f055",
+      "held": true
+    },
+    {
+      "from": "test/search-follower-ready.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-follower-ready.test.mjs.held",
+      "source_identity": "1f:7442009f0ece39db9c194a13cd5e067631bf9e5f49a8687f75b0137d53868a8e",
+      "identity": "1f:bd32da77c530031d02718806981b98b1f81bea9a44fc7ca08fb06dd3be09aa3f",
+      "held": true
+    },
+    {
+      "from": "test/search-lane-index.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-lane-index.test.mjs.held",
+      "source_identity": "1f:aadc73542637645584896aced0c75207ab05883dcddfdf129c90b4572c4ba796",
+      "identity": "1f:358d057de211c30f064ad9e162fb56a022d419185d08337fab45b52b2e68502a",
+      "held": true
+    },
+    {
+      "from": "test/search-list-rows.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-list-rows.test.mjs.held",
+      "source_identity": "1f:6dd3288ac1adabc75796ec8f776b415dac18db808f8031806b3bc1f42469d523",
+      "identity": "1f:4853d45d2cdafd9526ebb851c3ae66c7afa85ae1f2a07eb2700fdbc09d6fa4b7",
+      "held": true
+    },
+    {
+      "from": "test/search-planned-readiness.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-planned-readiness.test.mjs.held",
+      "source_identity": "1f:68a4bbe2014900a071c98abbb67f8dfbb57e27b5ee7289015092d4167e0d3e16",
+      "identity": "1f:b8cabe09a5ff93c8247812d1e4aea69279ca8d09ae7820b4132166eeef904fe9",
+      "held": true
+    },
+    {
+      "from": "test/search-prefer-own-words.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-prefer-own-words.test.mjs.held",
+      "source_identity": "1f:e26c0dbcd77edde33d2207ee276ffecb47d0ec5115c4cf139c447f60f7c5800b",
+      "identity": "1f:d4e1a4a26d5fedcff46ba66590fc46cbe806e78aaa9a7585ca8d5eab58a43ad4",
+      "held": true
+    },
+    {
+      "from": "test/search-result-trigger-presence.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-result-trigger-presence.test.mjs.held",
+      "source_identity": "1f:0dce2be9b8f1ff46df25ad414159f535f067830fd0964ca52fa8f8b49a46718b",
+      "identity": "1f:e224650c6e348ef588124ffe4f7383f0ffabf0e6c75b18197b2e4d5561b67c65",
+      "held": true
+    },
+    {
+      "from": "test/search-result-trust.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-result-trust.test.mjs.held",
+      "source_identity": "1f:fce4ea567c3577bac9995ac75e20fc74844c9f898a5bf939ed6bf3ada7d44b7e",
+      "identity": "1f:41cffb3fe617ac8626bb457199533a420773e315563575dca551c97016adb45a",
+      "held": true
+    },
+    {
+      "from": "test/search-stale-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-stale-bounded.test.mjs.held",
+      "source_identity": "1f:0ef25e0665dd5384114614c966c83f878e4701392235df70ace69a297e974760",
+      "identity": "1f:60157a922bbf0d6d35ef672d4af5d492ae30800dbd4f151d38671e1aeda6a88b",
+      "held": true
+    },
+    {
+      "from": "test/search-vector-index.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search-vector-index.test.mjs.held",
+      "source_identity": "1f:5f5d0e5329863d7c79f580f6c9051d01c856d30502d21e61eefd6cbeffa6f78f",
+      "identity": "1f:233d16f9433e4397f48c3b5b1b21dc5eb375e9f4f7f12f4455ee87674ffb9d27",
+      "held": true
+    },
+    {
+      "from": "test/search.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-anything-from-one-box-jump-to-a-screen/from-old-trillion/test/search.test.mjs.held",
+      "source_identity": "1f:b134bb3458dd5a355d58064e5ed2ae39af041f9414995c9304206dfc97791cac",
+      "identity": "1f:b93c424ce8d1824974e3adb8510ab41234f00dfb0a6b3cef95051b678b66407f",
+      "held": true
+    }
+  ]
+}

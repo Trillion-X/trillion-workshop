@@ -1,0 +1,83 @@
+// src/work-posts.mjs
+//
+// Purpose
+//   The Posts and posting calendar screens' road (src/workspace/posts-screen.tsx, calendar-screen.tsx) to the person's
+//   posts: the same person-side routes their AIs' post tools call (src/social-posts.mjs through the person's store),
+//   reached with this page's own session.
+//
+//   GET  /work/api/posts[?status=]        the posts, newest first (list_posts)
+//   GET  /work/api/posts/calendar?from=&to=  the posts between two times and the drafts with no time (list_post_calendar)
+//   GET  /work/api/posts/destinations     the accounts a post can go to and the places not connected yet, by name only
+//                                         (list_post_destinations, making no connect link)
+//   POST /work/api/posts/<verb>           check (check_post), read (read_post), approve (approve_post) and
+//                                         publish (publish_post) and undo (undo_post), each with { post_id }; draft
+//                                         (draft_post) with { post_id, caption, scheduled_for, time_zone, destinations,
+//                                         hold_seconds }: new words, a new time or none, where it goes and how long a send
+//                                         is held; or, with no post_id, a new draft { caption, media, scheduled_for,
+//                                         time_zone, destinations, hold_seconds } the person wrote
+//
+// Non-negotiable invariants
+//   1. One owner: nothing here checks, approves or sends a post; the store's /posts routes do all of it, and their
+//      refusal is passed back in their own words and status.
+//   2. Writes come only from this service's own pages (the origin check every /work/api write makes), and never from a
+//      look-only or viewer page (`viewer`); what the person presses here is theirs, never an AI's (src/activity.mjs
+//      PERSON_APP). An approval says it was pressed on the person's signed-in page (TYPED_ON_SIGNED_IN_SCREEN, set only
+//      here and never taken from the browser), which is the only approval a post that reaches someone accepts.
+//   3. Only the verbs listed travel, and only the fields each verb names reach the store: from a page, a person writes
+//      a new draft's words, selected file, time and places, and changes an existing post's words, time (moving it on the calendar),
+//      places and hold, never its file; changing the words makes the post a draft again, and the change is kept as the person's
+//      edit of what was there (Workshop tool:keep-a-voice-edit), which is how their voice is learned; making a connect link stays with the AI tools and the Connections screen.
+//
+// Security
+//   One store per person, reached with the page's own session.
+//
+import { PERSON_APP } from './activity.mjs';
+import { TYPED_ON_SIGNED_IN_SCREEN } from './typed-on-signed-in-screen.mjs';
+
+const json = (value, status = 200) => Response.json(value, { status });
+const ROOT = '/work/api/posts';
+// Each verb, and the fields a page may send with it on a post (post_id always).
+const VERBS = { check: [], read: [], approve: [], publish: [], undo: [], draft: ['caption', 'scheduled_for', 'time_zone', 'destinations', 'hold_seconds'] };
+// A verb a page may send with no post, making a new one, and the fields it may send then.
+const NEW = { draft: ['caption', 'media', 'scheduled_for', 'time_zone', 'destinations', 'hold_seconds'] };
+
+// Snippets (src/snippets.mjs), words the person sends again and again, under /work/api/posts/snippet/<verb>: each verb with the
+// fields a page may send. They are the person's own records, so a page may make, change, fill and remove them all.
+const SNIPPET_VERBS = { list: ['query', 'tag', 'limit'], use: ['snippet_id', 'values'], save: ['snippet_id', 'title', 'text', 'tags', 'expected_set_at'], remove: ['snippet_id'] };
+
+export const isWorkPostsPath = path => path === ROOT || path.startsWith(`${ROOT}/`);
+
+export async function handleWorkPosts(request, { person, origin, url, viewer = false }) {
+  const headers = { 'x-trillion-app': PERSON_APP, 'x-trillion-origin': origin };
+  if (request.method === 'GET' && url.pathname === ROOT) {
+    const status = url.searchParams.get('status');
+    return person.fetch(new Request(`https://person/posts${status ? `?status=${encodeURIComponent(status)}` : ''}`, { headers }));
+  }
+  if (request.method === 'GET' && url.pathname === `${ROOT}/calendar`) {
+    const span = new URLSearchParams({ from: url.searchParams.get('from') ?? '', to: url.searchParams.get('to') ?? '' });
+    return person.fetch(new Request(`https://person/posts/calendar?${span}`, { headers }));
+  }
+  if (request.method === 'GET' && url.pathname === `${ROOT}/destinations`) return person.fetch(new Request('https://person/posts/destinations?links=no', { headers }));
+  const verb = url.pathname.slice(ROOT.length + 1);
+  if (verb.startsWith('snippet/')) {
+    const action = verb.slice('snippet/'.length);
+    if (request.method !== 'POST' || !Object.hasOwn(SNIPPET_VERBS, action)) return json({ error: 'Not found' }, 404);
+    if (request.headers.get('origin') !== origin || viewer) return json({ error: 'Not allowed.' }, 403);
+    const asked = await request.json().catch(() => null);
+    if (!asked || typeof asked !== 'object') return json({ error: 'Send the snippet as an object.' }, 400);
+    return person.fetch(new Request(`https://person/posts/snippet/${action}`, {
+      method: 'POST', headers: { ...headers, 'content-type': 'application/json' },
+      body: JSON.stringify(Object.fromEntries(SNIPPET_VERBS[action].filter(field => field in asked).map(field => [field, asked[field]]))),
+    }));
+  }
+  if (request.method !== 'POST' || !Object.hasOwn(VERBS, verb)) return json({ error: 'Not found' }, 404);
+  if (request.headers.get('origin') !== origin || viewer) return json({ error: 'Not allowed.' }, 403);
+  const sent = await request.json().catch(() => null);
+  const named = sent && typeof sent.post_id === 'string' && sent.post_id;
+  if (!sent || typeof sent !== 'object' || ('post_id' in sent ? !named : !Object.hasOwn(NEW, verb))) return json({ error: 'Name the post.' }, 400);
+  const fields = named ? VERBS[verb] : NEW[verb];
+  return person.fetch(new Request(`https://person/posts/${verb}`, {
+    method: 'POST', headers: { ...headers, 'content-type': 'application/json', ...(verb === 'approve' ? { [TYPED_ON_SIGNED_IN_SCREEN]: 'yes' } : {}) },
+    body: JSON.stringify({ ...(named ? { post_id: sent.post_id } : {}), ...Object.fromEntries(fields.filter(field => field in sent).map(field => [field, sent[field]])) }),
+  }));
+}

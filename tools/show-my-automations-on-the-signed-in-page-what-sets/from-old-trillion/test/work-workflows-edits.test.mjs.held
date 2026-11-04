@@ -1,0 +1,70 @@
+// The Automations screen's hover graph and "Edit with your AI" (src/work-workflows.mjs): a trigger previews as what
+// sets it off -> what it does; asking the AI hands the change to the person's AIs with the rule as it is now; the AI's
+// answer comes back as a proposal and nothing is saved by itself; a page from another origin cannot ask.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleWorkWorkflows, sayWhen } from '../src/work-workflows.mjs';
+
+function person() {
+  const handoffs = [];
+  const saved = [];
+  const rule = { rule_id: 'rule_invoices', label: 'File invoices', enabled: true, when: { recorded: 'message', where: [{ field: 'text', contains: 'invoice' }] }, then: { tool_id: 'tool:file', input: { note: 'x' } } };
+  const answers = {
+    'GET /automations/rules': () => ({ rules: [rule], recent_runs: [], recent_events: [] }),
+    'GET /automations/schedules': () => ({ schedules: [] }),
+    'POST /tools/describe': () => ({ descriptor: { label: 'File a note', input_schema: { type: 'object', properties: { note: { type: 'string' }, folder: { type: 'string' } } } } }),
+    'POST /handoffs': body => { const handoff = { handoff_id: `handoff_${handoffs.length + 1}`, state: 'open', job: body.job, input: body.input, handed_at: '2026-09-28T12:00:00Z', taken_by: null, finished_at: null, result: null, summary: null }; handoffs.push(handoff); return { handoff }; },
+    'POST /handoffs/read': () => ({ handoffs }),
+    'POST /automations/rules': body => { saved.push(body); return body; },
+  };
+  return {
+    handoffs, saved,
+    fetch: async request => {
+      const { pathname } = new URL(request.url);
+      const answer = answers[`${request.method} ${pathname}`];
+      if (!answer) return Response.json({ error: `no ${request.method} ${pathname}` }, { status: 404 });
+      return Response.json(answer(request.method === 'GET' ? null : await request.json()));
+    },
+  };
+}
+const origin = 'https://app.example';
+const get = (store, path) => handleWorkWorkflows(new Request(`${origin}${path}`), { person: store, url: new URL(`${origin}${path}`) }).then(response => response.json());
+const post = (store, path, body, from = origin) => handleWorkWorkflows(new Request(`${origin}${path}`, { method: 'POST', headers: { origin: from, 'content-type': 'application/json' }, body: JSON.stringify(body) }), { person: store, url: new URL(`${origin}${path}`) });
+
+test('a trigger previews as what sets it off, then what it does, and its editor carries the input schema', async () => {
+  const store = person();
+  const preview = await get(store, '/work/api/workflows/preview/automation%3Arule_invoices');
+  assert.equal(preview.title, 'File invoices');
+  assert.deepEqual(preview.source.cards.map(card => card.id), ['when', 'then']);
+  assert.equal(preview.source.cards[0].text.split('\n')[0], sayWhen({ recorded: 'message', where: [{ field: 'text', contains: 'invoice' }] }));
+  assert.equal(preview.source.cards[1].text.split('\n')[0], 'File a note');
+  assert.deepEqual(preview.source.lines, [{ from: 'when', to: 'then' }]);
+  assert.equal(preview.source.cards[0].state.label, 'On');
+  const detail = await get(store, '/work/api/workflows/automation/rule_invoices');
+  assert.deepEqual(Object.keys(detail.input_schema.properties), ['note', 'folder']);
+  assert.equal(detail.graph.steps.length, 2);
+});
+
+test('Edit with your AI hands the change to the person\'s AIs, and their answer comes back to review, never saved alone', async () => {
+  const store = person();
+  const asked = await (await post(store, '/work/api/workflows/ask-ai', { id: 'rule_invoices', words: 'only invoices from Ada' })).json();
+  assert.equal(asked.handoff_id, 'handoff_1');
+  const [handoff] = store.handoffs;
+  assert.match(handoff.job, /only invoices from Ada/);
+  assert.match(handoff.job, /finish_work/);
+  assert.deepEqual(handoff.input.automation_edit.current.when, { recorded: 'message', where: [{ field: 'text', contains: 'invoice' }] });
+  assert.equal(handoff.input.automation_edit.answer_with, 'set_rule');
+
+  let edits = (await get(store, '/work/api/workflows/ai-edits/rule_invoices')).edits;
+  assert.equal(edits.length, 1);
+  assert.equal(edits[0].proposal, null, 'no answer yet');
+  // The AI answers through finish_work.
+  Object.assign(handoff, { state: 'finished', taken_by: 'agent:claude', finished_at: '2026-09-28T12:01:00Z', summary: 'Only from Ada', result: { label: 'File Ada\'s invoices', when: { recorded: 'message', where: [{ field: 'text', contains: 'invoice' }, { field: 'from', equals: 'Ada' }] }, then: { tool_id: 'tool:file', input: { note: 'x' } } } });
+  edits = (await get(store, '/work/api/workflows/ai-edits/rule_invoices')).edits;
+  assert.equal(edits[0].proposal.label, 'File Ada\'s invoices');
+  assert.equal(store.saved.length, 0, 'an answer is never saved by itself');
+  assert.equal((await get(store, '/work/api/workflows/ai-edits/rule_other')).edits.length, 0, 'asks about another automation are not shown');
+
+  assert.equal((await post(store, '/work/api/workflows/ask-ai', { id: 'rule_invoices', words: '' })).status, 400);
+  assert.equal((await post(store, '/work/api/workflows/ask-ai', { id: 'rule_invoices', words: 'x' }, 'https://elsewhere.example')).status, 403);
+});

@@ -1,0 +1,430 @@
+// A person's Workshop tasks (src/workshop.mjs `store`): each run of a tool, kept whole, and a small index of each task
+// that every question asked of all of them reads instead of the tasks themselves.
+//
+// Kept: every version of a task in `workshop_facts` under `task:<task_id>` (appended; the newest is current, and the ones
+// it replaced move out to chained history files, `versionsStep`), and one
+// row per task in `workshop_tasks`: its tool, state, due time, the order it was last written in, and its card (what a
+// list of runs shows). A task's whole value holds its input and its result, which can be pages long, so a question over
+// every task (what is due, when is the next one due, the last good run of a tool, the newest runs) reads only index
+// rows, and whole tasks only for the ones it answers with. The alarm asks when the next task is due after every change,
+// so reading every task there made each change cost the whole history of runs.
+//
+// Invariants:
+// - A task is written in one place (`write`), which appends its version and replaces its index row in one transaction,
+//   so the index names exactly the newest version of every task.
+// - A store written before the index existed is indexed once, by its own scheduler source (`indexStep`): at most
+//   INDEX_PAGES_PER_STEP pages of tasks a wake from a persisted cursor, never inside a question. A question answers from
+//   the index rows there are, so while the build runs a task not yet reached is not yet seen (it is due a few wakes
+//   late, never lost: every wake the build is still owed it names itself due now); a row is only ever replaced by a newer
+//   version (its `seq`), so a task written meanwhile is never taken back by the build.
+// - A card is the one shape a list of runs shows (`cardOf`); nothing else reads a task to list it.
+// - A scheduled wake hydrates at most one task page. Starting moves a task out of scheduled through its existing
+//   owner; everything not started keeps its due time, so the next alarm continues without a cursor or lost work.
+
+// How many tasks one page of indexing reads whole: the most a store holds in memory at once while it indexes.
+const INDEX_PAGE = 200;
+// How many pages one wake of the build reads (2,000 tasks), so a store with a long history never spends a whole wake or
+// request on it.
+export const INDEX_PAGES_PER_STEP = 10;
+// Moving the versions a task replaced out of the store, into chained history files of their own (versionsStep): on
+// the owner's store on 2026-10-10, 443k tasks held 981k versions (2.6 GB) and the store had reached its 10 GB limit.
+// scan_rows: written versions looked at in one step, by seq; history_rows: replaced rows considered for one file,
+// with at most one additional scalar lookahead; file_bytes: the most one history file holds; gather_rows:
+// once caught up, how many new versions wait for one file, or gather_ms, however few, before they move.
+export const VERSION_MOVE = { scan_rows: INDEX_PAGE, history_rows: INDEX_PAGE, file_bytes: 4 * 1024 * 1024, gather_rows: 4000, gather_ms: 3_600_000, folder: 'workshop-task-versions' };
+// The newest runs a list shows, when the caller names no other number.
+export const RUNS_LISTED = 200;
+const ERROR_SHOWN = 300;
+const PREFIX = 'task:';
+// Every task entity sorts after PREFIX and before this (':' + 1 is ';'), so the range reads the entity index.
+const PREFIX_END = 'task;';
+// A working run is checked only while it exists. The account's one scheduler arms for this indexed time;
+// idle accounts have no Workshop working-task wake.
+import { latestTaskReport } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/outcome-checks.mjs';
+import { personReportVerified } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/check-uses.mjs';
+import { historyIdentity } from './record-history.mjs';
+import { workshopHistorySource, sameWorkshopHistorySource, workshopHistoryWholeBound, workshopHistorySlice, workshopHistoryHex } from '../../../write-a-workshop-tasks-history-to-a-file-and-read/from-old-trillion/src/workshop-history-serialization.mjs';
+import ceilings from './reliability-ceilings.json' with { type: 'json' };
+export const WORKSHOP_TASK_VALUE_BYTES = ceilings.workshop_task.value_bytes;
+export const WORKING_CHECK_MS = 20_000;
+export const WORKING_CHECK_PAGE = 16;
+// Scheduled starts use the same resident-task ceiling as the existing working checks.
+export const SCHEDULED_TASK_PAGE = WORKING_CHECK_PAGE;
+
+/** What a list of runs shows of one task. */
+export function cardOf(task) {
+  const report = latestTaskReport(task);
+  return {
+    task_id: task.task_id, tool_id: task.tool_id, job: task.caller_job ?? task.job ?? null,
+    state: task.state, place: task.placement ?? null, runs_on: task.placement_label ?? null, started_at: task.started_at ?? null,
+    ...(task.due_at ? { due_at: task.due_at } : {}),
+    ...(task.finished_at ? { finished_at: task.finished_at, seconds: task.seconds } : {}),
+    reported: report?.result ?? null,
+    reported_by: report?.answered_by ?? null,
+    report_person_verified: personReportVerified(report),
+    report_source_ref: report?.source_ref ?? null,
+    ...(task.execution_ref ? { execution_ref: task.execution_ref, origin: task.execution?.origin ?? 'unknown' } : {}),
+    ...(task.effect ? { effect: { effect_ref: task.effect.effect_ref, state: task.effect.state, attempt_count: task.effect.attempt_count, observation: task.effect.observation ?? null } } : {}),
+    ...(task.last_observation ? { last_observation: task.last_observation } : {}),
+    ...(task.error ? { error: String(task.error).slice(0, ERROR_SHOWN) } : {}),
+  };
+}
+
+const dueMs = task => {
+  const at = Date.parse(task.due_at);
+  return Number.isFinite(at) ? at : null;
+};
+
+// sql: a SQLite handle (`exec(query, ...params).toArray()`); transaction: runs a function as one transaction.
+// onWrite is a synchronous owner notification in that same transaction: a
+// dependent queue can never miss a terminal task if the Worker stops afterward.
+// The append-only facts every Workshop task and saved tool is kept as (the newest row per entity is current), defined
+// here once for this module and the person's store.
+export function workshopFactsTable(sql) {
+  sql.exec('CREATE TABLE IF NOT EXISTS workshop_facts (seq INTEGER PRIMARY KEY AUTOINCREMENT, at TEXT NOT NULL, entity TEXT NOT NULL, value TEXT NOT NULL)');
+  sql.exec('CREATE INDEX IF NOT EXISTS workshop_facts_current ON workshop_facts (entity, seq)');
+}
+
+// `writes(task, run)` runs each task write, so the person's store can say which screens a task's write is for
+// (src/person-store.mjs: a run a rule started tells only the Runs and AI activity reads).
+export function workshopTasks(sql, { transaction = fn => fn(), now = () => new Date(), onWrite = () => null, writes = (_task, run) => run() } = {}) {
+  workshopFactsTable(sql);
+  sql.exec('CREATE TABLE IF NOT EXISTS workshop_tasks (task_id TEXT PRIMARY KEY, tool_id TEXT, state TEXT, due_ms INTEGER, sort_at TEXT NOT NULL, seq INTEGER NOT NULL, card TEXT NOT NULL)');
+  sql.exec('CREATE INDEX IF NOT EXISTS workshop_tasks_due ON workshop_tasks (state, due_ms)');
+  sql.exec('CREATE INDEX IF NOT EXISTS workshop_tasks_tool ON workshop_tasks (tool_id, state, seq)');
+  sql.exec('CREATE INDEX IF NOT EXISTS workshop_tasks_newest ON workshop_tasks (sort_at)');
+  sql.exec('CREATE INDEX IF NOT EXISTS workshop_tasks_cards_page ON workshop_tasks (sort_at DESC,task_id DESC)');
+  sql.exec('CREATE INDEX IF NOT EXISTS workshop_tasks_tool_cards_page ON workshop_tasks (tool_id,sort_at DESC,task_id DESC)');
+  sql.exec('CREATE TABLE IF NOT EXISTS workshop_tasks_indexed (id INTEGER PRIMARY KEY CHECK (id = 1), after TEXT NOT NULL, done INTEGER NOT NULL)');
+
+  const put = (task, seq) => {
+    const card = cardOf(task);
+    const nextAt = task.state === 'working' ? now().getTime() + WORKING_CHECK_MS : dueMs(task);
+    sql.exec(`INSERT INTO workshop_tasks (task_id, tool_id, state, due_ms, sort_at, seq, card) VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT (task_id) DO UPDATE SET tool_id = excluded.tool_id, state = excluded.state, due_ms = excluded.due_ms, sort_at = excluded.sort_at, seq = excluded.seq, card = excluded.card
+      WHERE excluded.seq > workshop_tasks.seq`,
+    task.task_id, task.tool_id || null, task.state ?? null, nextAt, String(task.started_at ?? task.due_at ?? ''), seq, JSON.stringify(card));
+  };
+
+  // Tasks kept before this index, a page at a time by entity from the persisted mark, each page read whole and let go
+  // before the next. Only `indexStep.step` builds it; nothing a question runs does.
+  let indexed = false;
+  let workingDatesFilled = false;
+  const indexDone = () => {
+    if (!indexed) indexed = Boolean(sql.exec('SELECT done FROM workshop_tasks_indexed WHERE id = 1 LIMIT 1').toArray()[0]?.done);
+    return indexed;
+  };
+  const indexStep = {
+    /** When the build is next owed (now), or null once it is finished: the scheduler source's time. */
+    nextAt: () => (indexDone() ? null : now().getTime()),
+    /** At most INDEX_PAGES_PER_STEP pages of the build → { done, indexed: tasks put this step }. */
+    step() {
+      if (indexDone()) return { done: true, indexed: 0 };
+      let after = sql.exec('SELECT after FROM workshop_tasks_indexed WHERE id = 1 LIMIT 1').toArray()[0]?.after ?? PREFIX;
+      let count = 0;
+      for (let pages = 0; pages < INDEX_PAGES_PER_STEP; pages += 1) {
+        const page = sql.exec(`SELECT f.entity, f.seq, f.value FROM workshop_facts f JOIN (SELECT entity, MAX(seq) AS seq FROM workshop_facts
+          WHERE entity > ? AND entity < ? GROUP BY entity ORDER BY entity LIMIT ?) newest ON newest.seq = f.seq ORDER BY f.entity`, after, PREFIX_END, INDEX_PAGE).toArray();
+        const done = page.length < INDEX_PAGE;
+        transaction(() => {
+          for (const row of page) put(JSON.parse(row.value), row.seq);
+          if (page.length) after = page.at(-1).entity;
+          sql.exec('INSERT INTO workshop_tasks_indexed (id, after, done) VALUES (1, ?, ?) ON CONFLICT (id) DO UPDATE SET after = excluded.after, done = excluded.done', after, done ? 1 : 0);
+        });
+        count += page.length;
+        if (done) { indexed = true; break; }
+      }
+      return { done: indexed, indexed: count };
+    },
+  };
+
+  // The versions a task replaced move out of the store into files of their own chain (history: { keep(name, bytes) },
+  // kept and read back where record history is kept), then leave the table. Each file names the one before it, and the
+  // newest one's identity is kept with the mark, so the chain shows none was changed, dropped or reordered. Every read
+  // takes a task's newest version, so only the store's size changes; the replaced versions stay readable in history.
+  // Found by seq: every replaced version was replaced by a later write, so walking the writes after a persisted mark
+  // (the seq primary key) names every task that has one, and each task's own versions are read by the (entity, seq)
+  // index below the seq its index row names. Nothing leaves the table before its file is kept and read back, and the
+  // delete, the mark and the chain's head move in one transaction, so a store at its size limit can still take it.
+  sql.exec('CREATE TABLE IF NOT EXISTS workshop_task_versions_moved (id INTEGER PRIMARY KEY CHECK (id = 1), seq INTEGER NOT NULL, at INTEGER NOT NULL, head TEXT, pending INTEGER NOT NULL DEFAULT 0)');
+  try { sql.exec('SELECT pending FROM workshop_task_versions_moved LIMIT 0'); }
+  catch (error) {
+    if (!/no such column: pending\b/i.test(String(error?.message ?? ''))) throw error;
+    sql.exec('ALTER TABLE workshop_task_versions_moved ADD COLUMN pending INTEGER NOT NULL DEFAULT 0');
+  }
+  const moved = () => sql.exec('SELECT seq, at, head, pending FROM workshop_task_versions_moved WHERE id = 1 LIMIT 1').toArray()[0] ?? { seq: 0, at: 0, head: null, pending: 0 };
+  const newestSeq = () => sql.exec('SELECT seq FROM workshop_facts ORDER BY seq DESC LIMIT 1').toArray()[0]?.seq ?? 0;
+  const encoder = new TextEncoder();
+  const versionsStep = {
+    /** When replaced versions are next owed a move: now while a bounded scan remains pending (or, `urgent`, a
+     *  store near its size limit), else once gather_ms after the last. No unread writes means no wake. */
+    nextAt({ urgent = false } = {}) {
+      const mark = moved();
+      const waiting = newestSeq() - mark.seq;
+      if (waiting <= 0) return null;
+      return urgent || mark.pending || waiting >= VERSION_MOVE.gather_rows ? now().getTime() : mark.at + VERSION_MOVE.gather_ms;
+    },
+    /** One file of replaced versions at most → { moved: versions moved, scanned: writes looked at, file }. */
+    async step(history, options = VERSION_MOVE) {
+      const mark = moved();
+      const clamp = (value, ceiling) => Math.min(ceiling, Math.max(1, Math.floor(Number(value) || ceiling)));
+      const scanRows = clamp(options.scan_rows, VERSION_MOVE.scan_rows);
+      const historyRows = clamp(options.history_rows, VERSION_MOVE.history_rows);
+      const fileBytes = clamp(options.file_bytes, VERSION_MOVE.file_bytes);
+      const writes = sql.exec('SELECT seq, entity FROM workshop_facts WHERE seq > ? ORDER BY seq LIMIT ?', mark.seq, scanRows).toArray();
+      const head = mark.head;
+      const first = encoder.encode(`${JSON.stringify({ history_chain: { previous: head } })}\n`);
+      const seqs = [];
+      let bytes = first.length;
+      let through = mark.seq;
+      const seen = new Set();
+      let large = null;
+      for (const write of writes) {
+        if (write.entity > PREFIX && write.entity < PREFIX_END && !seen.has(write.entity)) {
+          const current = sql.exec('SELECT seq FROM workshop_facts WHERE entity = ? ORDER BY seq DESC LIMIT 1', write.entity).toArray()[0]?.seq;
+          const room = historyRows - seqs.length;
+          // Select only IDs before byte admission. Encoding the whole historical page to obtain scalar lengths
+          // still works every payload in that page, even when the file can admit only its first row. Size each
+          // candidate by primary key until the byte boundary; the extra ID alone proves unfinished history.
+          const older = current === undefined ? [] : sql.exec(`SELECT seq
+            FROM workshop_facts WHERE entity = ? AND seq < ? ORDER BY seq LIMIT ?`, write.entity, current, room + 1).toArray();
+          let complete = older.length <= room;
+          for (const [index, row] of older.entries()) {
+            if (index >= room) { complete = false; break; }
+            const source = workshopHistorySource(sql, row.seq);
+            if (!source) throw new Error('Workshop task history rows changed before they could be kept.');
+            // Only a proven-small source is ever quoted whole. Six bytes per raw UTF-8 byte covers
+            // every JSON control escape, so json_object cannot exceed this file ceiling in SQLite.
+            if (workshopHistoryWholeBound(row.seq, source) > VERSION_MOVE.file_bytes) {
+              if (!seqs.length) large = { seq: row.seq, offset: 0, total: null, source, cursor: { stage: 0, byte: 0 } };
+              complete = false;
+              break;
+            }
+            const sized = sql.exec(`SELECT length(CAST(json_object('seq', seq, 'at', at, 'entity', entity, 'value', value) AS BLOB)) + 1 AS bytes
+              FROM workshop_facts WHERE seq = ? LIMIT 1`, row.seq).toArray()[0];
+            if (!sized) throw new Error('Workshop task history rows changed before they could be kept.');
+            if (first.length + sized.bytes > fileBytes) {
+              if (!seqs.length) large = { seq: row.seq, offset: 0, total: null, source, cursor: { stage: 0, byte: 0 } };
+              complete = false; break;
+            }
+            if (bytes + sized.bytes > fileBytes) { complete = false; break; }
+            seqs.push(row.seq);
+            bytes += sized.bytes;
+          }
+          // A partially handled entity remains ahead of the mark. Its verified rows leave after keep; the next
+          // wake resumes through its remaining (entity, seq) entries, including after a store restart.
+          if (!complete) break;
+          seen.add(write.entity);
+        }
+        through = write.seq;
+      }
+      // The mark moves only from the place this step read it at, so two steps at once never both move it.
+      const markThrough = newHead => {
+        const kept = moved();
+        if (kept.seq !== mark.seq || kept.head !== head) throw new Error('Task versions moved on meanwhile; this step is left for the next wake.');
+        sql.exec('INSERT INTO workshop_task_versions_moved (id, seq, at, head, pending) VALUES (1, ?, ?, ?, ?) ON CONFLICT (id) DO UPDATE SET seq = excluded.seq, at = excluded.at, head = excluded.head, pending = excluded.pending',
+          through, now().getTime(), newHead, newestSeq() > through ? 1 : 0);
+      };
+      const commitRows = (selectedSeqs, newHead, total = null) => transaction(() => {
+        if (total && typeof total === 'object') {
+          if (!sameWorkshopHistorySource(workshopHistorySource(sql, selectedSeqs[0]), total)) throw new Error('Workshop task history rows changed before they could be kept.');
+        } else if (total !== null) {
+          const source = sql.exec(`SELECT length(CAST(json_object('seq', seq, 'at', at, 'entity', entity, 'value', value) AS BLOB)) AS total
+            FROM workshop_facts WHERE seq = ? LIMIT 1`, selectedSeqs[0]).toArray()[0];
+          if (!source || source.total !== total) throw new Error('Workshop task history rows changed before they could be kept.');
+        }
+        // Forget/reset can remove an admitted immutable row during remote I/O without moving the
+        // archive mark. Require every selected primary key exactly once before committing that head.
+        const removed = sql.exec('DELETE FROM workshop_facts WHERE seq IN (SELECT value FROM json_each(?)) RETURNING seq', JSON.stringify(selectedSeqs)).toArray();
+        const expected = new Set(selectedSeqs);
+        if (removed.length !== expected.size || removed.some(row => !expected.delete(row.seq)) || expected.size) throw new Error('Workshop task history rows changed before they could be kept.');
+        markThrough(newHead);
+      });
+      if (large) {
+        if (!history.continuation?.read || !history.continuation?.write || !history.continuation?.verify) throw new Error('Workshop history byte continuations are not available.');
+        // R2 owns partial progress: a hard-full SQLite store need not grow even one cursor row before
+        // enough verified history exists to free the source. Namespace the checkpoint by the initial
+        // SQLite head and seq; a later chain can never adopt a stale continuation.
+        const commitLarge = newHead => commitRows([large.seq], newHead, large.total === null ? large.source : large.total);
+        const checkpoint = `${options.folder ?? VERSION_MOVE.folder}-continuations/${mark.seq}-${head?.slice(3) ?? 'first'}-${large.seq}.json`;
+        const saved = await history.continuation.read(checkpoint);
+        // A numeric-total checkpoint was already created by the earlier serializer, which proved
+        // its whole JSON fits SQLite before keeping its first part. Resume that exact legacy chain.
+        if (saved && saved.value.total !== null) large = { seq: large.seq, offset: 0, total: saved.value.total };
+        if (large.total === null) {
+          let previous = head;
+          if (saved) {
+            const value = saved.value;
+            if (value.mark_seq !== mark.seq || value.mark_head !== head || value.seq !== large.seq || value.total !== null || !sameWorkshopHistorySource(value.source, large.source) || !Number.isSafeInteger(value.offset) || value.offset <= 0 || !Number.isSafeInteger(value.cursor?.stage) || value.cursor.stage < 0 || value.cursor.stage > 7 || !Number.isSafeInteger(value.cursor?.byte) || value.cursor.byte < 0 || (value.cursor.stage === 7 && value.cursor.byte !== 0) || value.offset > workshopHistoryWholeBound(large.seq, large.source)) throw new Error('Workshop history continuation does not match its source and initial mark.');
+            const verified = await history.continuation.verify(value.file, value.head, fileBytes);
+            const part = verified?.part;
+            if (!part || part.seq !== value.seq || part.total !== null || !sameWorkshopHistorySource(part.source, value.source) || part.cursor?.stage !== value.cursor.stage || part.cursor?.byte !== value.cursor.byte || typeof part.hex !== 'string' || part.hex.length % 2 || !/^[0-9a-f]+$/i.test(part.hex) || part.offset + part.hex.length / 2 !== value.offset || (part.offset === 0 && verified.previous !== head) || part.final !== (value.cursor.stage === 7)) throw new Error('Workshop history continuation fragment does not match its verified progress.');
+            large.offset = value.offset; large.cursor = value.cursor; previous = value.head;
+            if (large.cursor.stage === 7) { commitLarge(previous); return { moved: 1, scanned: writes.length, file: value.file }; }
+          }
+          if (!sameWorkshopHistorySource(workshopHistorySource(sql, large.seq), large.source)) throw new Error('Workshop task history rows changed before they could be kept.');
+          const chunkFirst = encoder.encode(`${JSON.stringify({ history_chain: { previous } })}\n`);
+          const maximum = { workshop_history_part: { ...large, offset: workshopHistoryWholeBound(large.seq, large.source), cursor: { stage: 7, byte: Math.max(...Object.values(large.source)) }, final: false, hex: '' } };
+          const ceiling = Math.floor((fileBytes - chunkFirst.length - encoder.encode(`${JSON.stringify(maximum)}\n`).length) / 2);
+          const piece = workshopHistorySlice(sql, large.seq, large.source, large.cursor, ceiling);
+          const next = large.offset + piece.bytes.length;
+          // Fixed-size byte buffers avoid a per-byte rope or millions of tiny string allocations.
+          const hex = workshopHistoryHex(piece.bytes);
+          const metadata = { workshop_history_part: { ...large, cursor: piece.cursor, final: piece.final, hex } };
+          const line = encoder.encode(`${JSON.stringify(metadata)}\n`);
+          if (chunkFirst.length + line.length > fileBytes) throw new Error('Workshop task history rows exceed their history file limit.');
+          const whole = new Uint8Array(chunkFirst.length + line.length); whole.set(chunkFirst); whole.set(line, chunkFirst.length);
+          const identity = historyIdentity(whole);
+          const file = `${options.folder ?? VERSION_MOVE.folder}/${large.seq}.part-${String(large.offset).padStart(16, '0')}-${identity.slice(3)}.jsonl`;
+          await history.keep(file, whole);
+          await history.continuation.write(checkpoint, { mark_seq: mark.seq, mark_head: head, ...large, offset: next, cursor: piece.cursor, head: identity, file }, saved?.etag ?? null);
+          if (piece.final) commitLarge(identity);
+          return { moved: piece.final ? 1 : 0, scanned: writes.length, file };
+        }
+        let previous = head;
+        if (saved) {
+          const value = saved.value;
+          if (value.mark_seq !== mark.seq || value.mark_head !== head || value.seq !== large.seq || value.total !== large.total || !Number.isSafeInteger(value.offset) || value.offset <= 0 || value.offset > large.total || typeof value.head !== 'string' || typeof value.file !== 'string') throw new Error('Workshop history continuation does not match its source and initial mark.');
+          const verified = await history.continuation.verify(value.file, value.head, fileBytes);
+          const part = verified?.part;
+          if (!part || part.seq !== value.seq || part.total !== value.total || !Number.isSafeInteger(part.offset) || part.offset < 0 || typeof part.hex !== 'string' || part.hex.length % 2 || !/^[0-9a-f]+$/i.test(part.hex) || part.offset + part.hex.length / 2 !== value.offset || (part.offset === 0 && verified.previous !== head)) throw new Error('Workshop history continuation fragment does not match its verified progress.');
+          large.offset = value.offset;
+          previous = value.head;
+          if (large.offset === large.total) {
+            commitLarge(previous);
+            return { moved: 1, scanned: writes.length, file: value.file };
+          }
+        }
+        const chunkFirst = encoder.encode(`${JSON.stringify({ history_chain: { previous } })}\n`);
+        const metadata = { workshop_history_part: { ...large, hex: '' } };
+        const overhead = encoder.encode(`${JSON.stringify(metadata)}\n`).length;
+        const take = Math.floor((fileBytes - chunkFirst.length - overhead) / 2);
+        if (take < 1) throw new Error('The Workshop history file limit cannot hold one byte and its continuation metadata.');
+        const row = sql.exec(`SELECT length(CAST(json_object('seq', seq, 'at', at, 'entity', entity, 'value', value) AS BLOB)) AS total,
+          hex(substr(CAST(json_object('seq', seq, 'at', at, 'entity', entity, 'value', value) AS BLOB), ?, ?)) AS hex
+          FROM workshop_facts WHERE seq = ? LIMIT 1`, large.offset + 1, take, large.seq).toArray()[0];
+        if (!row || row.total !== large.total) throw new Error('Workshop task history rows changed before they could be kept.');
+        const next = large.offset + row.hex.length / 2;
+        if (next <= large.offset || next > large.total) throw new Error('Workshop task history continuation did not advance.');
+        metadata.workshop_history_part.hex = row.hex;
+        const line = encoder.encode(`${JSON.stringify(metadata)}\n`);
+        if (chunkFirst.length + line.length > fileBytes) throw new Error('Workshop task history rows exceed their history file limit.');
+        const whole = new Uint8Array(chunkFirst.length + line.length);
+        whole.set(chunkFirst); whole.set(line, chunkFirst.length);
+        const identity = historyIdentity(whole);
+        const file = `${options.folder ?? VERSION_MOVE.folder}/${large.seq}.part-${String(large.offset).padStart(16, '0')}-${identity.slice(3)}.jsonl`;
+        await history.keep(file, whole);
+        await history.continuation.write(checkpoint, { mark_seq: mark.seq, mark_head: head, ...large, offset: next, head: identity, file }, saved?.etag ?? null);
+        if (next === large.total) {
+          // Only the last verified part frees the immutable source row. A failed SQLite mark or
+          // competing step rolls back deletion; partial checkpoint writes never touch SQLite.
+          commitLarge(identity);
+        }
+        return { moved: next === large.total ? 1 : 0, scanned: writes.length, file };
+      }
+      if (!seqs.length) { transaction(() => markThrough(head)); return { moved: 0, scanned: writes.length, file: null }; }
+      const rows = sql.exec('SELECT seq, at, entity, value FROM workshop_facts WHERE seq IN (SELECT value FROM json_each(?)) ORDER BY seq LIMIT ?', JSON.stringify(seqs), historyRows).toArray();
+      if (rows.length !== seqs.length) throw new Error('Workshop task history rows changed before they could be kept.');
+      const selected = new Map(rows.map(row => [row.seq, row]));
+      const lines = [first];
+      bytes = first.length;
+      for (const seq of seqs) {
+        const row = selected.get(seq);
+        const line = encoder.encode(`${JSON.stringify({ seq: row.seq, at: row.at, entity: row.entity, value: row.value })}\n`);
+        if (bytes + line.length > fileBytes) throw new Error('Workshop task history rows exceed their history file limit.');
+        lines.push(line);
+        bytes += line.length;
+      }
+      const file = `${options.folder ?? VERSION_MOVE.folder}/${seqs[0]}.jsonl`;
+      const whole = new Uint8Array(bytes);
+      let offset = 0;
+      for (const line of lines) { whole.set(line, offset); offset += line.length; }
+      await history.keep(file, whole);
+      // Free the verified rows before growing the mark; source or head races roll back every deletion.
+      commitRows(seqs, historyIdentity(whole));
+      return { moved: seqs.length, scanned: writes.length, file };
+    },
+  };
+
+  // The task index predates working-task checks. Give only those older live rows a first check;
+  // this uses the existing (state, due_ms) index and never reads their whole values.
+  function ensureWorkingDates() {
+    if (workingDatesFilled) return;
+    sql.exec("UPDATE workshop_tasks SET due_ms = ? WHERE state = 'working' AND due_ms IS NULL", now().getTime() + WORKING_CHECK_MS);
+    workingDatesFilled = true;
+  }
+
+  const readWhole = id => {
+    const row = sql.exec('SELECT value FROM workshop_facts WHERE entity = ? ORDER BY seq DESC LIMIT 1', `${PREFIX}${id}`).toArray()[0];
+    return row ? JSON.parse(row.value) : null;
+  };
+
+  return {
+    read: readWhole,
+    /** The build of the index over tasks kept before it, as a scheduler source's two functions (see the invariants). */
+    indexStep,
+    /** Moving the versions tasks replaced out into the record history, as a scheduler source's two functions. */
+    versionsStep,
+    write(task) {
+      const value = JSON.stringify(task);
+      const valueBytes = encoder.encode(value).length;
+      if (valueBytes > WORKSHOP_TASK_VALUE_BYTES) throw new RangeError(`Workshop task ${task.task_id} is ${valueBytes} bytes; the stored-value limit is ${WORKSHOP_TASK_VALUE_BYTES} bytes.`);
+      return writes(task, () => transaction(() => {
+        const [{ seq }] = sql.exec('INSERT INTO workshop_facts (at, entity, value) VALUES (?, ?, ?) RETURNING seq', now().toISOString(), `${PREFIX}${task.task_id}`, value).toArray();
+        put(task, seq);
+        return onWrite(task);
+      }));
+    },
+    /** One bounded page of scheduled tasks due at or before `atMs`, whole, earliest first. */
+    due(atMs, limit = SCHEDULED_TASK_PAGE) {
+      const page = Math.min(SCHEDULED_TASK_PAGE, Math.max(1, Math.floor(Number(limit) || SCHEDULED_TASK_PAGE)));
+      return sql.exec("SELECT task_id FROM workshop_tasks WHERE state = 'scheduled' AND due_ms <= ? ORDER BY due_ms LIMIT ?", atMs, page).toArray()
+        .map(row => readWhole(row.task_id)).filter(Boolean);
+    },
+    /** The earliest due time of a scheduled task (ms), or null when none is scheduled. */
+    nextDueAt() {
+      return sql.exec("SELECT MIN(due_ms) AS at FROM workshop_tasks WHERE state = 'scheduled' AND due_ms IS NOT NULL").toArray()[0]?.at ?? null;
+    },
+    /** Only active runs make the account wake. Each check reads at most one bounded page of whole tasks. */
+    workingDueAt() {
+      ensureWorkingDates();
+      return sql.exec("SELECT MIN(due_ms) AS at FROM workshop_tasks WHERE state = 'working' AND due_ms IS NOT NULL").toArray()[0]?.at ?? null;
+    },
+    workingDue(atMs, limit = WORKING_CHECK_PAGE) {
+      ensureWorkingDates();
+      const page = Math.min(WORKING_CHECK_PAGE, Math.max(1, Math.floor(Number(limit) || WORKING_CHECK_PAGE)));
+      return sql.exec("SELECT task_id FROM workshop_tasks WHERE state = 'working' AND due_ms <= ? ORDER BY due_ms LIMIT ?", atMs, page).toArray()
+        .map(row => readWhole(row.task_id)).filter(Boolean);
+    },
+    /** Move a check forward before observing the container, so a reset cannot hot-loop the same task. */
+    deferWorkingCheck(taskId, atMs) {
+      ensureWorkingDates();
+      sql.exec("UPDATE workshop_tasks SET due_ms = ? WHERE task_id = ? AND state = 'working'", atMs, taskId);
+    },
+    /** The task of `toolId` last written as completed, whole, or null. */
+    lastCompleted(toolId) {
+      const row = sql.exec("SELECT task_id FROM workshop_tasks WHERE tool_id = ? AND state = 'completed' ORDER BY seq DESC LIMIT 1", toolId).toArray()[0];
+      return row ? readWhole(row.task_id) : null;
+    },
+    /** The cards of the newest runs (of one tool, given `tool_id`), newest first, at most `limit`. */
+    cardsPage({tool_id,before,limit=100}={}) {
+      if(!Number.isInteger(limit)||limit<1||limit>100)throw Object.assign(new RangeError('Read at most100 work cards.'),{status:400});
+      let cursor=null;
+      if(before){try{cursor=JSON.parse(before);}catch{throw Object.assign(new Error('Invalid work card cursor.'),{status:400});}
+        if(!Array.isArray(cursor)||cursor.length!==2||!cursor.every(value=>typeof value==='string'&&value.length<2048))throw Object.assign(new Error('Invalid work card cursor.'),{status:400});}
+      const clauses=["tool_id IS NOT NULL AND tool_id != ''"],args=[];
+      if(tool_id){clauses.push('tool_id=?');args.push(tool_id);}
+      if(cursor){clauses.push('(sort_at<? OR (sort_at=? AND task_id<?))');args.push(cursor[0],cursor[0],cursor[1]);}
+      const rows=sql.exec(`SELECT task_id,sort_at,card FROM workshop_tasks WHERE ${clauses.join(' AND ')} ORDER BY sort_at DESC,task_id DESC LIMIT ?`,...args,limit+1).toArray();
+      const page=rows.slice(0,limit),last=page.at(-1);
+      return {cards:page.map(row=>JSON.parse(row.card)),next_before:rows.length>limit?JSON.stringify([last.sort_at,last.task_id]):null};
+    },
+    cards({ tool_id, limit = RUNS_LISTED } = {}) {
+      const page = Math.max(1, Math.floor(Number(limit) || RUNS_LISTED));
+      const rows = tool_id
+        ? sql.exec('SELECT card FROM workshop_tasks WHERE tool_id = ? ORDER BY sort_at DESC LIMIT ?', tool_id, page).toArray()
+        : sql.exec("SELECT card FROM workshop_tasks WHERE tool_id IS NOT NULL AND tool_id != '' ORDER BY sort_at DESC LIMIT ?", page).toArray();
+      return rows.map(row => JSON.parse(row.card));
+    },
+  };
+}

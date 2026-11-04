@@ -1,0 +1,43 @@
+// test/service-actor-derived-key.test.mjs
+//
+// With the service-actor root bound, an account's policy owner makes and checks service claims with a key it derives and stores none.
+// An account whose key an earlier version stored keeps checking claims signed with it for service_key_scrub_days, claims made after
+// are signed with the derived key, and then the stored key is dropped.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { mintServiceActor } from '../src/service-actor.mjs';
+import { nativeOwnRecordsFixture } from './native-own-records-for-tests.mjs';
+import usageSettings from '../../../price-and-sell-by-contract/src/usage-meters.json' with { type: 'json' };
+
+const ACCOUNT = 'derives-its-key', DAY = 86_400_000, root = 'c3'.repeat(32);
+const scope = { kind: 'follow-up-stop', id: ACCOUNT };
+const policy = f => f.env.ACCOUNT_CONTROL.get(f.env.ACCOUNT_CONTROL.idFromName(`policy:${ACCOUNT}`));
+const mint = async f => (await mintServiceActor(f.env, { origin: 'follow-up-stop', account: ACCOUNT, scope })).claims;
+
+test('with the root bound a claim verifies and the policy owner stores no key', async t => {
+  const f = await nativeOwnRecordsFixture(t); await f.own(ACCOUNT);
+  f.env.SERVICE_ACTOR_DERIVATION_ROOT = root;
+  const claims = await mint(f);
+  assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims }), true);
+  assert.equal(policy(f).read('service-actor-key'), null, 'a read of the object finds no key');
+  assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims: { ...claims, service_proof: '0'.repeat(64) } }), false);
+});
+
+test('an earlier stored key keeps checking its claims for the scrub time, new claims are derived, and then the stored key is dropped', async t => {
+  const f = await nativeOwnRecordsFixture(t); await f.own(ACCOUNT);
+  const old = await mint(f);                                  // no root bound: the stored random key, as before
+  assert.notEqual(policy(f).read('service-actor-key'), null);
+  f.env.SERVICE_ACTOR_DERIVATION_ROOT = root;
+  assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims: old }), true, 'a claim the stored key signed still stands');
+  const fresh = await mint(f);
+  assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims: fresh }), true);
+  const realNow = Date.now;
+  try {
+    Date.now = () => realNow() + (usageSettings.service_key_scrub_days - 1) * DAY;
+    assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims: old }), true, 'still inside the scrub time');
+    Date.now = () => realNow() + (usageSettings.service_key_scrub_days + 1) * DAY;
+    assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims: old }), false, 'past it the old key is gone');
+    assert.equal(policy(f).read('service-actor-key'), null);
+    assert.equal(await policy(f).verifyServiceActor({ account: ACCOUNT, claims: fresh }), true, 'claims made with the derived key stand');
+  } finally { Date.now = realNow; }
+});

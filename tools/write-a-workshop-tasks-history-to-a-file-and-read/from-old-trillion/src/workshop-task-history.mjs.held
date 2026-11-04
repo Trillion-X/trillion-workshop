@@ -1,0 +1,87 @@
+// Workshop history uses legacy whole JSONL rows and, for a row larger than the file ceiling,
+// exact SQLite JSON byte pieces. Read the chain and continuation geometry before exposing any
+// bytes. A consumer can stream the pieces to a file or its restore owner without gathering a row
+// in the isolate; concatenating each row's pieces reproduces its legacy JSON representation.
+import { createHistoryChainVerifier, historyIdentity } from './record-history.mjs';
+
+const encoder = new TextEncoder();
+const decoder = new TextDecoder('utf-8', { fatal: true });
+const fail = message => { throw new Error(`Workshop task history: ${message}`); };
+const integer = value => Number.isSafeInteger(value) && value >= 0;
+function parts(bytes, state) {
+  const lines = decoder.decode(bytes).split('\n').filter(Boolean);
+  let hasHeader = false;
+  try { hasHeader = Object.hasOwn(JSON.parse(lines[0]), 'history_chain'); } catch { /* legacy history began directly with its first row */ }
+  if (hasHeader) lines.shift();
+  const result = [];
+  for (const line of lines) {
+    const row = JSON.parse(line);
+    const part = row.workshop_history_part;
+    if (!part) {
+      if (state.pending) fail('a whole row interrupted an unfinished row.');
+      if (!integer(row.seq) || typeof row.at !== 'string' || typeof row.entity !== 'string' || typeof row.value !== 'string') fail('an invalid legacy row was kept.');
+      result.push({ seq: row.seq, first: true, last: true, text: line });
+      continue;
+    }
+    const { seq, offset, total, hex } = part;
+    if (!integer(seq) || !integer(offset) || (total !== null && (!integer(total) || total < 1)) || (total === null && typeof part.final !== 'boolean') || typeof hex !== 'string' || hex.length % 2 !== 0 || !/^[0-9a-fA-F]+$/.test(hex)) fail('invalid byte continuation.');
+    const length = hex.length / 2;
+    if (!state.pending) {
+      if (offset !== 0) fail('a row is missing its first piece.');
+      state.pending = { seq, total, offset: 0 };
+    }
+    if (state.pending.seq !== seq || state.pending.total !== total || state.pending.offset !== offset || (total !== null && offset + length > total)) fail('a row has a missing, repeated or reordered piece.');
+    const last = total === null ? part.final : offset + length === total;
+    result.push({ seq, first: offset === 0, last, hex });
+    state.pending = last ? null : { seq, total, offset: offset + length };
+  }
+  return result;
+}
+
+/** Verified oldest-first names; read(name) returns <=file_bytes bytes. Emits bounded {seq,
+ * first,last,bytes} pieces without the JSONL newline. Nothing is emitted for an incomplete chain
+ * or row. Files kept beyond the committed head are ignored, as in record-history recovery. */
+export async function* workshopTaskHistoryPieces({ names, read, head, substitutions = [], file_bytes = 4 * 1024 * 1024 }) {
+  if (!integer(file_bytes) || file_bytes < 1 || file_bytes > 4 * 1024 * 1024) fail('invalid file ceiling.');
+  const chain = createHistoryChainVerifier(substitutions, {}, { leadingUnchained: true });
+  let through = head === null ? 0 : -1;
+  const state = { pending: null };
+  const identities = [];
+  for (const [index, name] of names.entries()) {
+    if (through >= 0) break;
+    const bytes = await read(name);
+    if (!(bytes instanceof Uint8Array) || bytes.length > file_bytes) fail('a kept file exceeds its byte ceiling.');
+    const broken = chain.take({ name, bytes });
+    if (broken) fail(broken.why);
+    parts(bytes, state);
+    const identity = historyIdentity(bytes);
+    identities.push(identity);
+    if (chain.matchesHead(identity, name, head)) through = index + 1;
+  }
+  if (through < 0) fail('the committed head is missing.');
+  const checked = chain.end(head);
+  if (!checked.ok) fail(checked.why);
+  if (state.pending) fail('the committed chain ends inside a row.');
+  // Recheck identities in this second read: mutable storage must not swap bytes after validation.
+  const applyingChain = createHistoryChainVerifier(substitutions, {}, { leadingUnchained: true });
+  const applying = { pending: null };
+  for (const [index, name] of names.slice(0, through).entries()) {
+    const bytes = await read(name);
+    if (!(bytes instanceof Uint8Array) || bytes.length > file_bytes) fail('a kept file exceeds its byte ceiling.');
+    const broken = applyingChain.take({ name, bytes });
+    if (broken) fail('a checked file changed before reading.');
+    const identity = historyIdentity(bytes);
+    if (identity !== identities[index]) fail('a checked file changed before reading.');
+    for (const piece of parts(bytes, applying)) {
+      let body;
+      if (piece.hex) {
+        body = new Uint8Array(piece.hex.length / 2);
+        for (let offset = 0; offset < body.length; offset++) body[offset] = Number.parseInt(piece.hex.slice(offset * 2, offset * 2 + 2), 16);
+      } else body = encoder.encode(piece.text);
+      yield { seq: piece.seq, first: piece.first, last: piece.last, bytes: body };
+    }
+  }
+  const appliedChain = applyingChain.end(head);
+  if (!appliedChain.ok) fail('the checked chain changed before reading.');
+  if (applying.pending) fail('the checked chain changed before reading.');
+}

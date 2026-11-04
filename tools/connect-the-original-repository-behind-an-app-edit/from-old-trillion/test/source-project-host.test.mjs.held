@@ -1,0 +1,754 @@
+import { workshopOver } from './source-project-workshop-for-tests.mjs';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { answerSourceProjectApi, isSourceProjectApiPath, pinnedSiteWorkerBundle, verifyPinnedSourceBuildOrigin } from '../src/source-project-host.mjs';
+import { sourceSelectionFingerprint } from '../src/source-project-edit.mjs';
+import { ACCOUNT_APP_OWNER, accountAppState } from '../src/account-app-state.mjs';
+import { sqliteHost } from '../src/local-store.mjs';
+
+const first = 'a'.repeat(40);
+const second = 'c'.repeat(40);
+const fileSha = 'b'.repeat(40);
+const newFileSha = 'd'.repeat(40);
+const path = 'src/App.tsx';
+const original = `export default function App() { return <main><h1 id="hero" data-testid="hero-heading">Original words</h1></main>; }\n`;
+
+test('pinned Worker bundle reads only manifest files at the exact primary and locked sibling commits', async () => {
+  const projectId = 'e'.repeat(32);
+  const primaryCommit = 'a'.repeat(40);
+  const siblingCommit = 'c'.repeat(40);
+  const lock = { schema: 'trillion.source-build-inputs/v1', inputs: [
+    { repository: 'owner/shared-data', commit: siblingCommit, mount: 'shared-data', paths: ['content'] },
+  ] };
+  const manifest = { schema: 'trillion.site-worker-source/v1', compatibility_date: '2026-10-07',
+    compatibility_flags: [], permissions: { crons: ['*/10 * * * *'], receive_email: true }, module: { mount: 'source', path: 'dist/worker.mjs' },
+    data: [{ mount: 'shared-data', path: 'content/settings.json', as: 'data/settings.json' }] };
+  const contents = new Map([
+    ['source-build-lock.json', JSON.stringify(lock)],
+    ['trillion-site-worker.json', JSON.stringify(manifest)],
+    ['dist/worker.mjs', 'export default { fetch() { return new Response("ok"); } };'],
+    ['content/settings.json', '{"theme":"dark"}'],
+  ]);
+  const hashes = new Map([...contents].map(([path], index) => [path, (index + 1).toString(16).repeat(40).slice(0, 40)]));
+  let wrongModuleTreeSha = false;
+  const project = { id: projectId, owner_user_id: 'person-one', provider: 'github',
+    owner: 'owner', repo: 'site', branch: 'main', commit: primaryCommit };
+  const env = { APP_KV: { get: async key => key === `source-project:person-one:${projectId}` ? project : null } };
+  const calls = [];
+  const person = { fetch: async request => {
+    const { tool_id, input } = await request.json();
+    calls.push({ tool_id, input });
+    const tool = tool_id.slice('tool:github-'.length);
+    let output;
+    if (tool === 'read_tree') {
+      const sibling = input.owner === 'owner' && input.repo === 'shared-data';
+      assert.equal(input.ref, sibling ? siblingCommit : primaryCommit);
+      const paths = sibling ? ['content/settings.json'] : ['source-build-lock.json', 'trillion-site-worker.json', 'dist/worker.mjs'];
+      output = { truncated: false, tree: paths.map(path => ({ path, type: 'blob',
+        sha: path === 'dist/worker.mjs' && wrongModuleTreeSha ? 'f'.repeat(40) : hashes.get(path) })) };
+    } else if (tool === 'read_file_at_revision') {
+      const sibling = input.owner === 'owner' && input.repo === 'shared-data';
+      assert.equal(input.ref, sibling ? siblingCommit : primaryCommit);
+      const text = contents.get(input.path);
+      output = { type: 'file', path: input.path, encoding: 'base64', sha: hashes.get(input.path), content: btoa(text) };
+    } else throw new Error(`Unexpected GitHub operation: ${tool}`);
+    return Response.json({ state: 'completed', output });
+  } };
+  const workshop = workshopOver(person);
+  const origin = { kind: 'github-repository', project_id: projectId, owner: 'owner', repo: 'site',
+    branch: 'main', commit: primaryCommit, build_inputs: lock };
+  const bundle = await pinnedSiteWorkerBundle(env, 'person-one', origin, workshop);
+  assert.equal(bundle.module_file, contents.get('dist/worker.mjs'));
+  assert.deepEqual(bundle.permissions, manifest.permissions);
+  assert.deepEqual(bundle.assets, { 'data/settings.json': contents.get('content/settings.json') });
+  assert.equal(bundle.source.files.find(row => row.path === 'content/settings.json').commit, siblingCommit);
+  assert.equal(bundle.source.files.find(row => row.path === 'dist/worker.mjs').commit, primaryCommit);
+  assert.ok(calls.some(row => row.tool_id === 'tool:github-read_file_at_revision' &&
+    row.input.path === 'dist/worker.mjs' && row.input.ref === primaryCommit));
+  assert.ok(calls.some(row => row.tool_id === 'tool:github-read_file_at_revision' &&
+    row.input.path === 'content/settings.json' && row.input.ref === siblingCommit));
+  wrongModuleTreeSha = true;
+  await assert.rejects(pinnedSiteWorkerBundle(env, 'person-one', origin, workshop), /changed outside its Git tree/);
+});
+
+test('Sites accepts only the connected GitHub source and its pinned build lock', async () => {
+  const projectId = 'e'.repeat(32);
+  const lock = { schema: 'trillion.source-build-inputs/v1', inputs: [{
+    repository: 'owner/shared-ui', commit: second, mount: 'shared-ui', paths: ['parts/ui'],
+  }] };
+  const project = { id: projectId, owner_user_id: 'person-one', provider: 'github',
+    owner: 'owner', repo: 'customer-app', branch: 'main', commit: first };
+  const origin = { kind: 'github-repository', project_id: projectId,
+    owner: project.owner, repo: project.repo, branch: project.branch,
+    commit: project.commit, build_inputs: lock };
+  const env = { APP_KV: { get: async key =>
+    key === `source-project:person-one:${projectId}` ? project : null } };
+  let withLock = true;
+  let unavailable = false;
+  const person = { fetch: async request => {
+    if (unavailable) throw new Error('GitHub unavailable');
+    const { tool_id, input } = await request.json();
+    assert.equal(input.ref, first);
+    if (tool_id === 'tool:github-read_tree') {
+      return Response.json({ state: 'completed', output: { truncated: false,
+        tree: withLock ? [{ type: 'blob', path: 'source-build-lock.json' }] : [] } });
+    }
+    assert.equal(tool_id, 'tool:github-read_file_at_revision');
+    assert.equal(input.path, 'source-build-lock.json');
+    return Response.json({ state: 'completed', output: { type: 'file', path: input.path,
+      encoding: 'base64', sha: fileSha, content: btoa(JSON.stringify(lock)) } });
+  } };
+  const workshop = workshopOver(person);
+  assert.deepEqual(await verifyPinnedSourceBuildOrigin(env, 'person-one', origin, workshop), {
+    project_id: projectId, owner: project.owner, repo: project.repo,
+    branch: project.branch, commit: first, build_inputs: lock,
+  });
+  await assert.rejects(verifyPinnedSourceBuildOrigin(env, 'another-person', origin, workshop), /Reconnect/);
+  await assert.rejects(verifyPinnedSourceBuildOrigin(env, 'person-one',
+    { ...origin, repo: 'another-app' }, workshop), /Reconnect/);
+  await assert.rejects(verifyPinnedSourceBuildOrigin(env, 'person-one',
+    { ...origin, build_inputs: { ...lock, inputs: [{ ...lock.inputs[0], commit: first }] } }, workshop), /differs/);
+  await assert.rejects(verifyPinnedSourceBuildOrigin(env, 'person-one',
+    { ...origin, build_inputs: undefined }, workshop), /differs/);
+  withLock = false;
+  await assert.rejects(verifyPinnedSourceBuildOrigin(env, 'person-one', origin, workshop), /differs/);
+  assert.equal((await verifyPinnedSourceBuildOrigin(env, 'person-one',
+    { ...origin, build_inputs: undefined }, workshop)).commit, first);
+  unavailable = true;
+  await assert.rejects(verifyPinnedSourceBuildOrigin(env, 'person-one',
+    { ...origin, build_inputs: undefined }, workshop), /GitHub unavailable/);
+});
+
+function setup({ moveBranchBeforeWrite = false, readbackFails = false, previewMatches = true, scanFiles = null,
+  searchFinds = true, badBatchOid = false, delayedBranch = false, initialHead = first, existingProjects = [], renderedRoutes = [], sitemap = '', serialized = false } = {}) {
+  const rows = new Map();
+  let head = initialHead;
+  let contents = original;
+  let stagedContent = null;
+  let branchDeferred = false;
+  const calls = [];
+  const rendered = [];
+  const env = { APP_KV: {
+    get: async key => rows.get(key) ?? null,
+    put: async (key, value) => { try { rows.set(key, /^[a-f0-9]{32}$/.test(value) ? value : JSON.parse(value)); } catch { rows.set(key, value); } },
+    delete: async key => rows.delete(key),
+    list: async ({ prefix }) => ({ keys: [...rows.keys()].filter(key => key.startsWith(prefix)).map(name => ({ name })), list_complete: true }),
+  } };
+  for (const project of existingProjects) rows.set(`source-project:person-one:${project.id}`,
+    { owner_user_id: 'person-one', ...project });
+  const durable = serialized ? sqliteHost(':memory:') : null;
+  const rawKv = { ...env.APP_KV, get: async key => {
+    const value = rows.get(key);
+    return value == null ? null : typeof value === 'string' ? value : JSON.stringify(value);
+  }, put: (...args) => env.APP_KV.put(...args), delete: (...args) => env.APP_KV.delete(...args) };
+  let authority = durable ? accountAppState({ sql: durable.sql, transaction: durable.transaction, kv: rawKv, userId: 'person-one' }) : null;
+  const answer = (request, options) => authority ? authority.run(kv => answerSourceProjectApi(request, {
+    ...options, env: { ...env, APP_KV: kv, [ACCOUNT_APP_OWNER]: true },
+  })) : answerSourceProjectApi(request, options);
+  const person = { fetch: async request => {
+    if (new URL(request.url).pathname.startsWith('/tasks/')) {
+      calls.push({ tool_id: 'read_task' });
+      return Response.json({ state: 'completed', output: { commit: { sha: head } } });
+    }
+    const { tool_id, input } = await request.json();
+    calls.push({ tool_id, input });
+    const tool = tool_id.slice('tool:github-'.length);
+    let output;
+    if (tool === 'read_repository') output = { full_name: `${input.owner}/${input.repo}`, private: true, default_branch: 'main' };
+    else if (tool === 'read_branch') {
+      if (delayedBranch && !branchDeferred) {
+        branchDeferred = true;
+        return Response.json({ state: 'working', task_id: 'task_delayed_branch' });
+      }
+      output = { commit: { sha: head } };
+    }
+    else if (tool === 'read_tree') output = { tree: Object.keys(scanFiles ?? { [path]: contents }).map(filePath =>
+      ({ path: filePath, type: 'blob', sha: head === first ? fileSha : newFileSha })), truncated: false };
+    else if (tool === 'search_code') output = { items: Object.entries(searchFinds ? (scanFiles ?? {}) : {}).filter(([, value]) =>
+      value.includes('Original words from')).map(([filePath]) => ({ path: filePath,
+      repository: { full_name: 'owner/customer-app' } })) };
+    else if (tool === 'read_file_at_revision') {
+      if (readbackFails && input.ref === second) throw new Error('GitHub readback is temporarily unavailable');
+      output = { type: 'file', path: input.path, encoding: 'base64',
+        content: btoa(scanFiles?.[input.path] ?? contents), sha: head === first ? fileSha : newFileSha };
+    }
+    else if (tool === 'read_source_blobs') {
+      const objects = [...input.query.matchAll(/f(\d+): object\(expression: "([0-9a-f]{40}):([^"]+)"\)/g)];
+      output = { data: { repository: { nameWithOwner: 'owner/customer-app',
+        ...Object.fromEntries(objects.map(([, index, revision, filePath], at) => {
+          assert.equal(revision, head);
+          const text = scanFiles?.[filePath] ?? contents;
+          return [`f${index}`, { oid: badBatchOid && at === 0 ? '0'.repeat(40) : head === first ? fileSha : newFileSha,
+            text, isBinary: false, byteSize: new TextEncoder().encode(text).length }];
+        })) } } };
+    }
+    else if (tool === 'read_git_commit') output = { sha: head, tree: { sha: 'e'.repeat(40) } };
+    else if (tool === 'create_git_blob') { stagedContent = atob(input.content_base64); output = { sha: newFileSha }; }
+    else if (tool === 'create_git_tree') output = { sha: 'f'.repeat(40) };
+    else if (tool === 'create_git_commit') output = { sha: second, parents: [{ sha: first }] };
+    else if (tool === 'update_git_ref') {
+      assert.equal(input.branch, 'main');
+      if (moveBranchBeforeWrite) { head = '9'.repeat(40); throw new Error('GitHub answered 422: Update is not a fast forward'); }
+      assert.equal(input.commit, second);
+      contents = stagedContent;
+      head = second;
+      output = { ref: 'refs/heads/main', object: { sha: second } };
+    } else if (tool === 'read_commit_checks') output = { total_count: 1, check_runs: [{ name: 'build', status: 'completed', conclusion: 'success' }] };
+    else throw new Error(`Unexpected tool: ${tool}`);
+    return Response.json({ state: 'completed', output });
+  } };
+  const workshop = workshopOver(person);
+  const call = async (endpoint, method = 'GET', body) => {
+    const request = new Request(`https://app.gettrillion.ai/work/api${endpoint}`, {
+      method, ...(body ? { headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) } : {}),
+    });
+    const response = await answer(request, { env, person, workshop, userId: 'person-one',
+      fetcher: async () => new Response(sitemap, { status: sitemap ? 200 : 404,
+        headers: { 'content-type': 'application/xml' } }),
+      browseRendered: async (_binding, _url, route, point, width) => (rendered.push({ route, point, width }), point
+        ? { status: 'selected', route, element: { tag: 'h1', selector: 'h1', text: 'Original words', attributes: { id: 'hero' },
+          ancestors: [], ancestry: [], bounds: { x: 20, y: 30, width: 200, height: 40 }, styles: {} } }
+        : { status: 'ready', route, routes: renderedRoutes, image_base64: 'cG5n', width, height: 1900 }),
+      inspectRendered: async (_binding, _url, _selection, intent) => intent.kind === 'selection'
+        ? { status: previewMatches ? 'matched' : 'unavailable', observed: previewMatches ? 'Original words' : 'Other words' }
+        : { status: 'unavailable' } });
+    return { code: response.status, body: await response.json() };
+  };
+  return { call, calls, rendered, rows, env, person, workshop, state: () => ({ head, contents }), projects: () => [...rows.values()].filter(row => row?.provider === 'github'),
+    moveHead: commit => { head = commit; }, close: () => durable?.db.close(),
+    restart: () => { authority = accountAppState({ sql: durable.sql, transaction: durable.transaction, kv: rawKv, userId: 'person-one' }); } };
+}
+
+test('an existing source project opens its running preview and selects a rendered element without an imported app', async () => {
+  const { call } = setup();
+  assert.equal(isSourceProjectApiPath(`/work/api/source-projects/${'a'.repeat(32)}/preview`), true);
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main', preview_url: 'https://preview.example.com/' });
+  const opened = await call(`/source-projects/${project.id}/preview?route=%2F`, 'GET');
+  assert.equal(opened.body.status, 'ready');
+  assert.equal(opened.body.current_commit, first);
+  const selected = await call(`/source-projects/${project.id}/select`, 'POST', { route: '/', expected_commit: first, x: 50, y: 50 });
+  assert.equal(selected.body.status, 'selected');
+  assert.equal(selected.body.selection.page_path, 'index.html');
+  assert.equal(selected.body.selection.attributes.id, 'hero');
+  const stale = await call(`/source-projects/${project.id}/select`, 'POST', { route: '/', expected_commit: second, x: 50, y: 50 });
+  assert.equal(stale.code, 409);
+});
+
+test('a GitHub branch read that is still working is read back under the same task', async () => {
+  const { call, calls } = setup({ delayedBranch: true });
+  const connected = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    live_url: 'https://app.example.com/' });
+  assert.equal(connected.code, 201);
+  assert.equal(connected.body.commit, first);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-read_branch').length, 1);
+  assert.equal(calls.filter(row => row.tool_id === 'read_task').length, 1);
+});
+
+test('connecting an existing repository refreshes the same saved project and keeps its addresses', async () => {
+  const saved = { id: '1'.repeat(32), provider: 'github', connection_id: 'service_connection:github',
+    owner: 'Trillion-X', repo: 'trillion-site', branch: 'main', commit: first, preview_url: null,
+    live_url: 'https://gettrillion.ai/', connected_at: '2026-10-03T19:36:31.399Z' };
+  const { call, projects } = setup({ initialHead: second, existingProjects: [saved] });
+  const connected = await call('/source-projects', 'POST', { owner: 'trillion-x', repo: 'TRILLION-SITE', branch: 'main' });
+  assert.equal(connected.code, 200);
+  assert.equal(connected.body.id, saved.id);
+  assert.equal(connected.body.commit, second);
+  assert.equal(connected.body.reused, true);
+  assert.equal(connected.body.preview_url, null);
+  assert.equal(connected.body.live_url, saved.live_url);
+  assert.equal(connected.body.connected_at, saved.connected_at);
+  assert.equal(projects().length, 1);
+});
+
+test('repeating a new source connection reuses its stable identity', async () => {
+  const { call, projects } = setup();
+  const input = { owner: 'owner', repo: 'customer-app', branch: 'main' };
+  const firstConnection = await call('/source-projects', 'POST', input);
+  const repeatedConnection = await call('/source-projects', 'POST', input);
+  assert.equal(firstConnection.code, 201);
+  assert.equal(repeatedConnection.code, 200);
+  assert.equal(repeatedConnection.body.id, firstConnection.body.id);
+  assert.equal(repeatedConnection.body.reused, true);
+  assert.equal(projects().length, 1);
+});
+
+test('duplicate source connections refuse another record and allow an explicit pinned refresh', async () => {
+  const saved = [
+    { id: '1'.repeat(32), provider: 'github', connection_id: 'service_connection:github', owner: 'Trillion-X',
+      repo: 'trillion-site', branch: 'main', commit: first, preview_url: null, live_url: 'https://gettrillion.ai/',
+      connected_at: '2026-10-03T19:36:31.399Z' },
+    { id: '2'.repeat(32), provider: 'github', connection_id: 'service_connection:github', owner: 'Trillion-X',
+      repo: 'trillion-site', branch: 'main', commit: first, preview_url: 'https://preview.example.com/',
+      live_url: 'https://gettrillion.ai/', connected_at: '2026-10-05T20:04:38.909Z' },
+  ];
+  const { call, projects } = setup({ initialHead: second, existingProjects: saved });
+  const duplicate = await call('/source-projects', 'POST', { owner: 'Trillion-X', repo: 'trillion-site', branch: 'main' });
+  assert.equal(duplicate.code, 409);
+  assert.deepEqual(duplicate.body.existing_project_ids, saved.map(row => row.id).sort());
+  assert.equal(duplicate.body.current_commit, second);
+  assert.equal(projects().length, 2);
+  assert.ok(projects().every(row => row.commit === first));
+
+  const selected = await call('/source-projects', 'POST', { owner: 'Trillion-X', repo: 'trillion-site', branch: 'main',
+    project_id: saved[1].id, expected_commit: first, current_commit: second });
+  assert.equal(selected.code, 200);
+  assert.equal(selected.body.id, saved[1].id);
+  assert.equal(selected.body.commit, second);
+  assert.equal(projects().length, 2);
+  assert.equal(projects().find(row => row.id === saved[0].id).commit, first);
+  const repeated = await call('/source-projects', 'POST', { owner: 'Trillion-X', repo: 'trillion-site', branch: 'main' });
+  assert.equal(repeated.code, 200, JSON.stringify(repeated.body));
+  assert.equal(repeated.body.id, saved[1].id);
+  assert.equal(projects().length, 2);
+});
+
+test('Sites reads hostable web files from the connected repository’s exact current commit', async () => {
+  const webFiles = { 'index.html': '<title>Home</title>', 'guide/index.html': '<title>Guide</title>',
+    'styles/site.css': 'main { color: navy; }', 'src/App.tsx': 'export default function App() {}' };
+  const { call, calls } = setup({ scanFiles: webFiles });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  const snapshot = await call(`/source-projects/${project.id}/site-snapshot?expected_commit=${first}`);
+  assert.equal(snapshot.code, 200);
+  assert.equal(snapshot.body.status, 'ready');
+  assert.deepEqual(snapshot.body.snapshot, { project_id: project.id, owner: 'owner', repo: 'customer-app',
+    branch: 'main', commit: first, files: { 'index.html': '<title>Home</title>',
+      'guide/index.html': '<title>Guide</title>', 'styles/site.css': 'main { color: navy; }' } });
+  assert.equal(snapshot.body.skipped_source_files, 1);
+  const readCalls = calls.filter(row => row.tool_id === 'tool:github-read_file_at_revision');
+  assert.deepEqual(readCalls.map(row => row.input.path).sort(), ['guide/index.html', 'index.html', 'styles/site.css']);
+  assert.ok(readCalls.every(row => row.input.ref === first));
+  assert.equal(calls.some(row => row.input?.path === 'src/App.tsx' && row.tool_id === 'tool:github-read_file_at_revision'), false);
+  assert.equal(isSourceProjectApiPath(`/work/api/source-projects/${project.id}/site-snapshot`), true);
+});
+
+test('Sites refuses an unpinned branch and does not present a TSX-only repo as a web page', async () => {
+  const { call, moveHead } = setup({ scanFiles: { 'index.html': '<title>Home</title>' } });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  moveHead(second);
+  const stale = await call(`/source-projects/${project.id}/site-snapshot?expected_commit=${first}`);
+  assert.equal(stale.code, 409);
+
+  const tsxOnly = setup({ scanFiles: { 'src/App.tsx': 'export default function App() {}' } });
+  const { body: secondProject } = await tsxOnly.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  const unsupported = await tsxOnly.call(`/source-projects/${secondProject.id}/site-snapshot?expected_commit=${first}`);
+  assert.equal(unsupported.code, 200);
+  assert.equal(unsupported.body.status, 'unsupported');
+  assert.match(unsupported.body.reason, /Connect its running app address/);
+});
+
+test('a TSX-only repository with a working live app returns a hosted origin, not copied source files', async () => {
+  const tsxOnly = setup({ scanFiles: { 'src/App.tsx': 'export default function App() {}' },
+    renderedRoutes: ['/', '/for-you', 'https://outside.example/'],
+    sitemap: '<urlset><url><loc>https://app.example.com/articles/one/</loc></url><url><loc>https://outside.example/private</loc></url></urlset>' });
+  const { body: project } = await tsxOnly.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app',
+    branch: 'main', live_url: 'https://app.example.com/' });
+  const response = await tsxOnly.call(`/source-projects/${project.id}/site-snapshot?expected_commit=${first}`);
+  assert.equal(response.code, 200);
+  assert.equal(response.body.status, 'hosted');
+  assert.deepEqual(response.body.hosted, { kind: 'running-web-origin', project_id: project.id,
+    owner: 'owner', repo: 'customer-app', branch: 'main', commit: first, url: 'https://app.example.com/',
+    routes: ['/', '/articles/one/', '/for-you'] });
+  assert.deepEqual(response.body.live_page, { status: 'ready', route: '/', width: 1280, height: 1900 });
+  assert.equal(tsxOnly.calls.some(row => row.tool_id === 'tool:github-read_file_at_revision'), false);
+  assert.ok(tsxOnly.rendered.some(row => row.route === '/' && row.point === null));
+});
+
+test('a repository development HTML entry that loads TypeScript keeps the running app', async () => {
+  const site = setup({ scanFiles: {
+    'index.html': '<main id="app"></main><script type="module" src="/src/main.ts"></script>',
+    'src/main.ts': 'import { mount } from "./app"; mount();',
+  }, renderedRoutes: ['/', '/for-you'] });
+  const { body: project } = await site.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app',
+    branch: 'main', live_url: 'https://app.example.com/' });
+  const response = await site.call(`/source-projects/${project.id}/site-snapshot?expected_commit=${first}`);
+  assert.equal(response.code, 200);
+  assert.equal(response.body.status, 'hosted');
+  assert.deepEqual(response.body.hosted.routes, ['/', '/for-you']);
+  assert.ok(site.calls.some(row => row.tool_id === 'tool:github-read_file_at_revision' &&
+    row.input.path === 'index.html' && row.input.ref === first));
+});
+
+test('a connected running app carries the source commit’s complete build input lock into its Sites snapshot', async () => {
+  const lock = { schema: 'trillion.source-build-inputs/v1', inputs: [
+    { repository: 'Example/shared-ui', commit: second, mount: 'shared-ui', paths: ['parts/ui', 'src/settings.json'] },
+  ] };
+  const site = setup({ scanFiles: { 'src/App.tsx': 'export default function App() {}',
+    'source-build-lock.json': JSON.stringify(lock) } });
+  const { body: project } = await site.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app',
+    branch: 'main', live_url: 'https://app.example.com/' });
+  const response = await site.call(`/source-projects/${project.id}/site-snapshot?expected_commit=${first}`);
+  assert.equal(response.body.status, 'hosted');
+  assert.deepEqual(response.body.hosted.build_inputs, lock);
+  assert.ok(site.calls.some(row => row.tool_id === 'tool:github-read_file_at_revision' &&
+    row.input.path === 'source-build-lock.json' && row.input.ref === first));
+});
+
+test('an existing source project can set its preview address at the unchanged branch revision', async () => {
+  const { call } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  assert.equal(project.preview_url, null);
+  const changed = await call(`/source-projects/${project.id}`, 'PATCH', { expected_commit: first,
+    preview_url: 'https://preview.example.com/', live_url: 'https://app.example.com/' });
+  assert.equal(changed.code, 200);
+  assert.equal(changed.body.preview_url, 'https://preview.example.com/');
+  assert.equal(changed.body.commit, first);
+  const read = await call(`/source-projects/${project.id}`);
+  assert.equal(read.body.preview_url, 'https://preview.example.com/');
+  assert.equal(read.body.stale, false);
+  const stale = await call(`/source-projects/${project.id}`, 'PATCH', { expected_commit: second,
+    preview_url: 'https://other.example.com/' });
+  assert.equal(stale.code, 409);
+  const invalid = await call(`/source-projects/${project.id}`, 'PATCH', { expected_commit: first,
+    preview_url: 'http://preview.example.com/' });
+  assert.equal(invalid.code, 400);
+  assert.equal((await call(`/source-projects/${project.id}`)).body.preview_url, 'https://preview.example.com/');
+});
+
+test('a moved branch refreshes the same connection only with both exact commits', async () => {
+  const { call, moveHead } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  moveHead(second);
+  const refused = await call(`/source-projects/${project.id}`, 'PATCH', { expected_commit: first,
+    preview_url: 'https://preview.example.com/' });
+  assert.equal(refused.code, 409);
+  const refreshed = await call(`/source-projects/${project.id}`, 'PATCH', { expected_commit: first,
+    current_commit: second, preview_url: 'https://preview.example.com/' });
+  assert.equal(refreshed.code, 200);
+  assert.equal(refreshed.body.id, project.id);
+  assert.equal(refreshed.body.commit, second);
+  assert.equal(refreshed.body.preview_url, 'https://preview.example.com/');
+  assert.equal((await call(`/source-projects/${project.id}`)).body.stale, false);
+});
+
+test('the running page opens at each size the canvas lays side by side, and a point is chosen at that size', async () => {
+  const { call, rendered } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main', preview_url: 'https://preview.example.com/' });
+  const phone = await call(`/source-projects/${project.id}/preview?route=%2F&width=390`, 'GET');
+  assert.equal(phone.body.width, 390);
+  assert.equal(phone.body.height, 1900);
+  await call(`/source-projects/${project.id}/select`, 'POST', { route: '/', expected_commit: first, x: 120, y: 1500, width: 390 });
+  assert.deepEqual(rendered.map(row => row.width), [390, 390]);
+  assert.deepEqual(rendered[1].point, { x: 120, y: 1500 });
+  await call(`/source-projects/${project.id}/preview?route=%2F`, 'GET');
+  assert.equal(rendered[2].width, 1280, 'a preview asked without a size is the desktop one');
+});
+
+test('connected source is pinned, uniquely resolved, changed with CAS, read back and build checked', async () => {
+  const { call, calls, state } = setup();
+  assert.equal(isSourceProjectApiPath('/work/api/source-projects'), true);
+  const connected = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/', live_url: 'https://app.example.com/' });
+  assert.equal(connected.code, 201);
+  assert.equal(connected.body.commit, first);
+  const id = connected.body.id;
+  const selection = { project_id: id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: { id: 'hero', 'data-testid': 'hero-heading' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const resolved = await call(`/source-projects/${id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.body.status, 'resolved', JSON.stringify(resolved.body));
+  assert.equal(resolved.body.locator.path, path);
+  assert.equal(resolved.body.locator.file_sha, fileSha);
+  const edited = await call(`/source-projects/${id}/edit`, 'POST', { expected_commit: first, selection,
+    locator: resolved.body.locator, intent: { kind: 'text', value: 'Updated words' } });
+  assert.equal(edited.body.status, 'source_written', JSON.stringify(edited.body));
+  assert.equal(edited.body.commit, second);
+  assert.match(state().contents, /Updated words/);
+  assert.match(state().contents, /data-testid="hero-heading"/);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-update_git_ref').length, 1);
+  const verified = await call(`/source-projects/${id}/verify`, 'POST', { commit: second });
+  assert.equal(verified.body.source_readback, true);
+  assert.equal(verified.body.build, 'passed');
+  assert.equal(verified.body.status, 'verification_incomplete');
+  assert.equal(verified.body.preview.status, 'unavailable');
+});
+
+test('a live dynamic app route can be selected and edited without replacing its saved GitHub connection', async () => {
+  const { call, rendered, projects, state } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    live_url: 'https://app.example.com/' });
+  const opened = await call(`/source-projects/${project.id}/preview?route=%2Ffor-you`);
+  assert.equal(opened.body.route, '/for-you');
+  const chosen = await call(`/source-projects/${project.id}/select`, 'POST', { route: '/for-you', expected_commit: first,
+    x: 80, y: 50, width: 1280 });
+  assert.equal(chosen.body.route, '/for-you');
+  assert.equal(chosen.body.selection.revision, first);
+  const selection = { ...chosen.body.selection, project_id: project.id, frame: 'desktop' };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const resolved = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.body.status, 'resolved');
+  const edited = await call(`/source-projects/${project.id}/edit`, 'POST', { expected_commit: first, selection,
+    locator: resolved.body.locator, intent: { kind: 'text', value: 'Changed route copy' } });
+  assert.equal(edited.body.status, 'source_written');
+  assert.equal(edited.body.project_id, project.id);
+  assert.equal(projects().length, 1);
+  assert.equal(projects()[0].id, project.id);
+  assert.equal(state().head, second);
+  assert.ok(rendered.some(row => row.route === '/for-you'));
+});
+
+test('weak fallback and changed branch cannot write source', async () => {
+  const { call, calls } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: {}, selector: 'h1' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const weak = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(weak.body.status, 'unsupported');
+  const stale = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: second, selection });
+  assert.equal(stale.code, 409);
+  assert.equal(calls.some(row => row.tool_id === 'tool:github-update_file'), false);
+});
+
+test('a concurrent branch move refuses the source edit without publishing it', async () => {
+  const { call, calls, state } = setup({ moveBranchBeforeWrite: true });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: { id: 'hero', 'data-testid': 'hero-heading' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.status, 'resolved');
+  const edited = await call(`/source-projects/${project.id}/edit`, 'POST', { expected_commit: first, selection,
+    locator: resolved.locator, intent: { kind: 'text', value: 'Updated words' } });
+  assert.equal(edited.code, 409);
+  assert.equal(state().contents, original);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-update_git_ref').length, 1);
+});
+
+test('a false rendered selection cannot resolve source', async () => {
+  const { call, calls } = setup({ previewMatches: false });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: { id: 'hero' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const resolved = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.body.status, 'unsupported');
+  assert.equal(calls.some(row => row.tool_id === 'tool:github-read_tree'), false);
+});
+
+test('a committed edit stays reportable when source readback is temporarily unavailable', async () => {
+  const { call } = setup({ readbackFails: true });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: { id: 'hero', 'data-testid': 'hero-heading' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  const { body: edited } = await call(`/source-projects/${project.id}/edit`, 'POST', { expected_commit: first, selection,
+    locator: resolved.locator, intent: { kind: 'text', value: 'Updated words' } });
+  assert.equal(edited.status, 'source_written_verification_pending');
+  assert.equal(edited.commit, second);
+  assert.equal(edited.verification.source_readback, false);
+  const { body: verified } = await call(`/source-projects/${project.id}/verify`, 'POST', { commit: second });
+  assert.equal(verified.build, 'passed');
+  assert.equal(verified.source_readback, false);
+});
+
+test('a bounded data-backed React project resolves its exact JSON copy across many source files', async () => {
+  const scanFiles = { 'src/Page.tsx': 'export default () => <h1 id="hero">{copy.heading}</h1>;',
+    'src/copy.json': '{"heading":"Original words from source data"}' };
+  for (let index = 0; index < 172; index++) scanFiles[`src/other-${index}.tsx`] = `export const value = ${index};`;
+  const { call, calls } = setup({ scanFiles });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/for-you', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words from source data', attributes: { id: 'hero' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.status, 'resolved');
+  assert.equal(resolved.locator.path, 'src/copy.json');
+  assert.equal(resolved.locator.language, 'json');
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-read_source_blobs').length, 11);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-read_file_at_revision').length, 0);
+});
+
+test('a pinned route source map resolves and edits a data-backed route without scanning every source file', async () => {
+  const scanFiles = {
+    'trillion-sites-source-map.json': JSON.stringify({ schema: 'trillion.sites-source-map', routes: [
+      { path: '/for-you', source_files: ['src/copy.json'] },
+    ] }),
+    'src/copy.json': '{"heading":"Original words from source data"}',
+  };
+  for (let index = 0; index < 172; index++) scanFiles[`src/other-${index}.tsx`] = `export const value = ${index};`;
+  const { call, calls, state } = setup({ scanFiles });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/for-you', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words from source data', attributes: { id: 'hero' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.status, 'resolved', JSON.stringify(resolved));
+  assert.equal(resolved.locator.path, 'src/copy.json');
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-read_source_blobs').length, 0);
+  assert.deepEqual(calls.filter(row => row.tool_id === 'tool:github-read_file_at_revision').map(row => row.input.path),
+    ['trillion-sites-source-map.json', 'src/copy.json']);
+  const edited = await call(`/source-projects/${project.id}/edit`, 'POST', { expected_commit: first, selection,
+    locator: resolved.locator, intent: { kind: 'text', value: 'Updated words' } });
+  assert.equal(edited.body.commit, second);
+  assert.match(state().contents, /Updated words/);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-update_git_ref').length, 1);
+});
+
+test('a route source map without the selected route refuses an edit locator', async () => {
+  const scanFiles = { 'trillion-sites-source-map.json': JSON.stringify({ schema: 'trillion.sites-source-map', routes: [
+    { path: '/known', source_files: ['src/copy.json'] },
+  ] }), 'src/copy.json': '{"heading":"Original words from source data"}' };
+  const { call, calls } = setup({ scanFiles });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/for-you', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words from source data', attributes: { id: 'hero' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.status, 'unsupported');
+  assert.match(resolved.reason, /no unique source mapping/);
+  assert.equal(resolved.locator, undefined);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-read_source_blobs').length, 0);
+});
+
+test('a batch blob mismatch refuses a source locator and never writes GitHub', async () => {
+  const { call, calls } = setup({ scanFiles: { 'src/Page.tsx': 'return <h1 id="hero">Original words</h1>;' }, badBatchOid: true });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: { id: 'hero' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const resolved = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.code, 503);
+  assert.equal(resolved.body.status, 'unavailable');
+  assert.equal(calls.some(row => row.tool_id === 'tool:github-update_git_ref'), false);
+});
+
+test('an over-bound data-backed React project returns source candidates without granting an edit', async () => {
+  const scanFiles = { 'src/Page.tsx': 'export default () => <h1 id="hero">{copy.heading}</h1>;',
+    'src/copy.json': '{"heading":"Original words from source data"}' };
+  for (let index = 0; index < 260; index++) scanFiles[`src/other-${index}.tsx`] = `export const value = ${index};`;
+  const { call, calls } = setup({ scanFiles, searchFinds: false });
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words from source data', attributes: { id: 'hero' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  assert.equal(resolved.status, 'unsupported');
+  assert.equal(resolved.candidate_files[0].path, 'src/copy.json');
+  assert.equal(resolved.discovery_method, 'path_hints');
+  assert.equal(resolved.locator, undefined);
+  assert.equal(resolved.search_incomplete, true);
+  assert.ok(calls.filter(row => row.tool_id === 'tool:github-read_file_at_revision').length <= 8);
+  assert.equal(calls.filter(row => row.tool_id === 'tool:github-search_code').length, 1);
+  assert.equal(calls.some(row => row.tool_id === 'tool:github-update_git_ref'), false);
+});
+
+test('removing a source connection uses the saved revision and does not read GitHub', async () => {
+  const { call, rows, calls, env, person, workshop } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  const identityKey = [...rows.keys()].find(key => key.startsWith('source-project-identity:'));
+  const originalRow = structuredClone(rows.get(`source-project:person-one:${project.id}`));
+  originalRow.last_edit = { commit: second, previous_commit: first, path: 'src/App.tsx', blob_sha: fileSha };
+  originalRow.pending_edit = { commit: second, previous_commit: first, path: 'src/App.tsx', blob_sha: fileSha };
+  rows.set(`source-project:person-one:${project.id}`, originalRow);
+  const { body: listed } = await call('/source-projects');
+  const pendingRefusal = await call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: listed.projects[0].revision });
+  assert.equal(pendingRefusal.code, 409);
+  rows.get(`source-project:person-one:${project.id}`).pending_edit = null;
+  const { body: currentList } = await call('/source-projects');
+  const revision = currentList.projects[0].revision;
+  const wrongAccountResponse = await answerSourceProjectApi(new Request(`https://app.gettrillion.ai/work/api/source-projects/${project.id}`, {
+    method: 'DELETE', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ expected_revision: revision }),
+  }), { env, person, workshop, userId: 'person-two' });
+  assert.equal((await wrongAccountResponse.json()).status, 'already_absent');
+  assert.ok(rows.has(`source-project:person-one:${project.id}`));
+  const githubCallsBeforeDelete = calls.length;
+  const removed = await call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: revision });
+  assert.equal(removed.body.status, 'removed');
+  assert.equal(rows.has(`source-project:person-one:${project.id}`), false);
+  assert.equal(rows.has(identityKey), false);
+  assert.ok([...rows.entries()].some(([key, row]) => key.startsWith(`source-project-history:person-one:${project.id}:`) && row.last_edit?.commit === second));
+  assert.equal(calls.length, githubCallsBeforeDelete);
+  assert.equal((await call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: revision })).body.status, 'already_absent');
+  const reconnected = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  const staleRetry = await call(`/source-projects/${reconnected.body.id}`, 'DELETE', { expected_revision: revision });
+  assert.equal(staleRetry.code, 409);
+  assert.notEqual(rows.get(`source-project:person-one:${project.id}`).generation, originalRow.generation);
+});
+
+test('removing a source connection refuses linked sites and saved assemblies without touching state', async () => {
+  const { call, rows } = setup();
+  const { body: project } = await call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  const routeId = '1'.repeat(32);
+  rows.set(`public-app-owner:person-one:${routeId}`, '1');
+  rows.set(`public-app-route:${routeId}`, { installation_id: routeId, owner_user_id: 'person-one' });
+  rows.set(`source-project-site-link:person-one:${routeId}`, { installation_id: routeId, owner_user_id: 'person-one', source_project_id: project.id });
+  let listed = await call('/source-projects');
+  let refused = await call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: listed.body.projects[0].revision });
+  assert.equal(refused.code, 409);
+  assert.equal(refused.body.dependencies[0].kind, 'site-link');
+  rows.delete(`source-project-site-link:person-one:${routeId}`);
+  rows.set(`public-app-assembly:${routeId}`, { project: { sources: [{
+    project: { source: { origin: { project_id: project.id } } },
+  }] } });
+  listed = await call('/source-projects');
+  refused = await call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: listed.body.projects[0].revision });
+  assert.equal(refused.code, 409);
+  assert.equal(refused.body.dependencies[0].kind, 'saved-assembly');
+  assert.ok(rows.has(`source-project:person-one:${project.id}`));
+});
+
+test('a deletion queued during source refresh refuses the old revision after the network wait', async t => {
+  const fixture = setup({ serialized: true }); t.after(fixture.close);
+  const { body: project } = await fixture.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main' });
+  let release; let entered;
+  const hold = new Promise(resolve => { release = resolve; });
+  const atBranch = new Promise(resolve => { entered = resolve; });
+  const run = fixture.workshop.run;
+  fixture.workshop.run = async body => {
+    if (body.tool_id === 'tool:github-read_branch') { entered(); await hold; }
+    return run(body);
+  };
+  const refresh = fixture.call(`/source-projects/${project.id}`, 'PATCH', { expected_commit: first, live_url: 'https://site.example.com/' });
+  await atBranch;
+  const removal = fixture.call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: project.revision });
+  release();
+  assert.equal((await refresh).code, 200);
+  assert.equal((await removal).code, 409);
+  assert.equal((await fixture.call('/source-projects')).body.projects[0].live_url, 'https://site.example.com/');
+});
+
+test('published source edit survives a failed metadata copy and account restart, then removal preserves its history', async t => {
+  const fixture = setup({ serialized: true }); t.after(fixture.close);
+  const { body: project } = await fixture.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main', preview_url: 'https://preview.example.com/' });
+  const selection = { project_id: project.id, revision: first, route: '/', frame: 'desktop',
+    element: { tag: 'h1', text: 'Original words', attributes: { id: 'hero', 'data-testid': 'hero-heading' }, selector: '#hero' } };
+  selection.fingerprint = sourceSelectionFingerprint(selection);
+  const { body: resolved } = await fixture.call(`/source-projects/${project.id}/resolve`, 'POST', { expected_commit: first, selection });
+  const put = fixture.env.APP_KV.put;
+  fixture.env.APP_KV.put = async (key, value) => {
+    const row = JSON.parse(value);
+    if (key === `source-project:person-one:${project.id}` && row.commit === second && !row.pending_edit) throw new Error('KV copy unavailable');
+    return put(key, value);
+  };
+  const edited = await fixture.call(`/source-projects/${project.id}/edit`, 'POST', { expected_commit: first, selection,
+    locator: resolved.locator, intent: { kind: 'text', value: 'Changed despite interrupted metadata copy' } });
+  assert.equal(edited.body.status, 'source_written_verification_pending');
+  assert.equal(edited.body.verification.metadata_saved, false);
+  assert.equal(fixture.state().head, second);
+  fixture.restart(); fixture.env.APP_KV.put = put;
+  const saved = (await fixture.call('/source-projects')).body.projects[0];
+  assert.equal(saved.commit, second); assert.equal(saved.last_edit.commit, second); assert.equal(saved.pending_edit, null);
+  assert.equal((await fixture.call(`/source-projects/${project.id}`, 'DELETE', { expected_revision: saved.revision })).code, 200);
+  const history = [...fixture.rows].find(([key]) => key.startsWith('source-project-history:person-one:'))[1];
+  assert.equal(history.last_edit.commit, second);
+});
+
+test('refresh settles an earlier pending source edit only when its exact commit reached the branch', async t => {
+  const pending = { commit: second, previous_commit: first, path, blob_sha: newFileSha };
+  const fixture = setup({ serialized: true, initialHead: second, existingProjects: [{ id: '1'.repeat(32), provider: 'github',
+    owner: 'owner', repo: 'customer-app', branch: 'main', commit: first, pending_edit: pending }] });
+  t.after(fixture.close);
+  const refresh = await fixture.call('/source-projects', 'POST', { owner: 'owner', repo: 'customer-app', branch: 'main',
+    project_id: '1'.repeat(32), expected_commit: first, current_commit: second });
+  assert.equal(refresh.code, 200); assert.equal(refresh.body.pending_edit, null); assert.deepEqual(refresh.body.last_edit, pending);
+  assert.equal((await fixture.call(`/source-projects/${refresh.body.id}`, 'DELETE', { expected_revision: refresh.body.revision })).code, 200);
+});

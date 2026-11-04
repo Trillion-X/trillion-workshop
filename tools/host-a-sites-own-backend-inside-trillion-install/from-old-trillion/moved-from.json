@@ -1,0 +1,53 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/site-worker-assets.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-assets.mjs.held",
+      "source_identity": "1f:939159cac402b13f9b3f7bfe5ff7f4f7cf8465319115b06d35c004e5fd4b19b7",
+      "identity": "1f:939159cac402b13f9b3f7bfe5ff7f4f7cf8465319115b06d35c004e5fd4b19b7",
+      "held": true
+    },
+    {
+      "from": "src/site-worker-installation.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-installation.mjs.held",
+      "source_identity": "1f:908dcd41d83912286c3b90baed1b342b94461492dfc982d839da5bf592ffe32d",
+      "identity": "1f:04472be00973c6b96d46183e7923115234231a93f5b827885145c32ffb67f0ed",
+      "held": true
+    },
+    {
+      "from": "src/site-worker-runtime.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-runtime.mjs",
+      "source_identity": "1f:fc8e49a1f8f1200b9d6d3d8928c91eb4b4e01a7f2d8c8b96bae4e0b4ce5b892c",
+      "identity": "1f:fc8e49a1f8f1200b9d6d3d8928c91eb4b4e01a7f2d8c8b96bae4e0b4ce5b892c"
+    },
+    {
+      "from": "src/site-worker-source.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/src/site-worker-source.mjs",
+      "source_identity": "1f:1b14adee55ec2800a1b3afb117b013e18756ec3b141dffa8f5ecc3510d5d7fa2",
+      "identity": "1f:77ebcfc521b4cefbdbc96ee285ee9a21f6351d2b8a024deaa1bd7cf92475f0c6"
+    },
+    {
+      "from": "test/site-worker-installation.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/test/site-worker-installation.test.mjs.held",
+      "source_identity": "1f:0c091dcfbc46e608cbcb1e24169271c3c4f42c4402c78c363be3fd4876372559",
+      "identity": "1f:0c091dcfbc46e608cbcb1e24169271c3c4f42c4402c78c363be3fd4876372559",
+      "held": true
+    },
+    {
+      "from": "test/site-worker-source.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/host-a-sites-own-backend-inside-trillion-install/from-old-trillion/test/site-worker-source.test.mjs",
+      "source_identity": "1f:4f5d6249a24f9e5823ccbb8d3c0e9ba716a3f7311d06f462b4548cac30d33b5a",
+      "identity": "1f:4f5d6249a24f9e5823ccbb8d3c0e9ba716a3f7311d06f462b4548cac30d33b5a"
+    }
+  ]
+}

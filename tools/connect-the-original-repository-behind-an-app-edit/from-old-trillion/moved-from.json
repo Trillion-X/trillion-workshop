@@ -1,0 +1,66 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/source-project-edit.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-edit.mjs",
+      "source_identity": "1f:e46006021a53a2b2dc458642035c1bd2acfd38691c7de14209dacfef32f61140",
+      "identity": "1f:e46006021a53a2b2dc458642035c1bd2acfd38691c7de14209dacfef32f61140"
+    },
+    {
+      "from": "src/source-project-host.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-host.mjs.held",
+      "source_identity": "1f:20f5c73eb7b6ded77bb9b7478261dbbac5da1b21dd36c78102b153792d18bb28",
+      "identity": "1f:c372a531643b505f67c70a7cc3c5f566853981acae5d5228f0d26fab4da282a4",
+      "held": true
+    },
+    {
+      "from": "src/source-project-preview.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-preview.mjs",
+      "source_identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48",
+      "identity": "1f:7ff83bd7eddcf0068001b1e74ff91e29b639bf5d0a8cd33d9d7b86fd0187ae48"
+    },
+    {
+      "from": "src/source-project-tools.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/src/source-project-tools.mjs",
+      "source_identity": "1f:b5746f527942f2031b473c9fc18783f04ed9c149a9343afb19bbc55ae63af370",
+      "identity": "1f:dd4310dbcefa79a896bd7f77741100d39d654b8e614109533c32a400268ab44d"
+    },
+    {
+      "from": "test/source-project-edit.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/test/source-project-edit.test.mjs",
+      "source_identity": "1f:f1125128570e4fe7d9f680db470f08900c4cd3fe616bae1594830affd6a6806b",
+      "identity": "1f:f1125128570e4fe7d9f680db470f08900c4cd3fe616bae1594830affd6a6806b"
+    },
+    {
+      "from": "test/source-project-host.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/test/source-project-host.test.mjs.held",
+      "source_identity": "1f:0f01b2eba8854d27bfc304edaea607f4cb721109cd18a6d01edf2a8bf28451ae",
+      "identity": "1f:0f01b2eba8854d27bfc304edaea607f4cb721109cd18a6d01edf2a8bf28451ae",
+      "held": true
+    },
+    {
+      "from": "test/source-project-preview.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/test/source-project-preview.test.mjs",
+      "source_identity": "1f:d47ca0ea0d1f051741524383f360d2dc071b17ce0eb1ae81b3ac912e17fabf6d",
+      "identity": "1f:d47ca0ea0d1f051741524383f360d2dc071b17ce0eb1ae81b3ac912e17fabf6d"
+    },
+    {
+      "from": "test/source-project-tools.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/connect-the-original-repository-behind-an-app-edit/from-old-trillion/test/source-project-tools.test.mjs",
+      "source_identity": "1f:ecd5b859bd0f9eddb48f618d60f83c6d679334f14d5102641c9dbdc01abfeb4d",
+      "identity": "1f:ecd5b859bd0f9eddb48f618d60f83c6d679334f14d5102641c9dbdc01abfeb4d"
+    }
+  ]
+}

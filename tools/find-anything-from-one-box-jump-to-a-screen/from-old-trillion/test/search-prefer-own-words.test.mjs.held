@@ -1,0 +1,34 @@
+// A words-in-records lane's `prefer` (src/search.json, src/search.mjs): records whose value at the path is not the
+// preferred one are listed after the ones that are, so what an AI or a rule wrote never crowds out the person's own
+// words, and stays reachable.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { makeSearch } from '../src/search.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+async function finishIndexing(search) {
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal((await search.stale()), 0);
+}
+
+test('the messages lane prefers the person\'s own words; the rest follow and are still found', async () => {
+  const lane = settings.lanes.find(row => row.id === 'messages');
+  assert.deepEqual(lane.prefer, { path: '$.speaker', equals: 'person' });
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  resultsStore(sql, identity => files.identitiesOf(identity));
+  const { eeaf } = decisionStore(sql);
+  const total = settings.limit + 5;
+  for (let n = 0; n < total; n += 1) eeaf.write([{ id: `message:${String(n + 1).padStart(3, '0')}`, type: 'message', value: { speaker: 'claude', text: `violet locomotive status ${n}` } }]);
+  eeaf.write([{ id: 'message:000', type: 'message', value: { speaker: 'person', text: 'my violet locomotive question' } }]);
+  const search = makeSearch({ sql, eeaf });
+  await finishIndexing(search);
+  const found = await search.search('violet locomotive', { places: ['written'], sources: ['trillion'] });
+  const ids = found.results.map(row => row.id);
+  assert.equal(ids[0], 'record:message:000', 'the person\'s own message is first although the limit was already met by automated ones');
+  assert.ok(ids.length > 1 && ids.every(id => id.startsWith('record:message:')), 'the other messages stay reachable');
+});

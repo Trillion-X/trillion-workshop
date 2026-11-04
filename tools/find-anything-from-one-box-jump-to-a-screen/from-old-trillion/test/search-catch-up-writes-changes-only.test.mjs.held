@@ -1,0 +1,106 @@
+// test/search-catch-up-writes-changes-only.test.mjs
+//
+// A result that changed in a field its search lane does not read derives the words or vectors it already has, so the
+// catch-up wake must write only its marker rows, not take the lane's rows out and put them back. It did: a words lane
+// wrote 18 rows for a result of a few hundred words and a vector lane 4, and a lane whose definition changes derives every
+// result of its kind again (alarm search-catch-up wrote 2.12 million rows in a day, 2026-10-08). A change the lane does read
+// still replaces what it kept, and a backlog is derived a counted number of results a wake, so a wake costs the same
+// whatever waits.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { costingHost, flat } from './store-cost-for-tests.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeSearch } from '../src/search.mjs';
+
+const hex = (digit, index) => (digit + index.toString(16)).padEnd(64, digit);
+const own = index => `1f:${hex('a', index)}`;
+const half = values => {
+  const bits = new Uint16Array(values.map(value => {
+    const f = new Float32Array([value]), i = new Uint32Array(f.buffer)[0];
+    const sign = (i >>> 16) & 0x8000, exponent = ((i >>> 23) & 0xff) - 127 + 15, fraction = (i >>> 13) & 0x3ff;
+    return value === 0 ? sign : sign | (exponent << 10) | fraction;
+  }));
+  return Buffer.from(bits.buffer).toString('base64');
+};
+const WORDS = 'pottery glaze wheel grip '.repeat(200);
+// One result of each kind a lane keeps, with a field the lane reads and one it does not.
+const KINDS = {
+  transcript: (read = WORDS, other = 0) => ({ text: read, segments: [], other }),
+  contents: (read = WORDS, other = 0) => ({ text: read, other }),
+  organization: (read = WORDS, other = 0) => ({ search_text: read, other }),
+  summary: (read = 'a title', other = 0) => ({ title: read, other }),
+  'picture-vectors': (read = [0, 1, 0], other = 0) => ({ frames: [{ t: 6, v: half(read) }], other }),
+  'speech-vectors': (read = [0, 1, 0], other = 0) => ({ chunks: [{ t: 6, v: half(read), text: 'x' }], other }),
+};
+const CHANGED_READ = { transcript: WORDS + ' badminton', contents: WORDS + ' badminton', organization: WORDS + ' badminton', summary: 'another title', 'picture-vectors': [0, 0, 1], 'speech-vectors': [0, 0, 1] };
+
+function person() {
+  const store = costingHost();
+  const files = namespaceStore(store.sql);
+  const results = resultsStore(store.sql, id => files.identitiesOf(id));
+  const search = makeSearch({ sql: store.sql, eeaf: decisionStore(store.host.sql).eeaf, embed: null, runTool: async () => ({ state: 'failed' }) });
+  const drain = async () => { for (let wake = 0; wake < 60 && (await search.stale()); wake += 1) await search.catchUp(50); };
+  return { store, results, search, drain };
+}
+
+test('a result changed outside what its lane reads is marked again, and its words and vectors are not rewritten', async () => {
+  const { store, results, drain } = person();
+  await drain();
+  let at = 0;
+  const lines = [];
+  for (const [kind, make] of Object.entries(KINDS)) {
+    at += 1;
+    results.put([{ identity: own(at), kind, value: make() }]);
+    await drain();
+    results.put([{ identity: own(at), kind, value: make(undefined, 1) }]);
+    const cost = await store.measure(async () => drain());
+    lines.push(`${kind} ${cost.written}`);
+    assert.ok(cost.written <= 2, `${kind}: ${cost.written} rows written for a change the lane does not read (its marker and the queue row are all it needs)`);
+  }
+  console.log(`rows written by a wake for a result changed outside its lane: ${lines.join(', ')}`);
+});
+
+test('a change the lane reads still replaces what it kept', async () => {
+  const { store, results, search, drain } = person();
+  await drain();
+  results.put([{ identity: own(1), kind: 'transcript', value: KINDS.transcript() }]);
+  await drain();
+  assert.equal((await search.search('pottery')).results.length, 1);
+  assert.equal((await search.search('badminton')).results.length, 0);
+  results.put([{ identity: own(1), kind: 'transcript', value: KINDS.transcript('only badminton here') }]);
+  const cost = await store.measure(async () => drain());
+  assert.ok(cost.written > 2, 'new words are written');
+  assert.equal((await search.search('pottery')).results.length, 0, 'the old words are gone');
+  assert.equal((await search.search('badminton')).results.length, 1, 'the new words are found');
+  for (const [kind, make] of Object.entries(KINDS)) {
+    if (!kind.endsWith('vectors')) continue;
+    const identity = own(kind === 'picture-vectors' ? 2 : 3);
+    results.put([{ identity, kind, value: make() }]);
+    await drain();
+    const kept = () => store.host.sql.exec('SELECT vector FROM search_vectors WHERE identity = ?', identity).toArray().map(row => [...new Uint8Array(row.vector)].join(','));
+    const before = kept();
+    results.put([{ identity, kind, value: make(CHANGED_READ[kind]) }]);
+    await drain();
+    assert.notDeepEqual(kept(), before, `${kind}: the changed vectors are kept`);
+    assert.equal(kept().length, 1);
+  }
+});
+
+test('a wake derives a counted number of changed results, so it costs the same with 4 times as many waiting', async () => {
+  const run = async waiting => {
+    const { store, results, search, drain } = person();
+    await drain();
+    for (let at = 1; at <= waiting; at += 1) results.put([{ identity: own(at), kind: 'contents', value: KINDS.contents() }]);
+    await drain();
+    for (let at = 1; at <= waiting; at += 1) results.put([{ identity: own(at), kind: 'contents', value: KINDS.contents(WORDS, 1) }]);
+    assert.ok((await search.stale()));
+    return store.measure(async () => { await search.catchUp(50); });
+  };
+  const small = await run(100);
+  const large = await run(400);
+  console.log(`one wake: read ${small.read} and written ${small.written} with 100 changed results waiting, read ${large.read} and written ${large.written} with 400`);
+  assert.deepEqual(flat(small, large), [], 'a wake costs the same with 4 times as many results waiting');
+  assert.ok(large.written <= 50 * 2 + 20, `a wake over 50 results written ${large.written} rows`);
+});

@@ -1,0 +1,115 @@
+import {captureSharedPolicyMaintenance,sharedPolicyScopeContains} from '../../../run-each-command-in-a-shared-space-exactly-once/from-old-trillion/src/shared-policy-maintenance.mjs.held';
+import {sharedDependencyStub} from './shared-native-dependency-command.mjs';
+import {sharedNativeExecution,runningSharedNativeCommand} from './shared-native-execution-context.mjs';
+// Policy transactions own only parent/membership/configuration invariants.
+// Independent content commands never enter this queue or forward through it.
+import { AsyncLocalStorage } from 'node:async_hooks';
+import { policyManifest, policyPage, policyTablesToStage } from './space-content-policy.mjs';
+import { isAt } from './resource-host.mjs';
+const contexts = new AsyncLocalStorage();
+const readings = new AsyncLocalStorage();
+const queues = new WeakMap();
+const stub = (owner,route) => sharedDependencyStub(owner,route.address,{spaceId:route.space_id,generation:route.generation,policyMaintenance:contentPolicyCommand(owner)?.fences.get(route.space_id)?.maintenance??null});
+export const contentPolicyCommand = owner => contexts.getStore()?.owner === owner ? contexts.getStore() : null;
+export function projectedSpaceContent(owner, id) { return contentPolicyCommand(owner)?.projections.get(id) ?? (readings.getStore()?.owner === owner ? readings.getStore().projections.get(id) : null) ?? null; }
+export async function stageCurrentContentPolicy(owner, route, fence = null, keepFence = false) {
+  const manifest = policyManifest(owner.sql, route.space_id), revision = crypto.randomUUID();
+  const target = stub(owner, route);
+  for (const table of policyTablesToStage(manifest)) {
+    let after = 0;
+    do {
+      const page = policyPage(owner.sql, route.space_id, table, after);
+      await target.acceptContentPolicy({ space_id: route.space_id, revision, manifest, table, rows: page.rows, cursor: page.cursor, next_cursor: page.nextCursor, done: page.done });
+      after = page.nextCursor;
+    } while (after !== null);
+  }
+  return target.publishContentPolicy({ space_id: route.space_id, revision, manifest, fence, keep_fence: keepFence });
+}
+// Every named table, each in the content writer's order, read in bounded pages.
+async function invariantProjection(target, spaceId, fenceId, tables) {
+  const projection = Object.fromEntries(tables.map(table => [table, []]));
+  let cursor = null;
+  do {
+    const page = await target.spaceContentInvariantProjection({ space_id: spaceId, fence_id: fenceId, tables, cursor });
+    for (const table of tables) projection[table].push(...page.pages[table]);
+    cursor = page.next;
+  } while (cursor);
+  return projection;
+}
+export async function withContentPolicyChange(owner, fn) {
+  if (contentPolicyCommand(owner)) return fn();
+  if (owner.sql.exec('SELECT 1 FROM space_content_identity LIMIT 1').toArray().length) throw new Error('Space policy is owned by its admitted membership resource.');
+  const previous = queues.get(owner) ?? Promise.resolve();
+  const work = previous.catch(() => {}).then(async () => {
+    const command = { owner, projections: new Map(), fences: new Map() };
+    return contexts.run(command, async () => {
+      const heldRoutes = owner.sql.exec("SELECT * FROM space_content_routes WHERE state IN ('active','retired') ORDER BY space_id").toArray();
+      const original=sharedNativeExecution()?.context;
+      if(heldRoutes.length&&(!original||!isAt(owner, { kind: 'network', key: original.commitment.address })))
+        throw new Error('Policy reconciliation requires its exact admitted canonical parent.');
+      const routes=heldRoutes.filter(route=>sharedPolicyScopeContains(owner,route.space_id,original));
+      const fences = [];
+      // Fence bookkeeping is the policy owner's own recovery obligation. Once the
+      // policy is republished below it is resolved, so only writes made by the
+      // operation itself say its outcome is uncertain if it then refuses.
+      const native = runningSharedNativeCommand(owner), dispatchedBefore = native?.dispatched;
+      // Fences are durable before reading policy or performing a mutation. An
+      // interrupted transaction leaves affected content closed until recovery.
+      for (const route of routes) {
+        let target;
+        // The authority keeps its recovery obligation before asking the target
+        // to close. A lost fence/publication reply cannot orphan closed content.
+        const pending = owner.sql.exec('SELECT * FROM space_content_policy_reconcile WHERE space_id = ?',route.space_id).toArray()[0];
+        const id = pending?.fence_id ?? crypto.randomUUID(), manifest = pending ? JSON.parse(pending.fence_manifest) : policyManifest(owner.sql,route.space_id);
+        owner.sql.exec('INSERT OR IGNORE INTO space_content_policy_reconcile (space_id,address,generation,fence_id,fence_manifest,due_at_ms) VALUES (?,?,?,?,?,?)',route.space_id,route.address,route.generation,id,JSON.stringify(manifest),Date.now()+1000);
+        const maintenance=captureSharedPolicyMaintenance(owner,route,id);
+        command.fences.set(route.space_id,{route,maintenance});
+        target=stub(owner,route);
+        await owner.armAlarm();
+        const fence = await target.fenceContentPolicy({id,spaceId:route.space_id,manifest});
+        fences.push({ route, fence });
+        command.fences.set(route.space_id, { route, fence, maintenance });
+        command.projections.set(route.space_id, await invariantProjection(target, route.space_id, fence.id, ['names','posts','lessons','writers']));
+      }
+      if (native) native.dispatched = dispatchedBefore;
+      let result, error;
+      try { result = await fn(); } catch (failure) { error = failure; }
+      const dispatchedByOperation = native?.dispatched;
+      // Structural operations publish their changed child coordinates in the
+      // existing Network operation owner. Member changes finish their exact
+      // directory obligation there too; policy snapshot repair needs neither.
+      // Even a partially failed composite publishes the actual authoritative
+      // state. A failed publication stays fenced; it never serves old grants.
+      for (const {route,fence} of fences) {
+        const target = stub(owner,route), pending = (await invariantProjection(target, route.space_id, fence.id, ['revocations'])).revocations;
+        // The content journal is evidence of committed withdrawal, even if its
+        // result RPC was lost. Complete grant revocation before reopening any
+        // content access; replaying the user operation is unnecessary.
+        for (const row of pending) owner.sql.exec('UPDATE space_tool_grants SET revoked_at = ? WHERE space_id = ? AND grant_id = ? AND revoked_at IS NULL',new Date().toISOString(),route.space_id,row.grant_id);
+        await stageCurrentContentPolicy(owner,route,fence);
+        for (const row of pending) await target.ackSpaceMarketplaceRevokes({space_id:route.space_id,item_id:row.item_id,grant_ids:[row.grant_id]});
+        const activity = owner.sql.exec('SELECT activity_at FROM space_content_policy_reconcile WHERE space_id = ?',route.space_id).toArray()[0]?.activity_at;
+        if (activity) await target.contentPolicyActivity({space_id:route.space_id,at:activity});
+        owner.sql.exec('DELETE FROM space_content_policy_reconcile WHERE space_id = ? AND fence_id = ?',route.space_id,fence.id);
+        owner.sql.exec('DELETE FROM shared_policy_reconciliation_origins WHERE space_id=? AND fence_id=?',route.space_id,fence.id);
+      }
+      if (native) native.dispatched = dispatchedByOperation;
+      if (error) throw error;
+      return result;
+    });
+  });
+  queues.set(owner, work);
+  try { return await work; } finally { if (queues.get(owner) === work) queues.delete(owner); }
+}
+
+// A composite capability may ask a content writer while holding its drained
+// fence. This is internal composition, never an ordinary resource dispatch.
+export async function invokeCoordinatedContent(owner, spaceId, operation, args) {
+  const command = contentPolicyCommand(owner);
+  const held = command?.fences.get(spaceId);
+  if (!held) throw new Error('A coordinated content operation needs its current Space fence.');
+  await stageCurrentContentPolicy(owner, held.route, held.fence, true);
+  return stub(owner, held.route).invokeCoordinatedSpaceContent({ resource: spaceId, operation, args, generation: String(held.route.generation), fence: held.fence });
+}
+
+export function withContentReadProjections(owner, projections, fn) { return readings.run({ owner, projections }, fn); }

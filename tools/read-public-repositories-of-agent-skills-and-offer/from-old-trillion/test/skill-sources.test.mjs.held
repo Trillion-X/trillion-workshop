@@ -1,0 +1,307 @@
+// Skills read from public repositories at their source (src/skill-sources.mjs, records/skill-sources.json): the branch's
+// commit is read from git's own reference list, the archive only when that commit moved, every skill with an open
+// licence becomes a workflow row carrying its licence, author, page and commit, and a failed read keeps the last good
+// rows. An AI on any account then finds, reads and starts one through the MCP tools.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { DatabaseSync } from 'node:sqlite';
+import { tarGz } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
+import { addressOf, branchCommit, makeSkillSources, sourceProblems, skillSourceCacheKey } from '../src/skill-sources.mjs';
+import { inProcessMcp } from './in-process-mcp.mjs';
+import config from '../records/skill-sources.json' with { type: 'json' };
+import rules from '../records/skill-import-rules.json' with { type: 'json' };
+
+const sqlOf = () => {
+  const db = new DatabaseSync(':memory:');
+  return { exec: (query, ...values) => { const rows = db.prepare(query).all(...values); return { toArray: () => rows } } };
+};
+const encode = text => new TextEncoder().encode(text);
+const pkt = line => `${(line.length + 4).toString(16).padStart(4, '0')}${line}`;
+const advertisement = (refs, head = 'refs/heads/main') => [
+  pkt('# service=git-upload-pack\n'), '0000',
+  ...Object.entries(refs).map(([ref, commit], at) => pkt(`${commit} ${ref}${at === 0 ? `\0multi_ack symref=HEAD:${head} agent=git/x` : ''}\n`)),
+  '0000',
+].join('');
+const MIT = 'MIT License\n\nCopyright (c) 2026 Some Maker\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\n';
+const archiveOf = files => tarGz(Object.entries(files).map(([name, text]) => ({ name: `repo-abc/${name}`, bytes: encode(text) })));
+const COMMIT_A = 'a'.repeat(40);
+const COMMIT_B = 'b'.repeat(40);
+const source = { id: 'maker-skills', host: 'github', owner: 'maker', repository: 'skills', branch: 'main', folder: 'skills' };
+const testConfig = { ...config, check_every_minutes: 60, sources: [source] };
+
+// A stand-in host: which commit the branch points at, the archive each commit serves, and every address asked.
+function host(state) {
+  const asked = [];
+  const fetchImpl = async address => {
+    asked.push(address);
+    if (state.down) return new Response('no', { status: 503 });
+    if (address.includes('/info/refs')) return new Response(advertisement({ HEAD: state.commit, 'refs/heads/main': state.commit, 'refs/heads/other': COMMIT_A }));
+    const commit = address.split('/').pop();
+    return new Response(state.archives[commit]);
+  };
+  return { asked, fetchImpl };
+}
+
+const openLicences = new Set(['MIT', 'Apache-2.0']);
+
+test('a branch commit is read from a reference advertisement, by name or through HEAD', () => {
+  const text = advertisement({ HEAD: COMMIT_B, 'refs/heads/main': COMMIT_B, 'refs/heads/feature/x': COMMIT_A });
+  assert.equal(branchCommit(text, 'main'), COMMIT_B);
+  assert.equal(branchCommit(text, 'feature/x'), COMMIT_A);
+  assert.equal(branchCommit(text), COMMIT_B);
+  assert.equal(branchCommit(text, 'gone'), null);
+  assert.equal(addressOf(config.hosts[0].archive, { owner: 'o', repository: 'r', commit: 'c' }), 'https://codeload.github.com/o/r/tar.gz/c');
+});
+
+test('a source row is checked before anything is read', () => {
+  assert.deepEqual(sourceProblems(source, config.hosts), []);
+  assert.match(sourceProblems({ ...source, owner: '../x' }, config.hosts).join(' '), /owner/);
+  assert.match(sourceProblems({ ...source, host: 'nowhere' }, config.hosts).join(' '), /host must be one of/);
+  assert.match(sourceProblems({ ...source, folder: '../../etc' }, config.hosts).join(' '), /folder/);
+  assert.deepEqual(sourceProblems({ ...source, kind: 'skills' }, config.hosts, config.kinds), []);
+  assert.match(sourceProblems({ ...source, kind: 'nothing-known' }, config.hosts, config.kinds).join(' '), /kind must be one of: skills/);
+});
+
+test('every licensed skill under the folder becomes a row with its licence, author, page and commit; others are held with why', async () => {
+  const state = {
+    commit: COMMIT_A,
+    archives: {
+      [COMMIT_A]: archiveOf({
+        LICENSE: MIT,
+        'README.md': 'Skills.',
+        'skills/break-ui/SKILL.md': '---\nname: break-ui\ndescription: Try to break a screen with hostile input\n---\nPaste a very long name.\n',
+        'skills/break-ui/CATALOG.md': 'Long names, emoji, empty states: user-6f65d976@example.com, user-80305c9b@example.com.',
+        'skills/mailed/SKILL.md': '---\nname: mailed\ndescription: Answer support\n---\nForward to user-5dc09c7e@example.com.\n',
+        'skills/leaky/SKILL.md': '---\nname: leaky\ndescription: Deploy\n---\nRun /Users/example/dev/x.\n',
+        'skills/own-licence/SKILL.md': '---\nname: own-licence\ndescription: Do a thing\nlicense: Proprietary\n---\nSteps.\n',
+        'outside/SKILL.md': '---\nname: outside\ndescription: Not under the folder\n---\nNo.\n',
+      }),
+    },
+  };
+  const { asked, fetchImpl } = host(state);
+  const sources = makeSkillSources({ sql: sqlOf(), fetchImpl, config: testConfig, rules, openLicences });
+  const [read] = await sources.reads();
+  assert.equal(read.commit, COMMIT_A);
+  assert.deepEqual(read.rows.map(row => row.id), ['workflow:skill-break-ui', 'workflow:skill-own-licence']);
+  const [row, reference] = read.rows;
+  assert.equal(row.source.licence, 'MIT');
+  assert.equal(row.source.author, 'Some Maker');
+  assert.equal(row.source.url, `https://github.com/maker/skills/tree/${COMMIT_A}/skills/break-ui`);
+  assert.equal(row.source.repository, 'https://github.com/maker/skills');
+  assert.equal(row.source.commit, COMMIT_A);
+  assert.deepEqual(row.files, { 'CATALOG.md': 'Long names, emoji, empty states: user-6f65d976@example.com, user-80305c9b@example.com.' }, 'illustration addresses are not a person\'s');
+  const held = Object.fromEntries(read.held.map(item => [item.skill, item.reasons.join('; ')]));
+  assert.match(held.leaky, /folder on one person's computer/);
+  assert.match(held.mailed, /email address/);
+  // A known licence that does not allow sharing: a reference that credits and links, with none of its text.
+  assert.equal(reference.source.licence, 'Proprietary');
+  assert.match(reference.source.use, /^Reference only/);
+  assert.equal(reference.source.url, `https://github.com/maker/skills/tree/${COMMIT_A}/skills/own-licence`);
+  assert.equal(reference.job, 'Do a thing');
+  assert.match(reference.steps[0].do, new RegExp(`Read the skill at ${reference.source.url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  assert.doesNotMatch(JSON.stringify(reference), /Steps\./, 'none of its instructions are copied');
+  assert.equal(reference.files, undefined);
+  assert.equal(held['own-licence'], undefined);
+  assert.equal(held.outside, undefined);
+  assert.equal(asked.length, 2);
+});
+
+test('a kind row says which file makes a folder one unit, so another kind of repository is one row', async () => {
+  const state = { commit: COMMIT_A, archives: { [COMMIT_A]: archiveOf({
+    LICENSE: MIT,
+    'agents/reviewer/AGENT.md': '---\nname: reviewer\ndescription: Review a change\n---\nRead the diff.\n',
+    'agents/reviewer/SKILL.md': '---\nname: not-this-kind\ndescription: Ignored here\n---\nNo.\n',
+  }) } };
+  const { fetchImpl } = host(state);
+  const kinds = { ...config.kinds, agents: { label: 'Agents', entry: 'AGENT.md', becomes: 'workflow' } };
+  const sources = makeSkillSources({ sql: sqlOf(), fetchImpl, config: { ...testConfig, kinds, sources: [{ ...source, folder: 'agents', kind: 'agents' }] }, rules, openLicences });
+  const [read] = await sources.reads();
+  assert.deepEqual(read.rows.map(row => row.id), ['workflow:skill-reviewer']);
+  assert.match(read.rows[0].steps[0].do, /Read the diff\./);
+});
+
+test('the archive is read again only when the branch commit moves, and only once the check interval passed', async () => {
+  let clock = Date.parse('2026-10-05T08:00:00Z');
+  const state = {
+    commit: COMMIT_A,
+    archives: {
+      [COMMIT_A]: archiveOf({ LICENSE: MIT, 'skills/one/SKILL.md': '---\nname: one\ndescription: First skill\n---\nDo one.\n' }),
+      [COMMIT_B]: archiveOf({ LICENSE: MIT, 'skills/two/SKILL.md': '---\nname: two\ndescription: Second skill\n---\nDo two.\n' }),
+    },
+  };
+  const { asked, fetchImpl } = host(state);
+  const sources = makeSkillSources({ sql: sqlOf(), fetchImpl, config: testConfig, rules, openLicences, now: () => new Date(clock) });
+  assert.deepEqual((await sources.rows()).map(row => row.id), ['workflow:skill-one']);
+  assert.equal(asked.length, 2);
+  await sources.rows();
+  assert.equal(asked.length, 2, 'inside the interval nothing is asked');
+  clock += 61 * 60_000;
+  await sources.rows();
+  assert.equal(asked.length, 3, 'past the interval only the reference list is asked while the commit is the same');
+  state.commit = COMMIT_B;
+  clock += 61 * 60_000;
+  assert.deepEqual((await sources.rows()).map(row => row.id), ['workflow:skill-two'], 'a removed skill leaves and a new one appears');
+  assert.equal(asked.length, 5);
+});
+
+test('a host that cannot be read keeps the last good rows and says why; a removed source row leaves at once, and its read is forgotten later', async () => {
+  let clock = Date.parse('2026-10-05T08:00:00Z');
+  const state = { commit: COMMIT_A, archives: { [COMMIT_A]: archiveOf({ LICENSE: MIT, 'skills/one/SKILL.md': '---\nname: one\ndescription: First skill\n---\nDo one.\n' }) } };
+  const { fetchImpl } = host(state);
+  const sql = sqlOf();
+  const sources = makeSkillSources({ sql, fetchImpl, config: testConfig, rules, openLicences, now: () => new Date(clock) });
+  await sources.reads();
+  state.down = true;
+  clock += 61 * 60_000;
+  const [read] = await sources.reads();
+  assert.deepEqual(read.rows.map(row => row.id), ['workflow:skill-one']);
+  assert.match(read.error, /503/);
+  assert.equal(read.read_at, '2026-10-05T08:00:00.000Z');
+  assert.deepEqual(await sources.rows({ sources: [] }), []);
+  clock += 31 * 86_400_000;
+  await sources.reads({ sources: [] });
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM skill_repository_reads').toArray()[0].n, 0, 'a read nobody lists is forgotten');
+});
+
+const sourcedRow = {
+  kind: 'workflow-recipe', id: 'workflow:skill-break-ui', label: 'Break ui', job: 'Try to break a screen with hostile input',
+  source: { from: 'agent skill', name: 'break-ui', licence: 'MIT', author: 'Some Maker', url: `https://github.com/maker/skills/tree/${COMMIT_A}/skills/break-ui`, repository: 'https://github.com/maker/skills', commit: COMMIT_A },
+  input_schema: { type: 'object', properties: { request: { type: 'string' } } },
+  steps: [{ id: 'follow-the-skill', title: 'Break ui', do: 'Paste a very long name.', submit: { type: 'object', required: ['result'], properties: { result: { type: 'string' } } } }],
+};
+
+test('an AI on any account finds a skill read from a repository, sees its licence and source, and starts it', async () => {
+  const sourced = [sourcedRow];
+  const { tool } = inProcessMcp({ skillSourceRows: async () => sourced });
+  const found = (await tool('find_workflow', { job: 'break a screen with hostile input' })).data;
+  const item = found.workflows.find(workflow => workflow.workflow_id === 'workflow:skill-break-ui');
+  assert.ok(item, JSON.stringify(found.workflows.map(workflow => workflow.workflow_id)));
+  assert.equal(item.made_by, 'a public repository');
+  assert.equal(item.source.licence, 'MIT');
+  assert.equal(item.source.author, 'Some Maker');
+  assert.match(item.source.url, /github\.com\/maker\/skills\/tree/);
+  const started = (await tool('start_workflow', { workflow_id: 'workflow:skill-break-ui', input: { request: 'Break the Files screen.' }, request_key: 'break-proof' })).data;
+  assert.equal(started.step.step_id, 'follow-the-skill');
+});
+
+test('an AI brings one more public repository in for its own account, and its skills reach only that account', async () => {
+  const asked = [];
+  const rowFor = owner => ({ ...sourcedRow, id: `workflow:skill-${owner}-thing`, job: `Do the ${owner} thing`, source: { ...sourcedRow.source, author: owner } });
+  const { tool } = inProcessMcp({
+    skillSourceRows: async own => { asked.push(own.map(row => row.id)); return own.map(row => rowFor(row.owner)); },
+    skillSourceReads: async own => own.map(row => ({ source_id: row.id, commit: COMMIT_A, read_at: '2026-10-05T08:00:00.000Z', skills: [`workflow:skill-${row.owner}-thing`], held: [] })),
+  });
+  const refused = await tool('skill_repositories', { add: { owner: '../etc', repository: 'x' } });
+  assert.equal(refused.error, true);
+  assert.match(refused.text, /owner must be/);
+  const added = (await tool('skill_repositories', { add: { owner: 'someone', repository: 'their-skills', folder: 'skills' } })).data;
+  assert.deepEqual(added.yours.map(row => [row.id, row.host, row.commit, row.skills]), [['someone-their-skills', 'github', COMMIT_A, ['workflow:skill-someone-thing']]]);
+  assert.ok(added.every_account.some(row => row.id === config.sources[0].id));
+  const found = (await tool('find_workflow', { job: 'Do the someone thing' })).data;
+  assert.ok(found.workflows.some(item => item.workflow_id === 'workflow:skill-someone-thing'));
+  const removed = (await tool('skill_repositories', { remove: 'someone-their-skills' })).data;
+  assert.deepEqual(removed.yours, []);
+  const after = (await tool('find_workflow', { job: 'Do the someone thing' })).data;
+  assert.ok(!after.workflows.some(item => item.workflow_id === 'workflow:skill-someone-thing'));
+});
+
+// Populate the actual SQLite cache format, then observe what crosses its cursor boundary. A whole-shelf read is
+// refused during exact lookup, so this cannot pass by loading every body and filtering in JavaScript.
+function selectedSkillCache({ sources = [source], fetchImpl = async () => { throw new Error('A fresh cache must not fetch.'); }, now } = {}) {
+  const sql = sqlOf();
+  let forbidWholeShelf = true;
+  const reads = [];
+  const watched = { exec: (query, ...values) => {
+    if (forbidWholeShelf) assert.doesNotMatch(query, /SELECT \* FROM skill_repository_reads/i, 'selected lookup cannot decode the complete saved repository');
+    const rows = sql.exec(query, ...values).toArray();
+    if (/^SELECT/i.test(query)) reads.push({ query, rows });
+    return { toArray: () => rows };
+  } };
+  const owner = makeSkillSources({ sql: watched, fetchImpl, config: { ...testConfig, sources }, rules, openLicences, now });
+  const seed = (which, rows, { checked_at = '2026-10-05T08:00:00.000Z', held = [] } = {}) => {
+    const key = skillSourceCacheKey(which,testConfig,{rules,openLicences});
+    sql.exec('INSERT INTO skill_repository_reads (source_key, commit_id, rows, held, read_at, checked_at, error) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      key, COMMIT_A, JSON.stringify(rows), JSON.stringify(held), '2026-10-05T08:00:00.000Z', checked_at, null);
+  };
+  return { owner, sql, reads, seed, allowWholeShelf: () => { forbidWholeShelf = false; } };
+}
+
+test('an exact skill-cache read returns only the selected body and stops before later repositories', async () => {
+  const second = { ...source, id: 'later-source', owner: 'later' };
+  const fixture = selectedSkillCache({ sources: [source, second], now: () => new Date('2026-10-05T08:30:00Z') });
+  const sibling = { ...sourcedRow, id: 'workflow:skill-large-sibling', files: { 'REFERENCE.md': 'unrelated'.repeat(32_000) } };
+  fixture.seed(source, [sibling, sourcedRow], { held: [{ skill: 'held', reasons: ['not open'] }] });
+  assert.deepEqual(await fixture.owner.rows({ workflow_id: sourcedRow.id }), [sourcedRow]);
+  assert.ok(fixture.reads.some(read => /json_each\(kept.rows\)/.test(read.query)));
+  assert.equal(fixture.reads.filter(read => /AS row/.test(read.query)).reduce((n, read) => n + read.rows.length, 0), 1);
+  assert.ok(!JSON.stringify(fixture.reads).includes('REFERENCE.md'), 'the unrelated stored body never crosses the SQLite cursor');
+  assert.equal(fixture.reads.filter(read => /SELECT source_key/.test(read.query)).length, 2, 'only the first source’s metadata and selected rows are read');
+  fixture.allowWholeShelf();
+  const [read] = await fixture.owner.reads({ sources: [source] });
+  assert.deepEqual(read.rows, [sibling, sourcedRow], 'an exact read never replaces the saved complete catalog');
+  assert.deepEqual(read.held, [{ skill: 'held', reasons: ['not open'] }]);
+});
+
+test('selected skill lineage and identity retain source order without widening account-specific sources', async () => {
+  const otherSource = { ...source, id: 'other-source', owner: 'other' };
+  const origin = 'workflow:origin';
+  const first = { ...sourcedRow, made_from: [origin], label: 'First source' };
+  const second = { ...first, label: 'Second source' };
+  const related = { ...first, id: 'workflow:skill-other-related' };
+  const fixture = selectedSkillCache({ sources: [source], now: () => new Date('2026-10-05T08:30:00Z') });
+  fixture.seed(source, [first, { ...first, id: 'workflow:skill-unrelated', made_from: [] },
+    { ...first, id: 'workflow:skill-malformed-lineage', made_from: { parent: origin } }]);
+  fixture.seed(otherSource, [second, related]);
+  assert.deepEqual(await fixture.owner.rows({ made_from: origin, also: [otherSource] }), [first, related]);
+  assert.deepEqual(await fixture.owner.rows({ workflow_id: first.id, also: [otherSource] }), [first], 'the first source continues to own a duplicate ID');
+  assert.deepEqual(await fixture.owner.rows({ workflow_id: related.id }), [], 'a cached private source is not read unless this account supplies it');
+  assert.deepEqual(await fixture.owner.rows({ workflow_id: related.id, also: [otherSource] }), [related]);
+});
+
+test('selected skill lineage pages retain every matching body in repository order', async () => {
+  const origin = 'workflow:many-origins';
+  const related = Array.from({ length: 131 }, (_, index) => ({ ...sourcedRow, id: `workflow:skill-related-${index}`, made_from: [origin] }));
+  const sibling = { ...sourcedRow, id: 'workflow:skill-unrelated-body', files: { 'UNRELATED.md': 'x'.repeat(200_000) } };
+  const fixture = selectedSkillCache({ now: () => new Date('2026-10-05T08:30:00Z') });
+  fixture.seed(source, [...related.slice(0, 30), sibling, ...related.slice(30)]);
+  assert.deepEqual(await fixture.owner.rows({ made_from: origin }), related);
+  const pages = fixture.reads.filter(read => /AS row/.test(read.query));
+  assert.deepEqual(pages.map(read => read.rows.length), [64, 64, 3], 'related pages continue past the first bound without truncation');
+  assert.ok(pages.every(read => /LIMIT \?/.test(read.query)));
+  assert.ok(!JSON.stringify(pages).includes('UNRELATED.md'), 'the cursor skips an unrelated large body between matching members');
+});
+
+test('stale exact cache with an unchanged commit checks refs without reading or rewriting saved catalog bodies', async () => {
+  const state = { commit: COMMIT_A, archives: {} };
+  const network = host(state);
+  const fixture = selectedSkillCache({ fetchImpl: network.fetchImpl, now: () => new Date('2026-10-05T09:01:00Z') });
+  const sibling = { ...sourcedRow, id: 'workflow:skill-sibling', files: { 'MORE.md': 'x'.repeat(200_000) } };
+  fixture.seed(source, [sourcedRow, sibling], { held: [{ skill: 'kept-held', reasons: ['reference only'] }] });
+  const before = fixture.sql.exec('SELECT rows, held, read_at FROM skill_repository_reads').toArray()[0];
+  assert.deepEqual(await fixture.owner.rows({ workflow_id: sourcedRow.id }), [sourcedRow]);
+  assert.equal(network.asked.length, 1);
+  assert.match(network.asked[0], /\/info\/refs/);
+  assert.deepEqual(fixture.sql.exec('SELECT rows, held, read_at FROM skill_repository_reads').toArray()[0], before, 'all prior saved bytes and their read time are retained');
+  assert.equal(fixture.sql.exec('SELECT checked_at FROM skill_repository_reads').toArray()[0].checked_at, '2026-10-05T09:01:00.000Z');
+  assert.ok(fixture.reads.every(read => !read.rows.some(row => Object.hasOwn(row, 'rows') || Object.hasOwn(row, 'held'))), 'freshness checks do not return either full stored column');
+  fixture.allowWholeShelf();
+  assert.deepEqual((await fixture.owner.reads())[0].rows, [sourcedRow, sibling]);
+  assert.equal(network.asked.length, 1, 'the freshness update serves a later bulk read without another archive call');
+});
+
+test('failed selected refresh keeps the complete last-good rows and held data for later bulk readers', async () => {
+  const network = host({ down: true });
+  const fixture = selectedSkillCache({ fetchImpl: network.fetchImpl, now: () => new Date('2026-10-05T09:01:00Z') });
+  const sibling = { ...sourcedRow, id: 'workflow:skill-sibling' };
+  fixture.seed(source, [sourcedRow, sibling], { held: [{ skill: 'kept-held', reasons: ['reference only'] }] });
+  const before = fixture.sql.exec('SELECT rows, held, read_at FROM skill_repository_reads').toArray()[0];
+  assert.deepEqual(await fixture.owner.rows({ workflow_id: sibling.id }), [sibling]);
+  assert.deepEqual(fixture.sql.exec('SELECT rows, held, read_at FROM skill_repository_reads').toArray()[0], before);
+  fixture.allowWholeShelf();
+  const [read] = await fixture.owner.reads();
+  assert.deepEqual(read.rows, [sourcedRow, sibling]);
+  assert.deepEqual(read.held, [{ skill: 'kept-held', reasons: ['reference only'] }]);
+  assert.match(read.error, /503/);
+  assert.equal(read.read_at, '2026-10-05T08:00:00.000Z');
+  assert.equal(network.asked.length, 1);
+});

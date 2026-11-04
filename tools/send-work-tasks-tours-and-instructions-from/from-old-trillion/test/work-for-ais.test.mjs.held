@@ -1,0 +1,350 @@
+// Work Trillion HQ sends to customers' AIs is data: an audience (formula-engine rules over account facts), a window, a
+// trigger and a job. It reaches each account only through that account's own connection, once, as an ordinary handoff.
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+import operators from '../parts/formula-engine/rules/rule-operators.json' with { type: 'json' };
+import { makeRowFilter } from '../parts/formula-engine/rules/filter-rows-by-rules.mjs';
+import { observerBucket } from '../parts/choose-per-observer/read-data/score-candidates.ts';
+import settings from '../src/work-for-ais.json' with { type: 'json' };
+import setupSettings from '../src/setup-steps.json' with { type: 'json' };
+import instructions from '../../../shared-code/src/server-instruction-paragraphs.mjs';
+import { sqliteHost } from '../src/local-store.mjs';
+import { liveWork } from '../../../hand-off-jobs-between-agents/src/live-work.mjs';
+import { triggersFor, accountFacts, deliveryFacts, answerWorkRequest, checkedRow, createdAtFor, handoffFor, makeWorkDelivery, readWorkRows, rowsFor, workRowBookName, rowsInForce, SHIPPED_ROWS, workForAisTools } from '../src/work-for-ais.mjs';
+import { recordBooks } from './record-book-for-tests.mjs';
+import { memoryKv } from './kv-for-tests.mjs';
+import { serviceWorkRows } from '../../../run-the-services-own-price-experiments-each-kept-in-its-own-book/from-old-trillion/src/service-price-experiments.mjs.held';
+import { findingsInWords, makeJudge, wordsIn } from '../parts/judge-words/do-work/judge-words.mjs';
+
+// The service as the Worker sees it: one record book per row (env.RECORD_BOOK) and the edge store they publish to.
+const service = () => { const env = { APP_KV: memoryKv() }; env.RECORD_BOOK = recordBooks(env); return { env, rows: serviceWorkRows(env) }; };
+
+const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../parts/formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
+await filter.load();
+const matches = async (tree, fields, row) => filter.filterRowsByRulesNow({ tree, fields, rows: [row] }).matches.length === 1;
+
+const NOW = Date.parse('2026-10-08T12:00:00Z');
+const group = (...rules) => ({ kind: 'group', combinator: 'and', negate: false, rules });
+const rule = (field, operator, params = {}) => ({ kind: 'rule', field, operator, params });
+const bucketOf = id => observerBucket(`${setupSettings.policy.bucket_epoch}:${id}`, setupSettings.policy.bucket_count);
+const row = (id, extra = {}) => ({ id, job: `do ${id}`, trigger: 'connect', priority: 5, ...extra });
+
+// Accounts found by their own bucket, so the A/B tests do not depend on luck.
+const ids = Array.from({ length: 400 }, (_, i) => `acct-${i}`);
+const low = ids.find(id => bucketOf(id) < 50);
+const high = ids.find(id => bucketOf(id) >= 50);
+assert.ok(low && high, 'both halves of the test groups have an account');
+
+// A fleet of accounts: each has its own facts and its own store of handoffs (idempotent by once_per), and a count of
+// the facts it was asked for, so a test can show delivery never reads an account that did not connect.
+function fleet(accounts, rows, { now = () => NOW } = {}) {
+  const stores = new Map(Object.keys(accounts).map(id => [id, new Map()]));
+  const asked = [];
+  const delivery = makeWorkDelivery({
+    rowsNow: async () => rows(),
+    factsOf: async accountId => { asked.push(accountId); const a = accounts[accountId]; return accountFacts({ accountId, ...a, createdAt: a.createdAt ?? null }); },
+    matches,
+    handOff: async (accountId, handoff) => { const store = stores.get(accountId); if (!store.has(handoff.once_per)) store.set(handoff.once_per, handoff); },
+    now,
+  });
+  return { delivery, stores, asked, jobs: id => [...stores.get(id).values()].map(handoff => handoff.input.work_for_ais.row).sort() };
+}
+
+test('a row with no audience reaches everyone, once, as a handoff to whichever AI takes it first', async () => {
+  const f = fleet({ a: {}, b: {} }, () => [row('hello')]);
+  assert.deepEqual(await f.delivery.deliver('a'), ['hello']);
+  assert.deepEqual(await f.delivery.deliver('a'), [], 'a second connection hands nothing more');
+  assert.deepEqual(f.jobs('a'), ['hello']);
+  const handoff = [...f.stores.get('a').values()][0];
+  assert.equal(handoff.once_per, 'work-for-ais:hello');
+  assert.equal(handoff.to_agent, undefined, 'no AI is named: whichever takes it first');
+  assert.equal(handoff.job, 'do hello');
+});
+
+test('an audience of one account reaches that account and no other', async () => {
+  const f = fleet({ a: {}, b: {} }, () => [row('just-a', { audience: group(rule('account_id', 'is_any_of', { values: ['a'] })) })]);
+  await f.delivery.deliver('a'); await f.delivery.deliver('b');
+  assert.deepEqual(f.jobs('a'), ['just-a']);
+  assert.deepEqual(f.jobs('b'), [], 'a row for account A never reaches account B');
+});
+
+test('a cohort group and a bucket range (an A/B test) reach exactly their members', async () => {
+  const rows = () => [
+    row('pilot-tour', { audience: group(rule('cohorts', 'has_any_of', { values: ['pilot'] })) }),
+    row('variant-a', { audience: group(rule('bucket', 'between', { min: 0, max: 49 })) }),
+    row('variant-b', { audience: group(rule('bucket', 'between', { min: 50, max: 99 })) }),
+  ];
+  const f = fleet({ [low]: { context: { cohorts: ['pilot'] } }, [high]: { context: { cohorts: ['other'] } } }, rows);
+  await f.delivery.deliver(low); await f.delivery.deliver(high);
+  assert.deepEqual(f.jobs(low), ['pilot-tour', 'variant-a']);
+  assert.deepEqual(f.jobs(high), ['variant-b']);
+});
+
+test('a window holds the row back before it opens, delivers inside it and withdraws it after', async () => {
+  const window = { from: '2026-10-08T10:00:00Z', until: '2026-10-08T14:00:00Z' };
+  const at = ms => { const f = fleet({ a: {} }, () => [row('timed', { window })], { now: () => ms }); return f.delivery.deliver('a').then(() => f.jobs('a')); };
+  assert.deepEqual(await at(Date.parse('2026-10-08T09:59:00Z')), []);
+  assert.deepEqual(await at(Date.parse('2026-10-08T10:00:00Z')), ['timed']);
+  assert.deepEqual(await at(Date.parse('2026-10-08T13:59:00Z')), ['timed']);
+  assert.deepEqual(await at(Date.parse('2026-10-08T14:00:00Z')), []);
+});
+
+test('a row held back by its window arrives on a later connection once the window opens', async () => {
+  let clock = Date.parse('2026-10-08T09:00:00Z');
+  const f = fleet({ a: {} }, () => [row('later', { window: { from: '2026-10-08T10:00:00Z' } })], { now: () => clock });
+  await f.delivery.deliver('a');
+  assert.deepEqual(f.jobs('a'), []);
+  clock = Date.parse('2026-10-08T10:30:00Z');
+  await f.delivery.deliver('a');
+  assert.deepEqual(f.jobs('a'), ['later']);
+});
+
+test('a trigger sets a row off once per account: connect, account-created and setup-unfinished', async () => {
+  const day = 86400000;
+  const rows = () => [row('on-connect'), row('on-new', { trigger: 'account-created' }), row('on-unfinished', { trigger: 'setup-unfinished' })];
+  const f = fleet({ fresh: { createdAt: NOW - day, setupDone: false }, old: { createdAt: NOW - 90 * day, setupDone: true } }, rows);
+  for (const id of ['fresh', 'old', 'fresh', 'old']) await f.delivery.deliver(id);
+  assert.deepEqual(f.jobs('fresh'), ['on-connect', 'on-new', 'on-unfinished']);
+  assert.deepEqual(f.jobs('old'), ['on-connect']);
+  assert.equal(f.stores.get('fresh').size, 3, 'each row is one handoff however often the AI connects');
+});
+
+test('delivery is cached per account and asks only for the account that connected', async () => {
+  let clock = NOW;
+  const f = fleet({ a: {}, b: {}, c: {} }, () => [row('x')], { now: () => clock });
+  await f.delivery.deliver('a'); await f.delivery.deliver('a'); await f.delivery.deliver('a');
+  assert.deepEqual(f.asked, ['a'], 'inside the cache the account is not read again, and no other account is read');
+  clock += (settings.cache_seconds + 1) * 1000;
+  await f.delivery.deliver('a');
+  assert.deepEqual(f.asked, ['a', 'a']);
+  assert.deepEqual(f.jobs('b'), []);
+});
+
+test('a failed handoff is tried again at the account\'s next call', async () => {
+  let fail = true;
+  const made = [];
+  const delivery = makeWorkDelivery({ rowsNow: async () => [row('x')], factsOf: async id => accountFacts({ accountId: id }), matches,
+    handOff: async (id, handoff) => { if (fail) throw new Error('busy'); made.push(handoff.once_per); }, now: () => NOW });
+  await assert.rejects(delivery.deliver('a'), /busy/);
+  fail = false;
+  assert.deepEqual(await delivery.deliver('a'), ['x']);
+  assert.deepEqual(made, ['work-for-ais:x']);
+});
+
+test('the set-up-trillion row reaches an account whose setup is unfinished and not one whose setup is done', async () => {
+  const shipped = SHIPPED_ROWS.find(item => item.id === 'set-up-trillion');
+  assert.equal(shipped.trigger, 'setup-unfinished');
+  assert.equal(shipped.audience.rules[0].field, 'setup_included', 'only plans that include setup');
+  assert.match(shipped.job, /start_setup/);
+  assert.match(shipped.job, /tool:keep-trillion-in-your-instructions/);
+  const f = fleet({ sofus: { setupIncluded: true, setupDone: false }, finished: { setupIncluded: true, setupDone: true }, brandnew: { setupIncluded: true, setupDone: false, createdAt: NOW - 1000 } }, () => SHIPPED_ROWS);
+  for (const id of ['sofus', 'finished', 'brandnew']) await f.delivery.deliver(id);
+  assert.deepEqual(f.jobs('sofus'), ['set-up-trillion']);
+  assert.deepEqual(f.jobs('brandnew'), ['first-matches', 'set-up-trillion'], 'a new account is also asked for its first matches');
+  assert.deepEqual(f.jobs('finished'), []);
+  assert.equal(handoffFor(shipped).priority, 9);
+});
+
+// Matching starts at sign-up: every new account's AI is handed its first matches without the person asking, and an older
+// account is not. The job gathers what matching needs from what the AI already knows, joins the pairings the person may
+// join, asks to meet the best-fitting people in Trillion, and keeps anything sent outside Trillion waiting for approval.
+test('the first-matches row hands every new account\'s AI its first matches, once, in words that pass Trillion\'s copy rules', async () => {
+  const shipped = SHIPPED_ROWS.find(item => item.id === 'first-matches');
+  assert.equal(shipped.trigger, 'account-created');
+  assert.equal(shipped.audience, undefined, 'every new account, on any plan');
+  for (const tool of ['network_profile', 'list_communities', 'set_matching', 'on_my_path', 'find_people', 'request_introduction', 'tool:check-copy']) assert.ok(shipped.job.includes(tool), `the job names ${tool}`);
+  assert.match(shipped.job, /approv/, 'a message to someone outside Trillion waits for the person\'s approval');
+  assert.match(shipped.job, /find_workflow[^.]*outside Trillion[^.]*start_workflow/, 'people outside Trillion are found and written to through a workflow found by its purpose');
+  assert.match(shipped.job, /If none is installed, skip this step/, 'with no such workflow installed the step is skipped, never an error');
+  assert.doesNotMatch(shipped.job, /\bworkflow:[a-z]/, 'the job names no workflow by id');
+  assert.doesNotMatch(shipped.job, /people they follow/, 'it claims no reach Trillion does not have: nothing reads who a person follows');
+  const f = fleet({ fresh: { createdAt: NOW - 3600000 }, older: { createdAt: NOW - (settings.new_account_hours + 1) * 3600000 } }, () => SHIPPED_ROWS);
+  assert.deepEqual(await f.delivery.deliver('fresh'), ['first-matches']);
+  assert.deepEqual(await f.delivery.deliver('fresh'), [], 'once per account');
+  assert.deepEqual(await f.delivery.deliver('older'), []);
+  const copy = JSON.parse(readFileSync(new URL('../records/copy-rules.json', import.meta.url), 'utf8'));
+  assert.deepEqual(findingsInWords(makeJudge(copy.rules)(wordsIn({ said: shipped.said, job: shipped.job }))), []);
+});
+
+test('rows are checked in plain words, and kept rows replace or end shipped ones', () => {
+  assert.throws(() => checkedRow({ id: 'Bad Id', job: 'x' }), /id and a job/);
+  assert.throws(() => checkedRow({ id: 'x', job: 'y', trigger: 'sometimes' }), /connect, account-created, setup-unfinished/);
+  assert.throws(() => checkedRow({ id: 'x', job: 'y', priority: 12 }), /0 to 9/);
+  assert.throws(() => checkedRow({ id: 'x', job: 'y', window: { from: '2026-10-09T00:00:00Z', until: '2026-10-08T00:00:00Z' } }), /ISO times/);
+  assert.throws(() => checkedRow({ id: 'x', job: 'y', audience: { kind: 'rule' } }), /rule group/);
+  assert.deepEqual(checkedRow({ id: 'x', job: ' y ', extra: 1 }), { id: 'x', job: 'y', trigger: 'connect', priority: 5 });
+  const replaced = rowsInForce(SHIPPED_ROWS, [{ id: 'set-up-trillion', job: 'new words', trigger: 'connect' }]);
+  assert.equal(replaced.find(item => item.id === 'set-up-trillion').job, 'new words');
+  assert.deepEqual(rowsInForce(SHIPPED_ROWS, [{ id: 'set-up-trillion', ended_at: 'now' }]).map(item => item.id), ['first-matches']);
+  assert.deepEqual(rowsInForce(SHIPPED_ROWS, [{ id: 'set-up-trillion', ended_at: 'now' }, { id: 'first-matches', ended_at: 'now' }]), []);
+});
+
+test('the operator adds and ends rows at runtime, each in its own book; everyone else is refused', async () => {
+  const { env, rows } = service();
+  const run = (operation, input) => rows[operation](input);
+  const asOperator = request => answerWorkRequest({ operator: true, request, run });
+  const asCustomer = request => answerWorkRequest({ operator: false, request, run });
+
+  const refused = await asCustomer({ operation: 'save', row: row('sneaky') });
+  assert.equal(refused.status, 403);
+  assert.match(refused.body.error, /account that runs Trillion/);
+  assert.equal((await asCustomer({ operation: 'list' })).status, 403, 'a customer cannot read the rows either');
+  assert.deepEqual((await run('list', {})).kept, [], 'nothing was written by the refused request');
+
+  const saved = await asOperator({ operation: 'save', row: row('tour', { said: 'A quick tour', audience: group(rule('bucket', 'between', { min: 0, max: 49 })) }) });
+  assert.equal(saved.status, 200);
+  assert.equal((await asOperator({ operation: 'save', row: { id: 'tour' } })).status, 400);
+  const listed = (await asOperator({ operation: 'list' })).body;
+  assert.deepEqual(listed.in_force.map(item => item.id).sort(), ['first-matches', 'set-up-trillion', 'tour']);
+  await asOperator({ operation: 'end', id: 'tour' });
+  assert.deepEqual((await run('list', {})).in_force.map(item => item.id).sort(), ['first-matches', 'set-up-trillion']);
+  await asOperator({ operation: 'end', id: 'set-up-trillion' });
+  await asOperator({ operation: 'end', id: 'first-matches' });
+  assert.deepEqual((await run('list', {})).in_force, [], 'a shipped row can be ended without a deploy');
+  assert.equal((await asOperator({ operation: 'end', id: 'nothing' })).status, 400);
+  assert.deepEqual(env.RECORD_BOOK.names().filter(name => name.startsWith('work-row:')).sort(), [workRowBookName('first-matches'), workRowBookName('set-up-trillion'), workRowBookName('tour')].sort(),
+    'each row has its own book, and no book is shared by every row');
+});
+
+test('a row saved in its book reaches only its audience, through delivery', async () => {
+  const { rows } = service();
+  await rows.save({ row: row('a-b-test', { audience: group(rule('bucket', 'between', { min: 0, max: 49 })) }) });
+  const f = fleet({ [low]: { setupIncluded: true }, [high]: { setupIncluded: true } }, async () => (await rows.list()).in_force);
+  await f.delivery.deliver(low); await f.delivery.deliver(high);
+  assert.deepEqual(f.jobs(low), ['a-b-test', 'set-up-trillion']);
+  assert.deepEqual(f.jobs(high), ['set-up-trillion']);
+});
+
+test('rowsFor puts the highest priority first and facts read the account only', async () => {
+  const facts = accountFacts({ accountId: low, plan: 'pro', context: { experiments: ['x'] }, operator: true });
+  assert.deepEqual([facts.plan, facts.experiments, facts.operator, facts.bucket, facts.ai_connected], ['pro', ['x'], true, bucketOf(low), true]);
+  const held = await rowsFor({ rows: [row('low', { priority: 1 }), row('high', { priority: 9 })], facts, nowMs: NOW, matches });
+  assert.deepEqual(held.map(item => item.id), ['high', 'low']);
+  const paying = await rowsFor({ rows: [row('pro-only', { audience: group(rule('plan', 'is_any_of', { values: ['pro'] })) })], facts, nowMs: NOW, matches });
+  assert.equal(paying.length, 1);
+});
+
+test('the operator tools and the instruction every AI reads exist', () => {
+  const calls = [];
+  const tools = workForAisTools((path, body) => { calls.push([path, body]); return {}; });
+  assert.deepEqual(tools.map(tool => tool.name), ['read_work_for_ais', 'send_work_to_ais']);
+  tools[0].run(); tools[1].run({ row: row('r') }); tools[1].run({ end_id: 'r' });
+  assert.deepEqual(calls.map(([, body]) => body.operation), ['list', 'save', 'end']);
+  assert.ok(instructions.paragraphs.some(text => /^Work Trillion sent for this person/.test(text) && /finish_work/.test(text)));
+  assert.ok(`${instructions.decide_first} ${instructions.look_first} ${instructions.opening}`.length <= 512);
+});
+
+test('a plan that keeps nothing holds the work an hour and is handed it again once that has run out', async () => {
+  let clock = NOW;
+  const work = liveWork({ sql: sqliteHost(':memory:').sql, now: () => new Date(clock) });
+  const delivery = makeWorkDelivery({ rowsNow: async () => SHIPPED_ROWS, factsOf: async id => accountFacts({ accountId: id, setupIncluded: true, setupDone: false }), matches,
+    handOff: async (id, handoff) => { work.put({ asked_id: handoff.once_per, job: handoff.job, said: handoff.said }); return { live: true }; }, now: () => clock });
+  assert.deepEqual(await delivery.deliver('free'), ['set-up-trillion']);
+  assert.equal(work.list().length, 1);
+  assert.equal(work.list()[0].handoff_id, 'work-for-ais:set-up-trillion');
+  assert.equal(work.take({ agent_id: 'ai' }).handoff.state, 'taken', 'the AI takes it with take_work');
+  clock += 61 * 60 * 1000;
+  assert.deepEqual(work.list(), [], 'an hour on it is gone');
+  assert.deepEqual(await delivery.deliver('free'), ['set-up-trillion'], 'still unfinished, so it is handed again');
+  assert.equal(work.list()[0].state, 'open');
+});
+
+test('native session delivery refuses another AI and erases the job and result at expiry', async () => {
+  let clock = NOW;
+  const host=sqliteHost(':memory:'), work=liveWork({sql:host.sql,now:()=>new Date(clock)});
+  const delivery=makeWorkDelivery({rowsNow:async()=>SHIPPED_ROWS,
+    factsOf:async accountId=>accountFacts({accountId,setupIncluded:true,setupDone:false}),matches,
+    handOff:async(_account,handoff)=>work.put({asked_id:handoff.once_per,job:handoff.job,said:handoff.said,input:handoff.input}),now:()=>clock});
+  assert.deepEqual(await delivery.deliver('native'),['set-up-trillion']);
+  const id=work.list()[0].handoff_id;
+  work.take({agent_id:'first-ai',handoff_id:id});
+  assert.throws(()=>work.finish({agent_id:'other-ai',handoff_id:id,result:'not allowed'}),/Take .* before finishing/);
+  work.finish({agent_id:'first-ai',handoff_id:id,result:'session result'});
+  assert.equal(work.list()[0].result,'session result');
+  clock+=60*60*1000+1;
+  assert.deepEqual(work.list(),[],'expiry erases the job and its result together');
+  assert.equal(work.nextExpiry(),null);
+  host.db.close();
+});
+
+test('an account\'s creation time is its real sign-up record, kept once found, and first-seen only when there is none', async () => {
+  // The delivery's facts (deliveryFacts, read at the account's own records as workForAis:facts): a creation date found in
+  // the sign-up passkeys is kept once, and a known first-seen date reads no passkeys and keeps nothing.
+  const work = { created_at: NOW - 5 * 86400000, created_known: false, plan: 'free', setup_included: false, setup_done: false, operator: false };
+  const kept = [];
+  const signedUp = Date.parse('2026-09-01T00:00:00Z');
+  const found = await deliveryFacts({ accountId: 'a', workFacts: async () => work, passkeys: async () => [{ created_at: '2026-09-01T00:00:00Z' }, { created_at: '2026-09-20T00:00:00Z' }], noteCreated: ms => kept.push(ms) });
+  assert.equal(found.created_at, signedUp, 'the earliest passkey is the creation time');
+  assert.deepEqual(kept, [signedUp], 'and it is kept once');
+  const known = await deliveryFacts({ accountId: 'a', workFacts: async () => ({ ...work, created_at: signedUp, created_known: true }), passkeys: async () => { throw new Error('a known date reads no passkeys'); }, noteCreated: ms => kept.push(ms) });
+  assert.equal(known.created_at, signedUp);
+  assert.equal(kept.length, 1, 'a known date keeps nothing');
+  let passkeyReads = 0;
+  const answer = await createdAtFor({ known: true, firstSeen: NOW - 30 * 86400000, passkeys: async () => { passkeyReads++; return []; } });
+  assert.deepEqual(answer, { createdAt: NOW - 30 * 86400000, found: null });
+  assert.equal(passkeyReads, 0, 'a known first-seen date skips passkey reads');
+  // an old account is not new: 30 days on, only connect and setup-unfinished hold for it
+  assert.deepEqual(triggersFor(accountFacts({ accountId: 'old', createdAt: NOW - 30 * 86400000, setupDone: false }), NOW), ['connect', 'setup-unfinished']);
+});
+
+test('the shipped set-up row reaches only accounts whose plan includes setup, by its audience data', async () => {
+  const f = fleet({ paid: { setupIncluded: true, setupDone: false }, free: { setupIncluded: false, setupDone: false } }, () => SHIPPED_ROWS);
+  assert.deepEqual(await f.delivery.deliver('paid'), ['set-up-trillion']);
+  assert.deepEqual(await f.delivery.deliver('free'), [], 'start_setup is refused on the free plan, so it is not sent');
+  assert.ok(settings.facts.some(fact => fact.id === 'setup_included'));
+  assert.equal(SHIPPED_ROWS.find(item => item.id === 'set-up-trillion').audience.rules[0].field, 'setup_included');
+});
+
+// That held work is listed first, for any AI, is proved on its owner (claims:pendingForReader) in
+// test/standalone-resource-behavior.test.mjs.
+test('initialize hands the work over first, within connect_work_ms', () => {
+  const worker = readFileSync(new URL('../src/worker.mjs', import.meta.url), 'utf8');
+  assert.match(worker, /await answerWithin\(deliver\(\), \{ ms: CONNECT_WORK_MS/);
+  assert.match(worker, /waitingAtConnect\(\{ deliver: \(\) => workForThisAccount/);
+  // What waits for the AI is read from the account's own records (claims:pendingForReader).
+  assert.match(worker, /connectOwner\.execute\('@own-records', 'claims:pendingForReader'/);
+  const facts = readFileSync(new URL('../src/native-show-rules.mjs', import.meta.url), 'utf8');
+  assert.match(facts, /accountPlanFacts\(\(\) => access\) : \{ plan: null, setup_included: null \}/);
+  assert.ok(JSON.parse(readFileSync(new URL('../../../keep-and-wake-ai-sessions-on-this-computer/src/connecting-without-the-store.json', import.meta.url), 'utf8')).connect_work_ms <= 1500);
+});
+
+
+test('overlapping background deliveries share one account run and one shared-row read', async () => {
+  let releaseFacts, releaseRows;
+  const factsHeld = new Promise(resolve => { releaseFacts = resolve; });
+  const rowsHeld = new Promise(resolve => { releaseRows = resolve; });
+  const reads = [], made = [];
+  let rowsRead = 0;
+  const delivery = makeWorkDelivery({ rowsNow: async () => { rowsRead += 1; return rowsHeld; },
+    factsOf: async id => { reads.push(id); await factsHeld; return accountFacts({ accountId: id }); },
+    matches, handOff: async (id, handoff) => { made.push([id, handoff.once_per]); }, now: () => NOW });
+  const first = delivery.deliver('a');
+  assert.equal(delivery.deliver('a'), first, 'one retained promise for an overlapping account');
+  const other = delivery.deliver('b');
+  releaseFacts();
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(reads.sort(), ['a', 'b']);
+  assert.equal(rowsRead, 1, 'different accounts share the unresolved shared-row read');
+  releaseRows([row('one')]);
+  assert.deepEqual(await first, ['one']);
+  assert.deepEqual(await other, ['one']);
+  assert.deepEqual(made.sort(), [['a', 'work-for-ais:one'], ['b', 'work-for-ais:one']]);
+  assert.deepEqual(await delivery.deliver('a'), []);
+  assert.equal(made.length, 2, 'each account receives the handoff exactly once');
+});
+
+test('failed single-flight delivery clears both flights so a later call can recover', async () => {
+  let fail = true, reads = 0, handed = 0;
+  const delivery = makeWorkDelivery({ rowsNow: async () => { reads += 1; if (fail) throw new Error('shared rows temporarily unreadable'); return [row('one')]; },
+    factsOf: async id => accountFacts({ accountId: id }), matches,
+    handOff: async () => { handed += 1; }, now: () => NOW });
+  const first = delivery.deliver('a');
+  const same = delivery.deliver('a');
+  assert.equal(same, first);
+  await assert.rejects(first, /temporarily unreadable/);
+  fail = false;
+  assert.deepEqual(await delivery.deliver('a'), ['one']);
+  assert.deepEqual(await delivery.deliver('a'), []);
+  assert.deepEqual([reads, handed], [2, 1]);
+});

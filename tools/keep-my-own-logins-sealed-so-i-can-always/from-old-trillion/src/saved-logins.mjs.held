@@ -1,0 +1,564 @@
+// src/saved-logins.mjs
+// Owned by the Connections builder (Lane F, 2026-10-01).
+//
+// PURPOSE
+//   A person's own logins (a site's user name, password, notes and any other values), kept so the person can always
+//   see and copy them: Connections works as their password manager, in place of a notes page. Each value is sealed in
+//   the person's locked box (src/held-values.mjs), the same box their connected services' keys live in; only the
+//   login's title, site, user name and the names of its values are kept readable, in this person's own store.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. A value is shown to its owner only when their browser signed in within fresh_minutes (src/sign-in-methods.json):
+//      the Worker checks the session before it asks (src/account-routes.mjs) and this owner checks the sign-in time
+//      again, so neither check alone stands between a value and a browser left signed in.
+//   2. An AI reads a login only when the owner let AIs read that one login, and only with a sign-in that reaches the
+//      private Trillion. The owner lets them in one of two ways: their own screen's switch, or their own words. An AI
+//      may turn reading on only by naming a kept message the person wrote themselves (speaker person, its source not
+//      corrected away) and quoting the words in it that give the permission (`grant`); the quote must be in that
+//      message, word for word. The message must also have been captured by a verified road (`capturedByVerifiedRoad`):
+//      the transcript hook or another carrier's door, or text typed on the person's signed-in page. A message an AI
+//      wrote through record_messages, send_to_all_ais, a rule or a chat import is refused, so an AI cannot write the
+//      person's consent for itself. The grant is kept with that message and quote, shown on Connections beside the switch,
+//      and a grant over all logins also covers logins kept later, so permission given once is never asked for again.
+//      Turning reading off never needs a grant, and the person's own Stop on all logins ends the standing grant.
+//   3. Every time a value is shown, to the owner or to an AI, one row is written in the same call that reads it, and
+//      the login lists those rows. A value is never written to a log, an error message, a URL or any other table.
+//   4. A change is all or nothing: a save, import or removal that fails part-way leaves the box and the tables exactly
+//      as they were (the box is opened again from the snapshot taken before; the tables roll back).
+//   5. Nothing here names a site, a field or a password manager: what a pasted export's columns mean, and which words
+//      mark a value in a pasted outline, are DATA (src/saved-logins.json).
+//
+// KEY CONCEPTS
+//   login     { login_id, title, site, user_name, ai_can_read, fields: [{ field_id, label, shown }] }
+//   grant     { grant_id, all, message_id, quote, by_app, granted_at, ended_at }: the person's own words letting AIs read
+//   value     sealed in the box under `saved-login-<login_id>-<field_id>`
+//   shown     { count, last: { at, by_kind: 'person' | 'ai', by_name } }: the reveal record of one value
+//
+// SECURITY
+//   Sealing is the box's own (a key derived per person from the bound root key). Everything readable here is what the
+//   person would put in a list: titles, sites, user names and value names. The 2 MB limit of the one Durable Object row
+//   that holds the sealed box is kept by max_sealed_bytes, so a save that would overflow it is refused whole.
+//
+import settings from '../../../saved-logins/src/saved-logins.json' with { type: 'json' };
+import { isFreshSignIn } from './sign-in-methods.mjs';
+
+export const SAVED_LOGINS = settings;
+
+/** The words at `key`, filled from `values`. */
+export const loginsSaid = (key, values = {}) => settings.words[key].replace(/\{(\w+)\}/g, (whole, name) => String(values[name] ?? whole));
+
+/** A refusal the person can act on: its words, its status, and whether signing in again is the way past it. */
+export class SavedLoginRefused extends Error {
+  constructor(key, values = {}, { status = 400, sign_in_again = false } = {}) {
+    super(loginsSaid(key, values));
+    this.name = 'SavedLoginRefused';
+    this.status = status;
+    this.sign_in_again = sign_in_again;
+  }
+}
+
+const valueName = (loginId, fieldId) => `saved-login-${loginId}-${fieldId}`;
+const hex = bytes => Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+const text = value => (typeof value === 'string' ? value.trim() : value === undefined || value === null ? '' : String(value).trim());
+const sameLabel = (left, right) => left.toLowerCase() === right.toLowerCase();
+const DOMAIN = /\b((?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z]{2,})\b/i;
+/** The site's host name, read from an address or from words that hold one ("namecheap.com (domain host)"). */
+export const hostIn = value => {
+  const given = text(value);
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(given) && URL.canParse(given)) return new URL(given).hostname.toLowerCase();
+  return DOMAIN.exec(given)?.[1]?.toLowerCase() ?? null;
+};
+
+// The plain columns a check may read (never fields, the sealed values).
+const factColumns = ['id', 'title', 'site', 'ai_can_read'];
+export function createSavedLoginTables(sql) {
+  sql.exec('CREATE TABLE IF NOT EXISTS saved_logins (id TEXT PRIMARY KEY, title TEXT NOT NULL, site TEXT, user_name TEXT, fields TEXT NOT NULL, ai_can_read INTEGER NOT NULL DEFAULT 0, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)');
+  sql.exec('CREATE TABLE IF NOT EXISTS saved_login_reveals (seq INTEGER PRIMARY KEY AUTOINCREMENT, login_id TEXT NOT NULL, field_id TEXT NOT NULL, by_kind TEXT NOT NULL, by_name TEXT, at TEXT NOT NULL)');
+  sql.exec('CREATE INDEX IF NOT EXISTS saved_login_reveals_by_value ON saved_login_reveals (login_id, field_id, seq)');
+  // How many times each value was shown and the newest of those, kept as it is shown (show), so listing the logins never
+  // counts the reveal rows. Made once, from the reveals already kept, the first time the table is created.
+  const tallied = sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'saved_login_shown'").toArray().length > 0;
+  sql.exec('CREATE TABLE IF NOT EXISTS saved_login_shown (login_id TEXT NOT NULL, field_id TEXT NOT NULL, count INTEGER NOT NULL, last_at TEXT NOT NULL, last_by_kind TEXT NOT NULL, last_by_name TEXT, PRIMARY KEY (login_id, field_id))');
+  if (!tallied) sql.exec('INSERT INTO saved_login_shown (login_id, field_id, count, last_at, last_by_kind, last_by_name) SELECT r.login_id, r.field_id, c.count, r.at, r.by_kind, r.by_name FROM saved_login_reveals r JOIN (SELECT login_id, field_id, COUNT(*) AS count, MAX(seq) AS last FROM saved_login_reveals GROUP BY login_id, field_id) c ON r.seq = c.last');
+  sql.exec('CREATE TABLE IF NOT EXISTS saved_login_grants (id TEXT PRIMARY KEY, all_logins INTEGER NOT NULL, login_ids TEXT, message_id TEXT NOT NULL, quote TEXT NOT NULL, by_app TEXT, granted_at TEXT NOT NULL, ended_at TEXT)');
+}
+
+const squeezed = value => String(value ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+/**
+ * Whether a kept message was captured by a road only the person's own typing can use, never written by an AI.
+ * The message store sets captured_road on every message it keeps (src/messages.mjs record), from how the words came in
+ * and never from the sender; settings.grant_verified_roads names the roads that count. A message kept before that field
+ * existed has none: it counts only when nothing marks it as sent by an AI app (no recorded_by, no recorded_app), which
+ * every AI-callable road has always added and the transcript hook's road (/inbound) has never added.
+ */
+export function capturedByVerifiedRoad(message) {
+  if (typeof message?.captured_road === 'string') return settings.grant_verified_roads.includes(message.captured_road);
+  return !message?.recorded_by && !message?.recorded_app;
+}
+
+/** Whether `message` (a kept message record) is the person's own and holds `quote` word for word. → null or the refusal key. */
+export function grantRefusal(message, quote) {
+  if (!message || message.speaker !== 'person') return 'grant_not_person';
+  if (message.source_provenance?.valid === false) return 'grant_not_person';
+  if (!capturedByVerifiedRoad(message)) return 'grant_not_captured';
+  const words = squeezed(quote);
+  if (words.split(' ').length < settings.grant_quote_min_words) return 'grant_quote_short';
+  if (!squeezed(message.text).includes(words)) return 'grant_quote_missing';
+  return null;
+}
+
+/** A login as given (from a form, a tool or a pasted line), checked and shaped: { title, site, user_name, fields }. */
+export function shapedLogin(input) {
+  const site = text(input?.site);
+  const title = text(input?.title) || hostIn(site) || site;
+  if (!title) throw new SavedLoginRefused('no_name');
+  const fields = [];
+  for (const field of Array.isArray(input?.fields) ? input.fields : []) {
+    const label = text(field?.label) || settings.password_label;
+    const value = typeof field?.value === 'string' ? field.value : field?.value === undefined || field?.value === null ? '' : String(field.value);
+    if (!value.trim()) continue;
+    if (value.length > settings.max_value_chars) throw new SavedLoginRefused('too_long', { field: label, max: settings.max_value_chars });
+    const at = fields.findIndex(kept => sameLabel(kept.label, label));
+    if (at === -1) fields.push({ label, value }); else fields[at] = { label, value };
+  }
+  if (!fields.length) throw new SavedLoginRefused('no_values');
+  if (fields.length > settings.max_fields) throw new SavedLoginRefused('too_many_fields', { max: settings.max_fields });
+  return { title, site: site || null, user_name: text(input?.user_name) || null, fields };
+}
+
+/** The Save a login boxes as a login: the password and notes boxes, and one "Name: value" per line of the other box. */
+export function loginFromForm(values = {}) {
+  const fields = [
+    { label: settings.password_label, value: values.password },
+    { label: settings.notes_label, value: values.notes },
+    ...String(values.other ?? '').split(/\r?\n/).map(line => {
+      const at = line.indexOf(':');
+      return at > 0 ? { label: line.slice(0, at), value: line.slice(at + 1).trim() } : { label: '', value: line };
+    }),
+  ];
+  return shapedLogin({ site: values.site, user_name: values.user_name, fields });
+}
+
+// ---- Reading a pasted export ----
+
+/** RFC 4180 rows: quoted cells may hold the delimiter, doubled quotes and line breaks. */
+function csvRows(source, delimiter) {
+  const rows = [];
+  let row = [];
+  let cell = '';
+  let quoted = false;
+  for (let at = 0; at < source.length; at += 1) {
+    const char = source[at];
+    if (quoted) {
+      if (char === '"' && source[at + 1] === '"') { cell += '"'; at += 1; } else if (char === '"') quoted = false; else cell += char;
+    } else if (char === '"' && cell === '') quoted = true;
+    else if (char === delimiter) { row.push(cell); cell = ''; } else if (char === '\n' || char === '\r') {
+      if (char === '\r' && source[at + 1] === '\n') at += 1;
+      row.push(cell); rows.push(row); row = []; cell = '';
+    } else cell += char;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  return rows.filter(cells => cells.some(value => value.trim()));
+}
+
+const columnsIn = (list, header) => list.includes(header);
+const roleOf = header => Object.entries(settings.import.columns).find(([, names]) => columnsIn(names, header))?.[0] ?? null;
+const capitalised = label => label.charAt(0).toUpperCase() + label.slice(1);
+
+/** A CSV export, when the first line is a header that names a site, a user name or a password column; else null. */
+function readCsv(source) {
+  const firstLine = source.split(/\r?\n/).find(line => line.trim()) ?? '';
+  const delimiter = [',', '\t', ';'].map(mark => [mark, firstLine.split(mark).length]).sort((left, right) => right[1] - left[1])[0][0];
+  const rows = csvRows(source, delimiter);
+  if (rows.length < 1) return null;
+  const headers = rows[0].map(cell => cell.trim().toLowerCase());
+  const known = headers.filter(header => roleOf(header) || columnsIn(settings.import.password_columns, header));
+  if (headers.length < 2 || !known.length) return null;
+  const logins = [];
+  const skipped = [];
+  rows.slice(1).forEach((cells, index) => {
+    const login = { fields: [] };
+    headers.forEach((header, column) => {
+      const value = cells[column] ?? '';
+      if (!header || columnsIn(settings.import.ignored, header)) return;
+      const role = roleOf(header);
+      if (role) { if (!text(login[role])) login[role] = value; return; }
+      const label = columnsIn(settings.import.password_columns, header) ? settings.password_label
+        : columnsIn(settings.import.notes_columns, header) ? settings.notes_label : capitalised(rows[0][column].trim());
+      login.fields.push({ label, value });
+    });
+    try { logins.push(shapedLogin(login)); } catch (error) { skipped.push({ line: index + 2, why: error.message }); }
+  });
+  return { logins, skipped };
+}
+
+// An outline written with HTML toggles (a page export): the opening and closing toggle marks and the toggle's name.
+// Written with \x3c so no markup text sits in this file.
+const TOGGLE_MARK = /\x3c\/?details|\x3csummary/i;
+const TOGGLE_PARTS = /(?=\x3cdetails|\x3c\/details>|\x3csummary)/i;
+const OPENS = /^\x3cdetails[^>]*>/i;
+const CLOSES = /^\x3c\/details>/i;
+const NAMED = /^\x3csummary[^>]*>([\s\S]*?)(?:\x3c\/summary>|$)/i;
+const ANY_MARK = /\x3c[^>]+>/g;
+const ENTITIES = { amp: '&', lt: '\x3c', gt: '>', quot: '"', apos: "'", nbsp: ' ', '#39': "'" };
+const decoded = value => value.replace(/&(amp|lt|gt|quot|apos|nbsp|#39);/g, (whole, name) => ENTITIES[name]);
+const BULLET = /^(?:[-*+•‣◦▪▶▸▹►▾▼]|\d+[.)]|\[[ xX]?\])\s+/;
+
+/** Lines of an outline (a page copied whole, or its export) as a tree: indentation, HTML toggles and bullets all give
+ *  the same nesting. */
+export function outlineTree(source) {
+  const root = { text: '', children: [] };
+  const stack = [{ indent: -1, node: root }];
+  let opened = 0;
+  const place = (line, indent) => {
+    const node = { text: decoded(line.replace(ANY_MARK, '').trim().replace(BULLET, '')).trim(), children: [] };
+    if (!node.text) return;
+    while (stack.length > 1 && stack.at(-1).indent >= indent) stack.pop();
+    stack.at(-1).node.children.push(node);
+    stack.push({ indent, node });
+  };
+  for (const raw of source.split(/\r?\n/)) {
+    if (!raw.trim()) continue;
+    if (TOGGLE_MARK.test(raw)) {
+      // Each toggle's name sits one level inside the toggles still open; a closing mark closes one.
+      for (const part of raw.split(TOGGLE_PARTS)) {
+        if (OPENS.test(part)) { opened += 1; place(part.replace(OPENS, ''), opened * 1000); } else if (CLOSES.test(part)) {
+          opened = Math.max(0, opened - 1);
+          place(part.replace(CLOSES, ''), opened * 1000 + 1);
+        } else if (NAMED.test(part)) {
+          place(NAMED.exec(part)[1], opened * 1000 - 1);
+          place(part.replace(NAMED, ''), opened * 1000);
+        } else place(part, opened * 1000);
+      }
+      continue;
+    }
+    const lead = /^[\t ]*/.exec(raw)[0];
+    const indent = [...lead].reduce((width, char) => width + (char === '\t' ? 4 : 1), 0) + opened * 1000;
+    place(raw, indent);
+  }
+  return root;
+}
+
+const isLeaf = node => node.children.length === 0;
+const holdsLines = node => !isLeaf(node) && node.children.every(isLeaf);
+const marksAValue = label => label.toLowerCase().split(/[^a-z0-9]+/).some(word => settings.import.field_words.includes(word));
+const looksLikeAUserName = line => !/\s/.test(line);
+
+/** The logins in an outline: a service is a toggle whose children are lines or toggles holding lines. Under it, a
+ *  toggle whose name marks a value (field_words) is that value; any other toggle is a user name whose lines are its
+ *  password; plain lines are notes, except a lone user name kept beside a value toggle. A group of services (a
+ *  letter) is read through. */
+function readOutline(source) {
+  const logins = [];
+  const skipped = [];
+  const service = node => {
+    const users = [];
+    const values = [];
+    const lines = [];
+    for (const item of node.children) {
+      if (isLeaf(item)) { lines.push(item.text); continue; }
+      const value = item.children.map(line => line.text).join('\n');
+      if (marksAValue(item.text)) values.push({ label: item.text, value }); else users.push({ user_name: item.text, password: value });
+    }
+    let userName = null;
+    if (!users.length && values.length) {
+      const at = lines.findIndex(looksLikeAUserName);
+      if (at !== -1) userName = lines.splice(at, 1)[0];
+    }
+    const notes = lines.length ? [{ label: settings.notes_label, value: lines.join('\n') }] : [];
+    const site = hostIn(node.text);
+    const made = users.length
+      ? users.map((user, index) => ({ title: node.text, site, user_name: user.user_name, fields: [{ label: settings.password_label, value: user.password }, ...(index === 0 ? [...values, ...notes] : [])] }))
+      : [{ title: node.text, site, user_name: userName, fields: [...values, ...notes] }];
+    for (const login of made) {
+      try { logins.push(shapedLogin(login)); } catch (error) { skipped.push({ line: node.text, why: error.message }); }
+    }
+  };
+  const walk = node => {
+    for (const child of node.children) {
+      if (isLeaf(child)) continue;
+      if (child.children.every(item => isLeaf(item) || holdsLines(item))) service(child); else walk(child);
+    }
+  };
+  walk(outlineTree(source));
+  return { logins, skipped };
+}
+
+/** The logins in a pasted export: a CSV with a header row, else an outline. */
+export function readPastedLogins(source) {
+  const pasted = String(source ?? '');
+  if (pasted.length > settings.max_paste_chars) throw new SavedLoginRefused('paste_too_long', { max: settings.max_paste_chars });
+  const read = readCsv(pasted) ?? readOutline(pasted);
+  if (read.logins.length > settings.max_import_logins) throw new SavedLoginRefused('too_many_in_paste', { max: settings.max_import_logins });
+  return read;
+}
+
+// ---- The owner ----
+
+/**
+ * sql:         this person's SQLite (`exec(query, ...params).toArray()`)
+ * transaction: runs a function as one SQL transaction
+ * locked:      () => this person's opened locked box (src/held-values.mjs openLockedBox)
+ * message:     id => this person's kept message record or null (the person's own words a grant names)
+ * beforeCommit: optional current-rights check after awaited vault work, before a synchronous change or reveal
+ * onCommit:    optional synchronous, secret-free mutation receipt, written in the domain's transaction
+ * now, random: the clock and random bytes, given so tests can fix them
+ */
+export function makeSavedLogins({ sql, transaction, locked, message = () => null, beforeCommit = null, onCommit = null, now = () => new Date(), random = count => crypto.getRandomValues(new Uint8Array(count)) }) {
+  createSavedLoginTables(sql);
+  const rowOf = id => sql.exec('SELECT * FROM saved_logins WHERE id = ?', String(id ?? '')).toArray()[0] ?? null;
+  const fieldsOf = row => JSON.parse(row.fields);
+  const found = id => {
+    const row = rowOf(id);
+    if (!row) throw new SavedLoginRefused('not_found', {}, { status: 404 });
+    return row;
+  };
+  const sameLogin = login => sql.exec('SELECT * FROM saved_logins WHERE title = ? COLLATE NOCASE', login.title).toArray()
+    .find(row => sameLabel(row.user_name ?? '', login.user_name ?? '')) ?? null;
+  const committed = (result, action) => {
+    const receipt = onCommit?.(result, action);
+    if (receipt && typeof receipt.then === 'function') throw new TypeError('A saved-login mutation receipt must be synchronous with its change.');
+    return result;
+  };
+  const assertAiReadAllowed = (loginId, { reach } = {}) => {
+    if (!reach?.private) throw new SavedLoginRefused('ai_private_only', {}, { status: 403 });
+    const row = found(loginId);
+    if (row.ai_can_read !== 1) throw new SavedLoginRefused('ai_not_allowed', {}, { status: 403 });
+    return row;
+  };
+  const assertOwnerRevealAllowed = (loginId, fieldId, {signed_in_at, method = null} = {}) => {
+    if (!isFreshSignIn({created_at: signed_in_at, method}, now().getTime())) throw new SavedLoginRefused('sign_in_again', {}, {status: 403, sign_in_again: true});
+    const row = found(loginId), field = fieldsOf(row).find(item => item.field_id === String(fieldId ?? ''));
+    if (!field) throw new SavedLoginRefused('field_not_found', {}, {status: 404});
+    return {row, field};
+  };
+
+  // One login into the box and the table, joining the login with the same title and user name: a value whose name it
+  // already has is replaced, a new one is added, and the others stay. Runs inside a change (`change`).
+  function put(box, login) {
+    const before = sameLogin(login);
+    const id = before?.id ?? hex(random(8));
+    const fields = before ? fieldsOf(before) : [];
+    for (const { label, value } of login.fields) {
+      let field = fields.find(kept => sameLabel(kept.label, label));
+      if (!field) { field = { field_id: hex(random(4)), label }; fields.push(field); }
+      box.write(valueName(id, field.field_id), value);
+    }
+    if (fields.length > settings.max_fields) throw new SavedLoginRefused('too_many_fields', { max: settings.max_fields });
+    const at = now().toISOString();
+    sql.exec('INSERT INTO saved_logins (id, title, site, user_name, fields, ai_can_read, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET title = excluded.title, site = COALESCE(excluded.site, saved_logins.site), user_name = excluded.user_name, fields = excluded.fields, updated_at = excluded.updated_at',
+      id, login.title, login.site, login.user_name, JSON.stringify(fields), standingGrant() ? 1 : 0, at, at);
+    return { login_id: id, replaced: Boolean(before) };
+  }
+
+  // A change to the box and the tables, all or nothing; a box past max_sealed_bytes is refused before it is kept.
+  async function change(work) {
+    const box = await locked();
+    if (beforeCommit) await beforeCommit();
+    const before = box.snapshot();
+    try {
+      return transaction(() => {
+        const result = work(box);
+        if ((box.snapshot()?.length ?? 0) > settings.max_sealed_bytes) throw new SavedLoginRefused('box_full', {}, { status: 413 });
+        return result;
+      });
+    } catch (error) {
+      await box.restore(before);
+      throw error;
+    }
+  }
+
+  // The value's words, read out of the box, and one reveal row for it.
+  async function show(row, field, by, assertAllowed) {
+    const box = await locked();
+    if (beforeCommit) await beforeCommit();
+    assertAllowed();
+    const name = valueName(row.id, field.field_id);
+    if (!box.exists(name)) throw new SavedLoginRefused('field_not_found', {}, { status: 404 });
+    const [mounted] = await box.box.mount([{ secret_name: name, mount_path: name }]);
+    if (beforeCommit) await beforeCommit();
+    assertAllowed();
+    const at = now().toISOString();
+    sql.exec('INSERT INTO saved_login_reveals (login_id, field_id, by_kind, by_name, at) VALUES (?, ?, ?, ?, ?)', row.id, field.field_id, by.kind, by.name ?? null, at);
+    sql.exec('INSERT INTO saved_login_shown (login_id, field_id, count, last_at, last_by_kind, last_by_name) VALUES (?, ?, 1, ?, ?, ?) ON CONFLICT (login_id, field_id) DO UPDATE SET count = count + 1, last_at = excluded.last_at, last_by_kind = excluded.last_by_kind, last_by_name = excluded.last_by_name', row.id, field.field_id, at, by.kind, by.name ?? null);
+    return new TextDecoder().decode(mounted.source.bytes);
+  }
+
+  const grantOf = row => (!row ? null : { grant_id: row.id, all: row.all_logins === 1, ...(row.login_ids ? { login_ids: JSON.parse(row.login_ids) } : {}),
+    message_id: row.message_id, quote: row.quote, by_app: row.by_app, granted_at: row.granted_at, ended_at: row.ended_at });
+  // The person's grant over all their logins that is still in force, or null.
+  const standingGrant = () => grantOf(sql.exec('SELECT * FROM saved_login_grants WHERE all_logins = 1 AND ended_at IS NULL ORDER BY granted_at DESC LIMIT 1').toArray()[0]);
+  const grants = () => sql.exec('SELECT * FROM saved_login_grants ORDER BY granted_at DESC').toArray().map(grantOf);
+
+  function list() {
+    // reads-ok: one summary per field of the returned login list, excluding unrelated reveal history.
+    const shownRows = sql.exec('SELECT login_id, field_id, count, last_at, last_by_kind, last_by_name FROM saved_login_shown WHERE login_id IN (SELECT id FROM saved_logins)').toArray();
+    const shown = new Map(shownRows.map(row => [`${row.login_id}:${row.field_id}`, { count: row.count, last: { at: row.last_at, by_kind: row.last_by_kind, by_name: row.last_by_name } }]));
+    return sql.exec('SELECT * FROM saved_logins ORDER BY title COLLATE NOCASE, user_name COLLATE NOCASE').toArray().map(row => ({
+      login_id: row.id, title: row.title, site: row.site, user_name: row.user_name, ai_can_read: row.ai_can_read === 1,
+      created_at: row.created_at, updated_at: row.updated_at,
+      fields: fieldsOf(row).map(field => ({ field_id: field.field_id, label: field.label, shown: shown.get(`${row.id}:${field.field_id}`) ?? { count: 0, last: null } })),
+    }));
+  }
+
+  // A narrow read for what checks a login (src/done-when.mjs), made in SQL: only the plain columns asked for, never `fields`
+  // (the sealed values and their labels, the heavy column) or the reveal log. `columns` is { name: column } over
+  // `factColumns`; it counts first and answers { count } alone when there are more than `limit` (nothing is loaded).
+  function facts(columns, limit) {
+    const wanted = Object.entries(columns ?? {}).filter(([, column]) => factColumns.includes(column));
+    const count = sql.exec('SELECT COUNT(*) AS n FROM saved_logins').toArray()[0]?.n ?? 0;
+    if (count > limit || !wanted.length) return { count, rows: [] };
+    const rows = sql.exec(`SELECT ${[...new Set(wanted.map(([, column]) => column))].join(', ')} FROM saved_logins`).toArray();
+    return { count, rows: rows.map(row => Object.fromEntries(wanted.map(([name, column]) => [name, column === 'ai_can_read' ? row[column] === 1 : row[column]]))) };
+  }
+
+  // The titles of the logins whose title appears in `words` (any case), found in SQL: only id and title of the matches
+  // come back, so a row's words that quote one login load that login, not all of them (a Waiting on you row links the
+  // login its words quote; the caller then checks the title is quoted whole).
+  function titlesIn(words) {
+    const given = String(words ?? '');
+    if (!given.trim()) return [];
+    return sql.exec("SELECT id, title FROM saved_logins WHERE length(trim(title)) > 0 AND instr(lower(?), lower(trim(title))) > 0", given).toArray().map(row => ({ login_id: row.id, title: row.title }));
+  }
+
+  return {
+    list,
+    facts,
+    titlesIn,
+    grants,
+    standingGrant,
+    // A protected native result carrier rechecks this before returning a cached read,
+    // without opening the vault or recording another reveal.
+    assertAiReadAllowed(loginId, who) { assertAiReadAllowed(loginId, who); },
+    assertOwnerRevealAllowed(loginId, fieldId, who) { assertOwnerRevealAllowed(loginId, fieldId, who); },
+    // An AI turning reading on from the person's own words: { all } or { login_ids }, approval_message_id and quote.
+    grant({ all = false, login_ids = [], approval_message_id, quote } = {}, { app = null, reach } = {}) {
+      if (!reach?.private) throw new SavedLoginRefused('ai_private_only', {}, { status: 403 });
+      const refusal = grantRefusal(message(String(approval_message_id ?? '')), quote);
+      if (refusal) throw new SavedLoginRefused(refusal, { min: settings.grant_quote_min_words }, { status: 403 });
+      const rows = all ? sql.exec('SELECT id, title FROM saved_logins').toArray() : [...new Set((Array.isArray(login_ids) ? login_ids : []).map(String))].map(found);
+      if (!all && !rows.length) throw new SavedLoginRefused('not_found', {}, { status: 404 });
+      const at = now().toISOString();
+      const id = hex(random(8));
+      return transaction(() => {
+        if (all) sql.exec('UPDATE saved_login_grants SET ended_at = ? WHERE all_logins = 1 AND ended_at IS NULL', at);
+        sql.exec('INSERT INTO saved_login_grants (id, all_logins, login_ids, message_id, quote, by_app, granted_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          id, all ? 1 : 0, all ? null : JSON.stringify(rows.map(row => row.id)), String(approval_message_id), String(quote).trim(), app, at);
+        for (const row of rows) sql.exec('UPDATE saved_logins SET ai_can_read = 1, updated_at = ? WHERE id = ?', at, row.id);
+        const said = all ? loginsSaid('ai_granted_all', { count: rows.length }) : rows.length === 1 ? loginsSaid('ai_on', { title: rows[0].title }) : loginsSaid('ai_on_many', { count: rows.length });
+        return committed({ changed: rows.length, ai_can_read: true, grant: grantOf(sql.exec('SELECT * FROM saved_login_grants WHERE id = ?', id).toArray()[0]), said }, 'grant');
+      });
+    },
+    async save(input) {
+      const login = shapedLogin(input);
+      return change(box => committed({ ...put(box, login), title: login.title, said: loginsSaid('saved', { title: login.title }) }, 'save'));
+    },
+    async import(source) {
+      const { logins, skipped } = readPastedLogins(source);
+      if (!logins.length) throw new SavedLoginRefused('nothing_imported');
+      return change(box => {
+        const results = logins.map(login => put(box, login));
+        const replaced = results.filter(result => result.replaced).length;
+        const saved = results.length;
+        const said = loginsSaid('imported', { saved, logins: saved === 1 ? 'login' : 'logins', replaced: replaced ? loginsSaid('imported_replaced', { count: replaced }) : '' })
+          + (skipped.length ? loginsSaid('imported_skipped', { count: skipped.length, lines: skipped.length === 1 ? 'line was' : 'lines were', why: skipped.slice(0, 3).map(item => `${item.line}: ${item.why}`).join('; ') }) : '');
+        return committed({ saved, replaced, skipped, said }, 'import');
+      });
+    },
+    // A retiring store's archived box and its login rows, carried into this live box (the operator's one-time import,
+    // admitted only by src/native-saved-logins-owner.mjs with keyed service claims). `archived` is an opened archived box
+    // (src/held-values.mjs openArchivedBox). Each archived value whose name this box lacks is written here, sealed under
+    // this box's own key; a name this box already holds keeps the live value, and a different archived value under it is
+    // named in `clashes` (never its value). A login row joins only under an id this store does not hold, with AI reading
+    // as this store's standing grant says (grants are rights, moved by their own owner). All or nothing, as every change.
+    async mergeArchived(archived, logins = [], snapshot = null) {
+      const rows = (Array.isArray(logins) ? logins : []).filter(row => typeof row?.id === 'string' && row.id && typeof row.title === 'string' && row.title
+        && typeof row.fields === 'string' && (() => { try { return Array.isArray(JSON.parse(row.fields)); } catch { return false; } })());
+      return change(box => {
+        const result = { snapshot, carried: 0, already: 0, clashes: [], logins_added: 0, logins_kept_live: 0, logins_refused: (logins?.length ?? 0) - rows.length };
+        for (const name of archived.names()) {
+          if (!box.exists(name)) { box.write(name, archived.reveal(name)); result.carried++; }
+          else if (box.reveal(name) === archived.reveal(name)) result.already++;
+          else result.clashes.push(name);
+        }
+        for (const row of rows) {
+          if (rowOf(row.id)) { result.logins_kept_live++; continue; }
+          const at = now().toISOString();
+          sql.exec('INSERT INTO saved_logins (id, title, site, user_name, fields, ai_can_read, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            row.id, row.title, row.site ?? null, row.user_name ?? null, row.fields, standingGrant() ? 1 : 0, row.created_at ?? at, row.updated_at ?? at);
+          result.logins_added++;
+        }
+        return committed(result, 'merge-archived');
+      });
+    },
+    // The owner's own browser: refused unless it signed in within fresh_minutes.
+    async revealToOwner(loginId, fieldId, { signed_in_at, device = null, method = null }) {
+      const assertAllowed = () => assertOwnerRevealAllowed(loginId, fieldId, {signed_in_at, method});
+      const {row, field} = assertAllowed();
+      const value = await show(row, field, { kind: 'person', name: device }, assertAllowed);
+      return { title: row.title, label: field.label, value };
+    },
+    // An AI with this person's key: only a login the owner let AIs read, and only a sign-in that reaches private Trillion.
+    async readForAi(loginId, { app = null, reach }) {
+      const assertAllowed = () => assertAiReadAllowed(loginId, { reach });
+      const row = assertAllowed();
+      const values = [];
+      for (const field of fieldsOf(row)) values.push({ label: field.label, value: await show(row, field, { kind: 'ai', name: app }, assertAllowed) });
+      assertAllowed();
+      return { login_id: row.id, title: row.title, site: row.site, user_name: row.user_name, values };
+    },
+    // The person's own switch, for one login, the ones they picked (`login_ids`) or every login they keep (`all`), as one
+    // change. Each AI read stays listed under its login (show).
+    setAiCanRead({ login_ids = [], all = false } = {}, on) {
+      const rows = all ? sql.exec('SELECT id, title FROM saved_logins').toArray() : [...new Set(login_ids.map(String))].map(found);
+      if (!rows.length) throw new SavedLoginRefused('not_found', {}, { status: 404 });
+      const at = now().toISOString();
+      return transaction(() => {
+        for (const row of rows) sql.exec('UPDATE saved_logins SET ai_can_read = ?, updated_at = ? WHERE id = ?', on ? 1 : 0, at, row.id);
+        if (all && !on) sql.exec('UPDATE saved_login_grants SET ended_at = ? WHERE all_logins = 1 AND ended_at IS NULL', at);
+        const said = rows.length === 1 ? loginsSaid(on ? 'ai_on' : 'ai_off', { title: rows[0].title }) : loginsSaid(on ? 'ai_on_many' : 'ai_off_many', { count: rows.length });
+        return committed({ changed: rows.length, ai_can_read: Boolean(on), said }, 'ai');
+      });
+    },
+    async remove(loginId) {
+      found(loginId);
+      return change(box => {
+        const row = found(loginId);
+        for (const field of fieldsOf(row)) if (box.exists(valueName(row.id, field.field_id))) box.remove(valueName(row.id, field.field_id));
+        sql.exec('DELETE FROM saved_login_reveals WHERE login_id = ?', row.id);
+        sql.exec('DELETE FROM saved_login_shown WHERE login_id = ?', row.id);
+        sql.exec('DELETE FROM saved_logins WHERE id = ?', row.id);
+        return committed({ login_id: row.id, removed: true, said: loginsSaid('removed', { title: row.title }) }, 'remove');
+      });
+    },
+  };
+}
+
+// ---- The person store's route for AIs (MCP tools in src/saved-logins-tools.mjs) ----
+
+export const isSavedLoginsPath = path => path === '/saved-logins';
+
+/** GET lists (no values) and the standing grant. POST { save } keeps one login, { import } reads a paste, { read } is an
+ *  AI's read of one login the owner let AIs read, { grant } turns reading on from the person's own words, { stop } turns
+ *  reading off ({ all } or { login_ids }; never needs a grant). `who` is { app, reach } from the request's own headers. */
+export async function handleSavedLoginsRequest(owner, request, who) {
+  try {
+    if (request.method === 'GET') return Response.json({ logins: owner.list(), ai_read_grant: owner.standingGrant() });
+    if (request.method !== 'POST') return Response.json({ error: 'Not found' }, { status: 404 });
+    const raw = await request.text();
+    if (raw.length > settings.max_paste_chars + 10_000) throw new SavedLoginRefused('paste_too_long', { max: settings.max_paste_chars });
+    const input = JSON.parse(raw || '{}');
+    if (input.read !== undefined) return Response.json(await owner.readForAi(input.read, who));
+    if (input.import !== undefined) return Response.json(await owner.import(input.import));
+    if (input.save !== undefined) return Response.json(await owner.save(input.save));
+    if (input.grant !== undefined) return Response.json(await owner.grant(input.grant, who));
+    if (input.stop !== undefined) return Response.json(await owner.setAiCanRead(input.stop, false));
+    return Response.json({ error: 'Send save, import, read, grant or stop.' }, { status: 400 });
+  } catch (error) {
+    // Only this owner's own words go back; nothing a value could be in.
+    if (error instanceof SavedLoginRefused) return Response.json({ error: error.message }, { status: error.status });
+    if (error instanceof SyntaxError) return Response.json({ error: 'The request was not readable JSON.' }, { status: 400 });
+    return Response.json({ error: 'Saved logins could not be changed just now. Nothing was changed.' }, { status: 500 });
+  }
+}

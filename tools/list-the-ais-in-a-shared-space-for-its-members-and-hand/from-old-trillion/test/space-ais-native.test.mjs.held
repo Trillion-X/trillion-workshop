@@ -1,0 +1,123 @@
+// test/space-ais-native.test.mjs
+// The AIs in a space (src/space-ais.mjs) are read from the space's own native owner, through the real admitted shared
+// command path (test/shared-native-host-for-tests.mjs): an AI one member adds is published there and every member sees
+// it by its name, under the member who added it; only your own row offers your own AIs to add; and someone who is not
+// a member reads nothing and adds nothing.
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { sharedNativeHostFixture } from './shared-native-host-for-tests.mjs';
+import { acceptAdmittedSharedRequest } from '../src/native-shared-request-admission.mjs';
+import { handleSpaceAis } from '../src/space-ais.mjs';
+import { AI_REACH_WORDS } from '../src/ai-reach.mjs';
+
+const ORIGIN = 'https://app.example';
+
+async function twoMembers(t) {
+  const f = sharedNativeHostFixture(t);
+  const { membership_id: space } = await f.global.createMembership({ relay: 'owner', person_ref: 'shared-account', label: 'project', title: 'Snack brand' });
+  f.global.remember('guest', 'shared-account:guest');
+  const asked = await f.global.request({ from: 'owner', person_ref: 'shared-account', to: 'guest', why: 'Work together', membership_id: space });
+  const guest = f.setSharedRelay('guest');
+  await acceptAdmittedSharedRequest({ env: f.env, ...guest, recorder: { reader: 'key:host', app: 'shared-native-fixture' },
+    relay: 'guest', input: { request_id: asked.request_id, accept: true }, requestKey: 'guest-accept' });
+  return { f, space };
+}
+
+// One member's page: the space's native owner as them, and their own list of AIs. Publishing stands in for the
+// account's AI owner (src/native-ai-space-owner.mjs), which puts the card { ...input, agent_id: ai.id without "ai:",
+// name: label } to work through the same shared spaceAgents command.
+function page(f, relay, ais) {
+  const published = [];
+  const as = command => { f.setSharedRelay(relay); return f.invoke(command); };
+  const options = { origin: ORIGIN, space: as, readAis: async () => ais,
+    publish: async ({ resource, input, requestKey }) => {
+      const ai = ais.find(row => row.id === input.ai);
+      published.push(ai.id);
+      return as({ resource, operation: 'spaceAgents', input: { verb: 'publish', input: { description: input.description, agent_id: ai.id.slice(3), name: ai.label } }, requestKey });
+    } };
+  const call = async (space, add, body) => {
+    const url = new URL(`${ORIGIN}/work/api/spaces/${encodeURIComponent(space)}/ais${add ? '/add' : ''}`);
+    const request = new Request(url, add ? { method: 'POST', headers: { origin: ORIGIN, 'content-type': 'application/json' }, body: JSON.stringify(body) } : {});
+    const answer = await handleSpaceAis(request, { ...options, url });
+    return { status: answer.status, body: await answer.json() };
+  };
+  return { list: space => call(space, false), add: (space, ai) => call(space, true, { ai }), published, options };
+}
+
+test('an AI one member adds is shown to every member by its name, under that member; only your own row offers yours', async t => {
+  const { f, space } = await twoMembers(t);
+  const owner = page(f, 'owner', [{ id: 'ai:claude', label: 'Claude', sign_ins: ['s1'] }, { id: 'ai:codex', label: 'Codex', sign_ins: ['s2'] }]);
+  const guest = page(f, 'guest', [{ id: 'ai:muse', label: 'Muse', sign_ins: ['s3'] }]);
+
+  const before = await guest.list(space);
+  assert.equal(before.status, 200);
+  assert.deepEqual(before.body.members.map(member => member.ais), [[], []], 'no AI is at work there yet');
+
+  const added = await owner.add(space, 'ai:claude');
+  assert.equal(added.status, 200, JSON.stringify(added.body));
+  assert.deepEqual(added.body, { said: AI_REACH_WORDS.said.added.replace('{name}', 'Claude'), ai_id: 'ai:claude' });
+
+  const seen = await guest.list(space);
+  assert.equal(seen.status, 200);
+  const [ownerRow] = seen.body.members.filter(member => !member.you), [guestRow] = seen.body.members.filter(member => member.you);
+  assert.deepEqual(ownerRow.ais, [{ name: 'Claude' }], 'the other member sees it by its name, under the member who added it');
+  assert.equal(Object.hasOwn(ownerRow, 'can_add'), false, 'another member\'s AIs are never offered');
+  assert.deepEqual(guestRow, { name: guestRow.name, you: true, ais: [], can_add: [{ ai_id: 'ai:muse', name: 'Muse' }] });
+  assert.deepEqual(seen.body.agents.map(agent => [agent.name, agent.member]), [['Claude', ownerRow.name]]);
+  assert.ok(!JSON.stringify(seen.body).includes('s1'), 'nothing about the AI but its name leaves');
+
+  const mine = await owner.list(space);
+  assert.deepEqual(mine.body.members.find(member => member.you).can_add, [{ ai_id: 'ai:codex', name: 'Codex' }], 'an AI already at work there is not offered again');
+});
+
+test('someone who is not a member reads nothing and adds nothing; an AI not on your list is never published', async t => {
+  const { f, space } = await twoMembers(t);
+  const owner = page(f, 'owner', [{ id: 'ai:claude', label: 'Claude', sign_ins: ['s1'] }]);
+  assert.equal((await owner.add(space, 'ai:claude')).status, 200);
+
+  const stranger = page(f, 'stranger', [{ id: 'ai:grok', label: 'Grok', sign_ins: ['s9'] }]);
+  const read = await stranger.list(space);
+  assert.ok(read.status >= 400 && read.status < 500, `refused (${read.status})`);
+  assert.deepEqual(Object.keys(read.body), ['error'], 'no members, no AIs');
+  const add = await stranger.add(space, 'ai:grok');
+  assert.ok(add.status >= 400 && add.status < 500, `refused (${add.status})`);
+  assert.deepEqual(Object.keys(add.body), ['error']);
+
+  const unknown = await owner.add(space, 'ai:someone-elses');
+  assert.equal(unknown.status, 404);
+  assert.deepEqual(owner.published, ['ai:claude'], 'an AI not on the account\'s own list is never published');
+  assert.deepEqual((await owner.list(space)).body.agents.map(agent => agent.name), ['Claude'], 'the refused adds put nothing to work');
+});
+
+test('adding is refused from another site and from a page without its own native owner (a look, a viewer)', async t => {
+  const { f, space } = await twoMembers(t);
+  const owner = page(f, 'owner', [{ id: 'ai:claude', label: 'Claude', sign_ins: ['s1'] }]);
+  const url = new URL(`${ORIGIN}/work/api/spaces/${space}/ais/add`);
+  const foreign = new Request(url, { method: 'POST', headers: { origin: 'https://elsewhere.example' }, body: JSON.stringify({ ai: 'ai:claude' }) });
+  assert.equal((await handleSpaceAis(foreign, { ...owner.options, url })).status, 403);
+  const look = new URL(`${ORIGIN}/work/api/spaces/${space}/ais`);
+  assert.equal((await handleSpaceAis(new Request(look), { origin: ORIGIN, url: look })).status, 403);
+  assert.deepEqual(owner.published, []);
+});
+
+test('an AI that came in on a personal key is offered by its app\'s name and shown to the other member by it; the key never leaves', async t => {
+  const { f, space } = await twoMembers(t);
+  // An AI's record names the sign-in it came in on: for a personal key, the key's own sign-in id, which ends in the
+  // key's last characters. Only the app's name it introduced itself with is ever shown.
+  const owner = page(f, 'owner', [{ id: 'ai:codex', label: 'Codex', sign_ins: ['key:personal-key-zz99'] }]);
+  const guest = page(f, 'guest', []);
+
+  const offered = await owner.list(space);
+  assert.equal(offered.status, 200);
+  assert.deepEqual(offered.body.members.find(member => member.you).can_add, [{ ai_id: 'ai:codex', name: 'Codex' }], 'offered by its app\'s name');
+  assert.ok(!JSON.stringify(offered.body).includes('zz99'), 'the key\'s ending is not in its own member\'s answer');
+
+  const added = await owner.add(space, 'ai:codex');
+  assert.equal(added.status, 200, JSON.stringify(added.body));
+  assert.ok(!JSON.stringify(added.body).includes('zz99'));
+
+  const seen = await guest.list(space);
+  assert.deepEqual(seen.body.members.find(member => !member.you).ais, [{ name: 'Codex' }], 'the other member sees it under its app\'s name');
+  assert.ok(!JSON.stringify(seen.body).includes('zz99'), 'nor in the other member\'s');
+  assert.ok(!JSON.stringify(seen.body).includes('personal-key'), 'nothing of the key leaves');
+});

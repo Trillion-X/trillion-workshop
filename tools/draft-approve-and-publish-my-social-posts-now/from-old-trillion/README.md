@@ -1,0 +1,11 @@
+# tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/
+
+Files of old trillion whose job is this tool's (draft, approve and publish my social posts now or at a set time, and read back where each went). They are the bytes of tag `old-trillion-before-worker-retire` (b6ae0ebf81), moved here unchanged under their old paths, so they import each other as they did; only import paths differ, where a file they import is already in this repository. `moved-from.json` names each file's source path and commit and the BLAKE3 identity of its bytes there and here. Nothing here is wired into `tool-rows.json` yet: wiring a file is adapting it into this tool's own folders and rows, in a commit that names this receipt. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes), and it runs again when what it imports is here.
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/social-post-tools.mjs` | `src/social-post-tools.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/social-posts.json (at the tag, not moved here yet) |
+| `src/social-posts.mjs` | `src/social-posts.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/post-ready.mjs (at the tag, not moved here yet), src/post-shape.mjs (at the tag, not moved here yet), parts/media-composition/read-data/caption-styles.mjs (already gone at the tag), src/typed-on-signed-in-screen.mjs (at the tag, not moved here yet) and 3 more |
+| `test/social-posts.test.mjs` | `test/social-posts.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), src/social-posts.json (at the tag, not moved here yet), records/workshop-publishing-tool-records.json (at the tag, not moved here yet), records/post-place-records.json (at the tag, not moved here yet) |
+| `test/social-posts-for-tests.mjs` | `test/social-posts-for-tests.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), src/social-posts.json (at the tag, not moved here yet) |
+| `test/social-posts-publish-through-tool.test.mjs` | `test/social-posts-publish-through-tool.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/activity.mjs (already gone at the tag), src/social-posts.json (at the tag, not moved here yet) |

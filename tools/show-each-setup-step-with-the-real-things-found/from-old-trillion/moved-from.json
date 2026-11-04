@@ -1,0 +1,48 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/setup-capability-evidence.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-capability-evidence.mjs.held",
+      "source_identity": "1f:f5da4ca022b1cf01b5da65455d01493fdadfaf5d7a07bcd34b28d58f5aa3e83f",
+      "identity": "1f:d1ea33a478606d874d50b06135caf5b9b9e1ace1e57a9777b862dd8ef560d653",
+      "held": true
+    },
+    {
+      "from": "src/setup-known.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-known.mjs.held",
+      "source_identity": "1f:ba4f80bd547a451970c6d95d1e22e002f8d7bdaa4105e0cc644445e7383ba55b",
+      "identity": "1f:ba4f80bd547a451970c6d95d1e22e002f8d7bdaa4105e0cc644445e7383ba55b",
+      "held": true
+    },
+    {
+      "from": "src/setup-week.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/src/setup-week.mjs.held",
+      "source_identity": "1f:3a2a35039b7da5d5334b4427bb13eddc66897391b8211839f3e23b8791db6d00",
+      "identity": "1f:212fd90da98a014b155578a3d9ed78a12b9a2e193370fd5bcbcd3b45613723ac",
+      "held": true
+    },
+    {
+      "from": "test/setup-capability-evidence.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/test/setup-capability-evidence.test.mjs.held",
+      "source_identity": "1f:59a848b0ad7bbe1a48210dec2d8f15e1b43fffab34e38e4cbd2978c94491dabf",
+      "identity": "1f:29ddf9ea359f322bf994cdd6b5b49dcbe75eb9714a78b961eed5a5abc1cf0748",
+      "held": true
+    },
+    {
+      "from": "test/setup-known.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/test/setup-known.test.mjs.held",
+      "source_identity": "1f:30c919785901fec590f98ee780f5264dbd56d35909b634f5e7d1731d20b9ed0a",
+      "identity": "1f:30c919785901fec590f98ee780f5264dbd56d35909b634f5e7d1731d20b9ed0a",
+      "held": true
+    }
+  ]
+}

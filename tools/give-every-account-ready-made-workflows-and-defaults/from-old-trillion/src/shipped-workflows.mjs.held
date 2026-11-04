@@ -1,0 +1,27 @@
+// src/shipped-workflows.mjs
+//
+// PURPOSE
+//   The workflows every account can find and run that the deploy ships: the rows in records/workflow-recipe-records.json
+//   (about 1.2 MB) and the Trillion X standard compiled to a workflow (src/execution-modes.mjs). The rows file is
+//   loaded the first time something lists workflows, never when the Worker or a person's store starts, so a cold
+//   start neither parses nor holds it.
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. Every Worker or store reader of the shipped workflows asks here; no module they load imports the rows file, because one static
+//      import puts it back into every start.
+//   2. The list is made once per isolate and never changed by a reader.
+//   3. A load that fails is asked for again on the next call, never remembered as the answer.
+//
+import { executionModeRecipes } from './execution-modes.mjs';
+
+let loading = null;
+/** Every shipped workflow row (payloads), loaded on first use. */
+export function shippedWorkflows() {
+  loading ??= Promise.all([
+    import('../records/workflow-recipe-records.json', { with: { type: 'json' } }),
+    import('../records/setup-workflow-records.json', { with: { type: 'json' } }),
+  ])
+    .then(modules => Object.freeze([...modules.flatMap(module => module.default.records.map(record => record.payload)), ...executionModeRecipes()]))
+    .catch(error => { loading = null; throw error; });
+  return loading;
+}

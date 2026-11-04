@@ -1,0 +1,60 @@
+// test/view-as-owner-address.test.mjs
+// A view-as permission is kept and read in the policy directory of the owner's account, named by its owner id (its store's
+// address), the same directory the native look check asks (src/native-look-authorization.mjs, policy:<owner id>). Every
+// caller holding only a user id reaches it through src/account-policy-name.mjs accountPolicyFor. A directory named by the
+// user id was another, empty owner whose live store could not even be addressed (a user id is not an object id).
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { sqliteHost } from '../src/local-store.mjs';
+import { importSource } from './import-source-for-tests.mjs';
+import { accountPolicyFor, policyDirectoryFor } from '../src/account-policy-name.mjs';
+import { startLook, stopLetting } from '../src/view-as.mjs';
+
+const file = new URL('../src/account-control.mjs', import.meta.url);
+const source = (await readFile(file, 'utf8'))
+  .replace("import { DurableObject } from 'cloudflare:workers';", 'class DurableObject { constructor(ctx, env) { this.ctx = ctx; this.env = env; } }')
+  .replace(/from '(\.\/[^']+)'/g, (_, path) => `from '${new URL(path, file).href}'`);
+const { AccountControl } = await importSource(source);
+
+function world() {
+  const directories = new Map(), named = [];
+  const objectId = text => bytesToHex(blake3(new TextEncoder().encode(text)));
+  // As the platform: a store is addressed by a name's id, and only a real object id is one.
+  const PERSON = { idFromName: name => ({ toString: () => objectId(name) }),
+    idFromString: id => { if (!/^[0-9a-f]{64}$/.test(id)) throw new TypeError('Invalid Durable Object ID'); return { toString: () => id }; },
+    get: () => ({ letLookFact: async () => [], browserSessionGeneration: async () => 2, acceptsBrowserSession: async () => true }) };
+  const ACCOUNT_CONTROL = { idFromName: name => ({ toString: () => name }), get: id => {
+    const name = id.toString();
+    named.push(name);
+    if (!directories.has(name)) {
+      const host = sqliteHost(':memory:');
+      directories.set(name, new AccountControl({ id: { toString: () => name }, storage: { sql: host.sql, transactionSync: host.transaction, getAlarm: async () => null, setAlarm: async () => {} } }, env));
+    }
+    return directories.get(name);
+  } };
+  const kv = new Map();
+  const APP_KV = { get: async (key, type) => (kv.has(key) ? (type === 'json' ? JSON.parse(kv.get(key)) : kv.get(key)) : null), put: async (key, value) => { kv.set(key, value); }, delete: async key => { kv.delete(key); } };
+  const env = { PERSON, ACCOUNT_CONTROL, APP_KV };
+  return { env, named, owner: userId => objectId(userId) };
+}
+
+test('a view-as permission granted by user id is kept in the owner id\'s policy directory, where the native look check finds it', async () => {
+  const { env, named, owner } = world();
+  const userId = '6f1c2a9e-0d5b-4c43-9a1e-3b7f2c8d9e10', id = 'a'.repeat(32), viewer = 'viewer-account';
+  await accountPolicyFor(env, userId).letLookGrant({ who: 'Ann', until: '2099-01-01T00:00:00.000Z', entries: [{ id, viewer }] });
+  assert.ok(named.every(name => name === `policy:${owner(userId)}`), `only the owner id's directory is asked: ${named}`);
+  assert.deepEqual((await accountPolicyFor(env, userId).letLooking()).map(row => row.who), ['Ann']);
+  // The look this permission opens, and the native check of each of its requests (policy:<owner id>, owner id).
+  await env.APP_KV.put(`view-grant:${id}`, JSON.stringify({ owner: userId, viewer }));
+  const look = await startLook({ kv: env.APP_KV, policyOf: user => accountPolicyFor(env, user), id, viewer, hash: value => `h-${value}`, random: () => 'token' });
+  assert.equal(look.owner, userId);
+  const session = await env.APP_KV.get('session:h-token', 'json');
+  assert.equal(session.browser_generation, 2, 'the look is issued under the owner\'s current browser generation');
+  const asked = { grant: id, viewer, issued_at: session.created_at, browser_generation: 2, sign_in: 'session:look' };
+  assert.equal(await policyDirectoryFor(env, owner(userId)).acceptsLook(owner(userId), asked), true);
+  await stopLetting({ kv: env.APP_KV, policyOf: user => accountPolicyFor(env, user), owner: userId, who: 'Ann' });
+  assert.equal(await policyDirectoryFor(env, owner(userId)).acceptsLook(owner(userId), asked), false, 'stopping the leave ends the look');
+});

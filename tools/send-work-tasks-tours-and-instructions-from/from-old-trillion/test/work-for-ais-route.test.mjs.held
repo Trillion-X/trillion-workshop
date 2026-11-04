@@ -1,0 +1,37 @@
+// Trillion's work for customers' AIs is read and changed only by the operator account (src/work-for-ais.mjs
+// handleWorkForAisRequest, the worker's /work-for-ais and /work-for-ais/read): every other account is refused.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { handleWorkForAisRequest, SHIPPED_ROWS } from '../src/work-for-ais.mjs';
+
+const memoryKv = () => {
+  const values = new Map();
+  return { get: async key => values.get(key) ?? null, put: async (key, value) => values.set(key, value), delete: async key => values.delete(key),
+    list: async () => ({ keys: [], list_complete: true }) };
+};
+const post = (path, body) => new Request(`https://app.gettrillion.ai${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body ?? {}) });
+
+test('the operator reads the shipped and kept work rows on /work-for-ais/read', async () => {
+  const env = { APP_KV: memoryKv() };
+  const answer = await handleWorkForAisRequest(post('/work-for-ais/read'), { env, operator: true });
+  assert.equal(answer.status, 200);
+  const body = await answer.json();
+  assert.deepEqual(body.shipped, SHIPPED_ROWS);
+  assert.deepEqual(body.kept, []);
+});
+
+test('every other account is refused on both work-for-ais paths, and no row is read or changed for it', async () => {
+  const env = { APP_KV: memoryKv() };
+  for (const [path, body] of [['/work-for-ais/read'], ['/work-for-ais', { operation: 'list' }], ['/work-for-ais', { operation: 'save', row: {} }]]) {
+    const answer = await handleWorkForAisRequest(post(path, body), { env, operator: false });
+    assert.equal(answer.status, 403, path);
+    assert.match((await answer.json()).error, /Only the account that runs Trillion/);
+  }
+});
+
+test('the operator\'s /work-for-ais refuses an operation it does not offer', async () => {
+  const env = { APP_KV: memoryKv() };
+  const answer = await handleWorkForAisRequest(post('/work-for-ais', { operation: 'delete-everything' }), { env, operator: true });
+  assert.equal(answer.status, 400);
+  assert.equal((await answer.json()).error, 'Work for AIs can be listed, saved or ended.');
+});

@@ -1,0 +1,239 @@
+// How much each lane is worth is learned from what the person uses after a search (src/search-answers.mjs), and search
+// fuses lanes by weighted reciprocal rank (src/search.mjs finish): scales never mix, a lane that finds what is used
+// counts for more, a model that never does is retired, and a word lane whose best match holds few asked words sits out.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { makeSearch } from '../src/search.mjs';
+import { searchAnswers } from '../../../learn-how-much-each-way-of-matching-is-worth/src/search-answers.mjs';
+import { finishSearch } from '../../../answer-one-search-over-my-results-by-matching-words/src/search-answer.mjs';
+import { halvesOf } from '../src/meaning-sets.mjs';
+import settings from '../../../shared-code/src/search.json' with { type: 'json' };
+
+// With 2 prior answers at 0.5, four answers that never rank it bring a lane to (0 + 1) / (4 + 2) / 0.5 = 0.33.
+const config = { ...settings.fusion, prior_answers: 2, retire_after: 4, retire_below: 0.4 };
+const clock = () => { let at = 1_000_000; return { now: () => at, pass: seconds => { at += seconds * 1000; } }; };
+
+test('a use soon after a search credits each lane that took part by where it ranked the used file, once', () => {
+  const { sql } = sqliteHost(':memory:');
+  const time = clock();
+  const answers = searchAnswers(sql, { config, now: time.now });
+  assert.deepEqual(answers.weights(['a', 'b']), { a: 1, b: 1 }, 'a lane with no answers weighs 1');
+  answers.asked('s1', ['a', 'b'], [{ identity: 'f1', ranks: { a: 1, b: 3 } }, { identity: 'f2', ranks: { b: 1 } }]);
+  time.pass(10);
+  assert.equal(answers.used('f1'), true);
+  assert.equal(answers.used('f1'), false, 'a search is credited once');
+  const after = answers.weights(['a', 'b']);
+  assert.ok(after.a > 1 && after.b < after.a, JSON.stringify(after));
+  answers.asked('s2', ['a', 'b'], [{ identity: 'f3', ranks: { b: 1 } }]);
+  time.pass(config.followed_within_seconds + 1);
+  assert.equal(answers.used('f3'), false, 'a use long after the search teaches nothing');
+});
+
+// A search asked again within the same moment (a page resuming its pending lanes asks it until nothing is pending)
+// leaves several searches at one time: the use credits the one asked last, never whichever the table happens to hold
+// first. Search ids are random, so ordering by them is no order (seen as 0 to 4 credits for 4 uses).
+test('a use credits the search asked last when several were asked in the same moment', () => {
+  for (const ids of [['zz-first', 'aa-last'], ['aa-first', 'zz-last']]) {
+    const { sql } = sqliteHost(':memory:');
+    const answers = searchAnswers(sql, { config, now: () => 1_000 });
+    answers.asked(ids[0], ['partial-lane'], [{ identity: 'f1', ranks: { 'partial-lane': 1 } }]);
+    answers.asked(ids[1], ['partial-lane', 'final-lane'], [{ identity: 'f1', ranks: { 'partial-lane': 1, 'final-lane': 2 } }]);
+    assert.equal(answers.used('f1'), true);
+    assert.deepEqual(sql.exec('SELECT lane, answers FROM search_weights ORDER BY lane').toArray().map(row => [row.lane, row.answers]), [['final-lane', 1], ['partial-lane', 1]], ids.join(' then '));
+  }
+});
+
+test('searches past the window are let go a page at a time as new ones are asked', () => {
+  const { sql } = sqliteHost(':memory:');
+  const time = clock();
+  const answers = searchAnswers(sql, { config, now: time.now });
+  for (let at = 1; at <= 3; at += 1) { answers.asked(`old${at}`, ['a'], [{ identity: `f${at}`, ranks: { a: 1 } }]); time.pass(1); }
+  time.pass(config.followed_within_seconds + 1);
+  answers.asked('new', ['a'], [{ identity: 'f9', ranks: { a: 1 } }]);
+  assert.deepEqual(sql.exec('SELECT search FROM search_asked').toArray().map(row => row.search), ['new']);
+  assert.equal(sql.exec('SELECT COUNT(*) AS n FROM search_asked_files').toArray()[0].n, 1);
+  assert.equal(answers.used('f9'), true);
+});
+
+test('a space that never finds what is used is retired after enough answers, and forgetting it starts it fresh', () => {
+  const { sql } = sqliteHost(':memory:');
+  const time = clock();
+  const answers = searchAnswers(sql, { config, now: time.now });
+  for (let at = 0; at < config.retire_after; at += 1) {
+    answers.asked(`s${at}`, ['words', 'meaning@1f:x@said'], [{ identity: `f${at}`, ranks: { words: 1 } }]);
+    assert.equal(answers.retired('meaning@1f:x@'), false, 'not before retire_after answers');
+    answers.used(`f${at}`);
+  }
+  assert.equal(answers.retired('meaning@1f:x@'), true);
+  assert.equal(answers.retired('words'), false, 'the lane that finds what is used is not');
+  answers.forget('meaning@1f:x@');
+  assert.equal(answers.retired('meaning@1f:x@'), false);
+  assert.equal(answers.weights(['meaning@1f:x@said'])['meaning@1f:x@said'], 1);
+});
+
+function person() {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  const results = resultsStore(sql, identity => files.identitiesOf(identity));
+  const own = index => `1f:${(`a${index.toString(16)}`).padEnd(64, 'a')}`;
+  const store = (index, name) => {
+    sql.exec("INSERT INTO namespace_files (identity, byte_length, media_type, origin, key, part_bytes, stored_at, checked_at) VALUES (?, 10, 'text/plain', 'small', 'k', 10, 'now', 'now')", own(index));
+    sql.exec("INSERT INTO namespace_names (name, collection, identity, byte_length, modified_at_ms, named_at) VALUES (?, '/Notes', ?, 10, 5, 'now')", `/Notes/${name}`, own(index));
+  };
+  return { sql, results, store, own };
+}
+
+test('lanes add by rank, never by raw score, and the learned weight decides between them', async () => {
+  const { sql, results, store, own } = person();
+  store(1, 'kiln notes.txt');
+  store(2, 'glaze notes.txt');
+  results.put([
+    { identity: own(1), kind: 'note', value: { text: 'firing the kiln slowly' } },
+    { identity: own(2), kind: 'contents', value: { text: 'a glaze for the kiln' } },
+  ]);
+  const time = clock();
+  const answers = searchAnswers(sql, { config, now: time.now });
+  const search = makeSearch({ sql, answers });
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  const ask = async () => (await search.search('kiln', { places: ['written'], sources: ['files'] })).results.map(result => result.name);
+  const first = await ask();
+  assert.equal(first.length, 2, 'both files are found');
+  // The person keeps using the glaze notes after asking: the lane that ranked it first gains weight.
+  for (let at = 0; at < 6; at += 1) { await ask(); time.pass(5); answers.used(own(2)); }
+  assert.deepEqual(await ask(), ['glaze notes.txt', 'kiln notes.txt']);
+});
+
+test('a word-index lane whose best match holds few of the asked words sits the question out, and says so', async () => {
+  const { sql, results, store, own } = person();
+  store(1, 'mixed.txt');
+  results.put([{ identity: own(1), kind: 'contents', value: { text: 'kiln' } }]);
+  const search = makeSearch({ sql, config: { ...settings, fusion: { ...settings.fusion, word_confidence_floor: 0.5 } } });
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  const asked = await search.search('kiln glaze firing schedule', { places: ['written'], sources: ['files'], matches: ['words-in-index'] });
+  assert.deepEqual(asked.results, []);
+  assert.deepEqual(asked.sat_out.map(row => row.reason), ['its best match holds few of the asked words']);
+  const held = await search.search('kiln', { places: ['written'], sources: ['files'], matches: ['words-in-index'] });
+  assert.deepEqual(held.results.map(result => result.name), ['mixed.txt']);
+});
+
+
+test('every selected measured weight remains exact beyond one thousand selected lanes', () => {
+  const { sql } = sqliteHost(':memory:');
+  const answers = searchAnswers(sql, { config });
+  const lanes = Array.from({ length: 1001 }, (_, at) => `lane:${String(at).padStart(5, '0')}`);
+  for (const lane of lanes) sql.exec('INSERT INTO search_weights VALUES(?, 4, 0)', lane);
+  const values = answers.weights([...lanes, lanes[0], 'unknown']);
+  for (const lane of lanes) assert.equal(values[lane], 1 / 3, lane);
+  assert.equal(values.unknown, 1);
+});
+
+test('a useful or insufficiently measured lane after sixty-four useless ones prevents retirement', () => {
+  const { sql } = sqliteHost(':memory:');
+  const answers = searchAnswers(sql, { config });
+  for (let at = 0; at < 65; at += 1) sql.exec('INSERT INTO search_weights VALUES(?, ?, 0)', `meaning@space@${String(at).padStart(3, '0')}`, config.retire_after);
+  assert.equal(answers.retired('meaning@space@'), true);
+  sql.exec('UPDATE search_weights SET reciprocal=answers WHERE lane=?', 'meaning@space@064');
+  assert.equal(answers.retired('meaning@space@'), false, 'the65th useful lane is decisive');
+  sql.exec('UPDATE search_weights SET reciprocal=0, answers=0 WHERE lane=?', 'meaning@space@064');
+  assert.equal(answers.retired('meaning@space@'), false, 'the65th unmeasured lane is decisive');
+  answers.forget('meaning@space@');
+  assert.equal(answers.retired('meaning@space@'), false);
+});
+
+test('retirement and uninstall forgetting include empty, U+FFFF and supplementary Unicode places', () => {
+  const { sql } = sqliteHost(':memory:');
+  const answers = searchAnswers(sql, { config }), prefix = 'meaning@space@';
+  for (let at = 0; at < 65; at++) sql.exec('INSERT INTO search_weights VALUES(?, ?, 0)', `${prefix}ascii-${String(at).padStart(3, '0')}`, config.retire_after);
+  for (const place of ['', 'said', '\uffff', '\u{10000}', '\u{10ffff}']) sql.exec('INSERT INTO search_weights VALUES(?, ?, 0)', `${prefix}${place}`, config.retire_after);
+  sql.exec('UPDATE search_weights SET reciprocal=answers WHERE lane=?', `${prefix}\u{10000}`);
+  assert.equal(answers.retired(prefix), false, 'a useful supplementary place vetoes retirement');
+  sql.exec('UPDATE search_weights SET reciprocal=0 WHERE lane=?', `${prefix}\u{10000}`);
+  assert.equal(answers.retired(prefix), true);
+  sql.exec('INSERT INTO search_weights VALUES(?, 0, 0)', 'meaning@spaceAunrelated');
+  answers.forget(prefix);
+  assert.deepEqual(sql.exec('SELECT lane FROM search_weights').toArray().map(row => row.lane), ['meaning@spaceAunrelated']);
+});
+
+async function answeredEmptyFixture(state = 'completed') {
+  const { spaceOf } = await import('../src/meaning-spaces.mjs');
+  const p = person(); p.store(1, 'kiln.txt');
+  const tool = { id: 'tool:zero-answer', serves: ['encode'], encodes: { accepts: ['text'], space: { model: 'zero/model', dim: 3 }, reads: [] } };
+  const space = spaceOf(tool), lane = settings.lanes.find(row => row.id === 'meaning');
+  p.results.put([{ identity: p.own(1), kind: lane.kind, value: { sets: [{ space, place: 'said', items: [{ v: halvesOf([-1, 0, 0]), start: 3, said: 'different content' }] }] } }]);
+  const names = settings.lanes.find(row => row.match === 'words-in-names');
+  const time = clock(), answers = searchAnswers(p.sql, { config, now: time.now });
+  const searchConfig = { ...settings, lanes: [names, lane] };
+  const index = makeSearch({ sql: p.sql, config: searchConfig });
+  for (let at = 0; at < 20 && await index.stale(); at++) await index.catchUp(8);
+  assert.equal(await index.stale(), 0);
+  const finisher = makeSearch({ sql: p.sql, index: false, config: searchConfig, answers, encoders: async () => [tool],
+    runTool: async () => state === 'completed' ? { state, output: { model: { name: 'zero/model' }, vectors: [[1, 0, 0]] } }
+      : state === 'failed' ? { state, error: 'unavailable encoder' } : { state } });
+  const partial = async () => index.indexSearch('kiln', { encoded: await finisher.encodeQuestion('kiln') });
+  // The owner finishes as the person's results owner does (src/search-answer.mjs finishSearch): the index's candidate
+  // pages, and the lanes that took part with them, are taken a page at a time before the finish.
+  const finish = given => finishSearch({ sql: p.sql, owner: finisher, feed: { feed: async () => [] }, follower: null, notice: () => {} }, 'kiln', {}, given, 0);
+  return { ...p, space, lane, names, answers, time, index, finisher, partial, finish };
+}
+
+test('actual index and finisher credit an answered-empty installed model lane zero until it retires', async () => {
+  const f = await answeredEmptyFixture(), id = `${f.lane.id}@${f.space}@said`;
+  for (let at = 0; at < config.retire_after; at++) {
+    const partial = await f.partial();
+    // An answered-empty model lane takes part through its candidate pages (48af91e86), not the partial's own list.
+    assert.deepEqual(f.index.candidatePage(partial.candidate_refs.find(ref => ref.lane === f.lane.id), {}).participated, [id]);
+    // One search is asked again until nothing it declared is pending, as a person's page asks it (its pages resume).
+    let found = await f.finish(partial);
+    for (let again = 0; again < 64 && found.pending.length; again++) found = await f.finish(await f.partial());
+    assert.deepEqual(found.pending, [], 'the search finished');
+    assert.deepEqual(found.results.map(row => row.identity), [f.own(1)]);
+    f.time.pass(1); assert.equal(f.answers.used(f.own(1)), true);
+  }
+  const [learned] = f.sql.exec('SELECT answers, reciprocal FROM search_weights WHERE lane=?', id).toArray();
+  assert.deepEqual({ ...learned }, { answers: config.retire_after, reciprocal: 0 });
+  assert.equal(f.answers.retired(`${f.lane.id}@${f.space}@`), true);
+  assert.equal(f.sql.exec('SELECT 1 FROM search_weights WHERE lane=?', f.lane.id).toArray().length, 0, 'no fabricated parent lane substitutes for its actual place');
+});
+
+test('unavailable, pending, stale and behind-feed model lanes receive no invented zero credit', async () => {
+  for (const state of ['failed', 'working', 'stale', 'ahead']) {
+    const f = await answeredEmptyFixture(['stale', 'ahead'].includes(state) ? 'completed' : state);
+    if (state === 'stale') f.results.put([{ identity: f.own(1), kind: f.lane.kind, value: { sets: [] } }]);
+    let partial = await f.partial();
+    if (state === 'ahead') partial = f.index.behind(partial, [{ kind: f.lane.kind }]);
+    const found = await f.finish(partial);
+    assert.equal(found.results.length, 1);
+    assert.equal(f.answers.used(f.own(1)), true);
+    assert.equal(f.sql.exec('SELECT 1 FROM search_weights WHERE lane=?', `${f.lane.id}@${f.space}@said`).toArray().length, 0, state);
+  }
+});
+
+test('frozen composition carries only the selected owner participation and withholds unfinished zero credit', async () => {
+  const f = await answeredEmptyFixture(), partial = await f.partial();
+  const frozen = { ...partial, participated: { [f.lane.id]: [`${f.lane.id}@other-space@said`] } };
+  const unchanged = f.index.fromBuilding(partial, frozen, []);
+  assert.deepEqual(unchanged.participated, partial.participated);
+  const replaced = f.index.fromBuilding(partial, frozen, [f.lane.id]);
+  assert.deepEqual(replaced.participated[f.lane.id], frozen.participated[f.lane.id]);
+  assert.equal(replaced.still_reading[f.lane.id], 1);
+  await f.finisher.finish('kiln', {}, replaced); f.answers.used(f.own(1));
+  assert.equal(f.sql.exec('SELECT 1 FROM search_weights WHERE lane=?', frozen.participated[f.lane.id][0]).toArray().length, 0);
+  const dynamic = `${f.lane.id}@${f.space}`;
+  const waiting = { ...partial, pending: [{ lane: dynamic, source: f.lane.source }], participated: {} };
+  assert.deepEqual(f.index.fromBuilding(waiting, partial, [f.lane.id]).pending, [], 'an unselected follower model pending state does not replace the selected frozen answer');
+  assert.deepEqual(f.index.fromBuilding(partial, waiting, [f.lane.id]).pending, waiting.pending, 'the selected frozen dynamic report follows its parent');
+});
+
+test('a confidence-sat-out word lane is not credited through answered-empty participation', async () => {
+  const { sql, results, store, own } = person(); store(1, 'kiln glaze.txt');
+  results.put([{ identity: own(1), kind: 'contents', value: { text: 'kiln' } }]);
+  const answers = searchAnswers(sql, { config }), chosen = settings.lanes.filter(row => row.match === 'words-in-names' || row.kind === 'contents');
+  const owner = makeSearch({ sql, answers, config: { ...settings, lanes: chosen, fusion: { ...settings.fusion, word_confidence_floor: 1 } } });
+  for (let at = 0; at < 20 && await owner.stale(); at++) await owner.catchUp(8);
+  const found = await owner.search('kiln glaze'); assert.equal(found.results.length, 1); assert.equal(found.sat_out.length, 1);
+  answers.used(own(1));
+  assert.equal(sql.exec('SELECT 1 FROM search_weights WHERE lane=?', found.sat_out[0].lane).toArray().length, 0);
+});

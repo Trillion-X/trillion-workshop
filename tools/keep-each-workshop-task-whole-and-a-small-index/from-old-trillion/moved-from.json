@@ -1,0 +1,32 @@
+{
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/workshop-tasks.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-workshop-task-whole-and-a-small-index/from-old-trillion/src/workshop-tasks.mjs.held",
+      "source_identity": "1f:917c74da8a73e3851c1e2301fa91c3d9da336e00b01b737e4d0fe7322711070b",
+      "identity": "1f:5acd445b0fd857277e45bb6437129555e35800d9b5f40fbd516d0c6ca7fc0e40",
+      "held": true
+    },
+    {
+      "from": "test/workshop-tasks-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-workshop-task-whole-and-a-small-index/from-old-trillion/test/workshop-tasks-bounded.test.mjs.held",
+      "source_identity": "1f:9976f872b0bc40bf01b4ce37c9f497f7d8bf0175fe834b733ef308e210e29b23",
+      "identity": "1f:9976f872b0bc40bf01b4ce37c9f497f7d8bf0175fe834b733ef308e210e29b23",
+      "held": true
+    },
+    {
+      "from": "test/workshop-tasks-for-tests.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-each-workshop-task-whole-and-a-small-index/from-old-trillion/test/workshop-tasks-for-tests.mjs.held",
+      "source_identity": "1f:214ee3bc92d2f137c11f1c285de4e7fedaa7324cb90df42def8a72991125b503",
+      "identity": "1f:214ee3bc92d2f137c11f1c285de4e7fedaa7324cb90df42def8a72991125b503",
+      "held": true
+    }
+  ]
+}

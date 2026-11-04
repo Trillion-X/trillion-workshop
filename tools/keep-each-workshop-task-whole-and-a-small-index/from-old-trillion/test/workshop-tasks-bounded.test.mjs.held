@@ -1,0 +1,109 @@
+// A person's Workshop tasks are asked about through an index (src/workshop-tasks.mjs), never by reading every task
+// whole. On 2026-09-30 the operator account's store was reset for running out of memory every few seconds: every alarm
+// and every change asked the Workshop when its next task is due, and that read and parsed every run the account ever
+// made, input and result, twice per alarm. These tests seed a store with many large runs kept the earlier way (no
+// index) and hold what an alarm, a change, an alarm that fails part-way and its retry may read: the index is filled once,
+// by its own scheduler source (indexStep), a bounded page at a time and resumably, never by a question, and after that
+// no question reads a task it does not answer with.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { workshopTasks } from '../src/workshop-tasks.mjs';
+import { countingHost, largest, personStoreOver, seedEarlierTasks as seedTasks, total } from './person-store-reads-for-tests.mjs';
+
+const TASKS = 450;
+const RESULT_BYTES = 40_000;
+const WHOLE_BYTES = TASKS * RESULT_BYTES;
+
+// A page of filling the index (src/workshop-tasks.mjs indexStep), told apart from the Workshop's other reads of the
+// newest facts under a prefix (src/workshop-facts.mjs workshopValues) by its page: ORDER BY entity LIMIT.
+const indexPages = reads => reads.filter(read => /FROM workshop_facts[\s\S]*GROUP BY entity ORDER BY entity LIMIT/.test(read.query));
+
+const seedEarlierTasks = (host, { due = [] } = {}) => seedTasks(host, { tasks: TASKS, resultBytes: RESULT_BYTES, due });
+
+test('the index is filled once from earlier runs, a bounded page at a time, and answers without reading runs whole', () => {
+  const store = countingHost();
+  const soon = { task_id: 'later-1', tool_id: 'tool:read-link', state: 'scheduled', due_at: '2026-09-30T12:00:00.000Z', input: {} };
+  seedEarlierTasks(store.host, { due: [soon, { ...soon, task_id: 'later-2', due_at: '2026-10-01T12:00:00.000Z' }] });
+  const tasks = workshopTasks(store.sql, { transaction: store.host.transaction });
+  store.take();
+
+  // A question before the build asks no task page: it answers from the rows there are.
+  assert.equal(tasks.nextDueAt(), null);
+  assert.equal(indexPages(store.take()).length, 0, 'a question never builds the index');
+  assert.equal(tasks.indexStep.nextAt() !== null, true, 'the build is owed');
+  assert.deepEqual(tasks.indexStep.step(), { done: true, indexed: 452 });
+  assert.equal(tasks.indexStep.nextAt(), null, 'and then it is not');
+  const filling = store.take();
+  assert.equal(indexPages(filling).length, 3, 'three pages of at most 200 tasks for 452 tasks');
+  assert.ok(largest(filling) <= 200 * (RESULT_BYTES + 400), `one page holds at most 200 tasks (${largest(filling)} bytes)`);
+
+  // Every question after that reads index rows and only the tasks it answers with.
+  assert.deepEqual(tasks.due(Date.parse('2026-09-30T13:00:00.000Z')).map(task => task.task_id), ['later-1']);
+  assert.equal(tasks.lastCompleted('tool:transcribe').task_id, 't0448');
+  assert.equal(tasks.lastCompleted('tool:transcribe').output.said.length, RESULT_BYTES, 'the task answered with is whole');
+  const cards = tasks.cards({ limit: 5 });
+  assert.deepEqual(cards.map(card => card.task_id), ['later-2', 'later-1', 't0449', 't0448', 't0447'], 'newest first');
+  assert.equal(cards[2].state, 'completed');
+  assert.equal(cards[2].output, undefined, 'a card never carries the result');
+  assert.equal(tasks.cards({ tool_id: 'tool:transcribe', limit: 1000 }).length, 225);
+  const asked = store.take();
+  assert.equal(indexPages(asked).length, 0, 'filled once');
+  assert.equal(tasks.nextDueAt(), Date.parse(soon.due_at));
+  assert.ok(total(asked) < 3 * RESULT_BYTES + 60_000, `questions read ${total(asked)} bytes, not the ${WHOLE_BYTES} of every run`);
+
+  // A change moves the index with it: the run started is no longer due, its next occurrence is.
+  tasks.write({ ...soon, state: 'working' });
+  assert.equal(tasks.nextDueAt(), Date.parse('2026-10-01T12:00:00.000Z'));
+  assert.equal(tasks.read('later-1').state, 'working');
+
+  // A store opened again finds the index filled and does not fill it again.
+  const reopened = workshopTasks(store.sql, { transaction: store.host.transaction });
+  store.take();
+  assert.equal(reopened.nextDueAt(), Date.parse('2026-10-01T12:00:00.000Z'));
+  assert.equal(indexPages(store.take()).length, 0);
+});
+
+test('filling the index resumes where a reset stopped it, and never goes back over what it filled', () => {
+  const store = countingHost();
+  seedEarlierTasks(store.host);
+  let pages = 0;
+  store.refuseWhen(query => /SELECT f.entity, f.seq, f.value FROM workshop_facts/.test(query) && (pages += 1) === 2);
+  assert.throws(() => workshopTasks(store.sql, { transaction: store.host.transaction }).indexStep.step(), /reset/);
+  store.refuseWhen(null);
+  store.take();
+
+  const resumed = workshopTasks(store.sql, { transaction: store.host.transaction });
+  assert.equal(resumed.indexStep.step().done, true);
+  assert.equal(resumed.cards({ limit: 1000 }).length, TASKS);
+  const filling = indexPages(store.take());
+  assert.equal(filling.length, 2, 'the two pages the reset left, not all three');
+  assert.equal(filling[0].params[0], 'task:t0199', 'resumed after the last task the first page kept');
+});
+
+test('an alarm, a change and an alarm that fails part-way and is retried read no run whole in a store with many runs', { timeout: 120000 }, async () => {
+  const store = countingHost();
+  seedEarlierTasks(store.host);
+  const person = await personStoreOver(store, 'many-runs');
+
+  await person.scheduler().arm();
+  assert.equal(indexPages(store.take()).length, 0, 'an arm builds nothing');
+  await person.alarm();
+  const first = store.take();
+  assert.ok(largest(first) <= 200 * (RESULT_BYTES + 400), `the first alarm reads at most a page of runs at once (${largest(first)} bytes in one read)`);
+  assert.ok(indexPages(first).length > 0, 'and fills the index');
+
+  // A step that throws part-way (moving files on, as live on 2026-09-30), then the retry alarm.
+  person.nextMoveOn = () => Date.now() - 60_000;
+  let tries = 0;
+  person.moveOn = async () => { tries += 1; throw new Error('moving files on failed'); };
+  for (const wake of ['alarm', 'retried alarm', 'arm after a change']) {
+    if (wake === 'retried alarm') await person.scheduler().retry({ name: 'files-move-on' });
+    if (wake === 'arm after a change') await person.scheduler().arm(); else await person.alarm();
+    const reads = store.take();
+    assert.equal(indexPages(reads).length, 0, `${wake}: the index is not filled again`);
+    assert.ok(largest(reads) < RESULT_BYTES, `${wake}: no run is read whole (${largest(reads)} bytes at most in one read)`);
+    assert.ok(total(reads) < WHOLE_BYTES / 20, `${wake}: read ${total(reads)} bytes of a store holding ${WHOLE_BYTES}`);
+  }
+  assert.equal(tries, 2, 'the step failed, was retried and failed again, each alarm bounded');
+  assert.ok((await person.scheduler().status()).failed.some(entry => entry.source === 'files-move-on'), 'and is set aside for its next retry');
+});

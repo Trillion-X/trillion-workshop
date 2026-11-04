@@ -1,0 +1,56 @@
+// The picture-colours lane (src/search.json, match colour-in-results): a #rrggbb or colour word in a question finds the
+// pictures whose kept palette (the `palette` fact of a file's `facts` result) holds a colour within the CIE-LAB ceiling.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { makeSearch } from '../src/search.mjs';
+
+const hex = (digit, index) => (digit + index.toString(16)).padEnd(64, digit);
+const drive = index => `12:${hex('b', index)}`, own = index => `1f:${hex('a', index)}`;
+
+function person(pictures) {
+  const { sql } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  const results = resultsStore(sql, identity => files.identitiesOf(identity));
+  const { eeaf } = decisionStore(sql);
+  pictures.forEach(([name, palette], at) => {
+    const index = at + 1;
+    sql.exec("INSERT INTO namespace_files (identity, byte_length, media_type, origin, key, part_bytes, stored_at, checked_at) VALUES (?, 10, 'image/png', 'small', 'k', 10, 'now', 'now')", own(index));
+    files.addAliases(own(index), [drive(index)]);
+    sql.exec("INSERT INTO namespace_names (name, collection, identity, byte_length, modified_at_ms, named_at) VALUES (?, '/Pictures', ?, 10, 5, 'now')", `/Pictures/${name}`, own(index));
+    results.put([{ identity: drive(index), kind: 'facts', value: { palette } }]);
+  });
+  return { sql, eeaf };
+}
+async function indexed(search) {
+  for (let wake = 0; wake < 40 && (await search.stale()); wake += 1) await search.catchUp(10);
+  assert.equal(await search.stale(), 0);
+}
+const names = answer => answer.results.map(result => result.name);
+
+test('a typed hex finds near colours anywhere in the palette; a colour word looks at the leading colours only', async () => {
+  const { sql, eeaf } = person([
+    ['sunset.png', ['#ff5a1f', '#2b1b3d']], ['brick.png', ['#e8501c', '#444444']], ['sea.png', ['#1b78d0', '#e6f0ff']],
+    ['night.png', ['#000000', '#111111', '#222222', '#d32f2f']],
+  ]);
+  const search = makeSearch({ sql, eeaf, embed: null, runTool: async () => ({ state: 'failed', error: 'not connected' }) });
+  await indexed(search);
+  assert.deepEqual(names(await search.search('#ff5a1f', { places: ['seen'] })).sort(), ['brick.png', 'sunset.png']);
+  assert.deepEqual(names(await search.search('#00ff00', { places: ['seen'] })), []);
+  assert.deepEqual(names(await search.search('blue', { places: ['seen'] })), ['sea.png']);
+  assert.deepEqual(names(await search.search('red', { places: ['seen'] })).includes('night.png'), false, 'red is night.png fourth colour, past the leading three');
+  assert.equal(sql.exec("SELECT COUNT(*) AS n FROM search_colours").toArray()[0].n, 10);
+});
+
+test('a changed palette is kept again and a removed picture result forgets its colours', async () => {
+  const { sql, eeaf } = person([['a.png', ['#ff0000']]]);
+  const search = makeSearch({ sql, eeaf, embed: null, runTool: async () => ({ state: 'failed', error: 'not connected' }) });
+  await indexed(search);
+  assert.deepEqual(names(await search.search('#ff0000', { places: ['seen'] })), ['a.png']);
+  sql.exec("DELETE FROM namespace_results WHERE kind = 'facts'");
+  await indexed(search);
+  assert.deepEqual(names(await search.search('#ff0000', { places: ['seen'] })), []);
+});

@@ -1,0 +1,105 @@
+// The list-rows lane (src/search.json, src/record-search-index.mjs rows_of): every list's rows are found by the words in
+// their text fields, a removed row is not, another person's search never reaches them, and rows kept before the lane are
+// admitted a bounded page each wake.
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { sqliteHost } from '../src/local-store.mjs';
+import { decisionStore } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/decision-store.mjs';
+import { namespaceStore } from '../../../recently-deleted-and-storage/namespace-store.mjs';
+import { resultsStore } from '../src/namespace-results.mjs';
+import { makeSearch } from '../src/search.mjs';
+import { makeLists } from '../src/lists.mjs';
+
+function person() {
+  const { sql, transaction } = sqliteHost(':memory:');
+  const files = namespaceStore(sql);
+  resultsStore(sql, identity => files.identitiesOf(identity));
+  const { eeaf } = decisionStore(sql, { transaction });
+  const lists = makeLists({ eeaf });
+  return { sql, eeaf, lists, search: makeSearch({ sql, eeaf }) };
+}
+async function finishIndexing(search, budget = 50) {
+  for (let wake = 0; wake < 200 && (await search.stale()); wake += 1) await search.catchUp(budget);
+  assert.equal(await search.stale(), 0);
+}
+const rowsFound = async (search, words) => (await search.search(words, { places: ['written'], sources: ['trillion'] })).results
+  .filter(row => row.id.startsWith('record:record:'));
+const techniques = { id: 'video-edit-techniques', label: 'Video edit techniques', fields: [
+  { id: 'name', label: 'Name' }, { id: 'how', label: 'How', kind: 'long-text' }, { id: 'seconds', label: 'Seconds', kind: 'number' }] };
+
+test('a written row is found by the words of its title and its text fields, and opens in its own list', async () => {
+  const { lists, search } = person();
+  lists.save(techniques);
+  lists.putRows('video-edit-techniques', { rows: [
+    { id: 'crumple', values: { name: 'Paper crumple', how: 'A sheet scrunches into a ball over the cut', seconds: 2 } },
+    { id: 'whip', values: { name: 'Whip pan', how: 'A fast blur carries one shot into the next' } }] });
+  await finishIndexing(search);
+  const byTitle = await rowsFound(search, 'paper crumple');
+  assert.deepEqual(byTitle.map(row => row.id), ['record:record:video-edit-techniques:crumple']);
+  assert.equal(byTitle[0].title, 'Paper crumple');
+  assert.equal(byTitle[0].kind_label, 'List row');
+  assert.deepEqual(byTitle[0].open?.surfaceInput, { id: 'video-edit-techniques', row: 'record:video-edit-techniques:crumple' });
+  assert.deepEqual((await rowsFound(search, 'scrunches ball')).map(row => row.id), ['record:record:video-edit-techniques:crumple']);
+  assert.deepEqual((await rowsFound(search, 'blur')).map(row => row.id), ['record:record:video-edit-techniques:whip']);
+
+  // An edited row is found by its new words only.
+  lists.putRows('video-edit-techniques', { rows: [{ id: 'whip', values: { how: 'A sideways smear joins two shots' } }] });
+  await finishIndexing(search);
+  assert.deepEqual(await rowsFound(search, 'blur'), []);
+  assert.deepEqual((await rowsFound(search, 'smear')).map(row => row.id), ['record:record:video-edit-techniques:whip']);
+});
+
+test('a removed row is not found, and a removed list takes its rows out of search', async () => {
+  const { sql, eeaf, lists, search } = person();
+  lists.save(techniques);
+  lists.save({ id: 'shots', label: 'Shots', fields: [{ id: 'name', label: 'Name' }] });
+  lists.putRows('video-edit-techniques', { rows: [{ id: 'crumple', values: { name: 'Paper crumple' } }, { id: 'fold', values: { name: 'Paper fold' } }] });
+  lists.putRows('shots', { rows: [{ id: 'one', values: { name: 'Paper lantern' } }] });
+  await finishIndexing(search);
+  assert.equal((await rowsFound(search, 'paper')).length, 3);
+
+  lists.putRows('video-edit-techniques', { remove: ['crumple'] });
+  await finishIndexing(search);
+  assert.deepEqual((await rowsFound(search, 'paper')).map(row => row.id).sort(), ['record:record:shots:one', 'record:record:video-edit-techniques:fold']);
+
+  // The list's own record is removed (as an erasure or a removed list leaves it).
+  eeaf.write([{ id: 'list:shots', type: 'list', value: null }]);
+  await finishIndexing(search);
+  assert.deepEqual((await rowsFound(search, 'paper')).map(row => row.id), ['record:record:video-edit-techniques:fold']);
+  assert.equal(sql.exec("SELECT count(*) AS n FROM search_record_state WHERE lane = 'list-rows/list:shots'").toArray()[0].n, 0);
+});
+
+test('another person\'s search never reaches a list\'s rows', async () => {
+  const owner = person();
+  const other = person();
+  owner.lists.save(techniques);
+  owner.lists.putRows('video-edit-techniques', { rows: [{ id: 'crumple', values: { name: 'Paper crumple' } }] });
+  other.lists.save({ id: 'notes', label: 'Notes', fields: [{ id: 'name', label: 'Name' }] });
+  other.lists.putRows('notes', { rows: [{ id: 'mine', values: { name: 'Something else' } }] });
+  await finishIndexing(owner.search);
+  await finishIndexing(other.search);
+  assert.equal((await rowsFound(owner.search, 'paper crumple')).length, 1);
+  assert.deepEqual(await rowsFound(other.search, 'paper crumple'), []);
+});
+
+test('rows kept before the lane are admitted in bounded passes, never a whole list in one wake', async () => {
+  const { sql, lists, search } = person();
+  lists.save(techniques);
+  const total = 1179;
+  for (let at = 0; at < total; at += 200) lists.putRows('video-edit-techniques', { rows: Array.from({ length: Math.min(200, total - at) }, (_, n) => (
+    { id: `row-${String(at + n).padStart(4, '0')}`, values: { name: at + n === 7 ? 'Paper crumple' : `Technique ${at + n}` } })) });
+  const seen = () => sql.exec("SELECT count(*) AS n FROM search_record_seen WHERE lane = 'list-rows/list:video-edit-techniques'").toArray()[0]?.n ?? 0;
+  let wakes = 0;
+  let before = 0;
+  while (await search.stale()) {
+    await search.catchUp(50);
+    wakes += 1;
+    const now = seen();
+    assert.ok(now - before <= 100, `one wake admitted ${now - before} rows`);
+    before = now;
+    assert.ok(wakes < 200);
+  }
+  assert.equal(seen(), total);
+  assert.ok(wakes > total / 100, `the backfill took ${wakes} wakes`);
+  assert.deepEqual((await rowsFound(search, 'paper crumple')).map(row => row.id), ['record:record:video-edit-techniques:row-0007']);
+});

@@ -1,0 +1,1982 @@
+import { spacePageSize as pageSize } from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-page-size.mjs.held';
+import { searchWords } from '../../../name-a-space-by-its-name-when-posting-to-it-find/from-old-trillion/src/space-search.mjs.held';
+import {sharedDependencyStub} from './shared-native-dependency-command.mjs';
+import {withContentInvocation} from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-policy.mjs';
+import {contentShardIndex,contentShardAddress} from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-shards.mjs';
+import {handoffIdFor} from '../../../shared-code/src/agents.mjs';
+import {identityOf} from '../../../shared-code/src/typed-operation-contract.mjs';
+import {shardKey} from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-shards.mjs';
+import {resolveItemShard} from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-directory.mjs.held';
+import {sharedNativeExecution} from './shared-native-execution-context.mjs';
+// Spaces on the network (src/network.mjs): what a group or project holds in common, apart from every member's
+// private Trillion.
+//
+// Purpose
+//   A space is any network membership record (a group, a project, a one-to-one, a community). What it holds is only
+//   what its members put there: items made in the space (a message, a pursuit, a decision, a note, anything else a
+//   member's AI names) and single records a member explicitly shared from their private Trillion. Its agents and the
+//   work handed between them live here too, so work on a shared pursuit moves between people's AIs without touching
+//   anyone's private store.
+//
+// Non-negotiable invariants
+//   1. A share arrives already filtered by the person's own store for one named record (src/person-spaces.mjs).
+//      On later reads the space asks that owner for only the current filtered record and sharing choice; it never
+//      reads the owner's whole private store or trusts an old stored copy after the grant changes.
+//   2. Every read and write asks the space's own rules first, through the one check allowedInSpace
+//      (src/space-permissions.mjs, decided by the formula engine), and nothing here compares members, makers or
+//      labels itself. The rules every space starts with (src/space-permission-rules.json) let only current members
+//      in, so leaving ends access at once; the items they explicitly shared while a member stay, with their
+//      provenance, and nothing else of theirs is ever copied in, on leaving or at any other time. Invariants 4, 7, 11
+//      and 12 describe what the starting rules allow; whoever the rules let change them can change that.
+//   3. Every item keeps its provenance: made in the space or shared from a private Trillion, and by which member.
+//      The private record's own id is shown only to the member who shared it.
+//   4. A member may withdraw an item they put there: its words and body are erased, and a marker saying who withdrew
+//      it and when stays, so the space's history is never silently rewritten.
+//   5. Space agents are published by a member's AI into one space and are named per member, so one person's AI can
+//      never take, finish or speak as another person's agent. A handoff here may name only items and handoffs of the
+//      same space.
+//   6. Item kinds are the caller's words: nothing here names a kind of item.
+//   7. A file a member's chat carried into the space (an import) keeps its bytes in that member's store and is
+//      readable only while they are a member and have not withdrawn it.
+//   8. A space agent that gives a delivery address is woken by the same signed events private agents get
+//      (src/agent-delivery.mjs): handoff.created and handoff.finished, carrying only what the space already holds
+//      (the handoff id, its job's first words and the space id). Its secret is returned once to the member who
+//      published it; its address is shown only to that member. Leaving the space, withdrawing the agent or
+//      publishing it with delivery null drops every event still waiting for it, and nothing is sent afterwards.
+//   9. Every change to a space (an item added, shared or withdrawn, a member joining or leaving, a name, the space's
+//      description, picture or colour, an agent or a handoff) goes through spaceChanged: it marks the space's last activity
+//      and tells the stores of the people who are members at that moment, once per person per turn however many
+//      changes the turn made, so their open screens read themselves again (src/live-screen.mjs changedElsewhere).
+//      A former member is never told.
+//  10. Unread is per member: the items other members added after the member last marked the space seen.
+//  11. An invite link carries a single-use code; only its BLAKE3 hash is kept. It expires, its maker may revoke it,
+//      and it stops working when its maker leaves. Joining with it goes through the network's own accept
+//      (Network.answer), exactly as accepting an invitation does, so leaving and revocation behave the same.
+//      A community is joined by its own rules, never by an invite link.
+//      What an invite link's page shows (invitePreview) is read by whoever holds the code, signed in or not: the
+//      space's name, words and picture, who made the invite and the first names of who is in it, never
+//      anything the space holds. A code no one made, or one the space's rules no longer honour, shows only that it
+//      does not work; a used, revoked or expired one says which, since only its holder can ask.
+//  13. Reactions on a thing (src/responses.mjs) are rows of space_item_reactions, one per thing, person and symbol, the
+//      vote included, read for one page of items at a time; a reply about one part of what it answers keeps that part.
+//  12. A space's picture is a file a member shared into it, read through the space like any shared file, so only a
+//      current member reads it and withdrawing the file takes the picture away.
+//
+// Security
+//   The caller's relay is set by their own store from the signed-in account, never taken from the request.
+//
+import { projectedSpaceContent, invokeCoordinatedContent } from '../../../keep-a-shared-spaces-posts-files-and-tasks/from-old-trillion/src/space-content-coordination.mjs.held';
+import { readSharedInvitationContent, notifySharedResourceActivity, makeSharedNetwork } from './shared-resource-routing.mjs';
+import settings from './space-settings.json' with { type: 'json' };
+import labels from '../../../introduce-two-people/src/network-settings.json' with { type: 'json' };
+import aiClients from './ai-clients.json' with { type: 'json' };
+import { logoOf } from '../../../set-up-my-account/read-data/site-icon-url.mjs';
+import { failureOf } from '../../../tweak-live-controls/failure.mjs';
+import { sameSharedRecord, sharedRecordFileLookup, sharedRecordReferencePage } from './shared-record-references.mjs';
+import { cardQueriesOver, JOB_COLUMNS, jobColumnsOf, makeAgents } from '../../../shared-code/src/agents.mjs';
+import { deliverDue } from '../../../shared-code/src/agent-delivery.mjs';
+import { blake3 } from '@noble/hashes/blake3.js';
+import { bytesToHex } from '@noble/hashes/utils.js';
+import { seenMarks } from '../../../shared-code/src/seen-marks.mjs';
+import { usableName } from '../../../show-a-person-under-a-name-they-use/src/shown-name.mjs';
+import { secretName } from './readable-names.mjs';
+import { capabilityOfTool, keptRecordsOn } from '../../../add-a-leaderboard-points-rewards-a-streak-or-a-classroom/src/space-capabilities.mjs';
+import { VOTE, anchorFrom, foldReactions, partFrom, partKey, reactionFrom, responseAnchorKey } from '../../../keep-and-wake-ai-sessions-on-this-computer/src/responses.mjs';
+import { assignmentNotice, assignmentRecipient, initSpaceAssignmentDeliveries, isActiveAssignment, makeSpaceAssignmentDeliveries } from '../../../give-shared-tasks-to-people-and-ais-keep/from-old-trillion/src/space-assignment-delivery.mjs.held';
+import { hostOf } from './resource-host.mjs';
+import { policyDirectoryFor } from './account-policy-name.mjs';
+
+/** The grant member that means everyone in the space, now and whoever joins later: a tool added to the space. */
+export const EVERY_MEMBER = '*';
+
+/** Where a member's seen mark on each space is kept: the one mark its unread count and a community's what's-new read. */
+export const SPACE_SEEN = { table: 'space_seen', place: 'space_id', reader: 'relay' };
+
+const MAX_PART_RECORDS = 1000;
+const MAX_COLD_PARENT_INDEX_ROWS = 4096;
+
+const text = (value, label, max = 2000) => {
+  if (typeof value !== 'string' || !value.trim()) throw new Error(`${label} is needed.`);
+  return value.trim().slice(0, max);
+};
+const ownerIntentOrder = value => {
+  if (value === null || value === undefined) return 0; // Direct Network callers from before owner-intent ordering.
+  if (!Number.isSafeInteger(value) || value < 0) throw new Error('The owner share order is not valid.');
+  return value;
+};
+const optional = (value, max = 2000) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null);
+const newId = prefix => `${prefix}_${[...crypto.getRandomValues(new Uint8Array(12))].map(byte => byte.toString(16).padStart(2, '0')).join('')}`;
+const ORIGIN_WORDS = { private: 'shared from a private Trillion', space: 'made in this pursuit', import: 'brought in from a chat archive', trillion: settings.made_by_trillion.origin };
+// How a thing made in a space came there: by a member (space), from a chat archive (import), or placed by Trillion
+// itself (trillion: kept under the member it is for, never read as written by them or anyone else).
+const MADE_ORIGINS = new Set(['space', 'import', 'trillion']);
+// The AI app an item came through, as the catalogue (ai-clients.json) knows it: matched by its id, its app name or its
+// label in any case, it reads by its app name with its site and that site's mark; an app the catalogue does not know
+// keeps the name it gave and no invented site.
+const knownApp = app => {
+  const said = app.toLowerCase();
+  return aiClients.clients.find(client => client.domain && [client.id, client.app, client.label].some(name => typeof name === 'string' && name.toLowerCase() === said)) ?? null;
+};
+const appProvenance = app => {
+  const client = knownApp(app);
+  return client ? { app: client.app ?? client.label, app_domain: client.domain, app_picture: logoOf(client.domain) } : { app };
+};
+const COLOURS = new Set(settings.colours.map(colour => colour.id));
+const MEMBER_NAME_WAIT_MS = 1500;
+const MEMBER_NAME_REFRESH_MS = 60_000;
+
+const bodyText = body => {
+  const serialized = JSON.stringify(body ?? null);
+  if (serialized.length > settings.max_item_bytes) throw new Error(`One item holds at most ${settings.max_item_bytes} characters.`);
+  return serialized;
+};
+// The part of what a reply answers that it is about (src/responses.mjs partFrom), kept as JSON; only a reply has one.
+const replyPart = item => {
+  if (item?.part == null) return null;
+  if (item.reply_to == null && item.anchor == null) throw new Error('A part belongs to the thing a reply or anchor answers: send reply_to or anchor with it.');
+  return JSON.stringify(partFrom(item.part));
+};
+const responseAnchor = item => item?.anchor == null ? null : anchorFrom(item.anchor);
+// The read the spaces list is drawn from: the kind of its dirty notices (src/live-protocol.mjs createDirty).
+export const SPACES_READ = '/work/api/spaces';
+export const codeHash = code => bytesToHex(blake3(new TextEncoder().encode(String(code ?? ''))));
+const NO_INVITE = 'This invite link is used, revoked or has expired. Ask a member for a new one.';
+const inviteState = (row, now) => (row.revoked_at ? 'revoked' : row.used_at ? 'used' : row.expires_at <= now ? 'expired' : 'open');
+// A member's agent, named for this space and this member: `agent_id` as the member's AI published it, plus a short
+// mark of the member, so two people's agents with the same name never meet.
+export const memberAgentId = (agentId, relay) => `${agentId}~${relay.slice(-8)}`;
+
+// A handoff event as a space sends it: the space's id in its refs, the space's own tools in next_call (with the agent
+// id as its member published it), and, when the sender wrote no notice, the first words of the job every member of
+// the space already reads.
+const spaceEvent = spaceId => (said, handoff) => {
+  const own = said.to_agent.slice(0, said.to_agent.lastIndexOf('~'));
+  return {
+    ...said, refs: { ...said.refs, space_id: spaceId }, summary: said.summary ?? handoff.job.slice(0, 300),
+    next_call: said.type === 'handoff.created' ? { tool: 'take_space_work', arguments: { space_id: spaceId, agent_id: own, handoff_id: handoff.handoff_id, request_key: `take:${handoff.handoff_id}` } } : { tool: 'read_space_handoff', arguments: { space_id: spaceId, handoff_id: handoff.handoff_id } },
+  };
+};
+
+// A handoff whose review waits on no other open work in its space: the same rule for one space's review (spaceWorkAgents) and for every space's (nextSpaceWorkReviewAt).
+const UNBLOCKED_REVIEW = `NOT EXISTS (SELECT 1 FROM json_each(h.waits_on) w LEFT JOIN space_handoffs d ON d.space_id=h.space_id AND d.handoff_id=w.value LEFT JOIN space_task_dependency_state external ON external.space_id=h.space_id AND external.handoff_id=w.value WHERE CASE WHEN d.handoff_id IS NOT NULL THEN d.open=1 ELSE external.handoff_id IS NULL OR external.state<>'finished' OR external.withdrawn=1 END)`;
+const PUT_SPACE_JOB = `INSERT INTO space_handoffs (space_id, handoff_id, open, parent, handed_at, value, ${JOB_COLUMNS.join(', ')}) VALUES (?, ?, ?, ?, ?, ?, ${JOB_COLUMNS.map(() => '?').join(', ')})
+  ON CONFLICT(space_id, handoff_id) DO UPDATE SET open = excluded.open, value = excluded.value, ${JOB_COLUMNS.map(name => `${name} = excluded.${name}`).join(', ')}`;
+
+// The agents store (src/agents.mjs) over one space's rows.
+function spaceAgentStore(sql, spaceId, relay = null, relationRows = new Map()) {
+  const rows = (query, ...binds) => sql.exec(query, spaceId, ...binds).toArray();
+  const values = list => list.map(row => JSON.parse(row.value));
+  const deliveries = (where, ...binds) => values(rows(`SELECT value FROM space_agent_deliveries WHERE space_id = ?${where}`, ...binds));
+  const cards = () => values(rows('SELECT value FROM space_agent_cards WHERE space_id=? UNION ALL SELECT value FROM space_agent_card_replicas WHERE space_id=? AND agent_id NOT IN(SELECT agent_id FROM space_agent_cards WHERE space_id=?)',spaceId,spaceId));
+  return {
+    // A space's agents are its members' few, so its card questions are answered over them.
+    ...cardQueriesOver(cards),
+    card: id => values(rows('SELECT value FROM space_agent_cards WHERE space_id = ? AND agent_id = ?', id))[0] ?? values(rows('SELECT value FROM space_agent_card_replicas WHERE space_id = ? AND agent_id = ?',id))[0] ?? null,
+    // A card keeps the member who published it; a later write (a finished count, a capacity) never changes that.
+    putCard: card => {
+      const owner = sql.exec('SELECT relay FROM space_agent_cards WHERE space_id = ? AND agent_id = ?', spaceId, card.agent_id).toArray()[0]?.relay ?? card.relay ?? relay;
+      const table=sql.exec('SELECT 1 FROM space_agent_card_replicas WHERE space_id=? AND agent_id=?',spaceId,card.agent_id).toArray().length&&!sql.exec('SELECT 1 FROM space_agent_cards WHERE space_id=? AND agent_id=?',spaceId,card.agent_id).toArray().length?'space_agent_card_replicas':'space_agent_cards';
+      if(table==='space_agent_card_replicas'){
+        const prior=JSON.parse(sql.exec('SELECT value FROM space_agent_card_replicas WHERE space_id=? AND agent_id=?',spaceId,card.agent_id).toArray()[0].value),delta={};
+        for(const field of ['finished','delivered'])if((card[field]??0)>(prior[field]??0))delta[field]=card[field]-(prior[field]??0);
+        for(const field of ['last_seen_at','last_delivered_at','last_undelivered_at','reader'])if(card[field]&&card[field]!==prior[field])delta[field]=card[field];
+        if(Object.keys(delta).length)sql.exec('INSERT INTO space_agent_card_effect_outbox VALUES(?,?,?,?,?)',crypto.randomUUID(),spaceId,card.agent_id,owner,JSON.stringify(delta));
+      }
+      sql.exec(`INSERT INTO ${table} (space_id, agent_id, relay, value) VALUES (?, ?, ?, ?) ON CONFLICT(space_id, agent_id) DO UPDATE SET value = excluded.value`, spaceId, card.agent_id, owner, JSON.stringify({ ...card, relay: owner }));
+    },
+    cards,
+    handoff: id => values(rows('SELECT value FROM space_handoffs WHERE space_id = ? AND handoff_id = ?', id))[0] ?? relationRows.get(id) ?? rows('SELECT handoff_id,state,withdrawn AS withdrawal FROM space_task_dependency_state WHERE space_id=? AND handoff_id=?',id)[0] ?? null,
+    // Kept with what the reconciler next has to do for it and the facts work is found by (src/agents.mjs jobColumnsOf),
+    // found by index, never by reading open work.
+    putHandoff: item => {
+      const columns = jobColumnsOf(item);
+      sql.exec(PUT_SPACE_JOB, spaceId, item.handoff_id, item.state === 'finished' ? 0 : 1, item.parent_handoff_id, item.handed_at, JSON.stringify(item), ...JOB_COLUMNS.map(name => columns[name]));
+    },
+    newestOpen: (limit, { before = null } = {}) => values(before
+      ? rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 AND (handed_at, handoff_id) < (SELECT handed_at, handoff_id FROM space_handoffs WHERE space_id = ? AND handoff_id = ?) ORDER BY handed_at DESC, handoff_id DESC LIMIT ?', spaceId, before, limit)
+      : rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 ORDER BY handed_at DESC, handoff_id DESC LIMIT ?', limit)),
+    heldBy: id => values(rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 AND taken_by = ? ORDER BY handed_at, handoff_id', id)),
+    openAddressedTo: id => values(rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 AND to_agent = ? ORDER BY handed_at, handoff_id', id)),
+    pendingAddressedTo: (ids, limit) => values(rows("SELECT value FROM space_handoffs INDEXED BY space_handoffs_addressed WHERE space_id = ? AND open = 1 AND state = 'open' AND to_agent IN (SELECT value FROM json_each(?)) ORDER BY priority DESC, handed_at, handoff_id LIMIT ?", JSON.stringify(ids), limit)),
+    unaddressedForSource: id => values(rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 AND to_agent IS NULL AND source_id = ? ORDER BY handed_at, handoff_id', id)),
+    dependentsOf: id => values(rows("SELECT value FROM space_handoffs h WHERE space_id = ? AND open = 1 AND depends_on <> '[]' AND EXISTS (SELECT 1 FROM json_each(h.depends_on) d WHERE d.value = ?) ORDER BY handed_at, handoff_id", id)),
+    openQueue: ({ to_agent = null, nowIso, after = null, limit = -1 }) => values(sql.exec(`SELECT value FROM space_handoffs h
+      WHERE space_id = ?1 AND open = 1 AND (CASE WHEN ?2 IS NULL THEN to_agent IS NULL OR prefer_until <= ?3 ELSE to_agent = ?2 END)
+        AND (?4 IS NULL OR EXISTS (SELECT 1 FROM space_handoffs a WHERE a.space_id = ?1 AND a.handoff_id = ?4
+          AND (h.priority < a.priority OR (h.priority = a.priority AND (h.handed_at, h.handoff_id) > (a.handed_at, a.handoff_id)))))
+      ORDER BY priority DESC, handed_at, handoff_id LIMIT ?5`, spaceId, to_agent, nowIso, after, limit).toArray()),
+    waitingCount: id => rows("SELECT COUNT(*) AS n FROM space_handoffs WHERE space_id = ? AND open = 1 AND to_agent = ? AND state = 'open'", id)[0].n,
+    openHandoffs: ({ after = null, limit = -1 } = {}) => values(after
+      ? rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 AND (handed_at, handoff_id) > (SELECT handed_at, handoff_id FROM space_handoffs WHERE space_id = ? AND handoff_id = ?) ORDER BY handed_at, handoff_id LIMIT ?', spaceId, after, limit)
+      : rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 1 ORDER BY handed_at, handoff_id LIMIT ?', limit)),
+    nextReviewAt: nowIso => rows(`SELECT MIN(next) AS next FROM (
+      SELECT (SELECT ?2 FROM space_handoffs h WHERE h.space_id = ?1 AND h.open = 1 AND h.review_at = '' AND ${UNBLOCKED_REVIEW} LIMIT 1) AS next
+      UNION ALL
+      SELECT (SELECT h.review_at FROM space_handoffs h WHERE h.space_id = ?1 AND h.open = 1 AND h.review_at > '' AND ${UNBLOCKED_REVIEW} ORDER BY h.review_at LIMIT 1))`, nowIso)[0]?.next ?? null,
+    // The work whose review has fallen due ('' first, then the oldest time), from the same review column and index.
+    dueReviews: (nowIso, limit = -1) => values(rows(`SELECT value FROM space_handoffs h WHERE h.space_id = ?1 AND h.open = 1 AND h.review_at IS NOT NULL AND h.review_at <= ?2
+      AND ${UNBLOCKED_REVIEW}
+      ORDER BY h.review_at, h.handoff_id LIMIT ?3`, nowIso, Number.isFinite(limit) ? limit : -1)),
+    // Where the reconciler's last slice of this space's open work ended, kept on the space's own state row (a space
+    // without one yet gets it with the last activity its readers fall back to: when the space was made).
+    reviewMark: () => rows('SELECT review_mark FROM space_state WHERE space_id = ?')[0]?.review_mark ?? null,
+    putReviewMark: after => sql.exec(`INSERT INTO space_state (space_id, last_activity_at, review_mark)
+      VALUES (?1, COALESCE((SELECT created_at FROM memberships WHERE id = ?1), ''), ?2) ON CONFLICT(space_id) DO UPDATE SET review_mark = excluded.review_mark`, spaceId, after),
+    handedOnFrom: id => values(rows('SELECT value FROM space_handoffs WHERE space_id = ? AND parent = ? ORDER BY handed_at, handoff_id', id)),
+    handedOnFromMany: ids => {
+      const groups = new Map([...new Set(ids)].map(id => [id, []]));
+      if (!groups.size) return groups;
+      for (const row of sql.exec('SELECT value FROM space_handoffs WHERE space_id = ? AND parent IN (SELECT value FROM json_each(?)) ORDER BY parent, handed_at, handoff_id', spaceId, JSON.stringify([...groups.keys()]))) {
+        const item = JSON.parse(row.value);
+        groups.get(item.parent_handoff_id)?.push(item);
+      }
+      return groups;
+    },
+    newestHandoffs: limit => values(rows('SELECT value FROM space_handoffs WHERE space_id = ? ORDER BY handed_at DESC, handoff_id DESC LIMIT ?', limit)),
+    finishedHandoffs: ({ before = null, limit }) => values(before
+      ? rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 0 AND (handed_at, handoff_id) < (SELECT handed_at, handoff_id FROM space_handoffs WHERE space_id = ? AND handoff_id = ?) ORDER BY handed_at DESC, handoff_id DESC LIMIT ?', spaceId, before, limit)
+      : rows('SELECT value FROM space_handoffs WHERE space_id = ? AND open = 0 ORDER BY handed_at DESC, handoff_id DESC LIMIT ?', limit)),
+    savedInstructions: () => null,
+    putSavedInstructions: () => { throw new Error('Saved instructions belong to a person, not a space.'); },
+    // Events sent to a space agent's own address (src/agent-delivery.mjs), kept in this space's rows.
+    deliverySecret: id => rows('SELECT secret FROM space_agent_delivery_secrets WHERE space_id = ? AND agent_id = ?', id)[0]?.secret ?? rows('SELECT secret FROM space_agent_card_replicas WHERE space_id=? AND agent_id=?',id)[0]?.secret ?? null,
+    putDeliverySecret: (id, secret) => sql.exec('INSERT INTO space_agent_delivery_secrets (space_id, agent_id, secret) VALUES (?, ?, ?) ON CONFLICT(space_id, agent_id) DO UPDATE SET secret = excluded.secret', spaceId, id, secret),
+    delivery: id => deliveries(' AND event_id = ?', id)[0] ?? null,
+    putDelivery: item => sql.exec('INSERT INTO space_agent_deliveries (space_id, event_id, agent_id, subject_id, state, next_at, value) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(space_id, event_id) DO UPDATE SET state = excluded.state, next_at = excluded.next_at, value = excluded.value', spaceId, item.event_id, item.agent_id, item.event.subject_id, item.state, item.next_at, JSON.stringify(item)),
+    dueDeliveries: nowIso => deliveries(" AND state = 'waiting' AND next_at <= ? ORDER BY next_at LIMIT 50", nowIso),
+    deadDeliveries: id => deliveries(" AND agent_id = ? AND state = 'dead'", id),
+    deliveriesFor: id => deliveries(' AND subject_id = ? ORDER BY event_id', id),
+    waitingFor: id => rows("SELECT COUNT(*) AS n FROM space_agent_deliveries WHERE space_id = ? AND agent_id = ? AND state = 'waiting'", id)[0].n,
+    nextDeliveryAt: () => { const next = rows("SELECT MIN(next_at) AS next_at FROM space_agent_deliveries WHERE space_id = ? AND state = 'waiting'")[0]?.next_at; return next ? Date.parse(next) : null; },
+  };
+}
+
+export const spaceMethods = {
+  setUpSpaces() {
+    initSpaceAssignmentDeliveries(this.sql);
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_items (id TEXT PRIMARY KEY, space_id TEXT NOT NULL, kind TEXT NOT NULL, title TEXT, body TEXT, origin TEXT NOT NULL, contributed_by TEXT NOT NULL, source_ref TEXT, about TEXT, added_at TEXT NOT NULL, withdrawn_at TEXT, withdrawn_by TEXT)');
+    const itemColumns = new Set(this.sql.exec('PRAGMA table_info(space_items)').toArray().map(row => row.name));
+    if (!itemColumns.has('app')) this.sql.exec('ALTER TABLE space_items ADD COLUMN app TEXT');
+    if (!itemColumns.has('share_key')) this.sql.exec('ALTER TABLE space_items ADD COLUMN share_key TEXT');
+    if (!itemColumns.has('share_generation')) this.sql.exec('ALTER TABLE space_items ADD COLUMN share_generation INTEGER');
+    if (!itemColumns.has('withdrawn_generation')) this.sql.exec('ALTER TABLE space_items ADD COLUMN withdrawn_generation INTEGER');
+    if (!itemColumns.has('share_intent_order')) this.sql.exec('ALTER TABLE space_items ADD COLUMN share_intent_order INTEGER');
+    if (!itemColumns.has('facts')) this.sql.exec('ALTER TABLE space_items ADD COLUMN facts TEXT');
+    if (!itemColumns.has('reply_to')) {
+      this.sql.exec('ALTER TABLE space_items ADD COLUMN reply_to TEXT');
+      // An older message's only link names its parent when that target is not a file.
+      this.sql.exec(`UPDATE space_items SET reply_to = json_extract(about, '$[0]')
+        WHERE kind = 'message' AND json_array_length(COALESCE(about, '[]')) = 1
+          AND EXISTS (SELECT 1 FROM space_items parent
+            WHERE parent.id = json_extract(space_items.about, '$[0]')
+              AND parent.space_id = space_items.space_id AND parent.kind <> 'file')`);
+    }
+    // A reply about one part of what it answers (a range of its words, a moment, an element) keeps that part
+    // (src/responses.mjs partFrom), so every view can show and find the words it is about.
+    if (!itemColumns.has('part')) this.sql.exec('ALTER TABLE space_items ADD COLUMN part TEXT');
+    if (!itemColumns.has('anchor_record')) this.sql.exec('ALTER TABLE space_items ADD COLUMN anchor_record TEXT');
+    if (!itemColumns.has('anchor_part')) this.sql.exec('ALTER TABLE space_items ADD COLUMN anchor_part TEXT');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_response_threads (space_id TEXT NOT NULL, anchor_key TEXT NOT NULL, anchor_record TEXT NOT NULL, anchor_part TEXT, resolved INTEGER NOT NULL DEFAULT 0, changed_at TEXT NOT NULL, changed_by TEXT NOT NULL, PRIMARY KEY (space_id, anchor_key))');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_response_threads_by_record ON space_response_threads (space_id, anchor_record)');
+    // Every reaction on a thing here, the vote included (src/responses.mjs): one row per thing, person and symbol;
+    // count is how many of that symbol the person gave (a community's votes per post), glyph a custom reaction's own.
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_item_reactions (item_id TEXT NOT NULL, relay TEXT NOT NULL, symbol TEXT NOT NULL, count INTEGER NOT NULL, glyph TEXT, added_at TEXT NOT NULL, PRIMARY KEY (item_id, relay, symbol))');
+    // The votes kept before reactions were one table become reactions of the vote symbol, once, and the old table goes.
+    if (this.sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'space_item_votes'").toArray().length) {
+      this.sql.exec('INSERT OR IGNORE INTO space_item_reactions (item_id, relay, symbol, count, glyph, added_at) SELECT item_id, relay, ?, votes, NULL, ? FROM space_item_votes WHERE votes > 0', VOTE, new Date().toISOString());
+      this.sql.exec('DROP TABLE space_item_votes');
+    }
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_by_space ON space_items (space_id, added_at)');
+    // Preserve the public next_before cursor while letting SQLite seek through the same sort expression.
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_page ON space_items (space_id, (added_at || id) DESC)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_kind_page ON space_items (space_id, kind, (added_at || id) DESC)');
+    // A record's explicit references seek exact shared names/identities. Never load a whole file collection to
+    // resolve one clip, and never treat a private Namespace path as a shared grant.
+    this.sql.exec("CREATE INDEX IF NOT EXISTS space_items_file_name ON space_items (space_id, json_extract(body, '$.name')) WHERE kind = 'file' AND withdrawn_at IS NULL");
+    this.sql.exec("CREATE INDEX IF NOT EXISTS space_items_file_identity ON space_items (space_id, json_extract(body, '$.identity')) WHERE kind = 'file' AND withdrawn_at IS NULL");
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_replies ON space_items (space_id, reply_to, added_at)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_anchors ON space_items (space_id, anchor_record, anchor_part, added_at) WHERE anchor_record IS NOT NULL');
+    this.sql.exec('CREATE UNIQUE INDEX IF NOT EXISTS space_items_one_source ON space_items (space_id, contributed_by, source_ref) WHERE source_ref IS NOT NULL');
+    // A grant created by a Marketplace install may be reused by another set. Its origin survives
+    // the installation item's body being cleared on withdrawal.
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_marketplace_revoke_pending (space_id TEXT NOT NULL,item_id TEXT NOT NULL,grant_id TEXT NOT NULL,PRIMARY KEY(space_id,item_id,grant_id))');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_marketplace_owned_grants (space_id TEXT NOT NULL, grant_id TEXT NOT NULL, item_id TEXT NOT NULL, PRIMARY KEY (space_id, grant_id))');
+    this.sql.exec("CREATE INDEX IF NOT EXISTS space_items_private_by_owner_ref ON space_items (contributed_by, source_ref, space_id) WHERE origin = 'private' AND withdrawn_at IS NULL");
+    // Space cards count active items by kind and since a member last looked. Keep those scans on narrow, covering
+    // indexes; the item bodies can be large and neither summary query needs them.
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_active_by_kind ON space_items (space_id, kind) WHERE withdrawn_at IS NULL');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_items_active_unread ON space_items (space_id, added_at, contributed_by) WHERE withdrawn_at IS NULL');
+    // The things given to someone (assignedTo): only items carrying an assignee, so finding what is given to a member
+    // reads those items, never every item of every space they are in (on the busiest account each such read walked
+    // every item of its spaces, ~500 ms of the shared network object's time, 2026-10-07).
+    this.sql.exec("CREATE INDEX IF NOT EXISTS space_items_assigned ON space_items (space_id, added_at) WHERE json_extract(facts, '$.assignee') IS NOT NULL AND withdrawn_at IS NULL AND anchor_record IS NULL");
+    // Things given to someone (an `assignee` fact): found per space without reading every item (assignedTo).
+    this.sql.exec("CREATE INDEX IF NOT EXISTS space_items_assigned ON space_items (space_id) WHERE json_extract(facts, '$.assignee') IS NOT NULL AND withdrawn_at IS NULL");
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_agent_card_replicas(space_id TEXT NOT NULL,agent_id TEXT NOT NULL,relay TEXT NOT NULL,value TEXT NOT NULL,secret TEXT,PRIMARY KEY(space_id,agent_id))');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_agent_cards (space_id TEXT NOT NULL, agent_id TEXT NOT NULL, relay TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (space_id, agent_id))');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_handoffs (space_id TEXT NOT NULL, handoff_id TEXT NOT NULL, open INTEGER NOT NULL, parent TEXT, handed_at TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (space_id, handoff_id))');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_agent_take_receipts (space_id TEXT NOT NULL,relay TEXT NOT NULL,request_key TEXT NOT NULL,input_identity TEXT NOT NULL,result_json TEXT NOT NULL,handoff_id TEXT,PRIMARY KEY(space_id,relay,request_key))');
+    if(!new Set(this.sql.exec('PRAGMA table_info(space_agent_take_receipts)').toArray().map(row=>row.name)).has('handoff_id'))this.sql.exec('ALTER TABLE space_agent_take_receipts ADD COLUMN handoff_id TEXT');
+    // Index new and small stores here. MAX(rowid) overestimates after deleted rows, which safely defers the index;
+    // unlike counting rows it does not scan a large older Network on its first request.
+    if (!this.sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'index' AND name = 'space_handoffs_parent'").toArray().length
+      && (this.sql.exec('SELECT MAX(rowid) AS newest FROM space_handoffs').toArray()[0]?.newest ?? 0) <= MAX_COLD_PARENT_INDEX_ROWS) {
+      this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_parent ON space_handoffs (space_id, parent, handed_at, handoff_id)');
+    }
+    // A store from before the columns kept beside each job (src/agents.mjs jobColumnsOf) adds them, then fills them for
+    // open work a page at a time. state stays null until a row is filled (every write keeps jobColumnsOf beside it), so a
+    // fill a reset stopped resumes where it was.
+    const handoffColumns = new Set(this.sql.exec('PRAGMA table_info(space_handoffs)').toArray().map(column => column.name));
+    for (const name of JOB_COLUMNS.filter(column => !handoffColumns.has(column))) this.sql.exec(`ALTER TABLE space_handoffs ADD COLUMN ${name}`);
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_unfilled ON space_handoffs (open) WHERE state IS NULL');
+    const fillJob = `UPDATE space_handoffs SET ${JOB_COLUMNS.map(name => `${name} = ?`).join(', ')} WHERE space_id = ? AND handoff_id = ?`;
+    for (let page = null; page === null || page.length === 100;) {
+      page = this.sql.exec('SELECT space_id, handoff_id, value FROM space_handoffs WHERE open = 1 AND state IS NULL LIMIT 100').toArray();
+      for (const row of page) {
+        const columns = jobColumnsOf(JSON.parse(row.value));
+        this.sql.exec(fillJob, ...JOB_COLUMNS.map(name => columns[name]), row.space_id, row.handoff_id);
+      }
+    }
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_review ON space_handoffs (space_id, open, review_at)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_open_review ON space_handoffs (open, review_at)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_addressed ON space_handoffs (space_id, open, to_agent, handed_at, handoff_id)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_held ON space_handoffs (space_id, open, taken_by, handed_at, handoff_id)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_source ON space_handoffs (space_id, open, source_id, to_agent, handed_at, handoff_id)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_handoffs_queue ON space_handoffs (space_id, open, priority DESC, handed_at, handoff_id, to_agent, prefer_until)');
+    this.sql.exec("CREATE INDEX IF NOT EXISTS space_handoffs_dependents ON space_handoffs (space_id, open) WHERE depends_on <> '[]'");
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_agent_delivery_secrets (space_id TEXT NOT NULL, agent_id TEXT NOT NULL, secret TEXT NOT NULL, PRIMARY KEY (space_id, agent_id))');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_agent_deliveries (space_id TEXT NOT NULL, event_id TEXT NOT NULL, agent_id TEXT NOT NULL, subject_id TEXT NOT NULL, state TEXT NOT NULL, next_at TEXT, value TEXT NOT NULL, PRIMARY KEY (space_id, event_id))');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_agent_deliveries_due ON space_agent_deliveries (state, next_at)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_agent_deliveries_agent ON space_agent_deliveries (space_id, agent_id, state)');
+    // Each space's last activity and picture. A Network from before this table has each space's last activity read
+    // once from what it already holds.
+    const stateIsNew = !this.sql.exec("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'space_state'").toArray().length;
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_state (space_id TEXT PRIMARY KEY, last_activity_at TEXT NOT NULL, picture_item_id TEXT)');
+    if (!this.sql.exec('PRAGMA table_info(space_state)').toArray().some(row => row.name === 'share_generation')) this.sql.exec('ALTER TABLE space_state ADD COLUMN share_generation INTEGER NOT NULL DEFAULT 0');
+    if (!this.sql.exec('PRAGMA table_info(space_state)').toArray().some(row => row.name === 'joins_as')) this.sql.exec('ALTER TABLE space_state ADD COLUMN joins_as TEXT');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_share_selections (space_id TEXT NOT NULL, contributed_by TEXT NOT NULL, selection_key TEXT NOT NULL, generation INTEGER NOT NULL, PRIMARY KEY (space_id, contributed_by, selection_key))');
+    // The owner's later choice fences its earlier in-flight private sends, even when they have no Space row yet.
+    this.sql.exec('CREATE TABLE IF NOT EXISTS private_share_intents (contributed_by TEXT NOT NULL, private_ref TEXT NOT NULL, intent_order INTEGER NOT NULL, PRIMARY KEY (contributed_by, private_ref))');
+    if (!this.sql.exec('PRAGMA table_info(space_share_selections)').toArray().some(row => row.name === 'intent_order')) this.sql.exec('ALTER TABLE space_share_selections ADD COLUMN intent_order INTEGER');
+    // An owner may take a Space out of a private record's choice before a delayed first item write reaches us.
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_private_share_fences (space_id TEXT NOT NULL, contributed_by TEXT NOT NULL, source_ref TEXT NOT NULL, intent_order INTEGER NOT NULL, PRIMARY KEY (space_id, contributed_by, source_ref))');
+    // A space's colour (space-settings.json colours), added to a space_state from before it.
+    if (!this.sql.exec('PRAGMA table_info(space_state)').toArray().some(row => row.name === 'colour')) this.sql.exec('ALTER TABLE space_state ADD COLUMN colour TEXT');
+    // Where the reconciler's last slice of a space's open work ended (src/agents.mjs reconcile), added to a space_state from before it.
+    if (!this.sql.exec('PRAGMA table_info(space_state)').toArray().some(row => row.name === 'review_mark')) this.sql.exec('ALTER TABLE space_state ADD COLUMN review_mark TEXT');
+    if (stateIsNew) this.sql.exec(`INSERT INTO space_state (space_id, last_activity_at) SELECT m.id, MAX(m.created_at, COALESCE((SELECT MAX(added_at) FROM space_items i WHERE i.space_id = m.id), ''), COALESCE((SELECT MAX(changed_at) FROM members me WHERE me.membership_id = m.id), '')) FROM memberships m`);
+    // Every withdrawal path fences earlier selections, including account removal and community moderation.
+    this.sql.exec(`CREATE TRIGGER IF NOT EXISTS space_items_withdrawn_share_fence AFTER UPDATE OF withdrawn_at ON space_items
+      WHEN NEW.withdrawn_at IS NOT NULL AND OLD.withdrawn_at IS NULL BEGIN
+        INSERT INTO space_state (space_id, last_activity_at, share_generation) VALUES (NEW.space_id, NEW.withdrawn_at, 1)
+          ON CONFLICT(space_id) DO UPDATE SET share_generation = share_generation + 1;
+        UPDATE space_items SET withdrawn_generation = (SELECT share_generation FROM space_state WHERE space_id = NEW.space_id) WHERE id = NEW.id;
+      END`);
+    seenMarks(this.sql, SPACE_SEEN);
+    this.sql.exec('CREATE TABLE IF NOT EXISTS space_invites (invite_id TEXT PRIMARY KEY, code_hash TEXT NOT NULL UNIQUE, space_id TEXT NOT NULL, made_by TEXT NOT NULL, made_at TEXT NOT NULL, expires_at TEXT NOT NULL, used_by TEXT, used_at TEXT, revoked_at TEXT)');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_invites_by_maker ON space_invites (space_id, made_by, made_at)');
+    // The member type a person joining with an invite takes (the sharing sheet's role), chosen when it was made.
+    if (!this.sql.exec('PRAGMA table_info(space_invites)').toArray().some(column => column.name === 'member_type')) this.sql.exec('ALTER TABLE space_invites ADD COLUMN member_type TEXT');
+    // A Workshop grant is a live reference to one canonical tool definition. Space state keeps no
+    // descriptor, source bytes or credentials: those remain with the tool owner/registry and are
+    // resolved by the caller's Workshop at use time. Revocation is a state transition on this row.
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS space_tool_grants (
+      grant_id TEXT PRIMARY KEY,
+      space_id TEXT NOT NULL,
+      tool_id TEXT NOT NULL,
+      tool_version TEXT,
+      granted_by TEXT NOT NULL,
+      granted_at TEXT NOT NULL,
+      revoked_at TEXT,
+      granted_to TEXT,
+      operations TEXT
+    )`);
+    // The first version of this table made (space, tool, version) unique, which forced a regrant to
+    // reactivate the old grant_id. Replace that schema in place so stale queued work stays revoked.
+    const grantSchema = this.sql.exec("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'space_tool_grants'").toArray()[0]?.sql ?? '';
+    if (/UNIQUE\s*\(\s*space_id\s*,\s*tool_id\s*,\s*tool_version\s*\)/i.test(grantSchema)) {
+      this.sql.exec(`CREATE TABLE space_tool_grants_next (
+        grant_id TEXT PRIMARY KEY, space_id TEXT NOT NULL, tool_id TEXT NOT NULL, tool_version TEXT,
+        granted_by TEXT NOT NULL, granted_at TEXT NOT NULL, revoked_at TEXT
+      )`);
+      this.sql.exec('INSERT INTO space_tool_grants_next SELECT grant_id, space_id, tool_id, tool_version, granted_by, granted_at, revoked_at FROM space_tool_grants');
+      this.sql.exec('DROP TABLE space_tool_grants');
+      this.sql.exec('ALTER TABLE space_tool_grants_next RENAME TO space_tool_grants');
+    }
+    const grantColumns = new Set(this.sql.exec('PRAGMA table_info(space_tool_grants)').toArray().map(row => row.name));
+    if (!grantColumns.has('granted_to')) this.sql.exec('ALTER TABLE space_tool_grants ADD COLUMN granted_to TEXT');
+    if (!grantColumns.has('operations')) this.sql.exec('ALTER TABLE space_tool_grants ADD COLUMN operations TEXT');
+    // The two fills below look only at the rows still unfilled: a partial index holds exactly those, so an object start reads none
+    // of the other grants (2026-10-20: each update read all 85,481 on every start of the shared Network).
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_tool_grants_unfilled_to ON space_tool_grants (grant_id) WHERE granted_to IS NULL');
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_tool_grants_unfilled_operations ON space_tool_grants (grant_id) WHERE operations IS NULL');
+    // Existing Space-wide grants become owner-only until the owner explicitly names another member.
+    this.sql.exec('UPDATE space_tool_grants SET granted_to = granted_by WHERE granted_to IS NULL');
+    this.sql.exec('UPDATE space_tool_grants SET operations = ? WHERE operations IS NULL', JSON.stringify(['discover', 'describe', 'run', 'read']));
+    this.sql.exec('CREATE INDEX IF NOT EXISTS space_tool_grants_by_space ON space_tool_grants (space_id, revoked_at, tool_id)');
+  },
+
+  nextSpaceShareGeneration(spaceId) {
+    return this.sql.exec(`INSERT INTO space_state (space_id, last_activity_at, share_generation) VALUES (?, ?, 1)
+      ON CONFLICT(space_id) DO UPDATE SET share_generation = share_generation + 1 RETURNING share_generation`, spaceId, new Date().toISOString()).toArray()[0].share_generation;
+  },
+
+  spaceShareSelectionGeneration(spaceId, relay, selectionKey, intentOrder = 0) {
+    if (!Number.isSafeInteger(intentOrder) || intentOrder < 0) throw new Error('A Pursuit selection needs a valid share order.');
+    const earlier = this.sql.exec('SELECT generation, intent_order FROM space_share_selections WHERE space_id = ? AND contributed_by = ? AND selection_key = ?', spaceId, relay, selectionKey).toArray()[0];
+    if (earlier) {
+      if ((earlier.intent_order ?? 0) !== intentOrder) throw new Error('This pursuit selection has a different share order.');
+      return earlier.generation;
+    }
+    const generation = this.nextSpaceShareGeneration(spaceId);
+    this.sql.exec('INSERT INTO space_share_selections (space_id, contributed_by, selection_key, generation, intent_order) VALUES (?, ?, ?, ?, ?)', spaceId, relay, selectionKey, generation, intentOrder);
+    return generation;
+  },
+
+  async fencePrivateShareIntents({ relay, private_refs: refs, intent_order: value }) {
+    const order = ownerIntentOrder(value);
+    if (!order || !Array.isArray(refs) || !refs.length || refs.length > 1000 || refs.some(ref => typeof ref !== 'string' || !ref)) throw new Error('A private sharing choice needs 1 to 1000 source references and its owner order.');
+    for(const transfer of this.sql.exec("SELECT space_id FROM space_content_shard_transfer WHERE state='retired'").toArray()){
+      for(let at=0;at<32;at+=8)await Promise.all(Array.from({length:8},(_,offset)=>hostOf(this.env, { kind: 'network', key: `space:content:${transfer.space_id}:shard:${at+offset}` }).fencePrivateShareIntents({relay,private_refs:refs,intent_order:order})));
+    }
+    const distinct = [...new Set(refs)];
+    for (const ref of distinct) this.sql.exec(`INSERT INTO private_share_intents (contributed_by, private_ref, intent_order) VALUES (?, ?, ?)
+      ON CONFLICT(contributed_by, private_ref) DO UPDATE SET intent_order = MAX(intent_order, excluded.intent_order)`, relay, ref, order);
+    const byShard = new Map();
+    for (const ref of distinct) for (const row of this.sql.exec('SELECT owner_space_id FROM private_share_dispatches WHERE contributed_by = ? AND private_ref = ? AND intent_order < ?', relay, ref, order).toArray()) {
+      if (!byShard.has(row.owner_space_id)) byShard.set(row.owner_space_id, new Set());
+      byShard.get(row.owner_space_id).add(ref);
+    }
+    if (byShard.size && !this.env?.NETWORK) throw new Error('The pursuit storage route is unavailable.');
+    // A fence acknowledged by a shard is durable there. An older RPC can arrive before or after it;
+    // the shard compares this local order after its last awaited read and before writing any bytes.
+    await Promise.all([...byShard].map(async ([ownerId, sources]) => {
+      const shard = hostOf(this.env, { kind: 'network', key: `space:${ownerId}` });
+      await shard.fencePrivateShareIntents({ relay, private_refs: [...sources], intent_order: order });
+      // The acknowledged local MAX covers even an old RPC whose response was lost and may arrive later.
+      for (const ref of sources) this.sql.exec('DELETE FROM private_share_dispatches WHERE owner_space_id = ? AND contributed_by = ? AND private_ref = ? AND intent_order < ?', ownerId, relay, ref, order);
+    }));
+    return { fenced: distinct.length };
+  },
+
+  // A deleted owner's in-flight private write must refuse itself at the writer.
+  // The mark only ever closes writes, so it needs no policy fence.
+  async markPrivateShareOwnerDeleted({ relay }) {
+    if (typeof relay !== 'string' || !relay) throw new Error('A deleted private share owner is required.');
+    for(const transfer of this.sql.exec("SELECT space_id FROM space_content_shard_transfer WHERE state='retired'").toArray()){
+      for(let at=0;at<32;at+=8)await Promise.all(Array.from({length:8},(_,offset)=>hostOf(this.env, { kind: 'network', key: `space:content:${transfer.space_id}:shard:${at+offset}` }).markPrivateShareOwnerDeleted({relay})));
+    }
+    this.sql.exec('INSERT OR IGNORE INTO private_share_deleted_relays (relay) VALUES (?)', relay);
+    return { marked: true };
+  },
+
+  privateShareIntentOrder(relay, ref) {
+    return this.sql.exec('SELECT intent_order FROM private_share_intents WHERE contributed_by = ? AND private_ref = ?', relay, ref).toArray()[0]?.intent_order ?? 0;
+  },
+
+  privateShareOwnerDeleted(relay) {
+    return this.sql.exec('SELECT 1 FROM private_share_deleted_relays WHERE relay = ?', relay).toArray().length > 0;
+  },
+
+  privateShareIntentOrders({ relay, private_refs: refs }) {
+    if (!Array.isArray(refs) || refs.length > 100 || refs.some(ref => typeof ref !== 'string' || !ref)) throw new Error('Read at most 100 private sharing orders.');
+    if (!refs.length) return { orders: [] };
+    // The caller checks the shard-local row again after this remote answer and before its SQL write.
+    const globalId = this.env?.NETWORK?.idFromName?.('everyone');
+    const local = () => this.sql.exec('SELECT private_ref, intent_order FROM private_share_intents WHERE contributed_by = ? AND private_ref IN (SELECT value FROM json_each(?))', relay, JSON.stringify(refs)).toArray();
+    if (globalId && this.ctx?.id && this.ctx.id.toString() !== globalId.toString()) {
+      return sharedDependencyStub(this,'everyone').privateShareIntentOrders({ relay, private_refs: refs });
+    }
+    return { orders: local() };
+  },
+  // A space changed: its last activity is now, and every current member's store hears it once this turn is over.
+  newSpaceContentId(kind) { const id=newId(kind);return Number.isInteger(this.contentShardIndex)?shardKey(this.contentShardIndex,id):id; },
+  spaceChanged(spaceId, at = new Date().toISOString()) {
+    const content = this.sql.exec("SELECT * FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')", spaceId).toArray()[0];
+    if (content) {
+      this.sql.exec('UPDATE space_content_policy_reconcile SET activity_at = CASE WHEN activity_at IS NULL OR activity_at < ? THEN ? ELSE activity_at END WHERE space_id = ?',at,at,spaceId);
+      return;
+    }
+    const moved = this.sql.exec("SELECT 1 FROM space_partition_routes WHERE space_id = ? AND state = 'active'",spaceId).toArray()[0];
+    if (moved) {
+      const notifying = notifySharedResourceActivity(this.env,spaceId,at);
+      this.ctx.waitUntil?.(notifying);
+      return;
+    }
+    this.sql.exec('INSERT INTO space_state (space_id, last_activity_at) VALUES (?, ?) ON CONFLICT(space_id) DO UPDATE SET last_activity_at = excluded.last_activity_at', spaceId, at);
+    this.tellSoon({ space: spaceId });
+  },
+  // Stores to tell when this turn's writes are done: the current members of a space, or one relay. Each store is told
+  // once however many changes the turn made; a store that cannot be reached misses one repaint and reads the change
+  // on its next one, so telling never holds up or undoes a write.
+  tellSoon({ space, relay }) {
+    if (!this.toTell) {
+      this.toTell = { spaces: new Set(), relays: new Set() };
+      queueMicrotask(() => this.tellStores());
+    }
+    if (space) this.toTell.spaces.add(space);
+    if (relay) this.toTell.relays.add(relay);
+  },
+  tellStores() {
+    const { spaces, relays } = this.toTell;
+    this.toTell = null;
+    const refs = new Set();
+    for (const space of spaces) for (const row of this.sql.exec("SELECT r.person_ref FROM members me JOIN relays r ON r.relay = me.relay WHERE me.membership_id = ? AND me.state = 'member'", space).toArray()) refs.add(row.person_ref);
+    for (const relay of relays) for (const row of this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', relay).toArray()) refs.add(row.person_ref);
+    // Each member's store is also told, as a typed notice, what in the spaces list may have changed: its version is the hash
+    // of what the list shows of the space (not its activity), so a page holding that version reads nothing again.
+    const notices = [];
+    for (const space of spaces) {
+      const notice = this.spaceListingNotice(space);
+      if (!notice) continue;
+      for (const row of this.sql.exec("SELECT r.person_ref FROM members me JOIN relays r ON r.relay = me.relay WHERE me.membership_id = ? AND me.state = 'member'", space).toArray()) notices.push([row.person_ref, notice]);
+    }
+    return Promise.allSettled([
+      ...[...refs].map(async ref => this.personStoreOf(ref).spaceChanged()),
+      ...notices.map(async ([ref, notice]) => this.personStoreOf(ref).spaceDirty?.(notice)),
+    ]);
+  },
+  // The store of the person a relay belongs to, by the id kept in the relay's row: the one place this file reaches a person's store.
+  personStoreOf(ref) { return this.env.PERSON.get(this.env.PERSON.idFromString(ref)); },
+  // Told to each member who had not yet seen an item that was taken back: their unread count for the space drops by one, as a
+  // typed badge event (new-work.json badge_events.space_item_withdrawn). Their own store settles the exact count afterwards.
+  tellWithdrawn(spaceId, itemId) {
+    const item = this.sql.exec('SELECT contributed_by, added_at FROM space_items WHERE id = ? AND space_id = ?', itemId, spaceId).toArray()[0];
+    if (!item) return;
+    const marks = this.spaceSeen();
+    for (const member of this.currentMembers(spaceId)) {
+      if (member.relay === item.contributed_by || item.added_at <= (marks.seenAt(spaceId, member.relay) ?? '')) continue;
+      for (const row of this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', member.relay).toArray())
+        void Promise.resolve(this.personStoreOf(row.person_ref).spaceBadge?.({ event: 'space_item_withdrawn', amount: 1 })).catch(() => {});
+    }
+  },
+  // What the spaces list shows of one space, as a dirty notice { kind, id, version }; null for a space that is gone.
+  spaceListingNotice(spaceId) {
+    const row = this.sql.exec('SELECT title, about FROM memberships WHERE id = ?', spaceId).toArray()[0];
+    if (!row) return null;
+    const state = this.sql.exec('SELECT picture_item_id, colour FROM space_state WHERE space_id = ?', spaceId).toArray()[0];
+    const nameOf = this.memberNames(spaceId);
+    const names = this.currentMembers(spaceId).map(member => nameOf(member.relay));
+    return { kind: SPACES_READ, id: spaceId, version: codeHash(JSON.stringify([row.title, row.about, state?.picture_item_id ?? null, state?.colour ?? null, names])) };
+  },
+
+  // The name a member shows in a space: the one they gave there, else their account name, else their place in the order people joined.
+  memberNames(spaceId) {
+    // The name given in the space, else the account's own name, else the name on their network listing, else their
+    // place in the order people joined; a contact detail is never a name, wherever it came from (src/shown-name.mjs).
+    const rows = this.sql.exec(`SELECT me.relay, n.name AS here, r.account_name AS own, l.name AS listed FROM members me
+      LEFT JOIN member_names n ON n.membership_id = me.membership_id AND n.relay = me.relay
+      LEFT JOIN relays r ON r.relay = me.relay LEFT JOIN listings l ON l.relay = me.relay
+      WHERE me.membership_id = ? ORDER BY me.changed_at, me.relay`, spaceId).toArray();
+    const projected = new Map((projectedSpaceContent(this, spaceId)?.names ?? []).map(row => [row.relay, row.name]));
+    const names = new Map(rows.map((row, index) => [row.relay, usableName(projected.get(row.relay)) ?? usableName(row.here) ?? usableName(row.own) ?? usableName(row.listed) ?? `Member ${index + 1}`]));
+    return relay => names.get(relay) ?? 'Member ?';
+  },
+
+  // Account names are owned by each account's policy owner (src/account-control.mjs accountName). The relay table keeps a read cache, never a caller-supplied name or
+  // contact; a per-space name remains the member's explicit choice.
+  async cacheMemberAccountNames(spaceId) {
+    return this.cacheMemberAccountNamesForSpaces([spaceId]);
+  },
+  async cacheMemberAccountNamesForSpaces(spaceIds) {
+    const people = new Set();
+    const staleBefore = Date.now() - MEMBER_NAME_REFRESH_MS;
+    // The spaces go as one JSON value: a Durable Object refuses a query binding more than 100 values, so a list of
+    // spaces bound one value each failed for a person in more than 99 of them.
+    const members = this.sql.exec(`SELECT DISTINCT r.person_ref FROM members m JOIN relays r ON r.relay = m.relay WHERE m.membership_id IN (SELECT value FROM json_each(?)) AND m.state = 'member' AND (r.account_name_checked_at_ms IS NULL OR r.account_name_checked_at_ms <= ?)`, JSON.stringify(spaceIds), staleBefore).toArray();
+    for (const { person_ref: personRef } of members) people.add(personRef);
+    this.memberNameRefreshes ??= new Map();
+    await Promise.all([...people].map(async personRef => {
+      let refresh = this.memberNameRefreshes.get(personRef);
+      if (!refresh) {
+        refresh = (async () => {
+          try {
+            const name = await policyDirectoryFor(this.env, personRef).accountName(personRef);
+            if (typeof name === 'string' && name.trim()) this.sql.exec('UPDATE relays SET account_name = ? WHERE person_ref = ?', name.trim().replace(/\s+/g, ' ').slice(0, 100), personRef);
+          } catch { /* A transient account-name read leaves the last known name in place. */ }
+          this.sql.exec('UPDATE relays SET account_name_checked_at_ms = ? WHERE person_ref = ?', Date.now(), personRef);
+        })().finally(() => this.memberNameRefreshes.delete(personRef));
+        this.memberNameRefreshes.set(personRef, refresh);
+        this.ctx.waitUntil?.(refresh);
+      }
+      // One slow or resetting account owner must not hold every Space card or item page open.
+      let timer;
+      await Promise.race([refresh, new Promise(resolve => { timer = setTimeout(resolve, MEMBER_NAME_WAIT_MS); })]);
+      clearTimeout(timer);
+    }));
+  },
+
+  outwardItem(row, asker, nameOf) {
+    const byTrillion = row.origin === 'trillion';
+    const mine = row.contributed_by === asker && !byTrillion;
+    return {
+      item_id: row.id, kind: row.kind, title: row.title, body: row.withdrawn_at ? null : JSON.parse(row.body ?? 'null'), about: JSON.parse(row.about ?? '[]'), reply_to: row.reply_to ?? null,
+      ...(row.facts && !row.withdrawn_at ? { facts: JSON.parse(row.facts) } : {}), ...(row.part && !row.withdrawn_at ? { part: JSON.parse(row.part) } : {}),
+      ...(row.anchor_record && !row.withdrawn_at ? { anchor: { record: row.anchor_record, ...(row.anchor_part ? { part: JSON.parse(row.anchor_part) } : {}) } } : {}),
+      provenance: {
+        origin: ORIGIN_WORDS[row.origin] ?? row.origin,
+        by: byTrillion ? settings.made_by_trillion.by : nameOf(row.contributed_by), by_you: mine, added_at: row.added_at,
+        ...(row.app ? appProvenance(row.app) : {}),
+        ...(mine && row.origin === 'private' ? { your_private_record: row.source_ref } : {}),
+      },
+      ...(row.withdrawn_at ? { withdrawn: { by: nameOf(row.withdrawn_by), at: row.withdrawn_at } } : {}),
+    };
+  },
+
+  // What a member reads about one space wherever it is shown: its words, its picture, who is in it, what it holds,
+  // what is new to them and when anything last happened there.
+  // Each member's one seen mark per space (src/seen-marks.mjs): what unread counts from.
+  spaceSeen() { return seenMarks(this.sql, SPACE_SEEN); },
+  // What others added to a space since this member last marked it seen: the one count every unread reads.
+  unreadIn(spaceId, relay, seenAt = this.spaceSeen().seenAt(spaceId, relay)) {
+    return this.sql.exec('SELECT COUNT(*) AS n FROM space_items WHERE space_id = ? AND contributed_by <> ? AND withdrawn_at IS NULL AND added_at > ?', spaceId, relay, seenAt ?? '').toArray()[0].n;
+  },
+  spaceSummary(space, relay, nameOf, members) {
+    const kinds = this.sql.exec('SELECT kind, COUNT(*) AS n FROM space_items WHERE space_id = ? AND withdrawn_at IS NULL GROUP BY kind', space.id).toArray();
+    const state = this.sql.exec('SELECT last_activity_at, picture_item_id, colour FROM space_state WHERE space_id = ?', space.id).toArray()[0];
+    const seenAt = this.spaceSeen().seenAt(space.id, relay);
+    return {
+      space_id: space.id, label: space.label, title: space.title, description: space.about ?? null, picture: this.pictureOf(state?.picture_item_id, nameOf),
+      colour: state?.colour ?? null,
+      member_names: members.map(row => nameOf(row.relay)),
+      items: kinds.reduce((sum, row) => sum + row.n, 0), items_by_kind: Object.fromEntries(kinds.map(row => [row.kind, row.n])),
+      unread: this.unreadIn(space.id, relay, seenAt),
+      seen_at: seenAt, last_activity_at: state?.last_activity_at ?? space.created_at,
+    };
+  },
+  // Whether people get into this space by its own rules rather than by each other's agreement: its label's DATA row
+  // (src/network-settings.json membership_labels joined_by) decides, and an event inside a space follows that space.
+  joinedByRules(spaceId) {
+    const row = this.sql.exec('SELECT label, parent_id FROM memberships WHERE id = ?', spaceId).toArray()[0];
+    if (!row) return false;
+    return row.parent_id ? this.joinedByRules(row.parent_id) : labels.membership_labels[row.label]?.joined_by === 'rules';
+  },
+  currentMembers(spaceId) {
+    return this.sql.exec("SELECT relay, role FROM members WHERE membership_id = ? AND state = 'member' ORDER BY changed_at, relay", spaceId).toArray();
+  },
+  // A space's picture as members see it: the shared file it is, or null once that file is withdrawn.
+  pictureOf(itemId, nameOf) {
+    const row = itemId ? this.sql.exec('SELECT id, title, body, contributed_by, withdrawn_at FROM space_items WHERE id = ?', itemId).toArray()[0] : null;
+    if (!row || row.withdrawn_at) return null;
+    const file = JSON.parse(row.body ?? '{}');
+    return { item_id: row.id, name: row.title ?? file.name?.split('/').pop() ?? null, media_type: file.media_type ?? null, byte_length: file.byte_length ?? null, shared_by: nameOf(row.contributed_by) };
+  },
+
+  // The spaces this person is in and may open, newest first: each is asked of its own rules with read_space, the same
+  // decision opening it asks (allowedInSpace), so a space is never listed that then refuses to open.
+  async readableSpaces(relay) {
+    const rows = this.sql.exec(`SELECT m.id, m.label, m.title, m.about, m.created_by, m.created_at FROM memberships m JOIN members me ON me.membership_id = m.id LEFT JOIN space_partition_routes route ON route.space_id = m.id WHERE me.relay = ? AND me.state = 'member' AND route.state IS NOT 'active' ORDER BY m.created_at DESC`, relay).toArray();
+    const decided = await Promise.all(rows.map(row => this.decideInSpace(row, relay, 'read_space')));
+    const content = this.sql.exec("SELECT space_id FROM space_content_identity WHERE state = 'sealed'").toArray()[0];
+    return rows.filter((row, index) => decided[index].allowed && (!content || row.id === content.space_id));
+  },
+
+  async spaces({ relay }) {
+    const rows = await this.readableSpaces(relay);
+    await this.cacheMemberAccountNamesForSpaces(rows.map(row => row.id));
+    return { spaces: await Promise.all(rows.map(async row => {
+        const content = this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')", row.id).toArray()[0];
+        if (content) {
+          const view = await makeSharedNetwork(this.env).space({ relay, space_id: row.id });
+          return { ...view, members: view.members.length, others: view.members.filter(member => !member.you).map(member => member.name) };
+        }
+        const members = this.currentMembers(row.id);
+        const nameOf = this.memberNames(row.id);
+        // `others`: the names of everyone in it but the reader, so a pursuit's room says who it is shared with.
+        return { ...this.spaceSummary(row, relay, nameOf, members), members: members.length, others: members.filter(member => member.relay !== relay).map(member => nameOf(member.relay)) };
+      })) };
+  },
+
+  // How many things are unread across the spaces this person may open, and nothing else: what a "new" badge needs,
+  // without each space's names, members and counts (spaces()), which every open screen's new-work read asked for on
+  // each revision (2026-10-07).
+  // `space_ids` keeps the count to those spaces (a moved space's own store counts only the spaces asked of it);
+  // `except_ids` leaves spaces out (the ones the person archived from their own list).
+  async spaceUnread({ relay, space_ids: spaceIds = null, except_ids: exceptIds = [] }) {
+    const wanted = Array.isArray(spaceIds) ? new Set(spaceIds) : null;
+    const left = new Set(exceptIds);
+    const rows = (await this.readableSpaces(relay)).filter(row => (!wanted || wanted.has(row.id)) && !left.has(row.id));
+    const counts = await Promise.all(rows.map(async row => {
+      const route = this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')", row.id).toArray()[0];
+      return route ? (await makeSharedNetwork(this.env).space({ relay, space_id: row.id })).unread : this.unreadIn(row.id, relay);
+    }));
+    return { unread: counts.reduce((sum, count) => sum + count, 0) };
+  },
+
+  async space({ relay, space_id: spaceId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const access = this.spaceAccessState(space.id, relay);
+    await this.cacheMemberAccountNames(space.id);
+    const nameOf = this.memberNames(space.id);
+    const current = this.currentMembers(space.id);
+    const view = { ...this.spaceSummary(space, relay, nameOf, current),
+      members: current.map(row => ({ member_id: row.relay, name: nameOf(row.relay), role: row.role, you: row.relay === relay })),
+      // What this reader may do in it (src/space-member-types.mjs), asked of the space's own rules.
+      may: await this.mayInSpace(space, relay), member_types: this.memberTypesOf(space), joins_as: this.joiningType(space.label, space.id),
+      agents: spaceAgentStore(this.sql, space.id).cards().map(card => ({ agent_id: card.agent_id, ...(card.ai_id ? { ai_id: card.ai_id } : {}), name: card.name, description: card.description, ...(card.can ? { can: card.can } : {}), ...(card.live ? { live: card.live } : {}), member: nameOf(card.relay), member_id: card.relay, takes_work: card.takes_work, wakes_on_events: Boolean(card.delivery) })) };
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return view;
+  },
+
+  // The current members of a space as a member reads them, each with the store that is theirs, so the Worker can list
+  // the AIs each member let reach this space (src/space-ais.mjs). The store refs go to the Worker, never to a page.
+  // `action` is what the asker is about to do there (reading the list, or put_agent_to_work to add one of their AIs),
+  // asked of the space's own rules like every other read and write.
+  async spaceMemberStores({ relay, space_id: spaceId, action = 'read_space' }) {
+    const space = await this.allowedInSpace(spaceId, relay, action);
+    const access = this.spaceAccessState(space.id, relay);
+    await this.cacheMemberAccountNames(space.id);
+    const nameOf = this.memberNames(space.id);
+    const stores = this.sql.exec("SELECT me.relay, r.person_ref FROM members me JOIN relays r ON r.relay = me.relay WHERE me.membership_id = ? AND me.state = 'member' ORDER BY me.changed_at, me.relay", space.id).toArray()
+      .map(row => ({ name: nameOf(row.relay), you: row.relay === relay, person_ref: row.person_ref }));
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return stores;
+  },
+
+  // The member has seen the space, as their seen mark says (src/seen-marks.mjs): everything up to now, or only through
+  // the item `through` (the newest one their screen showed them, so items that arrived while they read stay unread).
+  // The mark moves forward only and never past now, so replaying an old call changes nothing. `unread_from` is the
+  // explicit way back: the mark goes one millisecond below that item, so it and everything after it count as unread.
+  // Only their own screens are told.
+  async markSpaceSeen({ relay, space_id: spaceId, through, unread_from: unreadFrom }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (through !== undefined && unreadFrom !== undefined) throw new Error('Say through or unread_from, not both.');
+    const addedAt = (itemId, name) => {
+      if (typeof itemId !== 'string' || !itemId) throw new Error(`${name} is the id of an item in the pursuit.`);
+      const row = this.sql.exec('SELECT added_at FROM space_items WHERE id = ? AND space_id = ?', itemId, space.id).toArray()[0];
+      if (!row) throw new Error(`${name} is not an item in this pursuit.`);
+      return row.added_at;
+    };
+    const now = new Date().toISOString();
+    let at;
+    if (unreadFrom !== undefined) at = this.spaceSeen().mark(space.id, relay, new Date(Date.parse(addedAt(unreadFrom, 'unread_from')) - 1).toISOString());
+    else at = this.spaceSeen().advance(space.id, relay, through === undefined ? now : [addedAt(through, 'through'), now].sort()[0]);
+    this.tellSoon({ relay });
+    return { space_id: space.id, seen_at: at, unread: this.unreadIn(space.id, relay, at) };
+  },
+
+  // A member sets the space's title, its description, its picture, its colour, or any of them. `picture` is one file from the
+  // member's own files, already cut by their store (src/person-spaces.mjs) to what a shared file lets out; it is shared
+  // into the space like any file, so members read it through the space. `colour` is one id of space-settings.json
+  // colours. null clears any of them.
+  async describeSpace({ relay, space_id: spaceId, title, description, picture, colour }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'describe_space');
+    if (title === undefined && description === undefined && picture === undefined && colour === undefined) throw new Error('Give a title, a description, a picture or a colour (null clears one).');
+    // A space's name is never empty: a title is changed, never cleared.
+    if (title !== undefined) {
+      const named = optional(title, 200);
+      if (!named) throw new Error('A pursuit\'s title is a few words, like "Riverside Bakery Launch".');
+      this.sql.exec('UPDATE memberships SET title = ? WHERE id = ?', named, space.id);
+    }
+    if (colour !== undefined && colour !== null && !COLOURS.has(colour)) throw new Error(`A space's colour is one of ${[...COLOURS].join(', ')}.`);
+    if (description !== undefined) this.sql.exec('UPDATE memberships SET about = ? WHERE id = ?', optional(description, 2000), space.id);
+    const content = this.sql.exec("SELECT * FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')", space.id).toArray()[0];
+    if (content) {
+      this.spaceChanged(space.id);
+      if (picture !== undefined || colour !== undefined) return invokeCoordinatedContent(this, space.id, 'contentDescribeAppearance', [{ relay, space_id: space.id, picture, colour }]);
+      return invokeCoordinatedContent(this, space.id, 'space', [{ relay, space_id: space.id }]);
+    }
+    if (picture !== undefined) {
+      let itemId = null;
+      if (picture !== null) {
+        if (picture.kind !== 'file') throw new Error('A pursuit\'s picture is one of your files.');
+        const type = picture.body?.media_type;
+        if (type && !String(type).startsWith('image/')) throw new Error(`${picture.title ?? 'That file'} is not a picture (${type}).`);
+        itemId = (await this.shareIntoSpace({ relay, space_id: space.id, record: picture })).item_id;
+      }
+      const now = new Date().toISOString();
+      this.sql.exec('INSERT INTO space_state (space_id, last_activity_at, picture_item_id) VALUES (?, ?, ?) ON CONFLICT(space_id) DO UPDATE SET picture_item_id = excluded.picture_item_id', space.id, now, itemId);
+    }
+    if (colour !== undefined) this.sql.exec('INSERT INTO space_state (space_id, last_activity_at, colour) VALUES (?, ?, ?) ON CONFLICT(space_id) DO UPDATE SET colour = excluded.colour', space.id, new Date().toISOString(), colour);
+    this.spaceChanged(space.id);
+    return this.space({ relay, space_id: space.id });
+  },
+
+  // Where the space's picture's bytes are, for a current member, as for any shared file.
+  async spacePicture({ relay, space_id: spaceId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const itemId = this.sql.exec('SELECT picture_item_id FROM space_state WHERE space_id = ?', space.id).toArray()[0]?.picture_item_id;
+    if (!itemId) throw new Error('This pursuit has no picture.');
+    return { ...(await this.spaceFile({ relay, space_id: space.id, item_id: itemId })), item_id: itemId };
+  },
+
+  // A member makes a one-time invite link's code for a space. Only its hash is kept; the code is returned once.
+  // `addressed` ({ email?, phone? }): who the invite is for, kept only as keyed hashes (src/space-invite-addresses.mjs),
+  // so it reaches that person when their account proves the address, even if the link itself is lost.
+  async makeSpaceInvite({ relay, space_id: spaceId, days, addressed = null, member_type: memberType = null }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'make_invite');
+    // A role chosen for whoever joins with it is a member type of this space, given only by someone its rules let give
+    // types; none chosen is the space's own default for a new member.
+    if (memberType !== null && memberType !== undefined) {
+      await this.allowedInSpace(space.id, relay, 'set_member_type');
+      const types = this.memberTypesOf(space);
+      if (!types.some(type => type.id === memberType)) throw new Error(`That is not a type in this space. Its types are: ${types.map(type => type.label).join(', ')}.`);
+    }
+    const { size_limit: limit } = this.sql.exec('SELECT size_limit FROM memberships WHERE id = ?', space.id).toArray()[0];
+    if (limit && this.currentMembers(space.id).length >= limit) throw new Error('This pursuit is full. Invite someone when there is room.');
+    const span = days === undefined || days === null ? settings.invites.default_days : Number(days);
+    if (!(span > 0 && span <= settings.invites.max_days)) throw new Error(`days is more than 0 and at most ${settings.invites.max_days}.`);
+    if (addressed !== null && addressed !== undefined) this.addressedInviteHashes(addressed);
+    // The code is a secret name (src/readable-names.mjs), so an invite or meeting link reads as words; only its hash is kept.
+    const code = secretName();
+    const now = new Date();
+    const invite = { invite_id: newId('invite'), made_at: now.toISOString(), expires_at: new Date(now.getTime() + span * 86400000).toISOString(), member_type: memberType ?? null };
+    this.sql.exec('INSERT INTO space_invites (invite_id, code_hash, space_id, made_by, made_at, expires_at, member_type) VALUES (?, ?, ?, ?, ?, ?, ?)', invite.invite_id, codeHash(code), space.id, relay, invite.made_at, invite.expires_at, invite.member_type);
+    if (addressed) await this.keepInviteAddresses(invite.invite_id, addressed);
+    return { space_id: space.id, ...invite, code };
+  },
+
+  // The invite links this member made for a space, and what became of each.
+  async spaceInvites({ relay, space_id: spaceId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const now = new Date().toISOString();
+    return { space_id: space.id, invites: this.sql.exec('SELECT * FROM space_invites WHERE space_id = ? AND made_by = ? ORDER BY made_at DESC', space.id, relay).toArray()
+      .map(row => ({ invite_id: row.invite_id, made_at: row.made_at, expires_at: row.expires_at, state: inviteState(row, now), used_at: row.used_at ?? null, revoked_at: row.revoked_at ?? null, member_type: row.member_type ?? null })) };
+  },
+
+  async revokeSpaceInvite({ relay, space_id: spaceId, invite_id: inviteId }) {
+    const row = this.sql.exec('SELECT * FROM space_invites WHERE invite_id = ? AND space_id = ?', String(inviteId ?? ''), String(spaceId ?? '')).toArray()[0];
+    await this.allowedInSpace(spaceId, relay, 'revoke_invite', row ? { by: row.made_by } : null);
+    if (!row) throw new Error('You made no invite link with that id in this space.');
+    if (!row.revoked_at && !row.used_at) this.sql.exec('UPDATE space_invites SET revoked_at = ? WHERE invite_id = ?', new Date().toISOString(), row.invite_id);
+    return { invite_id: row.invite_id, state: inviteState(this.sql.exec('SELECT * FROM space_invites WHERE invite_id = ?', row.invite_id).toArray()[0], new Date().toISOString()) };
+  },
+
+  // An invite that can still be used, or the one refusal for every other case (unknown, used, revoked, expired, or
+  // the space's rules refuse joining with it, as when its maker has left), so a code reveals nothing by how it fails.
+  async openInvite(code, relay) {
+    return this.admitInvite(this.sql.exec('SELECT * FROM space_invites WHERE code_hash = ?', codeHash(code)).toArray()[0], relay);
+  },
+  // One invite row, when it can still be used by this person (the same refusal for every other case).
+  async admitInvite(row, relay) {
+    const state = row && inviteState(row, new Date().toISOString());
+    if (state !== 'open' && !(state === 'used' && row.used_by === relay)) throw new Error(NO_INVITE);
+    if (!await this.inviteAddressedToRelay(row.invite_id, relay)) throw new Error(NO_INVITE);
+    if (state === 'used' && this.isMemberNow(row.space_id, relay)) return row;
+    if (state === 'used' && this.sql.exec("SELECT 1 FROM requests WHERE membership_id = ? AND from_relay = ? AND to_relay = ? AND why = 'Joined with an invite link' AND created_at = ? AND status = 'accepted'", row.space_id, row.made_by, relay, row.used_at).toArray().length) throw new Error(NO_INVITE);
+    await this.allowedInSpace(row.space_id, relay, 'join_with_invite', { by: row.made_by, link: true }).catch(() => { throw new Error(NO_INVITE); });
+    return row;
+  },
+
+  // What an invite link shows before joining: the space's name and words and how many are in it, nothing it holds.
+  async spaceInvite({ relay, code }) {
+    const invite = await this.openInvite(code, relay);
+    const space = this.sql.exec('SELECT id, label, title, about FROM memberships WHERE id = ?', invite.space_id).toArray()[0];
+    return { space: { title: space.title, label: space.label, description: space.about ?? null, members: this.currentMembers(space.id).length }, expires_at: invite.expires_at, already_member: Boolean(relay && this.isMemberNow(space.id, relay)) };
+  },
+
+  // What an invite link's own page shows, to its holder signed in (`relay`) or not (null): the invite's state (open,
+  // used, revoked, expired, or `unknown` for a code no one made or one the space's rules no longer honour), who made
+  // it, and, while it is open or the reader is already in, the space as its link preview and page draw it. Nothing
+  // the space holds is read. `names` caps how many member names are returned (the rest are counted).
+  async invitePreview({ relay = null, person_ref: personRef = null, code, names = 6 }) {
+    const row = this.sql.exec('SELECT * FROM space_invites WHERE code_hash = ?', codeHash(code)).toArray()[0];
+    if (!row) return { state: 'unknown' };
+    let state = inviteState(row, new Date().toISOString());
+    const addressed = this.sql.exec('SELECT 1 FROM space_invite_addresses WHERE invite_id = ? LIMIT 1', row.invite_id).toArray().length > 0;
+    // A signed-out visitor can carry the link through sign-in, but sees no Space details until their account proves
+    // one of the addressed values. The sender can still render the invitation they are sending.
+    if (state === 'open' && addressed && !relay) return { state: 'addressed_sign_in' };
+    if (relay && relay !== row.made_by && !await this.inviteAddressedToRelay(row.invite_id, relay)) return { state: 'unknown' };
+    if (state === 'open') state = await this.allowedInSpace(row.space_id, relay, 'join_with_invite', { by: row.made_by, link: true }).then(() => 'open', () => 'unknown');
+    if (state === 'unknown') return { state };
+    const space = this.sql.exec('SELECT id, label, title, about FROM memberships WHERE id = ?', row.space_id).toArray()[0];
+    await this.cacheMemberAccountNames(space.id);
+    const content = this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')",space.id).toArray()[0];
+    const access = this.spaceAccessState(space.id,relay,{by:row.made_by,link:true});
+    const projected = content ? await readSharedInvitationContent(this.env,space.id,{made_by:row.made_by,names}) : null;
+    if (access !== this.spaceAccessState(space.id,relay,{by:row.made_by,link:true})) return {state:'unknown'};
+    const projectedNames = new Map((projected?.members ?? []).map(one => [one.relay,one.name]));
+    const localNames = this.memberNames(space.id);
+    const nameOf = one => (one === row.made_by ? projected?.inviter : null) ?? projectedNames.get(one) ?? localNames(one);
+    const member = Boolean(relay && this.isMemberNow(space.id, relay));
+    const preview = { state, already_member: member, expires_at: row.expires_at, inviter: nameOf(row.made_by), space: { title: space.title } };
+    if (state !== 'open' && !member) return preview;
+    const members = this.currentMembers(space.id);
+    const picture = projected?.picture ?? this.pictureOf(this.sql.exec('SELECT picture_item_id FROM space_state WHERE space_id = ?', space.id).toArray()[0]?.picture_item_id, nameOf);
+    // The inviter first, then everyone else in the order they joined.
+    const ordered = [...members.filter(one => one.relay === row.made_by), ...members.filter(one => one.relay !== row.made_by)];
+    // Who the people in it are (src/space-membership-kinds.mjs), and, for a signed-in reader not in it yet whom its
+    // kind does not cover (no plan with its feature, no free seat of the owner's), what joining needs.
+    const kind = this.kindOfSpace(space.id);
+    const cover = relay && !member && kind?.plan_feature ? await this.joinCover(space.id, relay, personRef ?? this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', relay).toArray()[0]?.person_ref ?? null) : { covered: true };
+    return { ...preview, ...(cover.covered ? {} : { needs_plan: cover.words }), space: {
+      members_are: kind?.id ?? null,
+      ...(member ? { space_id: space.id } : {}), title: space.title, label: space.label, description: space.about ?? null,
+      picture: picture ? { item_id: picture.item_id, media_type: picture.media_type } : null,
+      members: members.length, member_names: ordered.slice(0, Math.max(0, names)).map(one => nameOf(one.relay)),
+    } };
+  },
+
+  // Where an open invite's space picture is kept, for the link's page and preview: the member store holding the file.
+  async invitePicture({ code }) {
+    const preview = await this.invitePreview({ code, names: 0 });
+    if (preview.state !== 'open' || !preview.space.picture) throw new Error('This invite has no picture to show.');
+    const invite = this.sql.exec('SELECT space_id,made_by FROM space_invites WHERE code_hash = ?',codeHash(code)).toArray()[0];
+    const content = invite && this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')",invite.space_id).toArray()[0];
+    if (content) {
+      const result = await readSharedInvitationContent(this.env,invite.space_id,{made_by:invite.made_by,scope:'picture',item_id:preview.space.picture.item_id});
+      const current = await this.invitePreview({code,names:0});
+      if (current.state !== 'open' || current.space.picture?.item_id !== preview.space.picture.item_id) throw new Error('This invite picture changed.');
+      return {...result,media_type:preview.space.picture.media_type};
+    }
+    const row = this.sql.exec('SELECT contributed_by, body FROM space_items WHERE id = ? AND withdrawn_at IS NULL', preview.space.picture.item_id).toArray()[0];
+    const holder = row && this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', row.contributed_by).toArray()[0];
+    if (!holder) throw new Error('This invite has no picture to show.');
+    return { person_ref: holder.person_ref, identity: JSON.parse(row.body).identity, media_type: preview.space.picture.media_type };
+  },
+
+  // Joining with an invite link: the code is spent, and the person is let in by the network's own accept, as if its
+  // maker had invited them and they accepted.
+  async joinWithInvite({ relay, person_ref: personRef, code }) {
+    return this.joinInvite(await this.openInvite(code, relay), relay, personRef);
+  },
+  // Spending one admitted invite (by its link, or sent to an address the person proved, src/space-invite-addresses.mjs).
+  async joinInvite(invite, relay, personRef) {
+    if (this.isMemberNow(invite.space_id, relay)) return { space_id: invite.space_id, joined: true, already_member: true };
+    const now = new Date().toISOString();
+    // Several people may pass the earlier async invite check. Only one may claim the row, even then.
+    const claimed = this.sql.exec('UPDATE space_invites SET used_by = ?, used_at = ? WHERE invite_id = ? AND used_by IS NULL AND used_at IS NULL AND revoked_at IS NULL AND expires_at > ? RETURNING invite_id', relay, now, invite.invite_id, now).toArray()[0];
+    // A retry by that same person can finish a claim interrupted before membership was written.
+    if (!claimed && !(invite.used_by === relay && invite.used_at)) throw new Error(NO_INVITE);
+    const requestId = `ask_join_${invite.invite_id}`;
+    try {
+      this.remember(relay, personRef);
+      this.sql.exec("INSERT OR IGNORE INTO requests (id, from_relay, to_relay, why, membership_id, status, cost, created_at) VALUES (?, ?, ?, 'Joined with an invite link', ?, 'sent', 0, ?)", requestId, invite.made_by, relay, invite.space_id, now);
+      const request = this.sql.exec('SELECT from_relay, to_relay, membership_id FROM requests WHERE id = ?', requestId).toArray()[0];
+      if (request?.from_relay !== invite.made_by || request.to_relay !== relay || request.membership_id !== invite.space_id) throw new Error(NO_INVITE);
+      await this.answer({ relay, request_id: requestId, accept: true });
+      // An explicit invite role wins; otherwise use the space's current joining profile, when it is still present.
+      const inviteRole = this.sql.exec('SELECT member_type FROM space_invites WHERE invite_id = ?', invite.invite_id).toArray()[0]?.member_type;
+      const space = this.sql.exec('SELECT id, label FROM memberships WHERE id = ?', invite.space_id).toArray()[0];
+      const role = inviteRole ?? (space ? this.joiningType(space.label, space.id) : null);
+      if (space && role && this.memberTypesOf(space).some(type => type.id === role)) {
+        this.sql.exec("UPDATE members SET role = ? WHERE membership_id = ? AND relay = ? AND state = 'member'", role, invite.space_id, relay);
+        this.spaceChanged(invite.space_id);
+      }
+    } catch (error) {
+      if (claimed) this.sql.exec("DELETE FROM requests WHERE id = ? AND status = 'sent'", requestId);
+      if (claimed) this.sql.exec("UPDATE space_invites SET used_by = NULL, used_at = NULL WHERE invite_id = ? AND used_by = ? AND used_at = ? AND NOT EXISTS (SELECT 1 FROM members WHERE membership_id = ? AND relay = ? AND state = 'member')", invite.invite_id, relay, now, invite.space_id, relay);
+      throw error;
+    }
+    return { space_id: invite.space_id, joined: true };
+  },
+
+  // Items made in the space (origin "space"), or brought in from an archive the member chose (origin "import", each
+  // with a source_ref so bringing the same archive in again adds nothing). `items`: [{ kind, title?, body, about?,
+  // source_ref? }]; a batch is one write. `ids` is each item's id in the order sent, the one already there for an
+  // import brought in before. An import brought in again keeps its words; it only gains links it did not have yet
+  // (a file found since), and one its member withdrew stays withdrawn.
+  async addSpaceItems({ relay, space_id: spaceId, items, origin = 'space', app = null, order_at: orderAt = null, marketplace_created_grants: marketplaceCreatedGrants = [] }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    if (!Array.isArray(items) || !items.length || items.length > 100) throw new Error('items is a list of 1 to 100 items, each { kind, body, title?, about? }.');
+    if (marketplaceCreatedGrants.length) {
+      if (items.length !== 1 || items[0].kind !== 'marketplace-configuration' || origin !== 'import' || !Array.isArray(items[0].body?.grants)
+        || marketplaceCreatedGrants.some(id => !items[0].body.grants.includes(id)
+          || !this.sql.exec('SELECT 1 FROM space_tool_grants WHERE space_id = ? AND grant_id = ? AND granted_by = ? AND revoked_at IS NULL', space.id, id, relay).toArray().length))
+        throw new Error('These grants do not belong to this Marketplace installation.');
+    }
+    if (orderAt !== null && (!Array.isArray(orderAt) || orderAt.length !== items.length || orderAt.some(at => typeof at !== 'string' || !Number.isFinite(Date.parse(at))))) throw new Error('The pursuit item order is not valid.');
+    for (const item of items) if (item?.anchor != null) await this.assertSpaceAnchor(space, item.anchor, relay);
+    const now = new Date().toISOString();
+    const rows = items.map((item, index) => {
+      const anchor = responseAnchor(item);
+      const replyTo = item.reply_to == null ? this.replyBySource(space.id, item.reply_to_source) : this.sameSpaceRefs(space.id, [text(item.reply_to, 'Reply parent', 500)])[0];
+      const part = replyPart({ ...item, reply_to: replyTo, anchor });
+      return { id: this.newSpaceContentId('item'), kind: text(item?.kind, 'Each item\'s kind', 100), title: optional(item.title, 300), body: bodyText(item.body), about: this.sameSpaceRefs(space.id, item.about), replyTo, part, anchorRecord: anchor?.record ?? null, anchorPart: partKey(anchor?.part), source: origin === 'import' || item.source_ref != null ? text(item.source_ref, 'Each imported item\'s source_ref', 500) : null, addedAt: orderAt?.[index] ?? now };
+    });
+    const added = [];
+    const ids = [];
+    let changed = false;
+    for (const [index, row] of rows.entries()) {
+      const kept = this.sql.exec('INSERT INTO space_items (id, space_id, kind, title, body, origin, contributed_by, source_ref, about, added_at, app, reply_to, part, anchor_record, anchor_part) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT DO NOTHING RETURNING id', row.id, space.id, row.kind, row.title, row.body, MADE_ORIGINS.has(origin) ? origin : 'space', relay, row.source, JSON.stringify(row.about), row.addedAt, typeof app === 'string' && app.trim() ? app.trim().slice(0, 100) : null, row.replyTo, row.part, row.anchorRecord, row.anchorPart).toArray();
+      if (kept.length) { added.push(row.id); ids.push(row.id); continue; }
+      const earlier = this.sql.exec('SELECT id, about, withdrawn_at FROM space_items WHERE space_id = ? AND contributed_by = ? AND source_ref = ?', space.id, relay, row.source).toArray()[0];
+      if (items[index]?.kind === 'marketplace-configuration' && earlier.withdrawn_at) throw new Error('This version was removed from the Space. Choose a current listing.');
+      ids.push(earlier.id);
+      const links = JSON.parse(earlier.about ?? '[]');
+      const extra = row.about.filter(ref => !links.includes(ref));
+      if (extra.length && !earlier.withdrawn_at) { this.sql.exec('UPDATE space_items SET about = ? WHERE id = ?', JSON.stringify([...links, ...extra]), earlier.id); changed = true; }
+    }
+    if (marketplaceCreatedGrants.length) for (const id of marketplaceCreatedGrants) this.sql.exec('INSERT OR IGNORE INTO space_marketplace_owned_grants (space_id, grant_id, item_id) VALUES (?, ?, ?)', space.id, id, ids[0]);
+    if (changed || added.length) this.spaceChanged(space.id, now);
+    // Rules about this space (src/space-item-rules.mjs): each new item to the members who asked for it.
+    await this.handSpaceItemsToWatchers(space.id, added);
+    return { added, already_there: rows.length - added.length, ids };
+  },
+
+  async spaceMarketplaceInstallations({ relay, space_id: spaceId, configuration_id: configurationId = null }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const rows = this.sql.exec(`SELECT id, source_ref, body, withdrawn_at FROM space_items
+      WHERE space_id = ? AND contributed_by = ? AND kind = 'marketplace-configuration'
+        AND source_ref LIKE 'marketplace:%'${configurationId ? ' AND source_ref = ?' : ''}`,
+    ...[space.id, relay, ...(configurationId ? [`marketplace:${configurationId}`] : [])]).toArray();
+    return { installations: rows.map(row => ({ item_id: row.id, configuration_id: row.source_ref.slice('marketplace:'.length),
+      active: !row.withdrawn_at, ...(row.withdrawn_at ? {} : { ...JSON.parse(row.body ?? '{}') }) })) };
+  },
+
+  async removeSpaceMarketplaceInstallation({ relay, space_id: spaceId, item_id: itemId }) {
+    const content = this.sql.exec("SELECT 1 FROM space_content_routes WHERE space_id = ? AND state IN ('active','retired')", spaceId).toArray()[0];
+    if (content) {
+      const result = await invokeCoordinatedContent(this, spaceId, 'removeSpaceMarketplaceInstallation', [{ relay, space_id: spaceId, item_id: itemId }]);
+      for (const id of result.revoked_grants ?? []) this.sql.exec('UPDATE space_tool_grants SET revoked_at = ? WHERE space_id = ? AND grant_id = ? AND revoked_at IS NULL', new Date().toISOString(), spaceId, id);
+      for (let at = 0; at < (result.revoked_grants ?? []).length; at += 100) await invokeCoordinatedContent(this,spaceId,'ackSpaceMarketplaceRevokes',[{space_id:spaceId,item_id:itemId,grant_ids:result.revoked_grants.slice(at,at+100)}]);
+      return result;
+    }
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (space.created_by !== relay) throw new Error('Only the person who started this pursuit can remove its installed tools.');
+    const row = this.sql.exec("SELECT body, withdrawn_at FROM space_items WHERE id = ? AND space_id = ? AND contributed_by = ? AND kind = 'marketplace-configuration'", itemId, space.id, relay).toArray()[0];
+    if (!row) throw new Error('This Marketplace installation is not yours in this Space.');
+    if (row.withdrawn_at) return { removed: false, repeated: true, revoked_grants: this.sql.exec('SELECT grant_id FROM space_marketplace_revoke_pending WHERE space_id = ? AND item_id = ? ORDER BY grant_id',space.id,itemId).toArray().map(row => row.grant_id) };
+    const body = JSON.parse(row.body ?? '{}');
+    const at = new Date().toISOString();
+    const revokedGrants = [];
+    this.ctx.storage.transactionSync(() => {
+    this.sql.exec('UPDATE space_items SET title = NULL, body = NULL, withdrawn_at = ?, withdrawn_by = ? WHERE id = ? AND withdrawn_at IS NULL', at, relay, itemId);
+    for (const id of body.grants ?? []) {
+      const owned = this.sql.exec('SELECT 1 FROM space_marketplace_owned_grants WHERE space_id = ? AND grant_id = ?', space.id, id).toArray().length;
+      if (!owned) continue;
+      const shared = this.sql.exec(`SELECT 1 FROM space_items, json_each(json_extract(space_items.body, '$.grants')) grants
+        WHERE space_items.space_id = ? AND space_items.kind = 'marketplace-configuration'
+          AND space_items.withdrawn_at IS NULL AND grants.value = ? LIMIT 1`, space.id, id).toArray().length;
+      if (shared) continue;
+      if (!this.contentPolicyTarget) this.sql.exec('UPDATE space_tool_grants SET revoked_at = ? WHERE space_id = ? AND grant_id = ? AND revoked_at IS NULL', at, space.id, id);
+      revokedGrants.push(id);
+      if (this.contentPolicyTarget) this.sql.exec('INSERT OR IGNORE INTO space_marketplace_revoke_pending (space_id,item_id,grant_id) VALUES (?,?,?)',space.id,itemId,id);
+      this.sql.exec('DELETE FROM space_marketplace_owned_grants WHERE space_id = ? AND grant_id = ?', space.id, id);
+    }
+    });
+    this.spaceChanged(space.id, at);
+    return { removed: true, repeated: false, revoked_grants: revokedGrants };
+  },
+
+  // The item a reply answers, named by where that item came from (a mail's In-Reply-To and References): the first ref
+  // that is an item of this space, or null. Refs are texts of refs separated by spaces, or a list of them; the last named is the nearest, so it is tried first.
+  replyBySource(spaceId, refs) {
+    const wanted = [refs].flat().flatMap(ref => String(ref ?? '').split(/\s+/)).filter(Boolean).slice(-50);
+    for (const ref of wanted.reverse()) {
+      const found = this.sql.exec('SELECT id FROM space_items WHERE space_id = ? AND source_ref = ? AND withdrawn_at IS NULL LIMIT 1', spaceId, ref.slice(0, 500)).toArray()[0];
+      if (found) return found.id;
+    }
+    return null;
+  },
+
+  // Small named values on one item that any member may change (facts: { name: value }, a null value takes one away):
+  // who has it, whether it is done, a label. They never change the item's words, and setting them hands nothing to a
+  // rule, so a reply that is sent is never sent again because someone marked it done.
+  async setSpaceItemFacts({ relay, space_id: spaceId, item_id: itemId, facts }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    if (!facts || typeof facts !== 'object' || Array.isArray(facts) || !Object.keys(facts).length) throw new Error('facts is an object of the facts to set, like { "assignee": "Sam", "status": "done" }; null takes one away.');
+    const row = this.sql.exec('SELECT facts FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL', String(itemId ?? ''), space.id).toArray()[0];
+    if (!row) throw new Error('No thing with that id in this space.');
+    const before = JSON.parse(row.facts ?? '{}');
+    const next = { ...before };
+    for (const [name, value] of Object.entries(facts)) {
+      if (!/^[a-z][a-z0-9_]{0,39}$/.test(name)) throw new Error(`A fact's name is lowercase letters, digits and _; ${JSON.stringify(name)} is not one.`);
+      if (value === null) { delete next[name]; continue; }
+      if (!['string', 'number', 'boolean'].includes(typeof value) || String(value).length > 200) throw new Error(`${name} is text of at most 200 characters, a number, true or false.`);
+      next[name] = value;
+    }
+    if (Object.keys(next).length > 20) throw new Error('One thing holds at most 20 facts.');
+    this.sql.exec('UPDATE space_items SET facts = ? WHERE id = ?', Object.keys(next).length ? JSON.stringify(next) : null, itemId);
+    // The assignment and its delivery intent are written without an intervening await. A repaint is not delivery.
+    const delivery = this.spaceAssignmentDeliveries().queue({ space_id: space.id, item_id: itemId, before, facts: next, changed: facts });
+    this.spaceChanged(space.id);
+    if (delivery?.state === 'pending') await this.armAlarm();
+    return { item_id: itemId, facts: next, ...(delivery ? { delivery } : {}) };
+  },
+
+  spaceAssignmentDeliveries() {
+    return this.spaceAssignmentDeliveriesInstance ??= makeSpaceAssignmentDeliveries({
+      sql: this.sql,
+      resolve: assignment => this.resolveSpaceAssignment(assignment),
+      deliver: (recipient, assignment) => this.env.PERSON.get(this.env.PERSON.idFromString(recipient.person_ref))
+        .receiveSpaceAssignment({ space_id: assignment.space_id, item_id: assignment.item_id, revision: assignment.revision }),
+    });
+  },
+
+  async resolveSpaceAssignment(assignment) {
+    await this.cacheMemberAccountNamesForSpaces([assignment.space_id]);
+    const row = this.sql.exec('SELECT * FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL AND anchor_record IS NULL', assignment.item_id, assignment.space_id).toArray()[0];
+    const current = this.spaceAssignmentDeliveries().read(assignment.space_id, assignment.item_id);
+    if (!row || current?.revision !== assignment.revision || !isActiveAssignment(JSON.parse(row.facts ?? '{}'))) return { inactive: true, reason: 'The assignment is no longer current.' };
+    const nameOf = this.memberNames(assignment.space_id);
+    const members = this.sql.exec("SELECT me.relay, r.person_ref FROM members me LEFT JOIN relays r ON r.relay = me.relay WHERE me.membership_id = ? AND me.state = 'member'", assignment.space_id).toArray()
+      .map(member => ({ ...member, name: nameOf(member.relay) }));
+    return assignmentRecipient(current.assignee, members);
+  },
+
+  // Only the resolved recipient reads the current task for dispatch. This RPC follows the same Space route as its
+  // writes and uses the ordinary item visibility/permission reader before any words reach a notification channel.
+  async readSpaceAssignment({ relay, space_id: spaceId, item_id: itemId, revision }) {
+    const assignment = this.spaceAssignmentDeliveries().read(spaceId, itemId);
+    if (!assignment || assignment.revision !== revision || assignment.state !== 'pending') return { inactive: true, reason: 'The assignment changed.' };
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const row = this.sql.exec('SELECT * FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL', itemId, space.id).toArray()[0];
+    if (!row) return { inactive: true, reason: 'The item was withdrawn.' };
+    const thing = { by: row.contributed_by, origin: row.origin };
+    const access = this.spaceAccessState(space.id, relay, thing);
+    const target = await this.resolveSpaceAssignment(assignment);
+    if (target.inactive || target.blocked) return target;
+    if (target.recipient.relay !== relay) return { inactive: true, reason: 'This assignment belongs to another member.' };
+    const [item] = await this.thingsAsSeenBy(space, relay, [row], this.memberNames(space.id));
+    this.assertSpaceAccessUnchanged(space.id, relay, access, thing);
+    if (!item || item.hidden) return { inactive: true, reason: 'This member cannot read this item.' };
+    const current = this.spaceAssignmentDeliveries().read(spaceId, itemId);
+    const latest = this.sql.exec('SELECT * FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL', itemId, space.id).toArray()[0];
+    if (current?.revision !== revision || current.state !== 'pending' || !latest || !isActiveAssignment(JSON.parse(latest.facts ?? '{}'))) return { inactive: true, reason: 'The assignment changed.' };
+    // An edit/hide during projection must be read again before any old words leave this owner.
+    if (['facts', 'title', 'body', 'hidden_at', 'source_ref'].some(field => latest[field] !== row[field])) return { retryable: true, reason: 'The task changed while its delivery was being checked. Read its current state before retrying.' };
+    const named = { ...item, space_id: space.id, space_title: space.title ?? null, ref: `${space.id}:${item.item_id}` };
+    return { item: named, notice: assignmentNotice(named, revision) };
+  },
+
+  // The things in this person's spaces given to them: an item whose `assignee` fact names them, by the name they show
+  // in that space or by their member id (what set_item_facts writes). Their own store reads it for their Waiting on you
+  // (src/waiting-on-you.json source `assigned`), so a thing given to a member reaches that member wherever they are,
+  // not only when they open the space. Each item is read as the space shows it to them (thingsAsSeenBy), with its
+  // space; whether it is done is the reader's DATA. Only spaces holding a given thing are asked whether they may read.
+  async assignedTo({ relay }) {
+    const rows = this.sql.exec(`SELECT i.* FROM members me JOIN space_items i ON i.space_id = me.membership_id
+      WHERE me.relay = ? AND me.state = 'member' AND json_extract(i.facts, '$.assignee') IS NOT NULL AND i.withdrawn_at IS NULL AND i.anchor_record IS NULL
+      ORDER BY i.added_at DESC`, relay).toArray();
+    const bySpace = Map.groupBy(rows, row => row.space_id);
+    if (!bySpace.size) return { items: [] };
+    await this.cacheMemberAccountNamesForSpaces([...bySpace.keys()]);
+    const items = [];
+    for (const [spaceId, given] of bySpace) {
+      const space = await this.allowedInSpace(spaceId, relay, 'read_space').catch(() => null);
+      if (!space) continue;
+      const nameOf = this.memberNames(space.id);
+      const named = value => String(value ?? '').trim().replace(/\s+/g, ' ').toLowerCase();
+      const me = new Set([named(relay), named(nameOf(relay))]);
+      const mine = given.filter(row => me.has(named(JSON.parse(row.facts).assignee)));
+      if (!mine.length) continue;
+      for (const item of await this.thingsAsSeenBy(space, relay, mine, nameOf)) {
+        if (!item.hidden) items.push({ ...item, space_id: space.id, space_title: space.title ?? null, ref: `${space.id}:${item.item_id}`, delivery: this.spaceAssignmentDeliveries().status(space.id, item.item_id) });
+      }
+    }
+    return { items };
+  },
+
+  // One record copied from a member's private Trillion by their own store: `record` is { kind, private_ref, title,
+  // body }, already cut to the fields space-settings.json lets out, and `shared_here`, its owner's choice for this
+  // space (src/record-sharing.mjs), which the space's one check reads. Sharing the same record again updates the copy.
+  async shareIntoSpace({ relay, space_id: spaceId, record, order_at: orderAt = null, intent_order: intentOrder = null, app = null }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items', { origin: 'private', shared_here: record?.shared_here === false ? false : true });
+    const access = this.spaceAccessState(space.id, relay);
+    if (intentOrder !== null && (!Number.isSafeInteger(intentOrder) || intentOrder < 0)) throw new Error('A private pursuit share needs a valid order.');
+    const privateRef = text(record?.private_ref, 'The private record', 500);
+    const currentOrders = this.privateShareIntentOrders({ relay, private_refs: [privateRef] });
+    const { orders } = currentOrders instanceof Promise ? await currentOrders : currentOrders;
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    if (this.privateShareOwnerDeleted(relay)) throw new Error('This private share no longer has an owner.');
+    if (Math.max(orders.find(row => row.private_ref === privateRef)?.intent_order ?? 0, this.privateShareIntentOrder(relay, privateRef)) > (intentOrder ?? 0)) return { item_id: null, shared: false, withdrawn: true };
+    if (orderAt !== null && (typeof orderAt !== 'string' || !Number.isFinite(Date.parse(orderAt)))) throw new Error('The pursuit item order is not valid.');
+    const now = new Date().toISOString();
+    const earlier = this.sql.exec("SELECT id, share_intent_order, withdrawn_at FROM space_items WHERE space_id = ? AND contributed_by = ? AND source_ref = ? AND origin = 'private'", space.id, relay, privateRef).toArray()[0];
+    const fence = this.sql.exec('SELECT intent_order FROM space_private_share_fences WHERE space_id = ? AND contributed_by = ? AND source_ref = ?', space.id, relay, privateRef).toArray()[0];
+    if (fence && (intentOrder === null || fence.intent_order > intentOrder)) return { item_id: earlier?.id ?? null, shared: false, withdrawn: true };
+    const body = bodyText(record.body);
+    const generation = this.nextSpaceShareGeneration(space.id);
+    if (earlier) {
+      if (intentOrder !== null && earlier.share_intent_order !== null && earlier.share_intent_order > intentOrder) return { item_id: earlier.id, shared: false, withdrawn: Boolean(earlier.withdrawn_at) };
+      this.sql.exec('UPDATE space_items SET title = ?, body = ?, added_at = COALESCE(?, added_at), app = COALESCE(?, app), share_key = NULL, share_generation = ?, share_intent_order = COALESCE(?, share_intent_order), withdrawn_at = NULL, withdrawn_by = NULL WHERE id = ?', optional(record.title, 300), body, orderAt, optional(app, 100), generation, intentOrder, earlier.id);
+      this.spaceChanged(space.id, now);
+      await this.handSpaceItemsToWatchers(space.id, [earlier.id]);
+      return { item_id: earlier.id, shared: true, updated: true };
+    }
+    const id = this.newSpaceContentId('item');
+    this.sql.exec("INSERT INTO space_items (id, space_id, kind, title, body, origin, contributed_by, source_ref, about, added_at, app, share_generation, share_intent_order) VALUES (?, ?, ?, ?, ?, 'private', ?, ?, '[]', ?, ?, ?, ?)", id, space.id, text(record.kind, 'The kind', 100), optional(record.title, 300), body, relay, privateRef, orderAt ?? now, optional(app, 100), generation, intentOrder);
+    this.spaceChanged(space.id, now);
+    await this.handSpaceItemsToWatchers(space.id, [id]);
+    return { item_id: id, shared: true };
+  },
+
+  // A cheap admission probe before a sender projects hundreds of private sources. The write still checks the rules
+  // again for each actual origin and current sharing choice, so this probe never becomes an authorization token.
+  async checkSpaceShare({ relay, space_id: spaceId, has_private: hasPrivate = false, has_literal: hasLiteral = false }) {
+    if (hasPrivate) await this.allowedInSpace(spaceId, relay, 'add_items', { origin: 'private', shared_here: true });
+    if (hasLiteral) await this.allowedInSpace(spaceId, relay, 'add_items');
+    return { allowed: true };
+  },
+
+  // A bounded slice of one mixed selection. The person's store resolves every private source before calling this;
+  // the Space checks its own rules for each distinct kind of entry before writing any of the slice. Literal entries
+  // carry a stable source_ref, so a caller can retry after a lost response without making a second copy of them.
+  async addSharedSpaceItems({ relay, space_id: spaceId, entries, selection_key: selectionKey, intent_order: intentOrder = 0, app = null }) {
+    if (!Array.isArray(entries) || !entries.length || entries.length > 100) throw new Error('Send 1 to 100 Pursuit items in each batch.');
+    if (new TextEncoder().encode(JSON.stringify(entries)).byteLength > 1024 * 1024) throw new Error('A Pursuit batch holds at most 1 MB of item details.');
+    if (typeof selectionKey !== 'string' || !selectionKey || selectionKey.length > 100) throw new Error('A mixed pursuit batch needs its selection key.');
+    const rows = entries.map(entry => {
+      if (!entry || typeof entry !== 'object' || (entry.record == null) === (entry.item == null)) throw new Error('A shared pursuit item needs one record or one item.');
+      if (typeof entry.order_at !== 'string' || !Number.isFinite(Date.parse(entry.order_at))) throw new Error('The pursuit item order is not valid.');
+      if (entry.record != null) {
+        const record = entry.record;
+        return { origin: 'private', id: this.newSpaceContentId('item'), kind: text(record.kind, 'The kind', 100), title: optional(record.title, 300),
+          body: bodyText(record.body), source: text(record.private_ref, 'The private record', 500),
+          sharedHere: record.shared_here !== false, addedAt: entry.order_at };
+      }
+      const item = entry.item;
+      if (typeof entry.source_ref !== 'string' || !entry.source_ref.trim() || entry.source_ref.length > 500) throw new Error('A shared pursuit item needs a source reference of at most 500 characters.');
+      return { origin: 'space', id: this.newSpaceContentId('item'), kind: text(item.kind, 'Each item\'s kind', 100), title: optional(item.title, 300),
+        body: bodyText(item.body), source: entry.source_ref, addedAt: entry.order_at };
+    });
+    const kinds = new Set(rows.map(row => row.origin === 'private' ? `private:${row.sharedHere}` : 'space'));
+    for (const kind of kinds) await this.allowedInSpace(spaceId, relay, 'add_items', kind === 'space' ? undefined : { origin: 'private', shared_here: kind === 'private:true' });
+    const access = this.spaceAccessState(spaceId, relay);
+    const currentOrders = this.privateShareIntentOrders({ relay, private_refs: [...new Set(rows.filter(row => row.origin === 'private').map(row => row.source))] });
+    const { orders } = currentOrders instanceof Promise ? await currentOrders : currentOrders;
+    this.assertSpaceAccessUnchanged(spaceId, relay, access);
+    if (this.privateShareOwnerDeleted(relay)) throw new Error('This private share no longer has an owner.');
+    const fenced = new Map(orders.map(row => [row.private_ref, row.intent_order]));
+    for (const row of rows) if (row.origin === 'private') fenced.set(row.source, Math.max(fenced.get(row.source) ?? 0, this.privateShareIntentOrder(relay, row.source)));
+    const generation = this.spaceShareSelectionGeneration(spaceId, relay, selectionKey, intentOrder);
+    const at = new Date().toISOString();
+    const ids = [];
+    const replayed = [];
+    const withdrawn = [];
+    const notify = [];
+    let changed = false;
+    for (const row of rows) {
+      if (row.origin === 'private') {
+        const earlier = this.sql.exec("SELECT id, share_key, share_generation, share_intent_order, withdrawn_at, withdrawn_generation FROM space_items WHERE space_id = ? AND contributed_by = ? AND source_ref = ? AND origin = 'private'", spaceId, relay, row.source).toArray()[0];
+        const fence = this.sql.exec('SELECT intent_order FROM space_private_share_fences WHERE space_id = ? AND contributed_by = ? AND source_ref = ?', spaceId, relay, row.source).toArray()[0];
+        if ((fenced.get(row.source) ?? 0) > intentOrder || (fence && fence.intent_order > intentOrder)) {
+          ids.push(earlier?.id ?? null);
+          replayed.push(true);
+          withdrawn.push(true);
+          continue;
+        }
+        if (earlier) {
+          ids.push(earlier.id);
+          if ((earlier.share_intent_order !== null && earlier.share_intent_order > intentOrder)
+            || (intentOrder === 0 && earlier.withdrawn_at && earlier.share_key !== selectionKey)
+            || (earlier.share_generation ?? 0) > generation || (earlier.withdrawn_generation ?? 0) > generation) {
+            replayed.push(true); withdrawn.push(Boolean(earlier.withdrawn_at)); continue;
+          }
+          if (earlier.share_key === selectionKey) { replayed.push(true); withdrawn.push(Boolean(earlier.withdrawn_at)); continue; }
+          this.sql.exec('UPDATE space_items SET title = ?, body = ?, added_at = ?, app = COALESCE(?, app), share_key = ?, share_generation = ?, share_intent_order = ?, withdrawn_at = NULL, withdrawn_by = NULL WHERE id = ?', row.title, row.body, row.addedAt, optional(app, 100), selectionKey, generation, intentOrder, earlier.id);
+          notify.push(earlier.id);
+        } else {
+          this.sql.exec("INSERT INTO space_items (id, space_id, kind, title, body, origin, contributed_by, source_ref, about, added_at, app, share_key, share_generation, share_intent_order) VALUES (?, ?, ?, ?, ?, 'private', ?, ?, '[]', ?, ?, ?, ?, ?)", row.id, spaceId, row.kind, row.title, row.body, relay, row.source, row.addedAt, optional(app, 100), selectionKey, generation, intentOrder);
+          ids.push(row.id);
+          notify.push(row.id);
+        }
+        replayed.push(false);
+        withdrawn.push(false);
+        changed = true;
+        continue;
+      }
+      const inserted = this.sql.exec("INSERT INTO space_items (id, space_id, kind, title, body, origin, contributed_by, source_ref, about, added_at, app) VALUES (?, ?, ?, ?, ?, 'space', ?, ?, '[]', ?, ?) ON CONFLICT DO NOTHING RETURNING id", row.id, spaceId, row.kind, row.title, row.body, relay, row.source, row.addedAt, optional(app, 100)).toArray();
+      if (inserted.length) {
+        ids.push(row.id);
+        replayed.push(false);
+        withdrawn.push(false);
+        notify.push(row.id);
+        changed = true;
+      } else {
+        const earlier = this.sql.exec('SELECT id, withdrawn_at FROM space_items WHERE space_id = ? AND contributed_by = ? AND source_ref = ?', spaceId, relay, row.source).toArray()[0];
+        if (!earlier) throw new Error('The pursuit item could not be kept.');
+        ids.push(earlier.id);
+        replayed.push(true);
+        withdrawn.push(Boolean(earlier.withdrawn_at));
+      }
+    }
+    if (changed) this.spaceChanged(spaceId, at);
+    await this.handSpaceItemsToWatchers(spaceId, [...new Set(notify)]);
+    return { ids, replayed, withdrawn, added: notify.length };
+  },
+
+  /** One arbitrary shared document in a Space's existing board-record owner. The address is data; membership and
+   *  action rules are checked here before the record reaches or changes the live room. */
+  async readSpaceRecord({ relay, space_id: spaceId, address }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (typeof address !== 'string' || !address.startsWith('shared:') || address.length > 400) throw new Error('Each shared record address must begin with shared:.');
+    const access = this.spaceAccessState(space.id, relay);
+    const record = await hostOf(this.env, { kind: 'board-room', key: space.id }).readSharedRecord(address);
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return record;
+  },
+
+  async writeSpaceRecord({ relay, space_id: spaceId, address, expected_revision: expectedRevision, value }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    if (typeof address !== 'string' || !address.startsWith('shared:') || address.length > 400) throw new Error('Each shared record address must begin with shared:.');
+    if (value === undefined) throw new Error('Send the shared record value, or null to delete it.');
+    return hostOf(this.env, { kind: 'board-room', key: space.id })
+      .swapSharedRecord(address, expectedRevision, value, relay);
+  },
+
+  async deleteSpaceRecord({ relay, space_id: spaceId, address, expected_revision: expectedRevision }) {
+    return this.writeSpaceRecord({ relay, space_id: spaceId, address, expected_revision: expectedRevision, value: null });
+  },
+
+  async spaceItems({ relay, space_id: spaceId, item_id: itemId, kind, before, limit, anchor_record: anchorRecord, anchor_part: anchorPart, query }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const access = this.spaceAccessState(space.id, relay);
+    await this.cacheMemberAccountNames(space.id);
+    const nameOf = this.memberNames(space.id);
+    const size = pageSize(limit);
+    const words = searchWords(query);
+    if (words && !itemId && !(typeof anchorRecord === 'string' && anchorRecord.trim())) return this.searchSpaceItems({ space, relay, access, nameOf, size, kind, before, words });
+    const hasAnchor = typeof anchorRecord === 'string' && anchorRecord.trim();
+    const rows = this.sql.exec(`SELECT * FROM space_items WHERE space_id = ?${itemId ? ' AND id = ?' : ''}${hasAnchor ? ' AND anchor_record = ? AND anchor_part IS ?' : ' AND anchor_record IS NULL'}${kind ? ' AND kind = ?' : ''}${before ? ' AND added_at || id < ?' : ''} ORDER BY added_at || id DESC LIMIT ?`,
+      ...[space.id, ...(itemId ? [String(itemId)] : []), ...(hasAnchor ? [anchorRecord.trim(), partKey(anchorPart)] : []), ...(kind ? [String(kind)] : []), ...(before ? [String(before)] : []), size + 1]).toArray();
+    const page = rows.slice(0, size);
+    const targetThing = itemId && page[0] ? { by: page[0].contributed_by, origin: page[0].origin } : null;
+    const targetAccess = targetThing ? this.spaceAccessState(space.id, relay, targetThing) : null;
+    const items = this.withReactions(await this.thingsAsSeenBy(space, relay, page, nameOf), relay, nameOf);
+    const parts = itemId || before || kind ? [] : await this.keptParts(space.id, relay);
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    if (targetThing) {
+      this.assertSpaceAccessUnchanged(space.id, relay, targetAccess, targetThing);
+      const latest = this.sql.exec('SELECT * FROM space_items WHERE id = ? AND space_id = ?', String(itemId), space.id).toArray()[0];
+      if (!latest || ['facts', 'title', 'body', 'hidden_at', 'withdrawn_at', 'source_ref'].some(field => latest[field] !== page[0][field])) return { space_id: space.id, items: [], next_before: null };
+    }
+    return { space_id: space.id, items, ...(parts.length ? { parts } : {}), next_before: rows.length > size ? `${page.at(-1).added_at}${page.at(-1).id}` : null };
+  },
+
+  // Replies on a thing that lives in a Space's kept records, such as a board card. These remain ordinary Space items
+  // with the same reply and reaction owners; the anchor columns only make the thread addressable from its record.
+  async assertSpaceAnchor(space, rawAnchor, relay) {
+    const anchor = anchorFrom(rawAnchor);
+    if (this.sql.exec('SELECT 1 FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL', anchor.record, space.id).toArray().length) return anchor;
+    const capabilities = keptRecordsOn(this.readCommunity(space.id).config);
+    for (const capability of capabilities) {
+      const store = this.env[capability.store];
+      if (!store?.get) continue;
+      try {
+        if (capability.store === 'BOARD_ROOM') {
+          if (await makeSharedNetwork(this.env).hasBoardRecord({ relay, space_id: space.id, address: anchor.record })) return anchor;
+          continue;
+        }
+        const owner = store.get(store.idFromName(space.id));
+        if (typeof owner.hasKeptRecord === 'function' && await owner.hasKeptRecord(anchor.record)) return anchor;
+      } catch { /* An unavailable part cannot make its records addressable here. */ }
+    }
+    throw new Error('That record is not currently kept in this space.');
+  },
+
+  async spaceResponses({ relay, space_id: spaceId, record, part, all_parts: allParts = false, before, limit }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (allParts !== true && allParts !== false) throw new Error('Choose whether to read all parts with true or false.');
+    const anchor = record == null ? null : await this.assertSpaceAnchor(space, { record, part }, relay);
+    // An opened recording or document can list its replies across every addressed
+    // part in bounded pages. Exact-part threads keep their existing read semantics.
+    if (allParts && (!anchor || part != null)) throw new Error('Choose one record, without a part, to read all its responses.');
+    const partText = partKey(anchor?.part);
+    const access = this.spaceAccessState(space.id, relay);
+    await this.cacheMemberAccountNames(space.id);
+    const nameOf = this.memberNames(space.id);
+    const size = pageSize(limit);
+    const rows = anchor
+      ? this.sql.exec(`SELECT * FROM space_items WHERE space_id = ? AND anchor_record = ?${allParts ? '' : ' AND anchor_part IS ?'} AND withdrawn_at IS NULL${before ? ' AND added_at || id > ?' : ''} ORDER BY added_at || id LIMIT ?`,
+        ...[space.id, anchor.record, ...(allParts ? [] : [partText]), ...(before ? [String(before)] : []), size + 1]).toArray()
+      : this.sql.exec(`SELECT space_items.*, COALESCE(space_response_threads.resolved, 0) AS anchor_resolved FROM space_items LEFT JOIN space_response_threads ON space_response_threads.space_id = space_items.space_id AND space_response_threads.anchor_record = space_items.anchor_record AND space_response_threads.anchor_part IS space_items.anchor_part WHERE space_items.space_id = ? AND space_items.anchor_record IS NOT NULL AND space_items.withdrawn_at IS NULL${before ? ' AND space_items.added_at || space_items.id < ?' : ''} ORDER BY space_items.added_at || space_items.id DESC LIMIT ?`,
+        ...[space.id, ...(before ? [String(before)] : []), size + 1]).toArray();
+    const page = rows.slice(0, size);
+    const items = this.withReactions(await this.thingsAsSeenBy(space, relay, page, nameOf), relay, nameOf);
+    const targetId = anchor ? responseAnchorKey(anchor) : null;
+    const reactions = targetId ? this.sql.exec('SELECT item_id, relay, symbol, count, glyph FROM space_item_reactions WHERE item_id = ? ORDER BY added_at', targetId).toArray() : [];
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return anchor
+      ? { space_id: space.id, anchor, items, resolved: Boolean(this.sql.exec('SELECT resolved FROM space_response_threads WHERE space_id = ? AND anchor_key = ?', space.id, responseAnchorKey(anchor)).toArray()[0]?.resolved), reactions: foldReactions(reactions, relay, nameOf), next_after: rows.length > size ? `${page.at(-1).added_at}${page.at(-1).id}` : null }
+      : { space_id: space.id, items: items.map((item, index) => ({ ...item, anchor_resolved: Boolean(rows[index]?.anchor_resolved) })), next_before: rows.length > size ? `${page.at(-1).added_at}${page.at(-1).id}` : null };
+  },
+
+  // A board needs one small row per commented record for pins and review. Reading
+  // every comment body on mount would grow without a bound as the Space ages.
+  async spaceResponseSummaries({ relay, space_id: spaceId, after, limit }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const access = this.spaceAccessState(space.id, relay);
+    const size = pageSize(limit);
+    const rows = this.sql.exec(`SELECT record, count, last_at, resolved FROM (
+        SELECT items.anchor_record AS record, COUNT(*) AS count,
+          MAX(items.added_at) AS last_at, MIN(COALESCE(threads.resolved, 0)) AS resolved
+        FROM space_items AS items
+        LEFT JOIN space_response_threads AS threads ON threads.space_id = items.space_id
+          AND threads.anchor_record = items.anchor_record AND threads.anchor_part IS items.anchor_part
+        WHERE items.space_id = ? AND items.anchor_record IS NOT NULL AND items.withdrawn_at IS NULL
+        GROUP BY items.anchor_record
+        UNION ALL
+        SELECT threads.anchor_record AS record, 0 AS count, NULL AS last_at, MIN(threads.resolved) AS resolved
+        FROM space_response_threads AS threads WHERE threads.space_id = ?
+          AND NOT EXISTS (SELECT 1 FROM space_items AS items WHERE items.space_id = threads.space_id
+            AND items.anchor_record = threads.anchor_record AND items.withdrawn_at IS NULL)
+        GROUP BY threads.anchor_record
+      ) WHERE ${after ? 'record > ?' : '1=1'} ORDER BY record LIMIT ?`,
+    ...[space.id, space.id, ...(after ? [String(after)] : []), size + 1]).toArray();
+    const page = rows.slice(0, size);
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return {
+      summaries: page.map(row => ({ record: row.record, count: row.count, last_at: row.last_at, resolved: row.resolved === 1 })),
+      next_after: rows.length > size ? page.at(-1).record : null,
+    };
+  },
+
+  async spaceItemReactions({ relay, space_id: spaceId, item_id: itemId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const access = this.spaceAccessState(space.id, relay);
+    const exists = this.sql.exec('SELECT 1 FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL', itemId, space.id).toArray().length > 0;
+    if (!exists) throw new Error('That item is not currently in this space.');
+    await this.cacheMemberAccountNames(space.id);
+    const rows = this.sql.exec('SELECT item_id, relay, symbol, count, glyph FROM space_item_reactions WHERE item_id = ? ORDER BY added_at', itemId).toArray();
+    this.assertSpaceAccessUnchanged(space.id, relay, access);
+    return { item_id: itemId, ...foldReactions(rows, relay, this.memberNames(space.id)) };
+  },
+
+  async setSpaceResponseResolved({ relay, space_id: spaceId, record, part, resolved }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    if (typeof resolved !== 'boolean') throw new Error('Choose whether this response thread is open or resolved.');
+    const before = this.spaceAccessState(space.id, relay);
+    const anchor = await this.assertSpaceAnchor(space, { record, part }, relay);
+    this.assertSpaceAccessUnchanged(space.id, relay, before);
+    const now = new Date().toISOString();
+    this.sql.exec('INSERT INTO space_response_threads (space_id, anchor_key, anchor_record, anchor_part, resolved, changed_at, changed_by) VALUES (?, ?, ?, ?, ?, ?, ?) ON CONFLICT(space_id, anchor_key) DO UPDATE SET resolved = excluded.resolved, changed_at = excluded.changed_at, changed_by = excluded.changed_by', space.id, responseAnchorKey(anchor), anchor.record, partKey(anchor.part), resolved ? 1 : 0, now, relay);
+    this.spaceChanged(space.id, now);
+    return { anchor, resolved };
+  },
+
+  // The reactions on one page of items, read for those items only (src/responses.mjs foldReactions): an item anyone
+  // voted for carries votes { count, yours } and one anyone reacted to carries reactions [{ symbol, glyph, label,
+  // count, yours, by }], so every view of the space's items (a feed, a table) reads the same rows the react route keeps.
+  withReactions(items, relay, nameOf = null) {
+    if (!items.length) return items;
+    const rows = new Map();
+    for (const row of this.sql.exec('SELECT item_id, relay, symbol, count, glyph FROM space_item_reactions WHERE item_id IN (SELECT value FROM json_each(?)) ORDER BY added_at', JSON.stringify(items.map(item => item.item_id))).toArray()) {
+      rows.set(row.item_id, [...(rows.get(row.item_id) ?? []), row]);
+    }
+    return items.map(item => (rows.has(item.item_id) ? { ...item, ...foldReactions(rows.get(item.item_id), relay, nameOf) } : item));
+  },
+
+  // A reaction on one thing in the space, given or taken back: `on` false takes it back, true gives it, and left out it
+  // turns over what the person has. Reacting is writing in the space, so the space's add_items rule decides it. The
+  // vote has its own road (community-activity.mjs vote), which counts its budget.
+  async reactToSpaceItem({ relay, space_id: spaceId, item_id: itemId, symbol, glyph, on }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    const reaction = reactionFrom({ symbol, glyph });
+    if (reaction.symbol === VOTE) throw new Error('A vote is given with the vote, which counts each member\'s votes.');
+    if (!this.sql.exec('SELECT 1 FROM space_items WHERE id = ? AND space_id = ? AND withdrawn_at IS NULL', String(itemId ?? ''), space.id).toArray().length) throw new Error('No thing with that id in this space.');
+    const had = this.sql.exec('SELECT 1 FROM space_item_reactions WHERE item_id = ? AND relay = ? AND symbol = ?', itemId, relay, reaction.symbol).toArray().length > 0;
+    const give = on == null ? !had : Boolean(on);
+    const now = new Date().toISOString();
+    if (give && !had) this.sql.exec('INSERT INTO space_item_reactions (item_id, relay, symbol, count, glyph, added_at) VALUES (?, ?, ?, 1, ?, ?)', itemId, relay, reaction.symbol, reaction.glyph, now);
+    if (!give && had) this.sql.exec('DELETE FROM space_item_reactions WHERE item_id = ? AND relay = ? AND symbol = ?', itemId, relay, reaction.symbol);
+    if (give !== had) this.spaceChanged(space.id, now);
+    const rows = this.sql.exec('SELECT item_id, relay, symbol, count, glyph FROM space_item_reactions WHERE item_id = ? ORDER BY added_at', itemId).toArray();
+    return { item_id: itemId, reacted: give, ...foldReactions(rows, relay, this.memberNames(space.id)) };
+  },
+
+  async reactToSpaceAnchor({ relay, space_id: spaceId, record, part, symbol, glyph, on }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    const before = this.spaceAccessState(space.id, relay);
+    const anchor = await this.assertSpaceAnchor(space, { record, part }, relay);
+    this.assertSpaceAccessUnchanged(space.id, relay, before);
+    const reaction = reactionFrom({ symbol, glyph });
+    if (reaction.symbol === VOTE) throw new Error('A vote is given with the vote, which counts each member\'s votes.');
+    const targetId = responseAnchorKey(anchor);
+    const had = this.sql.exec('SELECT 1 FROM space_item_reactions WHERE item_id = ? AND relay = ? AND symbol = ?', targetId, relay, reaction.symbol).toArray().length > 0;
+    const give = on == null ? !had : Boolean(on);
+    const now = new Date().toISOString();
+    if (give && !had) this.sql.exec('INSERT INTO space_item_reactions (item_id, relay, symbol, count, glyph, added_at) VALUES (?, ?, ?, 1, ?, ?)', targetId, relay, reaction.symbol, reaction.glyph, now);
+    if (!give && had) this.sql.exec('DELETE FROM space_item_reactions WHERE item_id = ? AND relay = ? AND symbol = ?', targetId, relay, reaction.symbol);
+    if (give !== had) this.spaceChanged(space.id, now);
+    const rows = this.sql.exec('SELECT item_id, relay, symbol, count, glyph FROM space_item_reactions WHERE item_id = ? ORDER BY added_at', targetId).toArray();
+    return { anchor, reacted: give, ...foldReactions(rows, relay, this.memberNames(space.id)) };
+  },
+
+  // What each part on in this space keeps in its own store (src/space-capabilities.mjs keptRecordsOn), such as the
+  // board's pictures and notes, read after the space's rules let the reader read the space. A store that cannot answer
+  // says so on its part instead of hiding the rest.
+  async keptParts(spaceId, relay) {
+    return Promise.all(keptRecordsOn(this.readCommunity(spaceId).config).map(async part => {
+      const store = this.env[part.store];
+      try {
+        const records = part.store === 'BOARD_ROOM' ? await this.boardRecords({ space_id: spaceId, relay }) : await store.get(store.idFromName(spaceId)).keptRecords();
+        return { capability: part.id, tool_id: part.tool_id, label: part.label, records: records.slice(0, MAX_PART_RECORDS), ...(records.length > MAX_PART_RECORDS ? { more: records.length - MAX_PART_RECORDS } : {}) };
+      } catch (error) {
+        return { capability: part.id, tool_id: part.tool_id, label: part.label, records: [], unavailable: String(error?.message ?? error) };
+      }
+    }));
+  },
+
+  async withdrawSpaceItem({ relay, space_id: spaceId, item_id: itemId, private_ref: privateRef = null, intent_order: intentOrder = null }) {
+    const active=sharedNativeExecution()?.context,mutation=active?.commitment.source_mutation??null;
+    if(mutation&&(mutation.kind!=='private-copy-withdrawal'||mutation.space_id!==spaceId||mutation.relay!==relay
+      ||mutation.private_ref!==privateRef||mutation.item_id!==itemId||mutation.intent_order!==(intentOrder??0)))
+      throw Object.assign(new Error('Private withdrawal changed its captured contributor, source, or item.'),{status:403});
+    const row = this.sql.exec('SELECT contributed_by, origin, source_ref, withdrawn_at, share_intent_order FROM space_items WHERE id = ? AND space_id = ?', String(itemId ?? ''), String(spaceId ?? '')).toArray()[0];
+    const access=mutation?this.spaceAccessState(spaceId,relay,row?{by:row.contributed_by,origin:row.origin}:null):null;
+    const space = await this.allowedInSpace(spaceId, relay, 'withdraw_item', mutation ? { by: relay, origin: 'private' } : row ? { by: row.contributed_by, origin: row.origin } : null);
+    if (!row) throw new Error('No item with that id in this space.');
+    if (intentOrder !== null && (!Number.isSafeInteger(intentOrder) || intentOrder < 0)) throw new Error('A private pursuit withdrawal needs a valid order.');
+    let sourceWasWithdrawn=true;
+    if(mutation){
+      const gate=hostOf(this.env, { kind: 'account-control', key: `gate:${JSON.stringify([active.owner,active.claims.sign_in,active.resource])}` });
+      const [current,latest]=await Promise.all([gate.readPrivateSourceContext({owner:active.owner,resource:active.resource,claims:active.claims}),
+        this.privateShareIntentOrders({relay,private_refs:[privateRef]})]);
+      if(!current.accepted||current.relay!==relay||this.privateShareOwnerDeleted(relay))throw Object.assign(new Error('Current account rights withhold this private withdrawal.'),{status:403});
+      const latestOrder=Math.max(latest.orders.find(value=>value.private_ref===privateRef)?.intent_order??0,this.privateShareIntentOrder(relay,privateRef));
+      if(this.spaceAccessState(spaceId,relay,{by:row.contributed_by,origin:row.origin})!==access)throw new Error('Space permissions changed while this action was checked. Try again.');
+      const exact=this.sql.exec('SELECT contributed_by, origin, source_ref, withdrawn_at, share_intent_order FROM space_items WHERE id=? AND space_id=?',String(itemId),String(spaceId)).toArray()[0];
+      if(!exact||exact.contributed_by!==relay||exact.origin!=='private'||exact.source_ref!==privateRef)
+        throw Object.assign(new Error('The private copy changed before withdrawal.'),{status:403});
+      sourceWasWithdrawn=Boolean(exact.withdrawn_at);
+      if(latestOrder>(intentOrder??0)||exact.share_intent_order!==null&&exact.share_intent_order>(intentOrder??0))return {withdrawn:itemId,stale:true};
+      if (!exact.withdrawn_at) {
+        this.sql.exec('UPDATE space_items SET title = NULL, body = NULL, withdrawn_at = ?, withdrawn_by = ?, share_intent_order = COALESCE(?, share_intent_order) WHERE id = ? AND space_id = ? AND contributed_by = ? AND origin = \'private\' AND source_ref = ?', new Date().toISOString(), relay, intentOrder, itemId, spaceId, relay, privateRef);
+        if(this.sql.exec('SELECT changes() AS n').toArray()[0]?.n!==1)throw Object.assign(new Error('The private copy changed before withdrawal.'),{status:403});
+      } else if (intentOrder !== null && (exact.share_intent_order === null || exact.share_intent_order < intentOrder)) {
+        this.sql.exec("UPDATE space_items SET share_intent_order = ? WHERE id = ? AND space_id = ? AND contributed_by = ? AND origin = 'private' AND source_ref = ?", intentOrder, itemId, spaceId, relay, privateRef);
+      }
+    } else if (intentOrder !== null && row.share_intent_order !== null && row.share_intent_order > intentOrder) return { withdrawn: itemId, stale: true };
+    if (!mutation&&!row.withdrawn_at) {
+      this.sql.exec('UPDATE space_items SET title = NULL, body = NULL, withdrawn_at = ?, withdrawn_by = ?, share_intent_order = COALESCE(?, share_intent_order) WHERE id = ?', new Date().toISOString(), relay, intentOrder, itemId);
+      this.spaceAssignmentDeliveries().cancel(space.id, itemId, 'The task was withdrawn.');
+      this.tellWithdrawn(space.id, itemId);
+      this.spaceChanged(space.id);
+    } else if (!mutation&&intentOrder !== null && (row.share_intent_order === null || row.share_intent_order < intentOrder)) {
+      this.sql.exec('UPDATE space_items SET share_intent_order = ? WHERE id = ?', intentOrder, itemId);
+    }
+    if(mutation&&!sourceWasWithdrawn){this.spaceAssignmentDeliveries().cancel(space.id,itemId,'The task was withdrawn.');this.tellWithdrawn(space.id,itemId);this.spaceChanged(space.id);}
+    return { withdrawn: itemId };
+  },
+
+  // A thing this member made in the space, completed afterwards: a link shared bare gains the card its page gives
+  // (src/share-destinations.mjs). Only what the thing does not say yet is added: a title it has stays, and each field
+  // of its body it already holds stays; `body` must be an object and the thing's body one too. A thing withdrawn, or
+  // not this member's own, is not found; completing it is writing in the space, so the space's own rules decide it.
+  async fillSpaceItem({ relay, space_id: spaceId, item_id: itemId, title, body }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'add_items');
+    if (!body || typeof body !== 'object' || Array.isArray(body)) throw new Error('body is an object of the fields to add.');
+    const row = this.sql.exec("SELECT title, body FROM space_items WHERE id = ? AND space_id = ? AND contributed_by = ? AND origin = 'space' AND withdrawn_at IS NULL", String(itemId ?? ''), space.id, relay).toArray()[0];
+    if (!row) throw new Error('No thing of yours with that id in this space.');
+    const held = JSON.parse(row.body ?? 'null');
+    if (!held || typeof held !== 'object' || Array.isArray(held)) return { item_id: itemId, filled: [] };
+    const filled = Object.keys(body).filter(key => body[key] !== null && body[key] !== undefined && (held[key] === null || held[key] === undefined));
+    const newTitle = row.title ? null : optional(title, 300);
+    if (!filled.length && !newTitle) return { item_id: itemId, filled: [] };
+    const next = { ...held, ...Object.fromEntries(filled.map(key => [key, body[key]])) };
+    this.sql.exec('UPDATE space_items SET title = COALESCE(title, ?), body = ? WHERE id = ?', newTitle, bodyText(next), itemId);
+    this.spaceChanged(space.id);
+    return { item_id: itemId, filled: [...(newTitle ? ['title'] : []), ...filled] };
+  },
+
+  async nameInSpace({ relay, space_id: spaceId, name }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'name_self');
+    this.sql.exec('INSERT INTO member_names (membership_id, relay, name) VALUES (?, ?, ?) ON CONFLICT(membership_id, relay) DO UPDATE SET name = excluded.name', space.id, relay, text(name, 'A name', 80));
+    this.spaceChanged(space.id);
+    return { space_id: space.id, name: text(name, 'A name', 80) };
+  },
+
+  // Where a file's bytes are: the store of the member who put it in the space, and the file's identity. Only for a
+  // current member reading a file item that has not been withdrawn: one shared from a private Trillion
+  // (source_ref "file:<identity>"), or one a member's chat carried when they brought it in
+  // (source_ref "chat-file:<conversation>:<attachment>"), or a file added directly to the room. Its bytes still
+  // come only from the contributor's own Namespace; a body naming somebody else's content grants nothing.
+  async spaceFile({ relay, space_id: spaceId, item_id: itemId, with_details: withDetails = false }) {
+    if (typeof withDetails !== 'boolean') throw new Error('Choose whether to read file details with true or false.');
+    const found = this.sql.exec("SELECT title, contributed_by, source_ref, body, withdrawn_at, hidden_at, origin FROM space_items WHERE id = ? AND space_id = ? AND kind = 'file' AND ((origin = 'private' AND source_ref LIKE 'file:%') OR (origin = 'import' AND source_ref LIKE 'chat-file:%') OR origin IN ('space', 'trillion'))", String(itemId ?? ''), String(spaceId ?? '')).toArray()[0];
+    const row = found && !found.withdrawn_at ? found : null;
+    await this.allowedInSpace(spaceId, relay, 'read_file', row ? { by: row.contributed_by, origin: row.origin } : null);
+    if (!row) throw new Error('No shared file with that id in this space.');
+    // A hidden item's words are visible only to someone allowed to show it again. Apply the same rule to bytes.
+    if (row.hidden_at) await this.allowedInSpace(spaceId, relay, 'hide_item', { by: row.contributed_by, origin: row.origin });
+    const access = this.spaceAccessState(spaceId, relay, { by: row.contributed_by, origin: row.origin });
+    const holder = this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', row.contributed_by).toArray()[0];
+    if (!holder) throw new Error('The member who shared this file has deleted their account, so it is gone.');
+    let details = { title: row.title, body: JSON.parse(row.body) };
+    const identity = details.body?.identity;
+    if (typeof identity !== 'string' || !identity.trim()) throw new Error('This file has no saved content to open.');
+    if (row.origin === 'private') {
+      let current;
+      try {
+        current = sharedNativeExecution()?.host===this
+          ? await this.releasePrivateSourceToSpace({ relay: row.contributed_by, private_ref: row.source_ref, space_id: spaceId })
+          : await this.env.PERSON.get(this.env.PERSON.idFromString(holder.person_ref)).releaseRecordToSpace({ private_ref: row.source_ref, space_id: spaceId });
+      }
+      catch (error) {
+        // A busy or interrupted owner has not answered the grant check. Preserve its failure contract;
+        // no address is issued and the next read must check the current grant again.
+        if (failureOf(error).tries_again_later) throw error;
+        throw new Error('This file is no longer shared in this space.');
+      }
+      if (current?.kind !== 'file' || current?.private_ref !== row.source_ref || current?.body?.identity !== identity) throw new Error('This file is no longer shared in this space.');
+      details = current;
+    }
+    this.assertSpaceAccessUnchanged(spaceId, relay, access, { by: row.contributed_by, origin: row.origin });
+    const stillShared = this.sql.exec('SELECT title, withdrawn_at, hidden_at, body FROM space_items WHERE id = ? AND space_id = ?', itemId, spaceId).toArray()[0];
+    if (!stillShared || stillShared.withdrawn_at || JSON.parse(stillShared.body)?.identity !== identity) throw new Error('This file is no longer shared in this space.');
+    // Byte leases call this method again, so hiding also revokes addresses already handed out.
+    if (stillShared.hidden_at) await this.allowedInSpace(spaceId, relay, 'hide_item', { by: row.contributed_by, origin: row.origin });
+    this.assertSpaceAccessUnchanged(spaceId, relay, access, { by: row.contributed_by, origin: row.origin });
+    const currentHolder=this.sql.exec('SELECT person_ref FROM relays WHERE relay=?',row.contributed_by).toArray()[0];
+    if(currentHolder?.person_ref!==holder.person_ref||this.privateShareOwnerDeleted(row.contributed_by))throw new Error('This file no longer has the same current source account.');
+    if (withDetails && (stillShared.body !== row.body || stillShared.title !== row.title)) throw new Error('This file changed while it was being opened. Open it again.');
+    return { person_ref: holder.person_ref, identity, ...(withDetails ? { file: {
+      item_id: itemId, identity, title: details.title ?? null,
+      name: typeof details.body?.name === 'string' ? details.body.name : null,
+      media_type: typeof details.body?.media_type === 'string' ? details.body.media_type : null,
+      byte_length: Number.isSafeInteger(details.body?.byte_length) && details.body.byte_length >= 0 ? details.body.byte_length : null,
+    } } : {}) };
+  },
+
+  // Any record can name associated media, text files or other records. Resolve a bounded page only against this
+  // space's current admitted items. Association never creates a share and never opens a contributor's private URL.
+  async spaceAssociatedFiles({ relay, space_id: spaceId, item_id: itemId, after, limit }) {
+    const at = { relay, space_id: spaceId, item_id: itemId };
+    const first = (await this.spaceItems({ ...at, limit: 1 })).items[0];
+    if (!first || first.withdrawn || (first.body == null && first.title == null)) throw new Error('This record is no longer available here.');
+    const page = first.kind === 'file'
+      ? { references: [{ key: 'file', role: 'file', source: 'file', item_id: first.item_id }], next_after: null }
+      : sharedRecordReferencePage(first.body, { after, limit });
+    const references = [];
+    for (const reference of page.references) {
+      if (reference.source === 'item') {
+        const record = (await this.spaceItems({ relay, space_id: spaceId, item_id: reference.item_id, limit: 1 })).items[0];
+        references.push(record && !record.withdrawn && record.body != null
+          ? { ...reference, available: true, record }
+          : { ...reference, available: false });
+        continue;
+      }
+      const lookup = sharedRecordFileLookup(spaceId, reference);
+      const candidates = this.sql.exec(lookup.query, ...lookup.binds).toArray();
+      // A bare name shared by multiple contributors has no unambiguous source. Do not silently pick one.
+      if (candidates.length !== 1) { references.push({ ...reference, available: false }); continue; }
+      try {
+        const { file } = await this.spaceFile({ relay, space_id: spaceId, item_id: candidates[0].id, with_details: true });
+        const matches = (!reference.identity || reference.identity === file.identity) && (!reference.name || reference.name === file.name);
+        references.push(matches ? { ...reference, available: true, file } : { ...reference, available: false });
+      } catch (error) {
+        if (failureOf(error).tries_again_later || error instanceof TypeError || error instanceof ReferenceError || error instanceof SyntaxError) throw error;
+        // Keep unavailable references visible without disclosing another person's source or bypassing a refusal.
+        references.push({ ...reference, available: false });
+      }
+    }
+    // Revalidate referenced records after the last asynchronous lookup. A returned file has no byte address; the
+    // existing /file and /transcript routes independently recheck its grant before issuing a lease or saved words.
+    for (let index = 0; index < references.length; index += 1) {
+      const reference = references[index];
+      if (!reference.available || !reference.record) continue;
+      const current = (await this.spaceItems({ relay, space_id: spaceId, item_id: reference.record.item_id, limit: 1 })).items[0];
+      if (!sameSharedRecord(reference.record, current)) references[index] = { ...page.references[index], available: false };
+    }
+    const latest = (await this.spaceItems({ ...at, limit: 1 })).items[0];
+    if (!sameSharedRecord(first, latest)) throw new Error('This record changed while its files were being opened. Open it again.');
+    return { record: latest, references, next_after: page.next_after };
+  },
+
+  // Whose record one shared item of a space is, for checking a value against a field it shares to match only
+  // (src/record-sharing.mjs matchSharedValue): only someone who may read the item is told, and the name they show in the
+  // space goes with the question, so the record's owner sees who asked.
+  async matchSourceOf({ relay, space_id: spaceId, item_id: itemId }) {
+    const found = this.sql.exec("SELECT contributed_by, source_ref, withdrawn_at, hidden_at, origin FROM space_items WHERE id = ? AND space_id = ? AND origin = 'private'", String(itemId ?? ''), String(spaceId ?? '')).toArray()[0];
+    const row = found && !found.withdrawn_at ? found : null;
+    await this.allowedInSpace(spaceId, relay, 'read_space', row ? { by: row.contributed_by, origin: row.origin } : null);
+    if (!row) throw new Error('No shared record with that id in this space.');
+    if (row.hidden_at) await this.allowedInSpace(spaceId, relay, 'hide_item', { by: row.contributed_by, origin: row.origin });
+    const holder = this.sql.exec('SELECT person_ref FROM relays WHERE relay = ?', row.contributed_by).toArray()[0];
+    if (!holder) throw new Error('The member who shared this has deleted their account, so it is gone.');
+    await this.cacheMemberAccountNames(spaceId);
+    return { person_ref: holder.person_ref, private_ref: row.source_ref, asker: { relay, name: this.memberNames(spaceId)(relay) } };
+  },
+
+  // Links an item or handoff may carry: only to things in the same space.
+  sameSpaceRefs(spaceId, about) {
+    if (about === undefined || about === null) return [];
+    if (!Array.isArray(about)) throw new Error('about is a list of item ids in this space.');
+    for (const ref of about) if (!this.contentReferenceAdmitted?.(spaceId,String(ref)) && !this.sql.exec('SELECT 1 FROM space_items WHERE id = ? AND space_id = ?', String(ref), spaceId).toArray().length) throw new Error(`${ref} is not an item in this space.`);
+    return about.map(String);
+  },
+
+  // The space's agents and handoffs: the agents owner (src/agents.mjs) over this space's rows. `verb` is one of its
+  // operations, or withdraw; agent ids arrive as the member's AI published them and are named for the member here.
+  async spaceAgents({ relay, space_id: spaceId, verb, input = {}, _task_command_address:taskCommand = null }) {
+    const localStore = spaceAgentStore(this.sql, String(spaceId ?? ''), relay);
+    const mine = id => (id ? memberAgentId(String(id), relay) : id);
+    // Reading handoffs and finding agents are part of reading the space; changing or taking work needs its own permission.
+    const withdrawn = verb === 'withdraw' ? localStore.card(mine(text(input.agent_id, 'agent_id', 200))) ?? null : undefined;
+    const action = { publish: 'put_agent_to_work', project: 'put_agent_to_work', withdraw: 'withdraw_agent', read: 'read_space', find: 'read_space' }[verb] ?? 'hand_work';
+    const space = await this.allowedInSpace(spaceId, relay, action, withdrawn && { by: withdrawn.relay });
+    const relationIds = verb === 'handOff'
+      ? [input.parent_handoff_id, ...(Array.isArray(input.depends_on) ? input.depends_on : [])].filter(Boolean).map(String)
+      : verb === 'take' && input.handoff_id
+        ? (localStore.handoff(String(input.handoff_id))?.depends_on ?? []).map(String)
+        : [];
+    const relationRows = new Map();
+    const contentGeneration = this.sql.exec("SELECT generation FROM space_content_identity WHERE space_id=? AND state='sealed'",space.id).toArray()[0]?.generation;
+    for (const handoffId of [...new Set(relationIds)]) {
+      const index = await resolveItemShard(this.env, space.id, handoffId, { create: false });
+      if (index === null) continue;
+      const address = contentShardAddress(space.id, index);
+      const row = await sharedDependencyStub(this,address).lookupSpaceTaskHandoff({
+        space_id: space.id, handoff_id: handoffId, generation: contentGeneration,
+      });
+      if (row) relationRows.set(handoffId, row);
+    }
+    const store = spaceAgentStore(this.sql, String(spaceId ?? ''), relay, relationRows);
+    const agents = makeAgents({ store, addressed: spaceEvent(space.id) });
+    const nameOf = this.memberNames(space.id);
+    // A card as a member sees it: its delivery address only to the member who published it.
+    const named = card => card && { ...card, delivery: card.relay === relay ? card.delivery : undefined, wakes_on_events: Boolean(card.delivery), member: nameOf(card.relay), yours: card.relay === relay };
+    const asked = { ...input };
+    if (verb === 'publish') {
+      asked.agent_id = mine(text(input.agent_id ?? input.name, 'agent_id', 200).toLowerCase().replace(/[^a-z0-9-]+/g, '-'));
+      const result = agents.publish(asked);
+      if (!result.agent.delivery) this.dropSpaceDeliveries(space.id, result.agent.agent_id);
+      this.spaceChanged(space.id);
+      return { agent: named(store.card(result.agent.agent_id)), ...(result.delivery_secret ? { delivery_secret: result.delivery_secret, delivery_note: result.delivery_note } : {}) };
+    }
+    // What the space shows of a member's AI (its name, what it can do, whether it is working), pushed from that AI's
+    // record in the member's store (src/person-spaces.mjs pushAiToSpaces); only the member who put it here sends it.
+    if (verb === 'project') {
+      const card = store.card(mine(text(input.agent_id, 'agent_id', 200)));
+      if (!card || card.relay !== relay) return { projected: false };
+      const { ai_id, name, can, live } = input;
+      store.putCard({ ...card, ...(typeof ai_id === 'string' ? { ai_id } : {}), ...(typeof name === 'string' && name ? { name } : {}), ...(Array.isArray(can) ? { can } : {}), ...(live && typeof live === 'object' ? { live } : {}) });
+      this.spaceChanged(space.id);
+      return { projected: true };
+    }
+    if (verb === 'withdraw') {
+      if (!withdrawn) throw new Error('You have no agent with that id in this space.');
+      this.retireSpaceAgent(space.id, withdrawn);
+      this.spaceChanged(space.id);
+      return { agent: named(store.card(withdrawn.agent_id)), withdrawn: true };
+    }
+    if (verb === 'setCapacity' || verb === 'take' || verb === 'finish') asked.agent_id = mine(input.agent_id);
+    if (verb === 'handOff') {
+      if (input.from_agent) asked.from_agent = mine(input.from_agent);
+      if (input.case_id) this.sameSpaceRefs(space.id, [input.case_id]);
+      asked.request_key = `${relay}:${text(input.request_key, 'request_key', 500)}`;
+
+    }
+    if (verb === 'find') { const found = agents.find(asked); return { job: found.job, agents: found.agents.map(({ next_call: _, ...card }) => named(card)) }; }
+    if (!['setCapacity', 'handOff', 'take', 'finish', 'read'].includes(verb)) throw new Error('Not a pursuit agent operation.');
+    const answer = verb === 'take' ? this.ctx.storage.transactionSync(() => {
+      const requestKey = text(input.request_key, 'request_key', 500);
+      const inputIdentity = identityOf({ agent_id: asked.agent_id, handoff_id: asked.handoff_id ?? null, only_mine: asked.only_mine === true });
+      if(taskCommand)this.sql.exec('INSERT OR IGNORE INTO space_task_command_directory(space_id,relay,command_address,handoff_id) VALUES(?,?,?,?)',space.id,relay,taskCommand,asked.handoff_id??'');
+      const prior = this.sql.exec('SELECT input_identity,result_json FROM space_agent_take_receipts WHERE space_id=? AND relay=? AND request_key=?',space.id,relay,requestKey).toArray()[0];
+      if (prior) {
+        if (prior.input_identity !== inputIdentity) throw new Error('Task take request key already names another operation.');
+        return JSON.parse(prior.result_json);
+      }
+      const result = agents.take(asked);
+      this.sql.exec('INSERT INTO space_agent_take_receipts(space_id,relay,request_key,input_identity,result_json,handoff_id) VALUES(?,?,?,?,?,?)',space.id,relay,requestKey,inputIdentity,JSON.stringify(result),result.handoff?.handoff_id??asked.handoff_id??null);
+      return result;
+    }) : agents[verb](asked);
+    if (verb !== 'read' && (verb !== 'take' || answer.handoff)) this.spaceChanged(space.id);
+    // A handoff, a take (its hold runs out) and a finish (work waiting on it can go) all move the next review.
+    if (verb === 'handOff' || verb === 'take' || verb === 'finish') await this.armAlarm();
+    // Why an event to another member's agent was not delivered can name their address, so only its owner sees it.
+    if (answer.deliveries) answer.deliveries = answer.deliveries.map(item => (store.card(item.agent_id)?.relay === relay ? item : { ...item, last_error: null }));
+    return answer;
+  },
+
+  async refreshSpaceAgentPublication({space_id:spaceId,agent_id:agentId,generation}){
+    const identity=this.sql.exec("SELECT generation FROM space_content_identity WHERE space_id=? AND state='sealed'",spaceId).toArray()[0];if(!identity||String(identity.generation)!==String(generation))throw new Error('Agent publication incarnation changed.');
+    return withContentInvocation(this,spaceId,async()=>{
+    const home=sharedDependencyStub(this,contentShardAddress(spaceId,contentShardIndex(agentId)));
+    const card=await home.readSpaceAgentPublication({space_id:spaceId,agent_id:agentId,generation});
+    if(!card){this.dropSpaceDeliveries(spaceId,agentId);this.sql.exec('DELETE FROM space_agent_card_replicas WHERE space_id=? AND agent_id=?',spaceId,agentId);return {refreshed:true};}
+    if(contentShardIndex(agentId)===this.contentShardIndex)return {refreshed:true};
+    const {_delivery_secret:secret,...value}=card;
+    this.sql.exec('INSERT INTO space_agent_card_replicas(space_id,agent_id,relay,value,secret) VALUES(?,?,?,?,?) ON CONFLICT(space_id,agent_id) DO UPDATE SET value=excluded.value,secret=excluded.secret',spaceId,agentId,card.relay,JSON.stringify(value),secret);
+    if(!card.takes_work){this.dropSpaceDeliveries(spaceId,agentId);this.releaseSpaceAgentHeldTasks(spaceId,agentId);}
+    else makeAgents({store:spaceAgentStore(this.sql,spaceId,card.relay),addressed:spaceEvent(spaceId)}).publish(value);
+    await this.armAlarm();return {refreshed:true};
+    });
+  },
+
+  lookupSpaceTaskHandoff({space_id:spaceId,handoff_id:handoffId,generation}) {
+    this.assertSpaceContentAddress(spaceId);
+    const identity=this.sql.exec("SELECT generation FROM space_content_identity WHERE space_id=? AND state='sealed'",spaceId).toArray()[0];
+    if(!identity||String(identity.generation)!==String(generation))return null;
+    const row=this.sql.exec('SELECT value FROM space_handoffs WHERE space_id=? AND handoff_id=?',spaceId,handoffId).toArray()[0];
+    return row?JSON.parse(row.value):null;
+  },
+
+  // Events waiting for one agent in a space are dropped: marked, kept for its history, and never sent.
+  dropSpaceDeliveries(spaceId, agentId) {
+    this.sql.exec("UPDATE space_agent_deliveries SET state = 'dropped', next_at = NULL, value = json_set(value, '$.state', 'dropped', '$.next_at', NULL) WHERE space_id = ? AND agent_id = ? AND state IN ('waiting', 'dead')", spaceId, agentId);
+  },
+
+  // An agent stops in a space: it takes no more work, is woken by nothing, its secret is gone, work it held is back
+  // up for others, and events still waiting for it are dropped.
+  retireSpaceAgent(spaceId, card) {
+    this.sql.exec('UPDATE space_agent_cards SET value = ? WHERE space_id = ? AND agent_id = ?', JSON.stringify({ ...card, takes_work: false, delivery: null }), spaceId, card.agent_id);
+    this.sql.exec('DELETE FROM space_agent_delivery_secrets WHERE space_id = ? AND agent_id = ?', spaceId, card.agent_id);
+    this.dropSpaceDeliveries(spaceId, card.agent_id);
+    for (const held of this.sql.exec('SELECT handoff_id, value FROM space_handoffs WHERE space_id = ? AND open = 1', spaceId).toArray()) {
+      const handoff = JSON.parse(held.value);
+      if (handoff.taken_by === card.agent_id && handoff.state === 'taken') spaceAgentStore(this.sql, spaceId).putHandoff({ ...handoff, state: 'open', taken_by: null, taken_at: null, hold_until: null });
+    }
+  },
+
+  // A task may now live on any stable task shard, while its withdrawn card
+  // still has exactly one owner. The Network fans this operation across those
+  // owners after checking that card owner's withdrawal and member right.
+  releaseSpaceAgentHeldTasks(spaceId, agentId) {
+    const store = spaceAgentStore(this.sql, spaceId);
+    const held = this.sql.exec("SELECT value FROM space_handoffs WHERE space_id=? AND open=1 AND state='taken' AND taken_by=? ORDER BY handed_at,handoff_id", spaceId, agentId).toArray().map(row => JSON.parse(row.value));
+    for (const item of held) store.putHandoff({ ...item, state: 'open', taken_by: null, taken_at: null, hold_until: null });
+    return held.map(({ handoff_id, generation }) => ({ handoff_id, generation }));
+  },
+
+  // Leaving a space retires every agent the member put to work there.
+  leaveSpaces(relay, membershipId) {
+    const where = membershipId ? ' AND space_id = ?' : '';
+    const binds = membershipId ? [relay, membershipId] : [relay];
+    for (const row of this.sql.exec(`SELECT space_id, value FROM space_agent_cards WHERE relay = ?${where}`, ...binds).toArray()) this.retireSpaceAgent(row.space_id, JSON.parse(row.value));
+  },
+
+  // Sends every space event that is due, each space's with its own agents' secrets. `send` as deliverDue takes it.
+  async deliverSpaceEvents(send) {
+    const spaces = this.sql.exec("SELECT DISTINCT delivery.space_id FROM space_agent_deliveries delivery LEFT JOIN space_partition_routes route ON route.space_id = delivery.space_id WHERE delivery.state = 'waiting' AND delivery.next_at <= ? AND route.state IS NOT 'active'", new Date().toISOString()).toArray();
+    const results = [];
+    for (const { space_id: spaceId } of spaces) {
+      if(Number.isInteger(this.contentShardIndex))await this.refreshShardDeliveryAgents(spaceId);
+      results.push(...await deliverDue({ store: spaceAgentStore(this.sql, spaceId), send }));
+    }
+    return results;
+  },
+
+  // Every unfinished handoff in a space keeps one next step (src/agents.mjs reconcile), the same as a person's own:
+  // expired holds go back, waiting work is announced again, and work nobody can take shows why.
+  spaceWorkAgents(spaceId) { return makeAgents({ store: spaceAgentStore(this.sql, spaceId), addressed: spaceEvent(spaceId) }); },
+  // Every space's open work that is due for review, from one indexed read (space_handoffs_open_review), never a space at a time.
+  // A space served by another partition is left out, as spaceWorkAgents has always left it out.
+  nextSpaceWorkReviewAt() {
+    const nowIso = new Date().toISOString();
+    const next = this.sql.exec(`SELECT h.review_at AS at FROM space_handoffs h LEFT JOIN space_partition_routes route ON route.space_id = h.space_id
+      WHERE h.open = 1 AND h.review_at IS NOT NULL AND route.state IS NOT 'active' AND ${UNBLOCKED_REVIEW}
+      ORDER BY h.review_at LIMIT 1`).toArray()[0];
+    return next ? Date.parse(next.at === '' ? nowIso : next.at) : null;
+  },
+  reconcileSpaceWork() {
+    const dueIso = new Date().toISOString();
+    return this.sql.exec(`SELECT DISTINCT h.space_id FROM space_handoffs h LEFT JOIN space_partition_routes route ON route.space_id = h.space_id
+      WHERE h.open = 1 AND h.review_at IS NOT NULL AND h.review_at <= ? AND route.state IS NOT 'active' AND ${UNBLOCKED_REVIEW}`, dueIso).toArray()
+      .map(row => ({ space_id: row.space_id, ...this.spaceWorkAgents(row.space_id).reconcile() }));
+  },
+
+  // The earliest time any space event is next tried, or null when none is waiting.
+  nextSpaceDeliveryAt() {
+    const next = this.sql.exec("SELECT MIN(delivery.next_at) AS next_at FROM space_agent_deliveries delivery LEFT JOIN space_partition_routes route ON route.space_id = delivery.space_id WHERE delivery.state = 'waiting' AND route.state IS NOT 'active'").toArray()[0]?.next_at;
+    return next ? Date.parse(next) : null;
+  },
+
+  // The space owner installs a canonical Workshop definition by reference. The owner check is
+  // independent of the private account that originally created a saved tool: a grant gives use in
+  // this Space, never access to that account's private store.
+  async grantSpaceTool({ relay, space_id: spaceId, tool_id: toolId, tool_version: toolVersion = null, member_id: memberId = relay, operations = ['discover', 'describe', 'run', 'read'] }) {
+    // A space capability tool (src/space-capabilities.mjs) is installed by turning it on, under the space's own rules.
+    // A part such as a leaderboard is on for everyone in the space once it is on, so adding it for everyone is that.
+    const capability = capabilityOfTool(toolId);
+    if (capability) {
+      await this.setCapability({ relay, community_id: spaceId, capability, on: true });
+      const installed = (await this.spaceToolGrants({ relay, space_id: spaceId, tool_id: toolId })).grants[0];
+      if (memberId === relay || memberId === EVERY_MEMBER) return { ...installed, space_id: spaceId, active: true };
+      if (toolVersion && toolVersion !== installed?.tool_version) throw new Error('tool_version does not match this Space capability’s current version.');
+      toolVersion = installed?.tool_version;
+    }
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (space.created_by !== relay) throw new Error('Only the person who started this pursuit can grant a tool here.');
+    if (typeof toolId !== 'string' || !toolId.trim()) throw new Error('tool_id is required.');
+    if (toolVersion !== null && (typeof toolVersion !== 'string' || !toolVersion.trim())) throw new Error('tool_version must be text when given.');
+    if (typeof memberId !== 'string' || (memberId !== EVERY_MEMBER && !this.isMemberNow(space.id, memberId))) throw new Error('Choose a current member of this pursuit for this tool grant, or "*" for everyone in it.');
+    const validOperations = new Set(['discover', 'describe', 'run', 'read']);
+    if (!Array.isArray(operations) || !operations.length || new Set(operations).size !== operations.length || operations.some(operation => !validOperations.has(operation))) throw new Error('Choose one or more distinct tool operations: discover, describe, run, read.');
+    const grantId = newId('toolgrant');
+    const at = new Date().toISOString();
+    if (!toolVersion) throw new Error('A Marketplace tool version is required before this tool can be granted.');
+    const existing = this.sql.exec('SELECT grant_id, operations FROM space_tool_grants WHERE space_id = ? AND tool_id = ? AND tool_version IS ? AND granted_to = ? AND revoked_at IS NULL ORDER BY granted_at DESC LIMIT 1', space.id, toolId.trim(), toolVersion, memberId).toArray()[0];
+    if (existing) {
+      if (JSON.stringify(JSON.parse(existing.operations)) !== JSON.stringify(operations)) throw new Error('Revoke this member’s existing grant before changing its operations.');
+      return { grant_id: existing.grant_id, space_id: space.id, tool_id: toolId.trim(), tool_version: toolVersion, member_id: memberId, operations, active: true };
+    }
+    // A regrant is a new authority. Old task references keep pointing at the revoked row forever.
+    this.sql.exec('INSERT INTO space_tool_grants (grant_id, space_id, tool_id, tool_version, granted_by, granted_at, revoked_at, granted_to, operations) VALUES (?, ?, ?, ?, ?, ?, NULL, ?, ?)', grantId, space.id, toolId.trim(), toolVersion, relay, at, memberId, JSON.stringify(operations));
+    this.spaceChanged(space.id, at);
+    return { grant_id: grantId, space_id: space.id, tool_id: toolId.trim(), tool_version: toolVersion, member_id: memberId, operations, active: true };
+  },
+
+  // Current members can discover references installed in a Space. A former member gets the same
+  // refusal as every other Space read, and revoked grants never appear.
+  async spaceToolGrants({ relay, space_id: spaceId, tool_id: toolId = null, member_id: memberId = relay, operation = null }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (memberId !== relay && space.created_by !== relay) throw new Error('Only the person who started this pursuit can inspect another member’s tool grants.');
+    // A member's own grants and the tools added for everyone in the space (EVERY_MEMBER).
+    const rows = this.sql.exec(`SELECT grant_id, space_id, tool_id, tool_version, granted_by, granted_at, granted_to, operations
+      FROM space_tool_grants WHERE space_id = ? AND granted_to IN (?, ?) AND revoked_at IS NULL${toolId ? ' AND tool_id = ?' : ''}
+      ORDER BY granted_at, grant_id`, ...(toolId ? [space.id, memberId, EVERY_MEMBER, String(toolId)] : [space.id, memberId, EVERY_MEMBER])).toArray();
+    return { space_id: space.id, grants: rows.filter(row => !operation || JSON.parse(row.operations).includes(operation)).map(row => ({ grant_id: row.grant_id, tool_id: row.tool_id, ...(row.tool_version ? { tool_version: row.tool_version } : {}), granted_by: row.granted_by, member_id: row.granted_to, operations: JSON.parse(row.operations), granted_at: row.granted_at })) };
+  },
+
+  // Resolve one grant immediately before discovery, enqueue and effect dispatch. Keeping this as a
+  // Network read makes membership and revocation checks use the same authority as Space items.
+  async spaceToolGrant({ relay, space_id: spaceId, grant_id: grantId, tool_id: toolId = null, operation = null, write = false }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    // A tool that changes things runs here unless the pursuit's own rules say otherwise: only a rule that names the
+    // action and denies it refuses (a pursuit with no such rule allows it), so the gate is the pursuit's opt-in.
+    if (write && operation === 'run') {
+      const decided = await this.decideInSpace(space, relay, 'run_write_tool');
+      if (!decided.allowed && decided.rule) throw new Error(decided.says);
+    }
+    const row = this.sql.exec(`SELECT grant_id, space_id, tool_id, tool_version, granted_by, granted_at, granted_to, operations
+      FROM space_tool_grants WHERE grant_id = ? AND space_id = ? AND revoked_at IS NULL`, String(grantId ?? ''), space.id).toArray()[0];
+    if (!row || (row.granted_to !== relay && row.granted_to !== EVERY_MEMBER) || (toolId && row.tool_id !== toolId) || (operation && !JSON.parse(row.operations).includes(operation))) throw new Error('This tool operation is not currently granted to you in this space.');
+    return { grant_id: row.grant_id, space_id: row.space_id, tool_id: row.tool_id, ...(row.tool_version ? { tool_version: row.tool_version } : {}), granted_by: row.granted_by, member_id: row.granted_to, operations: JSON.parse(row.operations), granted_at: row.granted_at };
+  },
+
+  // The tools added to a space, one row per tool whoever it was added for: when it was first added, the version it is
+  // pinned to, whether it was added for everyone, whether this member may use it, and whether it is one of the parts
+  // that switch the space's settings (src/space-capabilities.mjs). Read by any member; who may add or remove is said.
+  async spaceAddedTools({ relay, space_id: spaceId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    const rows = this.sql.exec('SELECT tool_id, tool_version, granted_at, granted_to FROM space_tool_grants WHERE space_id = ? AND revoked_at IS NULL ORDER BY granted_at, grant_id', space.id).toArray();
+    const tools = new Map();
+    for (const row of rows) {
+      const tool = tools.get(row.tool_id) ?? { tool_id: row.tool_id, tool_version: row.tool_version, added_at: row.granted_at, for_everyone: false, you_may_use: false, part: Boolean(capabilityOfTool(row.tool_id)) };
+      if (row.granted_to === EVERY_MEMBER) tool.for_everyone = true;
+      if (row.granted_to === relay || row.granted_to === EVERY_MEMBER || tool.part) tool.you_may_use = true;
+      tools.set(row.tool_id, tool);
+    }
+    return { space_id: space.id, may_change: space.created_by === relay, tools: [...tools.values()] };
+  },
+
+  // Takes a tool out of a space for everyone: a part is turned off (what it held is set aside) and every grant of the
+  // tool there is revoked. Only the person who started the space, as for every grant.
+  async removeSpaceTool({ relay, space_id: spaceId, tool_id: toolId }) {
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (space.created_by !== relay) throw new Error('Only the person who started this pursuit can take a tool out of it.');
+    if (typeof toolId !== 'string' || !toolId.trim()) throw new Error('tool_id is required.');
+    const capability = capabilityOfTool(toolId.trim());
+    if (capability) await this.setCapability({ relay, community_id: space.id, capability, on: false });
+    const at = new Date().toISOString();
+    this.sql.exec('UPDATE space_tool_grants SET revoked_at = ? WHERE space_id = ? AND tool_id = ? AND revoked_at IS NULL', at, space.id, toolId.trim());
+    this.spaceChanged(space.id, at);
+    return { space_id: space.id, tool_id: toolId.trim(), removed: true };
+  },
+
+  // The owner can revoke a grant at any time. We retain the row so queued task references fail
+  // closed and old task IDs cannot be rebound to a later grant.
+  async revokeSpaceTool({ relay, space_id: spaceId, grant_id: grantId }) {
+    // Removing a space capability tool turns it off (what it held is set aside, src/space-capabilities.mjs).
+    const row = this.sql.exec('SELECT tool_id, granted_to FROM space_tool_grants WHERE grant_id = ? AND space_id = ? AND revoked_at IS NULL', String(grantId ?? ''), String(spaceId ?? '')).toArray()[0];
+    const capability = row ? capabilityOfTool(row.tool_id) : null;
+    const owner = capability ? this.sql.exec('SELECT created_by FROM memberships WHERE id = ?', String(spaceId ?? '')).toArray()[0]?.created_by : null;
+    if (capability && row.granted_to === owner) {
+      await this.setCapability({ relay, community_id: spaceId, capability, on: false });
+      return { grant_id: grantId, space_id: spaceId, active: false, revoked_at: this.sql.exec('SELECT revoked_at FROM space_tool_grants WHERE grant_id = ?', String(grantId)).toArray()[0]?.revoked_at ?? null };
+    }
+    const space = await this.allowedInSpace(spaceId, relay, 'read_space');
+    if (space.created_by !== relay) throw new Error('Only the person who started this pursuit can revoke a tool here.');
+    const at = new Date().toISOString();
+    const active = this.sql.exec('SELECT 1 FROM space_tool_grants WHERE grant_id = ? AND space_id = ? AND revoked_at IS NULL', String(grantId ?? ''), space.id).toArray()[0];
+    if (!active) throw new Error('That tool grant is not active in this space.');
+    this.sql.exec('UPDATE space_tool_grants SET revoked_at = ? WHERE grant_id = ? AND space_id = ? AND revoked_at IS NULL', at, String(grantId ?? ''), space.id);
+    this.spaceChanged(space.id, at);
+    return { grant_id: grantId, space_id: space.id, active: false, revoked_at: at };
+  },
+};

@@ -1,0 +1,139 @@
+// Workspace routes for the signed-in person's message inbox. Message text is kept by the person's existing
+// /messages owner; agent events carry only the kept message id and wake a reachable AI when one has registered.
+
+import { ownFiles } from '../../../send-one-message-to-all-of-my-ais-at-once/src/send-to-all-ais.mjs';
+import { TYPED_ON_SIGNED_IN_SCREEN } from './typed-on-signed-in-screen.mjs';
+
+import words from '../../../hand-off-jobs-between-agents/src/delivery-words.json' with { type: 'json' };
+
+const json = (value, status = 200) => Response.json(value, { status });
+const say = (line, app) => line.replaceAll('{app}', app);
+// What the sender is told, from how the AI can be reached (src/agent-delivery.mjs routeOf) and, on the stream route,
+// whether its computer's helper is listening this moment. The words are DATA (src/delivery-words.json).
+const sentLine = receiver => receiver?.route === 'stream' ? (receiver.live ? 'stream_live' : 'stream_away') : receiver?.route === 'push' ? 'push' : 'next_connection';
+const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+const clean = value => typeof value === 'string' && value.trim() ? value.trim() : '';
+
+export const isWorkMessagesPath = path => path === '/work/api/messages' || path.startsWith('/work/api/messages/');
+
+// Every call here is made for the person's own signed-in page (the session and origin were checked by handleWorkMessages),
+// so the words it keeps are marked as typed there; the person store keeps that mark on each message it records.
+const ask = (person, origin, path, body) => person.fetch(new Request(`https://person${path}`, {
+  method: 'POST', headers: { 'content-type': 'application/json', 'x-trillion-origin': origin, 'x-trillion-app': 'Trillion', [TYPED_ON_SIGNED_IN_SCREEN]: 'yes' },
+  body: JSON.stringify(body ?? {}),
+}));
+
+async function answer(response) {
+  const value = await response.json().catch(() => ({}));
+  return { ok: response.ok, status: response.status, value };
+}
+
+/**
+ * A conversation page that was asked for with link cards (`previews=1`) and came back without them (a page kept in the
+ * native record book carries none) gets them from the one preview store (src/link-previews.mjs, the person's store):
+ * every link in the page's words, its card or that it is pending or failed. A page that already has them, or an answer
+ * that is not a page, is returned as it is.
+ */
+export async function withMessagePreviews(response, request, { person, origin }) {
+  const asked = new URL(request.url).searchParams.get('previews');
+  if (!response.ok || !['1', 'true'].includes(asked)) return response;
+  const page = await response.clone().json().catch(() => null);
+  if (!page || !Array.isArray(page.messages) || 'previews' in page) return response;
+  const cards = await answer(await ask(person, origin, '/messages/previews', { messages: page.messages.map(message => ({ id: message.id, text: message.text })) }));
+  return json(cards.ok ? { ...page, previews: cards.value.previews } : page);
+}
+
+/**
+ * Handle the inbox API. `listConversations` is the one storage bridge supplied by PersonStore; it must call
+ * messages(eeaf).listConversations so the screen never scans a person's whole message history.
+ */
+export async function handleWorkMessages(request, options) {
+  const { person, origin, listConversations } = options;
+  if (request.method !== 'GET' && request.headers.get('origin') !== origin) return json({ error: 'Not allowed.' }, 403);
+  const url = new URL(request.url);
+  const rest = url.pathname.slice('/work/api/messages'.length);
+  // Only the two agent reads select this explicit native owner. Omission
+  // retains the caller; an invalid or failed supply never rescues from it.
+  const agentReader = async () => {
+    if (!Object.hasOwn(options, 'nativeAgentReader')) return person;
+    const supply = options.nativeAgentReader;
+    if (typeof supply !== 'function') return null;
+    const reader = await supply();
+    return typeof reader?.fetch === 'function' ? reader : null;
+  };
+  if (request.method === 'GET' && rest === '/threads') {
+    if (typeof listConversations !== 'function') return json({ error: 'The message inbox is not connected to the conversation store yet.' }, 503);
+    return json(await listConversations({ app: url.searchParams.get('app'), before: url.searchParams.get('before'), limit: url.searchParams.get('limit') }));
+  }
+  if (request.method === 'GET' && rest === '/thread') {
+    const app = clean(url.searchParams.get('app'));
+    const conversation_id = clean(url.searchParams.get('conversation_id'));
+    if (!app || !conversation_id) return json({ error: 'Choose a conversation to read.' }, 400);
+    const query = new URLSearchParams({ app, conversation_id, limit: url.searchParams.get('limit') || '100' });
+    const before = url.searchParams.get('before');
+    if (before) query.set('before', before);
+    if (url.searchParams.has('message_id')) query.set('message_id', url.searchParams.get('message_id'));
+    if (url.searchParams.has('previews')) query.set('previews', url.searchParams.get('previews'));
+    return withMessagePreviews(await person.fetch(new Request(`https://person/messages?${query}`, { headers: { 'x-trillion-origin': origin, 'x-trillion-app': 'Trillion' } })), request, { person, origin });
+  }
+  if (request.method === 'GET' && rest === '/agents') {
+    const reader = await agentReader();
+    if (!reader) return json({ error: 'Your AIs could not be listed.' }, 503);
+    const found = await answer(await ask(reader, origin, '/agents/find', { limit: 20 }));
+    if (!found.ok) return json(found.value, found.status);
+    return json({ agents: (found.value.agents ?? []).map(agent => ({ agent_id: agent.agent_id, name: agent.name, description: agent.description, model: agent.model, source_id: agent.source_id ?? null, delivery: Boolean(agent.delivery), present: Boolean(agent.last_seen_at && Date.now() - Date.parse(agent.last_seen_at) < 15 * 60_000) })) });
+  }
+  if (request.method === 'GET' && rest === '/delivery') {
+    const event_id = clean(url.searchParams.get('event_id'));
+    if (!event_id) return json({ error: 'Choose a delivery to check.' }, 400);
+    const reader = await agentReader();
+    if (!reader) return json({ error: 'The delivery status could not be read.' }, 503);
+    const state = await answer(await ask(reader, origin, '/agents/events/read', { event_id }));
+    if (!state.ok) return json(state.value, state.status);
+    const event = state.value.events?.[0];
+    if (!event) return json({ error: 'That delivery could not be found.' }, 404);
+    const status = event.state;
+    const message = words.later[status] ?? words.later.waiting;
+    return json({ event_id, state: status, message });
+  }
+  if (request.method === 'POST' && rest === '/send') {
+    const body = await request.json().catch(() => null);
+    if (!object(body)) return json({ error: 'Write a message and choose an AI.' }, 400);
+    const app = clean(body.app);
+    const conversation_id = clean(body.conversation_id);
+    const text = typeof body.text === 'string' ? body.text : '';
+    const agent_id = clean(body.agent_id);
+    // The id the sender made for this message (as send-all's client_id, src/send-to-all-ais.mjs): it is the message's place
+    // in its conversation, so the same id sent again is the message already kept and a retry never doubles it.
+    if (body.client_id !== undefined && (typeof body.client_id !== 'string' || !body.client_id.trim() || body.client_id.length > 200)) return json({ error: 'client_id is the id the sender gave this message, so sending it again is the same message.' }, 400);
+    // Files ride by reference, as in send-all: each one of this person's own, linked in the message and the AI's event.
+    let identities;
+    try { identities = await ownFiles(body.files, identity => person.namespaceLocate(identity)); }
+    catch (error) { return json({ error: error.message }, error.status ?? 400); }
+    if (!app || !conversation_id || (!text.length && !identities.length)) return json({ error: 'Choose an AI and write a message.' }, 400);
+    const about = identities.map(identity => ({ kind: 'file', id: identity }));
+    const kept = await answer(await person.fetch(new Request('https://person/messages', {
+      method: 'POST', headers: { 'content-type': 'application/json', 'x-trillion-origin': origin, 'x-trillion-app': 'Trillion', [TYPED_ON_SIGNED_IN_SCREEN]: 'yes' },
+      body: JSON.stringify({ messages: [{ app, conversation_id, speaker: 'person', text, ...(about.length ? { about } : {}), ...(body.client_id ? { source_ref: `client:${body.client_id.trim()}` } : {}) }] }),
+    })));
+    if (!kept.ok) return json(kept.value, kept.status);
+    const message_id = kept.value.ids?.[0];
+    if (!message_id) return json({ error: 'Your message could not be saved.' }, 502);
+    let delivery = { state: 'next_connection', message: say(words.sent.next_connection, app) };
+    if (agent_id) {
+      const sent = await answer(await ask(person, origin, '/agents/events', {
+        type: 'message.created', to_agent: agent_id, idempotency_key: message_id, subject_id: message_id,
+        summary: `New message from you in ${app}.`, refs: { message_id, ...Object.fromEntries(identities.map((identity, index) => [`file_${index + 1}`, identity])) },
+        next_call: { tool: 'read_messages', arguments: { conversation_id } },
+      }));
+      if (sent.ok) {
+        const line = sentLine(sent.value.receiver);
+        delivery = { state: line, message: say(words.sent[line], app), event_id: sent.value.event?.event_id ?? null };
+      } else {
+        delivery = { state: 'not_confirmed', message: say(words.sent.not_confirmed, app), reason: sent.value.error ?? null };
+      }
+    }
+    return json({ message_id, recorded: kept.value.recorded, delivery });
+  }
+  return json({ error: 'Not found' }, 404);
+}
