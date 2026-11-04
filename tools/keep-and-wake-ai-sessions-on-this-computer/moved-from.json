@@ -386,6 +386,13 @@
       "identity": "1f:2bc1184dfeee9fafc974d44711da4e6f7691670a9309b9178560aa6aeb610335"
     },
     {
+      "from": "harness/wake-stopped-chats.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/wake-stopped-chats.json",
+      "source_identity": "1f:36b96c0de8664eba2a6f335627fa195a9be7edf0d5ac925e7c0e6055e30b8a26",
+      "identity": "1f:36b96c0de8664eba2a6f335627fa195a9be7edf0d5ac925e7c0e6055e30b8a26"
+    },
+    {
       "from": "harness/work-consumer.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/work-consumer.json",
@@ -1427,13 +1434,6 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/failure-contract.test.mjs",
       "source_identity": "1f:57a78a251436ba8b4bb8b8c39372ac8b5f1935e75c0374345974d740dd5d1c04",
       "identity": "1f:d1dc5911ad22d0b56a61d0f7604758528bb04788e02b9c80e7f3afef7e2dbab9"
-    },
-    {
-      "from": "test/file-card-offers.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
-      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
-      "identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a"
     },
     {
       "from": "test/fixtures/github-expanded-assets-gridcraft-v0.3.0.html",
