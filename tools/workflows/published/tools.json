@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:57a4b40fa4144736c0d6035e8526ee9a4d4f8667e793d6b74adffe0a4850ce6f"
+  "blake3": "1f:90f36e2200e178884d96679788d869abcaa6a160dcf8066d94598858e47cf1d4"
  },
  "fields": [
   {
@@ -5591,6 +5591,25 @@
    }
   },
   {
+   "id": "tool:pack-my-device-copys-settle-upload",
+   "values": {
+    "title": "Pack my device copy's settle upload",
+    "job": "Work out what my device's copy of my records would send when it settles with my account: where the account's copy is kept on the device and the exact upload for one batch, compressed when that makes it smaller",
+    "description": "Give account (the signed-in account name, 1 to 256 characters) and request (one settle batch as a JSON object, the shape record-sync.mjs sends: copy, root, took_through, rows). Answers location (the private-file-system directory the account's copy is kept under, the account name's bytes in hex so two accounts never share one, and the file name records.sqlite3), sends (frame or plain), headers (content type, the x-trillion-device-account header, and for a frame its dictionary BLAKE3 id and exact expanded size), plain_bytes, sent_bytes, body (plain text) or body_base64 (the deflate frame, compressed against the sample of settle JSON in do-work/frame-dictionaries.json) and expands_back (the frame expands to exactly the batch). A batch under 1024 bytes, or one that would not shrink, goes plain. Refuses an empty, non-text or over-long account and a request that is not an object. It reads only its input: it opens no database, keeps nothing on any device, sends nothing and settles nothing. The screen's other work (the SQLite copy in the browser's private file system that survives reloads and reads offline, the outbox of small writes, the settle itself with the hosted store and sealed records) needs a browser worker and @sqlite.org/sqlite-wasm and is not done by this run.",
+    "status": "active",
+    "maker": "maker:keep-my-records-on-this-device",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "keep-my-records-on-this-device",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:pair-an-unknown-sender",
    "values": {
     "title": "Give an unknown sender a pairing code",
@@ -5932,6 +5951,25 @@
    }
   },
   {
+   "id": "tool:plan-clock-aligned-recording-pieces",
+   "values": {
+    "title": "Plan clock-aligned recording pieces",
+    "job": "Plan how recording every camera and microphone without end is cut into clock-aligned pieces that line up across devices: when each input's pieces begin and end, what each is named, which day folder it goes in, and the list that ties them together",
+    "description": "Give started_at and until (ISO times), segment_seconds (piece length, 300 when left out), folder (Recordings when left out), inputs ([{ label, kind: camera | microphone, extension?, with_sound? }], the device's own label with browser bus numbers dropped), device, list_name and time_zone (the device's own IANA zone; the run's own when left out). Pieces are cut every segment_seconds counted from the start of the device's day, never from when an input started, so every input on every device cuts at the same instants; the first piece runs from started_at to the first cut and a new day starts a new window. Answers time_zone, list (where the session list is kept), first_cut_at, piece_count, pieces (each input's { input, folder, name, file, start_ms, end_ms, seconds }) and session_list (the list kept beside the pieces: inputs and moments, each moment the files recorded together). Refuses unreadable times, until not after started_at, no inputs, an input without a label or of another kind, an unknown time zone and a plan of more than 5000 pieces. It reads only its input: it opens no camera or microphone, records nothing, keeps nothing on a device and sends nothing to Files. The screen's other work (opening each input, recording the pieces, keeping them on the device first, sending them while recording, reopening an input that stops and pausing by rule) needs a browser and is not done by this run.",
+    "status": "active",
+    "maker": "maker:record-cameras-and-microphones-all-day",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "record-cameras-and-microphones-all-day",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:plan-my-time",
    "values": {
     "title": "Plan my time",
@@ -5944,6 +5982,25 @@
      "placement:small-container"
     ],
     "folder": "plan-my-time"
+   }
+  },
+  {
+   "id": "tool:plan-the-address-a-live-camera-streams-to",
+   "values": {
+    "title": "Plan the address a live camera streams to",
+    "job": "Work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
+    "description": "Give key (the camera's stream key), port (1935 when left out), app (live when left out), output (the destination's FFmpeg arguments after the input, [] when left out) and optionally funnel ({ name: this computer's Tailscale name, ports: the public ports its tailnet allows, status: what tailscale funnel status --json printed }). Answers listening_address, camera_server_address, ffmpeg ({ program, arguments }: exactly what the shared listener do-work/take-a-stream.mjs starts FFmpeg with, captured from a stand-in that is never run) and, with funnel, public: the port picked the way the Funnel way in picks it (one already forwarding here, else the first free one of stream-settings.json tailscale.public_ports the tailnet allows), the rtmps:// address, whether it already forwards here and the trust anchor a camera imports for it (RTMPcert.pem, the public ISRG Root YE certificate), or why no port is free. The key is shown as <key> in every answer. Refuses a key, port or app of another shape, an output that is not a list of text and a funnel without a name or ports. It reads only its input and stream-settings.json: it starts no FFmpeg or Tailscale, opens no port, changes no Funnel setting, reads no saved login and sends nothing. The receiver's other work (taking the stream, showing the live picture, cutting it into pieces sent into the person's files, relaying it, following the person's stream rows) needs FFmpeg, a camera and the account and is not done by this run.",
+    "status": "active",
+    "maker": "maker:watch-and-keep-a-live-camera",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "watch-and-keep-a-live-camera",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -7445,6 +7502,25 @@
      "placement:public-web-address"
     ],
     "folder": "wikimedia-commons",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:rebuild-a-screen-recording-from-its-chunks",
+   "values": {
+    "title": "Rebuild a screen recording from its chunks",
+    "job": "Keep a screen recording's chunks in order as they are recorded and rebuild the finished recording from them, with the file reference it is published with",
+    "description": "Give chunks ([{ base64 } or { text }] in the order they were recorded; at most 1000 and 8 MB in all), and optionally recording_id (screen-record:<words>; one is made when left out), media_type (video/webm when left out) and observed_at (the ISO time each chunk is stamped with). Each chunk is kept through the folder's own store (do-work/recorded-file-store.ts) under the key the browser uses (<recording_id>:chunk:<sequence>), in a stand-in IndexedDB held only in this run's memory; then the file reference a finished recording is published with (kind local-playback.indexeddb-chunks, database, store, chunk_refs, media_type, byte_length) is built and the recording read back in order. Answers file, kept_keys and rebuilt ({ byte_length, media_type, identity: 1f: and the BLAKE3 hex of the rebuilt bytes, matches_chunks }). Refuses no chunks, a chunk with neither base64 nor text, too many chunks or bytes, and a recording_id or media_type of another shape. It captures no screen, keeps nothing in any browser once the run ends, and saves, names, removes or publishes no recording. The screen's other work (asking for the screen through getDisplayMedia, the recording panel, and publishing through the workflow actions in screen-recording-requests.ts, which needs the workspace's request sender) needs a browser and is not done by this run.",
+    "status": "active",
+    "maker": "maker:record-my-screen",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "record-my-screen",
     "flags": [
      "read-only"
     ]
@@ -10066,6 +10142,25 @@
      "placement:small-container"
     ],
     "folder": "draw-ink-marks"
+   }
+  },
+  {
+   "id": "tool:turn-a-presentation-plan-into-a-teleprompter-session",
+   "values": {
+    "title": "Turn a presentation plan into a teleprompter session",
+    "job": "Turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
+    "description": "Give plan (one compiled video presentation plan: id, title, medium video, execution.adapter capture.video, beats each with delivery speak and text, no open acquisitions, and the execution settings: countdown_seconds, auto_stop_seconds, silence_stop_seconds, silence_threshold_rms, minimum_speech_ms, stop_on_final_word, completion_grace_ms, completion_slack_words, script_end_quiet_seconds, stop_phrases, mirror_script, speech_language, follow_speech, allow_manual_nudge, completion_label), and optionally readiness (the setup pass's result for this plan), authorization (a grant: plan_id, authorized, authorized_at_ms, grant_until_ms) and nowMs (epoch milliseconds; the run's clock when left out). Answers the record-video.recording-session: session_id, title, subtitle, the stop and speech-follow settings with their defaults filled in, sentences (the teleprompter script), source_plan, requirements, plan_capabilities, readiness_state, authorization_state and auto_start, which is true only with a complete matching readiness and an unexpired grant for this plan. Refuses a plan that is not a video plan for capture.video, has open acquisitions (a gathering format), has no beats or a beat that is not spoken text, has a negative or non-numeric setting, and a grant that claims capture without fresh readiness or that does not match the plan and time. It reads only its input: it never opens a camera or microphone, never treats a plan as consent, records nothing and asks no AI to write a script. The screen's other work (the camera picture, countdown, live waveform, silence stop and speech-following teleprompter while recording, voice-only choice, and having the person's AI write the script for a format) needs a browser and is not done by this run.",
+    "status": "active",
+    "maker": "maker:record-video-with-teleprompter",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-04T00:00:00Z",
+    "folder": "record-video-with-teleprompter",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
