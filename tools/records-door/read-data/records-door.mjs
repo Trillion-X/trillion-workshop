@@ -16,6 +16,9 @@
 //   await door.write([{ id, type, value, expected? }], { key }) -> receipt; value null removes, expected checks prior
 //   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
 //                                                          descriptor holds when the row declares a `files` right
+//   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
+//                                                          address, `tools_resource`, else @workshop-tools), only for a
+//                                                          tool id the row declares in `runs`; the engine refuses others
 //
 // A busy account (503, or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the same
 // request key after a growing wait. Safe reads also retry fetch/body transport failures; writes do not. A refusal comes
@@ -66,7 +69,7 @@ function isTransportFailure(error) {
 }
 
 export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
-  const { url, resource, capability, files_resource: filesResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
+  const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
   if (typeof url !== 'string' || typeof resource !== 'string' || typeof capability !== 'string') {
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }
@@ -115,11 +118,13 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     }
   }
 
-  return recordsDoorFromCall(call, { filesResource, resource });
+  return recordsDoorFromCall(call, { filesResource, resource, toolsResource });
 }
 
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
-export function recordsDoorFromCall(call, { filesResource, resource } = {}) {
+const WORKSHOP_TOOLS = '@workshop-tools';
+
+export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
     return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
@@ -180,6 +185,12 @@ export function recordsDoorFromCall(call, { filesResource, resource } = {}) {
     async files(method, input) {
       if (typeof filesResource !== 'string') throw new RecordsDoorError('no_files', WORDS.no_files);
       return call(method, input, undefined, filesResource);
+    },
+    // Another Workshop tool's run (the brief's contract A): `tools:run` { tool, input } at the Workshop's address, for a
+    // tool id the row declares in `runs`. The engine holds it to this run's grant and deadline and derives its
+    // idempotency key from this run's; `key` names it within this run, so the same nested run sent again is one run.
+    async run(tool, input = {}, { key } = {}) {
+      return call('tools:run', { tool, input }, key, toolsResource);
     },
   };
 }

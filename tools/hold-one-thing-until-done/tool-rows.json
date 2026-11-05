@@ -708,6 +708,11 @@
             ]
           }
         },
+        "runs": [
+          "tool:hold-a-device-quiet",
+          "tool:take-me-there",
+          "tool:release-a-device"
+        ],
         "needs": {
           "expected_seconds": 3,
           "network_egress": false
