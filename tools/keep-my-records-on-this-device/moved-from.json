@@ -10,6 +10,33 @@
       "to": "tools/keep-my-records-on-this-device/do-work/frame-compression.mjs",
       "source_identity": "1f:7822d0ab6214919e2bd505cb5e8581691b0c6eebbb4de215b2c3acfab30b1799",
       "identity": "1f:7822d0ab6214919e2bd505cb5e8581691b0c6eebbb4de215b2c3acfab30b1799"
+    },
+    {
+      "from": "parts/device-copy/do-work/device-copy-worker.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-my-records-on-this-device/do-work/device-copy-worker.mjs",
+      "source_identity": "1f:63e26247ff5b09bbf8a42c5a995f2756d2b15e07aa655ee891a1b64d8d68e8dd",
+      "identity": "1f:63e26247ff5b09bbf8a42c5a995f2756d2b15e07aa655ee891a1b64d8d68e8dd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/device-copy/do-work/device-copy.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-my-records-on-this-device/do-work/device-copy.mjs",
+      "source_identity": "1f:e05bf1503bd3af3d15b4f93a82f5c9acede7e8d19a35b557241b31b4eb42a00a",
+      "identity": "1f:e05bf1503bd3af3d15b4f93a82f5c9acede7e8d19a35b557241b31b4eb42a00a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/device-copy/do-work/wasm-sqlite-host.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/keep-my-records-on-this-device/do-work/wasm-sqlite-host.mjs",
+      "source_identity": "1f:c8882b4e832b93e61d161dc09233000e51c6584705a426d3be5114fe7e82edc8",
+      "identity": "1f:c8882b4e832b93e61d161dc09233000e51c6584705a426d3be5114fe7e82edc8",
+      "found_by": "same bytes"
     }
   ]
 }

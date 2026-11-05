@@ -1,0 +1,80 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/stripe-payment-provider/process/build-stripe-http-request.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/build-stripe-http-request.mjs",
+      "source_identity": "1f:16bd21749f77e390958c427aefa81e080454be9c4bc35b69fc37f5976dd9c471",
+      "identity": "1f:16bd21749f77e390958c427aefa81e080454be9c4bc35b69fc37f5976dd9c471",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/compare-and-map-stripe-webhook.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/compare-and-map-stripe-webhook.mjs",
+      "source_identity": "1f:bb5992004836e5766a66c2e7f873575dbfee9bf7eb27b1825337e6063c05fc52",
+      "identity": "1f:bb5992004836e5766a66c2e7f873575dbfee9bf7eb27b1825337e6063c05fc52",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/map-stripe-webhook-event.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/map-stripe-webhook-event.mjs",
+      "source_identity": "1f:7231867eeff577836b365ae3344a0ede779801df7d2bb5124f401d463bfc9561",
+      "identity": "1f:7231867eeff577836b365ae3344a0ede779801df7d2bb5124f401d463bfc9561",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/parse-stripe-signature.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/parse-stripe-signature.mjs",
+      "source_identity": "1f:309e00aa999b692baa48d8c97415932da1563a671acf8582d0f3a755b21df96a",
+      "identity": "1f:309e00aa999b692baa48d8c97415932da1563a671acf8582d0f3a755b21df96a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/quantity-for-checkout.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/quantity-for-checkout.mjs",
+      "source_identity": "1f:84e32f5dc6c62339c3e3ce2847ada22edca4d5717f109d831cac5e491c5aaf51",
+      "identity": "1f:84e32f5dc6c62339c3e3ce2847ada22edca4d5717f109d831cac5e491c5aaf51",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/read-cli-input.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/read-cli-input.mjs",
+      "source_identity": "1f:059a91626d6141f4eda4eec5a827dccd4cb03fc9f95ce6b719f0d719e8379a7c",
+      "identity": "1f:059a91626d6141f4eda4eec5a827dccd4cb03fc9f95ce6b719f0d719e8379a7c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/stripe-form-encode.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/stripe-form-encode.mjs",
+      "source_identity": "1f:dd258dc6942813f8f689f5ab8ca896177a9f780e72d7388063ae17b2ed624c04",
+      "identity": "1f:dd258dc6942813f8f689f5ab8ca896177a9f780e72d7388063ae17b2ed624c04",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/stripe-payment-provider/process/stripe-request-mapper.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/seller-payment-setup/process/stripe-request-mapper.mjs",
+      "source_identity": "1f:3e945d5d11b2beec8cf853cfac557678ef34d02c32dbebf8d8b0abff0ee0f0d7",
+      "identity": "1f:3e945d5d11b2beec8cf853cfac557678ef34d02c32dbebf8d8b0abff0ee0f0d7",
+      "found_by": "same bytes"
+    }
+  ]
+}

@@ -215,12 +215,12 @@
         "invoke": {
           "kind": "container",
           "internet": false,
-          "workdir": "/opt/activity/src",
+          "workdir": "/opt/activity/see-what-my-ais-did",
           "stdout": "json",
           "argv": [
             "node",
             "/opt/records-door/do-work/run-an-export.mjs",
-            "/opt/activity/src/do-work/keep-and-read-activity.mjs",
+            "/opt/activity/see-what-my-ais-did/do-work/keep-and-read-activity.mjs",
             "keepAndReadActivity"
           ],
           "stdin": {
@@ -237,7 +237,7 @@
                   "activity-marks.json",
                   "do-work"
                 ],
-                "at": "/opt/activity/src"
+                "at": "/opt/activity/see-what-my-ais-did"
               },
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
@@ -252,21 +252,21 @@
                   "src/record-scope.json",
                   "src/workspace/file-previews.json"
                 ],
-                "at": "/opt/activity"
+                "at": "/opt/activity/keep-and-wake-ai-sessions-on-this-computer"
               },
               {
                 "package": "keep-lists-of-rows",
                 "paths": [
                   "do-work/fractional-order.ts"
                 ],
-                "at": "/opt/keep-lists-of-rows"
+                "at": "/opt/activity/keep-lists-of-rows"
               },
               {
                 "package": "record-log",
                 "paths": [
                   "do-work/record-model.mjs"
                 ],
-                "at": "/opt/record-log"
+                "at": "/opt/activity/record-log"
               },
               {
                 "package": "records-door",

@@ -1,0 +1,71 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/receive-a-camera-stream/do-work/capabilities/file-pieces-into-trillion.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/capabilities/file-pieces-into-trillion.mjs",
+      "source_identity": "1f:7fa0d7af81a312fa289c207014dc9dac908ca8605b2534ca6878d35adfc985f3",
+      "identity": "1f:7fa0d7af81a312fa289c207014dc9dac908ca8605b2534ca6878d35adfc985f3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-a-camera-stream/do-work/capabilities/public-address-through-tailscale-funnel.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/capabilities/public-address-through-tailscale-funnel.mjs",
+      "source_identity": "1f:296aa2382e1b181665683785b26b14204aef53787975a2ba265b14b021025e1b",
+      "identity": "1f:296aa2382e1b181665683785b26b14204aef53787975a2ba265b14b021025e1b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-a-camera-stream/do-work/capabilities/relay-to-an-address.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/capabilities/relay-to-an-address.mjs",
+      "source_identity": "1f:c32bea514e65cec14dd8467c1be74b700f945aafb7889bf77cb2066ab777ee31",
+      "identity": "1f:c32bea514e65cec14dd8467c1be74b700f945aafb7889bf77cb2066ab777ee31",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-a-camera-stream/do-work/capabilities/router-port-forward.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/capabilities/router-port-forward.mjs",
+      "source_identity": "1f:de4aa86484f77ac85ef44b930b69be40f34bc49cc14959df8952c890708c1a83",
+      "identity": "1f:de4aa86484f77ac85ef44b930b69be40f34bc49cc14959df8952c890708c1a83",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-a-camera-stream/do-work/capabilities/this-network.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/capabilities/this-network.mjs",
+      "source_identity": "1f:ff0357a9b6eb9799e2216a025b57811243885712d111d82cc8b7eefbb8cbf7d2",
+      "identity": "1f:ff0357a9b6eb9799e2216a025b57811243885712d111d82cc8b7eefbb8cbf7d2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-a-camera-stream/do-work/receive-a-camera-stream.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/receive-a-camera-stream.mjs",
+      "source_identity": "1f:42b92cbf7984dc1b9e7af4602964826a4e8a999891557b9abd688fac7251b660",
+      "identity": "1f:42b92cbf7984dc1b9e7af4602964826a4e8a999891557b9abd688fac7251b660",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-a-camera-stream/do-work/take-a-stream.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/watch-and-keep-a-live-camera/do-work/take-a-stream.mjs",
+      "source_identity": "1f:52961a3d9defb65bba91a2cb1ac0058a8b1e325fa46f4cc0180097a2bd1a17f8",
+      "identity": "1f:52961a3d9defb65bba91a2cb1ac0058a8b1e325fa46f4cc0180097a2bd1a17f8",
+      "found_by": "same bytes"
+    }
+  ]
+}

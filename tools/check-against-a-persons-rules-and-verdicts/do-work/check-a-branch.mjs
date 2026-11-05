@@ -35,9 +35,11 @@
 //     read_by_a_model: { rows: [{ id, says, kind? }], more: n, settings_from: <branch id> | null }
 //   readingRow(row, settings)   -> the row with its `ask` ({ question, options, fail, per, calibration?, model?, ... })
 //   checkABranch(input, door)   -> rulesOfBranch, then check; the answer of the rules mode plus branch, lineage, rows_used,
-//                                  read_by_a_model; with no row to judge or read, status no-applicable-rule
+//                                  read_by_a_model; its `questions` are one entry a rule in one page (rules-and-verdicts.mjs
+//                                  askedOf; input `questions_after` the next), with questions_page and ask_all; with no row
+//                                  to judge or read, status no-applicable-rule
 import { lineageOf, whereOfLink } from './branch.mjs';
-import { check, CheckRefusal, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
+import { askedOf, check, CheckRefusal, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 import { SELECTOR_NAMES } from '../../judge-words/do-work/judge-words.mjs';
 import SETTINGS from '../read-data/branch.json' with { type: 'json' };
 
@@ -140,13 +142,15 @@ export async function checkABranch(input, door) {
   if (input.rules !== undefined || input.verdict_rules !== undefined) throw new CheckRefusal(WORDS.rules_and_branch);
   const { rules, verdict_rules, lineage, rows_used, read_by_a_model } = await rulesOfBranch(door, input.branch);
   if (!rules.length) {
-    return { status: SETTINGS.no_applicable_status, passed: false, results: [], questions: [],
+    return { status: SETTINGS.no_applicable_status, passed: false, results: [], questions: [], questions_page: { rules: 0, returned: 0, next: null },
       lines: [fill(WORDS.no_applicable_rule, { branch: input.branch, lineage: lineage.join(' <- '), count: rows_used.skipped.no_test })],
       branch: input.branch, lineage, rows_used, read_by_a_model };
   }
   const verdictRules = verdict_rules === null ? null : compileVerdictRules(verdict_rules);
-  const { results, questions } = check(input.units, rules, { answers: input.answers ?? {}, stands: input.stands ?? [], verdictRules,
+  const checked = check(input.units, rules, { answers: input.answers ?? {}, stands: input.stands ?? [], verdictRules,
     stage: input.stage, fieldsByKind: input.fields_by_kind ?? {}, asOf: input.stands_as_of ?? null });
+  const { results } = checked;
   const status = statusOf(results);
-  return { status, passed: status === 'passed', results, questions, lines: linesOf(results), branch: input.branch, lineage, rows_used, read_by_a_model };
+  return { status, passed: status === 'passed', results, ...askedOf(checked.questions, results, { after: input.questions_after ?? null }), lines: linesOf(results),
+    branch: input.branch, lineage, rows_used, read_by_a_model };
 }

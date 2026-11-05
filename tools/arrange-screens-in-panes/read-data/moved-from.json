@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/screen-arrangement/read-data/target-reply-envelope.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/arrange-screens-in-panes/read-data/target-reply-envelope.ts",
+      "source_identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a",
+      "identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a"
+    }
+  ]
+}

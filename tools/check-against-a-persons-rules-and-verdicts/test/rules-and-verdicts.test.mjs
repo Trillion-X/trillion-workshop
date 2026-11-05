@@ -185,8 +185,10 @@ test('a model row that is not usable, or has bad bounds, never passes; a capped 
 test('a reading row of theirs is not asked until its calibration is usable, and holds the thing meanwhile', () => {
   const { results, questions } = check([{ text: 'Find old maps', kind: 'title' }], GENERIC, { verdictRules: compiled, stands: STANDS, stage: 'review' });
   assert.deepEqual(questions, []);
-  const held = results[0].uncertain.find(finding => finding.rule === 'reads-well');
+  const held = results[0].uncertain.find(finding => finding.rule === 'reading-questions-unsettled');
   assert.equal(held.qualified, false);
+  assert.equal(held.count, 1, 'one finding a unit and cause, with the count of rows it holds');
+  assert.equal(results[0].uncertain.some(finding => finding.rule === 'reads-well'), false, 'never one finding a row');
   const usable = compileVerdictRules({ ...DOC, rows: DOC.rows.map(row => (row.id === 'reads-well' ? { ...row, ask: { ...row.ask, calibration: { status: 'usable', t_pass: 0.3, t_fail: 0.7 } } } : row)) });
   assert.deepEqual(check([{ text: 'Find old maps', kind: 'title' }], GENERIC, { verdictRules: usable, stands: STANDS }).questions.map(question => question.rule), ['reads-well']);
   assert.deepEqual(check([{ text: 'Start here', kind: 'title' }], GENERIC, { verdictRules: usable, stands: STANDS }).questions, [], 'their exact stand decides it');

@@ -1,0 +1,17 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/signed-event-effects/do-work/signed-event-effects-targets.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-a-signed-events-effects-once/do-work/signed-event-effects-targets.js",
+      "source_identity": "1f:1a1f0b979e3e5174f3852f35d0bdff74104ed79edf455b388c7966c66e0ee6e4",
+      "identity": "1f:1a1f0b979e3e5174f3852f35d0bdff74104ed79edf455b388c7966c66e0ee6e4",
+      "found_by": "same bytes"
+    }
+  ]
+}

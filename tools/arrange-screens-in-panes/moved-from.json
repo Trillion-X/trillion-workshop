@@ -1,15 +1,863 @@
 {
-  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
-  "source": "Trillion-X/trillion",
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
   "package": "trillion-workshop",
   "calls": [],
   "files": [
     {
-      "from": "parts/screen-arrangement/read-data/target-reply-envelope.ts",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/arrange-screens-in-panes/read-data/target-reply-envelope.ts",
-      "source_identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a",
-      "identity": "1f:f6a7de29c6d3c3656b6d2015415bdda2a0a5c2c5789951b885a1dc7b8bc1742a"
+      "from": "parts/screen-arrangement/do-work/ask-discovered-addresses.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/ask-discovered-addresses.ts",
+      "source_identity": "1f:4274c196017270170be7671ac73386a0c6a2f32bcd6e4cf0e8a434d74b7da2a0",
+      "identity": "1f:4274c196017270170be7671ac73386a0c6a2f32bcd6e4cf0e8a434d74b7da2a0",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/ask-screen-arrangement.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/ask-screen-arrangement.ts",
+      "source_identity": "1f:b1f97a6aef9612f6b919f80f2dd14fbb0131c9c2140ba5ad901bb079d616d468",
+      "identity": "1f:b1f97a6aef9612f6b919f80f2dd14fbb0131c9c2140ba5ad901bb079d616d468",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/execute-open-intent.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/execute-open-intent.ts",
+      "source_identity": "1f:fd6b4a998f694ceaf473e9155ed6745bb27e116ad79a79820259915246a10bea",
+      "identity": "1f:fd6b4a998f694ceaf473e9155ed6745bb27e116ad79a79820259915246a10bea",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/layout-operations.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/layout-operations.ts",
+      "source_identity": "1f:05c46cb72c2f234a65eee7b8394fe99e48e43f4c76de9044ea7b80d0a7effb27",
+      "identity": "1f:05c46cb72c2f234a65eee7b8394fe99e48e43f4c76de9044ea7b80d0a7effb27",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/migrate-layout-presets-to-groups.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/migrate-layout-presets-to-groups.ts",
+      "source_identity": "1f:5344a91acb2fe2c0b1818ffdca5f474ef53b12eb63d76a0e8046373ad9c663ce",
+      "identity": "1f:5344a91acb2fe2c0b1818ffdca5f474ef53b12eb63d76a0e8046373ad9c663ce",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/node-bookmark-operations.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/node-bookmark-operations.ts",
+      "source_identity": "1f:8a90253c7e618a95cef1f4d70384bcd8568955014bca61c969d9811794576900",
+      "identity": "1f:8a90253c7e618a95cef1f4d70384bcd8568955014bca61c969d9811794576900",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/node-history-operations.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/node-history-operations.ts",
+      "source_identity": "1f:f5191f76f6e5014d563774370ff7c690b1e988ce030c24a7866d7ac20beaa6f8",
+      "identity": "1f:f5191f76f6e5014d563774370ff7c690b1e988ce030c24a7866d7ac20beaa6f8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/read-canonical-artifact-object-url.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/read-canonical-artifact-object-url.ts",
+      "source_identity": "1f:3b2f33728987add587eb2a07904908d220db5942ddbcc4729a96ee73c4eba02f",
+      "identity": "1f:3b2f33728987add587eb2a07904908d220db5942ddbcc4729a96ee73c4eba02f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/save-arrangement-as-group.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/save-arrangement-as-group.ts",
+      "source_identity": "1f:1ca0fad16c25e6c8e16772d561b3a1cbc90bee86a81d64c7dc0b7761eeb7eecb",
+      "identity": "1f:1ca0fad16c25e6c8e16772d561b3a1cbc90bee86a81d64c7dc0b7761eeb7eecb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/save-layout-state.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/do-work/save-layout-state.ts",
+      "source_identity": "1f:b33854d56acb38cbc630226c09bc6f7e4ec1bc55b9850cc4ce009e15a555130a",
+      "identity": "1f:b33854d56acb38cbc630226c09bc6f7e4ec1bc55b9850cc4ce009e15a555130a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/do-work/switch-saved-layout.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/do-work/switch-saved-layout.ts",
+      "source_identity": "1f:ccf5d0293353ff23529b718296ef2a7165a5e32dfc47844c01fb980cf1567f4b",
+      "identity": "1f:ccf5d0293353ff23529b718296ef2a7165a5e32dfc47844c01fb980cf1567f4b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/always-mount-companions.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/always-mount-companions.ts",
+      "source_identity": "1f:dcd194bbebe506efa545b3496d472c0193bc75ea13c1340c3dab582f96778233",
+      "identity": "1f:dcd194bbebe506efa545b3496d472c0193bc75ea13c1340c3dab582f96778233",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/application-layout-state-contribution.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/application-layout-state-contribution.ts",
+      "source_identity": "1f:b59f7b95f6be5d2a8c0c3275071ef0554df3c583b2c66b1015238dec20f035bf",
+      "identity": "1f:b59f7b95f6be5d2a8c0c3275071ef0554df3c583b2c66b1015238dec20f035bf",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/arrangement-history.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/arrangement-history.ts",
+      "source_identity": "1f:3c13e578fb01f9bf77a0907cb234043b53f5cc2c5aec0331456a647729c9b066",
+      "identity": "1f:3c13e578fb01f9bf77a0907cb234043b53f5cc2c5aec0331456a647729c9b066",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/build-companion-overlay-arrangement.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/build-companion-overlay-arrangement.ts",
+      "source_identity": "1f:ef2c5a3fe4db4d65a71ec71380d590f8052ee8b7ff595ce6a33597230f82a103",
+      "identity": "1f:ef2c5a3fe4db4d65a71ec71380d590f8052ee8b7ff595ce6a33597230f82a103",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/chrome-visibility.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/chrome-visibility.ts",
+      "source_identity": "1f:8eab3f53e527bd3f5da5db162f0cbf6cc52b4bf17a6d5b4875c5e42b57b83e5f",
+      "identity": "1f:8eab3f53e527bd3f5da5db162f0cbf6cc52b4bf17a6d5b4875c5e42b57b83e5f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/layout-library.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/layout-library.ts",
+      "source_identity": "1f:99242ad25e0b48e0ee1dfd6c85d2961df8f7be3ab865067d9a557ab55709b143",
+      "identity": "1f:99242ad25e0b48e0ee1dfd6c85d2961df8f7be3ab865067d9a557ab55709b143",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/layout-picture.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/layout-picture.ts",
+      "source_identity": "1f:15414c6e55553453c4f25c5d20e435af77520bb0c38ab4499f9e8399a2c0abb1",
+      "identity": "1f:15414c6e55553453c4f25c5d20e435af77520bb0c38ab4499f9e8399a2c0abb1",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/layout-types.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/layout-types.ts",
+      "source_identity": "1f:77752ca0f0bf0103b1b8e7d50ba1d07b6c5ba18127fe8601406790d16c49d41d",
+      "identity": "1f:77752ca0f0bf0103b1b8e7d50ba1d07b6c5ba18127fe8601406790d16c49d41d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/node-bookmark-types.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/node-bookmark-types.ts",
+      "source_identity": "1f:78c6ee2f425cb428b6386edbe81af46c4630120329a5550955d8cc7748e3b906",
+      "identity": "1f:78c6ee2f425cb428b6386edbe81af46c4630120329a5550955d8cc7748e3b906",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/node-history-types.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/node-history-types.ts",
+      "source_identity": "1f:57f3203b84c1b1a71db4941be37e51a4f140ce645eaf4edde6e0b15e33593cb2",
+      "identity": "1f:57f3203b84c1b1a71db4941be37e51a4f140ce645eaf4edde6e0b15e33593cb2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/pane-sizes.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/pane-sizes.ts",
+      "source_identity": "1f:559b0241c04a35ff0059b4a5cbade57c4fe97224b76fa92352cabe6f0072dc3a",
+      "identity": "1f:559b0241c04a35ff0059b4a5cbade57c4fe97224b76fa92352cabe6f0072dc3a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/place-tab-in-overlay.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/place-tab-in-overlay.ts",
+      "source_identity": "1f:92ad92145ad6a7e841aa4f036461db0aa12d866f0359c8f3053afa7474af08cb",
+      "identity": "1f:92ad92145ad6a7e841aa4f036461db0aa12d866f0359c8f3053afa7474af08cb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/placement-choices.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/placement-choices.ts",
+      "source_identity": "1f:3da54a8249bee2995e67fa44a727f3c96a606524e912d214ba9f211f0c7738b6",
+      "identity": "1f:3da54a8249bee2995e67fa44a727f3c96a606524e912d214ba9f211f0c7738b6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-initial-arrangement.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/read-initial-arrangement.ts",
+      "source_identity": "1f:1f59a58e5c7a26aeead47fbf9ad13ef1785ab0e1cd5d0d585d8d2b83417006e3",
+      "identity": "1f:1f59a58e5c7a26aeead47fbf9ad13ef1785ab0e1cd5d0d585d8d2b83417006e3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-layout-presets.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/read-layout-presets.ts",
+      "source_identity": "1f:9cba017a01d37887a5514ef0fd15a7b08c07a4ce069203e0e07a31faaa23e767",
+      "identity": "1f:9cba017a01d37887a5514ef0fd15a7b08c07a4ce069203e0e07a31faaa23e767",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-open-intents.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/read-open-intents.ts",
+      "source_identity": "1f:32b7ce7c7b9a86abdba8650a8011756d92ecca6e1cc2cf3ddab6b31eede8461b",
+      "identity": "1f:32b7ce7c7b9a86abdba8650a8011756d92ecca6e1cc2cf3ddab6b31eede8461b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-projected-rows.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/read-projected-rows.ts",
+      "source_identity": "1f:f685ce32da76de54b976a2a020b75ab9e1c6a2567ee1f421ecc39405b64975be",
+      "identity": "1f:f685ce32da76de54b976a2a020b75ab9e1c6a2567ee1f421ecc39405b64975be",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-published-records.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/read-published-records.ts",
+      "source_identity": "1f:7d09426d35fd7d9750d48d9816c8c1dfdb4615c23b20076de1a57eda7113f5d7",
+      "identity": "1f:7d09426d35fd7d9750d48d9816c8c1dfdb4615c23b20076de1a57eda7113f5d7",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-screen-arrangement.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/read-screen-arrangement.ts",
+      "source_identity": "1f:4cb32a2192ef56ed214f4a6b6d7fd1ba029f819540237352c45e36a06de6c936",
+      "identity": "1f:4cb32a2192ef56ed214f4a6b6d7fd1ba029f819540237352c45e36a06de6c936",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/read-tab-collections.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/read-tab-collections.ts",
+      "source_identity": "1f:9e1171a159970427ae79db77bfe057fc15df3bf9654f28ea4975df0e5764b62f",
+      "identity": "1f:9e1171a159970427ae79db77bfe057fc15df3bf9654f28ea4975df0e5764b62f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/region-address.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/region-address.ts",
+      "source_identity": "1f:d804a700eaf0ef08b3f641e9465838b3387f95629667aed7db173ae1129241aa",
+      "identity": "1f:d804a700eaf0ef08b3f641e9465838b3387f95629667aed7db173ae1129241aa",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/region-chrome.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/region-chrome.ts",
+      "source_identity": "1f:0533283b3bab2bd476bf7a0f567062ebdbefeacc8850bf0139df37adc5a0039a",
+      "identity": "1f:0533283b3bab2bd476bf7a0f567062ebdbefeacc8850bf0139df37adc5a0039a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/split-tree-operations.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/split-tree-operations.ts",
+      "source_identity": "1f:0c04eb26ee9fc5e057e298eb27b29c4ca713f3892ba636409757af1b50d59aa2",
+      "identity": "1f:0c04eb26ee9fc5e057e298eb27b29c4ca713f3892ba636409757af1b50d59aa2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/starter-layouts.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/starter-layouts.ts",
+      "source_identity": "1f:b330e1ceb29c425a6c1d7330359d6cab4e467ad3880a03d5c1f6f905addb6a9c",
+      "identity": "1f:b330e1ceb29c425a6c1d7330359d6cab4e467ad3880a03d5c1f6f905addb6a9c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/surface-modes.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/surface-modes.ts",
+      "source_identity": "1f:711ecac36b2bcca42bf576e25cae06cf45befe3129743414777d882466fb1378",
+      "identity": "1f:711ecac36b2bcca42bf576e25cae06cf45befe3129743414777d882466fb1378",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/tab-bar-placement.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/tab-bar-placement.ts",
+      "source_identity": "1f:b33e4064cbb893c15e7fa71c299a7a2199eac8286a073ea3ae9bfc9af8211446",
+      "identity": "1f:b33e4064cbb893c15e7fa71c299a7a2199eac8286a073ea3ae9bfc9af8211446",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/tab-presentation-modes.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/read-data/tab-presentation-modes.ts",
+      "source_identity": "1f:8a083e92d4eb3f2b9f615019e5224fda8cce4996a28ef8f56d9a4cb523e2dffe",
+      "identity": "1f:8a083e92d4eb3f2b9f615019e5224fda8cce4996a28ef8f56d9a4cb523e2dffe",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/read-data/worker-console-arrangement.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/read-data/worker-console-arrangement.ts",
+      "source_identity": "1f:f85862d77867c8236825bd748eb36925b35794afddc9b5e4aadbe67733e9e09c",
+      "identity": "1f:f85862d77867c8236825bd748eb36925b35794afddc9b5e4aadbe67733e9e09c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/arrangement-lock.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/arrangement-lock.tsx",
+      "source_identity": "1f:359d5427f585f213ab3c3034ac92d1f1705304c56419224e922b3bada361650c",
+      "identity": "1f:359d5427f585f213ab3c3034ac92d1f1705304c56419224e922b3bada361650c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/arrangement-map-actions.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/arrangement-map-actions.ts",
+      "source_identity": "1f:125ef4542d341e61465d2c9e24043cff60f3748936976e8caa8cb8d964668ac3",
+      "identity": "1f:125ef4542d341e61465d2c9e24043cff60f3748936976e8caa8cb8d964668ac3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/arrangement-zoom.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/arrangement-zoom.ts",
+      "source_identity": "1f:c8f17b72bcf2bb8675bb8527eb08b8952aaf3140ba1ac55db16e1086aa669b82",
+      "identity": "1f:c8f17b72bcf2bb8675bb8527eb08b8952aaf3140ba1ac55db16e1086aa669b82",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ArrangementNavigator.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ArrangementNavigator.tsx",
+      "source_identity": "1f:287deadab79628ab8fd59e51aa29fef3462955dcb48abe83aef70217fabe9ba9",
+      "identity": "1f:287deadab79628ab8fd59e51aa29fef3462955dcb48abe83aef70217fabe9ba9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ArrangementSection.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ArrangementSection.tsx",
+      "source_identity": "1f:3efcf32642d2560a870cf6d8805aa7bba6325bbe83beaab34b8e10e937046dfd",
+      "identity": "1f:3efcf32642d2560a870cf6d8805aa7bba6325bbe83beaab34b8e10e937046dfd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ArrangementSurfaceControl.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ArrangementSurfaceControl.tsx",
+      "source_identity": "1f:ae16fdde6b8621e4d65f5a9a01ab2a6d2eebd5cb7b0d265dc82884b4c3e55faa",
+      "identity": "1f:ae16fdde6b8621e4d65f5a9a01ab2a6d2eebd5cb7b0d265dc82884b4c3e55faa",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/behind-the-panes.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/behind-the-panes.tsx",
+      "source_identity": "1f:6cbdba181b3188114498ed26a54c7c53fe206852bf038febbd99d0b177910c13",
+      "identity": "1f:6cbdba181b3188114498ed26a54c7c53fe206852bf038febbd99d0b177910c13",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/canvas-gestures.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/canvas-gestures.ts",
+      "source_identity": "1f:8eec5398ba7e425aff244ec899b8eaa001deb587748c2612eb173e60bf8f8a34",
+      "identity": "1f:8eec5398ba7e425aff244ec899b8eaa001deb587748c2612eb173e60bf8f8a34",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/CompanionMounts.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/CompanionMounts.tsx",
+      "source_identity": "1f:b94476abbe59e62a8967108784fdd36d7a33dd6e51bcf38e71c6769de2db32e6",
+      "identity": "1f:b94476abbe59e62a8967108784fdd36d7a33dd6e51bcf38e71c6769de2db32e6",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ComponentMaterialSurface.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ComponentMaterialSurface.tsx",
+      "source_identity": "1f:dff377197655b9fe141f35f81de4cf5fb9f5828080ebef0f6509acf153be4825",
+      "identity": "1f:dff377197655b9fe141f35f81de4cf5fb9f5828080ebef0f6509acf153be4825",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/container-selection-look.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/container-selection-look.ts",
+      "source_identity": "1f:5af78ab462befb7fdbc184b83a735f77ea72714d46b7188163eea12e2f80c844",
+      "identity": "1f:5af78ab462befb7fdbc184b83a735f77ea72714d46b7188163eea12e2f80c844",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ContainerHeader.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ContainerHeader.tsx",
+      "source_identity": "1f:06e49d78a6281d7e279f458c5b0fe4e6a061607cd3605132e9df491f772ad5f3",
+      "identity": "1f:06e49d78a6281d7e279f458c5b0fe4e6a061607cd3605132e9df491f772ad5f3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ContainerHost.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ContainerHost.tsx",
+      "source_identity": "1f:eb5a6cb9ded8d8918bb4e52b24666b369b565f9a2d24de1d71de83183f5b7fbb",
+      "identity": "1f:eb5a6cb9ded8d8918bb4e52b24666b369b565f9a2d24de1d71de83183f5b7fbb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/continuous-layout-navigation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/continuous-layout-navigation.ts",
+      "source_identity": "1f:4847e33602f2a404899c7f66091d2696cf8f7998e4e269612d748d70d0e17960",
+      "identity": "1f:4847e33602f2a404899c7f66091d2696cf8f7998e4e269612d748d70d0e17960",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/EmbeddedScreenArrangement.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/EmbeddedScreenArrangement.tsx",
+      "source_identity": "1f:167cb6d3d171a1a607f84f9f1c61c5c81680e43561464998796c31488868885b",
+      "identity": "1f:167cb6d3d171a1a607f84f9f1c61c5c81680e43561464998796c31488868885b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/empty-container-sources.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/empty-container-sources.ts",
+      "source_identity": "1f:dfeef11341f82e1b6a19d15d471024a251b05e2857c9611e67ddf6eb09fa2e79",
+      "identity": "1f:dfeef11341f82e1b6a19d15d471024a251b05e2857c9611e67ddf6eb09fa2e79",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/EmptyContainer.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/EmptyContainer.tsx",
+      "source_identity": "1f:6e9e4b2414972efd02400bfab3882d0d5fe444a1aad6abbefdd84d1e4e028831",
+      "identity": "1f:6e9e4b2414972efd02400bfab3882d0d5fe444a1aad6abbefdd84d1e4e028831",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/floating-window-context.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/floating-window-context.ts",
+      "source_identity": "1f:a9214ab3e4529e8e40024b043f380cbc64014a654e49a2f439af048e8737af1a",
+      "identity": "1f:a9214ab3e4529e8e40024b043f380cbc64014a654e49a2f439af048e8737af1a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/FloatingPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/FloatingPanel.tsx",
+      "source_identity": "1f:c3ec9c2960e7afcb8b09fc448af607059bd2a5befb59f75d8e8fe3c784099e01",
+      "identity": "1f:c3ec9c2960e7afcb8b09fc448af607059bd2a5befb59f75d8e8fe3c784099e01",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/FreeformArranger.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/FreeformArranger.tsx",
+      "source_identity": "1f:f2d74b6831f8b59aed2105a5f61981f82609f7d0f828d9de39504c4d9c634ab9",
+      "identity": "1f:f2d74b6831f8b59aed2105a5f61981f82609f7d0f828d9de39504c4d9c634ab9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/LayerPlacementPanel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/LayerPlacementPanel.tsx",
+      "source_identity": "1f:c4ffabdd5c13d402d01616575f838ecd22f6d58da434139c7225daf6fdf210d8",
+      "identity": "1f:c4ffabdd5c13d402d01616575f838ecd22f6d58da434139c7225daf6fdf210d8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/LayoutEngine.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/LayoutEngine.tsx",
+      "source_identity": "1f:b91bd732bf33f506855ffb9e6529ecd6742f0991fadfaa8350698a1ba84f68d8",
+      "identity": "1f:b91bd732bf33f506855ffb9e6529ecd6742f0991fadfaa8350698a1ba84f68d8",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/LayoutPicker.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/LayoutPicker.tsx",
+      "source_identity": "1f:0e263182902543c5d33bff445bb24c95eb70585bd5aead273ad56adad8d0dc1e",
+      "identity": "1f:0e263182902543c5d33bff445bb24c95eb70585bd5aead273ad56adad8d0dc1e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/mark-targets.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/mark-targets.ts",
+      "source_identity": "1f:cf6739342ab4a2488dd3494f593e49c7e20c9733125da42a7b083a2a71edbbeb",
+      "identity": "1f:cf6739342ab4a2488dd3494f593e49c7e20c9733125da42a7b083a2a71edbbeb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/mount-floating-panel.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/mount-floating-panel.tsx",
+      "source_identity": "1f:87a999e983c55f13dc68c2f35e58468fe83f1c2456b7173172a2d7242a494a9d",
+      "identity": "1f:87a999e983c55f13dc68c2f35e58468fe83f1c2456b7173172a2d7242a494a9d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/mount-screen-arrangement.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/mount-screen-arrangement.tsx",
+      "source_identity": "1f:23ac0a129cb4ee26df3bfd7a5c50b7214556c7a834e268a84cd524ddcddd313f",
+      "identity": "1f:23ac0a129cb4ee26df3bfd7a5c50b7214556c7a834e268a84cd524ddcddd313f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/mount-worker-console.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/mount-worker-console.tsx",
+      "source_identity": "1f:1205a09029701c7fc501d3bfaca7b11aead582d4eba7875e63e06d7aee678e52",
+      "identity": "1f:1205a09029701c7fc501d3bfaca7b11aead582d4eba7875e63e06d7aee678e52",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/mount-workspace-shell.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/mount-workspace-shell.tsx",
+      "source_identity": "1f:ab489893f8ff52f1f855e57f3f2e420fb3cf8563b46e8feb64dbc53ec0725f6e",
+      "identity": "1f:ab489893f8ff52f1f855e57f3f2e420fb3cf8563b46e8feb64dbc53ec0725f6e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/mount-workspace-split.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/mount-workspace-split.tsx",
+      "source_identity": "1f:c7d71244a5078086afdbb265957008d53d8e9557b9eb26ce6eb284cd7f433801",
+      "identity": "1f:c7d71244a5078086afdbb265957008d53d8e9557b9eb26ce6eb284cd7f433801",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/node-action-pack.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/node-action-pack.tsx",
+      "source_identity": "1f:f6d16a9ee525163959fb343ed45afdd73b90dde41723591dc6e3c4a3121127b9",
+      "identity": "1f:f6d16a9ee525163959fb343ed45afdd73b90dde41723591dc6e3c4a3121127b9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/node-menu-controller.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/node-menu-controller.tsx",
+      "source_identity": "1f:e51bba23e5776ae81acca82e656a0d5187060b2552890bd4527a8837e7454c22",
+      "identity": "1f:e51bba23e5776ae81acca82e656a0d5187060b2552890bd4527a8837e7454c22",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/open-asked-layout.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/open-asked-layout.tsx",
+      "source_identity": "1f:051d9b3b220a20b5697c5c703206d6d6fa2fd614d950edcc9632c793437cdf57",
+      "identity": "1f:051d9b3b220a20b5697c5c703206d6d6fa2fd614d950edcc9632c793437cdf57",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/open-placeable-surface.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/open-placeable-surface.ts",
+      "source_identity": "1f:f30d6a454f24a2c283dac85da66a3f0848829994865a630fd0246d51aeee05f2",
+      "identity": "1f:f30d6a454f24a2c283dac85da66a3f0848829994865a630fd0246d51aeee05f2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/optimistic-tab-close.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/optimistic-tab-close.ts",
+      "source_identity": "1f:3789de6a0667a7f92602aa5ec3bdc2646367e713e02164cfb28be6a3b460334a",
+      "identity": "1f:3789de6a0667a7f92602aa5ec3bdc2646367e713e02164cfb28be6a3b460334a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/OverlayArranger.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/OverlayArranger.tsx",
+      "source_identity": "1f:1d0946732eaac83338c40f9edde82ebc49f345e272be7441d1c286e7394d849f",
+      "identity": "1f:1d0946732eaac83338c40f9edde82ebc49f345e272be7441d1c286e7394d849f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/PaneSizeSettings.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/PaneSizeSettings.tsx",
+      "source_identity": "1f:e63b709c301156581f92811bffab71a00d80df2d8c658ab2c48e88a4989da6c3",
+      "identity": "1f:e63b709c301156581f92811bffab71a00d80df2d8c658ab2c48e88a4989da6c3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/placeable-surface-drag.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/placeable-surface-drag.ts",
+      "source_identity": "1f:eac169279369eb3b2ddb5b3d152970cc57e728cd9ffd7cd2f2a59cf48bf88823",
+      "identity": "1f:eac169279369eb3b2ddb5b3d152970cc57e728cd9ffd7cd2f2a59cf48bf88823",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/placeable-surface-tab.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/arrange-screens-in-panes/show/placeable-surface-tab.ts",
+      "source_identity": "1f:34918ecd374cfee4bf64220c52793633aed314643b47c981357334eec4e13870",
+      "identity": "1f:34918ecd374cfee4bf64220c52793633aed314643b47c981357334eec4e13870",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/publish-shown-arrangement.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/publish-shown-arrangement.tsx",
+      "source_identity": "1f:fb558dfe741d99b3f66536b7f2451b9ed3d8bf0b7a7e984dd3f96ddadffd7b17",
+      "identity": "1f:fb558dfe741d99b3f66536b7f2451b9ed3d8bf0b7a7e984dd3f96ddadffd7b17",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/read-drawn-pane-sizes.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/read-drawn-pane-sizes.ts",
+      "source_identity": "1f:51b416b12bfd3abc7dbed1009c3eafd9d5857fb6b4c8ebf7c63d7902c96de4e4",
+      "identity": "1f:51b416b12bfd3abc7dbed1009c3eafd9d5857fb6b4c8ebf7c63d7902c96de4e4",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/region-drop-intents.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/region-drop-intents.ts",
+      "source_identity": "1f:ffc1d860bc5fff6ba950c9b54e29bbdd09b8bbf1fec233920b3b7651a97b575d",
+      "identity": "1f:ffc1d860bc5fff6ba950c9b54e29bbdd09b8bbf1fec233920b3b7651a97b575d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/screen-arrangement-context.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/screen-arrangement-context.tsx",
+      "source_identity": "1f:c00dc2f0ecc797463ecf546524d380cdb9f25b8c093f254794189f3bc1975134",
+      "identity": "1f:c00dc2f0ecc797463ecf546524d380cdb9f25b8c093f254794189f3bc1975134",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/ShowRepliesScreenCanUse.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/ShowRepliesScreenCanUse.tsx",
+      "source_identity": "1f:3b786d84ba60d5feb7ac4d3d880ac456f6953497e292851beb85f6b5510ca531",
+      "identity": "1f:3b786d84ba60d5feb7ac4d3d880ac456f6953497e292851beb85f6b5510ca531",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/split-tree-constraints.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/split-tree-constraints.ts",
+      "source_identity": "1f:a35c8d466526371c677dd165a176a098340fe6a9541418323c222b7633e628ef",
+      "identity": "1f:a35c8d466526371c677dd165a176a098340fe6a9541418323c222b7633e628ef",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/SplitTreeArranger.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/SplitTreeArranger.tsx",
+      "source_identity": "1f:dd806ed4b0cea9166106658074ed7a30fe0623563c8edebc9a8ebd6ceca47ae2",
+      "identity": "1f:dd806ed4b0cea9166106658074ed7a30fe0623563c8edebc9a8ebd6ceca47ae2",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/stable-container-content.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/stable-container-content.tsx",
+      "source_identity": "1f:c22873764d82e1a38ff3651b7c7563ebbd627b5d28cad26985c118f26fd0610f",
+      "identity": "1f:c22873764d82e1a38ff3651b7c7563ebbd627b5d28cad26985c118f26fd0610f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/surface-intent-destination-ref.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/surface-intent-destination-ref.ts",
+      "source_identity": "1f:159e650b9229029f5c45cc850310ce36fdf6eb13ec923077c55cf297db28901f",
+      "identity": "1f:159e650b9229029f5c45cc850310ce36fdf6eb13ec923077c55cf297db28901f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/surface-placement.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/surface-placement.ts",
+      "source_identity": "1f:0dfea72cdf0e9c98f8ad60c0861a5c1d66209b12bba29f03c29de61d406c637b",
+      "identity": "1f:0dfea72cdf0e9c98f8ad60c0861a5c1d66209b12bba29f03c29de61d406c637b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/SurfaceFolderTile.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/SurfaceFolderTile.tsx",
+      "source_identity": "1f:5143a0b10ca336e742e9fd57b0fd9c7e4029a38966966b2aac5c2eeba24c7fc5",
+      "identity": "1f:5143a0b10ca336e742e9fd57b0fd9c7e4029a38966966b2aac5c2eeba24c7fc5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/tab-canvas-presentation.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/tab-canvas-presentation.tsx",
+      "source_identity": "1f:c52608c2badd2b573b3602849cd19e4f25c8b7aef0fa04ef240a569533effbde",
+      "identity": "1f:c52608c2badd2b573b3602849cd19e4f25c8b7aef0fa04ef240a569533effbde",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/use-focus-container-while.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/use-focus-container-while.ts",
+      "source_identity": "1f:d3a71034f5dc6c90b88727d6d43d4fb2778f892502557883c7ba08cb907521ef",
+      "identity": "1f:d3a71034f5dc6c90b88727d6d43d4fb2778f892502557883c7ba08cb907521ef",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/use-layout-choices.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/use-layout-choices.ts",
+      "source_identity": "1f:918200130c32b9e8a1fb9f372e9db897a494811ba2cc80385c9992729b627a9f",
+      "identity": "1f:918200130c32b9e8a1fb9f372e9db897a494811ba2cc80385c9992729b627a9f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/use-pane-sizes.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/use-pane-sizes.ts",
+      "source_identity": "1f:ca532b21cfe480035d0fe1eaaf4a272b16db3ca40885a3997ce819c24530678d",
+      "identity": "1f:ca532b21cfe480035d0fe1eaaf4a272b16db3ca40885a3997ce819c24530678d",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/use-tab-bar-placement.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/use-tab-bar-placement.ts",
+      "source_identity": "1f:edce896c718c9290e32685736bb2099a5ce7bbe775f99e39506d44b5519c1704",
+      "identity": "1f:edce896c718c9290e32685736bb2099a5ce7bbe775f99e39506d44b5519c1704",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/visual-layer-runtime.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/visual-layer-runtime.ts",
+      "source_identity": "1f:df024d290f9eb7e1a7411da3f9c478f583c9bce059739764dcac3a81cdfd5bdf",
+      "identity": "1f:df024d290f9eb7e1a7411da3f9c478f583c9bce059739764dcac3a81cdfd5bdf",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/screen-arrangement/show/WorkspaceShell.tsx",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/arrange-screens-in-panes/show/WorkspaceShell.tsx",
+      "source_identity": "1f:6c9a0d45e12a577706a44f0626bc2e86ca090ecd822e51e50638b466bf232ffe",
+      "identity": "1f:6c9a0d45e12a577706a44f0626bc2e86ca090ecd822e51e50638b466bf232ffe",
+      "found_by": "same bytes"
     }
   ]
 }
