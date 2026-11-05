@@ -6,6 +6,50 @@
   "calls": [],
   "files": [
     {
+      "from": "src/message-retention.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/conversations/from-old-trillion/src/message-retention.json",
+      "source_identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
+      "identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb"
+    },
+    {
+      "from": "src/message-retention.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/conversations/from-old-trillion/src/message-retention.json",
+      "source_identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
+      "identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
+      "reused": true
+    },
+    {
+      "from": "src/message-retention.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/conversations/from-old-trillion/src/message-retention.mjs",
+      "source_identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
+      "identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562"
+    },
+    {
+      "from": "src/message-retention.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/conversations/from-old-trillion/src/message-retention.mjs",
+      "source_identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
+      "identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
+      "reused": true
+    },
+    {
+      "from": "docs/notes/chat-history-marketplace-workflow.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/conversations/read-data/acquire-and-import-ai-chat-history.json",
+      "source_identity": "1f:7577074515037c4c90a4d93067ae33ac12f3c5a21776ff1612ff254188e75d4f",
+      "identity": "1f:7577074515037c4c90a4d93067ae33ac12f3c5a21776ff1612ff254188e75d4f"
+    },
+    {
+      "from": "src/ai-conversations-list.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/conversations/read-data/ai-conversations-list.json",
+      "source_identity": "1f:0832e16829ed36d735e35a8fdbb436c2e5fcc5b8cdfe45c367cecf61b5528dde",
+      "identity": "1f:0832e16829ed36d735e35a8fdbb436c2e5fcc5b8cdfe45c367cecf61b5528dde"
+    },
+    {
       "from": "src/chat-archives.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/read-data/chat-archives.mjs",
@@ -24,26 +68,20 @@
       "port_contract": "tools/conversations/ports/chat-import.json"
     },
     {
-      "from": "src/ai-conversations-list.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/conversations/read-data/ai-conversations-list.json",
-      "source_identity": "1f:0832e16829ed36d735e35a8fdbb436c2e5fcc5b8cdfe45c367cecf61b5528dde",
-      "identity": "1f:0832e16829ed36d735e35a8fdbb436c2e5fcc5b8cdfe45c367cecf61b5528dde"
-    },
-    {
-      "from": "docs/notes/chat-history-marketplace-workflow.json",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/conversations/read-data/acquire-and-import-ai-chat-history.json",
-      "source_identity": "1f:7577074515037c4c90a4d93067ae33ac12f3c5a21776ff1612ff254188e75d4f",
-      "identity": "1f:7577074515037c4c90a4d93067ae33ac12f3c5a21776ff1612ff254188e75d4f"
-    },
-    {
       "from": "test/chat-archive-parts.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/conversations/test/chat-archive-parts.test.mjs",
       "source_identity": "1f:49074022ebcc73d50ee5d3bd2443c98d9c056eaba99b6478ec918cfa7f431466",
       "identity_at_move": "1f:49074022ebcc73d50ee5d3bd2443c98d9c056eaba99b6478ec918cfa7f431466",
       "byte_copy_commit": "b96cafe773cd742fe2a9cb201cfca4e961678b10"
+    },
+    {
+      "from": "test/chat-attachments.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/conversations/test/chat-attachments.test.mjs",
+      "source_identity": "1f:f583dc20bd70614845fa5de58f388c51335b719f84b4d2aa17052b754830fac4",
+      "identity": "1f:63d459525f62c85e211ea2f9befe8a842b03fc4d57248e4d2a9a3482ca9ac51c",
+      "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
     },
     {
       "from": "test/chat-export-zip.test.mjs",
@@ -70,12 +108,11 @@
       "byte_copy_commit": "b96cafe773cd742fe2a9cb201cfca4e961678b10"
     },
     {
-      "from": "test/chat-attachments.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/conversations/test/chat-attachments.test.mjs",
-      "source_identity": "1f:f583dc20bd70614845fa5de58f388c51335b719f84b4d2aa17052b754830fac4",
-      "identity": "1f:63d459525f62c85e211ea2f9befe8a842b03fc4d57248e4d2a9a3482ca9ac51c",
-      "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
+      "from": "test/message-retention.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/conversations/test/message-retention.test.mjs",
+      "source_identity": "1f:a9c21f0caccb84247c7406bdeb3d3deb9d858e9187d688ed2f45d256d1e79acd",
+      "identity": "1f:f1dff7008754e69cd674039379cb8c7fd1b4e2c80fa0ac2cf40f2e412996dea3"
     },
     {
       "from": "test/native-chat-import.test.mjs",
@@ -84,20 +121,6 @@
       "source_identity": "1f:7a741a5824e07472e0b2fbbd89466f0e0c2e961a9165a4cbf4100fc56822ad69",
       "identity": "1f:bced585c2d47918064eb5be54c357ade86aba7eb79d48146eef1e7ca367303a3",
       "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
-    },
-    {
-      "from": "src/message-retention.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/conversations/from-old-trillion/src/message-retention.json",
-      "source_identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
-      "identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb"
-    },
-    {
-      "from": "src/message-retention.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/conversations/from-old-trillion/src/message-retention.mjs",
-      "source_identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
-      "identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562"
     }
   ]
 }

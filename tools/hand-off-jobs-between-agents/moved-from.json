@@ -12,6 +12,14 @@
       "identity": "1f:d3b693d14144a932409634ff7eb153747fa7734ac36555242f7234059e958cfc"
     },
     {
+      "from": "src/agent-tool-runs.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/hand-off-jobs-between-agents/src/agent-tool-runs.mjs",
+      "source_identity": "1f:26d3643139cdbd16793b03d63d0f8de088632f0532d4389f140191fc66c8c1b5",
+      "identity": "1f:d3b693d14144a932409634ff7eb153747fa7734ac36555242f7234059e958cfc",
+      "reused": true
+    },
+    {
       "from": "src/agent-work-queue.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/src/agent-work-queue.mjs",
@@ -24,6 +32,28 @@
       "to": "tools/hand-off-jobs-between-agents/src/ai-space-projection.mjs",
       "source_identity": "1f:d839defb6a10774c30454465e1199e58083d2252d16cb475f619bcd5eda678d8",
       "identity": "1f:d839defb6a10774c30454465e1199e58083d2252d16cb475f619bcd5eda678d8"
+    },
+    {
+      "from": "src/close-many.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/close-many.json",
+      "source_identity": "1f:e83cbfac815060e352db2cc3cef223676fd5b9691efa06966d026ff5bbbf8f4a",
+      "identity": "1f:e83cbfac815060e352db2cc3cef223676fd5b9691efa06966d026ff5bbbf8f4a"
+    },
+    {
+      "from": "src/close-many.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/close-many.mjs",
+      "source_identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173",
+      "identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173"
+    },
+    {
+      "from": "src/close-many.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/hand-off-jobs-between-agents/src/close-many.mjs",
+      "source_identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173",
+      "identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173",
+      "reused": true
     },
     {
       "from": "src/delivery-words.json",
@@ -54,6 +84,20 @@
       "identity": "1f:2a56b07302def3abb3d46dbb0feda70ff856c718fac4d7c63df79ad726f84d5c"
     },
     {
+      "from": "src/lapsed-asks.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/lapsed-asks.json",
+      "source_identity": "1f:27af73f19daf372d5c74b3cc0d1ff7d0fa7e062e49898831583d4b7fdf0eb234",
+      "identity": "1f:27af73f19daf372d5c74b3cc0d1ff7d0fa7e062e49898831583d4b7fdf0eb234"
+    },
+    {
+      "from": "src/lapsed-asks.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-off-jobs-between-agents/src/lapsed-asks.mjs",
+      "source_identity": "1f:945207ef82e2aa7692c685426ce6784a9a556d1481813826c47f32e0fcdf5666",
+      "identity": "1f:945207ef82e2aa7692c685426ce6784a9a556d1481813826c47f32e0fcdf5666"
+    },
+    {
       "from": "src/live-work.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/src/live-work.mjs",
@@ -81,6 +125,14 @@
       "to": "tools/hand-off-jobs-between-agents/src/workspace/addresses.mjs",
       "source_identity": "1f:846683e62a83158fca7617c755afb840bd6cc84943363c482298496aa1adb0f1",
       "identity": "1f:846683e62a83158fca7617c755afb840bd6cc84943363c482298496aa1adb0f1"
+    },
+    {
+      "from": "src/workspace/addresses.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/hand-off-jobs-between-agents/src/workspace/addresses.mjs",
+      "source_identity": "1f:846683e62a83158fca7617c755afb840bd6cc84943363c482298496aa1adb0f1",
+      "identity": "1f:846683e62a83158fca7617c755afb840bd6cc84943363c482298496aa1adb0f1",
+      "reused": true
     },
     {
       "from": "src/workspace/view-transition.mjs",
@@ -120,6 +172,13 @@
       "byte_copy_commit": "9e78ed82186472220f5187eea71193cfe2dd8936"
     },
     {
+      "from": "test/close-many-reservations.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/hand-off-jobs-between-agents/test/close-many-reservations.test.mjs",
+      "source_identity": "1f:e98bf135540b328ad7c06e797e77d26477a15d0b1f882da5ee3509d4e770c6d7",
+      "identity": "1f:ab5c981dac749aaf6b038f29042db23d4c89e33ccf77029914001707f9d88abc"
+    },
+    {
       "from": "test/free-decision-links.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-off-jobs-between-agents/test/free-decision-links.test.mjs",
@@ -139,34 +198,6 @@
       "to": "tools/hand-off-jobs-between-agents/test/quoted-words.test.mjs",
       "source_identity": "1f:7548e155d8415f735e657e991b1729a659a7e7b7c947497b49ce5a8012a77dff",
       "identity": "1f:399f50c74f79899d7f066a5a1a67f915c45fa23614cba3d1f664d872647baa28"
-    },
-    {
-      "from": "src/close-many.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/hand-off-jobs-between-agents/src/close-many.json",
-      "source_identity": "1f:e83cbfac815060e352db2cc3cef223676fd5b9691efa06966d026ff5bbbf8f4a",
-      "identity": "1f:e83cbfac815060e352db2cc3cef223676fd5b9691efa06966d026ff5bbbf8f4a"
-    },
-    {
-      "from": "src/close-many.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/hand-off-jobs-between-agents/src/close-many.mjs",
-      "source_identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173",
-      "identity": "1f:0d62a45a8aedcc8a7db3eb2dc7a440dc4744e536a3b9bec887cb67c3f5fb0173"
-    },
-    {
-      "from": "src/lapsed-asks.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/hand-off-jobs-between-agents/src/lapsed-asks.json",
-      "source_identity": "1f:27af73f19daf372d5c74b3cc0d1ff7d0fa7e062e49898831583d4b7fdf0eb234",
-      "identity": "1f:27af73f19daf372d5c74b3cc0d1ff7d0fa7e062e49898831583d4b7fdf0eb234"
-    },
-    {
-      "from": "src/lapsed-asks.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/hand-off-jobs-between-agents/src/lapsed-asks.mjs",
-      "source_identity": "1f:945207ef82e2aa7692c685426ce6784a9a556d1481813826c47f32e0fcdf5666",
-      "identity": "1f:945207ef82e2aa7692c685426ce6784a9a556d1481813826c47f32e0fcdf5666"
     }
   ]
 }

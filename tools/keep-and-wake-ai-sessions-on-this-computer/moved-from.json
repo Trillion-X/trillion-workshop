@@ -34,6 +34,27 @@
       "identity": "1f:766b37696d2176fb45b5ac9b4f36630df9aef5d0f82823b01894dd324cc69446"
     },
     {
+      "from": "harness/README.md",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/README.md",
+      "source_identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e",
+      "identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e"
+    },
+    {
+      "from": "records/workshop-chrome-web-store-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-chrome-web-store-tool-records.json",
+      "source_identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0",
+      "identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0"
+    },
+    {
+      "from": "records/workshop-harness-setup-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-harness-setup-tool-records.json",
+      "source_identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b",
+      "identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b"
+    },
+    {
       "from": "harness/account-key.json",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/account-key.json",
@@ -74,6 +95,13 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/chosen-ai.mjs",
       "source_identity": "1f:1c78283961b551cc83a0ea82678f57bec9a551006e5afddcc98fb6753881ac5c",
       "identity": "1f:1c78283961b551cc83a0ea82678f57bec9a551006e5afddcc98fb6753881ac5c"
+    },
+    {
+      "from": "harness/claude-with-work-channel.sh",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/claude-with-work-channel.sh",
+      "source_identity": "1f:38fad3f3511882f5dc317702f46afdf961482e2e5dabc800c82cd1819438c59f",
+      "identity": "1f:38fad3f3511882f5dc317702f46afdf961482e2e5dabc800c82cd1819438c59f"
     },
     {
       "from": "harness/config-file.mjs",
@@ -165,6 +193,13 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/mcp-registration.mjs",
       "source_identity": "1f:6f06123fd95a1eab132de7faa5ff33e20c64acdace8407e139bb057fdbb8d7b0",
       "identity": "1f:6f06123fd95a1eab132de7faa5ff33e20c64acdace8407e139bb057fdbb8d7b0"
+    },
+    {
+      "from": "harness/queue-codex-handoff.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/queue-codex-handoff.mjs",
+      "source_identity": "1f:70d76034a47a1d94ab1ef5bc8af5f5a164c2d05e1b197151350426573b55458a",
+      "identity": "1f:70d76034a47a1d94ab1ef5bc8af5f5a164c2d05e1b197151350426573b55458a"
     },
     {
       "from": "harness/quiet-open-source-work.json",
@@ -288,11 +323,34 @@
       "identity": "1f:e47713d0ab491b5fd72f58d27301f29ad13c06f1b201839fd42b705c0a8f1d2b"
     },
     {
+      "from": "harness/take-open-work.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/take-open-work.json",
+      "source_identity": "1f:e47713d0ab491b5fd72f58d27301f29ad13c06f1b201839fd42b705c0a8f1d2b",
+      "identity": "1f:e47713d0ab491b5fd72f58d27301f29ad13c06f1b201839fd42b705c0a8f1d2b",
+      "reused": true
+    },
+    {
       "from": "harness/take-open-work.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/take-open-work.mjs",
       "source_identity": "1f:e758b4f4f4bcfe9d236d27462f0ae5bd51250484114b86916dac48c8e42d25f1",
       "identity": "1f:e758b4f4f4bcfe9d236d27462f0ae5bd51250484114b86916dac48c8e42d25f1"
+    },
+    {
+      "from": "harness/take-open-work.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/take-open-work.mjs",
+      "source_identity": "1f:e758b4f4f4bcfe9d236d27462f0ae5bd51250484114b86916dac48c8e42d25f1",
+      "identity": "1f:e758b4f4f4bcfe9d236d27462f0ae5bd51250484114b86916dac48c8e42d25f1",
+      "reused": true
+    },
+    {
+      "from": "harness/tell-a-chat-app.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/tell-a-chat-app.mjs",
+      "source_identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569",
+      "identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569"
     },
     {
       "from": "harness/tool-config-switches.mjs",
@@ -307,6 +365,14 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/triage-open-work.mjs",
       "source_identity": "1f:0cd85f7eed237b980c084d6aa5c40b512707f22132e37bd738df47fbbe24f913",
       "identity": "1f:0cd85f7eed237b980c084d6aa5c40b512707f22132e37bd738df47fbbe24f913"
+    },
+    {
+      "from": "harness/triage-open-work.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/triage-open-work.mjs",
+      "source_identity": "1f:0cd85f7eed237b980c084d6aa5c40b512707f22132e37bd738df47fbbe24f913",
+      "identity": "1f:0cd85f7eed237b980c084d6aa5c40b512707f22132e37bd738df47fbbe24f913",
+      "reused": true
     },
     {
       "from": "harness/verify-source-return.mjs",
@@ -631,6 +697,13 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/records/workshop-screen-tool-records.json",
       "source_identity": "1f:613b42de310823a13237bac0e777b2c3517773d7d02600ff787d346908d8ca9a",
       "identity": "1f:613b42de310823a13237bac0e777b2c3517773d7d02600ff787d346908d8ca9a"
+    },
+    {
+      "from": "scripts/publish-registry.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/scripts/publish-registry.mjs",
+      "source_identity": "1f:eea6b54423bc497e2779f3ecdb071a10ecf1593187b23fc45241faeb63c85948",
+      "identity": "1f:eea6b54423bc497e2779f3ecdb071a10ecf1593187b23fc45241faeb63c85948"
     },
     {
       "from": "server.json",
@@ -2885,6 +2958,20 @@
       "identity": "1f:ddde5dab8e9196a44a79fa59651e080de86397759519fd2cf9a94044f2d2339e"
     },
     {
+      "from": "test/tell-a-chat-app.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/tell-a-chat-app.test.mjs",
+      "source_identity": "1f:33a64b88b5c236b2fd564b9a97beaf523ce3cd76095118742599656ba6d3316b",
+      "identity": "1f:33a64b88b5c236b2fd564b9a97beaf523ce3cd76095118742599656ba6d3316b"
+    },
+    {
+      "from": "test/triage-open-work.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/triage-open-work.test.mjs",
+      "source_identity": "1f:ae852d352ae5fe04a4e2e0261d549a95d0c0ef077644e6cf71280a104141abe1",
+      "identity": "1f:c619fe92c6c721104105e9f0ebf780765c145f2e4950692363e6514d0a39956a"
+    },
+    {
       "from": "test/verify-source-return.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/verify-source-return.test.mjs",
@@ -2991,62 +3078,6 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/your-records-tool-input-bound.test.mjs",
       "source_identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43",
       "identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43"
-    },
-    {
-      "from": "records/workshop-chrome-web-store-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-chrome-web-store-tool-records.json",
-      "source_identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0",
-      "identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0"
-    },
-    {
-      "from": "records/workshop-harness-setup-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-harness-setup-tool-records.json",
-      "source_identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b",
-      "identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b"
-    },
-    {
-      "from": "harness/README.md",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/README.md",
-      "source_identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e",
-      "identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e"
-    },
-    {
-      "from": "harness/claude-with-work-channel.sh",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/claude-with-work-channel.sh",
-      "source_identity": "1f:38fad3f3511882f5dc317702f46afdf961482e2e5dabc800c82cd1819438c59f",
-      "identity": "1f:38fad3f3511882f5dc317702f46afdf961482e2e5dabc800c82cd1819438c59f"
-    },
-    {
-      "from": "harness/queue-codex-handoff.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/queue-codex-handoff.mjs",
-      "source_identity": "1f:70d76034a47a1d94ab1ef5bc8af5f5a164c2d05e1b197151350426573b55458a",
-      "identity": "1f:70d76034a47a1d94ab1ef5bc8af5f5a164c2d05e1b197151350426573b55458a"
-    },
-    {
-      "from": "harness/tell-a-chat-app.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/tell-a-chat-app.mjs",
-      "source_identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569",
-      "identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569"
-    },
-    {
-      "from": "test/tell-a-chat-app.test.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/tell-a-chat-app.test.mjs",
-      "source_identity": "1f:33a64b88b5c236b2fd564b9a97beaf523ce3cd76095118742599656ba6d3316b",
-      "identity": "1f:33a64b88b5c236b2fd564b9a97beaf523ce3cd76095118742599656ba6d3316b"
-    },
-    {
-      "from": "scripts/publish-registry.mjs",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/scripts/publish-registry.mjs",
-      "source_identity": "1f:eea6b54423bc497e2779f3ecdb071a10ecf1593187b23fc45241faeb63c85948",
-      "identity": "1f:eea6b54423bc497e2779f3ecdb071a10ecf1593187b23fc45241faeb63c85948"
     }
   ]
 }
