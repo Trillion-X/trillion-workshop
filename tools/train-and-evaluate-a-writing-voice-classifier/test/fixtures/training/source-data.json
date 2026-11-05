@@ -1,0 +1,313 @@
+{
+  "schema": "book-voice-decider-challenge-v3",
+  "dataset_role": "intentional training supervision, not heldout",
+  "criteria": [
+    {
+      "id": "wording-and-connections",
+      "primitive": "one-of",
+      "question": "Do the wording and the connections between sentences sound like the made-up reference writer?",
+      "options": [
+        {
+          "name": "pass",
+          "description": "Plain words, each sentence leads to the next."
+        },
+        {
+          "name": "fail",
+          "description": "Stock phrases or sentences that do not connect."
+        }
+      ],
+      "reference_context": "Made-up reference: short plain sentences; each one answers the question the last one raised.",
+      "applies_to": [
+        "paragraph"
+      ]
+    }
+  ],
+  "items": [
+    {
+      "id": "made-up-train-01",
+      "family": "made-up-kettle",
+      "split": "train",
+      "text": "The kettle stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the kettle.",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-02",
+      "family": "made-up-bread",
+      "split": "train",
+      "text": "Optimizing bread performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-03",
+      "family": "made-up-bike",
+      "split": "train",
+      "text": "The bike stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-04",
+      "family": "made-up-garden",
+      "split": "train",
+      "text": "Optimizing garden performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the garden.",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-05",
+      "family": "made-up-map",
+      "split": "train",
+      "text": "The map stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-06",
+      "family": "made-up-shoebox",
+      "split": "train",
+      "text": "Optimizing shoebox performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-07",
+      "family": "made-up-lamp",
+      "split": "train",
+      "text": "The lamp stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the lamp.",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-08",
+      "family": "made-up-boat",
+      "split": "train",
+      "text": "Optimizing boat performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-09",
+      "family": "made-up-radio",
+      "split": "train",
+      "text": "The radio stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-10",
+      "family": "made-up-clock",
+      "split": "train",
+      "text": "Optimizing clock performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the clock.",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-11",
+      "family": "made-up-fence",
+      "split": "train",
+      "text": "The fence stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-12",
+      "family": "made-up-piano",
+      "split": "train",
+      "text": "Optimizing piano performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-13",
+      "family": "made-up-tent",
+      "split": "train",
+      "text": "The tent stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the tent.",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-14",
+      "family": "made-up-stove",
+      "split": "train",
+      "text": "Optimizing stove performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-15",
+      "family": "made-up-kite",
+      "split": "train",
+      "text": "The kite stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-16",
+      "family": "made-up-well",
+      "split": "train",
+      "text": "Optimizing well performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the well.",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-17",
+      "family": "made-up-ladder",
+      "split": "train",
+      "text": "The ladder stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-18",
+      "family": "made-up-barrel",
+      "split": "train",
+      "text": "Optimizing barrel performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-19",
+      "family": "made-up-anchor",
+      "split": "train",
+      "text": "The anchor stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the anchor.",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-20",
+      "family": "made-up-button",
+      "split": "train",
+      "text": "Optimizing button performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-21",
+      "family": "made-up-candle",
+      "split": "train",
+      "text": "The candle stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-22",
+      "family": "made-up-drum",
+      "split": "train",
+      "text": "Optimizing drum performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the drum.",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-23",
+      "family": "made-up-easel",
+      "split": "train",
+      "text": "The easel stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-24",
+      "family": "made-up-funnel",
+      "split": "train",
+      "text": "Optimizing funnel performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    },
+    {
+      "id": "made-up-train-25",
+      "family": "made-up-glove",
+      "split": "train",
+      "text": "The glove stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "block_kind": "paragraph",
+      "reader_context": "Earlier made-up paragraph about the glove.",
+      "checks": {
+        "wording-and-connections": "pass"
+      }
+    },
+    {
+      "id": "made-up-train-26",
+      "family": "made-up-hammer",
+      "split": "train",
+      "text": "Optimizing hammer performance unlocks transformative value for every stakeholder.",
+      "block_kind": "paragraph",
+      "reader_context": "",
+      "checks": {
+        "wording-and-connections": "fail"
+      }
+    }
+  ]
+}
