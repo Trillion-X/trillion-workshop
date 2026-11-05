@@ -22,7 +22,12 @@ const WRITE_CAP = 256;
 const FILES_RESOURCE = '@own-files';
 const FILE_SPAN = 65_536;
 
-export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+// `runs` are the tool ids the row declares it may start (the brief's contract A): `tools:run` { tool, input } at the
+// Workshop's address (`tools_resource`, @workshop-tools) answers `toolRuns[tool](input, key)` (or `{ started: true }`)
+// for one of them, and refuses any other, as the engine does. Every nested run is kept in `runsStarted`.
+const TOOLS_RESOURCE = '@workshop-tools';
+
+export async function startFakeDoor({ runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -33,6 +38,7 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   })(records.map(record => [record.id, record]));
   const receipts = new Map();
   const calls = [];
+  const runsStarted = [];
   let busy = busyFirst;
   let unknown = unknownFirst;
   let partialBodies = partialBodyFirst;
@@ -222,6 +228,13 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       return { structuredContent: { days: page, next_after: more ? page.at(-1).day : null, stored_bytes_now: days.at(-1)?.stored_bytes ?? 0 } };
     },
   };
+  const runOperation = ({ tool, input }, key) => {
+    if (typeof tool !== 'string' || !runs.includes(tool)) return refuse(OUTSIDE);
+    runsStarted.push({ tool, input, key });
+    const answer = toolRuns[tool];
+    if (answer instanceof Error) return refuse(answer.message);
+    return { structuredContent: typeof answer === 'function' ? answer(input, key) : answer ?? { started: true } };
+  };
   const server = createServer((request, reply) => {
     const chunks = [];
     request.on('data', chunk => chunks.push(chunk));
@@ -233,7 +246,9 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
       calls.push({ method: args.method, input: args.input, key: args.request_key, authorization: request.headers.authorization, protocol: request.headers['mcp-protocol-version'] });
       if (busy > 0) { busy -= 1; reply.writeHead(503).end(); return; }
       if (request.headers.authorization !== `Bearer ${capability}`) { reply.writeHead(401).end(); return; }
-      const operation = args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method];
+      const operation = args.address === TOOLS_RESOURCE ? (args.method === 'tools:run' && runs.length ? runOperation : null)
+        : args.method === 'tools:run' ? null
+        : args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method];
       const { after_byte: afterByte, ...input } = args.input ?? {};
       let result = operation ? operation(input, args.request_key) : refuse('not_runnable_here');
       // An answer bigger than `bytePage` comes as pages of its own bytes, the way the engine's door answers a record too
@@ -262,7 +277,7 @@ export async function startFakeDoor({ rights = [], mostWrites = WRITE_CAP, recor
   await new Promise(done => server.listen(0, '127.0.0.1', done));
   const descriptor = join(mkdtempSync(join(tmpdir(), 'records-door-')), 'descriptor.json');
   writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`, resource: '@own-records', capability,
-    ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}) }));
+    ...(fileRights.length ? { files_resource: FILES_RESOURCE } : {}), ...(runs.length ? { tools_resource: TOOLS_RESOURCE } : {}) }));
   // stored: the made-up files by name, the ones a run wrote among them.
-  return { descriptor, calls, kept, stored, capability, close: () => new Promise(done => server.close(done)) };
+  return { descriptor, calls, kept, stored, capability, runsStarted, close: () => new Promise(done => server.close(done)) };
 }

@@ -77,14 +77,17 @@ async function read(door, now, rules) {
   const settings = rules ?? await rulesOf(door);
   const state = (await readSetting(door, ROWS.state)).value ?? {};
   const view = holdView(await cardsOf(door), state, settings, now);
-  await keepHeld(door, view.held);
+  await keepHeld(door, view.held, settings, now);
   const said = view.held ? fill(settings.words?.held, { title: view.held.card.title ?? '' })
     : view.on ? settings.words?.free : fill(settings.words?.off, view);
   return { ...view, said, words: settings.words };
 }
 
-/** What the hold holds now, kept as setting:needs_you_held when it changed (old keepHeld, without its device runs). */
-async function keepHeld(door, held) {
+/** What the hold holds now, kept as setting:needs_you_held when it changed, and a new thing held, or nothing held any
+ *  more, runs the person's own devices (`hold.devices`, the rules' `devices`) once for that change (old keepHeld). Each
+ *  run is another Workshop tool started through this run's door (`runs` on the row); one that fails is let go, as old
+ *  trillion's shop.run(...).catch(() => null) did. */
+async function keepHeld(door, held, rules, now) {
   const heldFact = held ? { key: held.key, title: held.card.title ?? '' } : null;
   const kept = await door.readRecord(HELD.type, HELD.id);
   const before = object(kept?.value) ? kept.value.value ?? null : null;
@@ -92,7 +95,12 @@ async function keepHeld(door, held) {
   try {
     await door.write([{ id: HELD.id, type: HELD.type, value: { ...(object(kept?.value) ? kept.value : {}), value: heldFact },
       expected: kept ? { type: HELD.type, value: kept.value } : null }], { key: `needs-you-held:${heldFact?.key ?? 'free'}:${heldFact?.title ?? ''}` });
-  } catch (error) { if (error?.code !== CONFLICT) throw error; }
+  } catch (error) { if (error?.code !== CONFLICT) throw error; return; }
+  const runs = heldFact ? rules.devices?.when_held ?? [] : before ? rules.devices?.when_free ?? [] : [];
+  for (const run of runs) {
+    await door.run(run.tool_id, heldInput(run.input, heldFact),
+      { key: `native-hold-devices:${run.tool_id}:${heldFact?.key ?? 'free'}:${Math.floor(now / 3_600_000)}` }).catch(() => null);
+  }
 }
 
 /** The person's kept notices as the moved tell owner's store reads and writes them (tools/tell-the-person's layout). */

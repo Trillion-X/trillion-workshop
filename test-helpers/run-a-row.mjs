@@ -213,7 +213,7 @@ export async function runRow(row, sampleInput, sample = {}) {
       if (error instanceof Unfillable) return { cannot: error.message };
       throw error;
     }
-    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records, files: doorFiles });
+    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, runs: Array.isArray(row.runs) ? row.runs : [], toolRuns: sample.tool_runs ?? {}, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records, files: doorFiles });
     if (invoke.internet === true) outside = await startStandInEgress(replies);
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
     const mounts = invoke.credential_mounts ?? [];
@@ -250,7 +250,7 @@ export async function runRow(row, sampleInput, sample = {}) {
       child.on('error', fail);
       child.on('close', code => {
         clearTimeout(timer);
-        done({ code, stdout, stderr, last: lastJsonLine(stdout), kept: fake ? [...fake.kept.values()] : [], calls: fake?.calls ?? [], unanswered: outside?.unanswered ?? [] });
+        done({ code, stdout, stderr, last: lastJsonLine(stdout), kept: fake ? [...fake.kept.values()] : [], calls: fake?.calls ?? [], runs: fake?.runsStarted ?? [], unanswered: outside?.unanswered ?? [] });
       });
       child.stdin.on('error', () => {});
       child.stdin.end(stdin === undefined ? '' : typeof stdin === 'string' ? stdin : JSON.stringify(stdin));
@@ -275,5 +275,5 @@ export async function answerOf(row, sampleInput, sample = {}) {
   const run = await runRow(row, sampleInput, sample);
   if (run.cannot) throw new Error(`${row.id} cannot run here: ${run.cannot}`);
   if (run.last === undefined || run.last === null || typeof run.last !== 'object') throw new Error(`${row.id} printed no JSON line (exit ${run.code}): ${run.stderr.trim().slice(-400)}`);
-  return { status: run.code, ...run.last, kept: run.kept, calls: run.calls };
+  return { status: run.code, ...run.last, kept: run.kept, calls: run.calls, runs: run.runs };
 }
