@@ -2,7 +2,7 @@
 
 usage: rank.py <settings.json> <candidates.tsv> <per-bucket> [<ranked.tsv>]
 <settings.json> holds the person's settings row (or the settings): `buckets` maps each of their bucket names to its
-regexes, in the order ties go to. Assigns each candidate the bucket whose regexes hit most (ties: first listed), then prints the top N per bucket by
+regexes, in the order ties go to ({name: [regex]}, or [[name, [regex]]] so a row whose keys are sorted keeps the order). Assigns each candidate the bucket whose regexes hit most (ties: first listed), then prints the top N per bucket by
 score and by how many bucket hits it has. This only orders the reading list; the written questions.json is chosen by hand.
 Without <ranked.tsv> the lines go to standard output; the last line printed is {"result": {ranked, per_bucket}}.
 """
@@ -36,6 +36,8 @@ def settings_from(path):
 
 
 buckets = settings_from(sys.argv[1]).get("buckets")
+if isinstance(buckets, list):  # [[name, [regex, ...]], ...] or [{name, patterns}]: the order ties go to, kept in a row
+    buckets = dict((b["name"], b["patterns"]) if isinstance(b, dict) else b for b in buckets)
 if not isinstance(buckets, dict) or not buckets:
     print(json.dumps({"error": "The settings hold no buckets: give `buckets`, {bucket name: [regex, ...]}, in the person's settings row."}))
     sys.exit(2)
