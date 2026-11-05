@@ -98,6 +98,39 @@ test('the read keeps the held thing as setting:needs_you_held, written again onl
   assert.equal(free.kept.find(record => record.id === 'setting:needs_you_held').value.value, null, 'nothing held any more is kept as null');
 });
 
+// Old keepHeld (src/native-waiting-account-owner.mjs:440-451 at the tag): a new thing held runs `hold.devices.when_held`
+// once, each input filled with the held thing; nothing held any more runs `when_free`; the same thing held runs nothing.
+// Each run is another Workshop tool the row declares in `runs`, started through the run's door.
+test('a new thing held starts the when_held device tools, nothing held any more starts when_free, the same thing nothing', async () => {
+  const devices = {
+    when_held: [{ tool_id: 'tool:hold-a-device-quiet', input: { id: 'needs-you-hold', only: ['Trillion'] } }, { tool_id: 'tool:take-me-there', input: { thing: '{key}', say: { title: '{title}' }, key: 'hold:{key}' } }],
+    when_free: [{ tool_id: 'tool:release-a-device', input: { id: 'needs-you-hold' } }],
+  };
+  const records = [setting('setting:needs_you_hold_rules', { ...RULES, devices }), ...PERSON.slice(1)];
+  const run = await answerOf(ROUTE, page('GET'), { records });
+  assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
+  assert.deepEqual(run.runs.map(({ tool, input }) => ({ tool, input })), [
+    { tool: 'tool:hold-a-device-quiet', input: { id: 'needs-you-hold', only: ['Trillion'] } },
+    { tool: 'tool:take-me-there', input: { thing: 'record:waiting-on-you:sign-in', say: { title: 'Sign in to the sample service' }, key: 'hold:record:waiting-on-you:sign-in' } },
+  ]);
+  assert.match(run.runs[0].key, /^native-hold-devices:tool:hold-a-device-quiet:record:waiting-on-you:sign-in:\d+$/);
+  const again = await answerOf(ROUTE, page('GET'), { records: run.kept });
+  assert.deepEqual(again.runs, [], 'the same thing held starts nothing');
+  const done = run.kept.filter(record => record.type !== 'record:waiting-on-you');
+  const free = await answerOf(ROUTE, page('GET'), { records: done });
+  assert.deepEqual(free.runs.map(({ tool, input }) => ({ tool, input })), [{ tool: 'tool:release-a-device', input: { id: 'needs-you-hold' } }]);
+  const never = await answerOf(ROUTE, page('GET'), { records: [setting('setting:needs_you_hold_rules', { ...RULES, devices })] });
+  assert.deepEqual(never.runs, [], 'nothing held before and nothing now starts nothing');
+});
+
+test('a device tool that fails or is refused is let go: the read still answers', async () => {
+  const devices = { when_held: [{ tool_id: 'tool:hold-a-device-quiet', input: {} }, { tool_id: 'tool:not-declared', input: {} }, { tool_id: 'tool:take-me-there', input: { thing: '{key}' } }] };
+  const records = [setting('setting:needs_you_hold_rules', { ...RULES, devices }), ...PERSON.slice(1)];
+  const run = await answerOf(ROUTE, page('GET'), { records, tool_runs: { 'tool:hold-a-device-quiet': new Error('tool_unavailable') } });
+  assert.equal(run.result.status, 200);
+  assert.deepEqual(run.runs.map(item => item.tool), ['tool:hold-a-device-quiet', 'tool:take-me-there'], 'an undeclared tool is refused by the door');
+});
+
 test('seen marks read the notices the held thing\'s device runs told, on this page, from the thing; read is the read', async () => {
   const rules = { ...RULES, devices: { when_held: [{ tool_id: 'tool:hold-a-device-quiet', input: { id: 'needs-you-hold' } }, { tool_id: 'tool:take-me-there', input: { thing: '{key}', key: 'hold:{key}' } }] } };
   const told = (seq, key) => ({ id: `told-the-person:${seq}`, type: 'told-the-person', value: { item: { seq, key, kind: 'update', title: `Sample ${seq}`, at: '2026-01-10T11:00:00.000Z', results: { 'in-app': { sent: true, said: 'Shown in Trillion.' } } } } });
