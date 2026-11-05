@@ -13,7 +13,7 @@
         "label": "Evaluate a writing-voice classifier on labelled passages",
         "status": "active",
         "job": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
-        "description": "Give data, a challenge of labelled passages (schema book-voice-decider-challenge-v1, v2 or v3), and an action. validate checks the challenge (unique ids, one split per family, typed blocks, criteria, labels) and counts the model questions; plan returns the exact request each passage would send (the passage and only its criterion-scoped or pinned reference context, never the general context, which can hold labels); evaluate asks the classifier (the endpoint and model in the person's list:settings row for this tool, named by settings_record and read through their records door with tools/settings) and answers the report: every choice with its full probabilities, a decision that is the choice only when its probability is over the criterion's diagnostic minimum (else uncertain), confusion matrices and abstentions by criterion, family and source kind, and errors kept as errors, never passes; a section heading is judged over every source-bound chunk of its section (one fail fails it, all pass passes it). A reply whose model or serving identity differs from the classifier's health is an error. replies plays recorded exchanges in place of the classifier (a stand-in: a request with no recording is refused). check-report checks a stored report against its challenge (identity, request policy, every captured request and raw response). Nothing is trained and nothing is written; the person's passages and labels are input only.",
+        "description": "Give data, a challenge of labelled passages (schema book-voice-decider-challenge-v1, v2 or v3), and an action. validate checks the challenge (unique ids, one split per family, typed blocks, criteria, labels) and counts the model questions; plan returns the exact request each passage would send (the passage and only its criterion-scoped or pinned reference context, never the general context, which can hold labels); evaluate asks the classifier (the endpoint and model in the person's list:settings row for this tool, settings_record, as records:read gave it and tools/settings reads it) and answers the report: every choice with its full probabilities, a decision that is the choice only when its probability is over the criterion's diagnostic minimum (else uncertain), confusion matrices and abstentions by criterion, family and source kind, and errors kept as errors, never passes; a section heading is judged over every source-bound chunk of its section (one fail fails it, all pass passes it). A reply whose model or serving identity differs from the classifier's health is an error. replies plays recorded exchanges in place of the classifier (a stand-in: a request with no recording is refused). check-report checks a stored report against its challenge (identity, request policy, every captured request and raw response). Nothing is trained and nothing is written; the person's passages and labels are input only.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -63,9 +63,8 @@
               "description": "validate only"
             },
             "settings_record": {
-              "type": "string",
-              "pattern": "^record:setting:train-and-evaluate-a-writing-voice-classifier~(person|film|piece|account)~[^~/]+$",
-              "description": "The id of the person's list:settings row for this tool, record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>, read through their records door with tools/settings; its settings are { endpoint, model, attempts?, workers? }"
+              "type": "object",
+              "description": "The person's list:settings row for this tool, record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>, as records:read gave it ({ id, type, value }), read with tools/settings; its settings are { endpoint, model, attempts?, workers? }"
             },
             "replies": {
               "type": "array",
@@ -136,13 +135,6 @@
                 "at": "/opt/ask-a-small-model-for-a-verdict"
               },
               {
-                "package": "records-door",
-                "paths": [
-                  "read-data"
-                ],
-                "at": "/opt/records-door"
-              },
-              {
                 "package": "settings",
                 "paths": [
                   "read-data"
@@ -169,23 +161,6 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
-              }
-            ]
-          },
-          "records": {
-            "fd": 3,
-            "rights": [
-              {
-                "kind": "record:setting",
-                "id": {
-                  "fill": {
-                    "from": "input",
-                    "field": "settings_record"
-                  }
-                },
-                "operations": [
-                  "records:read"
-                ]
               }
             ]
           }
@@ -263,7 +238,19 @@
                 ]
               },
               "data_name": "/fixture/binary-challenge.json",
-              "settings_record": "record:setting:train-and-evaluate-a-writing-voice-classifier~person~made-up-writer",
+              "settings_record": {
+                "id": "record:setting:train-and-evaluate-a-writing-voice-classifier~person~made-up-writer",
+                "type": "record:setting",
+                "value": {
+                  "name": "A made-up writer's voice classifier",
+                  "tool": "tool:evaluate-a-writing-voice-classifier",
+                  "scope_kind": "person",
+                  "scope_id": "made-up-writer",
+                  "settings": "{\"endpoint\":\"http://127.0.0.1:8099/v1/systemone\",\"model\":\"made-up-model\",\"workers\":1}",
+                  "from": "made-up",
+                  "status": "active"
+                }
+              },
               "replies": [
                 {
                   "request": "{\"state\":\"Passage: We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
@@ -282,26 +269,7 @@
               }
             },
             "output_selector": "$.complete",
-            "equals": true,
-            "records": [
-              {
-                "id": "record:setting:train-and-evaluate-a-writing-voice-classifier~person~made-up-writer",
-                "type": "record:setting",
-                "value": {
-                  "name": "A made-up writer's voice classifier",
-                  "tool": "train-and-evaluate-a-writing-voice-classifier",
-                  "scope_kind": "person",
-                  "scope_id": "made-up-writer",
-                  "settings": {
-                    "endpoint": "http://127.0.0.1:8099/v1/systemone",
-                    "model": "made-up-model",
-                    "workers": 1
-                  },
-                  "from": "made-up",
-                  "status": "active"
-                }
-              }
-            ]
+            "equals": true
           },
           {
             "kind": "sample-run",

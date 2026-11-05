@@ -10,8 +10,8 @@
  *   node evaluate-voice.mjs --data <challenge.json> --out <results.json> --live (--settings-record <record.json> | --endpoint <url> --model <id>)
  *        [--workers N] [--single-attempt] [--resume]
  *   (--settings-record names a JSON file holding the person's setting row as records:read gives it: { id, type, value })
- *   or one JSON request on standard input (the tool row): { action, data, settings_record?, replies?, report? }, with the
- *   person's records door on descriptor 3 to read the settings_record id
+ *   or one JSON request on standard input (the tool row): { action, data, settings_record?, replies?, report? }, where
+ *   settings_record is that row already read (tools/settings reads it)
  */
 import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
@@ -20,7 +20,7 @@ import { pathToFileURL } from 'node:url';
 import { requestPolicyFor, SERVING_IDENTITY_POLICY, validServingIdentity, requestPlan, reportCriteria, validateInput, validateReport, criterionDecisionLabels, criterionAppliesTo, expectedDecision, aggregateSectionChunkResults } from '../read-data/evaluation-integrity.mjs';
 import { askMany } from '../../ask-a-small-model-for-a-verdict/do-work/ask-a-hosted-classifier.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { readSettings, settingsOf } from '../../settings/read-data/settings.mjs';
+import { setting } from '../../settings/read-data/settings.mjs';
 
 export const FOLDER = 'train-and-evaluate-a-writing-voice-classifier';
 export const TOOL = 'tool:evaluate-a-writing-voice-classifier';
@@ -322,9 +322,10 @@ return writeReport(complete);
 
 
 /** The settings a run uses: the person's list:settings row for this tool (record:setting:<this folder>~<scope_kind>~
- * <scope_id>), read through their records door with tools/settings, else the endpoint and model given directly. */
-export async function settingsFrom({ settings_record, endpoint, model, workers } = {}, { door } = {}) {
-  const fromRow = settings_record == null ? null : await readSettings(door, settings_record, { tool: FOLDER });
+ * <scope_id>), as records:read gave it, read with tools/settings, else the endpoint and model given directly. */
+export async function settingsFrom({ settings_record, endpoint, model, workers } = {}) {
+  const fromRow = settings_record == null ? null : setting(settings_record, { folder: FOLDER, tool: TOOL });
+  if (settings_record != null && fromRow === null) throw new Error(`settings_record holds no settings for ${FOLDER}: give the person's list:settings row for this tool (record:setting:${FOLDER}~<scope_kind>~<scope_id>).`);
   if (fromRow === null && endpoint == null && model == null) return classifierSettings(null);
   return classifierSettings(fromRow ?? { endpoint, model, ...(workers == null ? {} : { workers }) });
 }
@@ -351,7 +352,7 @@ const withoutEvidence = report => ({ ...report, items: report.items.map(({ reque
   errors: report.errors.map(({ request_evidence, ...row }) => row), prior_errors: report.prior_errors.map(({ request_evidence, ...row }) => row) });
 
 /** The tool row: one request, one answer. */
-export async function answer(request, { door } = {}) {
+export async function answer(request) {
   const { action = 'evaluate', data, data_name: dataName = 'request:data' } = request ?? {};
   if (!data || typeof data !== 'object') throw new Error('Give data: the challenge (schema book-voice-decider-challenge-v1, v2 or v3, with items).');
   const raw = JSON.stringify(data);
@@ -367,7 +368,7 @@ export async function answer(request, { door } = {}) {
     const { evalItems, criteria } = validateInput(data);
     return { plans: evalItems.map(item => ({ id: item.id, ...requestPlan(data, item, criteria) })) };
   }
-  const { endpoint, model, attempts, workers } = await settingsFrom(request, { door });
+  const { endpoint, model, attempts, workers } = await settingsFrom(request);
   const dataBlake3 = request.data_blake3 ?? blake3Hex(raw);
   const rubricBlake3 = request.rubric_blake3 ?? data.rubric_blake3 ?? null;
   if (action === 'check-report') {
@@ -392,9 +393,8 @@ async function commandLine(args) {
     console.error('usage: node evaluate-voice.mjs --data <challenge.json> --out <results.json> --live (--settings-record <record.json> | --endpoint <url> --model <id>) [--workers N] [--single-attempt] [--resume]');
     process.exit(2);
   }
-  const kept = arg('--settings-record') ? JSON.parse(readFileSync(resolve(arg('--settings-record')), 'utf8')) : null;
-  const settings = kept ? classifierSettings(settingsOf(kept.value, kept.id, { tool: FOLDER }))
-    : await settingsFrom({ endpoint: arg('--endpoint'), model: arg('--model'), workers: arg('--workers') ?? undefined });
+  const settings = await settingsFrom({ settings_record: arg('--settings-record') ? resolve(arg('--settings-record')) : undefined,
+    endpoint: arg('--endpoint'), model: arg('--model'), workers: arg('--workers') ?? undefined });
   // Evaluation can freeze one attempt per case without changing shared-adapter defaults.
   const requestAttempts = args.includes('--single-attempt') ? 1 : settings.attempts;
   const raw = readFileSync(resolve(dataPath), 'utf8');
@@ -422,10 +422,8 @@ async function standardInput() {
   for await (const chunk of process.stdin) chunks.push(chunk);
   try {
     const request = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
-    // The person's records door is handed to the run on descriptor 3; it is opened only to read the settings row.
-    const door = request?.settings_record == null ? undefined
-      : (await import('../../records-door/read-data/records-door.mjs')).openRecordsDoor();
-    console.log(JSON.stringify({ result: await answer(request, { door }) }));
+    if (typeof request?.settings_record === 'string') throw new Error('settings_record is the setting row as records:read gave it ({ id, type, value }), not its id or a path.');
+    console.log(JSON.stringify({ result: await answer(request) }));
   }
   catch (error) { console.log(JSON.stringify({ error: String(error?.message ?? error) })); process.exitCode = 1; }
 }

@@ -15,9 +15,6 @@ const binary = JSON.parse(readFileSync(new URL('./fixtures/binary-challenge.json
 const recorded = JSON.parse(readFileSync(new URL('./fixtures/binary-results.json', import.meta.url), 'utf8'));
 const evaluateRow = rows.find(row => row.id === 'tool:evaluate-a-writing-voice-classifier');
 const sample = evaluateRow.verify[0].input;
-// An in-memory records door holding made-up rows (the door's read answers a record's value or null).
-const doorOf = records => ({ read: async (type, id) => structuredClone(records.find(one => one.id === id && one.type === type)?.value ?? null) });
-const door = doorOf(evaluateRow.verify[0].records);
 
 function run(row, input) {
   const [program, script] = row.invoke.argv;
@@ -28,7 +25,7 @@ function run(row, input) {
 test('every sample run gives what its verify item says', async () => {
   for (const row of rows) for (const item of row.verify ?? []) {
     if (item.kind !== 'sample-run') continue;
-    const out = item.records ? { result: await answer(item.input, { door: doorOf(item.records) }) } : run(row, item.input);
+    const out = run(row, item.input);
     assert.ok(out.result, `${row.id}: ${out.error}`);
     assert.deepEqual(pick(out.result, item.output_selector), item.equals, row.id);
   }
@@ -36,7 +33,7 @@ test('every sample run gives what its verify item says', async () => {
 
 test('evaluating from recorded replies gives the recorded decisions, and the report checks against the same recordings', async () => {
   const replies = recorded.items.flatMap(row => row.request_evidence.exchanges);
-  const report = await answer({ ...sample, data: binary, replies, include_evidence: true }, { door });
+  const report = await answer({ ...sample, data: binary, replies, include_evidence: true });
   assert.equal(report.complete, true);
   assert.equal(report.serving_identity_assurance, 'observed-health-and-response');
   for (const row of report.items) {
@@ -47,12 +44,12 @@ test('evaluating from recorded replies gives the recorded decisions, and the rep
     }
   }
   assert.deepEqual(report.summary, recorded.summary);
-  const checked = await answer({ action: 'check-report', data: binary, settings_record: sample.settings_record, report: recorded }, { door });
+  const checked = await answer({ action: 'check-report', data: binary, settings_record: sample.settings_record, report: recorded });
   assert.deepEqual(checked, { valid: true, complete: true, covered: binary.items.length, identity_assurance: 'observed-health-and-response' });
 });
 
 test('a request with no recorded reply is an error kept as an error, never a pass', async () => {
-  const report = await answer({ ...sample, data: binary, replies: [] }, { door });
+  const report = await answer({ ...sample, data: binary, replies: [] });
   assert.equal(report.items.length, 0);
   assert.equal(report.errors.length, binary.items.length);
   assert.match(report.errors[0].error, /no recorded reply/);
@@ -61,20 +58,19 @@ test('a request with no recorded reply is an error kept as an error, never a pas
 
 test('settings come from the person\'s row for this tool, and their absence is refused in words', async () => {
   await assert.rejects(answer({ data: binary }), /No classifier settings: give settings_record/);
-  const [kept] = evaluateRow.verify[0].records;
-  await assert.rejects(answer({ data: binary, settings_record: 'record:setting:some-other-tool~person~made-up-writer' }, { door }), error => error.code === 'other_tool');
-  await assert.rejects(answer({ data: binary, settings_record: sample.settings_record }, { door: doorOf([]) }), error => error.code === 'missing');
-  await assert.rejects(answer({ data: binary, settings_record: sample.settings_record }, { door: doorOf([{ ...kept, value: { ...kept.value, status: 'retired' } }]) }), error => error.code === 'not_active');
-  await assert.rejects(answer({ data: binary, settings_record: sample.settings_record }), error => error.code === 'no_door');
-  await assert.rejects(answer({ data: binary, settings_record: sample.settings_record }, { door: doorOf([{ ...kept, value: { ...kept.value, settings: { model: 'm' } } }]) }), /settings need endpoint/);
-  await assert.rejects(answer({ data: binary, endpoint: 'not-an-address', model: 'm' }), /endpoint/);
+  const kept = sample.settings_record;
+  await assert.rejects(answer({ data: binary, settings_record: { ...kept, value: { ...kept.value, tool: 'tool:some-other-tool' } } }), /holds settings for tool:some-other-tool/);
+  await assert.rejects(answer({ data: binary, settings_record: { ...kept, value: { ...kept.value, status: 'retired' } } }), /retired/);
+  await assert.rejects(answer({ data: binary, settings_record: { ...kept, id: 'record:setting:some-other-folder~person~made-up-writer' } }), /holds no settings for train-and-evaluate/);
+  await assert.rejects(answer({ data: binary, settings_record: { ...kept, value: { ...kept.value, settings: '{"model":"m"}' } } }), /settings need endpoint/);
+  assert.match(run(evaluateRow, { data: binary, settings_record: kept.id }).error, /as records:read gave it/);
 });
 
 test('plan sends the passage and criterion context only, and an unknown action is refused', async () => {
   const { plans } = await answer({ action: 'plan', data: binary });
   assert.equal(plans.length, binary.items.length);
   assert.equal(plans[0].content, `Passage: ${binary.items[0].text}`);
-  await assert.rejects(answer({ action: 'guess', data: binary, settings_record: sample.settings_record }, { door }), /Unknown action/);
+  await assert.rejects(answer({ action: 'guess', data: binary, settings_record: sample.settings_record }), /Unknown action/);
   const out = run(evaluateRow, { action: 'evaluate' });
   assert.match(out.error, /Give data/);
 });

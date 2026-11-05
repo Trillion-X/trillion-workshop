@@ -18,7 +18,7 @@ Old Trillion (Trillion-X/trillion) never trained or evaluated a voice classifier
 
 | Setting | Where | What it decides |
 |---|---|---|
-| `endpoint` | the `list:settings` row `record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>`: the row's request names its id in `settings_record` and reads it through the person's records door on descriptor 3 (`tools/settings` `readSettings`); the command takes the row as `records:read` gave it (`--settings-record <file>`), or `--endpoint` | The classifier's `/v1/systemone` address. Its `/health` must name a serving identity, and every reply must name the same one and the requested model. |
+| `endpoint` | the `list:settings` row `record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>`: the row's request carries it in `settings_record` as `records:read` gave it, read with `tools/settings` `setting()`; the command takes the file of that record (`--settings-record <file>`), or `--endpoint` | The classifier's `/v1/systemone` address. Its `/health` must name a serving identity, and every reply must name the same one and the requested model. |
 | `model` | the same row, or `--model` | The model asked, as its replies name it. |
 | `attempts`, `workers` | the same row (optional), or `--single-attempt`, `--workers` | Tries per request (3) and requests at once (4, at most 8). |
 | `decider_common_dir` | `--decider-common-dir` | Train and score only: the folder holding the decider model frame (`common.py`, which loads the pinned model snapshot), on the computer that trains. |
@@ -37,7 +37,7 @@ As the tool row (one JSON request on standard input, `{ result }` or `{ error }`
 
 ```
 echo '{"action":"validate","data":{...challenge...}}' | node do-work/evaluate-voice.mjs
-echo '{"action":"evaluate","data":{...},"settings_record":"record:setting:train-and-evaluate-a-writing-voice-classifier~person~<id>"}' | node do-work/evaluate-voice.mjs 3<>door
+echo '{"action":"evaluate","data":{...},"settings_record":{"id":"record:setting:train-and-evaluate-a-writing-voice-classifier~person~<id>","type":"record:setting","value":{...}}}' | node do-work/evaluate-voice.mjs
 echo '{"training_rows":[...],"target_rows":[...]}' | python3 -I do-work/exposure_audit.py
 ```
 
@@ -55,7 +55,7 @@ python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.jso
 
 | File | Purpose |
 |---|---|
-| `do-work/evaluate-voice.mjs` | `tool:evaluate-a-writing-voice-classifier` and the evaluation command: `evaluateVoice` (asks, checkpoints, summarises), `answer` (the row's actions `validate`, `plan`, `evaluate`, `check-report`), `settingsFrom` (the person's row read through their door with `tools/settings` `readSettings`), `playRecordedReplies` (the stand-in classifier that plays recorded exchanges). |
+| `do-work/evaluate-voice.mjs` | `tool:evaluate-a-writing-voice-classifier` and the evaluation command: `evaluateVoice` (asks, checkpoints, summarises), `answer` (the row's actions `validate`, `plan`, `evaluate`, `check-report`), `settingsFrom` (the person's row, already read, through `tools/settings` `setting()`), `playRecordedReplies` (the stand-in classifier that plays recorded exchanges). |
 | `read-data/evaluation-integrity.mjs` | Pure: `validateInput`, `requestPlan`, `validateReport` (resume and stored-report checks), `expectedDecision`, `aggregateSectionChunkResults`, `classifyWritingBlock`. The wire shape is `tools/ask-a-small-model-for-a-verdict`'s `intoBatchRequest` / `outOfBatchReply`. |
 | `do-work/build-unlabeled-diagnostic.mjs` | Label-free rows from a frozen document for one criterion: applicable blocks only, each with its verified byte span and two blocks of reader context. Blocks are `tools/pin-files-by-content` `writingBlocks`; BLAKE3 is `tools/content-identity`. |
 | `do-work/pack-section-chunks.py` | Packs each section's ordered blocks into chunks under the token limit, sized by the pinned tokenizer and prompt builder; sends nothing. |
@@ -63,7 +63,7 @@ python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.jso
 | `do-work/train-voice-adapter.py` | `tool:train-a-writing-voice-adapter` (on the person's computer): row and provenance checks, then LoRA training and a receipt. |
 | `do-work/score-voice-adapter.py` | `tool:score-writing-with-a-voice-adapter` (on the person's computer): admission, receipt binding, scoring, summaries and the exposure audit. |
 | `ports/*.json` | One port contract for each file above (SOURCE_FIRST_PORT of the launch-video copy). |
-| `tool-rows.json` | The four rows. The evaluate row declares one right, `records:read` of the `record:setting` its `settings_record` names, and packs `tools/ask-a-small-model-for-a-verdict` (`do-work`), `tools/settings` and `tools/records-door` (`read-data`), `tools/content-identity` and `@noble/hashes`; its sample reads a made-up settings row and plays recorded replies. |
+| `tool-rows.json` | The four rows. The evaluate row packs `tools/ask-a-small-model-for-a-verdict` (`do-work`), `tools/settings` (`read-data`), `tools/content-identity` and `@noble/hashes`; its sample reads a made-up settings row and plays recorded replies. |
 | `test/evaluation-integrity.test.mjs`, `test/scoring-input-mode.test.mjs`, `test/evaluate-voice-cli.test.mjs` | The old suites (15, 5 and 5 tests), on made-up fixtures and a loopback stand-in classifier. |
 | `test/tool-row.test.mjs`, `test/build-unlabeled-diagnostic.test.mjs` | New: the rows' samples, replay of recorded replies equals the recorded report, settings refusals; the unlabeled builder (it had no test). |
 | `test/test_*.py`, `test/python.test.mjs` | The old Python suites (87 tests), run by the wrapper. `test/stand_in_decider.py` stands in for the decider frame (no weights) and puts a `b3sum` made from Python's `blake3` on PATH when the program is missing. |
@@ -77,6 +77,6 @@ python3 do-work/score-voice-adapter.py --decider-common-dir <dir> --data <v3.jso
 
 ## Dependencies
 
-**Depends on:** Node 22+; `tools/ask-a-small-model-for-a-verdict` (the hosted classifier wire), `tools/settings` (the settings row) and `tools/records-door` (the door it is read through; Workshop PR #266 brings the reader's current API), `tools/content-identity` and `@noble/hashes` (BLAKE3), `tools/pin-files-by-content` (`writingBlocks`, for the unlabeled builder). Python 3 for the audit. Train, score and pack also need, on the person's computer, torch, peft, transformers, the decider package in its pinned snapshot, the frame `common.py` and `b3sum`.
+**Depends on:** Node 22+; `tools/ask-a-small-model-for-a-verdict` (the hosted classifier wire), `tools/settings` (the settings row), `tools/content-identity` and `@noble/hashes` (BLAKE3), `tools/pin-files-by-content` (`writingBlocks`, for the unlabeled builder). Python 3 for the audit. Train, score and pack also need, on the person's computer, torch, peft, transformers, the decider package in its pinned snapshot, the frame `common.py` and `b3sum`.
 
 **Depended on by:** the person's writing gate (a book export checks its voice through the evaluation report).

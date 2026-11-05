@@ -1,55 +1,49 @@
 # tools/settings/
 
-The one shared reader of a person's tool settings: a library every tool packs, with one row of its own, `tool:read-a-tool-setting`, for callers that cannot import it. Every tool whose behaviour depends on the person (their thresholds, model choices, folders, layouts, voices) takes `settings_record` in its input and reads that setting at run time through its records door with this reader. Nothing about any person is in a tool; the settings are rows of the person's own list.
+The one reader every Workshop tool uses for the settings a person keeps for it. Settings are rows of the person's generic list `list:settings`, never files beside the code (rule 11: settings are rows in the person's lists, read through the door).
 
-## Where settings live
-
-One generic list in the person's account: `list:settings`, row type `setting`, kept as records of type `record:setting` with the id
-
-```
-record:setting:<workshop tool folder>~<scope kind>~<scope id>
-```
-
-`scope kind` is `person`, `film`, `piece` or `account`. A row's value:
+A row is a `record:setting` with id `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`:
 
 | Field | Holds |
 |---|---|
-| `name` | A name a person reads. |
-| `tool` | The Workshop tool folder the setting is for (equal to the id's). |
-| `scope_kind`, `scope_id` | What the setting is for. |
-| `settings` | The tool's own settings: one JSON object (or that object as JSON text). |
-| `from` | Where it came from, `<old path>@<commit>`, when it was moved from a file. |
-| `status` | `active` is read; anything else is refused. |
+| `name` | What the settings are, in a few words. |
+| `tool` | The tool row that reads them, e.g. `tool:cite-principles-from-captions`. |
+| `scope_kind` | `piece`, `film`, `person` or `account`. |
+| `scope_id` | Which piece, film, person or account. |
+| `settings` | The values, as compact JSON text with sorted keys (an object is read too). |
+| `from` | Where the values came from, `"<old path>@<sha>"`. |
+| `status` | `active` or `retired`; a retired row is refused. |
 
-This ports the old app's `setting` record kind: old trillion `src/decision-store.mjs` before commit 4ffa1dc4a2, line 8 (a setting is one record of type `setting`), lines 751-753 (`setting(name)`: read `setting:<name>`, answer its value or null), 754-757 (`setSetting`) and 758-762 (`settings(prefix)`). One change on purpose: a missing setting is refused with what to do, never answered as null, so a tool never runs silently on built-in defaults.
-
-## Use it
-
-```js
-import { readSettings, settingRight } from '/opt/settings/read-data/settings.mjs';
-const settings = await readSettings(door, input.settings_record, { tool: 'my-tool-folder' });
-```
-
-A row packs `read-data/` here at `/opt/settings` (`invoke.files.package_files`, like `tools/records-door`) and declares the one-record right `settingRight(id)` gives: `{ kind: "record:setting", id, operations: ["records:read"] }` (or a `prefix` of `record:setting:<folder>~` when the id is chosen at run time). Python tools use `read-data/settings.py` (`read_settings(read, settings_record, tool=...)`, `settings_of(value, id, tool=...)`), which reads the same DATA and refuses with the same words.
-
-To move a file stand-in into the account, build the row with `settingRow({ tool, scope_kind, scope_id, settings, name, from })` (or `setting_row` in Python) and put it in a `records:write` payload (`tools/export-records-as-list-rows`).
-
-Refusals (every one says what to do): a malformed id, an unknown scope kind, a setting for another tool, a missing setting, one not active, a value naming another tool, settings that are not an object, no door.
+A tool takes `settings_record` in its request: the record as `records:read` gives it (`{id, type, value}`), its value alone, a list of records, or the path of a JSON file holding them. It reads it with `setting(given, folder, scopes, default)`: the settings of the first scope that has a row (most specific first, e.g. this piece, then this film, then the person, then the account), else the default. That is old Trillion's `setting(name)`, which gave the value or `null`.
 
 ## Files
 
 | File | Purpose |
 |---|---|
-| `part.json` | The library's public files. |
-| `tool-rows.json` | `tool:read-a-tool-setting`: `{ settings_record, tool? }` in, `{ settings_record, tool, scope_kind, scope_id, settings }` out, with a records right on exactly that one id. |
-| `do-work/read-a-tool-setting.mjs` | That row's function, run by `tools/records-door` `do-work/run-an-export.mjs`. |
-| `read-data/settings.mjs` | `readSettings`, `settingsOf`, `settingId`, `parseSettingId`, `settingRight`, `settingRow`, `SettingError`. |
-| `read-data/settings.py` | The Python twin: `read_settings`, `settings_of`, `setting_id`, `parse_setting_id`, `setting_row`, `SettingError`. |
-| `read-data/settings.json` | The list, row and record type, id shape, scope kinds, fields and every refusal's words. |
-| `test/settings.test.mjs` | Ids, reading one record, JSON-text settings, every refusal, payload rows and rights, and the Python twin, on made-up rows and an in-memory door. |
-| `test/settings_twin.py` | Runs the Python twin for that test. |
-| `ports/settings.json` | The port claim. |
+| `read-data/settings.py` | `setting_id`, `parse_id`, `make_record`, `list_record`, `chosen`, `settings_of`, `setting`; `SettingError` says how to fix a request. |
+| `read-data/settings.mjs` | The same for JavaScript tools: `settingId`, `parseId`, `makeRecord`, `chosen`, `settingsOf`, `setting`. |
+| `do-work/read_setting.py` | `tool:read-a-tool-setting`: one JSON request in (read or make), one JSON line out. |
+| `tool-rows.json` | The row. |
+| `test/test_settings.py`, `test/settings.test.mjs` | Ids, scope choice, the default, every refusal, the command, and the two readers agreeing. Made-up rows only. |
 
-## Depends on
+## Using it from a tool
 
-Node 22.6+ standard library; Python 3.10+ standard library. No packages.
+A Python tool packs `tools/settings/read-data/settings.py` (`invoke.files.package_files`, or a sibling path in an on-your-computer row) and calls:
+
+```python
+import settings
+values = settings.setting(request.get('settings_record'), 'my-tool-folder',
+                          [('film', film_id), ('account', 'main')], default=DEFAULTS)
+```
+
+To make the rows a loader writes, use `make_record(...)` (and `list_record()` once); the records go in a `records:write` plan in the shape `tools/export-records-as-list-rows` builds.
+
+## Moved from Trillion
+
+Old Trillion kept a setting as one record of type `setting` (Trillion-X/trillion `src/decision-store.mjs` before 4ffa1dc4a2: line 8 names the kind; lines 751-754 `setting(name)` reads `setting:<name>` and gives its value or `null`, `setSetting` writes it). Here the name is the tool's folder plus a scope, and the value is the row's `settings` field. `settingsPage` (a page of settings by prefix) is the door's `records:list` on `list:settings` and is not repeated.
+
+## Dependencies
+
+**Depends on:** Python 3 and Node's standard library only.
+
+**Depended on by:** every Workshop tool that takes `settings_record`.
