@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-TRAIN-ADAPTER-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:74a5cc1b5cadd16742d433bd2bcbdd258915f8da0a5d843b8682c40b907fa093",
+      "multihash": "1f:f7ddb5db648aec39b557bd9ab234b9a1c17bfe6a9bfbdbbffc2ab5bd6f384f1a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/train-voice-adapter.py",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
+    }
+  ],
+  "preserve": [
+    "only split train rows are accepted and gold never enters the state",
+    "v2 rows need a v3 provenance manifest whose bindings are checked against the maintained requestPlan before the model loads",
+    "the receipt binds the DATA by BLAKE3 and records every effective setting",
+    "step logs name rows by opaque ordinals only"
+  ],
+  "allowed_deltas": [
+    "the folder holding the decider model frame (common.py) is the caller's --decider-common-dir instead of a sibling folder of the old repository",
+    "the maintained validator is this folder's read-data/evaluation-integrity.mjs"
+  ],
+  "banned_substitutions": [
+    "evaluation rows used for training"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f7ddb5db648aec39b557bd9ab234b9a1c17bfe6a9bfbdbbffc2ab5bd6f384f1a",
+    "target_multihash_at_baseline": "1f:f7ddb5db648aec39b557bd9ab234b9a1c17bfe6a9bfbdbbffc2ab5bd6f384f1a",
+    "commit": "07fa0cbde4e9f8933feb39038f7a752fa0d30211"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def build_argument_parser(",
+      "def opaque_training_row_id("
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/test_train_voice_provenance.py"
+    ]
+  }
+}

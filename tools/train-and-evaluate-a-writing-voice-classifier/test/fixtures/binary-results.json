@@ -1,0 +1,563 @@
+{
+  "schema": "book-voice-decider-evaluation-v2",
+  "evaluated_at_local": "1/1/2026, 9:00:00 AM MST",
+  "model": "made-up-model",
+  "endpoint": "http://127.0.0.1:8099/v1/systemone",
+  "route": "shared local classifier adapter -> /v1/systemone",
+  "serving": "/fixture/made-up-model-snapshot",
+  "device": "cpu",
+  "serving_identity_policy": "observed-health-and-response-v1",
+  "request_limits": {
+    "samples": 1,
+    "attempts": 1,
+    "workers": 1
+  },
+  "data": "/fixture/binary-challenge.json",
+  "data_blake3": "50256ceac31dc9eb8d2d2c86f560de4ee5c7b4a3ef30d147f44c85a072f354af",
+  "rubric_blake3": null,
+  "dataset_role": "source_feedback_controls",
+  "source_derivative": null,
+  "assembled_docx": null,
+  "split": "eval",
+  "evaluated_items": 6,
+  "expected_items": 6,
+  "question": null,
+  "criteria": [
+    {
+      "id": "claim-strength",
+      "question": "Does the passage state the claim no more strongly than its source?",
+      "deterministic": false
+    }
+  ],
+  "request_evidence_version": 1,
+  "request_policy": "neutral-passage-and-criterion-context-v1",
+  "calibration": "known source-bound feedback controls, not held-out; no representative accuracy or threshold calibration",
+  "errors": [],
+  "complete": true,
+  "resume_prior_items": 0,
+  "prior_errors": [],
+  "summary": {
+    "by_criterion": {
+      "claim-strength": {
+        "matrix": {
+          "pass": {
+            "pass": 2,
+            "fail": 1,
+            "uncertain": 0
+          },
+          "fail": {
+            "pass": 0,
+            "fail": 3,
+            "uncertain": 0
+          },
+          "uncertain": {
+            "pass": 0,
+            "fail": 0,
+            "uncertain": 0
+          }
+        },
+        "total": 6,
+        "correct": 5,
+        "accuracy": 0.8333333333333334,
+        "prediction_counts": {
+          "pass": 2,
+          "fail": 4,
+          "uncertain": 0
+        },
+        "predictions": 6,
+        "abstentions": 0
+      }
+    },
+    "by_family": {
+      "made-up-bike": {
+        "items": 2,
+        "by_criterion": {
+          "claim-strength": {
+            "matrix": {
+              "pass": {
+                "pass": 0,
+                "fail": 1,
+                "uncertain": 0
+              },
+              "fail": {
+                "pass": 0,
+                "fail": 1,
+                "uncertain": 0
+              },
+              "uncertain": {
+                "pass": 0,
+                "fail": 0,
+                "uncertain": 0
+              }
+            },
+            "total": 2,
+            "correct": 1,
+            "accuracy": 0.5,
+            "prediction_counts": {
+              "pass": 0,
+              "fail": 2,
+              "uncertain": 0
+            },
+            "predictions": 2,
+            "abstentions": 0
+          }
+        }
+      },
+      "made-up-bread": {
+        "items": 2,
+        "by_criterion": {
+          "claim-strength": {
+            "matrix": {
+              "pass": {
+                "pass": 1,
+                "fail": 0,
+                "uncertain": 0
+              },
+              "fail": {
+                "pass": 0,
+                "fail": 1,
+                "uncertain": 0
+              },
+              "uncertain": {
+                "pass": 0,
+                "fail": 0,
+                "uncertain": 0
+              }
+            },
+            "total": 2,
+            "correct": 2,
+            "accuracy": 1,
+            "prediction_counts": {
+              "pass": 1,
+              "fail": 1,
+              "uncertain": 0
+            },
+            "predictions": 2,
+            "abstentions": 0
+          }
+        }
+      },
+      "made-up-kettle": {
+        "items": 2,
+        "by_criterion": {
+          "claim-strength": {
+            "matrix": {
+              "pass": {
+                "pass": 1,
+                "fail": 0,
+                "uncertain": 0
+              },
+              "fail": {
+                "pass": 0,
+                "fail": 1,
+                "uncertain": 0
+              },
+              "uncertain": {
+                "pass": 0,
+                "fail": 0,
+                "uncertain": 0
+              }
+            },
+            "total": 2,
+            "correct": 2,
+            "accuracy": 1,
+            "prediction_counts": {
+              "pass": 1,
+              "fail": 1,
+              "uncertain": 0
+            },
+            "predictions": 2,
+            "abstentions": 0
+          }
+        }
+      }
+    },
+    "by_source_kind": {
+      "made-up-fixture": {
+        "items": 6,
+        "by_criterion": {
+          "claim-strength": {
+            "matrix": {
+              "pass": {
+                "pass": 2,
+                "fail": 1,
+                "uncertain": 0
+              },
+              "fail": {
+                "pass": 0,
+                "fail": 3,
+                "uncertain": 0
+              },
+              "uncertain": {
+                "pass": 0,
+                "fail": 0,
+                "uncertain": 0
+              }
+            },
+            "total": 6,
+            "correct": 5,
+            "accuracy": 0.8333333333333334,
+            "prediction_counts": {
+              "pass": 2,
+              "fail": 4,
+              "uncertain": 0
+            },
+            "predictions": 6,
+            "abstentions": 0
+          }
+        }
+      }
+    }
+  },
+  "items": [
+    {
+      "id": "MADE-UP-01",
+      "family": "made-up-kettle",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "1-3"
+        }
+      },
+      "gold_checks": {
+        "claim-strength": "pass"
+      },
+      "checks": {
+        "claim-strength": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": true,
+          "decision": "pass",
+          "confidence": 0.6,
+          "primitive": "noul",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.8,
+            "fail": 0.19999999999999996
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 7
+        }
+      },
+      "request_evidence": {
+        "adapter_input": {
+          "content": "Passage: We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+          "asking": {
+            "claim-strength": {
+              "question": "Does the passage state the claim no more strongly than its source?",
+              "shape": {
+                "kind": "true-or-false"
+              }
+            }
+          }
+        },
+        "exchanges": [
+          {
+            "url": "http://127.0.0.1:8099/v1/systemone",
+            "status": 200,
+            "statusText": "",
+            "request": "{\"state\":\"Passage: We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+            "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.8}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+          }
+        ]
+      },
+      "serving_identity_policy": "observed-health-and-response-v1"
+    },
+    {
+      "id": "MADE-UP-02",
+      "family": "made-up-kettle",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "5-7"
+        }
+      },
+      "gold_checks": {
+        "claim-strength": "fail"
+      },
+      "checks": {
+        "claim-strength": {
+          "gold": "fail",
+          "predicted": "fail",
+          "raw_answer": false,
+          "decision": "fail",
+          "confidence": 0.4,
+          "primitive": "noul",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.3,
+            "fail": 0.7
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 7
+        }
+      },
+      "request_evidence": {
+        "adapter_input": {
+          "content": "Passage: Leverage synergies to maximize kettle outcomes across all stakeholders.",
+          "asking": {
+            "claim-strength": {
+              "question": "Does the passage state the claim no more strongly than its source?",
+              "shape": {
+                "kind": "true-or-false"
+              }
+            }
+          }
+        },
+        "exchanges": [
+          {
+            "url": "http://127.0.0.1:8099/v1/systemone",
+            "status": 200,
+            "statusText": "",
+            "request": "{\"state\":\"Passage: Leverage synergies to maximize kettle outcomes across all stakeholders.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+            "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.3}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+          }
+        ]
+      },
+      "serving_identity_policy": "observed-health-and-response-v1"
+    },
+    {
+      "id": "MADE-UP-03",
+      "family": "made-up-bread",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "9-11"
+        }
+      },
+      "gold_checks": {
+        "claim-strength": "pass"
+      },
+      "checks": {
+        "claim-strength": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": true,
+          "decision": "pass",
+          "confidence": 0.6,
+          "primitive": "noul",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.8,
+            "fail": 0.19999999999999996
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 7
+        }
+      },
+      "request_evidence": {
+        "adapter_input": {
+          "content": "Passage: Ask why the bread sank. The oven was cold, so the next loaf goes in after the light clicks off.",
+          "asking": {
+            "claim-strength": {
+              "question": "Does the passage state the claim no more strongly than its source?",
+              "shape": {
+                "kind": "true-or-false"
+              }
+            }
+          }
+        },
+        "exchanges": [
+          {
+            "url": "http://127.0.0.1:8099/v1/systemone",
+            "status": 200,
+            "statusText": "",
+            "request": "{\"state\":\"Passage: Ask why the bread sank. The oven was cold, so the next loaf goes in after the light clicks off.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+            "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.8}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+          }
+        ]
+      },
+      "serving_identity_policy": "observed-health-and-response-v1"
+    },
+    {
+      "id": "MADE-UP-04",
+      "family": "made-up-bread",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "13-15"
+        }
+      },
+      "gold_checks": {
+        "claim-strength": "fail"
+      },
+      "checks": {
+        "claim-strength": {
+          "gold": "fail",
+          "predicted": "fail",
+          "raw_answer": false,
+          "decision": "fail",
+          "confidence": 0.4,
+          "primitive": "noul",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.3,
+            "fail": 0.7
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 7
+        }
+      },
+      "request_evidence": {
+        "adapter_input": {
+          "content": "Passage: Step one: preheat. Step two: bake. Step three: evaluate.",
+          "asking": {
+            "claim-strength": {
+              "question": "Does the passage state the claim no more strongly than its source?",
+              "shape": {
+                "kind": "true-or-false"
+              }
+            }
+          }
+        },
+        "exchanges": [
+          {
+            "url": "http://127.0.0.1:8099/v1/systemone",
+            "status": 200,
+            "statusText": "",
+            "request": "{\"state\":\"Passage: Step one: preheat. Step two: bake. Step three: evaluate.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+            "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.3}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+          }
+        ]
+      },
+      "serving_identity_policy": "observed-health-and-response-v1"
+    },
+    {
+      "id": "MADE-UP-05",
+      "family": "made-up-bike",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "17-19"
+        }
+      },
+      "gold_checks": {
+        "claim-strength": "pass"
+      },
+      "checks": {
+        "claim-strength": {
+          "gold": "pass",
+          "predicted": "fail",
+          "raw_answer": false,
+          "decision": "fail",
+          "confidence": 0.4,
+          "primitive": "noul",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.3,
+            "fail": 0.7
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 7
+        }
+      },
+      "request_evidence": {
+        "adapter_input": {
+          "content": "Passage: The bike chain squeaked on every hill, which told me the oil had washed off in the rain.",
+          "asking": {
+            "claim-strength": {
+              "question": "Does the passage state the claim no more strongly than its source?",
+              "shape": {
+                "kind": "true-or-false"
+              }
+            }
+          }
+        },
+        "exchanges": [
+          {
+            "url": "http://127.0.0.1:8099/v1/systemone",
+            "status": 200,
+            "statusText": "",
+            "request": "{\"state\":\"Passage: The bike chain squeaked on every hill, which told me the oil had washed off in the rain.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+            "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.3}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+          }
+        ]
+      },
+      "serving_identity_policy": "observed-health-and-response-v1"
+    },
+    {
+      "id": "MADE-UP-06",
+      "family": "made-up-bike",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "21-23"
+        }
+      },
+      "gold_checks": {
+        "claim-strength": "fail"
+      },
+      "checks": {
+        "claim-strength": {
+          "gold": "fail",
+          "predicted": "fail",
+          "raw_answer": false,
+          "decision": "fail",
+          "confidence": 0.4,
+          "primitive": "noul",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.3,
+            "fail": 0.7
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 7
+        }
+      },
+      "request_evidence": {
+        "adapter_input": {
+          "content": "Passage: Optimize your cycling journey with these five actionable tips.",
+          "asking": {
+            "claim-strength": {
+              "question": "Does the passage state the claim no more strongly than its source?",
+              "shape": {
+                "kind": "true-or-false"
+              }
+            }
+          }
+        },
+        "exchanges": [
+          {
+            "url": "http://127.0.0.1:8099/v1/systemone",
+            "status": 200,
+            "statusText": "",
+            "request": "{\"state\":\"Passage: Optimize your cycling journey with these five actionable tips.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+            "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.3}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+          }
+        ]
+      },
+      "serving_identity_policy": "observed-health-and-response-v1"
+    }
+  ],
+  "serving_identity_assurance": "observed-health-and-response"
+}
