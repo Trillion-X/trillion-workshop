@@ -1,0 +1,299 @@
+{
+  "kind": "package-set-records",
+  "record_set": "find-a-spoken-passage-in-word-times-tool-rows",
+  "what_this_is": "The Workshop row for the find-a-spoken-passage-in-word-times folder: a program run on the person's own computer, over a folder they let it change, that finds a quoted passage's exact seconds in a recording's word times, reads them as timed sentences, or writes them in the one words-file shape.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-a-spoken-passage-in-word-times",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:find-a-spoken-passage-in-word-times",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Find where a spoken passage starts and ends in a recording's word times",
+        "job": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+        "description": "Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change. step span: given the passage's first words and last words (and after, a second to search from), answers the start of the first word, the end of the last word and the words between, so a cut lands on word edges; words match ignoring case and punctuation. step sentences: every sentence (ended by . ? or !) whose words start inside from and to, with its start and end. step words-file: writes {source, timing, words} to out, adding offset seconds to every time (a window heard alone). Instead of words, clip names <words_folder>/<clip>.words.json, where words_folder is the person's setting (their list:settings row, named by settings_record); timing and round_to are settings too. It reads only the word-time file and writes only out.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "step"
+          ],
+          "properties": {
+            "step": {
+              "enum": [
+                "span",
+                "sentences",
+                "words-file"
+              ]
+            },
+            "words": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The word-time file, in the granted folder."
+            },
+            "clip": {
+              "type": "string",
+              "minLength": 1,
+              "description": "A clip name read from the words_folder setting."
+            },
+            "first": {
+              "type": "string"
+            },
+            "last": {
+              "type": "string"
+            },
+            "after": {
+              "type": "number"
+            },
+            "from": {
+              "type": "number"
+            },
+            "to": {
+              "type": "number"
+            },
+            "source": {
+              "type": "string"
+            },
+            "out": {
+              "type": "string"
+            },
+            "offset": {
+              "type": "number"
+            },
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:find-a-spoken-passage-in-word-times~"
+            },
+            "settings": {
+              "type": "object",
+              "description": "words_folder, timing, round_to."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "step",
+            "words"
+          ],
+          "properties": {
+            "step": {
+              "type": "string"
+            },
+            "words": {
+              "type": "string"
+            },
+            "start": {
+              "type": "number"
+            },
+            "end": {
+              "type": "number"
+            },
+            "text": {
+              "type": "string"
+            },
+            "sentences": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "number"
+                  },
+                  "end": {
+                    "type": [
+                      "number",
+                      "null"
+                    ]
+                  },
+                  "text": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "out": {
+              "type": "string"
+            },
+            "count": {
+              "type": "integer"
+            },
+            "settings_from": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/find-a-spoken-passage-in-word-times",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/settings/do-work/run-with-settings.mjs",
+            "--folder",
+            "find-a-spoken-passage-in-word-times",
+            "--",
+            "python3",
+            "-I",
+            "/opt/find-a-spoken-passage-in-word-times/do-work/word_times.py",
+            "--base",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:find-a-spoken-passage-in-word-times~",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "find-a-spoken-passage-in-word-times",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/find-a-spoken-passage-in-word-times"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from a film folder's tools/span.py, sentences.py, words_home.py and the shape half of wordtime.py (film-making repository, commit 5a9ba39)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "step": "span",
+              "words": "take.words.json",
+              "first": "then",
+              "last": "wait"
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "take.words.json",
+                "text": "{\"words\": [{\"text\": \"Start\", \"start\": 0.0, \"end\": 0.4}, {\"text\": \"here.\", \"start\": 0.5, \"end\": 0.9}, {\"text\": \"Then\", \"start\": 1.0, \"end\": 1.4}, {\"text\": \"we\", \"start\": 1.5, \"end\": 1.9}, {\"text\": \"wait.\", \"start\": 2.0, \"end\": 2.4}]}"
+              }
+            ]
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "step": "sentences",
+              "clip": "take",
+              "settings_record": "record:setting:find-a-spoken-passage-in-word-times~film~sample-film"
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "words/take.words.json",
+                "text": "{\"words\": [{\"text\": \"Start\", \"start\": 0.0, \"end\": 0.4}, {\"text\": \"here.\", \"start\": 0.5, \"end\": 0.9}, {\"text\": \"Then\", \"start\": 1.0, \"end\": 1.4}, {\"text\": \"we\", \"start\": 1.5, \"end\": 1.9}, {\"text\": \"wait.\", \"start\": 2.0, \"end\": 2.4}]}"
+              }
+            ],
+            "records": [
+              {
+                "id": "record:setting:find-a-spoken-passage-in-word-times~film~sample-film",
+                "type": "record:setting",
+                "value": {
+                  "name": "Word times of a sample film",
+                  "tool": "tool:find-a-spoken-passage-in-word-times",
+                  "scope_kind": "film",
+                  "scope_id": "sample-film",
+                  "settings": {
+                    "words_folder": "{grant:change-a-folder}/words"
+                  },
+                  "from": "made up for this sample",
+                  "status": "active"
+                }
+              }
+            ]
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "step": "words-file",
+              "words": "raw.json",
+              "source": "card/take.mp4",
+              "out": "take.words.json",
+              "offset": 3
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "raw.json",
+                "text": "{\"segments\": [{\"words\": [{\"word\": \" Then\", \"start\": 0.0, \"end\": 0.4}, {\"word\": \" we.\", \"start\": 0.5, \"end\": 0.9}]}]}"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
