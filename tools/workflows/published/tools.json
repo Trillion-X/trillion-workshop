@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ee0977c6c645ba87a73f380148243226404f869d50c593706a224b40d8decd00"
+  "blake3": "1f:97e07ad82e08251350619e1415876e14a2e2f6a20276c2612b000541cb9b1844"
  },
  "fields": [
   {
@@ -7185,6 +7185,22 @@
    }
   },
   {
+   "id": "tool:plan-a-motion-films-soundtrack-premix",
+   "values": {
+    "title": "Work out the ffmpeg commands that premix a motion film's soundtrack",
+    "job": "Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered",
+    "description": "Reads a motion film's cue sheet (its length, voice line offsets, the stretches where a voice is heard, and every sound effect as [time, palette sound, gain in dB]) and the film's settings, and answers the ffmpeg commands that premix its soundtrack: the music bed trimmed from its start and shaped over time (ducked while a voice is heard, set or lifted in named windows, faded out), each voice line delayed to its offset, each effect delayed to its time at its gain, all summed, then the film's loudness pass (in the graph, a measured gain and a limiter, or a linear two-pass loudnorm). Nothing is read or written: it is the plan tool:premix-a-motion-films-soundtrack runs where the recordings are. The film's choices are its settings row; the tool holds only the format's file layout.",
+    "status": "active",
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container",
+     "placement:your-computer"
+    ],
+    "folder": "motion-film-template"
+   }
+  },
+  {
    "id": "tool:plan-a-side-by-side-movement-comparison",
    "values": {
     "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer)",
@@ -7428,6 +7444,21 @@
      "placement:your-computer"
     ],
     "folder": "predict-viewer-response-to-a-video"
+   }
+  },
+  {
+   "id": "tool:premix-a-motion-films-soundtrack",
+   "values": {
+    "title": "Premix a motion film's soundtrack from its cue sheet (runs on your computer)",
+    "job": "Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose",
+    "description": "The same premix as tool:plan-a-motion-films-soundtrack-premix, run with ffmpeg where the film's recordings are: writes the film's soundtrack wav (by default <film>/assets/soundtrack.wav), measuring the premix first when the film's loudness method is two-pass, and removes its work file. Answers where it wrote, the counts and the loudness it measured and reached. The film's choices (music, start, gain windows, fades, filter chains, loudness) are its settings row in list:settings.",
+    "status": "active",
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "motion-film-template"
    }
   },
   {
@@ -9601,6 +9632,21 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:render-a-motion-graphics-overlay",
+   "values": {
+    "title": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks",
+    "job": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
+    "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec, or a piece's settings row named by spec_record. Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
+    "status": "active",
+    "maker": "maker:render-a-motion-graphics-overlay",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "render-a-motion-graphics-overlay"
    }
   },
   {
@@ -12791,6 +12837,21 @@
      "placement:your-computer"
     ],
     "folder": "write-public-share-files"
+   }
+  },
+  {
+   "id": "tool:write-the-icon-shapes-a-motion-film-uses",
+   "values": {
+    "title": "Write the icon shapes my motion film uses, from the real lucide icons (runs on your computer)",
+    "job": "Put the real icons my film shows into the film, as shapes its page can draw",
+    "description": "Reads each named icon from the lucide-react package on the person's computer (its dist/esm/icons folder) and writes the film's icons file: window.ICONS[name] = [[tag, attrs], ...] for a 24x24 viewBox, the React key dropped, with a first line naming where the shapes came from. Without out it answers the file's text instead of writing it. The icon names a film uses are its settings row.",
+    "status": "active",
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "motion-film-template"
    }
   }
  ]
