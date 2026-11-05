@@ -9,6 +9,7 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { makeRecord } from '../../settings/read-data/settings.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'cite_principles.py');
@@ -199,6 +200,48 @@ test('registry without a lanes or merge file keeps each row on its own with no s
   const out = tool('registry', '--corpus', corpus, '--rows', join(work, 'rows', 'a.jsonl'), '--out', join(work, 'plain.jsonl'));
   assert.equal(lastLine(out.stdout).principles, 4);
   assert.ok(lines(join(work, 'plain.jsonl')).every(p => p.stages.length === 0 && !p.merged_from));
+});
+
+test('one list:settings row gives candidates, registry and index the same terms, caps, lanes, merge and template as the files', () => {
+  const read = name => readFileSync(join(work, name), 'utf8');
+  const template = '# Garden principles\n\n{count:principles} principles.\n\n<!-- cite-principles:lanes 2 -->\n<!-- /cite-principles:lanes -->\n';
+  const settings = { terms: JSON.parse(read('terms.json')), caps: { 'Channel Beta': 0 }, lanes: JSON.parse(read('lanes.json')),
+    merge: JSON.parse(read('merge.json')), 'index-template': template };
+  const made = makeRecord('cite-principles-from-captions', 'account', 'main', settings,
+    { name: 'Garden principles', tool: 'tool:cite-principles-from-captions', source: 'made-up/settings.json@0000000' });
+  const film = makeRecord('cite-principles-from-captions', 'film', 'made-up-film', { ...settings, caps: {} },
+    { name: 'One film', tool: 'tool:cite-principles-from-captions', source: 'made-up/film.json@0000000' });
+  const recordFile = join(work, 'settings-record.json');
+  writeFileSync(recordFile, JSON.stringify({ records: [made, film] }));
+  assert.equal(made.id, 'record:setting:cite-principles-from-captions~account~main');
+
+  const capped = tool('candidates', '--corpus', corpus, '--settings-record', recordFile, '--out', join(work, 'from-row-cands'));
+  assert.equal(capped.status, 0, capped.stderr);
+  assert.deepEqual(lastLine(capped.stdout).channels.map(c => c.passages), [1, 0], 'the account row\'s caps');
+  assert.equal(read('from-row-cands/Channel-Alpha.jsonl'), read('cands/Channel-Alpha.jsonl'), 'the row\'s terms score as the file did');
+  const filmScope = tool('candidates', '--corpus', corpus, '--settings-record', recordFile, '--scope', 'film:made-up-film', 'account:main', '--out', join(work, 'film-cands'));
+  assert.deepEqual(lastLine(filmScope.stdout).channels.map(c => c.passages), [1, 1], 'the most specific scope wins');
+  const flagWins = tool('candidates', '--corpus', corpus, '--settings-record', JSON.stringify(made), '--caps', join(work, 'caps.json'), '--out', join(work, 'flag-cands'));
+  assert.deepEqual(lastLine(flagWins.stdout).channels.map(c => c.passages), [1, 0], 'inline JSON is read, and a file flag beside it wins');
+
+  const registryOut = tool('registry', '--corpus', corpus, '--rows', join(work, 'rows', 'a.jsonl'), '--settings-record', recordFile,
+    '--out', join(work, 'from-row.jsonl'), '--id-map', join(work, 'from-row-map.json'));
+  assert.equal(registryOut.status, 0, registryOut.stderr);
+  assert.equal(read('from-row.jsonl'), read('principles.jsonl'), 'the row\'s lanes and merge give the same registry bytes as the files');
+  const index = join(work, 'INDEX-from-row.md');
+  const indexOut = tool('index', '--registry', join(work, 'from-row.jsonl'), '--corpus', corpus, '--settings-record', recordFile, '--out', index);
+  assert.equal(indexOut.status, 0, indexOut.stderr);
+  assert.equal(readFileSync(index, 'utf8'), '# Garden principles\n\n3 principles.\n\n<!-- cite-principles:lanes 2 -->\nsoil 1, feeding 1.\n<!-- /cite-principles:lanes -->\n');
+
+  const retired = makeRecord('cite-principles-from-captions', 'account', 'main', settings,
+    { name: 'Old', tool: 'tool:cite-principles-from-captions', source: 'made-up@0', status: 'retired' });
+  const refused = tool('candidates', '--corpus', corpus, '--settings-record', JSON.stringify(retired), '--out', join(work, 'x'));
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /retired/);
+  const none = tool('candidates', '--corpus', corpus, '--settings-record', recordFile, '--scope', 'piece:other', '--out', join(work, 'x'));
+  assert.match(none.stderr, /no cite-principles-from-captions row for the scopes piece:other/);
+  const neither = tool('candidates', '--corpus', corpus, '--out', join(work, 'x'));
+  assert.match(neither.stderr, /give --terms FILE or a --settings-record/);
 });
 
 test('corpus also reads word-timed transcripts from another site, with their info files kept elsewhere', () => {
