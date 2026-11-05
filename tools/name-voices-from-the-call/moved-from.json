@@ -10,6 +10,21 @@
       "to": "tools/name-voices-from-the-call/from-old-trillion/src/voice-guesses.mjs",
       "source_identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
       "identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f"
+    },
+    {
+      "from": "src/voice-guesses.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/name-voices-from-the-call/from-old-trillion/src/voice-guesses.mjs",
+      "source_identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
+      "identity": "1f:c6360134bec437cb571c5cfbb2bde4352568e1e63e1ce68613e60b116008495f",
+      "reused": true
+    },
+    {
+      "from": "test/voice-guesses.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/name-voices-from-the-call/test/voice-guesses.test.mjs",
+      "source_identity": "1f:e0a2d0a5902f22a7c403df00e51556b2f235d03b40b4c9703e11f6370dc65941",
+      "identity": "1f:a39ef5fd6d16881fcc2a65b56b0b6e82d208b5cce98fdeb66fbaa923c9bb2cc9"
     }
   ]
 }

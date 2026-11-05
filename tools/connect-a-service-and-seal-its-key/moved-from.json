@@ -13,13 +13,6 @@
   ],
   "files": [
     {
-      "from": "src/held-sends.json",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/connect-a-service-and-seal-its-key/held-sends.json",
-      "source_identity": "1f:d44be7de2969c27fc64f3906b4762818d1efca03594fb84b75e03fcb05213acb",
-      "identity": "1f:d44be7de2969c27fc64f3906b4762818d1efca03594fb84b75e03fcb05213acb"
-    },
-    {
       "from": "parts/service-connections/do-work/connect-service.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/do-work/connect-service.ts",
@@ -60,6 +53,28 @@
       "to": "tools/connect-a-service-and-seal-its-key/do-work/workflow-actions.ts",
       "source_identity": "1f:ab32cbafe93cdc3b843e06adea9282446195bff1406e638c554b6d17d8f14777",
       "identity": "1f:ab32cbafe93cdc3b843e06adea9282446195bff1406e638c554b6d17d8f14777"
+    },
+    {
+      "from": "records/workshop-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json",
+      "source_identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
+      "identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9"
+    },
+    {
+      "from": "records/workshop-tool-records.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json",
+      "source_identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
+      "identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
+      "reused": true
+    },
+    {
+      "from": "src/held-sends.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/held-sends.json",
+      "source_identity": "1f:d44be7de2969c27fc64f3906b4762818d1efca03594fb84b75e03fcb05213acb",
+      "identity": "1f:d44be7de2969c27fc64f3906b4762818d1efca03594fb84b75e03fcb05213acb"
     },
     {
       "from": "src/held-sends.mjs",
@@ -141,18 +156,18 @@
       "identity": "1f:306ff999a38d3e488978067b48c9d172d6a1519fcdcd23c963f037e3153e2f64"
     },
     {
+      "from": "test/app-job-completion.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/connect-a-service-and-seal-its-key/test/app-job-completion.test.mjs",
+      "source_identity": "1f:24c18a1d2fc1ea0ad10d51e95466b380e808a3ca43498ee0155c2a7d62ffecfb",
+      "identity": "1f:b6b21d33fa92c54b36452984731da20dcb3455d7eaee3f992b1cfe662c685b94"
+    },
+    {
       "from": "parts/service-connections/work-contract.json",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/connect-a-service-and-seal-its-key/work-contract.json",
       "source_identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb",
       "identity": "1f:98c6e8f33dd3009f0695bb6cdc0a0abb664953a608202e13b9b3ed6d719f61fb"
-    },
-    {
-      "from": "records/workshop-tool-records.json",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json",
-      "source_identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9",
-      "identity": "1f:1f45e43947224472de641da070edf1458b127dde3af46151bd7445a9adda9bb9"
     }
   ],
   "not_matched": []
