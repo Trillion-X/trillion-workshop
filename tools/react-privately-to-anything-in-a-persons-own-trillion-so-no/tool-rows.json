@@ -1,0 +1,169 @@
+{
+ "kind": "tool-rows",
+ "record_set": "react-privately-to-anything-in-a-persons-own-trillion-so-no-tool-rows",
+ "what_this_is": "The Workshop row for tools/react-privately-to-anything-in-a-persons-own-trillion-so-no: the page route that reacts privately to anything in a person's own Trillion.",
+ "records": [
+  {
+   "id": "package::react-privately-to-anything-in-a-persons-own-trillion-so-no::tool::answer-the-react-privately-route",
+   "address": "package::react-privately-to-anything-in-a-persons-own-trillion-so-no::tool::answer-the-react-privately-route",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:answer-the-react-privately-route",
+    "label": "Answer the page that reacts privately to something",
+    "status": "active",
+    "job": "Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. POST /responses/react with { record, part?, symbol, glyph?, on? } adds the reaction (or takes it away; on says which, else it toggles) in the person's own private-response record for that anchor, which no space or other account reads, and answers 200 with the anchor's reactions as the person sees them. A vote, an unknown reaction or a bad anchor answers 400 { error }. Any other path or method answers 404 { error: \"Not found.\" }. The write stands on the record it read; a reaction changed meanwhile is decided again.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The route after /work/api"
+      },
+      "method": {
+       "type": "string"
+      },
+      "query": {
+       "type": "object"
+      },
+      "body": {},
+      "browser": {
+       "type": "object"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "react-privately-to-anything-in-a-persons-own-trillion-so-no",
+        "paths": [
+         "src",
+         "do-work"
+        ],
+        "at": "/opt/react-privately-to-anything-in-a-persons-own-trillion-so-no"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/responses.mjs",
+         "src/reactions.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/react-privately-to-anything-in-a-persons-own-trillion-so-no",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/react-privately-to-anything-in-a-persons-own-trillion-so-no/do-work/react-route.mjs",
+      "answerReactRoute"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "private-response",
+        "prefix": "private-response:",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       }
+      ],
+      "most_writes": 1
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:react-privately-to-anything-in-a-persons-own-trillion-so-no",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion src/person-store.mjs:8446 POST /responses/react, privateResponses(records).react (tag old-trillion-before-worker-retire), reached from src/worker.mjs:288 through src/work-responses.mjs; the decision is src/private-responses.mjs, moved here"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/responses/react",
+       "method": "POST",
+       "query": {},
+       "body": {
+        "record": "note:sample-1",
+        "symbol": "❤️"
+       },
+       "browser": {}
+      },
+      "output_selector": "$.status",
+      "contains": "200"
+     }
+    ]
+   }
+  }
+ ]
+}
