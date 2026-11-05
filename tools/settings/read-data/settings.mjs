@@ -89,3 +89,53 @@ export function setting(given, { folder, scopes, fallback = null, tool } = {}) {
   const found = chosen(given, folder, scopes);
   return found === null ? fallback : settingsOf(found, tool);
 }
+
+// --- Reading a named row through the run's records door (added for tools that take settings_record as an id) ---
+
+const isPlain = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+
+/** Lay `over` on `under`: plain objects merge key by key; anything else is replaced whole. */
+export function layOver(under, over) {
+  if (!isPlain(under) || !isPlain(over)) return over === undefined ? under : over;
+  const out = { ...under };
+  for (const [key, value] of Object.entries(over)) out[key] = key in under ? layOver(under[key], value) : value;
+  return out;
+}
+
+/** True when `given` is a setting row's id (a string starting record:setting:), not a file path or a record. */
+export const isSettingId = given => typeof given === 'string' && given.startsWith(ID_PREFIX);
+
+/**
+ * Read one row through the run's records door, like old Trillion's setting(name): the record { id, type, value }, or
+ * null when the person keeps none. With `folder`, a row of another tool's folder is refused.
+ */
+export async function readSettingRecord(door, id, { folder } = {}) {
+  const [rowFolder] = parseId(id);
+  if (folder && rowFolder !== folder) throw new SettingError(`${JSON.stringify(id)} belongs to tools/${rowFolder}, not tools/${folder}: give a ${ID_PREFIX}${folder}~... id.`);
+  const value = await door.read(RECORD_TYPE, id);
+  return value === null || value === undefined ? null : { id, type: RECORD_TYPE, value };
+}
+
+/**
+ * The settings a tool runs with: its `defaults`, then the row `input.settings_record` names (an id read through
+ * `door`, or a record, its value, a list or a file as setting() takes), then `input.settings`. Answers
+ * { settings, from }. A named id the person does not keep is refused: running on defaults would silently change
+ * the answer.
+ */
+export async function settingsFor(input = {}, { door, folder, scopes, defaults = {}, tool } = {}) {
+  let given = input.settings_record;
+  if (isSettingId(given)) {
+    if (!door) throw new SettingError(`settings_record names ${given}, but this run was handed no records door: grant records:read on ${ID_PREFIX}${folder ?? '<folder>'}~, or hand the record itself.`);
+    const record = await readSettingRecord(door, given, { folder });
+    if (!record) throw new SettingError(`No ${given} in ${LIST_ID}: write the row first, or leave settings_record out to run on the defaults.`);
+    given = record;
+  }
+  const found = given === undefined ? null : chosen(given, folder, scopes);
+  let settings = defaults;
+  if (found) settings = layOver(settings, settingsOf(found, tool));
+  if (input.settings !== undefined) {
+    if (!isPlain(input.settings)) throw new SettingError('settings, when given, must be a JSON object.');
+    settings = layOver(settings, input.settings);
+  }
+  return { settings, from: found ? { id: found.id ?? null, from: (found.value ?? found).from ?? null } : null };
+}
