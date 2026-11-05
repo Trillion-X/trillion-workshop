@@ -1,0 +1,86 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SEARCH-PAGE-ROUTE-FROM-TRILLION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "route owner port 2026-11-05, namespace + records lane (the shared brief for every family agent)",
+  "message_multihash": "1f:9ed5c330511f3ab73bc1783f1ddc912e3471464769a65002c0195ebaecd6d332",
+  "quote": "A route with no owner is a page or button that shows \"not found\". Each route gets a real owner."
+ },
+ "mode": "BEHAVIORAL_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/worker.mjs",
+   "lines": [
+    865,
+    866
+   ],
+   "multihash": "1f:10e900230eeb4ad458a0e11f92237bc82c6afda650157a5c734e58f9a201843b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "Trillion-X/trillion 4ffa1dc4a, which retired old trillion's Worker (the tag old-trillion-before-worker-retire is this commit)"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/namespace.mjs",
+   "lines": [
+    2117,
+    2117
+   ],
+   "multihash": "1f:2803b17d434d275eac9904e5d4435fde270bc62cbda10ef12c33f9e5d94149c5",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "Trillion-X/trillion 4ffa1dc4a, which retired old trillion's Worker (the tag old-trillion-before-worker-retire is this commit)"
+   }
+  },
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/search.mjs",
+   "lines": [
+    2221,
+    2225
+   ],
+   "multihash": "1f:fc977a44cfe62ff402bad709382c8765a452c49355b2a196b0593dcfd097eb20",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "Trillion-X/trillion 4ffa1dc4a, which retired old trillion's Worker (the tag old-trillion-before-worker-retire is this commit)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/search-everything-with-one-question/do-work/search-page-route.mjs"
+  }
+ ],
+ "preserve": [
+  "only a GET of /work/api/search is the search",
+  "q is the question, the empty question when absent",
+  "limit counts only as a whole number above 0, and at most 200",
+  "the answer is 200 with the one search's answer for that question (searchEverything, the port of the search the old route reached)"
+ ],
+ "allowed_deltas": [
+  "places, sources and matches are read and left out: searchEverything's own port has no owner of those lanes",
+  "another path or method answers 404 {error: 'Not found'} as the route tool's own answer, where the old Worker went on to its next route"
+ ],
+ "banned_substitutions": [
+  "a /namespace/search or /search route in the engine",
+  "a second merge beside searchEverything"
+ ],
+ "proof": {
+  "test_refs": [
+   "tools/search-everything-with-one-question/test/search-page-route.test.mjs"
+  ]
+ },
+ "baseline": {
+  "recorded_at": "2026-11-05T00:00:00Z",
+  "commit": "4cd7f5e7"
+ }
+}
