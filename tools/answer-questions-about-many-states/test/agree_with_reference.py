@@ -38,13 +38,27 @@ def reference(args):
         cfg = AutoConfig.from_pretrained(os.path.dirname(os.path.abspath(args.random_config)))
         # initialise and save in bfloat16 (the model's own dtype), then read the saved weights back in --dtype:
         # both frameworks read the same bfloat16 weights, and no step holds two full copies (a 15 GB machine runs it).
+        # Initialise, round every weight to a bfloat16 value in place (the model's own dtype), and write the weights one
+        # layer per safetensors file in bfloat16. Both frameworks then read the same values, and no step holds a second
+        # full copy (the 2B config runs on a 15 GB machine).
+        from safetensors.torch import save_file
         with torch.device("cpu"):
-            lm = AutoModelForCausalLM.from_config(cfg, dtype=torch.bfloat16)
+            lm = AutoModelForCausalLM.from_config(cfg, dtype=torch.float32)
+        lm = lm.eval()
         model_dir = os.path.join(args.out, "model")
-        lm.save_pretrained(model_dir, safe_serialization=True)
-        del lm
-        import gc; gc.collect()
-        lm = AutoModelForCausalLM.from_pretrained(model_dir, dtype=dtype).eval()
+        os.makedirs(model_dir, exist_ok=True)
+        cfg.save_pretrained(model_dir)
+        groups = {}
+        with torch.no_grad():
+            for name, p in lm.named_parameters():
+                p.copy_(p.to(torch.bfloat16).to(p.dtype))
+                if name == "lm_head.weight" and cfg.tie_word_embeddings:
+                    continue
+                key = ".".join(name.split(".")[:3]) if name.startswith("model.layers.") else "rest"
+                groups.setdefault(key, []).append((name, p))
+            for k, (key, items) in enumerate(groups.items()):
+                save_file({n: t.detach().to(torch.bfloat16).contiguous() for n, t in items}, os.path.join(model_dir, f"model-{k:05d}.safetensors"))
+        lm = lm.to(dtype)
         tok = S.SyntheticTokenizer()
         tokenizer = "synthetic"
         temperature = 1.18 if args.temperature is None else args.temperature
