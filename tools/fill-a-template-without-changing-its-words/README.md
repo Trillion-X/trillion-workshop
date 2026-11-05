@@ -8,19 +8,23 @@ Four commands, run by the person's AI on the person's own computer, and `build.p
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The four Workshop rows: `tool:make-a-word-template`, `tool:fill-a-word-template`, `tool:check-words-against-a-word-template`, `tool:re-time-events-tied-to-words`. All `on-your-computer`. |
+| `tool-rows.json` | The six Workshop rows: `tool:make-a-word-template`, `tool:fill-a-word-template`, `tool:check-words-against-a-word-template`, `tool:re-time-events-tied-to-words`, `tool:write-a-word-template-from-the-words-i-keep-and-the-slots`, `tool:make-spoken-line-candidates-one-slot-at-a-time`. All `on-your-computer`. |
 | `part.json` | The modules other code may import: the core, the operations, the renderer and the registry. |
 | `do-work/make_template.py` | `make_template.py <spec.json or one measurement> <out.template.json>`: measures a piece into a template and writes `<out>.md` beside it. |
 | `do-work/fill.py` | `fill.py <template.json> <fills.json> <out.md> [--piece out.piece.json]`: fills the slots from sourced values. |
 | `do-work/drift.py` | `drift.py <template.json> <script.md or piece.json> [--check] [--exceptions exc.json] [--json report.json]`: judges a piece against the template, dimension by dimension. |
 | `do-work/build.py` | `build.py <discovery.json> [--registry R] [--only TEXT] [--force]`: rebuilds every template, fill and drift a discovery file describes, only where an input changed, and writes an INDEX. |
 | `do-work/retime.py` | `retime.py <piece.json> <new-transcript.json> <out.piece.json> [--report]`: moves every token bound to words to where those words now play. |
+| `do-work/token_table_from_parts.py` | `token_table_from_parts.py --request FILE [--request FILE ...]`: writes word-template tables by hand from kept words and slot words (README: Hand-written token tables). |
+| `do-work/vary_slots_one_at_a_time.py` | `vary_slots_one_at_a_time.py --request FILE [--request FILE ...]`: the candidates of a spoken line, one slot varying at a time, each with its script, shot file and claims file (README: Slot candidates). |
+| `read-data/request_files.py` | `load_request`: one or more request files laid over each other key by key, or standard input, with the person's settings row (`settings_record`, through tools/settings `request_settings`) and `settings` laid under it. |
 | `read-data/wt_core.py` | Errors, words, source checks and the readers (the only per-format code). |
 | `read-data/wt_ops.py` | The operations, drift and metrics. |
 | `read-data/wt_render.py` | The template markdown, the fill markdown and the drift text. |
 | `read-data/dimensions.json` | The generic registry (data): value kinds, media, readers, slot rules, tokenizer and 25 dimensions for words, layout and colour. A craft's own dimensions are the person's: a row of their `list:settings` (`--settings-record`) or a registry file (`--registry`). |
 | `test/test_settings_record.py` | The registry, discovery and films read from a made-up `list:settings` row (`--settings-record`, `--scope`): the template remembers the row, fill and drift ask for it again, a registry file beats the row, the most specific scope wins, a changed row rebuilds, and every refusal says how to fix it. |
 | `test/test_word_template.py`, `test/test_bound_to.py` | Unit tests: operation matrix, a data-only dimension, a data-only medium and value kind, flipped assumptions, every reader, incremental library builds, binding and re-timing. |
+| `test/test_token_table_from_parts.py`, `test/test_vary_slots.py` | The two hand-written-table commands on made-up words: ids, slot bookkeeping, the files written, a dropped sentence, layered request files, the settings row and `settings` laid under the request (also through the settings wrapper), a row for another tool or retired refused, every refusal. |
 | `test/sample_registry.py` | The registry the tests use: the shipped one plus invented tasting-sample dimensions and a few sound and rhythm dimensions, so no one person's vocabulary is in the repository. |
 | `test/fill-a-template.test.mjs` | Runs the Python tests under `npm test`, then the four commands end to end on a written example. |
 
@@ -53,6 +57,18 @@ Each command prints one summary line and exits 0, or prints `name: what is wrong
 | `registry` | the person's registry (or `--registry`). |
 
 The last line printed is the run's counts: `{templates_built, templates_unchanged, templates_failed, drifts_built, drifts_unchanged, drifts_failed, seconds}`.
+
+## Hand-written token tables
+
+When no registry reader detects a piece's file, `token_table_from_parts.py` writes its token table from the person's words: for each template a `name`, `t0` and `t1`, a `source` (where the words came from), `parts` (`["K", "kept words"]` or `["S", SLOT, "words in the slot"]`) and `slots` (`{SLOT: [type, note]}`), with `out`, `registry` and `dim` (the dimension every word is written in) for the run. `registry` defaults to the shipped `read-data/dimensions.json`; when it is the person's own registry object, kept in their settings row as `make_template.py` reads it, the template names that row (`"registry": "setting:<row id>"`), exactly as `make_template.py --settings-record` does, so `fill.py` and `drift.py` ask for the same row. Every word becomes a token marked `KEEP` or `SLOT`, in order; a slot token carries its slot, type and note; only slots a word uses are listed; every other dimension is left pending with the reason. The output has the shape `make_template.py` writes, so `fill.py` and `drift.py` take it. The words, times and sources are the person's own and come in the request (a row of their records, written to a file), never from this folder.
+
+## Slot candidates
+
+`vary_slots_one_at_a_time.py` makes the candidates of a spoken line one slot at a time: `slots` (each `name`, a `base` pick, and `candidates` `{id: {text, claim}}`), `sentences` (a `template` with `{SLOT}` where a slot's words go, and `claim_from: SLOT` or a fixed `claim`), `id_prefix`, `script_path`, `shot_about`, `claims_about` and `out` (`here`: the folder of `lines/<id>.txt`, `lines.txt` and `manifest.json`; `narrator`: the folder of `shots/` and `claims/`, the layout of a film's narrator folder). It writes the base variant, then every other candidate with all other slots at their base pick. Each variant gets `<here>/lines/<id>.txt`, a shot file and a claims file with one `{"words", "kind": "claim", ...}` entry per sentence, taken from the candidate that formed it; a sentence whose filled words are empty is left out, and a picked candidate with words but no claim is refused. The last line is `{"result": {"variants", "ids"}}` or `{"error"}`.
+
+Both commands take `--request FILE` more than once, laid over each other key by key (an object key is merged one level down), so the person's settings stay a row of their records and the paths stay with the run.
+
+The person's settings are a row of their `list:settings`, `record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>` (`piece` and the line's id, for example), read with the one shared reader, `tools/settings/read-data/settings.py` `request_settings`. The request's `settings_record` is that row (as `records:read` gives it, its value, or a file of it; a row whose `tool` is another command's, or that is `retired`, is refused), and the request's own `settings` object lays over it. The result is laid under the request's other keys the same way, so the run's `out` paths win. These rows sit in the same folder as the registry row (`account~main`, read by `--settings-record`): when `settings_record` holds several rows, the request's `scope` (`"piece:<id>"` or a list, most specific first, the same as `--scope`) picks one. A request that names the row's id is run under `tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words -- python3 -I <command>`, which reads it through the records door; without the wrapper an id is refused, so a named row is never silently ignored.
 
 ## Model
 
@@ -180,9 +196,9 @@ A reader that measures something with automatic labels can set `ctx["<name>_prov
 
 ## Dependencies
 
-**Depends on:** Python 3 standard library; `tesseract` for the `ocr_images` reader only; `tools/settings/read-data/settings.py` (the shared settings reader) when `--settings-record` is given.
+**Depends on:** Python 3 standard library; `tesseract` for the `ocr_images` reader only; `tools/settings/read-data/settings.py` (the shared settings reader) when `--settings-record` is given, or when a request of `token_table_from_parts.py` or `vary_slots_one_at_a_time.py` carries `settings_record`; `tools/settings/do-work/run-with-settings.mjs` (Node) only when that request names the row's id.
 
-**Depended on by:** nothing in this repository; the Workshop rows run the four commands.
+**Depended on by:** nothing in this repository; the Workshop rows run the six commands.
 
 ## Known limits
 
