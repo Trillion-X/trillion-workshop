@@ -68,6 +68,22 @@
       "to": "tools/hand-work-to-ais/from-old-trillion/test/activation.test.mjs",
       "source_identity": "1f:3850b4219069ce75f551fe70b6eb2c4a74edf7054b794bba8b8651448f4a927a",
       "identity": "1f:3850b4219069ce75f551fe70b6eb2c4a74edf7054b794bba8b8651448f4a927a"
+    },
+    {
+      "from": "test/agent-cards-read-by-column.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/agent-cards-read-by-column.test.mjs",
+      "source_identity": "1f:05f86d2eba428f7344adc2b804cc128b06175a0159e05f4b4868a2cbc40cb75d",
+      "identity": "1f:a309a8b23d78b601dff5bb781161a2d9d32c2cdfe4d3669358f9da96483f99e1",
+      "adapted": "makeAgents over this tool's agentRecordStore on a counting host, the old card table moved in by tablesIntoRecords, in place of the retired PersonStore; the activity screen's run is left out, as no running code serves it"
+    },
+    {
+      "from": "test/agent-work-reviews-flat.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/agent-work-reviews-flat.test.mjs",
+      "source_identity": "1f:d961c090c262349e10b10742c055088fd6f059e81d687e1c2398bd8419a15b83",
+      "identity": "1f:1244571dd975b84d8a736bd37d15daf201257773e946bc34495b56fada5b9492",
+      "adapted": "imports this tool's agent-records.mjs and keep-and-wake's record-log store, rebuilds countingHost, and names a made-up owner in a note; every assertion is the old one"
     }
   ]
 }
