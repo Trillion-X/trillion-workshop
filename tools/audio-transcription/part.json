@@ -1,6 +1,7 @@
 {
   "public": [
     "src/account-transcription.mjs",
-    "src/transcript-words.mjs"
+    "src/transcript-words.mjs",
+    "do-work/whisper_here.py"
   ]
 }
