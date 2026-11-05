@@ -1,9 +1,12 @@
-"""LoRA-fine-tune decider-2b on data/train.jsonl with cross-entropy on the option letter (the decider recipe).
+"""LoRA-fine-tune a decider model on train.jsonl with cross-entropy on the option letter (the decider recipe).
 
-usage: train.py --out <adapter dir> [--rank 8] [--epochs 2] [--lr 2e-4] [--batch 8] [--budget-min 90]
+usage: python3 -I train_an_adapter.py <request.json | ->
 
-Runs on MPS at nice 15 with two CPU threads. After 20 steps it projects the whole run; when the projection passes
---budget-min it stops and writes nothing but the log."""
+Request: {base_model, frame, train_file, out, rank, epochs, lr, batch, budget_minutes, seed, lora_targets, device?,
+nice?, threads?}, or settings_record with the person's `train` settings under it. Runs at the nice and thread count
+asked (default nice 15 with two CPU threads) on the device asked, else DECIDER_DEVICE, else cuda, mps or cpu. After 20
+steps it projects the whole run; when the projection passes budget_minutes it stops, writes nothing but the log and
+answers an error."""
 import json
 import math
 import random
@@ -11,37 +14,42 @@ import sys
 import time
 from pathlib import Path
 
-import torch
-import torch.nn.functional as F
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "read-data"))
 import common  # noqa: E402
+from common import Refused, need, run, with_settings  # noqa: E402
 
-HERE = Path(__file__).resolve().parent
-
-
-def arg(argv, name, default, cast=str):
-    return cast(argv[argv.index(name) + 1]) if name in argv else default
+FOLDER = "fine-tune-a-small-model-on-a-persons-rules"
 
 
-def main(argv):
-    out = Path(arg(argv, "--out", None))
-    rank, epochs, lr, bs = arg(argv, "--rank", 8, int), arg(argv, "--epochs", 2, int), arg(argv, "--lr", 2e-4, float), arg(argv, "--batch", 8, int)
-    budget = arg(argv, "--budget-min", 90.0, float) * 60
-    common.quiet()
-    torch.manual_seed(20261017)
+def main(req):
+    req = with_settings(req, "train", FOLDER)
+    out = Path(need(req, "out", str, "the folder the adapter is saved to")).expanduser()
+    rank, epochs, lr, bs = need(req, "rank", int, "the LoRA rank"), need(req, "epochs", int, "how many passes over the rows"), need(req, "lr", (int, float), "the learning rate"), need(req, "batch", int, "rows per step")
+    budget = need(req, "budget_minutes", (int, float), "the longest the run may take; it stops early when its projection passes this") * 60
+    seed = need(req, "seed", int, "the integer seed, so a run can be made again")
+    lora_targets = need(req, "lora_targets", list, "the model's module names LoRA goes into")
+    train_file = Path(need(req, "train_file", str, "train.jsonl from build_training_rows.py")).expanduser()
+    if not train_file.is_file():
+        raise Refused(f"train_file {train_file} is not a file: make it with build_training_rows.py")
+    common.configure(need(req, "base_model", str, "the decider model folder to train an adapter for"),
+                     need(req, "frame", str, "the context the line is put in, holding {text}"), req.get("device"))
+    common.LORA_TARGETS = lora_targets
+    common.quiet(req.get("nice", 15), req.get("threads", 2))
+    torch = common.torch
+    import torch.nn.functional as F
+    torch.manual_seed(seed)
     from peft import LoraConfig, get_peft_model
     m = common.load()
     peft = get_peft_model(m.lm, LoraConfig(r=rank, lora_alpha=2 * rank, lora_dropout=0.05, target_modules=common.LORA_TARGETS))   # LoRA goes into m.lm in place
     peft.print_trainable_parameters()
     m.train()
-    rows = [json.loads(ln) for ln in open(HERE / "data/train.jsonl")]
+    rows = [json.loads(ln) for ln in open(train_file)]
     items = [common.item(m.tok, r["text"], r["question"], r["options"], r["gold"]) for r in rows]
     params = [p for p in m.parameters() if p.requires_grad]
     opt = torch.optim.AdamW(params, lr=lr, weight_decay=0.0)
     steps = epochs * math.ceil(len(items) / bs)
     sched = torch.optim.lr_scheduler.LambdaLR(opt, lambda s: min(1.0, (s + 1) / 20) * max(0.05, 1 - s / steps))
-    rnd = random.Random(20261017)
+    rnd = random.Random(seed)
     out.parent.mkdir(parents=True, exist_ok=True)
     log = open(out.with_suffix(".log"), "w")
     t0, step = time.time(), 0
@@ -68,16 +76,15 @@ def main(argv):
                 log.flush()
             if step == 20 and el / step * steps > budget:
                 msg = f"STOP: projected {el / step * steps / 60:.0f} min > budget {budget / 60:.0f} min"
-                print(msg)
                 log.write(msg + "\n")
-                return 3
+                raise Refused(msg + ": raise budget_minutes, or train fewer rows or epochs")
     peft.save_pretrained(str(out))
     json.dump({"base": str(common.MODEL), "rank": rank, "alpha": 2 * rank, "targets": common.LORA_TARGETS, "epochs": epochs, "lr": lr, "batch": bs,
                "rows": len(rows), "minutes": round((time.time() - t0) / 60, 1), "final_loss": round(run, 4), "frame": common.FRAME},
               open(out / "train-info.json", "w"), indent=1)
     print("saved", out)
-    return 0
+    return {"adapter": str(out), **json.load(open(out / "train-info.json"))}
 
 
 if __name__ == "__main__":
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(run(main, sys.argv[1:]))
