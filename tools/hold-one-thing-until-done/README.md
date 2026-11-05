@@ -25,8 +25,10 @@ Covers a person's workspace until every required setup step is done, then holds 
 | `read-data/required-cover.mjs` | `setupScreenComplete`, `requiredCover`, `requiredCoverOfRows`, `DEFAULT_COVER_KEY` |
 | `read-data/hold-rows.json` | Which records hold the setting, rules, gate, must-do rows and setup steps, and how a must-do row becomes a card |
 | `do-work/hold.mjs` | `seeWhatHoldsMe` and `changeWhatHoldsMe`, run by `tools/records-door/do-work/run-an-export.mjs` |
+| `do-work/needs-you-hold-route.mjs` | `answerNeedsYouHoldRoute`, `tool:answer-the-needs-you-hold-route`: the page routes GET and POST /work/api/needs-you-hold as a route tool (`{ path, method, query, body, browser }` in, `{ status, body }` out), answering as old trillion's needsYouHold did (src/worker.mjs:1100-1121, src/native-waiting-account-owner.mjs): the read with `said` and `words` (503 busy when it fails), each change by its old op name (aside, hand_back, stake, off, on; seen; read) with the read after it, and each job kept once as an `ai-job` for the person's AIs. Contract: `ports/needs-you-hold-route.json`. |
 | `part.json` | The public modules |
-| `tool-rows.json` | The two Workshop rows |
+| `tool-rows.json` | The three Workshop rows |
+| `test/needs-you-hold-route.test.mjs` | The route tool against the records door stand-in: the read and its words, free, busy, a change with its job handed once, refusals (400), a conflict (409), seen, 404. |
 | `test/hold.test.mjs` | The cover, ranking, each change, a conflict, a resent change, refusals and each row's sample run in the container (made-up rows) |
 
 ## The rows
@@ -35,3 +37,12 @@ Covers a person's workspace until every required setup step is done, then holds 
 |-----|----------|--------------|
 | `tool:see-what-holds-me` | `seeWhatHoldsMe` | `{ cover: { covered, key }, hold }`: whether setup still covers everything, and the one row held (nothing is held while the cover stands) |
 | `tool:change-what-holds-me` | `changeWhatHoldsMe` | `set-aside`, `hand-back`, `choose-stake`, `turn-off` or `turn-on`, written on condition; answers the jobs to hand |
+
+## The page route: what it does not do yet
+
+Old trillion's needsYouHold also did these, and this route tool does not:
+
+- It read the hold's cards from the whole Waiting on you answer (every source of src/waiting-on-you.json). This route reads the person's own Waiting on you rows (`record:waiting-on-you`) only.
+- Before it read, it handed things the person walked away from to their AIs (src/waiting-nudge.mjs `prepareForHold`).
+- It kept the held thing as `needs_you_held` and ran the person's device tools when that changed (`hold.devices`).
+- On `seen`, it marked the held thing's notices read through tell-the-person.

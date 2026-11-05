@@ -483,6 +483,190 @@
         },
         "verify": [{"kind": "sample-run", "input": {"change": "turn-on", "request_key": "sample-turn-on", "rules": {"after_minutes": 0}, "now": "2026-01-01T00:00:00.000Z"}, "output_selector": "$.changed", "contains": "true"}]
       }
+    },
+    {
+      "id": "package::hold-one-thing-until-done::tool::answer-the-needs-you-hold-route",
+      "address": "package::hold-one-thing-until-done::tool::answer-the-needs-you-hold-route",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-the-needs-you-hold-route",
+        "label": "Answer the page that shows the one thing that holds me",
+        "status": "active",
+        "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
+        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when it changed meanwhile), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; a refused change answers 400 { error }. Any other path or method answers 404.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The route after /work/api"
+            },
+            "method": {
+              "type": "string"
+            },
+            "query": {
+              "type": "object"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "hold-one-thing-until-done",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/hold-one-thing-until-done"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/hold-one-thing-until-done",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/hold-one-thing-until-done/do-work/needs-you-hold-route.mjs",
+            "answerNeedsYouHoldRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "setting",
+                "id": "setting:needs_you_hold",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "setting",
+                "id": "setting:needs_you_hold_rules",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:waiting-on-you",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "ai-job",
+                "prefix": "ai-job:hold-",
+                "operations": [
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:hold-one-thing-until-done",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/worker.mjs:1100-1121 GET and POST /work/api/needs-you-hold over src/native-waiting-account-owner.mjs needsYouHold (tag old-trillion-before-worker-retire), with the decisions in read-data/needs-you-hold.mjs that owner imported from here"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/needs-you-hold",
+              "method": "GET",
+              "query": {},
+              "body": {},
+              "browser": {}
+            },
+            "records": [
+              {
+                "id": "setting:needs_you_hold_rules",
+                "type": "setting",
+                "value": {
+                  "value": {
+                    "after_minutes": 0,
+                    "words": {
+                      "free": "Nothing is holding you."
+                    }
+                  }
+                }
+              }
+            ],
+            "output_selector": "$.body.said",
+            "contains": "Nothing is holding"
+          }
+        ]
+      }
     }
   ]
 }
