@@ -922,6 +922,46 @@
       "source_identity": "1f:d9b13906bc56e3eaab3be283cc2c3feb6bd3cbea8ea70ad63b28c9ed7db09256",
       "identity": "1f:a4548fcf75cb3bea9aa1503959b72ef9e77d59bb93ed61df92316dd9645d8675",
       "adapted": "identityOf is this tool's record-identity.mjs and the compiled build is browse-and-upload-my-files loadChunking's Identity, without the retired restartable wrapper; every assertion is the old one"
+    },
+    {
+      "from": "test/server-instruction-paragraphs.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/server-instruction-paragraphs.test.mjs",
+      "source_identity": "1f:04effdcc2884ebcc02b75cc83e0d1e4a019b25a91e3c9ef210dc639360fe1052",
+      "identity": "1f:248cf35f2bb77f6f788c8bad0c6e93e47229395db6af04037d0e58a07ce2e55e",
+      "adapted": "the module and its data are imported from here; setupPlan (old src/setup-plan.mjs) is held, not run, so its plan-equality checks are left out and the mission words are checked on the named paragraph setupPlan copied."
+    },
+    {
+      "from": "test/request-refusal.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/request-refusal.test.mjs",
+      "source_identity": "1f:87465ec1a511a8ed6144a3a4f403f3e86ef83cfd19e4a114c512343b20d1b366",
+      "identity": "1f:4c4e98cdc72508b1ab8c0f5ee3e0e383ead909bc68eafc9041a026811dbae395",
+      "adapted": "imports name src/agents.mjs and src/failure.mjs here; the third test, an AgentsError through the held old src/tools.mjs handleMcpMessage, is left out: no running code turns a JS tool's refusal into an MCP result."
+    },
+    {
+      "from": "test/agents.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/agents.test.mjs",
+      "source_identity": "1f:6b75ce4186bf0d0e5c88ae213d40c6a95762a90c7bc127afcc60295d85c15810",
+      "identity": "1f:4cb0743d14e5579c9613e105473aa161ac821438e6698d219c617d1f0befe82d",
+      "adapted": "the MCP initialize test checks agents.pendingForReader, what handleMcpMessage answered as pending_handoffs, and leaves out its two checks on the held old src/tools.mjs greeting words; starters are read from test/fixtures/saved-instruction-starters.json, the old records/ bytes."
+    },
+    {
+      "from": "test/effect-unknown-lock.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/effect-unknown-lock.test.mjs",
+      "source_identity": "1f:7ad99ef534540ab1853cda7e66a91259ee96a05ba4c8b055e4d9901757f2755d",
+      "identity": "1f:87e48ca1fb90cf1a8b4668bad297b3fe58247c8bfb8b1312c19c31756bb63c2f",
+      "adapted": "the four effect tests are the old ones over src/agents.mjs and src/failure.mjs here; the fifth, a failed run through src/tool-run-owner.mjs, is left out: no repository keeps a tool run owner."
+    },
+    {
+      "from": "test/carried-connections.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/carried-connections.test.mjs",
+      "source_identity": "1f:686ab15ec24c17e75be2364add9cd211deea86e49d4eb3e61b431b621da01eb7",
+      "identity": "1f:c637ed50a5b30454b93deb7d8eb2542373ccae98a69b0ac6b4822bf86d4598f9",
+      "adapted": "the computer helper and service descriptors are read from their homes (run-on-a-persons-computer, connect-a-service-and-seal-its-key/records.json); the Connections screen test is left out: no running code exports old src/account-screens.mjs connectionsFacts."
     }
   ]
 }
