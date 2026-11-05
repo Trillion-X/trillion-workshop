@@ -218,7 +218,11 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings. Without it the defaults are used."
+              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+            },
+            "film": {
+              "type": "string",
+              "description": "--film: the film the settings row is for (scope film); the person's and the account's rows are read too."
             }
           }
         },
@@ -292,7 +296,11 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings. Without it the defaults are used."
+              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+            },
+            "film": {
+              "type": "string",
+              "description": "--film: the film the settings row is for (scope film); the person's and the account's rows are read too."
             }
           }
         },
@@ -365,7 +373,11 @@
             },
             "settings_record": {
               "type": "string",
-              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings. Without it the defaults are used."
+              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+            },
+            "film": {
+              "type": "string",
+              "description": "--film: the film the settings row is for (scope film); the person's and the account's rows are read too."
             }
           }
         },
@@ -425,6 +437,10 @@
             "settings_record": {
               "type": "string",
               "description": "The JSON file of the person's list:settings row (takes, clean_command, master_command, ticks_command, measure_glob), the third word."
+            },
+            "film": {
+              "type": "string",
+              "description": "The film the settings row is for, the fourth word."
             }
           }
         },
@@ -438,7 +454,7 @@
             "clone the Workshop repository (package.json repository.url)",
             "python3 -m pip install -U mlx-audio misaki mlx-whisper numpy soundfile praat-parselmouth torch pyannote.audio transformers librosa"
           ],
-          "run": "bash tools/compare-voice-and-music-models/do-work/render_takes.sh {line} {out_dir} {settings_record}",
+          "run": "bash tools/compare-voice-and-music-models/do-work/render_takes.sh {line} {out_dir} {settings_record} {film}",
           "needs": [
             "a Mac with Apple silicon",
             "bash",

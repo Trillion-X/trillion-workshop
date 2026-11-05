@@ -15,9 +15,8 @@ Scripts a person's AI runs on the person's own computer to try a candidate voice
 | `do-work/say_a_line_in_a_cloned_voice.py` | One narration line in a voice-cloning model (Qwen3-TTS, Chatterbox Turbo, Pocket TTS or one the settings add), best of N per unit by whisper word errors, then length nearest the median. |
 | `do-work/measure_takes.py` | The measures of each take: pauses with their words, pace and articulation rate, F0 range, a vowel's onset F2, words heard and word errors, same voice (WeSpeaker cosine) and accent probability. |
 | `do-work/render_takes.sh` | Every A/B take of one line, one at a time, through the same clean and master commands, then the ticks command and the measure (bash, macOS's 3.2 too). |
-| `test/fixtures/` | A made-up narration line and a made-up settings row. |
-| `test/test_voice_ab.py` | The narration scripts with stand-in models and code-made audio: units, silences, best of N, pauses, rates, word errors, the settings read through a stand-in of the settings reader's command, and every refusal. |
-| `test/stand-in-settings-reader.mjs` | The settings reader's command shape (`settings-of --record FILE --folder F`), for the tests. |
+| `test/fixtures/` | A made-up narration line and a made-up film settings row. |
+| `test/test_voice_ab.py` | The narration scripts with stand-in models and code-made audio: units, silences, best of N, pauses, rates, word errors, the settings read through `tools/settings` (scope choice, a value alone, a retired row, a row for another film), and every refusal. |
 | `test/test_compare_models.py` | Runs `render_note_events.py` for real on made-up events, and tests the argument checks, pure parts and refusals of the other two (their model runs are not tested). |
 | `test/compare-models.test.mjs` | Checks the rows and runs the Python tests. |
 
@@ -53,14 +52,14 @@ Make, master and measure every take of one narration line (the person's settings
 python3 -I tools/compare-voice-and-music-models/do-work/say_a_line_in_kokoro.py line.json bm_lewis take-kokoro.wav
 python3 -I tools/compare-voice-and-music-models/do-work/say_a_line_in_a_cloned_voice.py line.json qwen3 take-qwen3.wav --ref ref.wav
 python3 -I tools/compare-voice-and-music-models/do-work/measure_takes.py line.json take-*.wav
-bash tools/compare-voice-and-music-models/do-work/render_takes.sh line.json ./ab settings-row.json
+bash tools/compare-voice-and-music-models/do-work/render_takes.sh line.json ./ab settings-rows.json my-film
 ```
 
 A line is `units` (one generation each; `[word](/IPA/)` fixes a word for Kokoro, the clones get the plain word), `pause_after` (seconds after each unit), `inner_most` (the cap on a silence inside a unit, one number or one per unit), `script` (the exact words), and for the measure `hear_prompt`, `voice_reference` and `vowel_check.word` (`test/fixtures/narration-line.json`).
 
 ### Settings
 
-Each narration script takes `--settings-record <file>`: the person's `list:settings` row `record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>` as `records:read` gives it, read by the one settings reader (`node tools/settings/read-data/settings-record.mjs settings-of --record FILE --folder compare-voice-and-music-models`). Its settings go over `DEFAULTS` in `say_a_line_in_kokoro.py`: the models (`kokoro_model`, `clone_engines`, `whisper_model`, `speaker_model`, `accent_model`), `kokoro_speed`, `clone_takes`, `clone_reference`, the levels and lengths (`edge_db`, `quiet_db`, `pause_least_s`, `pause_word_slack_s`, `pitch_floor_hz`, `pitch_ceiling_hz`, `accent_label`, `accent_window_s`), `parselmouth_python`, `whisper_here_dir` (a folder holding a `whisper_here.py` for faster-whisper or openai-whisper where mlx-whisper is not there), and for `render_takes.sh` the `takes` (`{work, name, maker: kokoro, voice}` or `{work, name, maker: clone, engine}`), `clean_command`, `master_command`, `ticks_command` and `measure_glob`. Without a row the defaults are the values the A/B was first run with, under names that name no one.
+Each narration script takes `--settings-record <file>` and `--film <id>` (`render_takes.sh`: its third and fourth words): the person's `list:settings` rows `record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>` as `records:read` gives them (a record, its value, a list, or a JSON file of any of those), read by the one settings reader, `tools/settings/read-data/settings.py` (`setting(given, 'compare-voice-and-music-models', [('film', <id>), ('person', 'me'), ('account', 'main')])`): the first of this film, the person and the account that has a row. A value with no id or scope is read as given; a row only for another film is refused, naming it. Its settings go over `DEFAULTS` in `say_a_line_in_kokoro.py`: the models (`kokoro_model`, `clone_engines`, `whisper_model`, `speaker_model`, `accent_model`), `kokoro_speed`, `clone_takes`, `clone_reference`, the levels and lengths (`edge_db`, `quiet_db`, `pause_least_s`, `pause_word_slack_s`, `pitch_floor_hz`, `pitch_ceiling_hz`, `accent_label`, `accent_window_s`), `parselmouth_python`, `whisper_here_dir` (a folder holding a `whisper_here.py` for faster-whisper or openai-whisper where mlx-whisper is not there), and for `render_takes.sh` the `takes` (`{work, name, maker: kokoro, voice}` or `{work, name, maker: clone, engine}`), `clean_command`, `master_command`, `ticks_command` and `measure_glob`. Without a row the defaults are the values the A/B was first run with, under names that name no one.
 
 ### Moved from
 

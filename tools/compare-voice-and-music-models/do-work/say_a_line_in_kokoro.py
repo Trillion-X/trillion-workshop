@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""say_a_line_in_kokoro.py <line.json> <voice> <out.wav> [--settings-record F]: one narration line in Kokoro, said the natural way.
+"""say_a_line_in_kokoro.py <line.json> <voice> <out.wav> [--settings-record F [--film ID]]: one narration line in Kokoro, said the natural way.
 
 The line is data (example: test/fixtures/narration-line.json): `units`, `pause_after`, `inner_most`, `script`.
   - Each unit is one generation. Kokoro has no context across generations, so a unit never splits a sentence.
@@ -15,14 +15,12 @@ Run with python3 (mlx-audio 0.5.8, misaki 0.9.4).
 
 This module is also the one definition the other voice A/B scripts share (say_a_line_in_a_cloned_voice.py and
 measure_takes.py import it): the line, units, pauses and silence handling; the person's settings (`--settings-record`,
-a list:settings row read by the one reader, tools/settings/read-data/settings-record.mjs, over DEFAULTS); the speech-to-text engine;
+a list:settings row read by the one reader, tools/settings/read-data/settings.py, for --film, the person or the account, over DEFAULTS); the speech-to-text engine;
 and refusals, printed as a last line {"error": "what to change"}. A take made prints {"result": {...}} last.
 `--take-rows <settings record>` prints the A/B takes of the settings as render_takes.sh reads them.
 """
 import argparse
 import json
-import os
-import subprocess
 import sys
 from pathlib import Path
 
@@ -69,31 +67,40 @@ class Refusal(Exception):
     pass
 
 
-def settings(given=None, node=None, reader=None):
-    """DEFAULTS with the person's settings over them. `given` is the path of a JSON file holding the list:settings row as
-    records:read answers it ({"id": "record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>", "type":
-    "record:setting", "value": {...}}), read by the one settings reader, tools/settings/read-data/settings-record.mjs,
-    run as a command (node ... settings-of --record FILE --folder compare-voice-and-music-models)."""
+def scopes_for(film=None):
+    """The scopes a setting is looked for in, most specific first: this film (when named), the person, the account."""
+    return ([('film', film)] if film else []) + [('person', 'me'), ('account', 'main')]
+
+
+def settings(given=None, film=None):
+    """DEFAULTS with the person's settings over them. `given` is the settings_record: the list:settings row
+    record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id> as records:read gives it, its value, a list of
+    them, or the path of a JSON file of any of those. It is read by the one settings reader, tools/settings/read-data/
+    settings.py: the first of this film, the person and the account that has a row; a lone value with no id is read as given."""
     if given is None:
         return json.loads(json.dumps(DEFAULTS))
-    if not Path(given).is_file():
-        raise Refusal(f'{given} is not there: pass the file holding the settings row as records:read gave it')
     root = next((p for p in Path(__file__).resolve().parents if (p / 'capabilities.json').is_file()), None)
-    reader = Path(reader) if reader else root / 'tools' / 'settings' / 'read-data' / 'settings-record.mjs' if root else None
+    reader = root / 'tools' / 'settings' / 'read-data' / 'settings.py' if root else None
     if reader is None or not reader.is_file():
-        raise Refusal('a settings record was given, but tools/settings/read-data/settings-record.mjs is not in this Workshop '
+        raise Refusal('a settings record was given, but tools/settings/read-data/settings.py is not in this Workshop '
                       'checkout: update the checkout, or run without --settings-record to use the defaults')
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('workshop_settings', reader)
+    rows = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(rows)
     try:
-        done = subprocess.run([node or os.environ.get('NODE', 'node'), str(reader), 'settings-of', '--record', str(given),
-                               '--folder', FOLDER], capture_output=True, text=True)
-    except OSError:
-        raise Refusal('reading the settings record needs node (Node.js 22 or newer) on the PATH') from None
-    if done.returncode != 0:
-        raise Refusal(f'the settings record cannot be read: {done.stderr.strip() or done.stdout.strip()}')
-    try:
-        found = json.loads(done.stdout)
-    except json.JSONDecodeError:
-        raise Refusal('the settings reader answered no JSON: update tools/settings') from None
+        record = rows.chosen(given, FOLDER, scopes_for(film))
+        if record is None:
+            lone = rows.chosen(given, FOLDER)  # one record given: read as it is only when it names no scope
+            value = (lone or {}).get('value', lone or {})
+            if lone is None or lone.get('id') or value.get('scope_kind'):
+                said = lone.get('id') or f"{value.get('scope_kind')} {value.get('scope_id')}" if lone else 'nothing'
+                raise Refusal(f'the settings record is for {said}, not for {" or ".join(" ".join(s) for s in scopes_for(film))}: '
+                              'pass --film with the film it is for')
+            record = lone
+        found = rows.settings_of(record)
+    except (ValueError, OSError) as e:
+        raise Refusal(f'the settings record cannot be read: {e}') from None
     if found is not None and not isinstance(found, dict):
         raise Refusal('the settings record holds no object of settings: its settings field is a JSON object')
     return {**json.loads(json.dumps(DEFAULTS)), **(found or {})}
@@ -223,19 +230,20 @@ def main(argv=None):
     ap.add_argument('voice', nargs='?')
     ap.add_argument('out', nargs='?')
     ap.add_argument('--settings-record')
+    ap.add_argument('--film', help='the film the settings row is for (scope film); the person and account rows are read too')
     ap.add_argument('--take-rows', metavar='SETTINGS_RECORD', help='print the A/B takes of these settings, one per line')
     ap.add_argument('--chain', metavar='SETTINGS_RECORD', help='print the clean, master and ticks commands and the measure glob')
     a = ap.parse_args(argv)
     try:
         if a.chain is not None:
-            print('\n'.join(chain(settings(None if a.chain in ('', '-') else a.chain))))
+            print('\n'.join(chain(settings(None if a.chain in ('', '-') else a.chain, a.film))))
             return 0
         if a.take_rows is not None:
-            print('\n'.join(take_rows(settings(None if a.take_rows in ('', '-') else a.take_rows))))
+            print('\n'.join(take_rows(settings(None if a.take_rows in ('', '-') else a.take_rows, a.film))))
             return 0
         if not (a.line and a.voice and a.out):
             raise Refusal('pass <line.json> <voice> <out.wav>, the voice a Kokoro voice name such as bm_lewis')
-        cfg = settings(a.settings_record)
+        cfg = settings(a.settings_record, a.film)
         line = read_line(a.line)
         y, sr = say_line(line, a.voice, cfg)
     except Refusal as e:
