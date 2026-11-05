@@ -14,13 +14,51 @@
         "input_schema": {
           "type": "object",
           "properties": {
-            "settings_record": { "description": "A record:setting as records:read gives it, its value, a list of them, or the path of a JSON file holding them." },
-            "folder": { "type": "string", "description": "The Workshop folder whose settings to read, e.g. make-a-frame-contact-sheet-of-a-video-section." },
-            "scopes": { "type": "array", "items": { "type": "object", "properties": { "kind": { "enum": ["piece", "film", "person", "account"] }, "id": { "type": "string" } }, "required": ["kind", "id"] }, "description": "Most specific first." },
-            "default": { "description": "What to answer when no row matches." },
-            "tool": { "type": "string", "description": "Refuse a row written for another tool." },
-            "make": { "type": "object", "description": "{folder, scope_kind, scope_id, settings, name, tool, from, status?}: make the row instead of reading one." },
-            "with_list": { "type": "boolean" }
+            "settings_record": {
+              "description": "A record:setting as records:read gives it, its value, a list of them, or the path of a JSON file holding them."
+            },
+            "folder": {
+              "type": "string",
+              "description": "The Workshop folder whose settings to read, e.g. make-a-frame-contact-sheet-of-a-video-section."
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "piece",
+                      "film",
+                      "person",
+                      "account"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ]
+              },
+              "description": "Most specific first."
+            },
+            "default": {
+              "description": "What to answer when no row matches."
+            },
+            "tool": {
+              "type": "string",
+              "description": "Refuse a row written for another tool."
+            },
+            "make": {
+              "type": "object",
+              "description": "{folder, scope_kind, scope_id, settings, name, tool, from, status?}: make the row instead of reading one."
+            },
+            "with_list": {
+              "type": "boolean"
+            }
           }
         },
         "output_schema": {
@@ -47,6 +85,200 @@
         "provenance": {
           "source": "Ported from old Trillion's setting record kind: Trillion-X/trillion src/decision-store.mjs before 4ffa1dc4a2, lines 8 and 751-754 (setting(name) gives the value or null; setSetting writes { id: setting:<name>, type: setting })."
         }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-tool-setting-through-my-door",
+        "label": "Read the settings I keep for one of my tools, from my own lists",
+        "status": "active",
+        "job": "Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
+        "description": "Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there. The run may read only that tool's rows (its right is the settings_prefix). A retired row, or a row for another tool than the one named, is refused. The same choice as tool:read-a-tool-setting, without first writing the rows to a file.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "settings_prefix",
+            "scopes"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "settings_prefix": {
+              "type": "string",
+              "pattern": "^record:setting:[^~/]+~$",
+              "description": "record:setting:<workshop-folder>~ : the tool whose rows to read."
+            },
+            "scopes": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "string",
+                    "enum": [
+                      "piece",
+                      "film",
+                      "person",
+                      "account"
+                    ]
+                  },
+                  {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                ]
+              },
+              "description": "[[scope_kind, scope_id], ...], most specific first, e.g. [[\"film\",\"my-film\"],[\"person\",\"me\"],[\"account\",\"main\"]]."
+            },
+            "tool": {
+              "type": "string",
+              "description": "The tool row that will use the settings; a row naming another tool is refused."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "folder",
+            "found",
+            "settings"
+          ],
+          "properties": {
+            "folder": {
+              "type": "string"
+            },
+            "found": {
+              "type": "boolean"
+            },
+            "settings": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/settings",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/settings/read-data/settings.mjs",
+            "readSettingRow"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": {
+                  "fill": {
+                    "from": "input",
+                    "field": "settings_prefix"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:settings",
+        "provenance": {
+          "source": "Trillion-X/trillion src/decision-store.mjs:751-753 before 4ffa1dc4a2 (setting(name)), read through the records door"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_prefix": "record:setting:make-a-sample~",
+              "scopes": [
+                [
+                  "film",
+                  "sample-film"
+                ],
+                [
+                  "account",
+                  "main"
+                ]
+              ]
+            },
+            "records": [
+              {
+                "id": "record:setting:make-a-sample~account~main",
+                "type": "record:setting",
+                "value": {
+                  "name": "Sample pace",
+                  "tool": "tool:make-a-sample",
+                  "scope_kind": "account",
+                  "scope_id": "main",
+                  "settings": "{\"pace\":1}",
+                  "from": "made-up@0",
+                  "status": "active"
+                }
+              }
+            ],
+            "output_selector": "$.settings.pace",
+            "equals": 1
+          }
+        ]
       }
     }
   ]
