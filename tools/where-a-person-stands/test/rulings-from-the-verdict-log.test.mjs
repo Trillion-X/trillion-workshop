@@ -14,7 +14,7 @@ import { countStands } from '../do-work/where-a-person-stands.mjs';
 
 // The person's setting for this tool, as a made-up row of list:settings would hold it.
 const SETTING = {
-  row_type: 'line-rulings',
+  unruled_part_of: 'content-production',
   real: ['person'],
   needs: ['film'],
   needed: 3,
@@ -43,6 +43,16 @@ test('the rulings list takes each (text, verdict, by, rule) once and counts only
   const s = rulingStatus({ ...SETTING, rulings: list, rules: RULES, results: answered(counted.bad_lines, 0.999) });
   assert.equal(s.escalated_by_any, 1);
   assert.equal(JSON.stringify(list), before);
+});
+
+test('rulings kept in list:checks read back as rulings: labelled and escalated lines, part_of, the copy kind under kind', async () => {
+  const { write } = rulingRecords({ ...SETTING, rows: [{ text: 'Kindless.', verdict: 'bad', by: 'person', where: 'films/x/a.md:1' },
+    { text: 'A title.', verdict: 'bad', by: 'person', kind: 'title', rule: 'ask-plain', where: 'films/x/a.md:2' },
+    { text: 'Flagged.', verdict: 'escalated', by: 'small-model', rule: 'ask-plain', where: 'films/x/a.md:3' }] });
+  assert.deepEqual(write.records.map(record => [record.value.kind, record.value.part_of]), [['labelled-line', ['content-production']], ['labelled-line', ['ask-plain']], ['escalated-line', ['ask-plain']]]);
+  const counted = await countRealRulings({ ...SETTING, rulings: write.records });
+  assert.deepEqual(counted.bad_lines.map(line => [line.text, line.kind]), [['Kindless.', 'voiceover'], ['A title.', 'title']]);
+  assert.deepEqual(counted.counts, { 'person bad': 2, 'small-model escalated': 1 });
 });
 
 test('the count calls a bad line caught only at or over the row t_fail', () => {
@@ -147,12 +157,12 @@ test('settings_record is the person\'s setting row read by tools/settings, and t
   const record = makeRecord('where-a-person-stands', 'person', 'sample', SETTING, { name: 'Rulings for a sample person', tool: 'tool:keep-rulings-on-lines', source: 'made up' });
   for (const given of [record, record.value, [record]]) {
     const kept = await keepRulings({ settings_record: given, rows: [{ text: 'A line.', verdict: 'bad', by: 'person', where: 'films/x/a.md:1' }] });
-    assert.deepEqual([kept.write.records[0].type, kept.write.records[0].value.film], ['record:line-rulings', 'x']);
+    assert.deepEqual([kept.write.records[0].type, kept.write.records[0].value.film], ['record:check', 'x']);
   }
   const examples = await makeExamplesFromRulings({ settings_record: record, bad_label: 'given', rulings: [{ text: 'A line.', verdict: 'bad', by: 'person', film: 'x' }] });
   assert.deepEqual(examples.items[0].bad_for, ['given']);
   const retired = makeRecord('where-a-person-stands', 'person', 'sample', SETTING, { name: 'old', tool: 'tool:keep-rulings-on-lines', source: 'made up', status: 'retired' });
   await assert.rejects(keepRulings({ settings_record: retired, rows: [] }), /retired/);
-  const other = makeRecord('another-tool', 'person', 'sample', { row_type: 'x' }, { name: 'other', tool: 'tool:other', source: 'made up' });
-  await assert.rejects(keepRulings({ settings_record: other, rows: [] }), /row_type/);
+  const other = makeRecord('another-tool', 'person', 'sample', { unruled_part_of: 'x' }, { name: 'other', tool: 'tool:other', source: 'made up' });
+  await assert.rejects(keepRulings({ settings_record: other, rows: [{ text: 'A line.', verdict: 'bad', by: 'person' }] }), /unruled_part_of/);
 });

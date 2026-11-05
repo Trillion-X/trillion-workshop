@@ -50,7 +50,7 @@
     "copied_before_adaptation": true,
     "source_multihash": "1f:a0fd9dfcb5aeb7e3b056428a2337392f6103f008dafa4b21a687fdf97e1791d3",
     "target_multihash_at_baseline": "1f:a0fd9dfcb5aeb7e3b056428a2337392f6103f008dafa4b21a687fdf97e1791d3",
-    "commit": "85d3382c34a3c359ac8085cedf66d659b9343026"
+    "commit": "399f1f2f58e1b811d21231095ab4358385931e89"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
