@@ -24,11 +24,32 @@
    "repository": "trillion-workshop",
    "path": "tools/set-up-my-account/",
    "why": "This tool itself: the steps and the screen are read-data/ (moved byte for byte from trillion) run by tool:see-what-is-left-to-set-up; this file only gathers what old src/screen-reads.mjs readSetup and src/native-setup.mjs facts gathered, from today's owners, and runs that row."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-plan.mjs.held",
+   "why": "Its readSetup is the AI's read_setup / start_setup answer (old src/setup-plan.mjs: the saved setup workflow and its plan views for an AI), not the Get started screen's read."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-runtime.mjs.held",
+   "why": "readSetupReference reads one cited setup evidence reference for the setup runtime; it gathers no screen facts."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-each-setup-step-with-the-real-things-found/from-old-trillion/test/setup-capability-evidence.test.mjs.held",
+   "why": "A held test of readSetupReference (setup evidence references), the setup runtime's job, not this read."
+  },
+  {
+   "repository": "trillion",
+   "path": "proof/onboarding-prerequisites/onboarding-verification-final.log",
+   "why": "A test run log naming readSetupAccessContext (the setup-access recheck), not code."
   }
  ],
  "proof": {
   "search": {
    "phrasings": [
+    "gather the Get started screen's setup facts from the account files door and the account's own records, and draw the screen with tool:see-what-is-left-to-set-up",
     "gather the Get started screen's setup facts and draw the screen",
     "read setup facts for the get started screen",
     "readSetup"
