@@ -1,6 +1,6 @@
 # tools/settings/
 
-The one shared reader of a person's tool settings. A library: it offers no tool of its own. Every tool whose behaviour depends on the person (their thresholds, model choices, folders, layouts, voices) takes `settings_record` in its input and reads that setting at run time through its records door with this reader. Nothing about any person is in a tool; the settings are rows of the person's own list.
+The one shared reader of a person's tool settings: a library every tool packs, with one row of its own, `tool:read-a-tool-setting`, for callers that cannot import it. Every tool whose behaviour depends on the person (their thresholds, model choices, folders, layouts, voices) takes `settings_record` in its input and reads that setting at run time through its records door with this reader. Nothing about any person is in a tool; the settings are rows of the person's own list.
 
 ## Where settings live
 
@@ -41,6 +41,8 @@ Refusals (every one says what to do): a malformed id, an unknown scope kind, a s
 | File | Purpose |
 |---|---|
 | `part.json` | The library's public files. |
+| `tool-rows.json` | `tool:read-a-tool-setting`: `{ settings_record, tool? }` in, `{ settings_record, tool, scope_kind, scope_id, settings }` out, with a records right on exactly that one id. |
+| `do-work/read-a-tool-setting.mjs` | That row's function, run by `tools/records-door` `do-work/run-an-export.mjs`. |
 | `read-data/settings.mjs` | `readSettings`, `settingsOf`, `settingId`, `parseSettingId`, `settingRight`, `settingRow`, `SettingError`. |
 | `read-data/settings.py` | The Python twin: `read_settings`, `settings_of`, `setting_id`, `parse_setting_id`, `setting_row`, `SettingError`. |
 | `read-data/settings.json` | The list, row and record type, id shape, scope kinds, fields and every refusal's words. |

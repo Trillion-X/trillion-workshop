@@ -16,6 +16,9 @@
   },
   {
    "path": "tools/settings/read-data/settings.py"
+  },
+  {
+   "path": "tools/settings/do-work/read-a-tool-setting.mjs"
   }
  ],
  "preserve": [],

@@ -1,0 +1,175 @@
+{
+  "kind": "package-set-records",
+  "record_set": "settings-tool-rows",
+  "what_this_is": "The one row of the settings library: read one of a person's tool settings from their settings list.",
+  "records": [
+    {
+      "id": "package::settings::tool::read-a-tool-setting",
+      "address": "package::settings::tool::read-a-tool-setting",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-tool-setting",
+        "label": "Read a tool setting",
+        "status": "active",
+        "job": "Read one of my tool settings: what a tool is set to for me, a film, a piece or my account",
+        "description": "Give settings_record, the id of one row of your settings list (record:setting:<tool folder>~<scope kind>~<scope id>, scope kind person, film, piece or account), and optionally tool, the tool folder it must be for. Returns the tool, scope and its settings object. A setting that is missing, not active or for another tool is refused with what to do.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "settings_record"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:[^~/]+~(person|film|piece|account)~[^~/]+$"
+            },
+            "tool": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "settings_record",
+            "tool",
+            "scope_kind",
+            "scope_id",
+            "settings"
+          ],
+          "properties": {
+            "settings_record": {
+              "type": "string"
+            },
+            "tool": {
+              "type": "string"
+            },
+            "scope_kind": {
+              "type": "string"
+            },
+            "scope_id": {
+              "type": "string"
+            },
+            "settings": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/settings",
+          "stdout": "json",
+          "internet": false,
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/settings/do-work/read-a-tool-setting.mjs",
+            "readATool"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "settings_record"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "settings",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:permissive",
+        "maker": "maker:settings",
+        "placements": [
+          "placement:small-container"
+        ],
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_record": "record:setting:sample-tool~film~kitchen-short",
+              "tool": "sample-tool"
+            },
+            "records": [
+              {
+                "id": "record:setting:sample-tool~film~kitchen-short",
+                "type": "record:setting",
+                "value": {
+                  "name": "Sample tool for a made-up film",
+                  "tool": "sample-tool",
+                  "scope_kind": "film",
+                  "scope_id": "kitchen-short",
+                  "settings": {
+                    "speed": 1.25,
+                    "voice": "calm"
+                  },
+                  "from": "tools/sample/settings.json@0000000",
+                  "status": "active"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
