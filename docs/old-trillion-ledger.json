@@ -5,10 +5,10 @@
   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
  },
  "counts": {
-  "being_moved": 1017,
+  "being_moved": 1036,
   "moved": 567,
   "retired": 27,
-  "to_move": 47
+  "to_move": 28
  },
  "rows": [
   {
@@ -6339,8 +6339,8 @@
   {
    "path": "scripts/check-copy.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Needs scripts/check-copy.mjs, which reads records/copy-rules.json at load (scripts/check-copy.mjs:33). That file has no file home: trillion-workshop tools/move-code-between-trees/move-rows/trillion-to-workshop.json:163 says \"Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.\" check-copy also imports parts/judge-words (only on workshop #200, not in trillion-apps' pinned trillion-workshop e9bc8eab). So check-copy must be adapted to read the rules as rows before it or its tests can pass anywhere; a byte move would fail at import. Its home once adapted: trillion-apps web/scripts beside repo-copy-owners.json (#50).",
+   "group": "rest2"
   },
   {
    "path": "scripts/check-delight.mjs",
@@ -7341,9 +7341,11 @@
   },
   {
    "path": "scripts/publish-marketplace-screens.mjs",
-   "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports records/marketplace-screens.json, which stays in the source (keep row records/marketplace-screens.json). Waits for that file's home on main (trillion-workshop PR #203), then the same row moves it.",
-   "group": "scripts"
+   "verdict": "being_moved",
+   "home": "trillion-workshop:tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/scripts/publish-marketplace-screens.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/221",
+   "evidence": "Byte for byte, beside records/marketplace-screens.json (#203); stacked on #203; loads; receipt in that tool's moved-from.json.",
+   "group": "rest2"
   },
   {
    "path": "scripts/publish-public-app-manifest.mjs",
@@ -7355,9 +7357,11 @@
   },
   {
    "path": "scripts/publish-registry.mjs",
-   "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: scripts/publish-registry.mjs reads server.json by its address, and its home trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/server.json is in a package. Waits for that file's home on main (a home the tool can follow: server.json is read by new URL and its home is in the trillion-workshop package), then the same row moves it.",
-   "group": "scripts"
+   "verdict": "being_moved",
+   "home": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/scripts/publish-registry.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/221",
+   "evidence": "Byte for byte; ../server.json resolves to the tool's server.json (on main); not run (it publishes); receipt in the tool's moved-from.json.",
+   "group": "rest2"
   },
   {
    "path": "scripts/pushed-work-kept.json",
@@ -9333,8 +9337,8 @@
   {
    "path": "test/account-key-one-place.test.mjs",
    "verdict": "to_move",
-   "evidence": "guard walks old root harness/ and computer/; no new tree holds both (keep-and-wake tool has harness/ only, computer/ is in trillion-apps) — needs a decision which tree it guards",
-   "group": "tests-other"
+   "evidence": "Fails after an honest move in every candidate tree: in trillion-apps web/ it finds harness/setup.mjs, at the apps root harness/trillion.mjs asks the Keychain; the test's own comment says those keepers \"left this repository; none is named until one returns\", with KEEPERS = {}. They returned, so the test needs its KEEPERS rows written back (an edit, not a move) and a decision which tree it guards.",
+   "group": "rest2"
   },
   {
    "path": "test/activation.test.mjs",
@@ -9533,8 +9537,8 @@
   {
    "path": "test/capabilities.test.mjs",
    "verdict": "to_move",
-   "evidence": "guards old trillion's own root capabilities.json (stays on old main); each new repo has its own",
-   "group": "tests-other"
+   "evidence": "Its subject capabilities.json is archived byte for byte at trillion-apps from-old-trillion/old-trillion-root/capabilities.json (#48), but the test reads ./capabilities.json and git ls-files of the whole repo: run against the archive it fails 5 of 8 (every owner glob matches a tracked file; every entry exists; every evidence is a real worded line; every part folder and workspace screen has an owning row; every tracked src/*.mjs and scripts/*.mjs module has an owning row) because the rows name old-tree paths. No new tree can hold it passing; retiring it needs a decision, none found.",
+   "group": "rest2"
   },
   {
    "path": "test/card-sections-retention.test.mjs",
@@ -9570,15 +9574,19 @@
   },
   {
    "path": "test/check-generated-files.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject scripts/check-generated-files.mjs + scripts/generated-files.json still only on old main (scripts group); goes with it",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/check-generated-files.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/check-generated-files.mjs and generated-files.json (#50); passes 1/1; receipt web/moved-from.json.",
+   "group": "rest2"
   },
   {
    "path": "test/check-reaches.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject scripts/check-reaches.mjs still only on old main (scripts group)",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/check-reaches.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/check-reaches.mjs (#50); passes 8/8.",
+   "group": "rest2"
   },
   {
    "path": "test/check-retired-paths.test.mjs",
@@ -9603,9 +9611,11 @@
   },
   {
    "path": "test/ci-execution-policy.test.mjs",
-   "verdict": "to_move",
-   "evidence": "guards old trillion's own .github/workflows (root config staying on old main)",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:from-old-trillion/test/ci-execution-policy.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/71",
+   "evidence": "Byte for byte; its ../.github/workflows/ is from-old-trillion/.github/workflows/ (#48), exactly the two workflows it checks; passes 9/9; stacked on #48; receipt from-old-trillion/moved-from.json.",
+   "group": "rest2"
   },
   {
    "path": "test/ci-usage.test.mjs",
@@ -9787,14 +9797,14 @@
   {
    "path": "test/copy-owner-placement.test.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Tests scripts/check-copy.mjs (to_move). Needs scripts/check-copy.mjs, which reads records/copy-rules.json at load (scripts/check-copy.mjs:33). That file has no file home: trillion-workshop tools/move-code-between-trees/move-rows/trillion-to-workshop.json:163 says \"Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.\" check-copy also imports parts/judge-words (only on workshop #200, not in trillion-apps' pinned trillion-workshop e9bc8eab). So check-copy must be adapted to read the rules as rows before it or its tests can pass anywhere; a byte move would fail at import.",
+   "group": "rest2"
   },
   {
    "path": "test/copy-required-owner.test.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Tests scripts/check-copy.mjs (to_move). Needs scripts/check-copy.mjs, which reads records/copy-rules.json at load (scripts/check-copy.mjs:33). That file has no file home: trillion-workshop tools/move-code-between-trees/move-rows/trillion-to-workshop.json:163 says \"Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.\" check-copy also imports parts/judge-words (only on workshop #200, not in trillion-apps' pinned trillion-workshop e9bc8eab). So check-copy must be adapted to read the rules as rows before it or its tests can pass anywhere; a byte move would fail at import.",
+   "group": "rest2"
   },
   {
    "path": "test/copy-word-coverage.test.mjs",
@@ -9830,8 +9840,8 @@
   {
    "path": "test/current-source-build.mjs",
    "verdict": "to_move",
-   "evidence": "helper of coachmark-*-browser tests deleted by #243 and not carried; goes with them",
-   "group": "tests-other"
+   "evidence": "Helper of test/coachmark-focus-browser and coachmark-viewport-gap-browser, deleted by fe1fb2646e (old trillion dev/deleted-code-homes.json: how \"none\", home null). Tried recovering both tests (from fe1fb2646e^) beside it in trillion-apps web/test: both fail (0/2, 0/1) because the helper runs `git show <origin/main>:<path>` with repo-root paths (current-source-build.mjs:10-12) and in trillion-apps the source is under web/ (\"path 'web/parts/ui/show/anchor-resolver/index.ts' exists, but not 'parts/...'\"). It needs a path-prefix adaptation before it and its tests can move to trillion-apps web/test.",
+   "group": "rest2"
   },
   {
    "path": "test/customer-notification-navigation.test.mjs",
@@ -9859,9 +9869,11 @@
   },
   {
    "path": "test/customer-source-pin.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject scripts/customer-source-pin.mjs still only on old main (scripts group)",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/customer-source-pin.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Already on round-1 branch claude/old-trillion-sweep-scripts (same blob b6008003), receipt web/moved-from.json; passes 1/1 there.",
+   "group": "rest2"
   },
   {
    "path": "test/customer-test-evidence.test.mjs",
@@ -9889,9 +9901,11 @@
   },
   {
    "path": "test/decision-evals.test.mjs",
-   "verdict": "to_move",
-   "evidence": "It tests scripts/measure-decision-evals.mjs (group scripts, another worker's lane) and src/decision-evals.json (already in trillion-workshop tools/introduce-two-people). It moves with that script, to wherever the scripts lane puts it.",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/decision-evals.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Beside web/scripts/measure-decision-evals.mjs (#50); the one import of ../src/decision-evals.json now names trillion-workshop/tools/introduce-two-people/src/decision-evals.json (same bytes, in the pinned package); receipt with homes; passes 5/5.",
+   "group": "rest2"
   },
   {
    "path": "test/deleted-code-homes.test.mjs",
@@ -9992,8 +10006,8 @@
   {
    "path": "test/derived-tool-controls.test.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports records/workshop-tool-records.json, which stays in the source (keep row records/workshop-tool-records.json). Waits for that file's home on main (trillion-workshop PR #203), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Needs both web/scripts/tool-folders.mjs (trillion-apps #50) and records/workshop-tool-records.json (trillion-workshop #203, tools/connect-a-service-and-seal-its-key/from-old-trillion/records/). trillion-apps reads the Workshop through a package pinned at e9bc8eab, which lacks that records file, and the Workshop cannot import apps' tool-folders.mjs. Moves to trillion-apps web/test once #203 is on main and apps' trillion-workshop pin includes it (only the records specifier changes).",
+   "group": "rest2"
   },
   {
    "path": "test/documents/collaboration-view.test.ts",
@@ -10142,14 +10156,16 @@
   {
    "path": "test/film-copy-owner.test.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Tests scripts/check-copy.mjs (to_move). Needs scripts/check-copy.mjs, which reads records/copy-rules.json at load (scripts/check-copy.mjs:33). That file has no file home: trillion-workshop tools/move-code-between-trees/move-rows/trillion-to-workshop.json:163 says \"Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.\" check-copy also imports parts/judge-words (only on workshop #200, not in trillion-apps' pinned trillion-workshop e9bc8eab). So check-copy must be adapted to read the rules as rows before it or its tests can pass anywhere; a byte move would fail at import.",
+   "group": "rest2"
   },
   {
    "path": "test/fixture-git-env.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject test/support/fixture-git-env.mjs is in no group file and on no new repo",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/fixture-git-env.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Already on round-1 branch claude/old-trillion-sweep-scripts with its helper web/test/support/fixture-git-env.mjs (same blob 8f059033); passes 3/3 there.",
+   "group": "rest2"
   },
   {
    "path": "test/fixtures/account-held.swift",
@@ -10474,14 +10490,14 @@
   {
    "path": "test/fixtures/public-app-canvas/index.html",
    "verdict": "to_move",
-   "evidence": "no reader found in old tree at 5dc302be or b6ae0ebf; home unknown",
-   "group": "tests-other"
+   "evidence": "Read only by test/public-app-canvas-editor-browser.test.mjs (deleted by fe1fb2646e; dev/deleted-code-homes.json home null). Recovered that test into trillion-apps web/test as a trial: 0/2, it reads parts/screen-look/show/coss-workspace.css and fonts, scripts/workspace-looks.json, fixtures/public-app-import and builds ./parts/screen-look/show/apply-chosen-screen-look from the root, which trillion-apps web/ does not hold (coss-workspace.css is in trillion-workshop tools/screen-look/show). Moves with that test once it is adapted to those homes.",
+   "group": "rest2"
   },
   {
    "path": "test/fixtures/public-app-canvas/styles.css",
    "verdict": "to_move",
-   "evidence": "no reader found; home unknown",
-   "group": "tests-other"
+   "evidence": "Same as test/fixtures/public-app-canvas/index.html: fixture of the deleted public-app-canvas-editor-browser test, which fails 0/2 in trillion-apps web/ for missing parts/screen-look/show files.",
+   "group": "rest2"
   },
   {
    "path": "test/fixtures/public-app-import/site/about/index.html",
@@ -10577,15 +10593,19 @@
   },
   {
    "path": "test/guard-runs-strict.test.mjs",
-   "verdict": "to_move",
-   "evidence": "asserts scripts/test.mjs / deploy-guard-suite env (RECORD_MODEL_STRICT); goes with those scripts (scripts group)",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/guard-runs-strict.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/test.mjs and deploy-guard-tests.json (#50, which lists it); passes 1/1 through node scripts/test.mjs (RECORD_MODEL_STRICT=1), fails under bare node --test by design, as in old trillion.",
+   "group": "rest2"
   },
   {
    "path": "test/guard-selection.test.mjs",
-   "verdict": "to_move",
-   "evidence": "It tests scripts/guard-continue.mjs, scripts/guard-selection.mjs and scripts/deploy-guard-tests.json (group scripts, another worker's lane). It moves with them.",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/guard-selection.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Already on round-1 branch claude/old-trillion-sweep-scripts (same blob e1d17ea2); passes 10/10 there.",
+   "group": "rest2"
   },
   {
    "path": "test/guard-trailer-keeps-core-and-failed.test.mjs",
@@ -10660,8 +10680,8 @@
   {
    "path": "test/hosted-only.test.mjs",
    "verdict": "to_move",
-   "evidence": "guard walks old root src/ and scripts/ for decision servers; subject decision-store now in workshop keep-and-wake (no scripts/ there) — needs a decision which tree it guards",
-   "group": "tests-other"
+   "evidence": "Fails at old main itself: run on a 5dc302be export it fails \"scripts/local-proxy.mjs starts a server on this computer\", and the same in trillion-apps web/ where #50 carried scripts/local-proxy.mjs byte for byte. Kept out so it does not add a failing guard; needs a decision on local-proxy (or the guard) first.",
+   "group": "rest2"
   },
   {
    "path": "test/http-client-executor.test.mjs",
@@ -10690,8 +10710,8 @@
   {
    "path": "test/interactive-lesson-copy-owner.test.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Tests scripts/check-copy.mjs (to_move). Needs scripts/check-copy.mjs, which reads records/copy-rules.json at load (scripts/check-copy.mjs:33). That file has no file home: trillion-workshop tools/move-code-between-trees/move-rows/trillion-to-workshop.json:163 says \"Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.\" check-copy also imports parts/judge-words (only on workshop #200, not in trillion-apps' pinned trillion-workshop e9bc8eab). So check-copy must be adapted to read the rules as rows before it or its tests can pass anywhere; a byte move would fail at import.",
+   "group": "rest2"
   },
   {
    "path": "test/isolated-run.test.mjs",
@@ -10879,8 +10899,8 @@
   {
    "path": "test/method-checks-to-publish.json",
    "verdict": "to_move",
-   "evidence": "data of method-data.test.mjs (with-slice, src/method-catalogue.mjs, not moved)",
-   "group": "tests-other"
+   "evidence": "Data of test/method-data.test.mjs, deleted by 4ffa1dc4a2; trillion-workshop docs/pr243-deleted-tests.json:1712 marks it \"with-slice\" (subject src/method-catalogue.mjs, waiting_on_count 220). Goes with that test.",
+   "group": "rest2"
   },
   {
    "path": "test/method-sources.test.mjs",
@@ -10933,8 +10953,8 @@
   {
    "path": "test/mounted-space-network-for-tests.mjs",
    "verdict": "to_move",
-   "evidence": "helper of public-app-host tests (pr243 status with-slice, subject src/public-app-host.mjs, no workshop tool yet)",
-   "group": "tests-other"
+   "evidence": "Helper of public-app-host/live-room/tools tests, deleted by 4ffa1dc4a2; trillion-workshop docs/pr243-deleted-tests.json:2243 marks public-app-host.test.mjs \"with-slice\" (waiting_on_count 244). Goes with them.",
+   "group": "rest2"
   },
   {
    "path": "test/named-content-allowance.json",
@@ -11032,9 +11052,11 @@
   },
   {
    "path": "test/native-store-assistant-records.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject assistants/apple/TrillionAssistant.swift is on no new repo",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:test/native-store-assistant-records.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte; its subject assistants/apple/TrillionAssistant.swift is on trillion-apps main (#53, same blob); passes 10/10; receipt test/moved-from.json.",
+   "group": "rest2"
   },
   {
    "path": "test/network-account-privacy.test.mjs",
@@ -11047,8 +11069,8 @@
   {
    "path": "test/new-account-person-store-allowance.json",
    "verdict": "to_move",
-   "evidence": "data of new-account-person-store.test.mjs (pr243 waits-on-a-read, src/ask-again-while-busy.mjs)",
-   "group": "tests-other"
+   "evidence": "Data of test/new-account-person-store.test.mjs, deleted by 4ffa1dc4a2; trillion-workshop docs/pr243-deleted-tests.json:2026 marks it \"waits-on-a-read\" (it reads src/worker.mjs by path, which no main holds). Goes with that test.",
+   "group": "rest2"
   },
   {
    "path": "test/no-bound-like-patterns.test.mjs",
@@ -11076,9 +11098,11 @@
   },
   {
    "path": "test/no-new-keychain-reads.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject scripts/keychain-read-allowance.json + old scripts/ tree still only on old main (scripts group)",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/no-new-keychain-reads.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/keychain-read-allowance.json (#50); passes 2/2.",
+   "group": "rest2"
   },
   {
    "path": "test/no-service-work-in-person-store.test.mjs",
@@ -11274,15 +11298,17 @@
   },
   {
    "path": "test/public-app-name-claim-readback.test.mjs",
-   "verdict": "to_move",
-   "evidence": "It tests scripts/carry-public-app-name-claims.mjs (group scripts, another worker's lane). It moves with it. It also imports src/typed-operation-contract.mjs (Workshop tools/shared-code).",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/public-app-name-claim-readback.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Already on round-1 branch claude/old-trillion-sweep-scripts (same blob 93bf7873). There it fails 0/7 in a cloud container: scripts/carry-public-app-name-claims.mjs stats ~/.bitfield/credentials/trillion-agent-work-key (environment, not the move).",
+   "group": "rest2"
   },
   {
    "path": "test/public-app-snapshot-fixture.mjs",
    "verdict": "to_move",
-   "evidence": "helper of public-app-host/merchant-commerce/public-app-file-index tests (with-slice), spans workshop and apps — goes with whichever carries them",
-   "group": "tests-other"
+   "evidence": "Helper of public-app-mcp, merchant-commerce, public-app-file-index and 9 more tests, all deleted by 4ffa1dc4a2 and marked \"with-slice\" in trillion-workshop docs/pr243-deleted-tests.json (e.g. :2251, :1681, :2240). Goes with whichever carries them.",
+   "group": "rest2"
   },
   {
    "path": "test/publish-current-main-mode.test.mjs",
@@ -11294,9 +11320,11 @@
   },
   {
    "path": "test/pushed-person-facts.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject scripts/check-pushed-person-facts.mjs still only on old main (scripts group)",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/pushed-person-facts.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/check-pushed-person-facts.mjs (#50); passes 1/1.",
+   "group": "rest2"
   },
   {
    "path": "test/pushed-work-kept.test.mjs",
@@ -11367,9 +11395,11 @@
   },
   {
    "path": "test/relink-editor-projects.test.mjs",
-   "verdict": "to_move",
-   "evidence": "reads ../records/workshop-tool-records.json (records-docs group, not moved); workshop media-composition test lacks its \"the relink tool runs on the person's...\" case",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-workshop:tools/media-composition/from-old-trillion/test/relink-editor-projects.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/221",
+   "evidence": "The old file whole (with the row-and-licence case the adapted tools/media-composition/test copy lacks); records import repointed to #203's workshop-tool-records.json; passes 4/4; stacked on #203.",
+   "group": "rest2"
   },
   {
    "path": "test/report-progress.test.mjs",
@@ -11517,14 +11547,14 @@
   {
    "path": "test/sales-contract-templates.test.mjs",
    "verdict": "to_move",
-   "evidence": "reads ../records/sales-contract-template-records.json (records-docs group, not moved)",
-   "group": "tests-other"
+   "evidence": "Its only subject records/sales-contract-template-records.json is held to_move by the records-docs lane as personal data (names a real person and real customer deals; belongs in the account's rows, not the public Workshop). The test moves with that data's home.",
+   "group": "rest2"
   },
   {
    "path": "test/sales-contracts.test.mjs",
    "verdict": "to_move",
-   "evidence": "imports ../src/sales-contracts.mjs (src-crates group, not moved) and three records/ files",
-   "group": "tests-other"
+   "evidence": "Needs src/sales-contracts.mjs (trillion-workshop #204, tools/build-and-send-a-sales-contract/from-old-trillion/src/) and records/workshop-sales-contract-tool-records.json (#203). With both present it passes 2/2 at tools/build-and-send-a-sales-contract/from-old-trillion/test/ (three record addresses repointed), but #203 and #204 conflict in 15 receipt/README files, so it cannot stack on both; it moves once either is on main.",
+   "group": "rest2"
   },
   {
    "path": "test/screen-mount-allowance.json",
@@ -11699,8 +11729,8 @@
   {
    "path": "test/source-composition-copy.test.mjs",
    "verdict": "to_move",
-   "evidence": "Held by tools/move-code-between-trees plan: it imports parts/judge-words/do-work/judge-words.mjs, which stays in the source (keep row parts/judge-words/). Waits for that file's home on main (trillion-workshop PR #200, parts/judge-words), then the same row moves it.",
-   "group": "scripts"
+   "evidence": "Tests scripts/check-copy.mjs (to_move). Needs scripts/check-copy.mjs, which reads records/copy-rules.json at load (scripts/check-copy.mjs:33). That file has no file home: trillion-workshop tools/move-code-between-trees/move-rows/trillion-to-workshop.json:163 says \"Opinion content: it becomes rows of the person's own lists through the Mac lane's import, never Workshop files; the logic that reads it moves to Workshop tools that read those rows through the door.\" check-copy also imports parts/judge-words (only on workshop #200, not in trillion-apps' pinned trillion-workshop e9bc8eab). So check-copy must be adapted to read the rules as rows before it or its tests can pass anywhere; a byte move would fail at import.",
+   "group": "rest2"
   },
   {
    "path": "test/source-lifecycle-preflight.test.mjs",
@@ -11718,9 +11748,11 @@
   },
   {
    "path": "test/staged-imports-resolve.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject scripts/staged-imports-resolve.mjs and helper test/support/fixture-git-env.mjs still only on old main",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/staged-imports-resolve.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/50",
+   "evidence": "Already on round-1 branch claude/old-trillion-sweep-scripts with scripts/staged-imports-resolve.mjs and support/fixture-git-env.mjs (same blob 0f71667b); passes 4/4 there.",
+   "group": "rest2"
   },
   {
    "path": "test/startup-lease.test.mjs",
@@ -11803,14 +11835,16 @@
   {
    "path": "test/support/space-network-for-tests.mjs",
    "verdict": "to_move",
-   "evidence": "helper of public-app-host tests (with-slice, src/public-app-host.mjs, no home yet)",
-   "group": "tests-other"
+   "evidence": "Helper of public-app-host, live-room, offline-install, take-offline and tools tests, deleted by 4ffa1dc4a2 and marked \"with-slice\" in trillion-workshop docs/pr243-deleted-tests.json:2243 (waiting_on_count 244). Goes with them.",
+   "group": "rest2"
   },
   {
    "path": "test/tell-a-chat-app.test.mjs",
-   "verdict": "to_move",
-   "evidence": "subject harness/tell-a-chat-app.mjs not yet moved (records-docs group); goes to workshop keep-and-wake test/ with it",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-workshop:tools/keep-and-wake-ai-sessions-on-this-computer/test/tell-a-chat-app.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/221",
+   "evidence": "Byte for byte beside harness/tell-a-chat-app.mjs (#203); passes 5/5; stacked on #203.",
+   "group": "rest2"
   },
   {
    "path": "test/test-cache-folder.test.mjs",
@@ -11956,15 +11990,19 @@
   },
   {
    "path": "test/visual/accepted/layout.json",
-   "verdict": "to_move",
-   "evidence": "read by scripts/visual-checks.json (scripts group, not moved); goes with it",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/visual/accepted/layout.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/visual-checks.json (#50), which reads it.",
+   "group": "rest2"
   },
   {
    "path": "test/visual/accepted/README.md",
-   "verdict": "to_move",
-   "evidence": "read by scripts/visual-checks.json (scripts group, not moved); goes with it",
-   "group": "tests-other"
+   "verdict": "being_moved",
+   "home": "trillion-apps:web/test/visual/accepted/README.md",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/70",
+   "evidence": "Byte for byte beside web/scripts/visual-checks.json (#50).",
+   "group": "rest2"
   },
   {
    "path": "test/vitest-shim.mjs",
