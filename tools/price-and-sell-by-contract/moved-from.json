@@ -62,6 +62,14 @@
       "identity": "1f:479d52f350f7c25729b221c58d833eb6875ec7499cf29af338cd4978b5975285"
     },
     {
+      "from": "src/contract-entitlements.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/price-and-sell-by-contract/src/contract-entitlements.mjs",
+      "source_identity": "1f:479d52f350f7c25729b221c58d833eb6875ec7499cf29af338cd4978b5975285",
+      "identity": "1f:479d52f350f7c25729b221c58d833eb6875ec7499cf29af338cd4978b5975285",
+      "reused": true
+    },
+    {
       "from": "src/contract-stripe-webhook.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/price-and-sell-by-contract/src/contract-stripe-webhook.mjs",
@@ -130,6 +138,13 @@
       "to": "tools/price-and-sell-by-contract/test/contract-checkout.test.mjs",
       "source_identity": "1f:c0afe6c029a8a9a28a815dcdd971b72d7c8b32ccc517d1d0dc87cc6e9fd3e3a0",
       "identity": "1f:c0afe6c029a8a9a28a815dcdd971b72d7c8b32ccc517d1d0dc87cc6e9fd3e3a0"
+    },
+    {
+      "from": "test/contract-entitlements.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/price-and-sell-by-contract/test/contract-entitlements.test.mjs",
+      "source_identity": "1f:62bc5c0c67da7a05e6eaed88c3559e5bb833edf58e57c5ce919f60974175d334",
+      "identity": "1f:324860496a806b9b43a3a2da78f4ce4a4a95a5fdafea670f47540937240c0c4f"
     },
     {
       "from": "test/contract-stripe-webhook.test.mjs",
