@@ -6,9 +6,9 @@
  },
  "counts": {
   "moved": 1500,
-  "being_moved": 105,
+  "being_moved": 104,
   "retired": 25,
-  "to_move": 28
+  "to_move": 29
  },
  "rows": [
   {
@@ -14915,10 +14915,8 @@
   },
   {
    "path": "test/shared-cargo-target.test.mjs",
-   "verdict": "being_moved",
-   "home": "trillion-apps/web/test/shared-cargo-target.test.mjs",
-   "pr": "https://github.com/Trillion-X/trillion-apps/pull/43",
-   "evidence": "byte-for-byte copy with receipt in web/moved-from.json; 6/6 tests pass",
+   "verdict": "to_move",
+   "evidence": "no home found yet",
    "group": "lead"
   },
   {
