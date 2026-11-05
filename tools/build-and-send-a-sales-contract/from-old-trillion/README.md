@@ -5,3 +5,4 @@ Files of old trillion whose job is this tool's. They are old trillion's bytes at
 | Old path | Here | Status |
 |---|---|---|
 | `src/sales-contracts.mjs` | `src/sales-contracts.mjs` | loads here (from 5dc302be) |
+| `test/sales-contracts.test.mjs` | `test/sales-contracts.test.mjs` | passes 2/2 here (from 5dc302be); its three record addresses point at the same bytes already in this repository |
