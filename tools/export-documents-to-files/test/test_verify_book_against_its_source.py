@@ -1,4 +1,8 @@
-"""Content-loss probes for the scoped PDF comparison (no private corpus)."""
+"""Content-loss probes for the scoped PDF comparison (no private corpus).
+
+Moved from source-repo-a tools/private-book-reader/test_pdf_source.py.
+"""
+import sys
 import unittest
 import tempfile
 from pathlib import Path
@@ -12,7 +16,8 @@ import json
 import subprocess
 import shutil
 
-import verify_pdf_source as verifier
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "do-work"))
+import verify_book_against_its_source as verifier  # noqa: E402
 
 
 class ContentLossTests(unittest.TestCase):
@@ -183,7 +188,8 @@ class ScopedCMapTests(unittest.TestCase):
                                      NameObject("/ToUnicode"): cmap})
             page[NameObject("/Resources")] = DictionaryObject({NameObject("/Font"): DictionaryObject({NameObject("/F1"): font})})
             writer.write(str(raw))
-            digest = subprocess.check_output([shutil.which("b3sum"), str(raw)], text=True).split()[0]
+            from writing_gate import _hash
+            digest = _hash(raw)
             data = {"raw_pdf_blake3": digest, "repairs": [{"font": "/Fixture", "glyph_code": "43", "from": None, "to": "ft"}]}
             declaration.write_text(json.dumps(data))
             scoped = verifier._load_scoped_cmap_repairs(declaration, raw)
@@ -211,7 +217,8 @@ class ScopedCMapTests(unittest.TestCase):
                                      NameObject("/ToUnicode"): cmap})
             page[NameObject("/Resources")] = DictionaryObject({NameObject("/Font"): DictionaryObject({NameObject("/F1"): font})})
             writer.write(str(raw))
-            digest = subprocess.check_output([shutil.which("b3sum"), str(raw)], text=True).split()[0]
+            from writing_gate import _hash
+            digest = _hash(raw)
             data = {"raw_pdf_blake3": digest, "repairs": [{"font": "/Fixture", "glyph_code": "2A", "from": "C", "to": "ft"}]}
             declaration.write_text(json.dumps(data))
             scoped = verifier._load_scoped_cmap_repairs(declaration, raw)
@@ -241,7 +248,14 @@ class CachedPageFieldTests(unittest.TestCase):
             template = root / "template.docx"
             output = root / "book.docx"
             Document().save(template)
-            builder.render_document(parsed, template, output, {"BookHeading1": 3})
+            # The renderer needs the source snapshot it parsed (stale in the launch-video copy, which errored here).
+            source = root / "fixture.md"
+            source_bytes = b"# Fixture\n\nIntro before a heading.\n\n## R09-03\n\nBody.\n"
+            source.write_bytes(source_bytes)
+            from writing_gate import _hash
+            builder.render_document(parsed, template, output, {"BookHeading1": 3}, source_path=source,
+                                    source_bytes=source_bytes,
+                                    settings={"role": "comparison", "source_blake3": _hash(source)})
             result = verifier._check_docx(output, parsed, builder, {"BookHeading1": 3})
         self.assertEqual(result["contents_page_fields"], 1)
         self.assertEqual(result["cached_page_mismatches"], [])

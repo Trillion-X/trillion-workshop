@@ -3,7 +3,12 @@
 
 The source Markdown remains the content authority. The template supplies page
 geometry, styles, numbering, theme, and section furniture. No source text is
-stored alongside this tool.
+stored alongside this tool. Which manuscript, template and output folder, and the
+writing gate's settings, come from the person's settings row
+record:setting:export-documents-to-files~piece~<book-id> (tools/settings) or
+from arguments.
+
+Moved from source-repo-a tools/private-book-reader/private_book_reader.py.
 """
 
 from __future__ import annotations
@@ -340,7 +345,8 @@ def _new_numbering_instance(document, source_num_id: int) -> int:
 
 
 def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, page_map: dict[str, int] | None = None,
-                   *, source_path: Path | None = None, source_bytes: bytes | None = None) -> dict:
+                   *, source_path: Path | None = None, source_bytes: bytes | None = None,
+                   settings: dict | None = None, checks_receipt: dict | None = None) -> dict:
     if source_path is None or source_bytes is None:
         raise ValueError("A current source snapshot is required for DOCX export")
     source_path = source_path.resolve(strict=True)
@@ -353,7 +359,8 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
     if parse_markdown(snapshot_text) != parsed:
         raise ValueError("Parsed content does not match the source snapshot; export remains blocked")
     from writing_gate import enforce_writing_policy
-    gate_receipt = enforce_writing_policy(source_path, expected_bytes=source_bytes)
+    gate_receipt = enforce_writing_policy(source_path, expected_bytes=source_bytes,
+                                          settings=settings, checks_receipt=checks_receipt)
     page_map = page_map or {}
     doc = Document(str(template_path))
     _clear_body(doc)
@@ -598,32 +605,82 @@ def _check(parsed: ParsedBook, source: str) -> None:
     print(f"Text readback: {len(actual)} characters; exact visible-text parity passed")
 
 
+TOOL_FOLDER = "export-documents-to-files"
+TOOL_ID = "tool:export-a-markdown-book-to-word"
+SETTINGS_READER = Path(__file__).resolve().parents[2] / "settings" / "read-data"
+
+
+def read_settings(settings_record: Path | None, book_id: str | None) -> dict | None:
+    """The book's settings row (the record records:read gave, saved as JSON), read through the one shared reader
+    (tools/settings `setting`): only record:setting:export-documents-to-files~piece~<book_id>, active, for this tool."""
+    if settings_record is None:
+        return None
+    if not book_id:
+        raise ValueError("--book-id names the piece whose settings row to read")
+    if not (SETTINGS_READER / "settings.py").is_file():
+        raise ValueError("tools/settings is not in this checkout; the settings row cannot be read")
+    sys.path.insert(0, str(SETTINGS_READER))
+    try:
+        import settings as settings_reader
+    finally:
+        sys.path.remove(str(SETTINGS_READER))
+    try:
+        value = settings_reader.setting(settings_record, TOOL_FOLDER, [("piece", book_id)], tool=TOOL_ID)
+    except settings_reader.SettingError as error:
+        raise ValueError(str(error)) from None
+    if value is None:
+        raise ValueError(f"No settings row {settings_reader.setting_id(TOOL_FOLDER, 'piece', book_id)} was given; export remains blocked")
+    return value
+
+
+def _json_file(path: Path | None):
+    return json.loads(path.read_text(encoding="utf-8")) if path else None
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("markdown", type=Path, help="Markdown source book")
-    parser.add_argument("--template", type=Path, help="Retained DOCX providing layout and styles")
-    parser.add_argument("--output", type=Path, help="DOCX output path")
+    parser.add_argument("markdown", type=Path, nargs="?", help="Markdown source book (else the settings' manuscript)")
+    parser.add_argument("--template", type=Path, help="Retained DOCX providing layout and styles (else the settings' template)")
+    parser.add_argument("--output", type=Path, help="DOCX output path (else <output_folder>/<book-id>.docx from the settings)")
     parser.add_argument("--page-map", type=Path, help="Optional bookmark to rendered page number mapping for cached contents values")
     parser.add_argument("--check", action="store_true", help="Parse and report structure without writing a DOCX")
+    parser.add_argument("--book-id", help="The piece id of the book's settings row")
+    parser.add_argument("--settings-record", type=Path, help="The book's settings row as records:read gave it (a JSON file)")
+    parser.add_argument("--settings", type=Path, help="The already-read settings object (a JSON file); for tests and the node wrapper")
+    parser.add_argument("--checks-receipt", type=Path, help="The book's checks branch result for these bytes (export-a-book.mjs writes it)")
     args = parser.parse_args(argv)
-    source_bytes = args.markdown.read_bytes()
+    try:
+        settings = _json_file(args.settings) if args.settings else read_settings(args.settings_record, args.book_id)
+    except (ValueError, OSError, json.JSONDecodeError) as error:
+        parser.error(str(error))
+    settings_view = settings if isinstance(settings, dict) else {}
+    markdown = args.markdown or (Path(settings_view["manuscript"]) if settings_view.get("manuscript") else None)
+    if markdown is None:
+        parser.error("the Markdown source is required (an argument or the settings' manuscript)")
+    source_bytes = markdown.read_bytes()
     source_text = source_bytes.decode("utf-8")
     parsed = parse_markdown(source_text)
     if args.check:
         _check(parsed, source_text)
         return 0
-    if not args.template or not args.output:
-        parser.error("--template and --output are required unless --check is used")
+    template = args.template or (Path(settings_view["template"]) if settings_view.get("template") else None)
+    output = args.output or (Path(settings_view["output_folder"]) / f"{args.book_id}.docx"
+                             if settings_view.get("output_folder") and args.book_id else None)
+    if not template or not output:
+        parser.error("--template and --output are required unless --check is used or the settings name them")
     page_map = json.loads(args.page_map.read_text()) if args.page_map else None
     try:
-        gate_receipt = render_document(parsed, args.template, args.output, page_map,
-                                       source_path=args.markdown, source_bytes=source_bytes)
-    except ValueError as error:
+        gate_receipt = render_document(parsed, template, output, page_map,
+                                       source_path=markdown, source_bytes=source_bytes,
+                                       settings=settings, checks_receipt=_json_file(args.checks_receipt))
+    except (ValueError, json.JSONDecodeError) as error:
         parser.error(str(error))
-    print(f"Created {args.output} ({len(parsed.headings)} headings, {len(parsed.tables)} tables)")
+    print(f"Created {output} ({len(parsed.headings)} headings, {len(parsed.tables)} tables)")
     decider = gate_receipt.get("decider2b_evidence") if isinstance(gate_receipt, dict) else None
     if isinstance(decider, dict):
         print(f"Decider execution: {decider['status']}; model qualification: {decider['model_qualification']}; voice certification: {decider['voice_certification']}")
+    print(json.dumps({"written": str(output), "headings": len(parsed.headings), "tables": len(parsed.tables),
+                      "gate": gate_receipt}, ensure_ascii=False))
     return 0
 
 

@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VERIFY-BOOK-AGAINST-ITS-SOURCE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane, launch-video port 2026-11-04 (part export)",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:00261887ac258fdeb05df0206de192d9b17d1686cf00eb7d1d6e7d3cceaad388",
+   "multihash": "1f:0451a9a3a029eb71cb6586deacc2a2868f805c84e229a8315e0bbad4ab0a12d9",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T19:00:00Z",
+    "deleted_with": "the lane lead's launch-video removal change deletes tools/private-book-reader, naming tools/export-documents-to-files as its new home"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/export-documents-to-files/do-work/verify_book_against_its_source.py"
+  }
+ ],
+ "preserve": [
+  "the DOCX readback, outline order and depth, contents link destinations, pre-body blank pages and page map",
+  "ordered prose, table inventories and arrows checked with pypdf and PDFium; numeric ActualText honoured",
+  "only listed or scoped and bound ToUnicode repairs, pixel-identical pages, unresolved differences reported with a nonzero exit"
+ ],
+ "allowed_deltas": [
+  "BLAKE3 for scoped repairs from tools/content-identity instead of b3sum; the summary is one JSON line; the builder is export_markdown_book_to_word.py"
+ ],
+ "banned_substitutions": [
+  "a source-specific word replacement",
+  "a repair applied to a different raw PDF"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0451a9a3a029eb71cb6586deacc2a2868f805c84e229a8315e0bbad4ab0a12d9",
+  "target_multihash_at_baseline": "1f:0451a9a3a029eb71cb6586deacc2a2868f805c84e229a8315e0bbad4ab0a12d9",
+  "commit": "c22c2ace0dc47ba8d4c185f56124c5a5988df473"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/export-documents-to-files/test/test_verify_book_against_its_source.py"
+  ]
+ }
+}

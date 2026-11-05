@@ -4,6 +4,8 @@
 The optional CMap repair path changes only the listed, source-confirmed
 ToUnicode mappings. It requires full body text parity and pixel-identical
 pages before it records a successful repaired PDF.
+
+Moved from source-repo-a tools/private-book-reader/verify_pdf_source.py.
 """
 
 from __future__ import annotations
@@ -30,7 +32,7 @@ from pypdf.generic import ByteStringObject, ContentStream, NameObject
 
 
 PYTHON = Path(sys.executable)
-BUILDER = Path(__file__).with_name("private_book_reader.py")
+BUILDER = Path(__file__).with_name("export_markdown_book_to_word.py")
 RUNTIME_PYTHON = Path(os.environ.get("BOOK_READER_PYTHON") or sys.executable)      # the Python this place reports for the builder, else this one
 
 # These source-text errors were observed in this manuscript's embedded
@@ -60,7 +62,7 @@ CMAP_REPAIRS = {
 
 
 def _load_builder():
-    spec = importlib.util.spec_from_file_location("private_book_reader", BUILDER)
+    spec = importlib.util.spec_from_file_location("export_markdown_book_to_word", BUILDER)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Cannot load Markdown parser at {BUILDER}")
     module = importlib.util.module_from_spec(spec)
@@ -487,10 +489,10 @@ def _load_scoped_cmap_repairs(path: Path | None, raw_pdf: Path) -> list[dict[str
     if path is None:
         return []
     data = json.loads(path.read_text(encoding="utf-8"))
-    executable = shutil.which("b3sum")
-    if executable is None:
-        raise ValueError("BLAKE3 owner b3sum is required for scoped CMap repairs")
-    actual_hash = subprocess.check_output([executable, str(raw_pdf)], text=True).split()[0]
+    # The one BLAKE3 owner, tools/content-identity, through the writing gate's bridge.
+    sys.path.insert(0, str(BUILDER.parent))
+    from writing_gate import _hash
+    actual_hash = _hash(raw_pdf)
     if actual_hash != data.get("raw_pdf_blake3"):
         raise ValueError("Scoped CMap repairs are bound to a different raw PDF")
     before = _cmap_entries(raw_pdf)
@@ -832,7 +834,7 @@ def main(argv=None) -> int:
         ],
         "error": report.get("error"),
     }
-    print(json.dumps(summary, indent=2, ensure_ascii=False))
+    print(json.dumps(summary, ensure_ascii=False))
     return 0 if report["status"] == "passed" else 1
 
 

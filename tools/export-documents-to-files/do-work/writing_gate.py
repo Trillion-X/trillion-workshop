@@ -1,7 +1,15 @@
-"""Enforce a caller-owned writing policy before the managed DOCX CLI exports.
+"""Enforce the person's writing settings before the managed DOCX CLI exports.
 
 This is coverage/regression enforcement, not semantic or author approval. The
-policy contains no executable paths; the adjacent maintained checker is used.
+settings are one row of the person's list:settings
+(record:setting:export-documents-to-files~piece~<book-id>), read at run time; they
+contain no executable paths. The Workshop's own checkers are used:
+tools/pin-files-by-content (writing profile and source spans), the book's checks
+branch of list:checks through tools/check-against-a-persons-rules-and-verdicts
+(its receipt is handed in), and the writing-voice classifier's capture validator
+(tools/train-and-evaluate-a-writing-voice-classifier).
+
+Moved from source-repo-a tools/private-book-reader/writing_gate.py.
 """
 from __future__ import annotations
 import json
@@ -14,22 +22,40 @@ import uuid
 from pathlib import Path
 from urllib.parse import urlparse
 
+WORKSHOP_TOOLS = Path(__file__).resolve().parents[2]
+# The one BLAKE3 owner (tools/content-identity), through its stdin bridge.
+IDENTITY_BRIDGE = WORKSHOP_TOOLS / "content-identity" / "do-work" / "identity-from-stdin.mjs"
+# The one writing-profile checker (it checks component evidence with verify-source-spans.mjs beside it).
+WRITING_CHECKER = WORKSHOP_TOOLS / "pin-files-by-content" / "do-work" / "verify-writing-profile.mjs"
+# The book-voice classifier's capture validator (validateInput, validateReport), called through the bridge below.
+VOICE_CLASSIFIER = (WORKSHOP_TOOLS / "train-and-evaluate-a-writing-voice-classifier" / "read-data"
+                    / "evaluation-integrity.mjs")
+VOICE_CAPTURE_BRIDGE = Path(__file__).resolve().with_name("check-a-voice-capture.mjs")
+TOOL_FOLDER = "export-documents-to-files"
+ROLES = ("current_prose", "comparison", "historical_reference")
 
-def _hash(path: Path) -> str:
-    executable = shutil.which("b3sum")
-    if not executable:
-        raise ValueError("Writing policy requires the declared BLAKE3 owner")
-    value = subprocess.check_output([executable, "--no-names", str(path)], text=True).strip()
-    if len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
-        raise ValueError("Writing policy could not verify source identity")
-    return value
+
+def _node() -> str | None:
+    bundled_node = Path(sys.executable).absolute().parents[2] / "node" / "bin" / "node"
+    return str(bundled_node) if bundled_node.is_file() else shutil.which("node")
 
 
 def _snapshot_hash(data: bytes) -> str:
-    executable = shutil.which("b3sum")
-    if not executable:
-        raise ValueError("Writing policy requires the declared BLAKE3 owner")
-    return subprocess.check_output([executable, "--no-names"], input=data).decode("ascii").strip()
+    node = _node()
+    if not node or not IDENTITY_BRIDGE.is_file():
+        raise ValueError("Writing settings require the declared BLAKE3 owner (tools/content-identity)")
+    result = subprocess.run([node, str(IDENTITY_BRIDGE)], input=data, capture_output=True)
+    value = result.stdout.decode("ascii", "replace").strip()
+    if result.returncode != 0 or not value.startswith("1f:"):
+        raise ValueError("Writing settings could not verify source identity")
+    value = value[3:]
+    if len(value) != 64 or any(c not in "0123456789abcdef" for c in value):
+        raise ValueError("Writing settings could not verify source identity")
+    return value
+
+
+def _hash(path: Path) -> str:
+    return _snapshot_hash(Path(path).read_bytes())
 
 
 def _writing_blocks(text: str) -> list[str]:
@@ -248,19 +274,10 @@ def _validate_decider_capture(node: str, data_path: Path, report_path: Path,
 
     rubric_path = data_path.parent / "rubric.json"
     rubric_hash = _hash(rubric_path) if data.get("criteria") and rubric_path.is_file() else data.get("rubric_blake3")
-    integrity_module = Path(__file__).resolve().parent.parent / "copy-gate" / "evaluate-book-voice-integrity.mjs"
-    if not integrity_module.is_file():
+    integrity_module = Path(VOICE_CLASSIFIER)
+    if not integrity_module.is_file() or not VOICE_CAPTURE_BRIDGE.is_file():
         raise ValueError("The maintained Decider2B report validator is unavailable; export remains blocked")
-    validator = '''
-import { pathToFileURL } from 'node:url';
-const [modulePath, dataPath, reportPath, dataBlake3, rubricBlake3] = process.argv.slice(1);
-const { validateInput, validateReport } = await import(pathToFileURL(modulePath).href);
-const input = JSON.parse(await (await import('node:fs/promises')).readFile(dataPath, 'utf8'));
-const report = JSON.parse(await (await import('node:fs/promises')).readFile(reportPath, 'utf8'));
-validateInput(input);
-validateReport(report, { input, model: report.model, endpoint: report.endpoint, dataPath, dataBlake3, rubricBlake3: rubricBlake3 || null, serving: report.serving, requestPolicy: report.request_policy, requestEvidenceVersion: report.request_evidence_version, servingIdentityPolicy: report.serving_identity_policy }, { requireServing: true });
-'''
-    command = [node, "--input-type=module", "-e", validator, str(integrity_module), str(data_path),
+    command = [node, str(VOICE_CAPTURE_BRIDGE), str(integrity_module), str(data_path),
                str(report_path), _snapshot_hash(data_bytes), rubric_hash or ""]
     result = subprocess.run(command, capture_output=True, text=True)
     if result.returncode != 0:
@@ -475,59 +492,67 @@ def _read_decider_evidence(policy_root: Path, entry: dict, source: Path, source_
             "qualification_required_labels": required_labels,
             "voice_certification": "not_established; benchmark qualification is not universal author approval"}
 
-def enforce_writing_policy(source: Path, expected_bytes: bytes | None = None) -> dict | None:
-    # Bind policy discovery and document identity to the actual file, so a
-    # symlinked source cannot select a policy from its lexical path.
+def _check_receipt(settings: dict, receipt: object, current_hash: str) -> dict:
+    """The book's checks: the branch of list:checks its settings name, judged by
+    tools/check-against-a-persons-rules-and-verdicts in branch mode on these exact bytes."""
+    branch = settings.get("checks_branch")
+    if not isinstance(branch, str) or not branch:
+        raise ValueError("Current prose requires the book's checks branch (checks_branch) in its settings; export remains blocked")
+    if (not isinstance(receipt, dict) or receipt.get("branch") != branch
+            or receipt.get("document_blake3") != current_hash):
+        raise ValueError("The book's checks were not run on this exact manuscript; export remains blocked")
+    if receipt.get("status") != "passed" or receipt.get("passed") is not True:
+        raise ValueError("The book's checks did not pass; no DOCX was created")
+    return {key: receipt.get(key) for key in ("branch", "lineage", "status", "document_blake3", "rows_used")}
+
+
+def enforce_writing_policy(source: Path, expected_bytes: bytes | None = None, *,
+                           settings: dict | None = None, checks_receipt: dict | None = None) -> dict | None:
+    # Bind document identity to the actual file, so a symlinked source is
+    # judged by the bytes it resolves to.
     source = source.resolve(strict=True)
-    policy_path = next((p / ".writing-policy.json" for p in source.parents if (p / ".writing-policy.json").is_file()), None)
-    if policy_path is None:
-        raise ValueError("No writing policy admits this document; DOCX export remains blocked")
+    if settings is None:
+        raise ValueError("No writing settings admit this document; DOCX export remains blocked")
     try:
-        policy = json.loads(policy_path.read_text(encoding="utf-8"))
-        if not isinstance(policy, dict) or not isinstance(policy.get("documents"), dict):
-            raise ValueError("Writing policy does not admit this document or has invalid DATA")
-        relative = source.relative_to(policy_path.parent).as_posix()
-        entry = policy["documents"][relative]
-        if not isinstance(entry, dict):
-            raise ValueError("Writing policy does not admit this document or has invalid DATA")
-        if policy["schema"] != "book-writing-policy-v1" or policy["unknown_documents"] != "deny":
-            raise ValueError()
+        if not isinstance(settings, dict) or settings.get("role") not in ROLES:
+            raise ValueError("Writing settings do not admit this document or have invalid DATA")
         current_hash = _hash(source)
         if expected_bytes is not None and current_hash != _snapshot_hash(expected_bytes):
             raise ValueError("Source changed after loading; export remains blocked")
-        if entry["source_blake3"] != current_hash:
-            raise ValueError("Writing policy source changed; its evidence must be updated")
-        if entry["role"] in ("comparison", "historical_reference"):
+        if settings["source_blake3"] != current_hash:
+            raise ValueError("Writing settings source changed; its evidence must be updated")
+        if settings["role"] in ("comparison", "historical_reference"):
             return {"status": "declared_reference", "assurance": "Bound historical/comparison input; no current-prose approval."}
-        if entry["role"] != "current_prose":
-            raise ValueError()
-        policy_root = policy_path.parent.resolve(strict=True)
-        profile_value = entry["profile"]
-        reviews_value = entry.get("reviews")
+        evidence_folder = settings["evidence_folder"]
+        if not isinstance(evidence_folder, str) or not Path(evidence_folder).is_absolute():
+            raise ValueError("Writing settings must name an absolute evidence_folder")
+        policy_root = Path(evidence_folder).resolve(strict=True)
+        profile_value = settings["profile"]
+        reviews_value = settings.get("reviews")
         if not isinstance(profile_value, str) or (reviews_value is not None and not isinstance(reviews_value, str)):
-            raise ValueError("Invalid writing policy DATA")
+            raise ValueError("Invalid writing settings DATA")
         profile = (policy_root / profile_value).resolve(strict=False)
         reviews = (policy_root / reviews_value).resolve(strict=False) if reviews_value else None
         if not profile.is_relative_to(policy_root) or (reviews is not None and not reviews.is_relative_to(policy_root)):
-            raise ValueError("Writing policy evidence must remain within its policy directory")
+            raise ValueError("Writing settings evidence must remain within its policy directory (evidence_folder)")
         if not profile.is_file() or (reviews is not None and not reviews.is_file()):
-            raise ValueError("Writing policy evidence is missing")
-        bundled_node = Path(sys.executable).absolute().parents[2] / "node" / "bin" / "node"
-        node = str(bundled_node) if bundled_node.is_file() else shutil.which("node")
+            raise ValueError("Writing settings evidence is missing")
+        node = _node()
         if not node:
             raise ValueError("The maintained Decider2B validator is unavailable; export remains blocked")
-        decider = _read_decider_evidence(policy_root, entry, source, current_hash, node)
+        checks = _check_receipt(settings, checks_receipt, current_hash)
+        decider = _read_decider_evidence(policy_root, settings, source, current_hash, node)
     except (KeyError, TypeError, json.JSONDecodeError, OSError):
-        raise ValueError("Writing policy does not admit this document or has invalid DATA") from None
+        raise ValueError("Writing settings do not admit this document or have invalid DATA") from None
     except ValueError as error:
         if str(error):
             raise
-        raise ValueError("Invalid writing policy DATA") from None
-    # The one copy of the writing checker is the Workshop's (set TRILLION_WORKSHOP to a trillion-workshop checkout).
-    checker = Path(os.environ.get("TRILLION_WORKSHOP", "/nonexistent")) / "tools/pin-files-by-content/do-work/verify-writing-profile.mjs"
+        raise ValueError("Invalid writing settings DATA") from None
+    # The one copy of the writing checker is the Workshop's, beside this tool.
+    checker = WRITING_CHECKER
     if not node or not checker.is_file():
         raise ValueError("The maintained writing checker is unavailable; export remains blocked")
-    reports = policy_path.parent / ".writing-gate-reports"
+    reports = policy_root / ".writing-gate-reports"
     reports.mkdir(mode=0o700, exist_ok=True)
     os.chmod(reports, 0o700)
     report = reports / (uuid.uuid4().hex + ".json")
@@ -543,6 +568,7 @@ def enforce_writing_policy(source: Path, expected_bytes: bytes | None = None) ->
             raise ValueError()
     except (OSError, KeyError, TypeError, json.JSONDecodeError, ValueError):
         raise ValueError("Writing check receipt is missing, stale or invalid") from None
+    receipt["book_checks"] = checks
     receipt["decider2b_evidence"] = decider
     receipt["assurance"] = (receipt.get("assurance", "") + " Captured local Decider2B responses passed every required criterion on every exact current paragraph. This is evidence of model execution and its recorded choices, not semantic correctness or author approval.").strip()
     return receipt

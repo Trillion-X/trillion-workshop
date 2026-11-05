@@ -1,6 +1,10 @@
-"""Synthetic DOCX readback regressions for source content before headings."""
+"""Synthetic DOCX readback regressions for source content before headings.
 
-import json
+Moved from source-repo-a tools/private-book-reader/test_private_book_reader.py; the writing settings are the
+settings object of a made-up book's row instead of a .writing-policy.json beside the fixture.
+"""
+
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -8,8 +12,9 @@ from pathlib import Path
 from docx import Document
 from docx.oxml.ns import qn
 
-import private_book_reader as builder
-from writing_gate import _hash as source_hash
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "do-work"))
+import export_markdown_book_to_word as builder  # noqa: E402
+from writing_gate import _hash as source_hash  # noqa: E402
 
 
 class BodyReadbackTests(unittest.TestCase):
@@ -26,18 +31,11 @@ class BodyReadbackTests(unittest.TestCase):
         source_path = self.root / "fixture.md"
         source_bytes = source.encode("utf-8")
         source_path.write_bytes(source_bytes)
-        (self.root / ".writing-policy.json").write_text(json.dumps({
-            "schema": "book-writing-policy-v1",
-            "unknown_documents": "deny",
-            "documents": {source_path.name: {
-                "role": "comparison",
-                "source_blake3": source_hash(source_path),
-            }},
-        }))
+        settings = {"role": "comparison", "source_blake3": source_hash(source_path)}
         parsed = builder.parse_markdown(source)
         output = self.root / name
         builder.render_document(parsed, self.template, output,
-                                source_path=source_path, source_bytes=source_bytes)
+                                source_path=source_path, source_bytes=source_bytes, settings=settings)
         return parsed, output
 
     def remove_body_bookmark(self, output: Path) -> None:
@@ -130,17 +128,10 @@ class MathSignRenderingTests(unittest.TestCase):
             source_path = root / "fixture.md"
             source_bytes = b"# Lists\n\n1. Alpha\n2. Beta\n\nBetween.\n\n1. Gamma\n2. Delta\n"
             source_path.write_bytes(source_bytes)
-            (root / ".writing-policy.json").write_text(json.dumps({
-                "schema": "book-writing-policy-v1",
-                "unknown_documents": "deny",
-                "documents": {source_path.name: {
-                    "role": "comparison",
-                    "source_blake3": source_hash(source_path),
-                }},
-            }))
+            settings = {"role": "comparison", "source_blake3": source_hash(source_path)}
             parsed = builder.parse_markdown(source_bytes.decode("utf-8"))
             builder.render_document(parsed, template, output,
-                                    source_path=source_path, source_bytes=source_bytes)
+                                    source_path=source_path, source_bytes=source_bytes, settings=settings)
             doc = Document(output)
             ids = []
             for text in ("Alpha", "Gamma"):
