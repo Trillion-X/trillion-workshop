@@ -51,6 +51,28 @@ export function stillLevelOf(changes) {
 }
 
 /**
+ * Every hold in a list of frame changes, in the order they start: [{ seconds, at }], `seconds` its length and `at` the second
+ * it starts, both timed by the frame rate. A frame moves when it or a neighbour changed by more than the still level (and no
+ * more than the cut level); a hold is a run of frames that neither move nor cut.
+ */
+export function holdsIn(changes, level, fps) {
+  const cut = settings.cut_level;
+  const moves = value => value > level && value <= cut;
+  const moving = changes.map((_, i) => [changes[i - 1], changes[i], changes[i + 1]].some(value => value !== undefined && moves(value)));
+  const holds = [];
+  for (let i = 0, run = 0, start = 0; i <= moving.length; i++) {
+    if (i < moving.length && !moving[i] && changes[i] <= cut) {
+      if (!run) start = i;
+      run++;
+    } else {
+      if (run) holds.push({ seconds: run / fps, at: start / fps });
+      run = 0;
+    }
+  }
+  return { moving, holds };
+}
+
+/**
  * { seconds, moving_share, longest_hold_s, holds_over_1s_per_min, still_threshold } for the first `seconds` of a video
  * (all of it when 0). `still` is the still level to hold it to (a reference's); left out, it is read from this video.
  */
@@ -59,23 +81,33 @@ export function measureMotion(path, seconds = 0, still = null) {
   const length = seconds || info.duration;
   const changes = frameChanges(path, length, info);
   const level = still ?? stillLevelOf(changes);
-  const cut = settings.cut_level;
-  const moves = value => value > level && value <= cut;
-  const moving = changes.map((_, i) => [changes[i - 1], changes[i], changes[i + 1]].some(value => value !== undefined && moves(value)));
-  const holds = [];
-  let run = 0;
-  for (let i = 0; i <= moving.length; i++) {
-    if (i < moving.length && !moving[i] && changes[i] <= cut) run++;
-    else {
-      if (run) holds.push(run / info.fps);
-      run = 0;
-    }
-  }
+  const { moving, holds } = holdsIn(changes, level, info.fps);
+  const lengths = holds.map(hold => hold.seconds);
   return {
     seconds: round(length, 2),
     moving_share: round(moving.filter(Boolean).length / Math.max(1, changes.length), 2),
-    longest_hold_s: round(Math.max(0, ...holds), 2),
-    holds_over_1s_per_min: round((holds.filter(hold => hold >= 1).length / length) * 60, 1),
+    longest_hold_s: round(Math.max(0, ...lengths), 2),
+    holds_over_1s_per_min: round((lengths.filter(hold => hold >= 1).length / length) * 60, 1),
     still_threshold: round(level, 2),
+  };
+}
+
+/**
+ * The longest still holds of the first `seconds` of a video (all of it when 0), longest first (holds of one length in the
+ * order they start), at most `top` of them: { seconds, still_threshold, holds: [{ seconds, at }], text }, `text` the same
+ * list on one line as `<seconds>s@<at>`. `still` is the still level to read it at; left out, it is read from this video.
+ */
+export function longestHolds(path, seconds = 0, still = null, top = 12) {
+  const info = probe(path);
+  const length = seconds || info.duration;
+  const changes = frameChanges(path, length, info);
+  const level = still ?? stillLevelOf(changes);
+  const { holds } = holdsIn(changes, level, info.fps);
+  const longest = [...holds].sort((x, y) => y.seconds - x.seconds).slice(0, top);
+  return {
+    seconds: round(length, 2),
+    still_threshold: round(level, 2),
+    holds: longest.map(hold => ({ seconds: round(hold.seconds, 2), at: round(hold.at, 2) })),
+    text: longest.map(hold => `${hold.seconds.toFixed(2)}s@${hold.at.toFixed(2)}`).join('  '),
   };
 }
