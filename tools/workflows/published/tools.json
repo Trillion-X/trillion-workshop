@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:d7cf63e8460b008f62e30ccf0d9033c8d092d7a6520d979f5d029dcadfff39c2"
+  "blake3": "1f:819812344d5b4f3d880a3b06d916cc7db1f393bdff3b00f7775d0bb956557ad9"
  },
  "fields": [
   {
@@ -2263,6 +2263,21 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:collect-and-rank-viewer-questions",
+   "values": {
+    "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
+    "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+    "status": "active",
+    "maker": "maker:collect-and-rank-viewer-questions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "collect-and-rank-viewer-questions"
    }
   },
   {
