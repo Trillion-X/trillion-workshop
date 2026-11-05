@@ -34,6 +34,21 @@
    "repository": "trillion-workshop",
    "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
    "why": "Reads a branch's check rows to judge a unit; it lists the questions and never answers them. This reads ask rows by id and labelled-line rows by set to answer and calibrate."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "Index rows only: this tool's own owner row (\"answer copy-rule asks with a person's local models\") and the where-a-person-stands row whose evidence names labelled-line rulings; neither is code that answers asks."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/where-a-person-stands/",
+   "why": "A sibling that WRITES labelled-line rulings (record:check:ruling-<hex>) to the person's list:checks; this tool only reads those rows as calibration examples and answers asks with a model. Writing the rows is not answering asks, so it is not an owner of this job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog: one flat row per tool copied from this folder's tool-rows.json (publish-tool-catalog.mjs); it lists the tool and runs nothing."
   }
  ],
  "proof": {
