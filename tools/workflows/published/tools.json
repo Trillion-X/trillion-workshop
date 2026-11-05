@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:3efa8d6e6b7ab555e5f4480f6ed123ff4ca3aed7c7e2158bb3876947333dafb8"
+  "blake3": "1f:d7cf63e8460b008f62e30ccf0d9033c8d092d7a6520d979f5d029dcadfff39c2"
  },
  "fields": [
   {
@@ -1775,6 +1775,21 @@
    }
   },
   {
+   "id": "tool:check-every-claim-against-its-facts-and-sources",
+   "values": {
+    "title": "Check every claim my narrator makes, spoken or on screen, against my facts and sources before it is voiced (runs on your computer)",
+    "job": "Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
+    "description": "Reads a run's shots (shots/<id>.json: the voice script and the on-screen events), their claims files (claims/<id>.json: one entry per spoken sentence and per on-screen text, each citing world facts, source wordings, transcript quotes or saved frames), the person's world rows (lists.json, rows/<list>.json, relations.json: entities, facts and relations) and their sources file with its plain-text extracts. The world's own check runs first (row shapes, links, roles, every fact's words at its transcript second or file line); then each shot fails a claim that: is not covered (script or screen text without an entry, or an entry for nothing); is about the subject but has no support said by someone other than the narrator; ignores a world fact on one of its topics; quotes a source or transcript that does not hold the words; is stronger than its source on a strength scale; says a number not derived from its cited numbers or outside its qualifier; breaks a bound a world fact sets; makes a comparison the numbers do not hold; counts a number in another container than its source; says something is visible without a saved frame; uses a private, believed, past or planned fact without saying so, a claim not recorded as its speaker's statement, or a conflicting fact it has not weighed; or carries a hedge or attribution phrase. Every rule word (strength scales, qualifiers, subject words, labels, tense markers, quantity units) is the person's settings, and the hedge phrases are their no-hedge check row's words. Prints each shot's report lines to standard error and one JSON answer.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:check-every-piece-is-covered",
    "values": {
     "title": "Check every piece of a person's files has a check or a reason",
@@ -2309,6 +2324,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:compose-thumbnails-from-layout-templates",
+   "values": {
+    "title": "Build thumbnail candidates from my frames with layout templates (runs on your computer)",
+    "job": "Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
+    "description": "Six layout templates read off strong reference thumbnails (a claim box across a split, a big face beside stacked words, a magnifier on a flaw, price tags on a flat backdrop, a held object with quoted words, a corner face with stroked words) compose 1280x720 candidates from the person's full-size frames and cut-outs: crops, punch-up, white sticker outlines with shadow, boxed or stroked words, curved arrows, price tags, a magnifier. Each candidate is one row of values in the person's settings row (which frame, face box, words, sizes, arrow ends); the font is the person's.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compose-thumbnails-from-layout-templates"
    }
   },
   {
@@ -3109,21 +3139,6 @@
      "placement:small-container"
     ],
     "folder": "published-destinations"
-   }
-  },
-  {
-   "id": "tool:find-a-spoken-passage-in-word-times",
-   "values": {
-    "title": "Find where a spoken passage starts and ends in a recording's word times",
-    "job": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
-    "description": "Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change. step span: given the passage's first words and last words (and after, a second to search from), answers the start of the first word, the end of the last word and the words between, so a cut lands on word edges; words match ignoring case and punctuation. step sentences: every sentence (ended by . ? or !) whose words start inside from and to, with its start and end. step words-file: writes {source, timing, words} to out, adding offset seconds to every time (a window heard alone). Instead of words, clip names <words_folder>/<clip>.words.json, where words_folder is the person's setting (their list:settings row, named by settings_record); timing and round_to are settings too. It reads only the word-time file and writes only out.",
-    "status": "active",
-    "maker": "maker:find-a-spoken-passage-in-word-times",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "find-a-spoken-passage-in-word-times"
    }
   },
   {
@@ -5942,6 +5957,21 @@
     ],
     "listed_on": "2026-11-05T00:00:00Z",
     "folder": "browse-and-publish-what-my-ai-can-use"
+   }
+  },
+  {
+   "id": "tool:make-plain-text-extracts-of-claim-sources",
+   "values": {
+    "title": "Make the plain-text copy of every source my claims cite, from the files I saved (runs on your computer)",
+    "job": "Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
+    "description": "Reads a sources file ({\"sources\": {id: {raw, extract, text}}}) and writes each source's plain-text extract beside it: html (scripts and styles dropped, tags removed, entities decoded, spaces joined), fdc-json (a FoodData Central food as one line per nutrient amount per 100 g), new-order (an edit plan's new_order rows as one line each) or copy. A kind made by its own tool (a word-timed transcript, a text) keeps its extract and is refused when it is missing. Run it after adding or re-fetching a source; tool:check-every-claim-against-its-facts-and-sources checks quotes against these extracts.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
    }
   },
   {
