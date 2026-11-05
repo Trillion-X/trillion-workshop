@@ -11,17 +11,20 @@ records door (`tools/records-door`).
 |------|--------------|---------|
 | `tool:list-saved-examples` | Every example, newest first, and the count | list `saved-example` |
 | `tool:remove-a-saved-example` | Removes one example by its id | read and write `saved-example` |
+| `tool:answer-the-saved-examples-page` | The Saved examples page's routes (`GET`/`POST /saved-examples`, `POST /saved-examples/remove`), answered `{ status, body }` as old trillion's `src/saved-examples.mjs` answered them; a save fills what was not given from the public link (internet) | list and write `saved-example` |
 
-Saving an example (`tool:save-an-example`) reads the link from the internet, so it moves with the public-fetch rows.
+Saving an example as an AI tool (`tool:save-an-example`) moves with the public-fetch rows; the page's save is `tool:answer-the-saved-examples-page`, which reads the link through `tools/read-a-public-web-link-whole-its-card`.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
 | `read-data/saved-examples.mjs` | `listSavedExamples`, `removeASavedExample`, run by `tools/records-door/do-work/run-an-export.mjs`. |
-| `tool-rows.json` | The two rows. |
+| `do-work/answer-the-saved-examples-page.mjs` | `answerTheSavedExamplesPage`: the page's routes, ported from the tag's `makeSavedExamples` and `handleSavedExamplesRequest`. |
+| `tool-rows.json` | The three rows. |
 | `test/saved-examples.test.mjs` | Both rows run against the fake records door with exactly their rights. |
+| `test/answer-the-saved-examples-page.test.mjs` | The tag's `test/saved-examples.test.mjs` and `test/native-saved-example-browser-routes.test.mjs`, ported onto the route row. |
 
 ## Dependencies
 
-**Depends on:** `tools/records-door`.
+**Depends on:** `tools/records-door`, `tools/read-a-public-web-link-whole-its-card` (and what it imports: `tools/browse-public-page`, `tools/refuse-requests-to-private-addresses`, `tools/http-client`).

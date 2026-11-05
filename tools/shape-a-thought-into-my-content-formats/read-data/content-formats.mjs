@@ -1,3 +1,11 @@
+// tools/shape-a-thought-into-my-content-formats/read-data/content-formats.mjs
+//
+// Ported from old trillion src/content-formats.mjs (tag old-trillion-before-worker-retire): makeContentFormats and
+// handleContentFormatsRequest unchanged but for their imports, which name this repository's copies of the same DATA
+// (data/content-format-starters.json and data/content-format-sources.json, byte for byte from the tag's records/) and
+// modules. Left behind: makeMarketplaceContentFormats, which read Marketplace-published sections of those two DATA
+// files over the bundled ones (src/marketplace-content-document.mjs); here the bundled DATA is what is read.
+//
 // The content formats a person writes and speaks in: every format they saved, then the ones every account starts with
 // (DATA: records/content-format-starters.json, the same file the Expansion media workspace reads). One list every
 // client reads the same way: the iPhone's Formats screen drops a thought into each one and reads it as a script while
@@ -36,12 +44,11 @@
 // - A saved format with a starter's id is the person's version of it and replaces that starter in the list.
 //
 // store: { saved() -> list | null, putSaved(list) }; readers: see makeContentFormats.
-import starters from '../records/content-format-starters.json' with { type: 'json' };
-import sourceKinds from '../records/content-format-sources.json' with { type: 'json' };
-import captionStyles from '../parts/media-composition/read-data/caption-styles.json' with { type: 'json' };
-import { follow, heardWords, scriptFor, scriptFromWords, sentencesOf, scriptSegments, scriptText, scriptWords, teleprompterAt } from './workspace/recording.mjs';
-import { failureOf } from './failure.mjs';
-import {resolveMarketplaceContentDocument} from './marketplace-content-document.mjs';
+import starters from '../data/content-format-starters.json' with { type: 'json' };
+import sourceKinds from '../data/content-format-sources.json' with { type: 'json' };
+import captionStyles from '../../media-composition/read-data/caption-styles.json' with { type: 'json' };
+import { follow, heardWords, scriptFor, scriptFromWords, sentencesOf, scriptSegments, scriptText, scriptWords, teleprompterAt } from '../../turn-any-recording-already-in-the-persons-files/src/workspace/recording.mjs';
+import { failureOf } from '../../tweak-live-controls/failure.mjs';
 
 // How a finished piece is reached from the scripts: each format's own workflow when the person's saved format names one,
 // else the job to find one for with find_workflow (DATA: records/content-format-sources.json before_writing). No
@@ -268,23 +275,6 @@ export function makeContentFormats({ store, readers = {}, starterRows=starters, 
     return { ready: true, said: place.said, total: words.length, progress: teleprompterAt(place, words.length).progress, done: words.length > 0 && place.said >= words.length, next_words: shown.slice(place.said, place.said + 12).join(' ') };
   }
   return { read, save, shape, sources, reference, follow: followThrough };
-}
-
-// Each operation reads the current sections before the original synchronous
-// format owner validates/commits. Existing array-supplied callers stay sync.
-// Saving the person's formats is one synchronous write, committed with its answer through `commit` (kept under the
-// command's receipt, src/standalone-resource-behavior.mjs routeReceipts).
-export const CONTENT_FORMAT_RECEIPTED_WRITES=Object.freeze(['content-formats:save']);
-export function makeMarketplaceContentFormats({env,current=async()=>{},commit=change=>change(),...supplies}){
- return Object.fromEntries(['read','save','shape','sources','reference','follow'].map(operation=>[operation,async(...args)=>{
-  const [starterRows,sourceRows]=await Promise.all([
-   resolveMarketplaceContentDocument(env,'records/content-format-starters.json',starters,['/example_kinds','/formats','/writing_library/categories','/writing_library/frameworks','/writing_library/templates'],{current}),
-   resolveMarketplaceContentDocument(env,'records/content-format-sources.json',sourceKinds,['/kinds','/before_writing'],{current})
-  ]);
-  await current();
-  const formats=makeContentFormats({...supplies,starterRows,sourceRows});
-  return operation==='save'?commit(()=>formats.save(...args),{operation:'content-formats:save'}):formats[operation](...args);
- }]));
 }
 
 const ACTIONS = { '/content-formats/shape': 'shape', '/content-formats/follow': 'follow' };
