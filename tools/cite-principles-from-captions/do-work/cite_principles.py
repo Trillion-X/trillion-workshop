@@ -9,7 +9,7 @@ videos they came from.
   cite_principles.py find        --corpus FILE --video ID --quote TEXT
   cite_principles.py verify      --corpus FILE --rows GLOB [--caption-files GLOB ...]
   cite_principles.py registry    --corpus FILE --rows GLOB --out principles.jsonl [--id-map FILE] [--lanes FILE] [--merge FILE]
-  cite_principles.py index       --registry principles.jsonl --corpus FILE --out INDEX.md [--views-table FILE.tsv] [--id-map FILE] [--intro FILE] [--outro FILE]
+  cite_principles.py index       --registry principles.jsonl --corpus FILE --out INDEX.md [--views-table FILE.tsv] [--id-map FILE] [--template FILE.md]
 
 A captions folder holds <id>.info.json (the video's details) and <id>.en.json3 (YouTube captions) per video; a transcripts folder holds
 word-timed <id>.json files whose info files may sit in an --infos folder; a caption-lines file holds one video per line, {video_id, status,
@@ -327,15 +327,15 @@ def command_index(args):
             for row in csv.DictReader(handle, delimiter="\t"):
                 catalog[(row.get("channel") or "").strip()] += 1
     id_map = read_json(args.id_map) if args.id_map else {}
-
-    def prose(path):
-        if not path:
-            return ""
-        with open(path, encoding="utf-8") as handle:
-            return registry.fill_id_refs(handle.read(), id_map)
-
-    text = registry.index_markdown(principles, dict(corpus_channels), catalog, args.title, prose(args.intro), prose(args.outro),
-                                   args.top, args.demonstrated_top, args.lanes_top)
+    template = None
+    if args.template:
+        with open(args.template, encoding="utf-8") as handle:
+            template = handle.read()
+    try:
+        text = registry.index_markdown(principles, dict(corpus_channels), catalog, template, id_map)
+    except registry.TemplateError as error:
+        print(f"{args.template}: {error}", file=sys.stderr)
+        sys.exit(2)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as handle:
         handle.write(text)
@@ -655,13 +655,8 @@ def build_parser():
     s.add_argument("--corpus", required=True)
     s.add_argument("--out", required=True, help="where to write the Markdown")
     s.add_argument("--views-table", help="the TSV of the person's catalog (a channel column), to count each channel's listed videos and name those with none read")
-    s.add_argument("--id-map", help="registry's {working id: principle id}, to fill {ids:A-1,B-2} in the intro and outro")
-    s.add_argument("--intro", help="the person's own Markdown, put after the title")
-    s.add_argument("--outro", help="the person's own Markdown, put at the end")
-    s.add_argument("--title", default="Principles registry: index")
-    s.add_argument("--top", type=int, default=30)
-    s.add_argument("--demonstrated-top", type=int, default=15)
-    s.add_argument("--lanes-top", type=int, default=60)
+    s.add_argument("--id-map", help="registry's {working id: principle id}, to fill {ids:A-1,B-2} and {evidence:A-1.FIELD} in the template")
+    s.add_argument("--template", help="the person's own Markdown with <!-- cite-principles:SECTION --> sections to fill (default: every section, plain headings)")
     s.set_defaults(run=command_index)
     return parser
 
