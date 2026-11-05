@@ -1,4 +1,6 @@
-// src/work-media.mjs
+// tools/show-the-media-library-and-search-what-was/do-work/answer-the-media-page.mjs
+// (old trillion src/work-media.mjs at tag old-trillion-before-worker-retire; imports name this repository's copies,
+// the /search branch is left to its own route tool and the /media/library branch to the Namespace's owner. The route tool that runs it is at the end of this file.)
 //
 // PURPOSE
 //   The signed-in Media screen's reads and suggestion actions, using the same person's store the AI-facing tools use.
@@ -25,13 +27,11 @@
 //      the person keeps and a word, and the store stamps its time (src/recent-files.mjs).
 
 const json = (value, status = 200) => Response.json(value, { status });
-import { PERSON_APP } from './activity.mjs';
-import { searchOptions } from './search.mjs';
-import { mediaLibraryQuery } from './media-library.mjs';
-import liveWords from './live-words.json' with { type: 'json' };
-import { handleMediaEditor, isMediaEditorPath, startedRunAnswer } from './work-media-editor.mjs';
-import { handleMediaSession, isMediaSessionPath } from './work-media-session.mjs';
-import { layerSourcesAreFiles } from '../parts/media-composition/read-data/layers-to-edit.mjs';
+import { PERSON_APP } from '../../see-what-my-ais-did/activity.mjs';
+import liveWords from '../../show-live-words-while-recording/src/live-words.json' with { type: 'json' };
+import { handleMediaEditor, isMediaEditorPath, startedRunAnswer } from '../../send-a-saved-edit-from-the-media-editor/src/work-media-editor.mjs';
+import { handleMediaSession, isMediaSessionPath } from '../../keep-the-media-editors-open-session-its-published/src/work-media-session.mjs';
+import { layerSourcesAreFiles } from '../../media-composition/read-data/layers-to-edit.mjs';
 const LIBRARY = '/work/api/media/library';
 const SEARCH = '/work/api/search';
 const NEXT_EDIT = '/work/api/media/next-edit';
@@ -72,18 +72,11 @@ export async function handleWorkMedia(request, { person, userId, origin, url, en
       return json({ error: 'Live words are unavailable. Your recording still saves.' }, 503);
     }
   }
-  if (url.pathname === LIBRARY) {
-    if (request.method !== 'GET') return json({ error: 'Not found' }, 404);
-    try {
-      const { known, page } = mediaLibraryQuery(url.searchParams);
-      return json(await person.mediaLibrary(known, page));
-    } catch (error) { return json({ error: error.message, ...(typeof error.code === 'string' ? { code: error.code } : {}) }, Number.isInteger(error.status) && error.status >= 400 && error.status <= 599 ? error.status : 400); }
-  }
+  // GET /work/api/media/library is the Namespace's own media library (old src/namespace.mjs:2131): no records-door run
+  // reaches it, so it is not answered here (see the route tool below).
+  if (url.pathname === LIBRARY) return json({ error: 'The Media library is not reachable from this page\'s route tool yet.' }, 503);
 
-  if (url.pathname === SEARCH) {
-    if (request.method !== 'GET') return json({ error: 'Not found' }, 404);
-    return json(await person.search(url.searchParams.get('q') ?? '', searchOptions(url.searchParams)));
-  }
+  // GET /work/api/search is the one search's own route tool now (Trillion-X/trillion-workshop#214), not this page's.
 
   if (url.pathname === RECENT) {
     if (request.method === 'GET') return json(await person.recentFiles({ limit: url.searchParams.get('limit'), before: url.searchParams.get('before') }));
@@ -275,4 +268,53 @@ function fileIdentities(value) {
   if (Array.isArray(value)) return value.flatMap(fileIdentities);
   if (value && typeof value === 'object') return Object.values(value).flatMap(fileIdentities);
   return [];
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// tool:answer-the-media-page: the Media page's routes as a @workshop-routes tool (input { path, method, query, body,
+// browser }, result { status, body }), handleWorkMedia above run unchanged with the person's store the old native
+// carrier handed it (src/native-browser-media.mjs), over the run's records door:
+//   - fact / setFact (`media_edit:<id>`, the edits the page saves) are the person's `media-edit` records, id
+//     `media-edit:<id>`;
+//   - recordFileUse (each saved clip kept as edited on Recent) is the files door's record_file_use, the engine's
+//     own recent-files owner (trillion-rust #173);
+//   - the old carrier's fetch to a shared project (`/spaces/<id>/records/shared:media-edit:<id>`, `/spaces/<id>/items/
+//     <id>/file`), its Workshop runs (render, transcribe, the editor hand-off), the Namespace's media library and the
+//     next-edit owner are not reachable from a records-door run: a request that needs one answers 503 with words that
+//     name what it needs, never a made-up answer.
+// The engine's door admits the page before this runs (the old native route was admitted before it, and set the
+// request's origin to the service's own), so the origin the handler checks is the one it is given.
+const ORIGIN = 'https://person.local';
+const EDIT_KIND = 'media-edit';
+const factId = name => (typeof name === 'string' && name.startsWith('media_edit:') ? `${EDIT_KIND}:${name.slice('media_edit:'.length)}` : null);
+export class Unreachable extends Error {
+  constructor(what) { super(`${what} is not reachable from this page's route tool yet.`); this.status = 503; }
+}
+
+/** The person carrier handleWorkMedia reads, over the records door. */
+export function doorPerson(door) {
+  return {
+    fact: async name => { const id = factId(name); if (!id) throw new Unreachable(`The fact ${name}`); return door.read(EDIT_KIND, id); },
+    setFact: async (name, value) => { const id = factId(name); if (!id) throw new Unreachable(`The fact ${name}`); await door.write([{ id, type: EDIT_KIND, value }]); },
+    recordFileUse: input => door.files('record_file_use', { file: input?.file, kind: input?.kind }),
+    fetch: async request => { throw new Unreachable(`A shared project (${new URL(request.url).pathname})`); },
+    mediaLibrary: async () => { throw new Unreachable('The Media library (the files door has no media_library operation)'); },
+    mediaNextEditRead: async () => { throw new Unreachable('The next-edit suggestion'); },
+    mediaNextEditAct: async () => { throw new Unreachable('The next-edit suggestion'); },
+  };
+}
+
+export async function answerTheMediaPage(input, { door }) {
+  const { path = '', method = 'GET', query = {}, body } = input !== null && typeof input === 'object' ? input : {};
+  const search = new URLSearchParams(query !== null && typeof query === 'object' ? query : {}).toString();
+  const url = new URL(`/work/api${path}${search ? `?${search}` : ''}`, ORIGIN);
+  const request = new Request(url, { method, headers: { origin: ORIGIN, 'content-type': 'application/json' }, ...(method === 'GET' ? {} : { body: JSON.stringify(body ?? {}) }) });
+  try {
+    const response = await handleWorkMedia(request, { person: doorPerson(door), userId: 'this-account', origin: ORIGIN, url,
+      runTool: async () => { throw new Unreachable('Running another Workshop tool'); } });
+    return { status: response.status, body: await response.json() };
+  } catch (error) {
+    if (error instanceof Unreachable) return { status: 503, body: { error: error.message } };
+    throw error;
+  }
 }
