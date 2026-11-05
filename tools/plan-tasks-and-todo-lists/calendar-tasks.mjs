@@ -11,6 +11,8 @@ import { classifyMessage } from './calendar-task-messages.mjs';
 export class CalendarTasksError extends Error {
   constructor(message) { super(message); this.status = 400; }
 }
+// Each item through `fn` in turn, never two at once: the order the list writes and reads were made in before they waited.
+const inOrder = async (items, fn) => { const out = []; for (const [index, item] of items.entries()) out.push(await fn(item, index)); return out; };
 
 /** @typedef {{ id: string, title: string, parent_id: string|null, collection_id: string|null, description: string, priority: string|null, labels: string[], duration_minutes: number, due: string|null, deadline_type: string|null, start_on: string|null, blocked_by: string[], pinned_until: string|null, auto_placed: boolean, starts_at: string|null, ends_at: string|null, recurrence?: object, source_id: string|null, source_url: string|null, status: string, may_move: boolean, may_cancel: boolean }} CalendarTask */
 
@@ -134,9 +136,9 @@ function storedRecurrence(value) {
   try { return recurrenceValue(JSON.parse(value)); } catch { return null; }
 }
 
-function activeRecurrence(lists, row) {
+async function activeRecurrence(lists, row) {
   const series = row.values.recurrence_series ?? row.id;
-  const master = series === row.id ? row : lists.row(data.list.id, series);
+  const master = series === row.id ? row : await lists.row(data.list.id, series);
   const recurrence = storedRecurrence(master?.values?.recurrence);
   if (!recurrence) return null;
   const masterRevision = Number.isSafeInteger(master.values.recurrence_rule_revision) ? master.values.recurrence_rule_revision : 1;
@@ -289,10 +291,10 @@ const recurrenceReadFields = data.list.fields.map(field => field.id);
  * list has no task to repeat: the page is finished and writes nothing. Making the list here put the built-in calendar
  * lists into every work resource the scheduler woke (133 of one account's 412 on 2026-10-20), and each then published the
  * same list ids to the account's one discovery index, which refuses a second owner of an id, so every list read waited. */
-export function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.now(), limit = 50 } = {}) {
-  if (!lists.has(data.list.id)) return { next_cursor: null, complete: true, next_at: null, created: 0 };
-  ensureTaskList(lists);
-  const page = lists.read(data.list.id, { only: recurrenceReadFields, limit, ...(cursor ? { cursor } : {}) });
+export async function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.now(), limit = 50 } = {}) {
+  if (!await lists.has(data.list.id)) return { next_cursor: null, complete: true, next_at: null, created: 0 };
+  await ensureTaskList(lists);
+  const page = await lists.read(data.list.id, { only: recurrenceReadFields, limit, ...(cursor ? { cursor } : {}) });
   let nextAt = null;
   const writes = [];
   const atFor = (row, recurrence) => {
@@ -307,7 +309,7 @@ export function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.now(),
     return Date.parse(localInstant(nextDate, taskLocalTime(row, recurrence), recurrence.timeZone));
   };
   for (const row of page.rows) {
-    const recurrence = activeRecurrence(lists, row);
+    const recurrence = await activeRecurrence(lists, row);
     if (!recurrence) continue;
     const hasOwnDate = ['due', 'starts_at'].some(field => typeof row.values[field] === 'string' && Number.isFinite(Date.parse(row.values[field])));
     if (!hasOwnDate && !dateOnly(row.values.recurrence_anchor_date)) {
@@ -321,7 +323,7 @@ export function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.now(),
     const ruleRevision = Number.isSafeInteger(row.values.recurrence_rule_revision) && row.values.recurrence_rule_revision >= 1
       ? row.values.recurrence_rule_revision : 1;
     const childId = ruleRevision === 1 ? `${series}-repeat-${index + 1}` : `${series}-rule-${ruleRevision}-repeat-${index + 1}`;
-    if (lists.row(data.list.id, childId)) continue;
+    if (await lists.row(data.list.id, childId)) continue;
     if (candidateAt <= now) {
       const child = nextTaskValues(row, recurrence, candidateAt);
       if (child) {
@@ -338,7 +340,7 @@ export function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.now(),
       }
     } else if (nextAt === null || candidateAt < nextAt) nextAt = candidateAt;
   }
-  if (writes.length) lists.putRows(data.list.id, { rows: writes }, { actor: { by: 'calendar-recurrence' } });
+  if (writes.length) await lists.putRows(data.list.id, { rows: writes }, { actor: { by: 'calendar-recurrence' } });
   const complete = page.page.complete;
   const nextCursor = complete ? null : page.page.next_cursor;
   if (!complete && (!nextCursor || nextCursor === cursor)) throw new Error('The Calendar task recurrence page did not advance its cursor.');
@@ -407,24 +409,25 @@ const builtInLists = () => [data.list, data.collections, data.day_hours, data.wo
 
 /** True when every built-in calendar list this store holds is as the calendar made it: no row, no field the person added and
  * no saved view. Such lists in a store the calendar never reads were made only by the recurrence step (before 2026-10-20). */
-export function calendarListsUnused(lists) {
-  const present = builtInLists().filter(shape => lists.has(shape.id));
-  return present.length > 0 && present.every(shape => {
-    const list = lists.find(shape.id);
+export async function calendarListsUnused(lists) {
+  const present = [];
+  for (const shape of builtInLists()) if (await lists.has(shape.id)) present.push(shape);
+  return present.length > 0 && (await inOrder(present, async shape => {
+    const list = await lists.find(shape.id);
     const declared = new Set(shape.fields.map(field => field.id));
-    return lists.read(shape.id, { limit: 1 }).rows.length === 0
+    return (await lists.read(shape.id, { limit: 1 })).rows.length === 0
       && (list.fields ?? []).every(field => declared.has(field.id)) && !(list.views ?? []).length;
-  });
+  })).every(Boolean);
 }
 
 /** Removes the unused built-in calendar lists (calendarListsUnused) through the lists' own removal; a store holding any row,
  * field or view of them keeps every one. Answers how many lists were removed. */
-export function withdrawUnusedCalendarLists(lists) {
-  if (!calendarListsUnused(lists)) return 0;
+export async function withdrawUnusedCalendarLists(lists) {
+  if (!await calendarListsUnused(lists)) return 0;
   let removed = 0;
   for (const shape of builtInLists()) {
-    if (!lists.has(shape.id)) continue;
-    lists.save({ id: shape.id, remove: true }, { actor: { by: 'calendar' } });
+    if (!await lists.has(shape.id)) continue;
+    await lists.save({ id: shape.id, remove: true }, { actor: { by: 'calendar' } });
     removed += 1;
   }
   return removed;
@@ -433,8 +436,8 @@ export function withdrawUnusedCalendarLists(lists) {
 // Every built-in list is made when missing and, when a store holds an older shape of it, brought to the declared one: fields
 // added (kept alongside any the person added), choices changed and the order index. This is how a field added to
 // calendar-tasks.json reaches a store made before it.
-function upgradeList(lists, shape) {
-  const current = lists.find(shape.id);
+async function upgradeList(lists, shape) {
+  const current = await lists.find(shape.id);
   if (!current) return;
   const currentFields = current.fields ?? [];
   const currentById = new Map(currentFields.map(field => [field.id, field]));
@@ -449,20 +452,20 @@ function upgradeList(lists, shape) {
       || saved?.on_target_remove !== field.on_target_remove;
   }) || (ordered && (JSON.stringify(current.indexes ?? []) !== JSON.stringify(shape.indexes)
     || JSON.stringify(current.ordering ?? null) !== JSON.stringify(shape.ordering)))) {
-    lists.save({ ...current, id: shape.id, fields, ...(ordered ? { indexes: shape.indexes, ordering: shape.ordering } : {}) }, { actor: { by: 'calendar' } });
+    await lists.save({ ...current, id: shape.id, fields, ...(ordered ? { indexes: shape.indexes, ordering: shape.ordering } : {}) }, { actor: { by: 'calendar' } });
   }
 }
 
-function ensureTaskList(lists) {
-  lists.ensure(data.collections, { actor: { by: 'calendar' } });
-  lists.ensure(data.day_hours, { actor: { by: 'calendar' } });
-  lists.ensure(data.working_hours, { actor: { by: 'calendar' } });
-  lists.ensure(data.list, { actor: { by: 'calendar' } });
-  for (const shape of builtInLists()) upgradeList(lists, shape);
+async function ensureTaskList(lists) {
+  await lists.ensure(data.collections, { actor: { by: 'calendar' } });
+  await lists.ensure(data.day_hours, { actor: { by: 'calendar' } });
+  await lists.ensure(data.working_hours, { actor: { by: 'calendar' } });
+  await lists.ensure(data.list, { actor: { by: 'calendar' } });
+  for (const shape of builtInLists()) await upgradeList(lists, shape);
 }
 
-export function readCalendarTasks(lists, { from, to, cursor, collection_cursor, task_id, sort = 'date' } = {}) {
-  ensureTaskList(lists);
+export async function readCalendarTasks(lists, { from, to, cursor, collection_cursor, task_id, sort = 'date' } = {}) {
+  await ensureTaskList(lists);
   if (!['date', 'manual'].includes(sort)) throw new CalendarTasksError('Choose date or manual task order.');
   if (cursor !== undefined && (typeof cursor !== 'string' || !cursor || cursor.length > (sort === 'manual' ? 600 : 200) || cursor.includes('/'))) {
     throw new CalendarTasksError('The task page cursor is invalid.');
@@ -473,7 +476,7 @@ export function readCalendarTasks(lists, { from, to, cursor, collection_cursor, 
     throw new CalendarTasksError('The calendar task date range is invalid.');
   }
   const rows = [];
-  const page = lists.read(data.list.id, {
+  const page = await lists.read(data.list.id, {
     only: data.list.fields.map(field => field.id), limit: 50, ...(sort === 'manual' ? { order: true } : {}),
     ...(cursor ? { cursor } : {}),
   });
@@ -481,7 +484,7 @@ export function readCalendarTasks(lists, { from, to, cursor, collection_cursor, 
   // A pane opened on an exact task must not silently show a new draft because
   // that row is beyond the first page. Relationships retain normal bounded paging.
   if (task_id !== undefined) {
-    const selected = taskRow(lists, task_id);
+    const selected = await taskRow(lists, task_id);
     if (!rows.some(row => row.id === selected.id)) rows.push(selected);
   }
   const complete = page.page.complete;
@@ -501,24 +504,24 @@ export function readCalendarTasks(lists, { from, to, cursor, collection_cursor, 
     if (a.starts_at && !b.starts_at) return 1;
     return (Date.parse(a.starts_at ?? a.due ?? 0) || 0) - (Date.parse(b.starts_at ?? b.due ?? 0) || 0) || a.title.localeCompare(b.title);
   });
-  const collectionPage = readCalendarTaskCollections(lists, { cursor: collection_cursor });
+  const collectionPage = await readCalendarTaskCollections(lists, { cursor: collection_cursor });
   return {
     list_id: data.list.id, tasks, collections: collectionPage.collections,
     collections_page: collectionPage.page, page: { complete, next_cursor: nextCursor },
-    day_hours: readDayHours(lists, from, to),
-    capacity: capacityOf(lists),
-    working_hours: workingHoursOf(lists.row(data.working_hours.id, data.working_hours.row_id)),
-    preferences: Object.fromEntries(preferenceNames.map(name => [name, preferenceOf(lists, name)])),
+    day_hours: await readDayHours(lists, from, to),
+    capacity: await capacityOf(lists),
+    working_hours: workingHoursOf(await lists.row(data.working_hours.id, data.working_hours.row_id)),
+    preferences: Object.fromEntries(await inOrder(preferenceNames, async name => [name, await preferenceOf(lists, name)])),
     ...(sort === 'manual' ? { ordering: page.ordering } : {}),
   };
 }
 
-export function readCalendarTaskCollections(lists, { cursor } = {}) {
-  ensureTaskList(lists);
+export async function readCalendarTaskCollections(lists, { cursor } = {}) {
+  await ensureTaskList(lists);
   if (cursor !== undefined && (typeof cursor !== 'string' || !cursor || cursor.length > 600 || cursor.includes('/'))) {
     throw new CalendarTasksError('The task list page cursor is invalid.');
   }
-  const page = lists.read(data.collections.id, {
+  const page = await lists.read(data.collections.id, {
     only: data.collections.fields.map(field => field.id), limit: 50, order: true,
     ...(cursor ? { cursor } : {}),
   });
@@ -533,16 +536,16 @@ function requestKeyOf(value) {
   return value.trim();
 }
 
-function taskRow(lists, taskId) {
+async function taskRow(lists, taskId) {
   if (!nonempty(taskId)) throw new CalendarTasksError(data.words.bad_task);
-  const row = lists.row(data.list.id, taskId);
+  const row = await lists.row(data.list.id, taskId);
   if (!row) throw new CalendarTasksError(data.words.bad_task);
   return row;
 }
 
-function checkedCollection(lists, collectionId) {
+async function checkedCollection(lists, collectionId) {
   if (collectionId == null || collectionId === '') return null;
-  if (!nonempty(collectionId) || collectionId.includes('/') || !lists.row(data.collections.id, collectionId)) {
+  if (!nonempty(collectionId) || collectionId.includes('/') || !await lists.row(data.collections.id, collectionId)) {
     throw new CalendarTasksError('Choose a task list that still exists.');
   }
   return collectionId;
@@ -623,8 +626,8 @@ function collectionValues(input) {
 }
 
 /** The reorder that puts a list back between its neighbours, or null when its place is past the first page of lists. */
-function collectionReorderUndo(lists, id) {
-  const page = lists.read(data.collections.id, { only: ['title'], limit: 200, order: true });
+async function collectionReorderUndo(lists, id) {
+  const page = await lists.read(data.collections.id, { only: ['title'], limit: 200, order: true });
   const ids = page.rows.map(row => row.id);
   const at = ids.indexOf(id);
   if (at < 0) return null;
@@ -662,7 +665,7 @@ function editableFields(input) {
 const parentIdOf = row => Array.isArray(row?.values?.parent_id)
   ? row.values.parent_id[0] ?? null : row?.values?.parent_id ?? null;
 
-function checkedParent(lists, parentId, childId = null) {
+async function checkedParent(lists, parentId, childId = null) {
   if (parentId == null || parentId === '') return null;
   if (!nonempty(parentId) || parentId.includes('/')) throw new CalendarTasksError('Choose a parent task from Calendar tasks.');
   let currentId = parentId;
@@ -671,7 +674,7 @@ function checkedParent(lists, parentId, childId = null) {
     if (currentId === childId) throw new CalendarTasksError('A task cannot be its own ancestor.');
     if (seen.has(currentId)) throw new CalendarTasksError('The task parent chain already contains a cycle.');
     seen.add(currentId);
-    const row = lists.row(data.list.id, currentId);
+    const row = await lists.row(data.list.id, currentId);
     if (!row) throw new CalendarTasksError(data.words.bad_parent);
     currentId = parentIdOf(row);
   }
@@ -705,7 +708,7 @@ function undoFor(changes) {
 }
 
 // Checked values to write for a set of restorable fields, through the validators every other change uses.
-function restoreValues(lists, taskId, given) {
+async function restoreValues(lists, taskId, given) {
   if (!object(given) || !Object.keys(given).length) throw new CalendarTasksError(data.words.bad_restore);
   const values = {};
   const input = {};
@@ -719,8 +722,8 @@ function restoreValues(lists, taskId, given) {
       if (value !== null && !choices.includes(value)) throw new CalendarTasksError(data.words.bad_restore);
       // A task that was settled is reopened by clearing the status, as the reopen action does; the starting status is the cleared one.
       values.status = value === fieldOf('status').starts ? null : value;
-    } else if (field === 'collection_id') values.collection_id = checkedCollection(lists, value);
-    else if (field === 'parent_id') values.parent_id = checkedParent(lists, value, taskId);
+    } else if (field === 'collection_id') values.collection_id = await checkedCollection(lists, value);
+    else if (field === 'parent_id') values.parent_id = await checkedParent(lists, value, taskId);
     else if (field === 'duplicate_of') {
       if (value !== null && (!nonempty(value) || value.includes('/'))) throw new CalendarTasksError(data.words.bad_restore);
       values.duplicate_of = value;
@@ -730,14 +733,14 @@ function restoreValues(lists, taskId, given) {
   return values;
 }
 
-function restoreTasks(lists, input) {
+async function restoreTasks(lists, input) {
   const rows = input.rows;
   if (!Array.isArray(rows) || !rows.length || rows.length > data.undo.most_rows) throw new CalendarTasksError(data.words.bad_restore);
   const plan = [];
   const changes = [];
   for (const entry of rows) {
     if (!object(entry) || !nonempty(entry.task_id) || entry.task_id.includes('/')) throw new CalendarTasksError(data.words.bad_restore);
-    const row = lists.row(data.list.id, entry.task_id);
+    const row = await lists.row(data.list.id, entry.task_id);
     if (entry.remove === true) {
       if (!row) throw new CalendarTasksError(data.words.restore_changed);
       plan.push({ remove: row.id });
@@ -745,7 +748,7 @@ function restoreTasks(lists, input) {
     } else if (object(entry.create)) {
       if (row || !entry.task_id.startsWith('calendar-')) throw new CalendarTasksError(data.words.restore_changed);
       if (!nonempty(entry.create.title) || !Number.isSafeInteger(entry.create.duration_minutes)) throw new CalendarTasksError(data.words.bad_restore);
-      plan.push({ row: { id: entry.task_id, values: restoreValues(lists, entry.task_id, entry.create) } });
+      plan.push({ row: { id: entry.task_id, values: await restoreValues(lists, entry.task_id, entry.create) } });
       changes.push({ id: entry.task_id, before: null, after: { id: entry.task_id, values: entry.create } });
     } else {
       if (!row || !object(entry.expected) || !object(entry.values)
@@ -757,28 +760,28 @@ function restoreTasks(lists, input) {
         return Array.isArray(value) && ['parent_id', 'collection_id', 'duplicate_of'].includes(field) ? value[0] ?? null : value;
       };
       if (Object.keys(entry.expected).some(field => !same(now(field), entry.expected[field]))) throw new CalendarTasksError(data.words.restore_changed);
-      const values = restoreValues(lists, row.id, entry.values);
+      const values = await restoreValues(lists, row.id, entry.values);
       plan.push({ row: { id: row.id, values } });
       changes.push({ id: row.id, before: row, after: { id: row.id, values: { ...row.values, ...values } } });
     }
   }
   // One write for all of them: either every task is put back or none is.
-  const saved = lists.putRows(data.list.id, { rows: plan.filter(step => step.row).map(step => step.row), remove: plan.filter(step => step.remove).map(step => step.remove) }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.list.id, { rows: plan.filter(step => step.row).map(step => step.row), remove: plan.filter(step => step.remove).map(step => step.remove) }, { actor: { by: 'calendar' } });
   const after = new Map(saved.kept.map(row => [row.id, row]));
   // The way back from a restore is the restore of what it replaced.
   const undo = undoFor(changes.map(change => ({ id: change.id, before: change.before, after: after.get(change.id) ?? null })));
   return { restored: changes.length, tasks: changes.filter(change => after.has(change.id)).map(change => taskOf(after.get(change.id))), ...(undo ? { undo } : {}) };
 }
 
-function openTasks(lists, wanted) {
+async function openTasks(lists, wanted) {
   if (wanted !== undefined) {
     if (!Array.isArray(wanted) || !wanted.length || wanted.length > data.rollover.most_tasks) throw new CalendarTasksError(data.words.bad_rollover);
-    return wanted.map(id => taskRow(lists, id));
+    return inOrder(wanted, async id => await taskRow(lists, id));
   }
   const rows = [];
   let cursor;
   do {
-    const page = lists.read(data.list.id, { only: data.list.fields.map(field => field.id), limit: 50, ...(cursor ? { cursor } : {}) });
+    const page = await lists.read(data.list.id, { only: data.list.fields.map(field => field.id), limit: 50, ...(cursor ? { cursor } : {}) });
     rows.push(...page.rows.filter(row => (row.values.status ?? 'To do') !== 'Done'));
     cursor = page.page.complete ? undefined : page.page.next_cursor;
     if (rows.length > data.rollover.most_tasks) throw new CalendarTasksError(data.words.rollover_too_many);
@@ -786,7 +789,7 @@ function openTasks(lists, wanted) {
   return rows;
 }
 
-function rolloverTasks(lists, input) {
+async function rolloverTasks(lists, input) {
   if (!dateOnly(input.today) || !timeZoneName(input.time_zone)) throw new CalendarTasksError(data.words.bad_rollover);
   const zone = timeZoneName(input.time_zone);
   const today = input.today;
@@ -795,7 +798,7 @@ function rolloverTasks(lists, input) {
   const skipped = [];
   const writes = [];
   const changes = [];
-  for (const row of openTasks(lists, input.task_ids)) {
+  for (const row of await openTasks(lists, input.task_ids)) {
     const skip = reason => skipped.push({ task_id: row.id, reason });
     if ((row.values.status ?? 'To do') === 'Done') { skip(reasons.done); continue; }
     if (row.values.recurrence || row.values.recurrence_series) { skip(reasons.repeats); continue; }
@@ -811,7 +814,7 @@ function rolloverTasks(lists, input) {
     carried.push({ task_id: row.id, title: row.values.title, cleared_block: Boolean(missed), ...(values.due ? { due_from: due, due_to: values.due } : {}) });
   }
   if (!writes.length) return { carried, skipped };
-  const saved = lists.putRows(data.list.id, { rows: writes }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.list.id, { rows: writes }, { actor: { by: 'calendar' } });
   const after = new Map(saved.kept.map(row => [row.id, row]));
   const undo = undoFor(changes.map(change => ({ id: change.id, before: change.before, after: after.get(change.id) ?? null })));
   return { carried, skipped, ...(undo ? { undo } : {}) };
@@ -826,36 +829,36 @@ const dayHoursOf = row => {
   return { day, ...(off ? { off: true } : {}), ...(start_minute != null ? { start_minute } : {}), ...(end_minute != null ? { end_minute } : {}),
     ...(blocks ? { blocks: JSON.parse(blocks) } : {}) };
 };
-function readDayHours(lists, from, to) {
+async function readDayHours(lists, from, to) {
   const lower = from ? new Date(Date.parse(from) - 86_400_000).toISOString().slice(0, 10) : null;
   const upper = to ? new Date(Date.parse(to) + 86_400_000).toISOString().slice(0, 10) : null;
   const rows = [];
   let cursor;
   do {
-    const page = lists.read(data.day_hours.id, { only: data.day_hours.fields.map(field => field.id), limit: 50, ...(cursor ? { cursor } : {}) });
+    const page = await lists.read(data.day_hours.id, { only: data.day_hours.fields.map(field => field.id), limit: 50, ...(cursor ? { cursor } : {}) });
     rows.push(...page.rows);
     cursor = page.page.complete ? undefined : page.page.next_cursor;
     if (rows.length > data.day_hours.most_rows) throw new CalendarTasksError(data.words.bad_day_hours);
   } while (cursor);
   return rows.filter(row => (!lower || row.values.day >= lower) && (!upper || row.values.day <= upper)).map(dayHoursOf).sort((a, b) => a.day.localeCompare(b.day));
 }
-function setDayHours(lists, input) {
+async function setDayHours(lists, input) {
   let override;
   try { override = dayOverrideOf({ day: input.day, off: input.off, start_minute: input.start_minute, end_minute: input.end_minute, blocks: input.blocks }); }
   catch { throw new CalendarTasksError(data.words.bad_day_hours); }
   if (!override.off && input.start_minute == null && input.end_minute == null && !override.blocks.length) throw new CalendarTasksError(data.words.bad_day_hours);
   const id = dayHoursId(override.day);
-  const before = lists.row(data.day_hours.id, id);
+  const before = await lists.row(data.day_hours.id, id);
   const values = { day: override.day, off: override.off ? 'yes' : null, start_minute: input.start_minute ?? null, end_minute: input.end_minute ?? null,
     blocks: override.blocks.length ? JSON.stringify(override.blocks) : null };
-  const saved = lists.putRows(data.day_hours.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.day_hours.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
   return { day_hours: dayHoursOf(saved.kept[0]), undo: before ? { action: 'set_day_hours', ...dayHoursOf(before) } : { action: 'clear_day_hours', day: override.day } };
 }
-function clearDayHours(lists, input) {
+async function clearDayHours(lists, input) {
   if (!dateOnly(input.day)) throw new CalendarTasksError(data.words.bad_day_hours);
-  const row = lists.row(data.day_hours.id, dayHoursId(input.day));
+  const row = await lists.row(data.day_hours.id, dayHoursId(input.day));
   if (!row) return { day: input.day, removed: false };
-  lists.putRows(data.day_hours.id, { remove: [row.id] }, { actor: { by: 'calendar' } });
+  await lists.putRows(data.day_hours.id, { remove: [row.id] }, { actor: { by: 'calendar' } });
   return { day: input.day, removed: true, undo: { action: 'set_day_hours', ...dayHoursOf(row) } };
 }
 
@@ -866,27 +869,27 @@ const workingHoursOf = row => row?.values?.start && row.values.end && row.values
   ...(Array.isArray(row.values.weekdays) && row.values.weekdays.length ? { weekdays: row.values.weekdays.map(Number) } : {}),
   mode: row.values.mode || quietModes.default_mode,
 } : null;
-function setWorkingHours(lists, input) {
+async function setWorkingHours(lists, input) {
   const mode = input.mode ?? quietModes.default_mode;
   let checked;
   try {
     if (!Object.hasOwn(quietModes.modes, mode)) throw new TypeError('mode');
     checked = checkedWorkingHours({ start: input.start, end: input.end, time_zone: input.time_zone, ...(input.weekdays === undefined ? {} : { weekdays: input.weekdays }) });
   } catch { throw new CalendarTasksError(data.words.bad_working_hours); }
-  const before = lists.row(data.working_hours.id, data.working_hours.row_id);
-  const saved = lists.putRows(data.working_hours.id, { rows: [{ id: data.working_hours.row_id, values: { start: checked.start, end: checked.end, time_zone: checked.time_zone, weekdays: input.weekdays === undefined ? null : checked.weekdays.map(String), mode } }] }, { actor: { by: 'calendar' } });
+  const before = await lists.row(data.working_hours.id, data.working_hours.row_id);
+  const saved = await lists.putRows(data.working_hours.id, { rows: [{ id: data.working_hours.row_id, values: { start: checked.start, end: checked.end, time_zone: checked.time_zone, weekdays: input.weekdays === undefined ? null : checked.weekdays.map(String), mode } }] }, { actor: { by: 'calendar' } });
   return { working_hours: workingHoursOf(saved.kept[0]), undo: workingHoursOf(before) ? { action: 'set_working_hours', ...workingHoursOf(before) } : { action: 'clear_working_hours' } };
 }
-function clearWorkingHours(lists) {
-  const row = lists.row(data.working_hours.id, data.working_hours.row_id);
+async function clearWorkingHours(lists) {
+  const row = await lists.row(data.working_hours.id, data.working_hours.row_id);
   if (!row || !workingHoursOf(row)) return { removed: false };
   // The row also keeps the planning choices and the daily limit, so only the hours and what happens outside them go.
-  lists.putRows(data.working_hours.id, { rows: [{ id: row.id, values: { start: null, end: null, time_zone: null, weekdays: null, mode: null } }] }, { actor: { by: 'calendar' } });
+  await lists.putRows(data.working_hours.id, { rows: [{ id: row.id, values: { start: null, end: null, time_zone: null, weekdays: null, mode: null } }] }, { actor: { by: 'calendar' } });
   return { removed: true, undo: { action: 'set_working_hours', ...workingHoursOf(row) } };
 }
 // What writing to this person right now should tell the sender: a notice, and whether to send without a push.
-function quietHours(lists, input, now) {
-  const hours = workingHoursOf(lists.row(data.working_hours.id, data.working_hours.row_id));
+async function quietHours(lists, input, now) {
+  const hours = workingHoursOf(await lists.row(data.working_hours.id, data.working_hours.row_id));
   const at = input.at === undefined ? now() : Date.parse(input.at);
   if (!Number.isFinite(at)) throw new CalendarTasksError(data.words.bad_working_hours);
   const dismissed = input.dismissed_period_start_ms ?? null;
@@ -897,51 +900,51 @@ function quietHours(lists, input, now) {
 // A task too long for any one free stretch, placed in slices (the planner's `chunk_index`/`chunk_count` proposals): each
 // slice is a task of its own, a child of the task, placed by the planner, so one slice can be moved, pinned or finished
 // without replanning the rest. The task keeps its whole length; the planner leaves it alone while its slices are open.
-function scheduleSlices(lists, input) {
-  const row = taskRow(lists, input.task_id);
+async function scheduleSlices(lists, input) {
+  const row = await taskRow(lists, input.task_id);
   if (row.values.status === 'Done') throw new CalendarTasksError('A completed task cannot be scheduled.');
   const times = input.slices;
   if (!Array.isArray(times) || times.length < 2 || times.length > data.slices.most) throw new CalendarTasksError(data.words.bad_slices);
   const slices = times.map(slice => ({ start: instant(slice?.start), end: instant(slice?.end) }));
   if (slices.some((slice, index) => !slice.start || !slice.end || Date.parse(slice.end) <= Date.parse(slice.start) || (index > 0 && Date.parse(slice.start) < Date.parse(slices[index - 1].end)))) throw new CalendarTasksError(data.words.bad_slices);
-  const made = slices.map((slice, index) => {
+  const made = await inOrder(slices, async (slice, index) => {
     const id = `${row.id}-slice-${index + 1}`;
     const values = {
       title: `${row.values.title} (${index + 1}/${slices.length})`, duration_minutes: Math.round((Date.parse(slice.end) - Date.parse(slice.start)) / 60_000),
       starts_at: slice.start, ends_at: slice.end, placed_by: placers[0], slice_of: row.id, parent_id: row.id,
       ...Object.fromEntries(['priority', 'labels', 'collection_id', 'due', 'deadline_type', 'description'].filter(field => row.values[field] != null && row.values[field] !== '').map(field => [field, field === 'collection_id' && Array.isArray(row.values[field]) ? row.values[field][0] : row.values[field]])),
     };
-    return { id, values, existing: lists.row(data.list.id, id) };
+    return { id, values, existing: await lists.row(data.list.id, id) };
   });
   const fresh = made.filter(slice => !slice.existing);
   if (made.some(slice => slice.existing && (slice.existing.values.starts_at !== slice.values.starts_at || slice.existing.values.ends_at !== slice.values.ends_at))) {
     throw new CalendarTasksError('These slices already exist at different times. Read the task again.');
   }
-  const saved = fresh.length ? lists.putRows(data.list.id, { rows: fresh.map(({ id, values }) => ({ id, values })) }, { actor: { by: 'calendar' } }) : { kept: [] };
+  const saved = fresh.length ? await lists.putRows(data.list.id, { rows: fresh.map(({ id, values }) => ({ id, values })) }, { actor: { by: 'calendar' } }) : { kept: [] };
   const kept = new Map(saved.kept.map(entry => [entry.id, entry]));
   const undo = undoFor(fresh.map(slice => ({ id: slice.id, before: null, after: kept.get(slice.id) ?? null })));
   return { tasks: made.map(slice => taskOf(kept.get(slice.id) ?? slice.existing)), kept: fresh.length === 0, ...(undo ? { undo } : {}) };
 }
 
 // The zone plans are kept in is the working hours' time zone; a device showing another zone is asked about once.
-function planningZone(lists) {
-  const row = lists.row(data.working_hours.id, data.working_hours.row_id);
+async function planningZone(lists) {
+  const row = await lists.row(data.working_hours.id, data.working_hours.row_id);
   return row ? { row, zone: row.values.time_zone, asked: Array.isArray(row.values.asked_zones) ? row.values.asked_zones : [] } : null;
 }
-function zoneDriftAnswer(lists, input) {
+async function zoneDriftAnswer(lists, input) {
   let zone;
   try { zone = timeZoneName(input.device_zone); } catch { zone = null; }
   if (!zone) throw new CalendarTasksError(data.words.bad_zone_drift);
-  const planning = planningZone(lists);
+  const planning = await planningZone(lists);
   // With no working hours there is no planning zone yet, so there is nothing to have drifted from.
   return planning ? zoneDrift(planning.zone, zone, planning.asked) : { planning_zone: null, device_zone: zone, drifted: false, ask: false };
 }
-function answerZoneDrift(lists, input) {
-  const answer = zoneDriftAnswer(lists, input);
-  const planning = planningZone(lists);
+async function answerZoneDrift(lists, input) {
+  const answer = await zoneDriftAnswer(lists, input);
+  const planning = await planningZone(lists);
   if (!planning || typeof input.move !== 'boolean') throw new CalendarTasksError(data.words.bad_zone_drift);
   const values = input.move ? { time_zone: answer.device_zone, asked_zones: [...new Set([...planning.asked, answer.device_zone])] } : { asked_zones: [...new Set([...planning.asked, answer.device_zone])] };
-  const saved = lists.putRows(data.working_hours.id, { rows: [{ id: planning.row.id, values }] }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.working_hours.id, { rows: [{ id: planning.row.id, values }] }, { actor: { by: 'calendar' } });
   return { working_hours: workingHoursOf(saved.kept[0]), moved: input.move,
     undo: { action: 'set_working_hours', ...workingHoursOf(planning.row) } };
 }
@@ -959,7 +962,7 @@ function filterHit(row, event) {
   if (Object.hasOwn(row, 'matches')) return new RegExp(row.matches, 'i').test(String(value));
   return false;
 }
-function taskFromEvent(lists, input, now = () => Date.now()) {
+async function taskFromEvent(lists, input, now = () => Date.now()) {
   const event = input.event;
   if (!object(event) || !nonempty(event.id) || !nonempty(event.source) || !nonempty(event.title) || !instant(event.starts_at) || !instant(event.ends_at)
     || Date.parse(event.ends_at) <= Date.parse(event.starts_at)) throw new CalendarTasksError(data.words.bad_event);
@@ -972,11 +975,11 @@ function taskFromEvent(lists, input, now = () => Date.now()) {
   if (minutes < 1 || minutes > data.limits.duration_minutes) return { pulled: false, refused: ['longer_than_a_day'] };
   const source = `${event.source}:${event.id}`;
   const id = `calendar-event-${identityOf({ calendar_event: source }).slice(0, 32)}`;
-  const existing = lists.row(data.list.id, id);
+  const existing = await lists.row(data.list.id, id);
   if (existing) return { pulled: true, kept: true, task: taskOf(existing) };
   const url = object(event) && typeof event.url === 'string' ? provenance({ source_url: event.url }).source_url : null;
   const values = { title: event.title.trim().slice(0, data.limits.title_chars), duration_minutes: minutes, starts_at: instant(event.starts_at), ends_at: instant(event.ends_at), source_id: source, smart_list: 'calendar', created_at: new Date(now()).toISOString(), ...(url ? { source_url: url } : {}) };
-  const saved = lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
   const undo = undoFor([{ id, before: null, after: saved.kept[0] }]);
   return { pulled: true, kept: false, task: taskOf(saved.kept[0]), ...(undo ? { undo } : {}) };
 }
@@ -985,22 +988,22 @@ function taskFromEvent(lists, input, now = () => Date.now()) {
 // The thing names itself by a source id; the first ask makes its task and every later ask finds that same task, so a
 // message's priority, time and deadline all land on one row however many times it is opened.
 const sourceTaskId = source => `calendar-source-${identityOf({ calendar_source: source }).slice(0, 32)}`;
-function taskFromSource(lists, input, now = () => Date.now()) {
+async function taskFromSource(lists, input, now = () => Date.now()) {
   if (!nonempty(input.source_id) || input.source_id.trim().length > data.limits.source_id_chars || !nonempty(input.title)) throw new CalendarTasksError(data.words.bad_source);
   const source = input.source_id.trim();
   const id = sourceTaskId(source);
-  const existing = lists.row(data.list.id, id);
+  const existing = await lists.row(data.list.id, id);
   if (existing) return { kept: true, task: taskOf(existing) };
   const minutes = input.duration_minutes ?? data.from_source.default_minutes;
   if (!Number.isSafeInteger(minutes) || minutes < 1 || minutes > data.limits.duration_minutes) throw new CalendarTasksError(data.words.bad_duration);
   const values = { title: input.title.trim().slice(0, data.limits.title_chars), duration_minutes: minutes, source_id: source, priority: defaultPriority, created_at: new Date(now()).toISOString(), ...provenance({ source_url: input.source_url ?? null }) };
-  const saved = lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
   return { kept: false, task: taskOf(saved.kept[0]) };
 }
 
 /** The task already made for a source id, or null: a read that never makes one. */
-export function findSourceTask(lists, sourceId) {
-  const row = lists.row(data.list.id, sourceTaskId(String(sourceId).trim()));
+export async function findSourceTask(lists, sourceId) {
+  const row = await lists.row(data.list.id, sourceTaskId(String(sourceId).trim()));
   return row ? taskOf(row) : null;
 }
 
@@ -1009,13 +1012,13 @@ export function findSourceTask(lists, sourceId) {
 // one imported are the same task). Which built-in list it
 // belongs to is the email_split rows (calendar-task-messages.mjs). If the task was deleted, importing the message again makes
 // it again: only a task that still exists is kept, nothing remembers a deletion.
-function messageTask(lists, message, split, now) {
+async function messageTask(lists, message, split, now) {
   const bad = () => new CalendarTasksError(data.words.bad_message);
   if (!object(message) || !nonempty(message.id) || message.id.length > data.limits.source_id_chars - 5) throw bad();
   if (message.subject !== undefined && message.subject !== null && typeof message.subject !== 'string') throw bad();
   const sourceId = `gmail:${message.id.trim()}`;
   const id = sourceTaskId(sourceId);
-  const existing = lists.row(data.list.id, id);
+  const existing = await lists.row(data.list.id, id);
   if (existing) return { row: existing, kept: true };
   let url = null;
   if (typeof message.url === 'string' && message.url) { try { url = provenance({ source_url: message.url }).source_url; } catch { url = null; } }
@@ -1023,28 +1026,28 @@ function messageTask(lists, message, split, now) {
   const values = { title, duration_minutes: data.email_split.task_minutes, source_id: sourceId, smart_list: split ? classifyMessage(message) : 'email', created_at: new Date(now()).toISOString(), ...(url ? { source_url: url } : {}) };
   return { row: { id, values }, kept: false };
 }
-function messageTasks(lists, messages, now = () => Date.now()) {
-  const split = preferenceOf(lists, 'email_split_contents');
-  const made = messages.map(message => messageTask(lists, message, split, now));
+async function messageTasks(lists, messages, now = () => Date.now()) {
+  const split = await preferenceOf(lists, 'email_split_contents');
+  const made = await inOrder(messages, async message => await messageTask(lists, message, split, now));
   const fresh = [...new Map(made.filter(entry => !entry.kept).map(entry => [entry.row.id, entry])).values()];
-  const saved = fresh.length ? lists.putRows(data.list.id, { rows: fresh.map(entry => ({ id: entry.row.id, values: entry.row.values })) }, { actor: { by: 'calendar' } }) : { kept: [] };
+  const saved = fresh.length ? await lists.putRows(data.list.id, { rows: fresh.map(entry => ({ id: entry.row.id, values: entry.row.values })) }, { actor: { by: 'calendar' } }) : { kept: [] };
   const savedById = new Map(saved.kept.map(row => [row.id, row]));
   const tasks = made.map(entry => taskOf(savedById.get(entry.row.id) ?? entry.row));
   const undo = undoFor(fresh.map(entry => ({ id: entry.row.id, before: null, after: savedById.get(entry.row.id) ?? null })));
   return { imported: fresh.length, kept: made.length - fresh.length, tasks, ...(undo ? { undo } : {}) };
 }
-function importMessages(lists, input, now) {
+async function importMessages(lists, input, now) {
   const messages = input.messages;
   if (!Array.isArray(messages) || !messages.length || messages.length > data.email_split.most_messages) throw new CalendarTasksError(data.words.bad_messages);
-  if (!preferenceOf(lists, 'email_todos')) return { imported: 0, kept: 0, tasks: [], disabled: true };
-  return messageTasks(lists, messages, now);
+  if (!await preferenceOf(lists, 'email_todos')) return { imported: 0, kept: 0, tasks: [], disabled: true };
+  return await messageTasks(lists, messages, now);
 }
 
 // Planning choices kept on the working-hours row (calendar-tasks.json preferences).
 const preferenceNames = Object.keys(data.preferences).filter(name => !name.startsWith('_'));
-const preferenceOf = (lists, name) => {
+const preferenceOf = async (lists, name) => {
   const row = data.preferences[name];
-  const saved = lists.row(data.working_hours.id, data.working_hours.row_id)?.values?.[name];
+  const saved = (await lists.row(data.working_hours.id, data.working_hours.row_id))?.values?.[name];
   if (row.kind === 'text') return typeof saved === 'string' ? saved : row.default;
   if (row.choices) return row.choices.includes(saved) ? saved : row.default;
   return saved === 'yes' ? true : saved === 'no' ? false : row.default;
@@ -1061,42 +1064,42 @@ const preferenceStored = (name, value) => {
 };
 // The most planned work in a day (parts/ui/show/schedule-calendar/schedule-planner.mjs `capacity`), kept on the working-hours row.
 /** This person's standing working hours { start, end, time_zone, weekdays?, mode }, or null when not set (what a member's store lets a space-mate learn only as quiet or not, space-calendars.mjs). */
-export const readWorkingHours = lists => workingHoursOf(lists.row(data.working_hours.id, data.working_hours.row_id));
+export const readWorkingHours = async lists => workingHoursOf(await lists.row(data.working_hours.id, data.working_hours.row_id));
 /** Whether this person, at `atMs`, is outside their working hours and chose to be written to without a push (quiet-hours.json mode auto_silent). */
-export function silentAt(lists, atMs) {
-  const hours = readWorkingHours(lists);
+export async function silentAt(lists, atMs) {
+  const hours = await readWorkingHours(lists);
   if (!hours || !Number.isFinite(atMs)) return false;
   try { return quietHoursAnswer(hours, atMs, hours.mode).send_silently; } catch { return false; }
 }
-const capacityOf = lists => {
-  try { return JSON.parse(lists.row(data.working_hours.id, data.working_hours.row_id)?.values?.capacity ?? 'null'); } catch { return null; }
+const capacityOf = async lists => {
+  try { return JSON.parse((await lists.row(data.working_hours.id, data.working_hours.row_id))?.values?.capacity ?? 'null'); } catch { return null; }
 };
-function setCapacity(lists, input) {
+async function setCapacity(lists, input) {
   const ok = value => Number.isSafeInteger(value) && value >= 1 && value <= 1440;
   const weekdays = input.weekdays ?? {};
   const band = input.caution_band_minutes ?? 0;
   const none = input.default_minutes == null && !Object.keys(weekdays).length;
   if (!none && ((input.default_minutes != null && !ok(input.default_minutes)) || !Number.isSafeInteger(band) || band < 0 || band > 1440
     || !object(weekdays) || Object.entries(weekdays).some(([day, minutes]) => !/^[0-6]$/.test(day) || !ok(minutes)))) throw new CalendarTasksError(data.words.bad_capacity);
-  const before = capacityOf(lists);
+  const before = await capacityOf(lists);
   const next = none ? null : { default_minutes: input.default_minutes ?? null, caution_band_minutes: band, weekdays };
-  lists.putRows(data.working_hours.id, { rows: [{ id: data.working_hours.row_id, values: { capacity: next ? JSON.stringify(next) : null } }] }, { actor: { by: 'calendar' } });
+  await lists.putRows(data.working_hours.id, { rows: [{ id: data.working_hours.row_id, values: { capacity: next ? JSON.stringify(next) : null } }] }, { actor: { by: 'calendar' } });
   return { capacity: next, undo: { action: 'set_capacity', ...(before ?? {}) } };
 }
-function setPreference(lists, input) {
+async function setPreference(lists, input) {
   const named = preferenceNames.filter(name => Object.hasOwn(input, name));
   if (!named.length || named.some(name => !preferenceValueOk(name, input[name]))) throw new CalendarTasksError(data.words.bad_preference);
-  const before = Object.fromEntries(named.map(name => [name, preferenceOf(lists, name)]));
-  lists.putRows(data.working_hours.id, { rows: [{ id: data.working_hours.row_id, values: Object.fromEntries(named.map(name => [name, preferenceStored(name, input[name])])) }] }, { actor: { by: 'calendar' } });
-  return { preferences: Object.fromEntries(preferenceNames.map(name => [name, preferenceOf(lists, name)])), undo: { action: 'set_preferences', ...before } };
+  const before = Object.fromEntries(await inOrder(named, async name => [name, await preferenceOf(lists, name)]));
+  await lists.putRows(data.working_hours.id, { rows: [{ id: data.working_hours.row_id, values: Object.fromEntries(named.map(name => [name, preferenceStored(name, input[name])])) }] }, { actor: { by: 'calendar' } });
+  return { preferences: Object.fromEntries(await inOrder(preferenceNames, async name => [name, await preferenceOf(lists, name)])), undo: { action: 'set_preferences', ...before } };
 }
 // Tasks the planner placed that a person's move now overlaps, and that nobody pinned: taken off the calendar so the
 // planner can place them again when asked.
-function displacedBy(lists, moved, nowMs) {
+async function displacedBy(lists, moved, nowMs) {
   const start = Date.parse(moved.values.starts_at), end = Date.parse(moved.values.ends_at);
   const clear = { starts_at: null, ends_at: null, placed_by: null, pinned_until: null };
   const writes = [], changes = [];
-  for (const row of openTasks(lists)) {
+  for (const row of await openTasks(lists)) {
     if (row.id === moved.id || !row.values.placed_by || !row.values.starts_at) continue;
     const pinned = row.values.pinned_until && Date.parse(row.values.pinned_until) > nowMs;
     const from = Date.parse(row.values.starts_at), to = Date.parse(row.values.ends_at ?? row.values.starts_at);
@@ -1105,7 +1108,7 @@ function displacedBy(lists, moved, nowMs) {
     changes.push({ id: row.id, before: row });
   }
   if (!writes.length) return { displaced: [], changes: [] };
-  const saved = lists.putRows(data.list.id, { rows: writes }, { actor: { by: 'calendar' } });
+  const saved = await lists.putRows(data.list.id, { rows: writes }, { actor: { by: 'calendar' } });
   const after = new Map(saved.kept.map(row => [row.id, row]));
   return { displaced: changes.map(change => change.id), changes: changes.map(change => ({ ...change, after: after.get(change.id) ?? null })) };
 }
@@ -1115,7 +1118,7 @@ const undoable = new Set(['schedule', 'unschedule', 'update', 'move', 'complete'
 
 // One repair to many tasks (calendar-tasks.json `bulk`): each task takes the repair's change through the same single-task
 // road, so it passes the same checks; the answers' undo rows join into one undo. A task that cannot take it is listed.
-function bulkChange(lists, input, options) {
+async function bulkChange(lists, input, options) {
   const repair = data.bulk.repairs.find(row => row.id === input.repair);
   const ids = input.task_ids;
   if (!repair || !Array.isArray(ids) || !ids.length || ids.length > data.bulk.most_tasks || new Set(ids).size !== ids.length) throw new CalendarTasksError(data.words.bad_bulk);
@@ -1124,7 +1127,7 @@ function bulkChange(lists, input, options) {
   const rows = [];
   for (const id of ids) {
     try {
-      const answer = changeCalendarTask(lists, { ...repair.change, task_id: id }, options);
+      const answer = await changeCalendarTask(lists, { ...repair.change, task_id: id }, options);
       changed.push(id);
       if (answer.undo) rows.push(...answer.undo.rows);
     } catch (error) {
@@ -1135,34 +1138,34 @@ function bulkChange(lists, input, options) {
   return { changed, refused, ...(rows.length ? { undo: { action: 'restore', rows } } : {}) };
 }
 
-export function changeCalendarTask(lists, input, options = {}) {
+export async function changeCalendarTask(lists, input, options = {}) {
   if (!object(input)) throw new CalendarTasksError(data.words.bad_action);
-  if (input.action === 'restore') { ensureTaskList(lists); return restoreTasks(lists, input); }
-  if (input.action === 'set_capacity') { ensureTaskList(lists); return setCapacity(lists, input); }
-  if (input.action === 'bulk') { ensureTaskList(lists); return bulkChange(lists, input, options); }
-  if (input.action === 'rollover') { ensureTaskList(lists); return rolloverTasks(lists, input); }
-  if (input.action === 'set_day_hours') { ensureTaskList(lists); return setDayHours(lists, input); }
-  if (input.action === 'schedule_slices') { ensureTaskList(lists); return scheduleSlices(lists, input); }
-  if (input.action === 'set_working_hours') { ensureTaskList(lists); return setWorkingHours(lists, input); }
-  if (input.action === 'clear_working_hours') { ensureTaskList(lists); return clearWorkingHours(lists); }
-  if (input.action === 'set_preferences') { ensureTaskList(lists); return setPreference(lists, input); }
-  if (input.action === 'import_messages') { ensureTaskList(lists); return importMessages(lists, input, options.now); }
-  if (input.action === 'from_event') { ensureTaskList(lists); return taskFromEvent(lists, input, options.now); }
-  if (input.action === 'from_source') { ensureTaskList(lists); return taskFromSource(lists, input, options.now); }
-  if (input.action === 'find_source') { ensureTaskList(lists); return { task: findSourceTask(lists, input.source_id ?? '') }; }
-  if (input.action === 'zone_drift') { ensureTaskList(lists); return zoneDriftAnswer(lists, input); }
-  if (input.action === 'answer_zone_drift') { ensureTaskList(lists); return answerZoneDrift(lists, input); }
-  if (input.action === 'quiet_hours') { ensureTaskList(lists); return quietHours(lists, input, options.now ?? Date.now); }
-  if (input.action === 'clear_day_hours') { ensureTaskList(lists); return clearDayHours(lists, input); }
-  const target = undoable.has(input.action) && nonempty(input.task_id) ? lists.row?.(data.list.id, input.task_id) ?? null : null;
+  if (input.action === 'restore') { await ensureTaskList(lists); return await restoreTasks(lists, input); }
+  if (input.action === 'set_capacity') { await ensureTaskList(lists); return await setCapacity(lists, input); }
+  if (input.action === 'bulk') { await ensureTaskList(lists); return await bulkChange(lists, input, options); }
+  if (input.action === 'rollover') { await ensureTaskList(lists); return await rolloverTasks(lists, input); }
+  if (input.action === 'set_day_hours') { await ensureTaskList(lists); return await setDayHours(lists, input); }
+  if (input.action === 'schedule_slices') { await ensureTaskList(lists); return await scheduleSlices(lists, input); }
+  if (input.action === 'set_working_hours') { await ensureTaskList(lists); return await setWorkingHours(lists, input); }
+  if (input.action === 'clear_working_hours') { await ensureTaskList(lists); return await clearWorkingHours(lists); }
+  if (input.action === 'set_preferences') { await ensureTaskList(lists); return await setPreference(lists, input); }
+  if (input.action === 'import_messages') { await ensureTaskList(lists); return await importMessages(lists, input, options.now); }
+  if (input.action === 'from_event') { await ensureTaskList(lists); return await taskFromEvent(lists, input, options.now); }
+  if (input.action === 'from_source') { await ensureTaskList(lists); return await taskFromSource(lists, input, options.now); }
+  if (input.action === 'find_source') { await ensureTaskList(lists); return { task: await findSourceTask(lists, input.source_id ?? '') }; }
+  if (input.action === 'zone_drift') { await ensureTaskList(lists); return await zoneDriftAnswer(lists, input); }
+  if (input.action === 'answer_zone_drift') { await ensureTaskList(lists); return await answerZoneDrift(lists, input); }
+  if (input.action === 'quiet_hours') { await ensureTaskList(lists); return await quietHours(lists, input, options.now ?? Date.now); }
+  if (input.action === 'clear_day_hours') { await ensureTaskList(lists); return await clearDayHours(lists, input); }
+  const target = undoable.has(input.action) && nonempty(input.task_id) ? (await (await (await (await (await lists.row?.(data.list.id, input.task_id)))))) ?? null : null;
   const before = target ? { id: target.id, values: structuredClone(target.values) } : null;
-  const result = applyCalendarTask(lists, input, options);
+  const result = await applyCalendarTask(lists, input, options);
   if (!undoable.has(input.action) || result.kept === true || result.next_task) return result;
-  const afterRow = input.action === 'delete' ? null : lists.row(data.list.id, result.task?.id ?? input.task_id);
+  const afterRow = input.action === 'delete' ? null : await lists.row(data.list.id, result.task?.id ?? input.task_id);
   const own = { id: result.task?.id ?? input.task_id, before: input.action === 'create' || input.action === 'duplicate' ? null : before, after: afterRow ? { id: afterRow.id, values: structuredClone(afterRow.values) } : null };
   // A person scheduling a task over what the planner placed moves those out of the way, when they chose that.
-  if (input.action === 'schedule' && input.placed_by === undefined && afterRow?.values?.starts_at && preferenceOf(lists, 'refit_on_move')) {
-    const moved = displacedBy(lists, afterRow, (options.now ?? (() => Date.now()))());
+  if (input.action === 'schedule' && input.placed_by === undefined && afterRow?.values?.starts_at && await preferenceOf(lists, 'refit_on_move')) {
+    const moved = await displacedBy(lists, afterRow, (options.now ?? (() => Date.now()))());
     if (moved.displaced.length) {
       const undo = undoFor([own, ...moved.changes]);
       return { ...result, displaced: moved.displaced, ...(undo ? { undo } : {}) };
@@ -1172,62 +1175,62 @@ export function changeCalendarTask(lists, input, options = {}) {
   return undo ? { ...result, undo } : result;
 }
 
-function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
+async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
   if (!object(input)) throw new CalendarTasksError(data.words.bad_action);
-  ensureTaskList(lists);
+  await ensureTaskList(lists);
   if (input.action === 'create_collection') {
     const values = collectionValues(input);
     if (!values.title) throw new CalendarTasksError(data.words.bad_collection);
     const id = `calendar-collection-${requestKeyOf(input.request_key)}`;
-    const existing = lists.row(data.collections.id, id);
+    const existing = await lists.row(data.collections.id, id);
     if (existing) {
       if (existing.values.title !== values.title) throw new CalendarTasksError('This request key already belongs to a different task list.');
       return { collection: collectionOf(existing), kept: true };
     }
-    const saved = lists.putRows(data.collections.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.collections.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
     return { collection: collectionOf(saved.kept[0]), kept: false, undo: { action: 'delete_collection', collection_id: id } };
   }
   if (input.action === 'update_collection') {
     const collectionId = input.collection_id;
     if (!nonempty(collectionId)) throw new CalendarTasksError('Choose a task list to change.');
-    const row = lists.row(data.collections.id, collectionId);
+    const row = await lists.row(data.collections.id, collectionId);
     if (!row) throw new CalendarTasksError('That task list is no longer available.');
     const values = collectionValues(input);
     if (!Object.keys(values).length) throw new CalendarTasksError(data.words.bad_collection_field);
-    const saved = lists.putRows(data.collections.id, { rows: [{ id: row.id, values }] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.collections.id, { rows: [{ id: row.id, values }] }, { actor: { by: 'calendar' } });
     return { collection: collectionOf(saved.kept[0]), undo: { action: 'update_collection', collection_id: row.id, ...collectionRestore(row, Object.keys(values)) } };
   }
   if (input.action === 'reorder_collection') {
     const { collection_id: collectionId, anchor_id: anchorId, placement } = input;
     if (!nonempty(collectionId) || !nonempty(anchorId) || collectionId === anchorId || !['before', 'after'].includes(placement)) throw new CalendarTasksError(data.words.bad_collection_order);
-    const row = lists.row(data.collections.id, collectionId);
-    if (!row || !lists.row(data.collections.id, anchorId)) throw new CalendarTasksError('That task list is no longer available.');
-    const undo = collectionReorderUndo(lists, row.id);
-    const moved = lists.moveRow(data.collections.id, { row_id: row.id, index: data.collections.ordering.index, anchor_id: anchorId, placement }, { actor: { by: 'calendar' } });
-    return { collection: collectionOf(lists.row(data.collections.id, row.id)), moved: moved.moved, ...(undo && moved.moved ? { undo } : {}) };
+    const row = await lists.row(data.collections.id, collectionId);
+    if (!row || !await lists.row(data.collections.id, anchorId)) throw new CalendarTasksError('That task list is no longer available.');
+    const undo = await collectionReorderUndo(lists, row.id);
+    const moved = await lists.moveRow(data.collections.id, { row_id: row.id, index: data.collections.ordering.index, anchor_id: anchorId, placement }, { actor: { by: 'calendar' } });
+    return { collection: collectionOf(await lists.row(data.collections.id, row.id)), moved: moved.moved, ...(undo && moved.moved ? { undo } : {}) };
   }
   if (input.action === 'delete_collection') {
     const collectionId = input.collection_id;
     if (!nonempty(collectionId)) throw new CalendarTasksError('Choose a task list to delete.');
-    const row = lists.row(data.collections.id, collectionId);
+    const row = await lists.row(data.collections.id, collectionId);
     if (!row) throw new CalendarTasksError('That task list is no longer available.');
-    lists.putRows(data.collections.id, { remove: [row.id] }, { actor: { by: 'calendar' } });
+    await lists.putRows(data.collections.id, { remove: [row.id] }, { actor: { by: 'calendar' } });
     return { id: row.id, removed: true };
   }
   if (input.action === 'move') {
-    const row = taskRow(lists, input.task_id);
+    const row = await taskRow(lists, input.task_id);
     if (!Object.hasOwn(input, 'collection_id')) throw new CalendarTasksError('Choose a task list or clear the current list.');
-    const collectionId = checkedCollection(lists, input.collection_id);
-    const saved = lists.putRows(data.list.id, { rows: [{ id: row.id, values: { collection_id: collectionId } }] }, { actor: { by: 'calendar' } });
+    const collectionId = await checkedCollection(lists, input.collection_id);
+    const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { collection_id: collectionId } }] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept[0]) };
   }
   if (input.action === 'reorder') {
-    const row = taskRow(lists, input.task_id);
-    const moved = lists.moveRow(data.list.id, {
+    const row = await taskRow(lists, input.task_id);
+    const moved = await lists.moveRow(data.list.id, {
       row_id: row.id, index: data.list.ordering.index,
       anchor_id: input.anchor_id, placement: input.placement,
     }, { actor: { by: 'calendar' } });
-    return { task: taskOf(lists.row(data.list.id, row.id)), moved: moved.moved };
+    return { task: taskOf(await lists.row(data.list.id, row.id)), moved: moved.moved };
   }
   if (input.action === 'create') {
     const title = typeof input.title === 'string' ? input.title.trim() : '';
@@ -1238,7 +1241,7 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
     if (input.due !== undefined && input.due !== null && input.due !== '' && !validDue(input.due)) throw new CalendarTasksError(data.words.bad_due);
     const key = requestKeyOf(input.request_key);
     const id = `calendar-${key}`;
-    const existing = lists.row(data.list.id, id);
+    const existing = await lists.row(data.list.id, id);
     const details = taskDetails(input);
     const values = {
       title, duration_minutes: input.duration_minutes, ...(input.due ? { due: input.due } : {}), created_at: new Date(now()).toISOString(),
@@ -1248,7 +1251,7 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
       ...schedulingDetails(input),
       ...(details.smart_list ? { smart_list: details.smart_list } : {}),
     };
-    if (Object.hasOwn(input, 'collection_id')) values.collection_id = checkedCollection(lists, input.collection_id);
+    if (Object.hasOwn(input, 'collection_id')) values.collection_id = await checkedCollection(lists, input.collection_id);
     if (details.recurrence) {
       values.recurrence = JSON.stringify(details.recurrence);
       values.recurrence_series = id;
@@ -1256,7 +1259,7 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
       values.recurrence_rule_revision = 1;
       values.recurrence_anchor_date = taskLocalDate({ id, values }, details.recurrence, now());
     }
-    if (Object.hasOwn(input, 'parent_id')) values.parent_id = checkedParent(lists, input.parent_id, id);
+    if (Object.hasOwn(input, 'parent_id')) values.parent_id = await checkedParent(lists, input.parent_id, id);
     if (existing) {
       if (existing.values.title !== title || existing.values.duration_minutes !== input.duration_minutes
         || (existing.values.due ?? null) !== (input.due ?? null)
@@ -1272,18 +1275,18 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
       }
       const existingNext = details.recurrence?.nextTodo === 'direct_even_if_open'
         ? nextTaskValues(existing, details.recurrence, now()) : null;
-      let nextRow = existingNext && lists.row(data.list.id, existingNext.id);
-      if (existingNext && !nextRow) nextRow = lists.putRows(data.list.id, { rows: [existingNext] }, { actor: { by: 'calendar' } }).kept[0];
+      let nextRow = existingNext && await lists.row(data.list.id, existingNext.id);
+      if (existingNext && !nextRow) nextRow = (await lists.putRows(data.list.id, { rows: [existingNext] }, { actor: { by: 'calendar' } })).kept[0];
       return { task: taskOf(existing), ...(nextRow ? { next_task: taskOf(nextRow) } : {}), kept: true };
     }
     const row = { id, values };
     const directNext = details.recurrence?.nextTodo === 'direct_even_if_open'
       ? nextTaskValues(row, details.recurrence, now()) : null;
-    const saved = lists.putRows(data.list.id, { rows: [row, ...(directNext ? [directNext] : [])] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows: [row, ...(directNext ? [directNext] : [])] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept.find(item => item.id === id)), ...(directNext ? { next_task: taskOf(saved.kept.find(item => item.id === directNext.id)) } : {}), kept: false };
   }
   if (input.action === 'duplicate') {
-    const source = taskRow(lists, input.task_id);
+    const source = await taskRow(lists, input.task_id);
     const key = requestKeyOf(input.request_key);
     const id = `calendar-${key}`;
     const values = {
@@ -1296,20 +1299,20 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
       ...(source.values.smart_list ? { smart_list: source.values.smart_list } : {}),
       ...(source.values.collection_id ? { collection_id: Array.isArray(source.values.collection_id) ? source.values.collection_id[0] : source.values.collection_id } : {}),
       ...(source.values.due ? { due: source.values.due } : {}),
-      ...(parentIdOf(source) ? { parent_id: checkedParent(lists, parentIdOf(source), id) } : {}),
+      ...(parentIdOf(source) ? { parent_id: await checkedParent(lists, parentIdOf(source), id) } : {}),
     };
-    const existing = lists.row(data.list.id, id);
+    const existing = await lists.row(data.list.id, id);
     if (existing) {
       if (existing.values.duplicate_of !== source.id) {
         throw new CalendarTasksError('This request key already belongs to a different task copy.');
       }
       return { task: taskOf(existing), kept: true };
     }
-    const saved = lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept[0]), kept: false };
   }
   if (input.action === 'schedule') {
-    const row = taskRow(lists, input.task_id);
+    const row = await taskRow(lists, input.task_id);
     if (Object.hasOwn(input, 'expected_start') && (row.values.starts_at ?? null) !== input.expected_start) {
       throw new CalendarTasksError('This task already has a different time. Read it again before scheduling.');
     }
@@ -1327,50 +1330,50 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
     const values = { starts_at: start, ends_at: end, duration_minutes: durationMinutes };
     if (placedByPlanner) Object.assign(values, { placed_by: placers[0], pinned_until: null });
     else if (row.values.placed_by) values.pinned_until = end;
-    const saved = lists.putRows(data.list.id, { rows: [{ id: row.id, values }] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values }] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept[0]) };
   }
   if (input.action === 'log_time') {
-    const row = taskRow(lists, input.task_id);
+    const row = await taskRow(lists, input.task_id);
     const minutes = input.minutes;
     const total = (row.values.time_spent_minutes ?? 0) + minutes;
     if (!Number.isSafeInteger(minutes) || minutes < 1 || minutes > data.limits.duration_minutes || total > data.limits.time_spent_minutes) throw new CalendarTasksError(data.words.bad_time_spent);
-    const saved = lists.putRows(data.list.id, { rows: [{ id: row.id, values: { time_spent_minutes: total } }] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { time_spent_minutes: total } }] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept[0]) };
   }
   if (input.action === 'complete') {
-    const row = taskRow(lists, input.task_id);
-    const recurrence = activeRecurrence(lists, row);
+    const row = await taskRow(lists, input.task_id);
+    const recurrence = await activeRecurrence(lists, row);
     const next = recurrence && ['when_done', 'direct_even_if_open'].includes(recurrence.nextTodo)
       ? nextTaskValues(row, recurrence, now()) : null;
-    const existingNext = next ? lists.row(data.list.id, next.id) : null;
+    const existingNext = next ? await lists.row(data.list.id, next.id) : null;
     const rows = [{ id: row.id, values: { status: 'Done' } }, ...(next && !existingNext ? [next] : [])];
-    const saved = lists.putRows(data.list.id, { rows }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows }, { actor: { by: 'calendar' } });
     const result = { task: taskOf(saved.kept[0]) };
     const nextRow = existingNext ?? (next ? saved.kept.find(item => item.id === next.id) : null);
     if (nextRow) result.next_task = taskOf(nextRow);
     return result;
   }
   if (input.action === 'reopen') {
-    const row = taskRow(lists, input.task_id);
-    const saved = lists.putRows(data.list.id, { rows: [{ id: row.id, values: { status: null } }] }, { actor: { by: 'calendar' } });
+    const row = await taskRow(lists, input.task_id);
+    const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { status: null } }] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept[0]) };
   }
   if (input.action === 'delete') {
-    const row = taskRow(lists, input.task_id);
-    lists.putRows(data.list.id, { remove: [row.id] }, { actor: { by: 'calendar' } });
+    const row = await taskRow(lists, input.task_id);
+    await lists.putRows(data.list.id, { remove: [row.id] }, { actor: { by: 'calendar' } });
     return { id: row.id, removed: true };
   }
   if (input.action === 'update') {
-    const row = taskRow(lists, input.task_id);
+    const row = await taskRow(lists, input.task_id);
     const values = editableFields(input);
-    if (Object.hasOwn(input, 'collection_id')) values.collection_id = checkedCollection(lists, input.collection_id);
+    if (Object.hasOwn(input, 'collection_id')) values.collection_id = await checkedCollection(lists, input.collection_id);
     let stopSeriesAt = null;
-    if (Object.hasOwn(values, 'parent_id')) values.parent_id = checkedParent(lists, values.parent_id, row.id);
+    if (Object.hasOwn(values, 'parent_id')) values.parent_id = await checkedParent(lists, values.parent_id, row.id);
     if (Object.hasOwn(values, 'recurrence')) {
       if (values.recurrence === null) {
         const series = row.values.recurrence_series ?? row.id;
-        const master = series === row.id ? row : lists.row(data.list.id, series);
+        const master = series === row.id ? row : await lists.row(data.list.id, series);
         const nextRevision = (Number.isSafeInteger(master?.values?.recurrence_rule_revision) ? master.values.recurrence_rule_revision : 1) + 1;
         values.recurrence_series = series;
         values.recurrence_index = row.values.recurrence_index ?? 1;
@@ -1397,13 +1400,13 @@ function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
     const recurrence = storedRecurrence(updated.values.recurrence);
     const directNext = Object.hasOwn(values, 'recurrence') && recurrence?.nextTodo === 'direct_even_if_open'
       ? nextTaskValues(updated, recurrence, now()) : null;
-    const saved = lists.putRows(data.list.id, { rows: [...(stopSeriesAt ? [stopSeriesAt] : []), { id: row.id, values }, ...(directNext ? [directNext] : [])] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows: [...(stopSeriesAt ? [stopSeriesAt] : []), { id: row.id, values }, ...(directNext ? [directNext] : [])] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept.find(item => item.id === row.id)), ...(directNext ? { next_task: taskOf(saved.kept.find(item => item.id === directNext.id)) } : {}) };
   }
   if (input.action === 'unschedule') {
-    const row = taskRow(lists, input.task_id);
+    const row = await taskRow(lists, input.task_id);
     if (row.values.status === 'Done') throw new CalendarTasksError('A completed task cannot be unscheduled.');
-    const saved = lists.putRows(data.list.id, { rows: [{ id: row.id, values: { starts_at: null, ends_at: null, pinned_until: null, placed_by: null } }] }, { actor: { by: 'calendar' } });
+    const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { starts_at: null, ends_at: null, pinned_until: null, placed_by: null } }] }, { actor: { by: 'calendar' } });
     return { task: taskOf(saved.kept[0]) };
   }
   throw new CalendarTasksError(data.words.bad_action);
@@ -1413,7 +1416,7 @@ export async function handleCalendarTasksRequest(lists, request, options) {
   try {
     if (request.method === 'GET') {
       const url = new URL(request.url);
-      return Response.json(readCalendarTasks(lists, {
+      return Response.json(await readCalendarTasks(lists, {
         from: url.searchParams.get('from'), to: url.searchParams.get('to'),
         cursor: url.searchParams.get('cursor') ?? undefined,
         collection_cursor: url.searchParams.get('collection_cursor') ?? undefined,
@@ -1421,7 +1424,7 @@ export async function handleCalendarTasksRequest(lists, request, options) {
         sort: url.searchParams.get('sort') ?? 'date',
       }));
     }
-    if (request.method === 'POST') return Response.json(changeCalendarTask(lists, await request.json().catch(() => null), options));
+    if (request.method === 'POST') return Response.json(await changeCalendarTask(lists, await request.json().catch(() => null), options));
     return Response.json({ error: 'Method not allowed.' }, { status: 405 });
   } catch (error) {
     return Response.json({ error: String(error?.message ?? error) }, { status: error instanceof CalendarTasksError ? 400 : 500 });

@@ -31,7 +31,7 @@ const choice = (field, values) => ({ kind: 'rule', field, operator: 'is_any_of',
 
 test('a saved view is a record of its own: adding, changing, ordering and removing one never rewrites the list', async t => {
   const { lists, ask, store } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage', kind: 'choice', choices: ['Lead', 'Won'] }],
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage', kind: 'choice', choices: ['Lead', 'Won'] }],
     views: [{ id: 'leads', label: 'Leads', rules: group(choice('stage', ['Lead'])) }] });
   assert.equal(store.eeaf.read('list:deals').views, undefined, 'views given with the list are kept as records of their own');
   assert.ok(store.eeaf.read('list-view:deals:leads'));
@@ -45,28 +45,28 @@ test('a saved view is a record of its own: adding, changing, ordering and removi
   assert.deepEqual(moved.views, ['all', 'leads', 'won']);
   assert.equal((await ask('/lists/deals/views/won/move', { anchor_id: 'won', placement: 'after' })).body.refused.code, 'bad_view_move');
   await ask('/lists/deals/views/won', { remove: true });
-  assert.deepEqual(lists.find('deals').views.map(view => view.id), ['all', 'leads']);
+  assert.deepEqual((await lists.find('deals')).views.map(view => view.id), ['all', 'leads']);
   assert.equal(store.eeaf.read('list-view:deals:won'), null);
   assert.equal(JSON.stringify(store.eeaf.read('list:deals')), definition);
   // A view kept as its own record is checked against the fields like any: the field it sorts by cannot be taken from under it.
-  assert.throws(() => lists.save({ id: 'deals', fields: [{ id: 'name', label: 'Name' }] }), /saved view/);
+  await assert.rejects(async () => await lists.save({ id: 'deals', fields: [{ id: 'name', label: 'Name' }] }), /saved view/);
 });
 
 test('views a list kept inside itself are read as before and move to records of their own when ordered', async t => {
   const { lists, ask, store } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }] });
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }] });
   // A list kept before views had records of their own: its views live inside it.
   store.eeaf.write([{ id: 'list:deals', type: 'list', value: { ...store.eeaf.read('list:deals'), views: [{ id: 'a', label: 'A', search: '', time_zone: 'UTC', sort: [], groups: [], columns: { order: [], hidden: [] } }, { id: 'b', label: 'B', search: '', time_zone: 'UTC', sort: [], groups: [], columns: { order: [], hidden: [] } }] } }], { actor: { by: 'test' } });
   await ask('/lists/deals/views', { id: 'c', label: 'C' });
-  assert.deepEqual(lists.find('deals').views.map(view => view.id), ['a', 'b', 'c']);
+  assert.deepEqual((await lists.find('deals')).views.map(view => view.id), ['a', 'b', 'c']);
   assert.deepEqual((await ask('/lists/deals/views/a/move', { anchor_id: 'c', placement: 'after' })).body.views, ['b', 'c', 'a']);
   assert.equal(store.eeaf.read('list:deals').views, undefined, 'ordering gave every view a record of its own');
 });
 
 test('a view whose rule values are given when it is read is one view for many readers', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'owner', label: 'Owner', kind: 'choice', choices: ['Ana', 'Ben'] }] });
-  lists.putRows('deals', { rows: [{ id: 'd1', values: { name: 'One', owner: 'Ana' } }, { id: 'd2', values: { name: 'Two', owner: 'Ben' } }, { id: 'd3', values: { name: 'Three', owner: 'Ana' } }] });
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'owner', label: 'Owner', kind: 'choice', choices: ['Ana', 'Ben'] }] });
+  await lists.putRows('deals', { rows: [{ id: 'd1', values: { name: 'One', owner: 'Ana' } }, { id: 'd2', values: { name: 'Two', owner: 'Ben' } }, { id: 'd3', values: { name: 'Three', owner: 'Ana' } }] });
   await ask('/lists/deals/views', { id: 'mine', label: 'Mine', rules: group(choice('owner', [{ parameter: 'owner' }])) });
   await ask('/lists/deals/views', { id: 'bens', label: 'Ben unless said', rules: group(choice('owner', [{ parameter: 'owner', default: 'Ben' }])) });
   const listed = (await ask('/lists/deals/views')).body.views;
@@ -77,19 +77,19 @@ test('a view whose rule values are given when it is read is one view for many re
   assert.deepEqual(ben.rows.map(row => row.id), ['d2']);
   assert.equal((await ask('/lists/deals/views/mine')).body.refused.code, 'missing_parameter', 'a value not given is never read as no rule');
   assert.deepEqual((await ask('/lists/deals/views/bens')).body.rows.map(row => row.id), ['d2'], 'a default stands in when no value is given');
-  assert.deepEqual(lists.find('deals').views.find(view => view.id === 'mine').rules.rules[0].params.values, [{ parameter: 'owner' }], 'the saved view keeps the parameter');
+  assert.deepEqual((await lists.find('deals')).views.find(view => view.id === 'mine').rules.rules[0].params.values, [{ parameter: 'owner' }], 'the saved view keeps the parameter');
 });
 
 test('a snapshot holds a view\'s rows still: ranges and totals read the rows it held while the list changes', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage', kind: 'choice', choices: ['Lead', 'Won'] }, { id: 'amount', label: 'Amount', kind: 'number' }],
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage', kind: 'choice', choices: ['Lead', 'Won'] }, { id: 'amount', label: 'Amount', kind: 'number' }],
     views: [{ id: 'leads', label: 'Leads', rules: group(choice('stage', ['Lead'])) }] });
-  lists.putRows('deals', { rows: Array.from({ length: 120 }, (_, index) => ({ id: `d${String(index).padStart(3, '0')}`, values: { name: `Deal ${index}`, stage: index < 90 ? 'Lead' : 'Won', amount: 10 } })) });
+  await lists.putRows('deals', { rows: Array.from({ length: 120 }, (_, index) => ({ id: `d${String(index).padStart(3, '0')}`, values: { name: `Deal ${index}`, stage: index < 90 ? 'Lead' : 'Won', amount: 10 } })) });
   const taken = (await ask('/lists/deals/snapshots', { view_id: 'leads' })).body;
   assert.equal(taken.total, 90);
   assert.equal(taken.complete, true);
   // The list changes after the snapshot: a lead is won, one is removed, a new lead arrives.
-  lists.putRows('deals', { rows: [{ id: 'd000', values: { stage: 'Won' } }, { id: 'new', values: { name: 'New', stage: 'Lead', amount: 99 } }], remove: ['d001'] });
+  await lists.putRows('deals', { rows: [{ id: 'd000', values: { stage: 'Won' } }, { id: 'new', values: { name: 'New', stage: 'Lead', amount: 99 } }], remove: ['d001'] });
   const first = (await ask(`/lists/deals/snapshots/${taken.snapshot_id}?from=0&count=50`)).body;
   assert.equal(first.total, 90);
   assert.equal(first.rows.length + first.gone.length, 50);

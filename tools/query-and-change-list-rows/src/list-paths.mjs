@@ -80,6 +80,23 @@ export function planPath(list, pathId, listOf, viewId = '') {
   return { id: pathId, label: labels.join(' › '), kind: many ? 'tags' : leaf.kind, hops, leaf, leafList: here, many };
 }
 
+/**
+ * planPath when `listOf(slug)` answers a promise (lists reached through the door): the lists the path's hops name are read
+ * first, in order and at most limits.path_hops of them, then the path is planned over what was read, so its rules stay
+ * the ones above.
+ */
+export async function planPathAhead(list, pathId, listOf, viewId = '') {
+  const read = new Map();
+  let here = list;
+  for (const step of String(pathId).split('.').slice(0, -1).slice(0, limits.path_hops)) {
+    const field = here?.fields?.find(item => item.id === step);
+    if (!field || typeof field.links_to !== 'string') break;
+    if (!read.has(field.links_to)) read.set(field.links_to, await listOf(field.links_to));
+    here = read.get(field.links_to);
+  }
+  return planPath(list, pathId, slug => read.get(slug) ?? null, viewId);
+}
+
 const chunks = (items, size) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, (index + 1) * size));
 
 // The rows of one list by id, reading only `only`, in groups the list owner accepts.

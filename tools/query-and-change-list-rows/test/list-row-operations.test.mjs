@@ -31,39 +31,39 @@ const fresh = t => {
 const group = (...rules) => ({ kind: 'group', combinator: 'and', negate: false, rules });
 const rule = (field, operator, params) => ({ kind: 'rule', field, operator, params });
 
-test('a required field, a declared input grammar and the basis of a value are checked where the row is kept', t => {
+test('a required field, a declared input grammar and the basis of a value are checked where the row is kept', async t => {
   const { lists } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [
+  await lists.save({ id: 'deals', label: 'Deals', fields: [
     { id: 'name', label: 'Name', required: true },
     { id: 'amount', label: 'Amount', kind: 'number', input: { decimal: ',' } },
     { id: 'guess', label: 'Guess', kind: 'number' },
     { id: 'closes', label: 'Closes', kind: 'date', input: { date_order: 'dmy' } },
   ] });
-  const refusal = body => { try { lists.putRows('deals', body); } catch (error) { assert.ok(error instanceof ListsError); return error; } assert.fail('expected a refusal'); };
-  assert.equal(refusal({ rows: [{ id: 'a', values: { amount: 5 } }] }).detail.code, 'missing_required');
-  assert.match(refusal({ rows: [{ id: 'a', values: { name: 'A', guess: '1,25' } }] }).message, /does not say which mark is its decimal separator/);
-  assert.equal(lists.putRows('deals', { rows: [{ id: 'whole', values: { name: 'W', guess: '12' } }] }).kept[0].values.guess, 12, 'a whole number written as text is not ambiguous');
-  assert.equal(refusal({ rows: [{ id: 'a', values: { name: 'A', closes: '31/02/2026' } }] }).detail.code, 'bad_date');
-  assert.equal(refusal({ rows: [{ id: 'a', values: { name: 'A', amount: '12,5x' } }] }).detail.code, 'bad_number');
-  const kept = lists.putRows('deals', { rows: [{ id: 'a', values: { name: 'A', amount: '1.250,5', closes: '03/04/2026' },
-    basis: { amount: { confidence: 'low', reasoning: 'Read off the quote email', sources: ['quote.pdf'] } } }] }, { actor: { by: 'Claude' } }).kept[0].values;
+  const refusal = async body => { try { await lists.putRows('deals', body); } catch (error) { assert.ok(error instanceof ListsError); return error; } assert.fail('expected a refusal'); };
+  assert.equal((await refusal({ rows: [{ id: 'a', values: { amount: 5 } }] })).detail.code, 'missing_required');
+  assert.match((await refusal({ rows: [{ id: 'a', values: { name: 'A', guess: '1,25' } }] })).message, /does not say which mark is its decimal separator/);
+  assert.equal((await lists.putRows('deals', { rows: [{ id: 'whole', values: { name: 'W', guess: '12' } }] })).kept[0].values.guess, 12, 'a whole number written as text is not ambiguous');
+  assert.equal((await refusal({ rows: [{ id: 'a', values: { name: 'A', closes: '31/02/2026' } }] })).detail.code, 'bad_date');
+  assert.equal((await refusal({ rows: [{ id: 'a', values: { name: 'A', amount: '12,5x' } }] })).detail.code, 'bad_number');
+  const kept = (await lists.putRows('deals', { rows: [{ id: 'a', values: { name: 'A', amount: '1.250,5', closes: '03/04/2026' },
+    basis: { amount: { confidence: 'low', reasoning: 'Read off the quote email', sources: ['quote.pdf'] } } }] }, { actor: { by: 'Claude' } })).kept[0].values;
   assert.equal(kept.amount, 1250.5);
   assert.equal(kept.closes, '2026-04-03');
   assert.deepEqual({ ...kept._basis.amount, at: undefined }, { confidence: 'low', reasoning: 'Read off the quote email', sources: ['quote.pdf'], by: 'Claude', at: undefined });
-  assert.equal(refusal({ rows: [{ id: 'a', values: { name: null } }] }).detail.code, 'required_cleared');
-  assert.equal(refusal({ rows: [{ id: 'a', values: { name: 'A' }, basis: { amount: { confidence: 'high' } } }] }).detail.code, 'unknown_field', 'a basis is for a value written in the same row');
-  const rewritten = lists.putRows('deals', { rows: [{ id: 'a', values: { amount: '2,5' } }] }).kept[0].values;
+  assert.equal((await refusal({ rows: [{ id: 'a', values: { name: null } }] })).detail.code, 'required_cleared');
+  assert.equal((await refusal({ rows: [{ id: 'a', values: { name: 'A' }, basis: { amount: { confidence: 'high' } } }] })).detail.code, 'unknown_field', 'a basis is for a value written in the same row');
+  const rewritten = (await lists.putRows('deals', { rows: [{ id: 'a', values: { amount: '2,5' } }] })).kept[0].values;
   assert.equal(rewritten._basis, undefined, 'a value written again without a basis no longer has the old one');
-  assert.throws(() => lists.save({ id: 'deals', fields: [{ id: 'x', label: 'X', input: { decimal: ',' } }] }), /declares input/, 'a text field has no number grammar');
+  await assert.rejects(async () => await lists.save({ id: 'deals', fields: [{ id: 'x', label: 'X', input: { decimal: ',' } }] }), /declares input/, 'a text field has no number grammar');
 });
 
 test('a preview says what a write would do and writes nothing; a refusal comes back as a form to mend', async t => {
   const { lists, ask, store } = fresh(t);
-  lists.save({ id: 'companies', label: 'Companies', fields: [{ id: 'name', label: 'Name', required: true }, { id: 'tier', label: 'Tier' }] });
-  lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }, { id: 'company', label: 'Company', kind: 'link', links_to: 'companies', on_target_remove: 'detach' }] });
-  lists.putRows('companies', { rows: [{ id: 'acme', values: { name: 'Acme' } }, { id: 'zeta', values: { name: 'Zeta' } }] });
-  lists.putRows('people', { rows: [{ id: 'pat', values: { name: 'Pat', company: ['acme'] } }] });
-  const before = { revision: lists.revisionOf('companies'), people: lists.revisionOf('people'), sequence: store.eeaf.changeSeq?.(), rows: lists.read('companies').rows, pat: lists.read('people').rows };
+  await lists.save({ id: 'companies', label: 'Companies', fields: [{ id: 'name', label: 'Name', required: true }, { id: 'tier', label: 'Tier' }] });
+  await lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }, { id: 'company', label: 'Company', kind: 'link', links_to: 'companies', on_target_remove: 'detach' }] });
+  await lists.putRows('companies', { rows: [{ id: 'acme', values: { name: 'Acme' } }, { id: 'zeta', values: { name: 'Zeta' } }] });
+  await lists.putRows('people', { rows: [{ id: 'pat', values: { name: 'Pat', company: ['acme'] } }] });
+  const before = { revision: lists.revisionOf('companies'), people: lists.revisionOf('people'), sequence: store.eeaf.changeSeq?.(), rows: (await lists.read('companies')).rows, pat: (await lists.read('people')).rows };
   const ok = (await ask('/lists/companies/rows/preview', { rows: [{ id: 'zeta', values: { tier: 'A' } }, { values: { name: 'Beta' } }], remove: ['acme'] })).body;
   assert.equal(ok.ok, true);
   assert.equal(ok.dry_run, true);
@@ -75,16 +75,16 @@ test('a preview says what a write would do and writes nothing; a refusal comes b
   assert.equal(refused.refused.code, 'missing_required');
   assert.deepEqual(refused.refused.required_fields, [{ field_id: 'name', label: 'Name', kind: 'text' }]);
   assert.equal((await ask('/lists/companies/rows/preview', { rows: [], select: {} })).status, 400, 'a preview takes only rows and remove');
-  assert.deepEqual({ revision: lists.revisionOf('companies'), people: lists.revisionOf('people'), sequence: store.eeaf.changeSeq?.(), rows: lists.read('companies').rows, pat: lists.read('people').rows }, before, 'nothing was written, counted or logged');
+  assert.deepEqual({ revision: lists.revisionOf('companies'), people: lists.revisionOf('people'), sequence: store.eeaf.changeSeq?.(), rows: (await lists.read('companies')).rows, pat: (await lists.read('people')).rows }, before, 'nothing was written, counted or logged');
   const real = (await ask('/lists/companies/rows', { rows: [{ values: { name: 'Beta' } }] })).body;
   assert.equal(real.kept[0].values.name, 'Beta', 'the same request then keeps what the preview said');
-  assert.equal(lists.read('companies').rows.filter(row => row.values.name === 'Beta').length, 1);
+  assert.equal((await lists.read('companies')).rows.filter(row => row.values.name === 'Beta').length, 1);
 });
 
 test('a row put by who it is joins the row already holding that email, in its shared form', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'contacts', label: 'Contacts', fields: [{ id: 'name', label: 'Name' }, { id: 'email', label: 'Email', kind: 'email' }, { id: 'phone', label: 'Phone', kind: 'phone' }, { id: 'site', label: 'Site', kind: 'link-address' }] });
-  lists.putRows('contacts', { rows: [
+  await lists.save({ id: 'contacts', label: 'Contacts', fields: [{ id: 'name', label: 'Name' }, { id: 'email', label: 'Email', kind: 'email' }, { id: 'phone', label: 'Phone', kind: 'phone' }, { id: 'site', label: 'Site', kind: 'link-address' }] });
+  await lists.putRows('contacts', { rows: [
     { id: 'ana', values: { name: 'Ana', email: 'Ana@Example.com', phone: '+1 (415) 555-0100' } },
     { id: 'bo', values: { name: 'Bo', email: 'bo@example.com' } },
   ] });
@@ -99,28 +99,28 @@ test('a row put by who it is joins the row already holding that email, in its sh
     { index: 1, field_id: 'phone', matched: '14155550100x', form: '14155550100', row_id: null, created: true },
     { index: 2, field_id: 'email', matched: 'cy@example.com', form: 'cy@example.com', row_id: null, created: true },
     { index: 3, field_id: 'email', matched: 'CY@example.com', form: 'cy@example.com', row_id: null, created: true }]);
-  const all = Object.fromEntries(lists.read('contacts').rows.map(row => [row.id, row.values]));
+  const all = Object.fromEntries((await lists.read('contacts')).rows.map(row => [row.id, row.values]));
   assert.equal(all.ana.email, 'Ana@Example.com', 'the spelling already kept stays');
   assert.equal(all.ana.name, 'Ana Cruz');
   const cy = Object.values(all).filter(values => values.email?.toLowerCase() === 'cy@example.com');
   assert.equal(cy.length, 1, 'the same new email named twice in one request is one row');
   assert.equal(cy[0].site, 'https://www.Acme.com/about');
   assert.equal(Object.keys(all).length, 4, 'ana, bo, the row whose phone differs by its country mark, and cy');
-  lists.putRows('contacts', { rows: [{ id: 'dup', values: { name: 'Bo again', email: 'BO@example.com' } }] });
+  await lists.putRows('contacts', { rows: [{ id: 'dup', values: { name: 'Bo again', email: 'BO@example.com' } }] });
   const ambiguous = await ask('/lists/contacts/rows', { match_on: ['email'], rows: [{ values: { email: 'bo@EXAMPLE.com' } }] });
   assert.equal(ambiguous.status, 400);
   assert.equal(ambiguous.body.refused.code, 'match_ambiguous');
   assert.equal((await ask('/lists/contacts/rows', { match_on: ['nope'], rows: [{ values: { name: 'x' } }] })).body.refused.code, 'bad_match');
-  const sites = lists.read('contacts', { only: ['site'] }).rows.filter(row => row.values.site);
+  const sites = (await lists.read('contacts', { only: ['site'] })).rows.filter(row => row.values.site);
   assert.equal(sites.length, 1);
 });
 
 test('a whole selection is put or removed by its edges: a view, the rows left out, the rows added', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'tasks', label: 'Tasks', fields: [{ id: 'name', label: 'Name' }, { id: 'status', label: 'Status', kind: 'choice', choices: ['open', 'closed'] }],
+  await lists.save({ id: 'tasks', label: 'Tasks', fields: [{ id: 'name', label: 'Name' }, { id: 'status', label: 'Status', kind: 'choice', choices: ['open', 'closed'] }],
     views: [{ id: 'open', label: 'Open', rules: group(rule('status', 'is_any_of', { values: ['open'] })) }] });
   const total = 1130;
-  for (let at = 0; at < total; at += 200) lists.putRows('tasks', { rows: Array.from({ length: Math.min(200, total - at) }, (_, index) => ({ id: `t${at + index}`, values: { name: `Task ${at + index}`, status: 'open' } })) });
+  for (let at = 0; at < total; at += 200) await lists.putRows('tasks', { rows: Array.from({ length: Math.min(200, total - at) }, (_, index) => ({ id: `t${at + index}`, values: { name: `Task ${at + index}`, status: 'open' } })) });
   const select = { view_id: 'open', except: ['t5'], values: { status: 'closed' } };
   const first = (await ask('/lists/tasks/rows', { select })).body;
   assert.equal(first.selection.complete, false, 'one call changes at most select_rows_per_call rows');
@@ -129,27 +129,27 @@ test('a whole selection is put or removed by its edges: a view, the rows left ou
   const second = (await ask('/lists/tasks/rows', { select: { ...select, cursor: first.selection.next_cursor } })).body;
   assert.equal(second.selection.complete, true);
   assert.equal(first.selection.matched + second.selection.matched, total - 1, 'every open row but the one left out, once');
-  const state = Object.fromEntries((lists.read('tasks', { only: ['status'] }).rows).map(row => [row.id, row.values.status]));
+  const state = Object.fromEntries(((await lists.read('tasks', { only: ['status'] })).rows).map(row => [row.id, row.values.status]));
   assert.equal(Object.values(state).filter(value => value === 'open').length, 1);
   assert.equal(state.t5, 'open');
   const removed = (await ask('/lists/tasks/rows', { select: { view_id: 'open', include: ['t6', 't7'], remove: true } })).body;
   assert.deepEqual(removed.removed.sort(), ['t5', 't6', 't7'].sort(), 'the rows added by name are taken whatever the view says of them');
-  assert.equal(lists.read('tasks').rows.length, total - 3);
+  assert.equal((await lists.read('tasks')).rows.length, total - 3);
   assert.equal((await ask('/lists/tasks/rows', { select: { values: { status: 'closed' }, remove: true } })).body.refused.code, 'bad_select');
   assert.equal((await ask('/lists/tasks/rows', { select: { bogus: 1, values: {} } })).body.refused.code, 'bad_select');
 });
 
 test('a selection can be the rows a snapshot held still, so rows written since neither join nor leave it', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'tasks', label: 'Tasks', fields: [{ id: 'name', label: 'Name' }, { id: 'status', label: 'Status', kind: 'choice', choices: ['open', 'closed'] }] });
-  lists.putRows('tasks', { rows: ['a', 'b', 'c'].map(id => ({ id, values: { name: id, status: 'open' } })) });
+  await lists.save({ id: 'tasks', label: 'Tasks', fields: [{ id: 'name', label: 'Name' }, { id: 'status', label: 'Status', kind: 'choice', choices: ['open', 'closed'] }] });
+  await lists.putRows('tasks', { rows: ['a', 'b', 'c'].map(id => ({ id, values: { name: id, status: 'open' } })) });
   const held = (await ask('/lists/tasks/snapshots', {})).body;
-  lists.putRows('tasks', { rows: [{ id: 'late', values: { name: 'late', status: 'open' } }] });
-  lists.putRows('tasks', { remove: ['c'] });
+  await lists.putRows('tasks', { rows: [{ id: 'late', values: { name: 'late', status: 'open' } }] });
+  await lists.putRows('tasks', { remove: ['c'] });
   const done = (await ask('/lists/tasks/rows', { select: { snapshot_id: held.snapshot_id, except: ['b'], values: { status: 'closed' } } })).body;
   assert.equal(done.selection.complete, true);
   assert.deepEqual(done.kept.map(row => row.id ?? row).sort(), ['a'].sort(), 'only a: b was left out, c was removed since, late was not held');
-  const state = Object.fromEntries(lists.read('tasks', { only: ['status'] }).rows.map(row => [row.id, row.values.status]));
+  const state = Object.fromEntries((await lists.read('tasks', { only: ['status'] })).rows.map(row => [row.id, row.values.status]));
   assert.deepEqual(state, { a: 'closed', b: 'open', late: 'open' });
   assert.equal((await ask('/lists/tasks/rows', { select: { snapshot_id: held.snapshot_id, view_id: 'x', values: {} } })).body.refused.code, 'bad_select');
   assert.equal((await ask('/lists/tasks/rows', { select: { snapshot_id: 'nope', values: {} } })).body.refused.code, 'no_snapshot');
@@ -157,17 +157,17 @@ test('a selection can be the rows a snapshot held still, so rows written since n
 
 test('two rows that are one thing merge: values fold, every link follows, the row that goes is removed last', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'companies', label: 'Companies', fields: [
+  await lists.save({ id: 'companies', label: 'Companies', fields: [
     { id: 'name', label: 'Name' }, { id: 'domain', label: 'Domain', kind: 'link-address' }, { id: 'tags', label: 'Tags', kind: 'tags' },
     { id: 'stage', label: 'Stage', kind: 'choice', choices: ['lead', 'paying'], settles: ['paying'] }, { id: 'size', label: 'Size', kind: 'number' },
     { id: 'partners', label: 'Partners', kind: 'link', links_to: 'companies' }] });
-  lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }, { id: 'company', label: 'Company', kind: 'link', links_to: 'companies' }] });
-  lists.putRows('companies', { rows: [
+  await lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }, { id: 'company', label: 'Company', kind: 'link', links_to: 'companies' }] });
+  await lists.putRows('companies', { rows: [
     { id: 'acme-1', values: { name: 'Acme', domain: 'acme.com', tags: ['a', 'b'], stage: 'paying', size: 40 }, basis: { size: { confidence: 'low', reasoning: 'LinkedIn' } } },
     { id: 'acme-2', values: { name: 'ACME Inc', tags: ['b', 'c'], stage: 'lead', size: 50, partners: ['acme-1', 'zed'] } },
     { id: 'zed', values: { name: 'Zed', partners: ['acme-1'] } },
   ] });
-  lists.putRows('people', { rows: [{ id: 'p1', values: { name: 'P1', company: ['acme-1'] } }, { id: 'p2', values: { name: 'P2', company: ['acme-1', 'acme-2'] } }, { id: 'p3', values: { name: 'P3', company: ['zed'] } }] });
+  await lists.putRows('people', { rows: [{ id: 'p1', values: { name: 'P1', company: ['acme-1'] } }, { id: 'p2', values: { name: 'P2', company: ['acme-1', 'acme-2'] } }, { id: 'p3', values: { name: 'P3', company: ['zed'] } }] });
   const links = (await ask('/lists/companies/backlinks?row_id=acme-1')).body;
   assert.equal(links.complete, true);
   assert.deepEqual(links.backlinks.map(link => `${link.list_id}.${link.field_id}:${link.row_id}`).sort(), ['companies.partners:acme-2', 'companies.partners:zed', 'people.company:p1', 'people.company:p2']);
@@ -175,12 +175,12 @@ test('two rows that are one thing merge: values fold, every link follows, the ro
   const conflict = await ask('/lists/companies/merge', { base_id: 'acme-1', target_id: 'acme-2' });
   assert.equal(conflict.status, 400);
   assert.equal(conflict.body.refused.code, 'merge_conflict');
-  assert.equal(lists.read('companies', { row_ids: ['acme-1'] }).rows.length, 1, 'a refused merge removed nothing');
+  assert.equal((await lists.read('companies', { row_ids: ['acme-1'] })).rows.length, 1, 'a refused merge removed nothing');
   const merged = (await ask('/lists/companies/merge', { base_id: 'acme-1', target_id: 'acme-2', prefer: 'base' })).body;
   assert.deepEqual(merged.removed, ['acme-1']);
   assert.deepEqual(merged.merged_from, ['acme-1']);
   assert.deepEqual(merged.relinked.map(item => `${item.list_id}.${item.field_id}:${item.rows}`).sort(), ['companies.partners:2', 'people.company:2']);
-  const rows = Object.fromEntries(lists.read('companies').rows.map(row => [row.id, row.values]));
+  const rows = Object.fromEntries((await lists.read('companies')).rows.map(row => [row.id, row.values]));
   assert.equal(rows['acme-1'], undefined);
   assert.equal(rows['acme-2'].domain, 'acme.com', 'a value only one row held');
   assert.equal(rows['acme-2'].stage, 'paying', 'a settled value stays settled');
@@ -189,7 +189,7 @@ test('two rows that are one thing merge: values fold, every link follows, the ro
   assert.deepEqual(rows['acme-2']._merged_from, ['acme-1']);
   assert.deepEqual(rows['acme-2'].partners, ['zed'], 'a link the survivor would hold to itself is dropped');
   assert.deepEqual(rows.zed.partners, ['acme-2']);
-  const people = Object.fromEntries(lists.read('people').rows.map(row => [row.id, row.values.company]));
+  const people = Object.fromEntries((await lists.read('people')).rows.map(row => [row.id, row.values.company]));
   assert.deepEqual(people, { p1: ['acme-2'], p2: ['acme-2'], p3: ['zed'] });
   assert.equal((await ask('/lists/companies/merge', { base_id: 'acme-1', target_id: 'acme-2' })).body.refused.code, 'merge_missing', 'asking again after it finished finds nothing to merge');
   assert.equal((await ask('/lists/companies/merge', { base_id: 'zed', target_id: 'zed' })).body.refused.code, 'merge_same');
@@ -197,15 +197,15 @@ test('two rows that are one thing merge: values fold, every link follows, the ro
 
 test('a saved view reaches through links: filter, column and group by a field of the linked row', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'companies', label: 'Companies', fields: [{ id: 'name', label: 'Name' }, { id: 'employees', label: 'Employees', kind: 'number' }, { id: 'industry', label: 'Industry', kind: 'tags' }, { id: 'parent', label: 'Parent', kind: 'link', links_to: 'companies', link_constraints: { max_links: 1 } }] });
-  lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' },
+  await lists.save({ id: 'companies', label: 'Companies', fields: [{ id: 'name', label: 'Name' }, { id: 'employees', label: 'Employees', kind: 'number' }, { id: 'industry', label: 'Industry', kind: 'tags' }, { id: 'parent', label: 'Parent', kind: 'link', links_to: 'companies', link_constraints: { max_links: 1 } }] });
+  await lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' },
     { id: 'company', label: 'Company', kind: 'link', links_to: 'companies', link_constraints: { max_links: 1 } },
     { id: 'boards', label: 'Boards', kind: 'link', links_to: 'companies' }] });
-  lists.putRows('companies', { rows: [
+  await lists.putRows('companies', { rows: [
     { id: 'big', values: { name: 'Big', employees: 500, industry: ['bank'], parent: ['holding'] } },
     { id: 'small', values: { name: 'Small', employees: 12, industry: ['shop', 'bank'] } },
     { id: 'holding', values: { name: 'Holding', employees: 9000 } }] });
-  lists.putRows('people', { rows: [
+  await lists.putRows('people', { rows: [
     { id: 'ann', values: { name: 'Ann', company: ['big'], boards: ['big', 'small'] } },
     { id: 'bob', values: { name: 'Bob', company: ['small'], boards: ['small'] } },
     { id: 'cat', values: { name: 'Cat' } }] });
@@ -228,17 +228,17 @@ test('a saved view reaches through links: filter, column and group by a field of
 
 test('a copy of rows is made field by field as the list says: links follow the copies, a finished row copies open, a basis stays behind', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }] });
-  lists.save({ id: 'plan', label: 'Plan', fields: [
+  await lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }] });
+  await lists.save({ id: 'plan', label: 'Plan', fields: [
     { id: 'name', label: 'Name' }, { id: 'status', label: 'Status', kind: 'choice', choices: ['Todo', 'Done'], settles: ['Done'], starts: 'Todo' },
     { id: 'parent', label: 'Parent', kind: 'link', links_to: 'plan' }, { id: 'owner', label: 'Owner', kind: 'link', links_to: 'people' },
     { id: 'secret', label: 'Secret', duplicate: 'drop' }, { id: 'size', label: 'Size', kind: 'number' }] });
-  lists.putRows('plan', { rows: [
+  await lists.putRows('plan', { rows: [
     { id: 'a', values: { name: 'Ship', status: 'Done', secret: 'x', size: 3, owner: ['pat'] }, basis: { size: { confidence: 'low' } } },
     { id: 'b', values: { name: 'Announce', parent: ['a'], size: 1 } }] });
   const both = (await ask('/lists/plan/duplicate', { row_ids: ['a', 'b'] })).body;
   const copy = Object.fromEntries(both.copies.map(item => [item.from, item.id]));
-  const rows = Object.fromEntries(lists.read('plan').rows.map(row => [row.id, row.values]));
+  const rows = Object.fromEntries((await lists.read('plan')).rows.map(row => [row.id, row.values]));
   assert.equal(Object.keys(rows).length, 4);
   assert.deepEqual([rows[copy.a].name, rows[copy.a].status, rows[copy.a].secret, rows[copy.a].size], ['Ship', 'Todo', undefined, 3], 'a finished row copies open, a dropped field is left out');
   assert.deepEqual(rows[copy.a].owner, ['pat'], 'a link to another list is kept');
@@ -247,20 +247,20 @@ test('a copy of rows is made field by field as the list says: links follow the c
   assert.equal(rows[copy.a]._copied_from, 'a');
   assert.equal(rows.a.status, 'Done', 'the source is untouched');
   const alone = (await ask('/lists/plan/duplicate', { row_ids: ['b'], values: { name: 'Announce again' } })).body;
-  const rowsAfter = Object.fromEntries(lists.read('plan').rows.map(row => [row.id, row.values]));
+  const rowsAfter = Object.fromEntries((await lists.read('plan')).rows.map(row => [row.id, row.values]));
   assert.deepEqual(rowsAfter[alone.copies[0].id].parent, ['a'], 'a link to a row not copied stays on the original');
   assert.equal(rowsAfter[alone.copies[0].id].name, 'Announce again');
   assert.equal((await ask('/lists/plan/duplicate', { row_ids: ['nope'] })).body.refused.code, 'merge_missing');
   assert.equal((await ask('/lists/plan/duplicate', { row_ids: [] })).body.refused.code, 'bad_duplicate');
-  assert.throws(() => lists.save({ id: 'plan', fields: [{ id: 'x', label: 'X', duplicate: 'move' }] }), /duplicate: "move"/);
+  await assert.rejects(async () => await lists.save({ id: 'plan', fields: [{ id: 'x', label: 'X', duplicate: 'move' }] }), /duplicate: "move"/);
 });
 
 test('totals over a list or a saved view come from the formula engine without the rows, with groups, and say when they are partial', async t => {
   const { lists, ask } = fresh(t);
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'amount', label: 'Amount', kind: 'number' },
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'amount', label: 'Amount', kind: 'number' },
     { id: 'stage', label: 'Stage', kind: 'choice', choices: ['open', 'won', 'lost'] }, { id: 'tags', label: 'Tags', kind: 'tags' }],
     views: [{ id: 'open', label: 'Open', rules: group(rule('stage', 'is_any_of', { values: ['open'] })) }] });
-  lists.putRows('deals', { rows: [
+  await lists.putRows('deals', { rows: [
     { id: 'a', values: { name: 'A', amount: 100, stage: 'open', tags: ['x', 'y'] } }, { id: 'b', values: { name: 'B', amount: 50.5, stage: 'open', tags: ['x'] } },
     { id: 'c', values: { name: 'C', amount: 10, stage: 'won' } }, { id: 'd', values: { name: 'D', stage: 'lost' } }] });
   const measures = [{ op: 'count' }, { op: 'filled', field: 'amount' }, { op: 'sum', field: 'amount' }, { op: 'average', field: 'amount' }, { op: 'max', field: 'amount' }, { op: 'median', field: 'amount' }, { op: 'distinct', field: 'stage' }];
@@ -299,16 +299,16 @@ test('the tools ask the routes the owners answer', async () => {
   assert.ok(tools.put_list_rows.inputSchema.properties.select && tools.put_list_rows.inputSchema.properties.match_on);
 });
 
-test('a write that uses most of a limit still succeeds and says what is nearly full and what to do; past it, it is refused', t => {
+test('a write that uses most of a limit still succeeds and says what is nearly full and what to do; past it, it is refused', async t => {
   const { lists } = fresh(t);
   const fields = count => Array.from({ length: count }, (_, index) => ({ id: `f${index}`, label: `F${index}` }));
   const near = settings.limits.fields_per_list * settings.limits.warn_share;
-  assert.equal(lists.save({ id: 'wide', label: 'Wide', fields: fields(near - 1) }).warnings, undefined);
-  const warned = lists.save({ id: 'wide', fields: fields(near) });
+  assert.equal((await lists.save({ id: 'wide', label: 'Wide', fields: fields(near - 1) })).warnings, undefined);
+  const warned = await lists.save({ id: 'wide', fields: fields(near) });
   assert.deepEqual(warned.warnings.map(({ limit, used, of }) => [limit, used, of]), [['fields_per_list', near, settings.limits.fields_per_list]]);
   assert.match(warned.warnings[0].says, /Fields in this list: 48 of 60 used\. Remove a field nothing reads/);
-  assert.throws(() => lists.save({ id: 'wide', fields: fields(settings.limits.fields_per_list + 1) }), /at most 60 fields/);
+  await assert.rejects(async () => await lists.save({ id: 'wide', fields: fields(settings.limits.fields_per_list + 1) }), /at most 60 fields/);
   const rows = count => Array.from({ length: count }, (_, index) => ({ id: `r${index}`, values: { f0: 'x' } }));
-  assert.equal(lists.putRows('wide', { rows: rows(10) }).warnings, undefined);
-  assert.equal(lists.putRows('wide', { rows: rows(settings.limits.rows_per_write * settings.limits.warn_share) }).warnings[0].limit, 'rows_per_write');
+  assert.equal((await lists.putRows('wide', { rows: rows(10) })).warnings, undefined);
+  assert.equal((await lists.putRows('wide', { rows: rows(settings.limits.rows_per_write * settings.limits.warn_share) })).warnings[0].limit, 'rows_per_write');
 });

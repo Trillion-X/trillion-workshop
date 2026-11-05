@@ -7,7 +7,7 @@ test('an external row source requires a fresh read even when the local store did
   const store = localStore(':memory:');
   t.after(() => store.close?.());
   const lists = makeLists({ eeaf: store.eeaf });
-  lists.save({ id: 'remote', label: 'Remote', fields: [{ id: 'name', label: 'Name' }] });
+  await lists.save({ id: 'remote', label: 'Remote', fields: [{ id: 'name', label: 'Name' }] });
   let rows = [];
   const wrapped = withRowSources(lists, { declared: () => [{ source: 'outside' }], sources: {
     outside: async () => ({ rows, next_cursor: null }),
@@ -19,10 +19,10 @@ test('an external row source requires a fresh read even when the local store did
   assert.deepEqual((await wrapped.read('remote')).rows.map(row => row.id), ['outside~new']);
 });
 
-test('a wrapper with no external row source preserves the local change feed', () => {
+test('a wrapper with no external row source preserves the local change feed', async () => {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf });
-  lists.save({ id: 'local', label: 'Local', fields: [{ id: 'name', label: 'Name' }] });
+  await lists.save({ id: 'local', label: 'Local', fields: [{ id: 'name', label: 'Name' }] });
   const wrapped = withRowSources(lists);
   const held = wrapped.changes('local').token;
   assert.equal(wrapped.changes('local', held).reset, false);

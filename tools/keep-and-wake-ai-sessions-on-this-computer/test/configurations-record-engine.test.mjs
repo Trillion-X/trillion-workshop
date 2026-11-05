@@ -38,7 +38,7 @@ const openStrict = held => {
   try {return openRecords(held.sql, {transaction: held.transaction, hash});}
   finally {if (before === undefined) delete process.env.RECORD_MODEL_STRICT; else process.env.RECORD_MODEL_STRICT = before;}
 };
-function fixture(t, engine) {
+async function fixture(t, engine) {
   const held = host();
   t.after(() => held.db.close());
   if (engine === 'eeaf') {
@@ -48,7 +48,7 @@ function fixture(t, engine) {
   const eeaf = openStrict(held);
   assert.equal(eeaf.engine(), engine);
   const lists = makeLists({eeaf});
-  lists.save({id: 'accounts', label: 'Accounts', row_type: 'accounts', fields: [{id: 'title', label: 'Name', kind: 'text'}, {id: 'owner', label: 'Owner', kind: 'text'}]});
+  await lists.save({id: 'accounts', label: 'Accounts', row_type: 'accounts', fields: [{id: 'title', label: 'Name', kind: 'text'}, {id: 'owner', label: 'Owner', kind: 'text'}]});
   const configurationOwner = scope => makeConfigurations({
     eeaf, ...scope,
     owner: () => ({id: 'relay-real', name: 'Sam Example'}),
@@ -60,10 +60,10 @@ const definition = (id, extra = {}) => ({id, label: `Configuration ${id}`, targe
   field_ids: ['title', 'owner'], aspects: ['search'], settings: {search: 'Caroline'}, ...extra});
 
 for (const engine of ['record-log', 'eeaf']) {
-  test(`list write versions follow immutable history across sealing and rollback on ${engine}`, t => {
-    const {held,eeaf,lists}=fixture(t,engine);
+  test(`list write versions follow immutable history across sealing and rollback on ${engine}`, async t => {
+    const {held,eeaf,lists}=await fixture(t,engine);
     const before=lists.version();
-    const first=lists.putRows('accounts',{rows:[{id:'versioned',values:{title:'First'}}]});
+    const first=await lists.putRows('accounts',{rows:[{id:'versioned',values:{title:'First'}}]});
     const version=first.write_set.version;
     assert.equal(typeof version,'string','a store with immutable history supplies its actual position');
     assert.ok(version>before,'the committed row advances history');
@@ -77,12 +77,12 @@ for (const engine of ['record-log', 'eeaf']) {
     }),/version rollback/);
     eeaf.forgetCached();
     assert.equal(eeaf.lastLogId(),version,'an aborted write does not advance the version');
-    const next=lists.putRows('accounts',{rows:[{id:'versioned',values:{title:'Next'}}]});
+    const next=await lists.putRows('accounts',{rows:[{id:'versioned',values:{title:'Next'}}]});
     assert.ok(next.write_set.version>version,'the next committed write advances beyond the sealed log');
   });
 
-  test(`configuration create, target-index cursors, exact reads and removals use the real ${engine} engine`, t => {
-    const {held, eeaf, configurations: c, lists} = fixture(t, engine);
+  test(`configuration create, target-index cursors, exact reads and removals use the real ${engine} engine`, async t => {
+    const {held, eeaf, configurations: c, lists} = await fixture(t, engine);
     for (let n = 0; n < 8; n++) c.save(definition(`c${n}`, n % 2 ? {target: 'screen:connections', open_path: '/connections'} : {}));
     assert.equal(eeaf.typeOf('record:configuration:c0'), 'record:configuration');
     assert.equal(eeaf.indexReady('record:configuration', 'target'), true);
@@ -94,7 +94,7 @@ for (const engine of ['record-log', 'eeaf']) {
     } while (before);
     assert.deepEqual(ids, ['record:configuration:c6', 'record:configuration:c4', 'record:configuration:c2', 'record:configuration:c0']);
     assert.equal(c.get('c0').label, 'Configuration c0');
-    assert.equal(lists.read('saved-configurations').rows.length, 8);
+    assert.equal((await lists.read('saved-configurations')).rows.length, 8);
     const edited = c.save({id: 'c0', expected_revision: 1, label: 'Edited', target: 'screen:connections', open_path: '/connections'});
     assert.equal(edited.revision, 2);
     assert.ok(!c.list({target: 'list:accounts'}).configurations.some(row => row.id === edited.id));
@@ -112,15 +112,15 @@ for (const engine of ['record-log', 'eeaf']) {
     assert.ok(!reopened.list({target: 'screen:connections'}).configurations.some(row => row.id === edited.id));
   });
 
-  test(`Lists and Workshop edits share revision and atomicity on the real ${engine} engine`, t => {
-    const {eeaf, lists, configurations: c, configurationOwner} = fixture(t, engine);
+  test(`Lists and Workshop edits share revision and atomicity on the real ${engine} engine`, async t => {
+    const {eeaf, lists, configurations: c, configurationOwner} = await fixture(t, engine);
     c.save(definition('c1'));
-    const renamed = lists.putRows('saved-configurations', {rows: [{id: 'c1', expected_revision: 1, values: {label: 'Renamed in Lists'}}]});
+    const renamed = await lists.putRows('saved-configurations', {rows: [{id: 'c1', expected_revision: 1, values: {label: 'Renamed in Lists'}}]});
     assert.equal(renamed.kept[0].values.revision, 2);
     assert.equal(c.get('c1').revision, 2);
     assert.equal(c.get('c1').label, 'Renamed in Lists');
     assert.throws(() => c.save({id: 'c1', expected_revision: 1, label: 'Old editor'}), error => error.status === 409);
-    assert.throws(() => lists.putRows('saved-configurations', {rows: [{id: 'c1', values: {owner_name: 'Spoofed'}}]}), /original screen/);
+    await assert.rejects(async () => await lists.putRows('saved-configurations', {rows: [{id: 'c1', values: {owner_name: 'Spoofed'}}]}), /original screen/);
     const records = yourRecordsStore(eeaf, {configurationOwner});
     assert.throws(() => records.write([
       {type: 'accounts', id: 'new', value: {title: 'Must not persist'}},
@@ -134,20 +134,20 @@ for (const engine of ['record-log', 'eeaf']) {
     assert.equal(eeaf.read('record:accounts:new').title, 'Persist together');
     assert.equal(c.get('c1').revision, 3);
     assert.deepEqual(c.get('c1').owner, {id: 'relay-real', name: 'Sam Example'});
-    lists.putRows('saved-configurations', {remove: ['c1']});
+    await lists.putRows('saved-configurations', {remove: ['c1']});
     assert.equal(c.get('c1'), null);
     assert.deepEqual(c.list({target: 'list:accounts'}).configurations, []);
   });
 
-  test(`managed list rename and Notes addition preserve navigation and field admission on ${engine}`, t => {
-    const {lists, configurations: c} = fixture(t, engine);
+  test(`managed list rename and Notes addition preserve navigation and field admission on ${engine}`, async t => {
+    const {lists, configurations: c} = await fixture(t, engine);
     c.save(definition('c1'));
-    const original = lists.read('saved-configurations').list;
-    lists.save({id: original.id, label: 'My saved configurations'});
-    const renamed = lists.read('saved-configurations').list;
+    const original = (await lists.read('saved-configurations')).list;
+    await lists.save({id: original.id, label: 'My saved configurations'});
+    const renamed = (await lists.read('saved-configurations')).list;
     assert.deepEqual(renamed.managed_rows, {open_field: 'open_path', create_on_screen: true, share_record: true});
-    lists.save({id: renamed.id, fields: [...renamed.fields, {id: 'notes', label: 'Notes', kind: 'long-text'}]});
-    const withNotes = lists.read('saved-configurations').list;
+    await lists.save({id: renamed.id, fields: [...renamed.fields, {id: 'notes', label: 'Notes', kind: 'long-text'}]});
+    const withNotes = (await lists.read('saved-configurations')).list;
     assert.deepEqual(withNotes.managed_rows, original.managed_rows);
     assert.ok(withNotes.fields.some(field => field.id === 'notes'));
     for (const id of ['target', 'owner_name', 'aspects', 'updated_at', 'open_path']) {
@@ -157,9 +157,9 @@ for (const engine of ['record-log', 'eeaf']) {
   });
 }
 
-test('strict configuration model survives a colliding user summary list without rewriting it', t => {
-  const {eeaf, lists, configurations: c} = fixture(t, 'record-log');
-  lists.save({id: 'saved-configurations', label: 'My unrelated list', row_type: 'unrelated'});
+test('strict configuration model survives a colliding user summary list without rewriting it', async t => {
+  const {eeaf, lists, configurations: c} = await fixture(t, 'record-log');
+  await lists.save({id: 'saved-configurations', label: 'My unrelated list', row_type: 'unrelated'});
   c.save(definition('c1'));
   assert.equal(eeaf.read('list:saved-configurations').row_type, 'unrelated');
   assert.equal(c.get('c1').revision, 1);
