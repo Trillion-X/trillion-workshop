@@ -24,11 +24,11 @@ const fresh = () => {
 
 test('one field of many rows is read as it was at a moment', async () => {
   const { lists, ask, moment } = fresh();
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
-  lists.putRows('deals', { rows: [{ id: 'd1', values: { name: 'One', stage: 'Lead' } }, { id: 'd2', values: { name: 'Two', stage: 'Lead' } }] });
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
+  await lists.putRows('deals', { rows: [{ id: 'd1', values: { name: 'One', stage: 'Lead' } }, { id: 'd2', values: { name: 'Two', stage: 'Lead' } }] });
   const at = moment();
-  lists.putRows('deals', { rows: [{ id: 'd1', values: { stage: 'Won' } }, { id: 'd3', values: { name: 'Three', stage: 'Lead' } }] });
-  lists.putRows('deals', { remove: ['d2'] });
+  await lists.putRows('deals', { rows: [{ id: 'd1', values: { stage: 'Won' } }, { id: 'd3', values: { name: 'Three', stage: 'Lead' } }] });
+  await lists.putRows('deals', { remove: ['d2'] });
   const then = (await ask(`/lists/deals/field-at?field_id=stage&at=${encodeURIComponent(at)}&row_ids=${encodeURIComponent(JSON.stringify(['d1', 'd2', 'd3']))}`)).body;
   assert.deepEqual(then.values.map(row => [row.row_id, row.value, row.existed, row.complete]), [['d1', 'Lead', true, true], ['d2', 'Lead', true, true], ['d3', null, false, true]]);
   assert.equal((await ask('/lists/deals/field-at?field_id=nope&at=x&row_ids=%5B%5D')).body.refused.code, 'bad_field_at');
@@ -37,10 +37,10 @@ test('one field of many rows is read as it was at a moment', async () => {
 
 test('a whole column is read as it was at a moment, a page at a time, with no ids named', async () => {
   const { lists, ask, moment } = fresh();
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
-  lists.putRows('deals', { rows: ['d1', 'd2', 'd3', 'd4', 'd5'].map(id => ({ id, values: { name: id, stage: 'Lead' } })) });
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
+  await lists.putRows('deals', { rows: ['d1', 'd2', 'd3', 'd4', 'd5'].map(id => ({ id, values: { name: id, stage: 'Lead' } })) });
   const at = moment();
-  lists.putRows('deals', { rows: [{ id: 'd2', values: { stage: 'Won' } }, { id: 'd6', values: { name: 'd6', stage: 'Lead' } }] });
+  await lists.putRows('deals', { rows: [{ id: 'd2', values: { stage: 'Won' } }, { id: 'd6', values: { name: 'd6', stage: 'Lead' } }] });
   const seen = [];
   let cursor = null;
   do {
@@ -57,8 +57,8 @@ test('records that keep no history refuse a read of the past in words, not a cra
   const records = recordsFake();
   delete records.readAt;
   const lists = makeLists({ eeaf: records });
-  lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'stage', label: 'Stage' }] });
-  lists.putRows('deals', { rows: [{ id: 'd1', values: { stage: 'Lead' } }] });
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'stage', label: 'Stage' }] });
+  await lists.putRows('deals', { rows: [{ id: 'd1', values: { stage: 'Lead' } }] });
   const response = await handleListsRequest(lists, new Request(`https://person/lists/deals/field-at?field_id=stage&at=${encodeURIComponent(new Date().toISOString())}&row_ids=${encodeURIComponent('["d1"]')}`));
   assert.equal((await response.json()).refused.code, 'history_unavailable');
 });

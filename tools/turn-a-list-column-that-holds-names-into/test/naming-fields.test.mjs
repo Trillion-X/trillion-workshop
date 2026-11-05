@@ -18,29 +18,29 @@ const fresh = (named_by_field = []) => {
   return { store, lists, naming: makeNamingFields({ lists, eeaf: store.eeaf, rules: { ...listsData.naming, named_by_field } }) };
 };
 
-test('a field whose words name another list\'s rows becomes a link to them, and a field the rules say names a company links to companies', () => {
+test('a field whose words name another list\'s rows becomes a link to them, and a field the rules say names a company links to companies', async () => {
   const { store, lists, naming } = fresh([companies]);
-  lists.save({ id: 'pillars', label: 'Pillars', fields: [{ id: 'name', label: 'Name', kind: 'text' }] });
-  lists.putRows('pillars', { rows: [{ id: 'p1', values: { name: 'Build in public' } }, { id: 'p2', values: { name: 'Tutorials' } }, { id: 'p3', values: { name: 'Behind the scenes' } }] });
-  lists.save({ id: 'formats', label: 'Formats', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'serves', label: 'Serves', kind: 'tags' }, { id: 'tone', label: 'Tone', kind: 'text' }] });
-  lists.putRows('formats', { rows: [
+  await lists.save({ id: 'pillars', label: 'Pillars', fields: [{ id: 'name', label: 'Name', kind: 'text' }] });
+  await lists.putRows('pillars', { rows: [{ id: 'p1', values: { name: 'Build in public' } }, { id: 'p2', values: { name: 'Tutorials' } }, { id: 'p3', values: { name: 'Behind the scenes' } }] });
+  await lists.save({ id: 'formats', label: 'Formats', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'serves', label: 'Serves', kind: 'tags' }, { id: 'tone', label: 'Tone', kind: 'text' }] });
+  await lists.putRows('formats', { rows: [
     { id: 'f1', values: { name: 'Reel', serves: ['Build in public', 'tutorials'], tone: 'warm' } },
     { id: 'f2', values: { name: 'Carousel', serves: ['Behind the scenes'], tone: 'Tutorials' } },
   ] });
-  lists.save({ id: 'crm', label: 'CRM', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'company', label: 'Company', kind: 'text' }] });
-  lists.putRows('crm', { rows: [{ id: 'c1', values: { name: 'Ann', company: 'Acme' } }, { id: 'c2', values: { name: 'Bo', company: ' acme ' } }, { id: 'c3', values: { name: 'Cy', company: 'Globex' } }] });
+  await lists.save({ id: 'crm', label: 'CRM', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'company', label: 'Company', kind: 'text' }] });
+  await lists.putRows('crm', { rows: [{ id: 'c1', values: { name: 'Ann', company: 'Acme' } }, { id: 'c2', values: { name: 'Bo', company: ' acme ' } }, { id: 'c3', values: { name: 'Cy', company: 'Globex' } }] });
   assert.ok(naming.nextAt(0) !== null, 'a change marks the lists');
-  const found = naming.candidates().map(c => [c.list_id, c.field_id, c.links_to]).sort();
+  const found = (await naming.candidates()).map(c => [c.list_id, c.field_id, c.links_to]).sort();
   assert.deepEqual(found, [['crm', 'company', 'companies'], ['formats', 'serves', 'pillars']]);
-  while (naming.step(0)) { /* one field a step */ }
+  while (await naming.step(0)) { /* one field a step */ }
   assert.equal(naming.nextAt(0), null, 'nothing left: the mark is cleared');
-  const formats = lists.read('formats');
+  const formats = await lists.read('formats');
   assert.deepEqual(formats.list.fields.find(f => f.id === 'serves'), { id: 'serves', label: 'Serves', kind: 'link', links_to: 'pillars' });
   assert.deepEqual(formats.rows.find(r => r.id === 'f1').values.serves, ['p1', 'p2']);
   assert.equal(formats.rows.find(r => r.id === 'f2').values.tone, 'Tutorials', 'a field whose words are not mostly names stays words');
-  const madeCompanies = lists.read('companies');
+  const madeCompanies = await lists.read('companies');
   assert.deepEqual(madeCompanies.rows.map(r => r.values.name).sort(), ['Acme', 'Globex']);
-  const crm = lists.read('crm');
+  const crm = await lists.read('crm');
   const acme = madeCompanies.rows.find(r => r.values.name === 'Acme').id;
   assert.deepEqual(crm.rows.find(r => r.id === 'c1').values.company, [acme]);
   assert.deepEqual(crm.rows.find(r => r.id === 'c2').values.company, [acme]);
@@ -50,34 +50,34 @@ test('a field whose words name another list\'s rows becomes a link to them, and 
   assert.deepEqual(store.eeaf.holdersOf(acmeRecord).holders.map(h => [h.id, h.role]).sort(), [['record:crm:c1', 'company'], ['record:crm:c2', 'company']]);
 });
 
-test('a field read by its words never moves, and nothing runs until a change marks the lists', () => {
+test('a field read by its words never moves, and nothing runs until a change marks the lists', async () => {
   const { lists, naming } = fresh();
   assert.equal(naming.nextAt(0), null);
-  lists.save({ id: 'pillars', label: 'Pillars', fields: [{ id: 'name', label: 'Name', kind: 'text' }] });
-  lists.putRows('pillars', { rows: [{ id: 'p1', values: { name: 'One' } }, { id: 'p2', values: { name: 'Two' } }] });
-  lists.save({ id: 'posts', label: 'Posts', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'pillar', label: 'Pillar', kind: 'choice', choices: ['One', 'Two'] }],
+  await lists.save({ id: 'pillars', label: 'Pillars', fields: [{ id: 'name', label: 'Name', kind: 'text' }] });
+  await lists.putRows('pillars', { rows: [{ id: 'p1', values: { name: 'One' } }, { id: 'p2', values: { name: 'Two' } }] });
+  await lists.save({ id: 'posts', label: 'Posts', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'pillar', label: 'Pillar', kind: 'choice', choices: ['One', 'Two'] }],
     views: [{ id: 'ones', label: 'Ones', rules: { kind: 'group', combinator: 'and', rules: [{ field: 'pillar', operator: 'is', value: 'One' }] } }] });
-  lists.putRows('posts', { rows: [{ id: 'x', values: { name: 'a', pillar: 'One' } }, { id: 'y', values: { name: 'b', pillar: 'Two' } }] });
-  assert.deepEqual(naming.candidates(), []);
+  await lists.putRows('posts', { rows: [{ id: 'x', values: { name: 'a', pillar: 'One' } }, { id: 'y', values: { name: 'b', pillar: 'Two' } }] });
+  assert.deepEqual(await naming.candidates(), []);
 });
 
-test('a field that says what it names moves whatever its words are, and a made row links the people its words name', () => {
+test('a field that says what it names moves whatever its words are, and a made row links the people its words name', async () => {
   const { store, lists, naming } = fresh();
-  lists.save({ id: 'crm', label: 'CRM', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'company', label: 'Company', kind: 'text' }] });
-  lists.putRows('crm', { rows: [
+  await lists.save({ id: 'crm', label: 'CRM', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'company', label: 'Company', kind: 'text' }] });
+  await lists.putRows('crm', { rows: [
     { id: 'morgan-b', values: { name: 'Morgan Boyter' } },
     { id: 'morgan-l', values: { name: 'Morgan Laville', company: 'Sister - Morgan Boyter' } },
     { id: 'handy', values: { name: 'The Handyman', company: 'The Handyman' } },
     { id: 'dad', values: { name: 'Pat', company: 'Dad' } },
   ] });
   const relationships = { id: 'relationships', label: 'Relationships', row_type: 'relationship', title_field: 'name', fields: [{ id: 'name', label: 'Name', kind: 'text' }, { id: 'person', label: 'Person', kind: 'link', links_to: 'crm' }] };
-  const crm = lists.find('crm');
+  const crm = await lists.find('crm');
   const { id: _id, ...definition } = crm;
-  lists.save({ id: 'crm', ...definition, fields: crm.fields.map(field => field.id === 'company' ? { ...field, label: 'How you know them', names: { list: relationships } } : field) });
-  while (naming.step(0)) { /* one field a step */ }
-  const read = lists.read('crm');
+  await lists.save({ id: 'crm', ...definition, fields: crm.fields.map(field => field.id === 'company' ? { ...field, label: 'How you know them', names: { list: relationships } } : field) });
+  while (await naming.step(0)) { /* one field a step */ }
+  const read = await lists.read('crm');
   assert.deepEqual(read.list.fields.find(field => field.id === 'company'), { id: 'company', label: 'How you know them', kind: 'link', links_to: 'relationships' });
-  const made = lists.read('relationships').rows;
+  const made = (await lists.read('relationships')).rows;
   assert.deepEqual(made.map(row => row.values.name).sort(), ['Dad', 'Sister - Morgan Boyter', 'The Handyman']);
   assert.deepEqual(made.find(row => row.values.name === 'Sister - Morgan Boyter').values.person, ['morgan-b'], 'the person the words name is linked');
   assert.equal(made.find(row => row.values.name === 'The Handyman').values.person, undefined, 'never the row the words came from');

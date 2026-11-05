@@ -75,7 +75,7 @@ export function fieldsFor(list) {
  * eeaf:  the person's EEAF store (rows are read there, as the lists owner reads them)
  * lists: makeLists over the same store
  */
-export function keepPeopleInList({ eeaf, lists }, listId, input, { actor } = {}) {
+export async function keepPeopleInList({ eeaf, lists }, listId, input, { actor } = {}) {
   const source = input?.source;
   if (!source || !NAME.test(String(source.id ?? '')) || typeof source.label !== 'string' || !source.label.trim()) throw say('bad_source');
   if (!Array.isArray(input.people) || input.people.length > limits.people_per_request) throw say('bad_people', { limit: limits.people_per_request });
@@ -88,11 +88,11 @@ export function keepPeopleInList({ eeaf, lists }, listId, input, { actor } = {})
   if (!list) {
     if (typeof input.list_label !== 'string' || !input.list_label.trim()) throw say('needs_label', { list_id: listKey });
     const planned = fieldsFor(null);
-    list = lists.save({ id: listKey, label: input.list_label.trim(), fields: planned.map(item => item.field), title_field: planned.find(item => item.fill.title).field.id }, { actor }).list;
+    list = (await lists.save({ id: listKey, label: input.list_label.trim(), fields: planned.map(item => item.field), title_field: planned.find(item => item.fill.title).field.id }, { actor })).list;
   }
   const planned = fieldsFor(list);
   if (planned.some(item => item.adding)) {
-    list = lists.save({ id: listKey, fields: [...list.fields, ...planned.filter(item => item.adding).map(item => item.field)] }, { actor }).list;
+    list = (await lists.save({ id: listKey, fields: [...list.fields, ...planned.filter(item => item.adding).map(item => item.field)] }, { actor })).list;
   }
 
   const prefix = `record:${list.row_type}:`;
@@ -104,7 +104,7 @@ export function keepPeopleInList({ eeaf, lists }, listId, input, { actor } = {})
   const operations = [...merged.writes.map(row => ({ row })), ...merged.removes.map(remove => ({ remove }))];
   for (let at = 0; at < operations.length; at += listsData.limits.rows_per_write) {
     const chunk = operations.slice(at, at + listsData.limits.rows_per_write);
-    lists.putRows(listKey, { rows: chunk.filter(item => item.row).map(item => item.row), remove: chunk.filter(item => item.remove).map(item => item.remove) }, { actor });
+    await lists.putRows(listKey, { rows: chunk.filter(item => item.row).map(item => item.row), remove: chunk.filter(item => item.remove).map(item => item.remove) }, { actor });
   }
   return { list_id: listKey, list_label: list.label, added: merged.added, updated: merged.updated, unchanged: merged.unchanged, folded: merged.removes.length, fields: planned.map(item => item.field.id) };
 }
@@ -119,7 +119,7 @@ export async function handleListPeopleRequest(owners, request) {
     const raw = await request.text();
     if (raw.length > limits.body_bytes) throw say('too_large', { limit: limits.people_per_request });
     const listId = decodeURIComponent(path.split('/')[2]);
-    return Response.json(keepPeopleInList(owners, listId, JSON.parse(raw || '{}'), { actor: { by: request.headers.get('x-trillion-app') || 'list-people' } }));
+    return Response.json(await keepPeopleInList(owners, listId, JSON.parse(raw || '{}'), { actor: { by: request.headers.get('x-trillion-app') || 'list-people' } }));
   } catch (error) {
     const known = error instanceof ListsError || error instanceof SyntaxError;
     return Response.json({ error: error.message }, { status: known ? 400 : 500 });

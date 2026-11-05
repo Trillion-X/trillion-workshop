@@ -5,15 +5,15 @@ import { makeLists, handleListsRequest } from '../../keep-lists-of-rows/lists.mj
 import { spreadKeys } from '../../keep-lists-of-rows/do-work/fractional-order.ts';
 import { listTools } from '../src/list-tools.mjs';
 
-function fresh() {
+async function fresh() {
   const store = localStore(':memory:');
   const lists = makeLists({ eeaf: store.eeaf });
-  lists.save({
+  await lists.save({
     id: 'tasks', label: 'Tasks', row_type: 'ordered-task', title_field: 'name',
     fields: [{ id: 'name', label: 'Name' }, { id: 'order', label: 'Order' }],
     indexes: [{ name: 'manual_order', fields: ['order'] }],
   });
-  lists.putRows('tasks', { rows: ['a', 'b', 'c'].map((id, index) => ({
+  await lists.putRows('tasks', { rows: ['a', 'b', 'c'].map((id, index) => ({
     id, values: { name: id.toUpperCase(), order: spreadKeys(3)[index] },
   })) });
   for (let page = 0; page < 100 && !store.eeaf.indexReady('record:ordered-task', 'manual_order'); page++) {
@@ -27,7 +27,7 @@ const ordered = (store, direction = {}) => store.eeaf.scan('record:ordered-task'
   .map(entry => entry.id.slice('record:ordered-task:'.length));
 
 test('AI list actions declare, read, move and clear manual order through the same HTTP owner', async () => {
-  const { store, lists } = fresh();
+  const { store, lists } = await fresh();
   const tools = listTools(async (path, body) => {
     const response = await handleListsRequest(lists, new Request(`https://person${path}`, body === undefined ? {} : {
       method: 'POST', headers: { 'content-type': 'application/json', 'x-trillion-app': 'ai' }, body: JSON.stringify(body),
@@ -48,39 +48,39 @@ test('AI list actions declare, read, move and clear manual order through the sam
   assert.equal((await action('move_list_row').run(move)).moved, false);
   assert.deepEqual((await read()).rows.map(row => row.id), ['c', 'a']);
   await action('save_list').run({ id: 'tasks', ordering: null });
-  assert.equal(lists.find('tasks').ordering, undefined);
+  assert.equal((await lists.find('tasks')).ordering, undefined);
   const refused = await handleListsRequest(lists, new Request('https://person/lists/tasks?order=true'));
   assert.equal(refused.status, 400, 'removed ordering is not silently approximated');
   assert.deepEqual(ordered(store), ['c', 'a', 'b'], 'removing the declaration keeps the rows and their saved keys');
 });
 
-test('moveRow changes one indexed row between current neighbours and retry is idempotent', () => {
-  const { store, lists } = fresh();
+test('moveRow changes one indexed row between current neighbours and retry is idempotent', async () => {
+  const { store, lists } = await fresh();
   const before = store.eeaf.read('record:ordered-task:c').order;
-  const moved = lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: 'b', after_id: 'a' });
+  const moved = await lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: 'b', after_id: 'a' });
   assert.equal(moved.moved, true);
   assert.deepEqual(ordered(store), ['a', 'c', 'b']);
   const current = store.eeaf.read('record:ordered-task:c').order;
   assert.notEqual(current, before);
-  assert.deepEqual(lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: 'b', after_id: 'a' }), {
+  assert.deepEqual(await lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: 'b', after_id: 'a' }), {
     list_id: 'tasks', row_id: 'c', order: current, moved: false,
   });
   assert.deepEqual(ordered(store), ['a', 'c', 'b']);
 });
 
-test('moveRow handles either end and refuses stale or malformed neighbours', () => {
-  const { store, lists } = fresh();
-  lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: 'a', after_id: null });
+test('moveRow handles either end and refuses stale or malformed neighbours', async () => {
+  const { store, lists } = await fresh();
+  await lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: 'a', after_id: null });
   assert.deepEqual(ordered(store), ['c', 'a', 'b']);
-  lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: null, after_id: 'b' });
+  await lists.moveRow('tasks', { row_id: 'c', index: 'manual_order', before_id: null, after_id: 'b' });
   assert.deepEqual(ordered(store), ['a', 'b', 'c']);
-  assert.throws(() => lists.moveRow('tasks', { row_id: 'a', index: 'manual_order', before_id: 'c', after_id: null }), /order.*changed/i);
-  assert.throws(() => lists.moveRow('tasks', { row_id: 'a', index: 'missing', before_id: 'b', after_id: null }), /cannot be moved/i);
+  await assert.rejects(async () => await lists.moveRow('tasks', { row_id: 'a', index: 'manual_order', before_id: 'c', after_id: null }), /order.*changed/i);
+  await assert.rejects(async () => await lists.moveRow('tasks', { row_id: 'a', index: 'missing', before_id: 'b', after_id: null }), /cannot be moved/i);
   assert.deepEqual(ordered(store), ['a', 'b', 'c'], 'refusal leaves every row in its previous order');
 });
 
 test('POST row move uses the exact list route and retains list authorization actor', async () => {
-  const { store, lists } = fresh();
+  const { store, lists } = await fresh();
   let seenActor;
   const observed = makeLists({ eeaf: store.eeaf, transaction: store.eeaf.atomically,
     writeMutation(records, context, options) { seenActor = context.actor; return store.eeaf.write([...records, ...(options.alongside ?? [])], context); },
@@ -95,33 +95,33 @@ test('POST row move uses the exact list route and retains list authorization act
   assert.deepEqual(ordered(store), ['c', 'a', 'b']);
 });
 
-test('list ordering fills old rows in bounded steps, pages without gaps and uses filtered anchors', () => {
+test('list ordering fills old rows in bounded steps, pages without gaps and uses filtered anchors', async () => {
   const store = localStore(':memory:');
   try {
     const lists = makeLists({ eeaf: store.eeaf });
     const definition = { id: 'tasks', label: 'Tasks', row_type: 'ordered-task', title_field: 'name',
       fields: [{ id: 'name', label: 'Name' }, { id: 'order', label: 'Order' }],
       indexes: [{ name: 'manual_order', fields: ['order'] }] };
-    lists.save(definition);
+    await lists.save(definition);
     for (let start = 0; start < 210; start += 70) {
-      lists.putRows('tasks', { rows: Array.from({ length: 70 }, (_, offset) => {
+      await lists.putRows('tasks', { rows: Array.from({ length: 70 }, (_, offset) => {
         const id = String(start + offset).padStart(3, '0');
         return { id, values: { name: id } };
       }) });
     }
-    lists.save({ ...definition, ordering: { index: 'manual_order' } });
-    assert.equal(lists.orderingFillAt(undefined, 123), 123);
-    const unready = lists.read('tasks', { order: true, limit: 20 });
+    await lists.save({ ...definition, ordering: { index: 'manual_order' } });
+    assert.equal(await lists.orderingFillAt(undefined, 123), 123);
+    const unready = await lists.read('tasks', { order: true, limit: 20 });
     assert.equal(unready.ordering.ready, false);
     assert.ok(unready.rows.length <= 20);
-    assert.throws(() => lists.moveRow('tasks', { row_id: '209', index: 'manual_order', anchor_id: '000', placement: 'before' }), /prepared/);
-    while (lists.orderingFillAt() !== null) lists.fillOrdering();
-    assert.equal(lists.orderingFillAt(), null);
+    await assert.rejects(async () => await lists.moveRow('tasks', { row_id: '209', index: 'manual_order', anchor_id: '000', placement: 'before' }), /prepared/);
+    while (await lists.orderingFillAt() !== null) await lists.fillOrdering();
+    assert.equal(await lists.orderingFillAt(), null);
     for (let page = 0; page < 100 && !store.eeaf.indexReady('record:ordered-task', 'manual_order'); page++) store.eeaf.backfillTables({ limit: 20 });
-    const readAll = keep => {
+    const readAll = async keep => {
       const ids = []; let cursor;
       for (let page = 0; page < 30; page++) {
-        const answer = lists.read('tasks', { order: true, limit: 20, ...(keep ? { keep } : {}), ...(cursor ? { cursor } : {}) });
+        const answer = await lists.read('tasks', { order: true, limit: 20, ...(keep ? { keep } : {}), ...(cursor ? { cursor } : {}) });
         assert.equal(answer.ordering.ready, true);
         ids.push(...answer.rows.map(row => row.id));
         if (answer.page.complete) return ids;
@@ -130,16 +130,16 @@ test('list ordering fills old rows in bounded steps, pages without gaps and uses
       }
       assert.fail('ordered pages never finished');
     };
-    const initial = readAll();
+    const initial = await readAll();
     assert.equal(initial.length, 210);
     assert.equal(new Set(initial).size, 210);
-    assert.deepEqual(readAll((value, id) => Number(id) % 10 === 0), initial.filter(id => Number(id) % 10 === 0));
+    assert.deepEqual(await readAll((value, id) => Number(id) % 10 === 0), initial.filter(id => Number(id) % 10 === 0));
     const anchor = initial[100], moved = initial[200];
     const request = { row_id: moved, index: 'manual_order', anchor_id: anchor, placement: 'before' };
-    assert.equal(lists.moveRow('tasks', request).moved, true);
-    const after = readAll();
+    assert.equal((await lists.moveRow('tasks', request)).moved, true);
+    const after = await readAll();
     assert.equal(after[after.indexOf(anchor) - 1], moved, 'an anchor resolves the real global neighbor even when visible rows are filtered');
-    assert.equal(lists.moveRow('tasks', request).moved, false, 'retry preserves the exact saved rank');
-    assert.deepEqual(readAll(), after);
+    assert.equal((await lists.moveRow('tasks', request)).moved, false, 'retry preserves the exact saved rank');
+    assert.deepEqual(await readAll(), after);
   } finally { store.close?.(); }
 });

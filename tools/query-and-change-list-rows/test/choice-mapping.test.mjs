@@ -44,9 +44,9 @@ test('rows copied between real lists keep their meaning; links and unmatched fie
   try {
     let n = 0;
     const lists = makeLists({ eeaf: store.eeaf, newId: () => `row-${++n}` });
-    lists.save({ id: 'design', label: 'Design', fields: [{ id: 'name', label: 'Name' }, design, { id: 'owner', label: 'Owner' }] });
-    lists.save({ id: 'support', label: 'Support', fields: [{ id: 'name', label: 'Name' }, support] });
-    lists.putRows('design', { rows: [
+    await lists.save({ id: 'design', label: 'Design', fields: [{ id: 'name', label: 'Name' }, design, { id: 'owner', label: 'Owner' }] });
+    await lists.save({ id: 'support', label: 'Support', fields: [{ id: 'name', label: 'Name' }, support] });
+    await lists.putRows('design', { rows: [
       { id: 'a', values: { name: 'Logo', status: 'Shipped', owner: 'Ana' } },
       { id: 'b', values: { name: 'Icons', status: 'Doing', owner: 'Bo' } },
       { id: 'c', values: { name: 'Banner', status: 'Backlog' } },
@@ -55,14 +55,14 @@ test('rows copied between real lists keep their meaning; links and unmatched fie
     assert.deepEqual(copied.left_behind, ['owner']);
     assert.equal(copied.moved_away, false);
     assert.deepEqual(copied.mapped.map(item => [item.row_id, item.from, item.to, item.matched]), [['a', 'Shipped', 'Resolved', 'kind'], ['b', 'Doing', 'Working', 'kind']]);
-    const read = lists.read('support', {});
+    const read = await lists.read('support', {});
     assert.deepEqual(read.rows.map(row => [row.values.name, row.values.status]).sort(), [['Icons', 'Working'], ['Logo', 'Resolved']]);
-    assert.equal(lists.read('design', {}).rows.length, 3, 'a copy leaves the source');
+    assert.equal((await lists.read('design', {})).rows.length, 3, 'a copy leaves the source');
 
     const moved = await transferRows(lists, 'design', 'support', { row_ids: ['c'], move: true });
     assert.equal(moved.moved_away, true);
-    assert.deepEqual(lists.read('design', {}).rows.map(row => row.id).sort(), ['a', 'b']);
-    assert.ok(lists.read('support', {}).rows.some(row => row.values.name === 'Banner' && row.values.status === 'New'));
+    assert.deepEqual((await lists.read('design', {})).rows.map(row => row.id).sort(), ['a', 'b']);
+    assert.ok((await lists.read('support', {})).rows.some(row => row.values.name === 'Banner' && row.values.status === 'New'));
 
     await assert.rejects(async () => transferRows(lists, 'design', 'design', {}), ListTransferError);
     await assert.rejects(async () => transferRows(lists, 'design', 'nowhere', {}), /There is no list nowhere/);
@@ -75,9 +75,9 @@ test('the lists route copies rows between lists and the tool calls that route', 
   const store = localStore(':memory:');
   try {
     const lists = makeLists({ eeaf: store.eeaf });
-    lists.save({ id: 'design', label: 'Design', fields: [{ id: 'name', label: 'Name' }, design] });
-    lists.save({ id: 'support', label: 'Support', fields: [{ id: 'name', label: 'Name' }, support] });
-    lists.putRows('design', { rows: [{ id: 'a', values: { name: 'Logo', status: 'Shipped' } }] });
+    await lists.save({ id: 'design', label: 'Design', fields: [{ id: 'name', label: 'Name' }, design] });
+    await lists.save({ id: 'support', label: 'Support', fields: [{ id: 'name', label: 'Name' }, support] });
+    await lists.putRows('design', { rows: [{ id: 'a', values: { name: 'Logo', status: 'Shipped' } }] });
     const post = (path, body) => handleListsRequest(lists, new Request(`https://person${path}`, { method: 'POST', body: JSON.stringify(body) }));
     const copied = await (await post('/lists/design/rows/copy', { to_list_id: 'support', row_ids: ['a'] })).json();
     assert.equal(copied.mapped[0].to, 'Resolved');

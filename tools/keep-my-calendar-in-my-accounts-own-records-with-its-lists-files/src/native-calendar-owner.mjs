@@ -52,14 +52,14 @@ export function nativeCalendarOwner({
   const blank=()=>({stamp:stamp(),journal,seq:eeaf.changeSeq?.()??0,cursor:null,next_at:null,complete:false});
   const recurrenceNextAt=async()=>{
     // No task list, nothing to repeat: no step is due and no recurrence state is written (src/calendar-tasks.mjs).
-    if(!lists.has(taskSettings.list.id))return null;
+    if(!await lists.has(taskSettings.list.id))return null;
     let state=await stateRead();if(invalid(state)||state.complete&&Number.isFinite(state.next_at)&&state.next_at<=now()) {state=blank();await stateWrite(state);}
     else if(state.seq!==eeaf.changeSeq?.()){state.seq=eeaf.changeSeq?.()??state.seq;await stateWrite(state);}
     return !state.complete?now():Number.isFinite(state.next_at)?state.next_at:null;
   };
   const recurrenceStep=async()=>{
     let state=await stateRead();if(invalid(state)||state.complete)state=blank();
-    const page=runCalendarTaskRecurrencePage(lists,{cursor:state.cursor??undefined,now:now(),limit:50});
+    const page=await runCalendarTaskRecurrencePage(lists,{cursor:state.cursor??undefined,now:now(),limit:50});
     const next=page.next_at===null?state.next_at:state.next_at===null?page.next_at:Math.min(state.next_at,page.next_at);
     await stateWrite({stamp:stamp(),journal,seq:eeaf.changeSeq?.()??0,cursor:page.next_cursor,next_at:next,complete:page.complete});return page;
   };
@@ -118,10 +118,10 @@ export function nativeCalendarOwner({
       runTool:(tool_id,input,request_key)=>workshop.run({tool_id,input,request_key,wait_seconds:30}),
       sources: await currentSources(),
     })),
-    'calendar:tasks:read': input => read('calendar:tasks:read', input, () => readCalendarTasks(lists, input)),
-    'calendar:tasks:collections': input => read('calendar:tasks:collections', input, () => readCalendarTaskCollections(lists, input)),
-    'calendar:tasks:change': input => read('calendar:tasks:change', input, () => changeCalendarTask(lists, input, { now: () => now() })),
-    'calendar:tasks:recurrence': input => read('calendar:tasks:recurrence', input, () => runCalendarTaskRecurrencePage(lists, { ...input, now: now() })),
+    'calendar:tasks:read': input => read('calendar:tasks:read', input, async () => await readCalendarTasks(lists, input)),
+    'calendar:tasks:collections': input => read('calendar:tasks:collections', input, async () => await readCalendarTaskCollections(lists, input)),
+    'calendar:tasks:change': input => read('calendar:tasks:change', input, async () => await changeCalendarTask(lists, input, { now: () => now() })),
+    'calendar:tasks:recurrence': input => read('calendar:tasks:recurrence', input, async () => await runCalendarTaskRecurrencePage(lists, { ...input, now: now() })),
     'calendar:connections:list': input => read('calendar:connections:list', input, () => {
       if (!connectionIO) throw new Error('The current native service-connections owner is unavailable.');
       return listSelectableCalendars(connectionIO, settings);

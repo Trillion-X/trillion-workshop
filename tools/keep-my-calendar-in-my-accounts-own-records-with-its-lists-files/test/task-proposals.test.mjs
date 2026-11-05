@@ -8,64 +8,64 @@ import { readCalendarTasks } from '../../plan-tasks-and-todo-lists/calendar-task
 import { TaskProposalError, changeTaskProposals, proposalId } from '../src/task-proposals.mjs';
 
 const owner = () => { const store = localStore(':memory:'); return { store, lists: makeLists({ eeaf: store.eeaf }) }; };
-const tasks = lists => readCalendarTasks(lists).tasks;
+const tasks = async lists => (await readCalendarTasks(lists)).tasks;
 
-test('proposing writes only proposals; the same finding is one proposal however often it is found', () => {
+test('proposing writes only proposals; the same finding is one proposal however often it is found', async () => {
   const { store, lists } = owner();
   try {
-    const first = changeTaskProposals(lists, { action: 'propose', source_id: 'meeting:standup-10-19', proposed_by: 'notes-ai', items: [
+    const first = await changeTaskProposals(lists, { action: 'propose', source_id: 'meeting:standup-10-19', proposed_by: 'notes-ai', items: [
       { title: 'Send Ana the pricing deck', due: '2026-10-23', evidence: '"I will send the deck by Friday"' },
       { title: 'Book the offsite', duration_minutes: 60 },
     ] });
     assert.deepEqual(first.proposals.map(item => item.state), ['proposed', 'proposed']);
-    assert.equal(tasks(lists).length, 0, 'no task exists until the person approves');
-    const again = changeTaskProposals(lists, { action: 'propose', source_id: 'meeting:standup-10-19', items: [{ title: '  send ana the PRICING deck ' }] });
+    assert.equal((await tasks(lists)).length, 0, 'no task exists until the person approves');
+    const again = await changeTaskProposals(lists, { action: 'propose', source_id: 'meeting:standup-10-19', items: [{ title: '  send ana the PRICING deck ' }] });
     assert.equal(again.proposals[0].kept, true);
     assert.equal(again.proposals[0].proposal_id, first.proposals[0].proposal_id);
-    assert.equal(changeTaskProposals(lists, { action: 'read' }).proposals.length, 2);
+    assert.equal((await changeTaskProposals(lists, { action: 'read' })).proposals.length, 2);
     assert.equal(proposalId('meeting:standup-10-19', 'Book the offsite').length, 'proposal-'.length + 32);
     assert.notEqual(proposalId('meeting:other', 'Book the offsite'), proposalId('meeting:standup-10-19', 'Book the offsite'));
   } finally { store.close?.(); }
 });
 
-test('approving makes exactly one Calendar task with the finding\'s details; undoing the approval deletes it', () => {
+test('approving makes exactly one Calendar task with the finding\'s details; undoing the approval deletes it', async () => {
   const { store, lists } = owner();
   try {
-    const { proposals: [one] } = changeTaskProposals(lists, { action: 'propose', source_id: 'meeting:m1', items: [{ title: 'Send Ana the deck', due: '2026-10-23', duration_minutes: 45 }] });
-    const approved = changeTaskProposals(lists, { action: 'approve', proposal_id: one.proposal_id });
+    const { proposals: [one] } = await changeTaskProposals(lists, { action: 'propose', source_id: 'meeting:m1', items: [{ title: 'Send Ana the deck', due: '2026-10-23', duration_minutes: 45 }] });
+    const approved = await changeTaskProposals(lists, { action: 'approve', proposal_id: one.proposal_id });
     assert.equal(approved.state, 'approved');
-    const [task] = tasks(lists);
+    const [task] = await tasks(lists);
     assert.equal(task.id, approved.task_id);
     assert.deepEqual([task.title, task.due, task.duration_minutes, task.source_id], ['Send Ana the deck', '2026-10-23', 45, 'meeting:m1']);
-    const twice = changeTaskProposals(lists, { action: 'approve', proposal_id: one.proposal_id });
+    const twice = await changeTaskProposals(lists, { action: 'approve', proposal_id: one.proposal_id });
     assert.equal(twice.kept, true);
-    assert.equal(tasks(lists).length, 1, 'approving twice makes one task');
-    assert.throws(() => changeTaskProposals(lists, { action: 'reject', proposal_id: one.proposal_id }), /already a task\. Undo the approval first/);
-    const undone = changeTaskProposals(lists, { action: 'undo_approval', proposal_id: one.proposal_id });
+    assert.equal((await tasks(lists)).length, 1, 'approving twice makes one task');
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'reject', proposal_id: one.proposal_id }), /already a task\. Undo the approval first/);
+    const undone = await changeTaskProposals(lists, { action: 'undo_approval', proposal_id: one.proposal_id });
     assert.equal(undone.state, 'proposed');
-    assert.equal(tasks(lists).length, 0, 'the task it made is gone');
-    assert.equal(changeTaskProposals(lists, { action: 'approve', proposal_id: one.proposal_id }).state, 'approved', 'it can be approved again');
-    assert.equal(tasks(lists).length, 1);
-    assert.throws(() => changeTaskProposals(lists, { action: 'undo_approval', proposal_id: 'proposal-nope' }), /There is no proposal proposal-nope/);
+    assert.equal((await tasks(lists)).length, 0, 'the task it made is gone');
+    assert.equal((await changeTaskProposals(lists, { action: 'approve', proposal_id: one.proposal_id })).state, 'approved', 'it can be approved again');
+    assert.equal((await tasks(lists)).length, 1);
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'undo_approval', proposal_id: 'proposal-nope' }), /There is no proposal proposal-nope/);
   } finally { store.close?.(); }
 });
 
-test('a rejected finding stays rejected until restored, and a proposal can be edited only while it waits', () => {
+test('a rejected finding stays rejected until restored, and a proposal can be edited only while it waits', async () => {
   const { store, lists } = owner();
   try {
-    const { proposals: [one] } = changeTaskProposals(lists, { action: 'propose', source_id: 's', items: [{ title: 'Call the landlord' }] });
-    const edited = changeTaskProposals(lists, { action: 'edit', proposal_id: one.proposal_id, title: 'Call the landlord about the lease', due: '2026-11-01' });
+    const { proposals: [one] } = await changeTaskProposals(lists, { action: 'propose', source_id: 's', items: [{ title: 'Call the landlord' }] });
+    const edited = await changeTaskProposals(lists, { action: 'edit', proposal_id: one.proposal_id, title: 'Call the landlord about the lease', due: '2026-11-01' });
     assert.equal(edited.proposal.title, 'Call the landlord about the lease');
-    assert.equal(changeTaskProposals(lists, { action: 'reject', proposal_id: one.proposal_id }).state, 'rejected');
-    const found = changeTaskProposals(lists, { action: 'propose', source_id: 's', items: [{ title: 'Call the landlord' }] });
+    assert.equal((await changeTaskProposals(lists, { action: 'reject', proposal_id: one.proposal_id })).state, 'rejected');
+    const found = await changeTaskProposals(lists, { action: 'propose', source_id: 's', items: [{ title: 'Call the landlord' }] });
     assert.equal(found.proposals[0].proposal_id, one.proposal_id, 'edits do not change the finding\'s identity');
-    assert.throws(() => changeTaskProposals(lists, { action: 'edit', proposal_id: one.proposal_id, title: 'x' }), /rejected; only a proposal waiting for review can be changed/);
-    assert.throws(() => changeTaskProposals(lists, { action: 'approve', proposal_id: 'x/y' }), TaskProposalError);
-    assert.equal(changeTaskProposals(lists, { action: 'restore', proposal_id: one.proposal_id }).state, 'proposed');
-    assert.throws(() => changeTaskProposals(lists, { action: 'restore', proposal_id: one.proposal_id }), /is not rejected/);
-    assert.equal(changeTaskProposals(lists, { action: 'read', state: 'rejected' }).proposals.length, 0);
-    assert.throws(() => changeTaskProposals(lists, { action: 'launch' }), /Choose propose, approve, reject, restore, undo_approval, edit or read/);
-    assert.throws(() => changeTaskProposals(lists, { action: 'propose', items: [] }), /up to 50 tasks/);
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'edit', proposal_id: one.proposal_id, title: 'x' }), /rejected; only a proposal waiting for review can be changed/);
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'approve', proposal_id: 'x/y' }), TaskProposalError);
+    assert.equal((await changeTaskProposals(lists, { action: 'restore', proposal_id: one.proposal_id })).state, 'proposed');
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'restore', proposal_id: one.proposal_id }), /is not rejected/);
+    assert.equal((await changeTaskProposals(lists, { action: 'read', state: 'rejected' })).proposals.length, 0);
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'launch' }), /Choose propose, approve, reject, restore, undo_approval, edit or read/);
+    await assert.rejects(async () => await changeTaskProposals(lists, { action: 'propose', items: [] }), /up to 50 tasks/);
   } finally { store.close?.(); }
 });
 
