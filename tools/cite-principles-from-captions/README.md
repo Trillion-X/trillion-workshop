@@ -15,6 +15,7 @@ What the principles are about, how advice sounds, what rows a model is asked for
 | `../settings/read-data/settings.py` | The shared reader for the person's `list:settings` row (`--settings-record`). |
 | `read-data/registry.py` | Pure: merges working rows into the ranked registry, and writes its Markdown index. |
 | `read-data/extraction.py` | Pure: cuts videos into the parts a model reads (short videos packed together), fills the person's prompt, reads the model's reply, and places each quote on the caption words it came from. |
+| `ports/index-template.json`, `ports/settings-record.json` | The port contracts for the grown `registry.py` (index into the person's template; the job of launch-video `tools/principles/make_index.py`) and `cite_principles.py` (`--settings-record`). |
 | `test/cite-principles.test.mjs` | Runs every command on synthetic captions made here, from files and from a made-up `list:settings` row. |
 | `test/test_captions.py`, `test/test_extraction.py` | The pure readers. |
 | `test/test_verify.py` | The quote check against the corpus and caption files outside it. |
