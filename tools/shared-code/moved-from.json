@@ -962,6 +962,30 @@
       "source_identity": "1f:686ab15ec24c17e75be2364add9cd211deea86e49d4eb3e61b431b621da01eb7",
       "identity": "1f:c637ed50a5b30454b93deb7d8eb2542373ccae98a69b0ac6b4822bf86d4598f9",
       "adapted": "the computer helper and service descriptors are read from their homes (run-on-a-persons-computer, connect-a-service-and-seal-its-key/records.json); the Connections screen test is left out: no running code exports old src/account-screens.mjs connectionsFacts."
+    },
+    {
+      "from": "test/own-ais.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/own-ais.test.mjs",
+      "source_identity": "1f:a9836ffc9ead706f77c8bd48646f8b3e20deed935457e4b42e7e96f5adbf85a8",
+      "identity": "1f:eb25a578c15c9b9fca8827bb0425640b3fb5f7cda2cdcd9f91d9ecb8e897007e",
+      "adapted": "makeAis is read from tools/see-and-limit-what-each-ai-can-reach; the four tests of old src/own-ais-routing.mjs and one limitSync check are left out: no repository keeps that routing."
+    },
+    {
+      "from": "test/vendor-table-rows.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/vendor-table-rows.test.mjs",
+      "source_identity": "1f:94c190cd23ab2f87e26a0fc123b06e4806bacac7f7203561e9d2c98d70e7d734",
+      "identity": "1f:1778c45db026606838ff69feea8819996f3758df6170b7ad54db8c68811f57cf",
+      "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-old-trillion, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
+    },
+    {
+      "from": "test/workflow-step-versions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/workflow-step-versions.test.mjs",
+      "source_identity": "1f:7a0b795daf9993df9b8e0f50e31c7c979205da5b4916923e5db09f3493557611",
+      "identity": "1f:067958987a1b74d4ad96d4edaf2a1c97f342dfb48ad3b052bbe8c1a9e447996b",
+      "adapted": "the MCP-server harness is replaced by the modules that do each part (step versions, recipe-problems, authoring guidance, workflow-tools' schema); the engine-only run checks are left out: no repository runs the workflow routes."
     }
   ]
 }
