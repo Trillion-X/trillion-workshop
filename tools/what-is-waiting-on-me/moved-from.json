@@ -2,7 +2,17 @@
   "about": "Files of old trillion (commit 5dc302be, Trillion-X/trillion main) whose job is this tool's, moved here byte for byte by the old-trillion sweep, under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes). Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "made-up-quoted-person",
+      "files": [
+        "tools/what-is-waiting-on-me/from-old-trillion/src/waiting-filing.mjs"
+      ],
+      "find": "\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )",
+      "replace": "Sam Example",
+      "means": "This repository is public and holds made-up data only: the first name of the real person a comment quotes (the word just before the quote's date) becomes a made-up one. The row matches the name by its place, so this receipt does not spell it either. Nothing else in the file changes."
+    }
+  ],
   "files": [
     {
       "from": "src/waiting-nudge.mjs",
@@ -24,6 +34,24 @@
       "to": "tools/what-is-waiting-on-me/from-old-trillion/src/work-rounds.mjs",
       "source_identity": "1f:e25d8973b94731c5f517220b300a6a9bdb7b61be196bb5ad8178d30b81cc3ad7",
       "identity": "1f:e25d8973b94731c5f517220b300a6a9bdb7b61be196bb5ad8178d30b81cc3ad7"
+    },
+    {
+      "from": "src/waiting-filing.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/what-is-waiting-on-me/from-old-trillion/src/waiting-filing.mjs",
+      "source_identity": "1f:fc4425700447b4b6222de1844ea8fd66bc1d76340bd282969dbd307390c90204",
+      "identity": "1f:7c469d7043f742145cb41a3c7b876a2552bb8e2c674d44caa8c679dd427de83c",
+      "calls": [
+        "made-up-quoted-person"
+      ]
+    },
+    {
+      "from": "src/card-sections.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/browse-inspiration-clips/card-sections.mjs",
+      "source_identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4",
+      "identity": "1f:15d99f1fcdc2e9dbfb4b6c7e7c0f114c13492f7950a067564901c57a080231f4",
+      "reused": true
     }
   ]
 }

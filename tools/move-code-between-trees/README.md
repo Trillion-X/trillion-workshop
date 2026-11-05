@@ -19,7 +19,7 @@ Every choice is data in a move row (`move-rows/<pair>.json`):
 | `adapted_homes` | `{ from, home, why }`: a source file the destination holds in another shape at `home` (an earlier lane adapted it, so it is not the same bytes once import paths are set aside). It is not followed or moved; what moves imports it at `home`, and its receipt entry says `adapted` with `why`. `check` proves `home` is there; the tests carried against it prove by their own run that the adaptation kept what they check. The plan refuses a `home` the destination does not hold. |
 | `provider_calls` | Patterns that must not be left in a moved file. A group with one left is held, with file and line. |
 | `not_provider_calls` | `{ file, id, found, why }`: a detector match that is no provider call (a parameter named `env` that holds the process environment, say), by the source file, the detector and the exact matched text. That match holds nothing; every other match still does. |
-| `calls` | `{ id, find, replace, means }`: a provider call swapped for the call the records door offers. |
+| `calls` | `{ id, find, replace, means }`: a provider call swapped for the call the records door offers, or a real person's name swapped for a made-up one (a public tree holds made-up data only; `find` may match the name by its place so the receipt does not spell it). A file's receipt entry names the calls applied to it (`calls`); a data file with calls is proved against its source once they are swapped, like code. |
 | `leave_tests` | `{ path, why }`: a test that moves with no group although it reaches one (a test of another tree's screens, a test that reads the source tree's own import text). |
 
 `move-rows/trillion-to-workshop.json` moves the old Trillion app's features into this repository. Groups come from the
@@ -81,7 +81,7 @@ runs the proof above against that tree, where a file changed after its copy is p
 | `read-data/check-receipts.mjs` | Every receipt whole, judged from the destination checkout alone. |
 | `index.js` | `node tools/move-code-between-trees check`: the receipts judged, and proved against `--source` when given. |
 | `move-rows/` | One row per pair of trees. |
-| `test/move-code.test.mjs` | Two made-up trees in throwaway git repositories: placement, holds, swaps, apply, a lane that moves some groups, check, a changed byte caught, and receipts judged with no source: a map of names, short commits, a change after the copy said and unsaid; a kept file imported from its home in a package. |
+| `test/move-code.test.mjs` | Two made-up trees in throwaway git repositories: placement, holds, swaps, apply, a lane that moves some groups, check, a changed byte caught, and receipts judged with no source: a map of names, short commits, a change after the copy said and unsaid; a kept file imported from its home in a package; a data file with calls proved once they are swapped, and another change caught. |
 
 ## Dependencies
 

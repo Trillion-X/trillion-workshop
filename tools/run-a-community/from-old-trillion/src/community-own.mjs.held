@@ -1,0 +1,98 @@
+// src/community-own.mjs
+//
+// PURPOSE
+//   Every account has exactly one community of its own. Alex Example, 2026-09-28: "We have a generic community software. We
+//   just made trillion one of the communities, but every single person, when they make their account, they also
+//   created their own community." The community software does not change for it: an account's own community is an
+//   ordinary community (src/community.mjs, a space labelled by communities/own-default.json) started from the
+//   DATA in communities/own-default.json, with its title made from the account's name.
+//
+//   It is made in two places, and whichever runs first makes it:
+//     - when the account is created (src/worker.mjs passkeyFinish, through the person store's ensureOwnCommunity), and
+//     - for an account made before this, the first time it reads its communities (GET /community,
+//       src/person-community.mjs), which is also the road the workspace's Community screen reads
+//       (GET /work/api/community, src/work-community.mjs).
+//
+//   Nobody joins it but people its owner invites, and every place in it is for members (own-default.json), so
+//   thousands of own communities never crowd anyone else's list. The list marks the caller's own with
+//   `own_community: true` (src/community.mjs communities).
+//
+// NON-NEGOTIABLE INVARIANTS
+//   1. One per account: `own_communities` holds one row per relay, and a second ensure, however many run at once,
+//      answers the same community. The check and the start of the making happen with no await between them, so two
+//      reads arriving together in the Network never both make one.
+//   2. It is an ordinary community: nothing here reads or writes posts, members or levels; the community owner does.
+//   3. The name is the person's own: it is read from their account inside their own store and sent only as the
+//      community's title and the name they show in it, never as a contact.
+import ownDefault from '../communities/own-default.json' with { type: 'json' };
+
+/** The configuration an account's own community starts with, titled from the account's name when it has one. */
+export function ownCommunityConfig(name = null) {
+  const named = typeof name === 'string' && name.trim() ? name.trim().replace(/\s+/g, ' ').slice(0, 80) : null;
+  return {
+    ...ownDefault.configuration,
+    title: named ? `${named}${ownDefault.title.after_name}` : ownDefault.title.without_name,
+    ...(named ? { owner_name: named } : {}),
+  };
+}
+
+// The Network's side (mixed into src/network.mjs like communityMethods).
+export const ownCommunityMethods = {
+  setUpOwnCommunities() {
+    this.sql.exec('CREATE TABLE IF NOT EXISTS own_communities (relay TEXT PRIMARY KEY, community_id TEXT NOT NULL UNIQUE, made_at TEXT NOT NULL)');
+  },
+
+  /** The id of this relay's own community, or null. */
+  ownCommunityOf(relay) {
+    return relay ? this.sql.exec('SELECT community_id FROM own_communities WHERE relay = ?', relay).toArray()[0]?.community_id ?? null : null;
+  },
+
+  /** This relay's own community, made now when it has none: { community_id, created }. */
+  ensureOwnCommunity({ relay, person_ref: personRef, name = null }) {
+    if (!relay) throw new Error('Who is asking is needed.');
+    const had = this.ownCommunityOf(relay);
+    if (had) return Promise.resolve({ community_id: had, created: false });
+    // A second ensure while the first is still making it waits for that one, so one account never gets two.
+    this.ownMaking ??= new Map();
+    const making = this.ownMaking.get(relay);
+    if (making) return making.then(made => ({ ...made, created: false }));
+    const made = (async () => {
+      try {
+        const { membership_id: id } = await this.createMembership({ relay, person_ref: personRef, label: ownDefault.label, config: ownCommunityConfig(name) });
+        this.sql.exec('INSERT INTO own_communities (relay, community_id, made_at) VALUES (?, ?, ?)', relay, id, new Date().toISOString());
+        return { community_id: id, created: true };
+      } finally {
+        this.ownMaking.delete(relay);
+      }
+    })();
+    this.ownMaking.set(relay, made);
+    return made;
+  },
+
+  // Whether this person came into a space by an invitation they accepted (an invite link, or a member inviting them):
+  // what keeps them in a community that takes invited people (src/community.mjs accessChanged).
+  cameByInvitation(spaceId, relay) {
+    return this.sql.exec('SELECT 1 FROM members WHERE membership_id = ? AND relay = ? AND admitted_by_invitation = 1', spaceId, relay).toArray().length > 0
+      || this.sql.exec("SELECT 1 FROM requests WHERE membership_id = ? AND to_relay = ? AND status = 'accepted' LIMIT 1", spaceId, relay).toArray().length > 0;
+  },
+
+  // A deleted account keeps no row naming it (src/network.mjs forget).
+  forgetOwnCommunity(relay) {
+    this.sql.exec('DELETE FROM own_communities WHERE relay = ?', relay);
+  },
+};
+
+/**
+ * The person store's side: make sure this person has their own community, once. `name` is the name the account was
+ * just created with; without it, the account's name is read from its record. The person store remembers the id, so
+ * every later read of their communities skips this.
+ */
+export async function ensureOwnCommunityFor(person, name = null) {
+  const known = person.fact('own_community_id');
+  if (known) return { community_id: known, created: false };
+  const owner = person.fact('owner_user_id');
+  const accountName = name ?? (owner ? await person.env.APP_KV.get(`account-name:${owner}`) : null);
+  const made = await person.network().ensureOwnCommunity({ relay: person.relay(), person_ref: person.ctx.id.toString(), name: accountName });
+  person.setFact('own_community_id', made.community_id);
+  return made;
+}

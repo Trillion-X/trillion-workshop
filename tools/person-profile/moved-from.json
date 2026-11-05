@@ -1,0 +1,28 @@
+{
+  "about": "Files of old trillion (commit 5dc302be, Trillion-X/trillion main) whose job is this tool's, moved here byte for byte by the old-trillion sweep, under their old paths so they import each other as they did. Only import paths and the listed calls differ. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes once its calls are swapped). Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [
+    {
+      "id": "made-up-quoted-person",
+      "files": [
+        "tools/person-profile/from-old-trillion/src/network-profile-fill.mjs"
+      ],
+      "find": "\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )",
+      "replace": "Sam Example",
+      "means": "This repository is public and holds made-up data only: the first name of the real person a comment quotes (the word just before the quote's date) becomes a made-up one. The row matches the name by its place, so this receipt does not spell it either. Nothing else in the file changes."
+    }
+  ],
+  "files": [
+    {
+      "from": "src/network-profile-fill.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/person-profile/from-old-trillion/src/network-profile-fill.mjs",
+      "source_identity": "1f:fcd7a52f792da5874c5594810ad5301a993b904c2a932951908a593aeab191ed",
+      "identity": "1f:0df688cc8a1918109b9acc2107b5cd553f7d9ea18ab525f1eb8b674cf5773edb",
+      "calls": [
+        "made-up-quoted-person"
+      ]
+    }
+  ]
+}

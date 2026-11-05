@@ -1,0 +1,45 @@
+{
+  "_what": "DATA for src/steps-ais-leave.mjs, the weigher run by the starting rule starting:weigh-steps-ais-leave-you (records/starting-rules.json) when a completed AI reply is recorded, and again at the quiet time when a turn end is still open or at the next retry try when the person's computer did not answer, as tool:weigh-steps-ais-left-you. It reads the messages recorded since it last looked, takes the last AI message of each turn in every app (an AI message whose next message in its conversation is not an AI's, or that has stood `quiet_minutes` with nothing after it), asks the small classifier on the person's own computer (src/model-routes.json classify routes) whether it leaves the person something to do, and hands each yes to the person's AIs once per message to run the workflow for purpose \"file-what-needs-the-person\", which does every step Trillion can and files only what truly needs the person as an explained Waiting on you row. Why it exists: Sam Example 2026-10-07, after a terminal told him to press a switch on /connections and nothing put it in front of him: 'i escaped you again'. The weigher it replaces ran only on one Mac for two apps; every app whose words Trillion records is weighed here.",
+  "ai_speakers": ["ai"],
+  "_ai_speakers_why": "The starting rule starting:weigh-steps-ais-leave-you starts a run when a completed reply from one of these speakers is recorded (its where also requires final_reply true). record_messages and the verified transcript hook keep an AI's own words as speaker \"ai\" in every app; a speaker here is an AI whose words are weighed. A new AI app needs nothing added.",
+  "quiet_minutes": 3,
+  "_quiet_minutes_why": "An AI message with nothing after it in its conversation is the end of a turn once this many minutes pass; sooner, the AI may still be writing.",
+  "first_look_minutes": 120,
+  "_first_look_minutes_why": "The first run looks back this far, never the whole history.",
+  "scan": 400,
+  "_scan_why": "At most this many recorded messages are read a run; the rest are read on the next run from where it stopped.",
+  "most_per_run": 6,
+  "_most_per_run_why": "At most this many turn ends are weighed a run, so a run asking a slow computer stays short; the rest are weighed by a run started at once.",
+  "kept": 40,
+  "waiting_max": 500,
+  "_waiting_max_why": "Completed replies the person's computer has not answered wait together in the kept place, under one retry run; past this many the oldest are let go, so a computer off for days cannot make the kept place grow without end.",
+  "text_chars": { "opening": 600, "closing": 2400 },
+  "_text_chars_why": "What the classifier and the AI read of a long message: its opening and its closing (where a step for the person is usually written), joined by an ellipsis.",
+  "classify": {
+    "state": "A message an AI assistant wrote to the person it works for, in {app}: \"{text}\"",
+    "question": "Does this message leave the person something to do themselves? Yes when it asks or tells them to take a step (press, open, sign in, approve, connect, pay, reply, decide, send, check, tell someone), says only they can do something, or waits on their answer before it goes on. No when it only reports what the assistant did or found, answers a question, or asks nothing of them.",
+    "means": { "true": "leaves the person a step", "false": "leaves the person nothing to do" },
+    "act_at": 0.5,
+    "priority": 3,
+    "_priority_why": "Where the question waits on the person's computer (0-9, highest first, src/agent-tool-runs.mjs): ahead of background judges (0), which on 2026-10-07 held the queue so long that every ask was withdrawn after the route's wait and nothing was weighed for two hours, and behind a run the person waits on (6).",
+    "retry": { "first_after_seconds": 300, "factor": 2, "longest_after_seconds": 3600 },
+    "_retry_why": "When the computer did not answer, that turn end is asked again by one run at the next try counted from its message's own time: 5 minutes after it, then 10, 20 and 40 minutes further, then every hour, until the computer answers (src/scheduler.mjs retries with this same shape). A sleeping laptop is caught soon after it wakes and costs about eleven runs a night per open turn end; tries are fixed times, so every run waiting on one turn end names the same next run (on 2026-10-07 a key that kept one name with a new time each run was refused by the Workshop and failed the run, and the reply was never asked again)."
+  },
+  "hand": {
+    "from_agent": "trillion-steps-ais-leave",
+    "priority": 5,
+    "once_per": "steps-ais-leave:{message_id}",
+    "said": "Check what {app} left you to do",
+    "purpose": "file-what-needs-the-person",
+    "job": "An AI wrote this to the person in {app}, and the classifier on their computer says it leaves them something to do. Start the workflow for purpose \"{purpose}\" (start_workflow with purpose \"{purpose}\") with input { \"said\": the words below, \"source\": \"{message_id}\", \"asked_by\": \"{app}\" } and walk it to the end: it does every step Trillion can and keeps only what truly needs the person as a Waiting on you row. If nothing in it is the person's to do, finish this job saying so.\n\nWhat {app} wrote:\n{text}"
+  },
+  "words": {
+    "weighed": "{count} {turns} weighed: {left} left you something to do and went to your AIs.",
+    "nothing": "No AI left you anything new to weigh.",
+    "no_classifier": "{count} {turns} weighed; the rest wait until the classifier on your computer answers.",
+    "running": "A weigh is already running; it reads these messages next.",
+    "reply_waits": "This reply waits until the classifier on your computer answers; it is asked again then.",
+    "turn": "turn end",
+    "turns": "turn ends"
+  }
+}
