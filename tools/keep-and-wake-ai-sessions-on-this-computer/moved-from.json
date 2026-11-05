@@ -3166,6 +3166,22 @@
       "source_identity": "1f:158b747c6869beada114fa8e6570697426c7969a89a041145ebe1b91c0cdd6db",
       "identity": "1f:fe9ce210c45eac8016a3e3ea9aa1de66fc6bd397605c36f16b7353c7645202d5",
       "adapted": "the registry is set-up-my-account's failure-codes.json; the calls through the retired MCP handler are left out, the payloadOf assertions kept"
+    },
+    {
+      "from": "test/file-card-offers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
+      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
+      "identity": "1f:a77e1b23244f6735aa59ec766ccacd6413daf777a46146611afe0fc531ce9ca3",
+      "adapted": "the cards are read from this tool's records/workshop-*.json and every tool folder's tool-rows.json, where the Workshop's rows live now; every assertion is the old one"
+    },
+    {
+      "from": "test/decision-read-correction.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/decision-read-correction.test.mjs",
+      "source_identity": "1f:8bc998997fd025e32cad645da3d8d3377e9f326193b6ee8370b66522e422a424",
+      "identity": "1f:82d674e5fee4ad42ce5e596912c75ae74f696972ef7d1fda69470c8904c03842",
+      "adapted": "the outcomeCorrection test runs as it was; three tests through the retired PersonStore's /cases routes are left out, as no running code serves them"
     }
   ]
 }

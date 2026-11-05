@@ -84,6 +84,30 @@
       "source_identity": "1f:d961c090c262349e10b10742c055088fd6f059e81d687e1c2398bd8419a15b83",
       "identity": "1f:1244571dd975b84d8a736bd37d15daf201257773e946bc34495b56fada5b9492",
       "adapted": "imports this tool's agent-records.mjs and keep-and-wake's record-log store, rebuilds countingHost, and names a made-up owner in a note; every assertion is the old one"
+    },
+    {
+      "from": "test/job-run-by-press.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/job-run-by-press.test.mjs",
+      "source_identity": "1f:556f0856e15bc4d541941abcd637547e35f4278a48d414aa3082db90a3087639",
+      "identity": "1f:64cbd3a76296d5d307eee5cedfda1472a051c6d56178f490d5d7b6df16e88f8b",
+      "adapted": "the retired PersonStore.jobRun's choice of jobs is one line over makeAgents.fromMessage and hand-off-jobs-between-agents' liveWork on a counting host; every assertion is the old one"
+    },
+    {
+      "from": "test/hand-off-full-queue-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/hand-off-full-queue-bounded.test.mjs",
+      "source_identity": "1f:cb80bfd876dd52bed015512388e24b7c9e50ad46ffed7b9bff2303c56d5468f4",
+      "identity": "1f:d58b707c01fd71a35ee3600edc9b0864f9efff4f72b90396a4889cf08adf6f29",
+      "adapted": "makeAgents over this tool's agentRecordStore on the record engine, its reads counted, in place of the retired PersonStore; every assertion is the old one"
+    },
+    {
+      "from": "test/handoff-reads-flat.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/handoff-reads-flat.test.mjs",
+      "source_identity": "1f:a1b857165151d4f4e9c767f8e506f28d8be40361f00c0d659a2850919812dcfb",
+      "identity": "1f:cdcb739acfaeedb88bc63be98823f881e225dc90bbdcda6da47384e2d71d5e38",
+      "adapted": "makeAgents over this tool's agentRecordStore on a counting host, reopened before the measured calls, with the agents' reconciler and wake step as the store's alarm; every assertion is the old one"
     }
   ]
 }
