@@ -36,7 +36,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { xchacha20poly1305 } from '@noble/ciphers/chacha.js';
-import { blake3 } from '../../live-namespace/do-work/blake3.mjs';
+import { blake3 } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/blake3.mjs';
 import { base64Of as toBase64 } from '../../serialized-content/do-work/base64.mjs';
 
 export const SEALED_MARK = '\u0000sealed';

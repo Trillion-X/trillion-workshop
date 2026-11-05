@@ -1,0 +1,88 @@
+{
+  "id": "move:trillion-pr243-tests-to-apps-root-3",
+  "about": "Tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row whose code the old-trillion sweep lanes brought to trillion-apps (old trillion's own paths at its root, and web/) and to trillion-workshop: carried byte for byte from 1e886c3f68 into trillion-apps web/test/ (whose test help reads scripts/ by path from web/), importing what is home in the Workshop through the trillion-workshop package (homes_in_packages), never a second copy; a copy an earlier lane adapted in trillion-apps is named in adapted_homes, and only a test with no failure by name that passes at the tag stays. trillion-workshop docs/pr243-deleted-tests.json lists every such test and where it went.",
+  "source": {
+    "name": "Trillion-X/trillion",
+    "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+    "test_folders": [
+      "test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-apps",
+    "package": "trillion-apps",
+    "shared_folder": "web"
+  },
+  "groups": [
+    {
+      "id": "tests-of-web-and-root",
+      "owner": [
+        "test/messages-speaker-invalidation.test.mjs",
+        "test/messages-speaker-paging.test.mjs",
+        "test/namespace-add-spans-flat.test.mjs",
+        "test/namespace-batch-reads.test.mjs",
+        "test/namespace-chunk-arrival-flat.test.mjs",
+        "test/namespace-exact-name-sample.test.mjs",
+        "test/namespace-identical-retries.test.mjs",
+        "test/record-move-pace.test.mjs"
+      ],
+      "to": "web"
+    }
+  ],
+  "homes_in_packages": [
+    {
+      "from": "parts/screen-look/read-data/resolve-screen-look-palette.js",
+      "home": "trillion-workshop/tools/screen-look/read-data/resolve-screen-look-palette.js",
+      "source_identity": "1f:336d9505bd831f9776f0aae102758b2be39b508a342bff944a418c1d7b9dddb5"
+    },
+    {
+      "from": "parts/screen-look/embedded-shell-css.mjs",
+      "home": "trillion-workshop/tools/screen-look/embedded-shell-css.mjs",
+      "source_identity": "1f:6850c5c1cb40c1b2f9408d3f45f36a1cf7c0c705ab88c7fe89f821f30d2d70d3"
+    },
+    {
+      "from": "parts/screen-look/show/screen-state.css",
+      "home": "trillion-workshop/tools/screen-look/show/screen-state.css",
+      "source_identity": "1f:912171b933edfd49dda820ec4f43007e109eb05a21d7bea018822525cb5aee12"
+    },
+    {
+      "from": "parts/screen-look/show/embedded-shell.css",
+      "home": "trillion-workshop/tools/screen-look/show/embedded-shell.css",
+      "source_identity": "1f:c300f7f3d34ac0c9d3d30ca885875776b2d01465a0b1bbc571eb953c2d9113e7"
+    },
+    {
+      "from": "parts/screen-look/read-data/look-document-css.js",
+      "home": "trillion-workshop/tools/screen-look/read-data/look-document-css.js",
+      "source_identity": "1f:4f18872fdf1d795aaec587e9f62df7e7b02c9ec4cb6101953c043fd7678e8281"
+    },
+    {
+      "from": "parts/screen-look/show/fonts/licences.json",
+      "home": "trillion-workshop/tools/screen-look/show/fonts/licences.json",
+      "source_identity": "1f:e6693b81b4a69716051972ce236a0ca49350d7751da55f5417ba75b10f1e1727"
+    },
+    {
+      "from": "parts/screen-look/embedded-faces.json",
+      "home": "trillion-workshop/tools/screen-look/embedded-faces.json",
+      "source_identity": "1f:d3d839281eeddb3cb1f81db70a8730e5511320d8337f76ba404227ddfb7cb6ab"
+    },
+    {
+      "from": "src/messages.mjs",
+      "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs",
+      "source_identity": "1f:50bbb3d661d980015e3bf9c0d792f15303e442ec38e2ee229d80556a9718beb9"
+    },
+    {
+      "from": "src/namespace-store.mjs",
+      "home": "trillion-workshop/tools/recently-deleted-and-storage/namespace-store.mjs",
+      "source_identity": "1f:27482cb3e56a8feb1b16ebabbfcd9e9f1e5516f4dc990bc6c5e3d744de8c2986"
+    }
+  ],
+  "adapted_homes": [],
+  "calls": [
+    {
+      "id": "made-up-owner-name",
+      "means": "A real person's first name used as a test's sample owner becomes a made-up one. Nothing else in the file changes.",
+      "find": "Avery",
+      "replace": "Sam Example"
+    }
+  ]
+}
