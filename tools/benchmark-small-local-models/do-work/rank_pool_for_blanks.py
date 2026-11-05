@@ -1,17 +1,23 @@
 """Stage A: rank the sourced pool per slot with a small cross-encoder; keep the top 12 as the slot's options."""
+"""
+  python3 tools/benchmark-small-local-models/do-work/rank_pool_for_blanks.py <request.json>   (or stdin)
+
+Request: template (a word template), pool (make_candidate_pool.py's answer, or its file), model (a sentence-transformers
+cross-encoder), device (optional), write_to.
+A slot of type PERSON-LINE (another person's own words) is never filled from a pool.
+Answer: { result: { meta, slots: { slot id: { query, line, type, note, options: [{ text, source, origin, score }] } } } }."""
 import json, sys, time, resource
 from pathlib import Path
 import torch
 from sentence_transformers import CrossEncoder
 import pathlib
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"lib")); import place
-CHECKOUT = str(pathlib.Path(__file__).resolve().parents[3])  # this repository, wherever this place keeps it
-sys.path.insert(0, str(Path(__file__).parent)); from slots import load
 H = Path(__file__).parent
-LISTING = json.load(open(pathlib.Path(CHECKOUT) / "library/fills/_catalog/listings/workflow-listing.json"))
-pool = json.load(open(H/"pool.json"))
-_, lines, slots = load()
-MODEL = sys.argv[1] if len(sys.argv) > 1 else "BAAI/bge-reranker-v2-m3"
+sys.path.insert(0, str(H.parent/"read-data")); import place
+from template_blanks import load
+R = place.request()
+pool = place.json_of(place.need(R, "pool"), "pool"); pool = pool["pool"] if isinstance(pool, dict) else pool
+_, lines, slots = load(place.need(R, "template"))
+MODEL = place.need(R, "model")
 t0 = time.time(); ce = CrossEncoder(MODEL, device=place.device()); load_s = time.time()-t0
 out = {}; tt = 0; pairs = 0
 for sid, s in slots.items():
@@ -21,6 +27,8 @@ for sid, s in slots.items():
     t = time.time(); sc = ce.predict([(q, p["text"]) for p in pool], batch_size=64); tt += time.time()-t; pairs += len(pool)
     top = sorted(range(len(pool)), key=lambda i: -float(sc[i]))[:12]
     out[sid] = {"query": q, "line": line, "type": s["type"], "note": s["note"], "options": [dict(pool[i], score=round(float(sc[i]), 3)) for i in top]}
-meta = {"model": MODEL, "load_s": round(load_s,1), "ms_per_pair": round(1000*tt/pairs, 2), "pairs": pairs, "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2), "mps_GB": round(torch.mps.driver_allocated_memory()/1e9,2)}
+meta = {"model": MODEL, "load_s": round(load_s,1), "ms_per_pair": round(1000*tt/pairs, 2), "pairs": pairs, "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2), "mps_GB": place.mps_gb(place.device())}
 tag = MODEL.split("/")[-1]
-json.dump({"meta": meta, "slots": out}, open(H/f"options-{tag}.json","w"), indent=1); print(meta)
+meta["tag"] = tag
+print(meta)
+place.answer({"meta": meta, "slots": out})

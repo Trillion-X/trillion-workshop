@@ -1,14 +1,19 @@
 """Stage B with decider-2b: choose one option per slot (choice question), plus 'none fits' and 'escalate'."""
+"""
+  python3 tools/benchmark-small-local-models/do-work/choose_fills_with_decider.py <request.json>   (or stdin)
+
+Request: options (make_typed_options.py's or rank_pool_for_blanks.py's answer, or its file), listing (what is being
+launched: { title, job, steps }, or its file), model (a decider-style choice classifier snapshot in the Hugging Face cache), device (optional), write_to.
+Answer: { result: { meta, choices: { slot id: { choice, confidence, index, any_fits_yes, top3 } } } }."""
 import json, sys, time, resource
 from pathlib import Path
 import torch
 import pathlib
-CHECKOUT = str(pathlib.Path(__file__).resolve().parents[3])  # this repository, wherever this place keeps it
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"lib"))
-from dec import load
-LISTING = json.load(open(pathlib.Path(CHECKOUT) / "library/fills/_catalog/listings/workflow-listing.json"))
-COND = sys.argv[1] if len(sys.argv) > 1 else "bge-reranker-v2-m3"
-O = json.load(open(H/f"options-{COND}.json"))["slots"]
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
+R = place.request(); MODEL = place.need(R, "model")
+def load(): return place.load_decider(MODEL)
+LISTING = place.json_of(place.need(R, "listing"), "listing")
+O = place.json_of(place.need(R, "options"), "options")["slots"]
 NONE, ESC = "none of these is a true value for this blank; leave it empty", "escalate to a bigger model"
 d, load_s = load()
 res = {}; times = []
@@ -26,6 +31,7 @@ for sid, s in O.items():
                 "index": opts.index(r[0]["choice"]), "any_fits_yes": round(r[1]["probs"].get("yes", 0), 4),
                 "top3": sorted(probs.items(), key=lambda x: -x[1])[:3]}
     print(sid, "->", r[0]["choice"], round(r[0]["confidence"], 3), "| any fits P(yes)=", round(r[1]["probs"].get("yes",0),3))
-meta = {"model": "Mapika/decider-2b v10", "load_s": round(load_s,1), "ms_per_request_median": round(1000*sorted(times)[len(times)//2]), "ms_first": round(1000*times[0]),
-        "mps_GB": round(torch.mps.driver_allocated_memory()/1e9,2), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
-json.dump({"meta": meta, "choices": res}, open(H/f"choice-decider-{COND}.json","w"), indent=1); print(meta)
+meta = {"model": MODEL, "load_s": round(load_s,1), "ms_per_request_median": round(1000*sorted(times)[len(times)//2]), "ms_first": round(1000*times[0]),
+        "mps_GB": place.mps_gb(place.device()), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
+print(meta)
+place.answer({"meta": meta, "choices": res})
