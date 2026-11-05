@@ -1,3 +1,32 @@
+// tools/check-against-a-persons-rules-and-verdicts/do-work/read-film-copy.mjs
+//
+// Purpose
+//   The film readers: which text of a film's copy files is copy to check, as the person's layouts say (their settings
+//   row's `readers`, never a file beside this code). A Markdown table is read by the column map for the file's name
+//   ('*' otherwise), a column matching by the start of its lower-case header cell; fenced blocks of a named file are
+//   post text; blockquotes are descriptions; a paragraph file is its plain paragraphs after a marker line; a .txt is one
+//   unit a line; a .json is strings, { text, kind } rows or a words file. Moved from trillion-launch-video
+//   tools/copy-gate/check.mjs (splitQuotes, cleanCell, readMarkdown, readFile, dedupe) one to one; what changed is that
+//   the layouts and the file's text are handed in, so this file reads no file.
+//
+// Non-negotiable invariants
+//   1. No layout, column name, kind or file name is in this file: every one is in `readers`, the person's DATA.
+//   2. A cut line (struck through, or a cell a drop pattern names) is never copy; a cell split into parts is the split
+//      kind the layouts name, so a list of labels is never judged as a sentence.
+//   3. The same words of the same kind in the same judging context are one unit, with every other place they stand in
+//      `also_at`, so one line is judged once.
+//
+// Shapes
+//   readMarkdown(path, sourceText, readers) -> [{ text, kind, where: "<path>:<line>" }]
+//   readFile(path, kind, sourceText, readers) -> units with `norm`ed text and a kind (default voiceover)
+//   dedupe(units) -> units, each once, with also_at
+//   readers: { files: { <name> | "*": { <header start>: { kind, quotes_are_units? } } }, fenced_blocks, blockquotes,
+//     skip_sections, cell_drop_if, cell_strip, cell_split, split_parts_kind, cell_join, table_first_header_in,
+//     table_skip_if_header_has, paragraph_files: { <name>: { kind, after } } }
+import { basename, extname } from 'node:path';
+
+export const norm = text => text.replace(/[’‘]/g, "'").replace(/[\r]/g, ' ');
+
 function splitQuotes(cell) {
   cell = cell.replace(/\\"/g, "'");
   const body = cell.trim().replace(/\.+$/, '');
@@ -13,13 +42,13 @@ function splitQuotes(cell) {
   return found.length ? found : [cell];
 }
 
-function cleanCell(cell) {
+function cleanCell(cell, readers) {
   for (const pattern of readers.cell_strip) cell = cell.replace(new RegExp(pattern, 'g'), '');
   for (const join of readers.cell_join) cell = cell.split(join).join(' ');
   return cell.trim();
 }
 
-export function readMarkdown(path, sourceText = readFileSync(path, 'utf8')) {
+export function readMarkdown(path, sourceText, readers) {
   const plain = (readers.paragraph_files ?? {})[basename(path)];
   if (plain) {                                         // a file whose copy is plain paragraphs after a marker line
     const lines = sourceText.split('\n');
@@ -69,10 +98,35 @@ export function readMarkdown(path, sourceText = readFileSync(path, 'utf8')) {
         if (parts.length > 1) kind = readers.split_parts_kind;
       }
       for (const part of parts) {
-        const text = cleanCell(part);
+        const text = cleanCell(part, readers);
         if (text && !readers.cell_drop_if.some(p => new RegExp(p).test(text))) units.push({ text, kind, where: at });
       }
     }
   });
   return units;
+}
+
+export function readFile(path, kind = null, sourceText, readers) {
+  let units;
+  if (extname(path) === '.md') units = readMarkdown(path, sourceText, readers);
+  else if (extname(path) === '.json') {
+    let value = JSON.parse(sourceText);
+    if (value && !Array.isArray(value) && typeof value.text === 'string') value = [value.text];
+    else if (value && !Array.isArray(value)) value = value.units ?? value.lines ?? [];
+    units = value.map((item, n) => ({ text: typeof item === 'string' ? item : item.text, kind: typeof item === 'string' ? null : item.kind ?? null, where: `${path}#${n}` }));
+  } else {
+    units = sourceText.split('\n').map((line, n) => ({ text: line.trim(), kind: null, where: `${path}:${n + 1}` }))
+      .filter(unit => unit.text && !unit.text.startsWith('#'));
+  }
+  return units.map(unit => ({ ...unit, text: norm(unit.text), kind: kind ?? unit.kind ?? 'voiceover' }));
+}
+
+export function dedupe(units) {
+  const seen = new Map();
+  for (const unit of units) {
+    const key = JSON.stringify([unit.kind, unit.text, unit.judge_field ?? unit.field ?? null, unit.path ?? [], unit.cue_id ?? null]);
+    if (seen.has(key)) seen.get(key).also_at.push(unit.where);
+    else seen.set(key, { ...unit, also_at: [] });
+  }
+  return [...seen.values()];
 }
