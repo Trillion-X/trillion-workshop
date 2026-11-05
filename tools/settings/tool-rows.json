@@ -1,0 +1,53 @@
+{
+  "kind": "package-set-records",
+  "record_set": "settings-tool-rows",
+  "what_this_is": "The Workshop row for the settings folder: the one reader every Workshop tool uses to read the settings a person keeps for it as rows of their list:settings, by person, film, piece or account.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-tool-setting",
+        "label": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
+        "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
+        "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records records:read returned (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record records:write takes, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settings_record": { "description": "A record:setting as records:read gives it, its value, a list of them, or the path of a JSON file holding them." },
+            "folder": { "type": "string", "description": "The Workshop folder whose settings to read, e.g. make-a-frame-contact-sheet-of-a-video-section." },
+            "scopes": { "type": "array", "items": { "type": "object", "properties": { "kind": { "enum": ["piece", "film", "person", "account"] }, "id": { "type": "string" } }, "required": ["kind", "id"] }, "description": "Most specific first." },
+            "default": { "description": "What to answer when no row matches." },
+            "tool": { "type": "string", "description": "Refuse a row written for another tool." },
+            "make": { "type": "object", "description": "{folder, scope_kind, scope_id, settings, name, tool, from, status?}: make the row instead of reading one." },
+            "with_list": { "type": "boolean" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line printed: {\"result\": {found, id, settings}} for read, {\"result\": {records}} for make; {\"error\": ...} with exit 2 when the request cannot be read."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 -I trillion-workshop/tools/settings/do-work/read_setting.py < {input}",
+          "needs": [
+            "python"
+          ],
+          "say": "Read the person's list:settings rows for the tool through their records door (records:list on list:settings, or records:read of record:setting:<folder>~<scope_kind>~<scope_id>), write them to a file, and pass that file as settings_record with the folder and the scopes to try. A tool that takes settings_record in its own request reads it with read-data/settings.py or read-data/settings.mjs itself."
+        },
+        "maker": "maker:settings",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from old Trillion's setting record kind: Trillion-X/trillion src/decision-store.mjs before 4ffa1dc4a2, lines 8 and 751-754 (setting(name) gives the value or null; setSetting writes { id: setting:<name>, type: setting })."
+        }
+      }
+    }
+  ]
+}
