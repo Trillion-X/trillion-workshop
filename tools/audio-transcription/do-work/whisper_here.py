@@ -3,7 +3,7 @@
 Drop-in for `mlx_whisper.transcribe(path, path_or_hf_repo=..., **options)`; returns the same shape
 ({"text", "language", "segments": [{"id", "start", "end", "text", "words": [{"word", "start", "end", "probability"}]}]}).
 
-Which engine runs is what the place has (docs/decouple-sweep.md, "Apple-only capabilities"):
+Which engine runs is what the place has (this folder's README.md, "Whisper on whatever engine the place has"):
   WHISPER_BACKEND=mlx|faster|openai picks one; otherwise the first that imports, in that order:
   - mlx       mlx_whisper (Apple silicon only), the engine the films' numbers were measured with;
   - faster    faster-whisper (CTranslate2: cuda or cpu), same Whisper weights converted;
