@@ -2,6 +2,8 @@
 
 A script a person's AI runs by hand on the person's own computer. It says whether a video someone made moves about as much as the video it copies, against a bar the person passes in. The script holds no bar: how much the piece must move is the person's own record.
 
+A second script lists where a video holds still longest, each hold with the second it starts, read with the same measure and still level, so a hold the check counted can be found and cut.
+
 A motion measure that sets its "still" threshold from whatever window it is given moves the bar when a piece is trimmed. Here the threshold always comes from the whole reference, and the piece is measured from 0 to its end card at that threshold.
 
 This tool measures how much the whole frame moves. Tracking a subject or an object through a clip is a different job: it belongs to bitfield-packages' motion-analysis, not to this tool.
@@ -10,12 +12,14 @@ This tool measures how much the whole frame moves. Tracking a subject or an obje
 
 | File | Purpose |
 |------|---------|
-| `tool-rows.json` | The Workshop row `tool:check-a-videos-motion-against-a-reference`: `on-your-computer`, with what it needs and the command. |
+| `tool-rows.json` | The Workshop rows `tool:check-a-videos-motion-against-a-reference` and `tool:list-the-longest-still-holds-of-my-video`: `on-your-computer`, with what they need and the commands. |
 | `part.json` | The files other code may import: `read-data/motion-bar.mjs` and `read-data/measure-motion.mjs`. |
 | `do-work/check-motion.mjs` | The command. Measures the reference and the piece, builds the bar from the person's rows, prints `{"result": ...}` or `{"error": ...}`. Exit 0 whether the piece passed or not; 2 when a flag, file or bar row is wrong. |
-| `read-data/measure-motion.mjs` | The measure: `measureMotion(path, seconds, still)` decodes every frame as a small grey picture with ffmpeg, reads the change between neighbouring frames and returns `moving_share`, `longest_hold_s`, `holds_over_1s_per_min`, `seconds` and `still_threshold`. |
+| `do-work/list-holds.mjs` | The hold list. Prints `{"result": {video, seconds, still_threshold, holds: [{seconds, at}], text}}` or `{"error": ...}`. Exit 0 with an answer; 2 when a flag or file is wrong. |
+| `read-data/measure-motion.mjs` | The measure: `measureMotion(path, seconds, still)` decodes every frame as a small grey picture with ffmpeg, reads the change between neighbouring frames and returns `moving_share`, `longest_hold_s`, `holds_over_1s_per_min`, `seconds` and `still_threshold`. `holdsIn(changes, level, fps)` gives every hold with the second it starts; `longestHolds(path, seconds, still, top)` the longest first. |
 | `read-data/motion-measure.json` | The measure's own settings as DATA (frame width, the cut level, how the still level is read). They define how a video is read; they are no one's bar. |
 | `read-data/motion-bar.mjs` | Pure: `rowsOf(record)`, `barFor(reference, rows)` and `judge(draft, bar, rows)`. |
+| `test/list-holds.test.mjs` | The hold list: holds and their start seconds on made-up frame changes, the longest first on a video made with ffmpeg (two holds), the same still level and longest hold as the check, and the command's refusals. |
 | `test/check-motion.test.mjs` | Checks the rows, the verdict, the still level, the measure on small videos made with ffmpeg (a moving pattern, a still picture, a pattern that moves then holds) and the command's refusals, all with made-up bars. Skips, saying why, when ffmpeg or ffprobe is missing. |
 
 ## How it measures
@@ -53,7 +57,10 @@ The numbers above are examples. The person chooses the ones their work is held t
 
 ```
 node do-work/check-motion.mjs --reference reference.mp4 --render mine.mp4 --end-card-start 44.2 --bar my-bar.json
+node do-work/list-holds.mjs --video mine.mp4 --seconds 44.2 --still 1.2 --top 12
 ```
+
+The hold list's `text` is one line, `2.13s@39.20  1.60s@12.04 ...`: each hold's length, then the second it starts.
 
 ## Dependencies
 

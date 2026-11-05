@@ -89,6 +89,30 @@ class FindOutliers(unittest.TestCase):
         done, last, _ = self.run_it(src=empty)
         self.assertIn('is empty', last['error'])
 
+    def test_quotes_in_titles_are_words_and_a_half_median_is_kept(self):
+        # A title that opens with a quote mark is not a quoted field: each line is one video. Brambleford has four videos,
+        # so its median is the mean of the middle two, 1,500, and 30,000 is 20x it.
+        src = os.path.join(self.dir, 'quoted.tsv')
+        with open(src, 'w') as f:
+            f.write('\t'.join(HEADER) + '\n')
+            for n, (views, title) in enumerate([(1000, '"Is it hollow?" a fen guide'), (1000, 'Plain one'), (2000, 'Plain two'),
+                                                (30000, '"Why the mill sings')], 1):
+                f.write('\t'.join(row('brambleford', views, title, n)) + '\n')
+        _, last, _ = self.run_it(src=src)
+        self.assertEqual(last['result']['rows_read'], 4)
+        lines = open(os.path.join(self.dir, 'outliers.tsv')).read().splitlines()
+        self.assertEqual(lines[1].split('\t'), ['20.0', '30000', 'video', 'Brambleford', 'brambleford', '1500', '4',
+                                                'https://example.com/brambleford/4', '"Why the mill sings'])
+        src2 = os.path.join(self.dir, 'half.tsv')
+        with open(src2, 'w') as f:
+            f.write('\t'.join(HEADER) + '\n')
+            for n, views in enumerate([1000, 2000, 2000, 3000, 1001, 90000], 1):
+                f.write('\t'.join(row('larkmere', views, f'Lark {n}', n)) + '\n')
+        _, last, rows = self.run_it(src=src2)
+        self.assertEqual(rows[1][5], '2000')
+        found, _ = find_outliers.outliers([row('odd', v, f't{v}', v) for v in (1001, 1002, 1003, 60000)], find_outliers.COLUMNS)
+        self.assertEqual(found[0]['median'], 1002.5)
+
     def test_a_source_with_a_zero_median_has_no_outliers(self):
         found, read = find_outliers.outliers([['nil', 'video', '', 'u1', '0', '', 'Nil', 'a'], ['nil', 'video', '', 'u2', '0', '', 'Nil', 'b'],
                                               ['nil', 'video', '', 'u3', '50000', '', 'Nil', 'c']], find_outliers.COLUMNS)

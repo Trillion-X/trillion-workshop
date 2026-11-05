@@ -35,6 +35,8 @@ test('a channel is found from a link, a channel id, a handle or a bare name', ()
   assert.equal(channelListingUrl(`UC${'a'.repeat(22)}`), `https://www.youtube.com/channel/UC${'a'.repeat(22)}/videos`);
   assert.equal(channelListingUrl('@sourdough'), 'https://www.youtube.com/@sourdough/videos');
   assert.equal(channelListingUrl('sourdough'), 'https://www.youtube.com/@sourdough/videos');
+  assert.equal(channelListingUrl('https://videos.example/watch?v=abc123DEF45'), 'https://videos.example/watch?v=abc123DEF45');
+  assert.equal(channelListingUrl('https://videos.example/shorts/abc123DEF45'), 'https://videos.example/shorts/abc123DEF45');
   assert.throws(() => channelListingUrl('  '), /Say which channel/);
 });
 

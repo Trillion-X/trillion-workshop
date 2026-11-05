@@ -1,0 +1,67 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-WHISPER-HERE-FROM-LAUNCH-VIDEO",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: the Whisper engine chooser many film scripts import",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "Finish the trillion-launch-video port so the repository can be retired: move whisper_here.py, the drop-in for mlx_whisper.transcribe that picks whichever Whisper engine the place has, into the Workshop tool that owns Whisper transcription, with every behaviour and test ported."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:38fc77bf6ff368595ae5291fc4df6ca90e820135ef0bf0654755fb8acb7ed202",
+   "multihash": "1f:f59cf1f560c9bc17ac04fc7e2c83c9ac52908ea47cf8b2e1ce9f99fdf3378796",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T10:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/audio-transcription/do-work/whisper_here.py",
+   "baseline_commit_message": "audio-transcription: whisper_here, the Whisper engine chooser, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "a drop-in for mlx_whisper.transcribe(path, path_or_hf_repo=..., **options) that answers mlx_whisper's shape from every engine, and says which engine made it in result[\"engine\"]",
+  "WHISPER_BACKEND=mlx|faster|openai picks one; an unknown one is refused with the ones to use; otherwise the first that imports, in the order mlx, faster, openai; a place with none is told what to install",
+  "the model name is mapped from an mlx-community repo to the plain Whisper name for faster-whisper and openai-whisper",
+  "verbose is dropped; mlx gets every other option; the other engines get only the options they take; a temperature tuple becomes a list for faster-whisper",
+  "faster-whisper's segments carry words only when word times were asked; its device is WHISPER_DEVICE, else auto"
+ ],
+ "allowed_deltas": [
+  "the docstring points at this folder's README.md instead of the launch-video repository's docs/decouple-sweep.md"
+ ],
+ "banned_substitutions": [
+  "a second engine chooser",
+  "an engine picked by the operating system's name instead of by what imports"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f59cf1f560c9bc17ac04fc7e2c83c9ac52908ea47cf8b2e1ce9f99fdf3378796",
+  "target_multihash_at_baseline": "1f:f59cf1f560c9bc17ac04fc7e2c83c9ac52908ea47cf8b2e1ce9f99fdf3378796",
+  "commit": "b85f2be59f0da678e709c46448220545cdb9721d",
+  "recorded_at": "2026-11-05T10:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def engine",
+   "def model_name",
+   "def transcribe",
+   "WHISPER_BACKEND",
+   "WHISPER_DEVICE"
+  ],
+  "test_refs": [
+   "tools/audio-transcription/test/test_whisper_here.py",
+   "tools/audio-transcription/test/whisper-here.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}
