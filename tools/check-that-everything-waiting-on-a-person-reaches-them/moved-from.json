@@ -2,7 +2,17 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "made-up-quoted-person",
+      "files": [
+        "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.json"
+      ],
+      "find": "\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )",
+      "replace": "Sam Example",
+      "means": "This repository is public and holds made-up data only: the first name of the real person a comment quotes (the word just before the quote's date) becomes a made-up one. The row matches the name by its place, so this receipt does not spell it either. Nothing else in the file changes."
+    }
+  ],
   "files": [
     {
       "from": "scripts/waiting-controls.mjs",
@@ -21,23 +31,33 @@
     {
       "from": "src/steps-ais-leave.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.mjs.held",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.mjs",
       "source_identity": "1f:52fd1338874736d68b17b8da45713c5729c3ba29438bf2a7de2bfcd0df01fa6f",
       "identity": "1f:52fd1338874736d68b17b8da45713c5729c3ba29438bf2a7de2bfcd0df01fa6f"
     },
     {
       "from": "test/steps-ais-leave-runs.test.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave-runs.test.mjs.held",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave-runs.test.mjs",
       "source_identity": "1f:1bdd2b0d38a77fa57a48be88ac03c07b8c853856955dcccc2a39d9b7a9288414",
       "identity": "1f:1bdd2b0d38a77fa57a48be88ac03c07b8c853856955dcccc2a39d9b7a9288414"
     },
     {
       "from": "test/steps-ais-leave.test.mjs",
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave.test.mjs.held",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave.test.mjs",
       "source_identity": "1f:c053e80ecf6b5a2788ee88be2c1b2d8c85c1ed01d8fa4cc428a9f435b61b5275",
       "identity": "1f:6531b63ed00e0f346c3a06d5fb9d0318dd7afef2860f4e739aba698b6d5861b3"
+    },
+    {
+      "from": "src/steps-ais-leave.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.json",
+      "source_identity": "1f:e60ce2219bf884a2d537bb739af923619dc36983e4ef8d460fb6dff3b7b32d0d",
+      "identity": "1f:504a8895ee02cbe5396a0dcb9c4d570f72569fde3ce58267ca9f49766194b661",
+      "calls": [
+        "made-up-quoted-person"
+      ]
     }
   ]
 }

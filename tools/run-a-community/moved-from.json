@@ -2,7 +2,17 @@
   "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
-  "calls": [],
+  "calls": [
+    {
+      "id": "made-up-quoted-owner",
+      "files": [
+        "tools/run-a-community/from-old-trillion/src/community-own.mjs.held"
+      ],
+      "find": "\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )",
+      "replace": "Alex Example",
+      "means": "This repository is public and holds made-up data only: the first name of the real account owner a comment quotes (the word just before the quote's date) becomes a made-up one, different from the made-up person other files quote. The row matches the name by its place, so this receipt does not spell it either. Nothing else in the file changes."
+    }
+  ],
   "files": [
     {
       "from": "src/community-matching.json",
@@ -17,6 +27,16 @@
       "to": "tools/run-a-community/src/community-tools.mjs",
       "source_identity": "1f:faf805472941c66c53609453cbf2ecdd95fdda6d0496537445e973af4d18687b",
       "identity": "1f:faf805472941c66c53609453cbf2ecdd95fdda6d0496537445e973af4d18687b"
+    },
+    {
+      "from": "src/community-own.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-a-community/from-old-trillion/src/community-own.mjs.held",
+      "source_identity": "1f:83f702ffd1374420d05b4c5367938d9cfda28f326c9e753c1b4f133b64932b93",
+      "identity": "1f:35426b202cd29d66d088d455bdbfcad1e261834ae6e0802b805f04029b20ff29",
+      "calls": [
+        "made-up-quoted-owner"
+      ]
     }
   ]
 }
