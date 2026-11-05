@@ -1,0 +1,103 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-MEASURE-STAGING",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3a247344ca047c0105dce2655b035b955813ceb0688c903894fd96f930584277",
+   "lines": [
+    10,
+    54
+   ],
+   "multihash": "1f:211a500066a534e3a066e6dda8cf9af584b9017d8bec4cd065ee5bc2e50c405f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3a247344ca047c0105dce2655b035b955813ceb0688c903894fd96f930584277",
+   "lines": [
+    6,
+    8
+   ],
+   "multihash": "1f:e37b58f6cf70d54daeca1d02f5d4c07bb30c47064dd6ac72c115ee6496e0c87b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3a247344ca047c0105dce2655b035b955813ceb0688c903894fd96f930584277",
+   "lines": [
+    2,
+    2
+   ],
+   "multihash": "1f:54ca442da52cd5741632daffb637bb5b7eea767c43d4ff8bbc8afe853c0dd441",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/measure_staging.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of trillion-launch-video, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a cut within 0.5 s of a turn start",
+  "exchanges are turns within 8 s padded 2 s; median shot inside against elsewhere",
+  "a GAP drop within 2 s before a turn, against chance",
+  "the table keeps rows of other videos"
+ ],
+ "allowed_deltas": [
+  "the ids and folders come in the request"
+ ],
+ "banned_substitutions": [
+  "a second shot detector"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "'hf_s'",
+    "to": "'character_s'"
+   },
+   {
+    "from": ".hf.json",
+    "to": ".turns.json"
+   }
+  ],
+  "source_multihash": "1f:211a500066a534e3a066e6dda8cf9af584b9017d8bec4cd065ee5bc2e50c405f",
+  "target_multihash_at_baseline": "1f:18e4d124a46c60b6e5d7f2561d38fffc65f68c11d13103ff4126ec80fdb9d37f",
+  "commit": "291e392a894c47e16aa60b078a234164898b4571",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def ts(s):"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

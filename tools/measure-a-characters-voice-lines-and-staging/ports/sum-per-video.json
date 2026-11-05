@@ -1,0 +1,114 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-SUM-PER-VIDEO",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:db7b5408b048eb2ec148cfe72d03d60df158ef01985d9a34350044d98829ba82",
+   "lines": [
+    9,
+    66
+   ],
+   "multihash": "1f:23e3c1518ed392b3a814fc932df58a78fa4c9efe41ffa6786d801c27909a99d9",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:db7b5408b048eb2ec148cfe72d03d60df158ef01985d9a34350044d98829ba82",
+   "lines": [
+    3,
+    5
+   ],
+   "multihash": "1f:ceafa6a365155abf3212e69e6cba387c25ce90d636d37535c52167300ed885bd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:db7b5408b048eb2ec148cfe72d03d60df158ef01985d9a34350044d98829ba82",
+   "lines": [
+    7,
+    7
+   ],
+   "multihash": "1f:1a7b9196c9520e9b53a309b406815af3ea4a5aa7d33d3c308ad61b5f6f71c128",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/sum_per_video.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of trillion-launch-video, byte for byte"
+  }
+ ],
+ "preserve": [
+  "opening, close and body seconds per video; exchanges are turns within 8 s",
+  "medians by year, Spearman per year and overall, terciles within year, stripped against full, the lowest from a year"
+ ],
+ "allowed_deltas": [
+  "the opening, close, stripped ids, comparison months and year are the person's settings",
+  "the thirds print empty instead of stopping when no year has six videos"
+ ],
+ "banned_substitutions": [
+  "a hard-coded list of stripped videos"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "'hf_s'",
+    "to": "'character_s'"
+   },
+   {
+    "from": "hf_s=",
+    "to": "character_s="
+   },
+   {
+    "from": ".hf.json",
+    "to": ".turns.json"
+   },
+   {
+    "from": "fish",
+    "to": "character"
+   },
+   {
+    "from": "hf-",
+    "to": "character-"
+   }
+  ],
+  "source_multihash": "1f:23e3c1518ed392b3a814fc932df58a78fa4c9efe41ffa6786d801c27909a99d9",
+  "target_multihash_at_baseline": "1f:9febd37a622b317511ddf081c556c0c979397bb967e0e1212f969c034d8bb52a",
+  "commit": "291e392a894c47e16aa60b078a234164898b4571",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def spearman(a, b):"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

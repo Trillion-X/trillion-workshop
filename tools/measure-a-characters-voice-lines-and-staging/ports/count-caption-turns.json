@@ -1,0 +1,102 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-COUNT-CAPTION-TURNS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:33615b95ea609a82df26a3a30f75649c1888fc94c2cedc23a63684f43b236ede",
+   "lines": [
+    17,
+    37
+   ],
+   "multihash": "1f:d4b6cce608dd4b60fa13cf25c8d976bebf6ef28dfacf372a35d41e39c8e87c63",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:33615b95ea609a82df26a3a30f75649c1888fc94c2cedc23a63684f43b236ede",
+   "lines": [
+    5,
+    15
+   ],
+   "multihash": "1f:404e3bc5fa0d41f7dde0de16680efe681648bac25ba674f266d6e4c196015b0f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:33615b95ea609a82df26a3a30f75649c1888fc94c2cedc23a63684f43b236ede",
+   "lines": [
+    2,
+    3
+   ],
+   "multihash": "1f:303f1bad7cac2c1ccbce0b5339fc88a2e58f59d514f1618516a9e2837d33e556",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/count_caption_turns.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of trillion-launch-video, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a >> turn runs to the next mark (the last for 4 lines), at most 30 s",
+  "a turn counts when its median window pitch is at least RATIO x the episode median",
+  "only episodes with at least five marks are counted"
+ ],
+ "allowed_deltas": [
+  "the ratio is the person's settings (or the request)"
+ ],
+ "banned_substitutions": [
+  "a speaker model in this count"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "fish",
+    "to": "character"
+   },
+   {
+    "from": "hf-",
+    "to": "character-"
+   }
+  ],
+  "source_multihash": "1f:d4b6cce608dd4b60fa13cf25c8d976bebf6ef28dfacf372a35d41e39c8e87c63",
+  "target_multihash_at_baseline": "1f:88a2abac6bb1b91a6f80b4fedc3e6450e5c8adad3488cc92398e9c667ca6d7ef",
+  "commit": "291e392a894c47e16aa60b078a234164898b4571",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "if m.sum() >= 2 and np.median(f[m]) >= RATIO * base:"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}
