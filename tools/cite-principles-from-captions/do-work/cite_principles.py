@@ -4,12 +4,17 @@ videos they came from.
 
   cite_principles.py corpus      [--captions FOLDER ...] [--transcripts FOLDER ...] [--infos FOLDER ...] [--caption-lines FILE ...] --out corpus.jsonl [--views-table FILE.tsv]
   cite_principles.py coverage    --corpus FILE [--rows GLOB ...] [--out FILE.json]
-  cite_principles.py candidates  --corpus FILE --terms FILE --out FOLDER [--caps FILE]
+  cite_principles.py candidates  --corpus FILE (--terms FILE | --settings-record FILE) --out FOLDER [--caps FILE]
   cite_principles.py extract     --corpus FILE --asks FILE --model FILE --out FOLDER [--channels NAME ...] [--videos FILE] [--concurrency N] [--max-load L]
   cite_principles.py find        --corpus FILE --video ID --quote TEXT
   cite_principles.py verify      --corpus FILE --rows GLOB [--caption-files GLOB ...]
   cite_principles.py registry    --corpus FILE --rows GLOB --out principles.jsonl [--id-map FILE] [--lanes FILE] [--merge FILE]
-  cite_principles.py index       --registry principles.jsonl --corpus FILE --out INDEX.md [--views-table FILE.tsv] [--id-map FILE] [--intro FILE] [--outro FILE]
+  cite_principles.py index       --registry principles.jsonl --corpus FILE --out INDEX.md [--views-table FILE.tsv] [--id-map FILE] [--template FILE.md]
+
+candidates, registry and index also take --settings-record FILE [--scope KIND:ID ...]: the person's list:settings row(s) for this
+tool as records:read gives them (record:setting:cite-principles-from-captions~<scope_kind>~<scope_id>), read through
+tools/settings. Its settings object holds any of "terms", "caps", "lanes", "merge" (the JSON each file flag takes) and
+"index-template" (the Markdown --template takes). A file flag given beside it wins for that one setting.
 
 A captions folder holds <id>.info.json (the video's details) and <id>.en.json3 (YouTube captions) per video; a transcripts folder holds
 word-timed <id>.json files whose info files may sit in an --infos folder; a caption-lines file holds one video per line, {video_id, status,
@@ -36,6 +41,13 @@ import captions as c  # noqa: E402
 import extraction as x  # noqa: E402
 import registry  # noqa: E402
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "settings", "read-data"))
+import settings as person_settings  # noqa: E402
+
+FOLDER = "cite-principles-from-captions"
+TOOL = "tool:" + FOLDER
+SETTING_NAMES = ("terms", "caps", "lanes", "merge", "index-template")
+
 DEFAULT_URL = "https://youtu.be/{video}?t={t}"
 CAPTION_SUFFIXES = (".en.json3", ".en-orig.json3")
 LINE_WORDS = 12
@@ -53,6 +65,45 @@ def read_lines(pattern):
             for number, line in enumerate(handle.read().splitlines()):
                 if line.strip():
                     yield path, number, line
+
+
+def scopes_of(given):
+    """--scope KIND:ID values, most specific first; the account's main row when none is given."""
+    scopes = []
+    for item in given or ["account:main"]:
+        kind, _, scope_id = item.partition(":")
+        if kind not in person_settings.SCOPE_KINDS or not scope_id:
+            raise SystemExit(f"--scope {item!r}: give KIND:ID with KIND one of {', '.join(person_settings.SCOPE_KINDS)}")
+        scopes.append((kind, scope_id))
+    return scopes
+
+
+def settings_from_record(args):
+    """The settings object of the person's list:settings row for this tool (an empty object when none is given)."""
+    given = getattr(args, "settings_record", None)
+    if not given:
+        return {}
+    if given.lstrip()[:1] in ("{", "["):
+        given = json.loads(given)
+    try:
+        held = person_settings.setting(given, FOLDER, scopes_of(args.scope), default=None, tool=TOOL)
+    except person_settings.SettingError as error:
+        raise SystemExit(f"--settings-record: {error}")
+    if held is None:
+        raise SystemExit(f"--settings-record: no {FOLDER} row for the scopes {', '.join(k + ':' + i for k, i in scopes_of(args.scope))}")
+    if not isinstance(held, dict) or not set(held) <= set(SETTING_NAMES):
+        raise SystemExit(f"--settings-record: its settings must be an object with only {', '.join(SETTING_NAMES)}")
+    return held
+
+
+def one_setting(args, name, path):
+    """A setting from its file flag when given, else from the settings record, else None."""
+    if path:
+        if name == "index-template":
+            with open(path, encoding="utf-8") as handle:
+                return handle.read()
+        return read_json(path)
+    return settings_from_record(args).get(name)
 
 
 def load_corpus(path):
@@ -193,11 +244,13 @@ def command_corpus(args):
 
 def command_candidates(args):
     corpus = list(load_corpus(args.corpus).values())
-    terms = read_json(args.terms)
+    terms = one_setting(args, "terms", args.terms)
+    if not terms:
+        raise SystemExit("candidates: give --terms FILE or a --settings-record whose settings hold terms")
     craft = re.compile(terms["topic"], re.I)
     title_pattern = re.compile(terms["title"], re.I)
     advice = re.compile("|".join(terms["advice"]), re.I)
-    caps = read_json(args.caps) if args.caps else {}
+    caps = one_setting(args, "caps", args.caps) or {}
     by_channel = defaultdict(list)
     for video in corpus:
         by_channel[video["channel"]].append(video)
@@ -297,8 +350,8 @@ def command_registry(args):
     for _, _, line in read_lines(args.rows):
         row = json.loads(line)
         rows[row["id"]] = row
-    lanes = read_json(args.lanes) if args.lanes else {}
-    merge = read_json(args.merge) if args.merge else {}
+    lanes = one_setting(args, "lanes", args.lanes) or {}
+    merge = one_setting(args, "merge", args.merge) or {}
     principles, id_map = registry.build_registry(
         list(rows.values()), corpus, lanes.get("stages"), lanes.get("lane_names"), merge.get("groups"), merge.get("contradictions"),
         merge.get("recorded_by", "merge file"), args.url_template)
@@ -327,15 +380,12 @@ def command_index(args):
             for row in csv.DictReader(handle, delimiter="\t"):
                 catalog[(row.get("channel") or "").strip()] += 1
     id_map = read_json(args.id_map) if args.id_map else {}
-
-    def prose(path):
-        if not path:
-            return ""
-        with open(path, encoding="utf-8") as handle:
-            return registry.fill_id_refs(handle.read(), id_map)
-
-    text = registry.index_markdown(principles, dict(corpus_channels), catalog, args.title, prose(args.intro), prose(args.outro),
-                                   args.top, args.demonstrated_top, args.lanes_top)
+    template = one_setting(args, "index-template", args.template)
+    try:
+        text = registry.index_markdown(principles, dict(corpus_channels), catalog, template, id_map)
+    except registry.TemplateError as error:
+        print(f"{args.template or 'index-template setting'}: {error}", file=sys.stderr)
+        sys.exit(2)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as handle:
         handle.write(text)
@@ -584,6 +634,12 @@ def command_extract(args):
     return {**totals, "chunks": len(chunks), "seconds": round(spent), "out": args.out}
 
 
+def settings_arguments(s):
+    s.add_argument("--settings-record", help="the person's list:settings row(s) for this tool as records:read gives them (a JSON file, or the JSON itself): "
+                   'settings {"terms", "caps", "lanes", "merge", "index-template"}; a file flag beside it wins for that setting')
+    s.add_argument("--scope", nargs="*", help="KIND:ID scopes to choose the row by, most specific first (default account:main)")
+
+
 def build_parser():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -621,7 +677,7 @@ def build_parser():
     s.set_defaults(run=command_extract)
     s = sub.add_parser("candidates", help="the passages worth reading for principles, per channel, and each channel's best openings")
     s.add_argument("--corpus", required=True)
-    s.add_argument("--terms", required=True, help='a JSON file {"topic": "word|word|...", "title": "word|word|...", "advice": ["phrase", ...]}: '
+    s.add_argument("--terms", help='a JSON file {"topic": "word|word|...", "title": "word|word|...", "advice": ["phrase", ...]}: '
                    'what the principles are about (regular-expression parts), which titles are about it, and how advice sounds in the speakers\' words')
     s.add_argument("--caps", help='a JSON file {channel: most passages to keep} for channels that should differ from the default')
     s.add_argument("--window-seconds", type=float, default=c.WINDOW_SECONDS)
@@ -630,6 +686,7 @@ def build_parser():
     s.add_argument("--openings-per-channel", type=int, default=3)
     s.add_argument("--openings-per-large-channel", type=int, default=12, help="for a channel with more than 50 videos")
     s.add_argument("--out", required=True)
+    settings_arguments(s)
     s.set_defaults(run=command_candidates)
     s = sub.add_parser("find", help="the second a quote is said at in one video's captions")
     s.add_argument("--corpus", required=True)
@@ -649,19 +706,16 @@ def build_parser():
     s.add_argument("--lanes", help='a JSON file {"stages": {stage: [lanes]}, "lane_names": {lane: canonical lane}}')
     s.add_argument("--merge", help='a JSON file {"groups": [{"ids": [...], "text"?}], "contradictions": [[id, id, how]], "recorded_by"?}')
     s.add_argument("--url-template", default=DEFAULT_URL)
+    settings_arguments(s)
     s.set_defaults(run=command_registry)
     s = sub.add_parser("index", help="a Markdown index of the registry: counts, strongest principles, contradictions, per stage, channel and lane")
     s.add_argument("--registry", required=True, help="the principles.jsonl registry writes")
     s.add_argument("--corpus", required=True)
     s.add_argument("--out", required=True, help="where to write the Markdown")
     s.add_argument("--views-table", help="the TSV of the person's catalog (a channel column), to count each channel's listed videos and name those with none read")
-    s.add_argument("--id-map", help="registry's {working id: principle id}, to fill {ids:A-1,B-2} in the intro and outro")
-    s.add_argument("--intro", help="the person's own Markdown, put after the title")
-    s.add_argument("--outro", help="the person's own Markdown, put at the end")
-    s.add_argument("--title", default="Principles registry: index")
-    s.add_argument("--top", type=int, default=30)
-    s.add_argument("--demonstrated-top", type=int, default=15)
-    s.add_argument("--lanes-top", type=int, default=60)
+    s.add_argument("--id-map", help="registry's {working id: principle id}, to fill {ids:A-1,B-2} and {evidence:A-1.FIELD} in the template")
+    s.add_argument("--template", help="the person's own Markdown with <!-- cite-principles:SECTION --> sections to fill (default: every section, plain headings)")
+    settings_arguments(s)
     s.set_defaults(run=command_index)
     return parser
 

@@ -1,0 +1,60 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-A-RENDERED-VIDEO-CLI-COMMANDS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools, sub-lane checks: the rendered-video checker's helper scripts",
+  "message_multihash": "1f:bd5226af46e0371dc78cbb65016a2055faec34cbf0bb7c6792eea867d3f085f4",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; settings are rows in the person's lists, read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "afbe47a7da8394305382f4689e3481dbb84e8776",
+   "path": "tools/check-a-rendered-video/do-work/rendercheck/cli.py",
+   "multihash": "1f:8ef5fc175387828cfe252461061732c4746f8d8c80b487f42b07e4bcd78ee986",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-a-rendered-video/do-work/rendercheck/cli.py"
+  }
+ ],
+ "preserve": [
+  "check, batch, review-pack, variety, map-add and declare keep their arguments, report and last line",
+  "MODULES from pins.CHECK_SECTIONS stays the one list of checks"
+ ],
+ "allowed_deltas": [
+  "pins: each check's pin against the person's reviewed pins (what the film's repin.py wrote into its config)",
+  "inspect <what> and export-spans hand their arguments to inspect_<what>.py and spans.py",
+  "request: one JSON request with the person's list:settings row, read by tools/settings request_settings, runs any command"
+ ],
+ "banned_substitutions": [
+  "a second settings reader beside tools/settings",
+  "a default limits file shipped with the tool"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:8ef5fc175387828cfe252461061732c4746f8d8c80b487f42b07e4bcd78ee986",
+  "target_multihash_at_baseline": "1f:8ef5fc175387828cfe252461061732c4746f8d8c80b487f42b07e4bcd78ee986",
+  "commit": "afbe47a7da8394305382f4689e3481dbb84e8776",
+  "recorded_at": "2026-11-05T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def pins_report",
+   "request_settings",
+   "def request_argv"
+  ],
+  "test_refs": [
+   "tools/check-a-rendered-video/test/test_inspect_and_spans.py Pins",
+   "tools/check-a-rendered-video/test/test_settings_row.py Request"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

@@ -1,5 +1,5 @@
 {
- "_what": "Make pictures and sounds: the style rows (media-generation-style) and the makers they run (media-maker). One runner, do-work/make-pictures-and-sounds.mjs, turns a style into files; records/workshop-media-generation-tool-records.json lists every style here as its own Workshop tool (tool:make-<style>), and the editor's Make panel (src/workspace/media-edit/make-panel.tsx) lists them from this file. A style says what it makes (makes, and the file kind: media_type, extension), what it needs (input_schema: a recording and a moment, a line of text; frames: how many frames of that recording it looks at and how far apart; made_from: other styles' results, made from the same input), how many it makes by default (count), its prompt, and which maker runs it. A maker runs_as an http request that answers with base64 bytes (its key is read from the file the style's credential_mounts places, named by connection, never written here) or a program run in the container. An http maker that Trillion can also pay for names `through_trillion`: the Workshop tool that sends the same request through Trillion's own account at a gateway (`tool`) and that tool's input besides the maker's request body (`input`); a run with no connected account of the person's sends there, through the relay its container is given, and each call is taken from their Trillion credit. A value reference is { value: [path...] } into { prompt, settings, images, inputs, output }; a path part is a key, an index, \"*\" (first match) or { any_of: [keys] }. Adding a style or a maker is a row here, never code.",
+ "_what": "Make pictures and sounds: the style rows (media-generation-style) and the makers they run (media-maker). One runner, do-work/make-pictures-and-sounds.mjs, turns a style into files; records/workshop-media-generation-tool-records.json lists every style here as its own Workshop tool (tool:make-<style>), and the editor's Make panel (src/workspace/media-edit/make-panel.tsx) lists them from this file. A style says what it makes (makes, and the file kind: media_type, extension), what it needs (input_schema: a recording and a moment, a line of text; frames: how many frames of that recording it looks at and how far apart; made_from: other styles' results, made from the same input), how many it makes by default (count), its prompt, and which maker runs it. A maker runs_as an http request that answers with base64 bytes (its key is read from the file the style's credential_mounts places, named by connection, never written here) or a program run in the container. An http maker that Trillion can also pay for names `through_trillion`: the Workshop tool that sends the same request through Trillion's own account at a gateway (`tool`) and that tool's input besides the maker's request body (`input`); a run with no connected account of the person's sends there, through the relay its container is given, and each call is taken from their Trillion credit. A value reference is { value: [path...] } into { prompt, settings, images, inputs, output }; a path part is a key, an index, \"*\" (first match) or { any_of: [keys] }. A maker that runs a program may say makes_all: the program is run once with output.folder and output.count and leaves every result there (a model loaded once). What differs per computer (a program path, a weights folder) is the person's settings, given at run time. Adding a style or a maker is a row here, never code.",
  "things": [
   {
    "address": "package::media-composition::media-maker::google-ai-image",
@@ -830,6 +830,645 @@
       "mount_path": "/run/connections/google/api_key"
      }
     ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::earshot-forge",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "process",
+    "makes_all": true,
+    "label": "earshot forge on your computer (sounds made in code, improved by listening)",
+    "concurrency": 1,
+    "timeout_ms": 7200000,
+    "settings": {
+     "earshot": "earshot",
+     "budget": 160,
+     "seed": 0,
+     "robust": 0,
+     "tone": 0,
+     "reps": 1
+    },
+    "command": [
+     {
+      "value": [
+       "settings",
+       "earshot"
+      ]
+     },
+     "forge",
+     {
+      "value": [
+       "inputs",
+       "recipe"
+      ]
+     },
+     "--target",
+     {
+      "value": [
+       "prompt"
+      ]
+     },
+     "--alts",
+     {
+      "each": [
+       "inputs",
+       "alts"
+      ],
+      "item": {
+       "value": [
+        "item"
+       ]
+      }
+     },
+     "--refs",
+     {
+      "each": [
+       "inputs",
+       "refs"
+      ],
+      "item": {
+       "value": [
+        "item"
+       ]
+      }
+     },
+     "--budget",
+     {
+      "value": [
+       "settings",
+       "budget"
+      ]
+     },
+     "--keep",
+     {
+      "value": [
+       "output",
+       "count"
+      ]
+     },
+     "--seed",
+     {
+      "value": [
+       "settings",
+       "seed"
+      ]
+     },
+     "--robust",
+     {
+      "value": [
+       "settings",
+       "robust"
+      ]
+     },
+     "--tone",
+     {
+      "value": [
+       "settings",
+       "tone"
+      ]
+     },
+     "--reps",
+     {
+      "value": [
+       "settings",
+       "reps"
+      ]
+     },
+     "--dir",
+     {
+      "value": [
+       "output",
+       "folder"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::stable-audio-3-small-sfx",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "process",
+    "makes_all": true,
+    "label": "Stable Audio 3 Small-SFX on your computer",
+    "concurrency": 1,
+    "timeout_ms": 3600000,
+    "settings": {
+     "python": "python3",
+     "seed": 1
+    },
+    "command": [
+     {
+      "value": [
+       "settings",
+       "python"
+      ]
+     },
+     "do-work/make-sound-with-stable-audio-3.py",
+     "--weights",
+     {
+      "value": [
+       "settings",
+       "weights"
+      ]
+     },
+     "--prompt",
+     {
+      "value": [
+       "prompt"
+      ]
+     },
+     "--seconds",
+     {
+      "value": [
+       "inputs",
+       "seconds"
+      ]
+     },
+     "--seed",
+     {
+      "value": [
+       "settings",
+       "seed"
+      ]
+     },
+     "--count",
+     {
+      "value": [
+       "output",
+       "count"
+      ]
+     },
+     "--dir",
+     {
+      "value": [
+       "output",
+       "folder"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::moss-soundeffect-v2",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "process",
+    "makes_all": true,
+    "label": "MOSS-SoundEffect v2.0 on your computer",
+    "concurrency": 1,
+    "timeout_ms": 3600000,
+    "settings": {
+     "python": "python3",
+     "seed": 1,
+     "steps": 50
+    },
+    "command": [
+     {
+      "value": [
+       "settings",
+       "python"
+      ]
+     },
+     "do-work/make-sound-with-moss-soundeffect.py",
+     "--weights",
+     {
+      "value": [
+       "settings",
+       "weights"
+      ]
+     },
+     "--prompt",
+     {
+      "value": [
+       "prompt"
+      ]
+     },
+     "--seconds",
+     {
+      "value": [
+       "inputs",
+       "seconds"
+      ]
+     },
+     "--steps",
+     {
+      "value": [
+       "settings",
+       "steps"
+      ]
+     },
+     "--seed",
+     {
+      "value": [
+       "settings",
+       "seed"
+      ]
+     },
+     "--count",
+     {
+      "value": [
+       "output",
+       "count"
+      ]
+     },
+     "--dir",
+     {
+      "value": [
+       "output",
+       "folder"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-maker::hunyuan-video-foley",
+   "payload": {
+    "kind": "media-maker",
+    "runs_as": "process",
+    "makes_all": true,
+    "label": "HunyuanVideo-Foley XXL on your computer",
+    "concurrency": 1,
+    "timeout_ms": 14400000,
+    "settings": {
+     "python": "python3",
+     "seed": 1,
+     "steps": 50,
+     "guidance": 4.5,
+     "most_seconds": 15,
+     "negative": "music, speech, singing"
+    },
+    "command": [
+     {
+      "value": [
+       "settings",
+       "python"
+      ]
+     },
+     "do-work/make-sound-for-a-video-with-hunyuan-foley.py",
+     "--code",
+     {
+      "value": [
+       "settings",
+       "code"
+      ]
+     },
+     "--weights",
+     {
+      "value": [
+       "settings",
+       "weights"
+      ]
+     },
+     "--video",
+     {
+      "value": [
+       "inputs",
+       "video"
+      ]
+     },
+     "--prompt",
+     {
+      "value": [
+       "prompt"
+      ]
+     },
+     "--negative",
+     {
+      "value": [
+       "settings",
+       "negative"
+      ]
+     },
+     "--at",
+     {
+      "each": [
+       "inputs",
+       "section_starts"
+      ],
+      "item": {
+       "value": [
+        "item"
+       ]
+      }
+     },
+     "--most-seconds",
+     {
+      "value": [
+       "settings",
+       "most_seconds"
+      ]
+     },
+     "--steps",
+     {
+      "value": [
+       "settings",
+       "steps"
+      ]
+     },
+     "--guidance",
+     {
+      "value": [
+       "settings",
+       "guidance"
+      ]
+     },
+     "--seed",
+     {
+      "value": [
+       "settings",
+       "seed"
+      ]
+     },
+     "--count",
+     {
+      "value": [
+       "output",
+       "count"
+      ]
+     },
+     "--dir",
+     {
+      "value": [
+       "output",
+       "folder"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::sound-effect-forged-on-my-computer",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A sound effect made in code and tuned by listening, on your computer",
+    "short_label": "Forged sound effect",
+    "about": "Makes a sound effect by physical synthesis in code, improved round by round until it sounds most like the description.",
+    "icon": "Zap",
+    "makes": "sound effect",
+    "media_type": "audio/wav",
+    "extension": ".wav",
+    "maker": "earshot-forge",
+    "count": 4,
+    "placements": [
+     "placement:your-computer"
+    ],
+    "job": "Make a sound effect in code on my computer and keep the versions that sound most like my description",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "sound",
+      "recipe",
+      "alts"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "sound": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The sound, described in a few words: what it is aimed at"
+      },
+      "recipe": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 80,
+       "description": "The earshot forge recipe that synthesizes it (keypress, click, whoosh, impact, pluck, ...)"
+      },
+      "alts": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 16,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "description": "Sounds it must sound less like"
+      },
+      "refs": {
+       "type": "array",
+       "maxItems": 16,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       },
+       "description": "Real recordings of this kind of sound to compare with (paths on this computer)"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many different versions to keep (default 4)"
+      },
+      "settings": {
+       "type": "object",
+       "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+      }
+     }
+    },
+    "prompt": [
+     {
+      "value": [
+       "inputs",
+       "sound"
+      ]
+     }
+    ],
+    "description": "Makes a sound effect in code with earshot's forge: renders candidates of a synthesis recipe, scores each by how much it sounds like the description and less like the confusions (and like the real recordings, when given), and keeps the most different good ones. No model makes the audio, so what it makes is free of model licences. Runs on your computer.",
+    "runs_on": "your-computer"
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::sound-effect-from-stable-audio-3-on-my-computer",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A sound effect from Stable Audio 3, on your computer",
+    "short_label": "Stable Audio sound effect",
+    "about": "Makes a sound effect from a description with Stable Audio 3 Small-SFX run on your computer.",
+    "icon": "Zap",
+    "makes": "sound effect",
+    "media_type": "audio/wav",
+    "extension": ".wav",
+    "maker": "stable-audio-3-small-sfx",
+    "count": 4,
+    "placements": [
+     "placement:your-computer"
+    ],
+    "job": "Make sound effects from a description with Stable Audio 3 on my computer",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "sound",
+      "seconds"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "sound": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The sound, described in a few words"
+      },
+      "seconds": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "maximum": 30,
+       "description": "How long each one is made"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make, one seed each (default 4)"
+      },
+      "settings": {
+       "type": "object",
+       "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+      }
+     }
+    },
+    "prompt": [
+     {
+      "value": [
+       "inputs",
+       "sound"
+      ]
+     }
+    ],
+    "description": "Makes sound effects from a description with Stable Audio 3 Small-SFX on your computer, one per seed, each scaled under full scale instead of clipped. The model's licence is the Stability AI Community License: read it before a public use of what it makes.",
+    "runs_on": "your-computer"
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::sound-effect-from-moss-on-my-computer",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A sound effect from MOSS-SoundEffect, on your computer",
+    "short_label": "MOSS sound effect",
+    "about": "Makes a sound effect from a description with MOSS-SoundEffect v2.0 run on your computer.",
+    "icon": "Zap",
+    "makes": "sound effect",
+    "media_type": "audio/wav",
+    "extension": ".wav",
+    "maker": "moss-soundeffect-v2",
+    "count": 4,
+    "placements": [
+     "placement:your-computer"
+    ],
+    "job": "Make sound effects from a description with MOSS-SoundEffect on my computer",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "sound",
+      "seconds"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "sound": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The sound, described in a few words"
+      },
+      "seconds": {
+       "type": "number",
+       "exclusiveMinimum": 0,
+       "maximum": 30,
+       "description": "How long each one is made"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 12,
+       "description": "How many to make, one seed each (default 4)"
+      },
+      "settings": {
+       "type": "object",
+       "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+      }
+     }
+    },
+    "prompt": [
+     {
+      "value": [
+       "inputs",
+       "sound"
+      ]
+     }
+    ],
+    "description": "Makes sound effects from a description with MOSS-SoundEffect v2.0 on your computer, one per seed. Its VAE is Tencent's HunyuanVideo-Foley VAE under the Tencent Hunyuan Community License: read both licences before a public use of what it makes.",
+    "runs_on": "your-computer"
+   }
+  },
+  {
+   "address": "package::media-composition::media-generation-style::sound-effects-for-a-video-from-hunyuan-foley-on-my-computer",
+   "payload": {
+    "kind": "media-generation-style",
+    "label": "A sound-effect track for a whole video, from its picture, on your computer",
+    "short_label": "Foley for a video",
+    "about": "Makes one sound-effect track for a whole video from its picture and a description, with HunyuanVideo-Foley run on your computer.",
+    "icon": "Zap",
+    "makes": "sound-effect track",
+    "media_type": "audio/wav",
+    "extension": ".wav",
+    "maker": "hunyuan-video-foley",
+    "count": 1,
+    "placements": [
+     "placement:your-computer"
+    ],
+    "job": "Make a sound-effect track for my video from what it shows",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "video",
+      "sounds"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "video": {
+       "type": "string",
+       "format": "namespace-file",
+       "description": "The video (a path on this computer); it is only read"
+      },
+      "sounds": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The kinds of sound wanted, in a few words"
+      },
+      "section_starts": {
+       "type": "array",
+       "maxItems": 256,
+       "items": {
+        "type": "number",
+        "minimum": 0
+       },
+       "description": "Seconds where the video's sections start, so no window crosses one"
+      },
+      "count": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 4,
+       "description": "How many tracks to make, one seed each (default 1)"
+      },
+      "settings": {
+       "type": "object",
+       "description": "Your settings for this computer, laid over the maker's: where its program, code and weights are, and any tuned numbers (the tool's settings record, as one object)"
+      }
+     }
+    },
+    "prompt": [
+     {
+      "value": [
+       "inputs",
+       "sounds"
+      ]
+     }
+    ],
+    "description": "Makes one sound-effect track as long as the video, from its picture and a description, with HunyuanVideo-Foley XXL on your computer: windows of at most 15 seconds at the section starts, joined so every sample keeps its video time. Tencent Hunyuan Community License: its territory excludes the EU, the UK and South Korea; read it before a public use.",
+    "runs_on": "your-computer"
    }
   }
  ]

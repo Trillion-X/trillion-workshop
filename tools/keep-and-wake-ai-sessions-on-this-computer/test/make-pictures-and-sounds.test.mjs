@@ -17,7 +17,7 @@ const A = `1f:${'a'.repeat(64)}`;
 const KEY = 'test-key-that-must-never-show';
 
 async function derivedRows() {
-  const derived = await toolRowsFromSources(payloadsIn(join(root, 'records/workshop-media-generation-tool-records.json')));
+  const derived = await toolRowsFromSources(payloadsIn(join(root, '../media-composition/from-old-trillion/records/workshop-media-generation-tool-records.json')));
   assert.deepEqual(derived.unread, []);
   assert.deepEqual(derived.refused, []);
   return derived.rows;
@@ -43,8 +43,16 @@ test('every style is its own Workshop tool with a described screen, derived from
     assert.deepEqual(screen, { kind: 'described', group: 'make-pictures-and-sounds', icon: style.icon, label: style.short_label, about: style.about });
     // Every input the style takes is named for people by the one shared inputs row.
     for (const name of Object.keys(style.input_schema.properties)) assert.ok(inputs[name]?.label, `${id} ${name}`);
-    assert.deepEqual(tool.invoke.argv.slice(0, 4), ['node', 'do-work/make-pictures-and-sounds.mjs', '--style', id]);
     assert.deepEqual(tool.invoke.stdin, { fill: { from: 'input' } }, 'the whole input is read on standard input at run time');
+    // A style that runs a model or a program on the person's own computer (runs_on) is a computer tool that writes into the folder they grant.
+    if (style.runs_on === 'your-computer') {
+      assert.deepEqual(tool.invoke.argv.slice(0, 6), ['node', '/opt/media-composition/do-work/make-pictures-and-sounds.mjs', '--style', id, '--out', { fill: { from: 'task', field: 'grants.change-a-folder.folder' } }]);
+      assert.equal(tool.invoke.kind, 'computer');
+      assert.deepEqual(tool.placements, ['placement:your-computer']);
+      assert.equal(tool.billing.gateway, undefined, 'nothing is paid through Trillion for a run on the person\'s computer');
+      continue;
+    }
+    assert.deepEqual(tool.invoke.argv.slice(0, 4), ['node', 'do-work/make-pictures-and-sounds.mjs', '--style', id]);
     assert.equal(tool.invoke.outputs[0].media_type, style.media_type);
     assert.equal(tool.invoke.outputs[0].keep_in, 'files', 'what is made is kept in the person\'s own files');
     assert.deepEqual(tool.placements, ['placement:deployed-container']);
@@ -67,11 +75,11 @@ test('a style names exactly the connection its makers read, and the runner finds
 });
 
 test('each tool takes the input its schema describes and fills its command and standard input from it', async () => {
-  const samples = { video: A, at: 3, topic: 'serve and volley', sound: 'a ball hit hard', mood: 'calm' };
+  const samples = { video: A, at: 3, topic: 'serve and volley', sound: 'a ball hit hard', mood: 'calm', recipe: 'impact', alts: ['a door slam'], seconds: 1.5, sounds: 'soft clicks' };
   for (const tool of await derivedRows()) {
     const input = Object.fromEntries(Object.keys(tool.input_schema.properties).filter(name => name in samples).map(name => [name, samples[name]]));
     assert.deepEqual(schemaProblems(input, tool.input_schema), [], tool.id);
-    const built = await buildInvocation(tool.invoke, { input, task: { task_id: 't' } });
+    const built = await buildInvocation(tool.invoke, { input, task: { task_id: 't', grants: { 'change-a-folder': { folder: '/granted/folder' } } } });
     assert.deepEqual(built.stdin, input);
   }
 });

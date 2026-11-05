@@ -1,0 +1,64 @@
+{
+  "kind": "package-set-records",
+  "record_set": "make-a-frame-contact-sheet-of-a-video-section-tool-rows",
+  "what_this_is": "The Workshop row for the make-a-frame-contact-sheet-of-a-video-section folder: a script the person's AI runs on the person's own computer to cut a short section of a video and lay its frames out on one picture.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-frame-contact-sheet-of-a-video-section",
+        "label": "Make one picture of the frames of a short part of a video (runs on your computer)",
+        "job": "Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it",
+        "description": "Cuts at most 300 seconds of a video and makes a contact sheet: one frame every `step` seconds (4 unless given), 320 pixels wide, `cols` frames to a row (4 unless given), as one JPEG. A link is fetched with yt-dlp, only that section, at 360p or less, into the folder's clips/ and used again on the next run; a video file on the computer is read directly from start to end. Every command and its output go to a log beside the sheet; a failure says which program failed with what exit code and shows the log's last lines. Each heavy program runs alone at the lowest priority (nice -n 20), so the computer stays usable.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "description": "A video link yt-dlp can read, or the path of a video file on the person's computer, put where {source} is in the command."
+            },
+            "name": {
+              "type": "string",
+              "description": "A short name the clip, sheet and log file names start with (no '/'), put where {name} is in the command."
+            },
+            "start": { "type": "integer", "minimum": 0, "description": "The second the section starts at, put where {start} is." },
+            "end": { "type": "integer", "description": "The second the section ends at, at most 300 after start, put where {end} is." },
+            "output": {
+              "type": "string",
+              "description": "The folder clips/ and frames/ are made in, put where {output} is in the command. Add --step N and --cols N to change the spacing and the row width."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"sheet\": path, \"clip\": path, \"log\": path, \"columns\": n, \"rows\": n}}, or on failure {\"result\": {\"error\": what failed, \"log\": path, \"log_tail\": [lines]}} with exit 1 (2 for a request it cannot use)."
+        },
+        "verify": null,
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg yt-dlp"
+          ],
+          "run": "python3 trillion-workshop/tools/make-a-frame-contact-sheet-of-a-video-section/do-work/make_contact_sheet.py --source '{source}' --name {name} --start {start} --end {end} --folder {output}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "yt-dlp (only for a link)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Ask which video and which part (start and end in seconds, at most 300 apart) if they have not said. Run the command, then open the sheet it names and look at it before describing what happens in the section. If it fails, read the log lines it prints: a link the site refuses usually needs `yt-dlp -U`; a file ffmpeg cannot read is named."
+        },
+        "maker": "maker:make-a-frame-contact-sheet-of-a-video-section",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Written for looking at short sections of reference videos frame by frame, after a shell loop once failed to fetch two sections and hid why"
+        }
+      }
+    }
+  ]
+}

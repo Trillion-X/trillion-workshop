@@ -15,6 +15,7 @@
           "type": "object",
           "required": ["input", "output"],
           "properties": {
+            "settings_record": { "type": "string", "description": "Optional: the path of a JSON file holding the person's list:settings row for this tool (record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>, as records:read gives it). Its settings.registry is the person's own dimensions registry. Add --settings-record {settings_record} to the command." },
             "input": { "type": "string", "description": "The spec JSON (schema word-template-spec@1) or one measurement file, put where {input} is in the command." },
             "output": { "type": "string", "description": "Where to write the template JSON (for example TEMPLATE.json), put where {output} is in the command. The readable TEMPLATE.md is written beside it." }
           }
@@ -28,7 +29,7 @@
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/make_template.py {input} {output}",
           "needs": ["python"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the spec (or point at the measurement), run `run`, then open the TEMPLATE.md written beside the output. Tell the person which words are fixed, each slot with its rule and what it stands for, and every dimension listed as pending with why. A slot is only the author's own specific content; filler and function words stay fixed. If the command exits 2, read its standard error: it says what to change. If you cannot run commands, give them these steps."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the spec (or point at the measurement), run `run`, then open the TEMPLATE.md written beside the output. Tell the person which words are fixed, each slot with its rule and what it stands for, and every dimension listed as pending with why. A slot is only the author's own specific content; filler and function words stay fixed. If the command exits 2, read its standard error: it says what to change. When the person keeps their own dimensions registry as a row of their list:settings, read record:setting:fill-a-template-without-changing-its-words~account~main (or the film or piece row) through their records door, write it to a file and add --settings-record FILE (and --scope KIND:ID when you pass several rows); a template made that way remembers the row and asks for it again. If you cannot run commands, give them these steps."
         },
         "maker": "maker:fill-a-template-without-changing-its-words",
         "licence_class": "licence:maker-own",
@@ -50,6 +51,7 @@
           "type": "object",
           "required": ["template", "fills", "output"],
           "properties": {
+            "settings_record": { "type": "string", "description": "Optional: the path of a JSON file holding the person's list:settings row for this tool (record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>, as records:read gives it). Its settings.registry is the person's own dimensions registry. Add --settings-record {settings_record} to the command." },
             "template": { "type": "string", "description": "The template JSON made by tool:make-a-word-template, put where {template} is in the command." },
             "fills": { "type": "string", "description": "The fills JSON: {\"title\", \"root\", \"fills\": {\"<slot id>\": {\"value\", \"sources\": [...], \"needs\"?, \"derived\"?, \"note\"?}}}, put where {fills} is in the command." },
             "output": { "type": "string", "description": "Where to write the filled markdown, put where {output} is in the command. The filled piece is written to {output}.piece.json." }
@@ -64,7 +66,7 @@
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/fill.py {template} {fills} {output} --piece {output}.piece.json",
           "needs": ["python"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the fills file from what the person actually has: a value with no checkable source is not used, so never invent one. Run `run`, then read the markdown. Tell the person which slots are filled and from what, and list every empty slot with what would fill it. Do not edit the fixed words by hand; if a fixed word is wrong, change the template. If you cannot run commands, give them these steps."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the fills file from what the person actually has: a value with no checkable source is not used, so never invent one. Run `run`, then read the markdown. Tell the person which slots are filled and from what, and list every empty slot with what would fill it. Do not edit the fixed words by hand; if a fixed word is wrong, change the template. When the person keeps their own dimensions registry as a row of their list:settings, read record:setting:fill-a-template-without-changing-its-words~account~main (or the film or piece row) through their records door, write it to a file and add --settings-record FILE (and --scope KIND:ID when you pass several rows); a template made that way remembers the row and asks for it again. If you cannot run commands, give them these steps."
         },
         "maker": "maker:fill-a-template-without-changing-its-words",
         "licence_class": "licence:maker-own",
@@ -86,6 +88,7 @@
           "type": "object",
           "required": ["template", "target", "report"],
           "properties": {
+            "settings_record": { "type": "string", "description": "Optional: the path of a JSON file holding the person's list:settings row for this tool (record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>, as records:read gives it). Its settings.registry is the person's own dimensions registry. Add --settings-record {settings_record} to the command." },
             "template": { "type": "string", "description": "The template JSON, put where {template} is in the command." },
             "target": { "type": "string", "description": "The script (.md or .txt) or piece JSON to judge, put where {target} is in the command." },
             "report": { "type": "string", "description": "Where to write the report JSON, put where {report} is in the command." }
@@ -100,7 +103,7 @@
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/drift.py {template} {target} --check --json {report}",
           "needs": ["python"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run `run` and read the standard output. Tell the person the verdict first, then each fixed word that was deleted, replaced or added with its line, and each slot that is empty, unsourced or still holds the original's value. Exit 1 means at least one dimension missed its threshold; it is a finding, not a failure to run. A deliberate change can be passed back in an exceptions file with a reason (--exceptions FILE). If you cannot run commands, give them these steps."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Run `run` and read the standard output. Tell the person the verdict first, then each fixed word that was deleted, replaced or added with its line, and each slot that is empty, unsourced or still holds the original's value. Exit 1 means at least one dimension missed its threshold; it is a finding, not a failure to run. A deliberate change can be passed back in an exceptions file with a reason (--exceptions FILE). When the person keeps their own dimensions registry as a row of their list:settings, read record:setting:fill-a-template-without-changing-its-words~account~main (or the film or piece row) through their records door, write it to a file and add --settings-record FILE (and --scope KIND:ID when you pass several rows); a template made that way remembers the row and asks for it again. If you cannot run commands, give them these steps."
         },
         "maker": "maker:fill-a-template-without-changing-its-words",
         "licence_class": "licence:maker-own",
@@ -122,6 +125,7 @@
           "type": "object",
           "required": ["piece", "transcript", "output"],
           "properties": {
+            "settings_record": { "type": "string", "description": "Optional: the path of a JSON file holding the person's list:settings row for this tool (record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>, as records:read gives it). Its settings.registry is the person's own dimensions registry. Add --settings-record {settings_record} to the command." },
             "piece": { "type": "string", "description": "The piece JSON whose tokens carry bound_to, put where {piece} is in the command." },
             "transcript": { "type": "string", "description": "The word-timed transcript JSON of the rewritten script ({\"words\": [{\"text\", \"start\", \"end\"}]}), put where {transcript} is in the command." },
             "output": { "type": "string", "description": "Where to write the re-timed piece JSON, put where {output} is in the command." }
@@ -136,13 +140,81 @@
           "get_it": ["clone the Workshop repository (package.json repository.url)"],
           "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/retime.py {piece} {transcript} {output} --report",
           "needs": ["python"],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Get the word-timed transcript of the rewritten script from any speech-to-text tool, run `run`, and tell the person how many events moved and where each went. List every event whose words were not found: its time is unchanged and the person must decide what it should follow. If you cannot run commands, give them these steps."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Get the word-timed transcript of the rewritten script from any speech-to-text tool, run `run`, and tell the person how many events moved and where each went. List every event whose words were not found: its time is unchanged and the person must decide what it should follow. When the person keeps their own dimensions registry as a row of their list:settings, read record:setting:fill-a-template-without-changing-its-words~account~main (or the film or piece row) through their records door, write it to a file and add --settings-record FILE (and --scope KIND:ID when you pass several rows); a template made that way remembers the row and asks for it again. If you cannot run commands, give them these steps."
         },
         "maker": "maker:fill-a-template-without-changing-its-words",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": {
           "source": "Events bound to words rather than seconds, so a rewrite does not strand them"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
+        "label": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer)",
+        "job": "Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+        "description": "Writes word-template@1 token tables from a request: for each template a name, a time span, where its words came from, parts (kept words, and slot words each naming a slot) and the slots (type and note). Each word becomes a token marked KEEP or SLOT in order, with its slot, slot type and note; only the slots a word uses are listed; every dimension other than the spoken words is left pending with the reason. The words, slots, sources and notes are the person's own and come in the request (one file, or several laid over each other key by key, so their settings can be a row of their records and the output folder stays with the run); the tool names no piece, speaker or film. The templates are the same shape make_template.py writes, so tool:fill-a-word-template and tool:check-words-against-a-word-template take them.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "properties": {
+            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {out, registry?, dim, templates: [{name, t0, t1, source, parts, slots, piece_id?, unit_id?, medium?, kind?, notes?}], reader?, by?}. README.md: Hand-written token tables. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\" (or its id, with the command run under tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words and the request on standard input); a \"settings\" object lays over the row, and both lie under the request's own keys." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A last line {\"result\": {\"written\": [{\"file\", \"tokens\", \"slots\"}]}} or {\"error\": \"what to change\"}; exit 0, or 2 on an error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/token_table_from_parts.py --request {request}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request from the words the person says stay and the specifics they leave open (README.md: Hand-written token tables), run `run`, and read the last line: { result } lists each template written with its token and slot counts; { error } says what to change. Then tool:fill-a-word-template can fill the slots. Read the person's settings row for this tool first and put it in the request as settings_record; never write their words into this folder."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Moved from a film repository's films/<film>/narrator/work/<line>-slots/build_templates.py: its build() with the words, times and paths made request fields"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+        "label": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer)",
+        "job": "Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+        "description": "From a request of slots (each with a base pick and candidates, each candidate with the words it adds and the claim it makes) and sentence templates ({SLOT} where a slot's words go), writes the base variant, then every other candidate of each slot with all other slots at their base pick. Each variant gets a script line, a shot file naming that script and a claims file with one entry per sentence taken from the candidate that formed the sentence (a sentence whose filled words are empty is left out with its claim), plus a manifest of the variants and a list of their lines. A picked candidate that has words but no claim is refused. The words, claims, ids and file shapes are the person's own and come in the request (one file, or several laid over each other key by key); the tool names no film, speaker or claim.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "properties": {
+            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {slots, sentences, id_prefix, script_path, shot_about, claims_about, out: {here, narrator}}. README.md: Slot candidates. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\" (or its id, with the command run under tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words and the request on standard input); a \"settings\" object lays over the row, and both lie under the request's own keys." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A last line {\"result\": {\"variants\": N, \"ids\": [...]}} or {\"error\": \"what to change\"}; exit 0, or 2 on an error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/vary_slots_one_at_a_time.py --request {request}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request from the slots and candidates the person is weighing (README.md: Slot candidates), run `run`, and read the last line: { result } lists the variant ids; { error } says what to change. Each variant's claims file is what a fact check reads before the line is voiced. Read the person's settings row for this tool first and put it in the request as settings_record; never write their words into this folder."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Moved from a film repository's films/<film>/narrator/work/<line>-slots/assemble.py: its slot tables and sentence rules made request fields; its output files were compared byte for byte"
         }
       }
     }

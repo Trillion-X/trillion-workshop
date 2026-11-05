@@ -1,0 +1,60 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-PICK-GATE-PUT-A-PICKED-OPTION",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:0f204763187f2231274c202c75717df6a56b5f7e5e924a40ea19e7dbd7d487ce",
+   "lines": [37, 87],
+   "multihash": "1f:eefef8821ff94a14867dddfdb736aa8e0cb6bf5b5791fbdfb1db2d76dc714d26",
+   "ownership": "repository-owned",
+   "old_copy": { "deleted_by": "2026-11-08" }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:0f204763187f2231274c202c75717df6a56b5f7e5e924a40ea19e7dbd7d487ce",
+   "lines": [89, 137],
+   "multihash": "1f:f0372b29b0d41558fcdcd006a3239e8e97387525d856cf7be1381b4ad2e00eed",
+   "ownership": "repository-owned",
+   "old_copy": { "deleted_by": "2026-11-08" }
+  }
+ ],
+ "targets": [ { "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py" } ],
+ "preserve": [
+  "check, rows and apply keep their arguments and their answers; the latest stand of an option wins; apply refuses without a pick, refuses an ops file outside the film, runs filmcraft-cli --project P --save run OPS headless (or prints it), and appends the same apply log entry with its blake3 ops hash",
+  "is_protected keeps its rule: inside an allowed option folder is never protected, else a protected pattern (fnmatch) protects"
+ ],
+ "allowed_deltas": [
+  "load_config reads the film's list:settings row through the person's records door and tools/settings request_settings, where it read pick-gate.json",
+  "option_decisions and latest_verdict read the person's stance records (tools/where-a-person-stands), named through do-work/stance-id-from-stdin.mjs, where they read the verdict file; picked_stances replaces picked_verdicts",
+  "record-pick, record_decision and the pick-label rebuild are not carried: tool:keep-where-you-stand keeps a stand after checking the person's words in their source"
+ ],
+ "banned_substitutions": [
+  "a decision read from a file the caller hands over",
+  "a second copy of the stance identity's fold or hash",
+  "a film's paths, option ids or the person's name written into the code"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T01:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:eefef8821ff94a14867dddfdb736aa8e0cb6bf5b5791fbdfb1db2d76dc714d26",
+  "target_multihash_at_baseline": "1f:eefef8821ff94a14867dddfdb736aa8e0cb6bf5b5791fbdfb1db2d76dc714d26",
+  "commit": "0c42cba6ba81034195120d482063136c309a844d"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs an agree applies headless on the project and logs it",
+   "tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs a later disagree withdraws a pick: the record is read as it is now",
+   "tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs --print shows the exact command and runs nothing"
+  ]
+ }
+}
