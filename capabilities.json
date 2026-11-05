@@ -768,12 +768,6 @@
       "evidence": "README.md:3 a headless Chromium plays a list of steps the way a person would, with a large drawn pointer and a ripple at every click"
     },
     {
-      "capability": "read a person's tool settings at run time: one row of their settings list, by id, for one tool and scope",
-      "owner": ["tools/settings/"],
-      "entry": "tools/settings/read-data/settings.mjs",
-      "evidence": "README.md:3 every tool whose behaviour depends on the person takes settings_record in its input and reads that setting at run time through its records door with this reader"
-    },
-    {
       "capability": "reach a person's own records from a tool run: the records door client every records tool uses",
       "owner": ["tools/records-door/"],
       "entry": "tools/records-door/read-data/records-door.mjs",
