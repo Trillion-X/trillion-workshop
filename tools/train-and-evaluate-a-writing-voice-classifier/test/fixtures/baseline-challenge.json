@@ -1,0 +1,240 @@
+{
+  "schema": "book-voice-decider-challenge-v1",
+  "question": "Does this passage keep the made-up writer's voice?",
+  "options": [
+    "pass",
+    "fail",
+    "uncertain"
+  ],
+  "dataset_role": "evaluation_only",
+  "items": [
+    {
+      "id": "MADE-UP-01",
+      "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 1).",
+      "gold": "pass",
+      "family": "made-up-kettle",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "1-3"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-02",
+      "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 2).",
+      "gold": "fail",
+      "family": "made-up-kettle",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "5-7"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-03",
+      "text": "Ask why the bread sank. The oven was cold, so the next loaf goes in after the light clicks off.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 3).",
+      "gold": "pass",
+      "family": "made-up-bread",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "9-11"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-04",
+      "text": "Step one: preheat. Step two: bake. Step three: evaluate.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 4).",
+      "gold": "fail",
+      "family": "made-up-bread",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "13-15"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-05",
+      "text": "The bike chain squeaked on every hill, which told me the oil had washed off in the rain.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 5).",
+      "gold": "pass",
+      "family": "made-up-bike",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "17-19"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-06",
+      "text": "Optimize your cycling journey with these five actionable tips.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 6).",
+      "gold": "fail",
+      "family": "made-up-bike",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "21-23"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-07",
+      "text": "My neighbour planted beans in March and lost them to frost, so this year she waited for the lilacs.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 7).",
+      "gold": "pass",
+      "family": "made-up-garden",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "25-27"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-08",
+      "text": "Gardening success requires careful planning and consistent execution.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 8).",
+      "gold": "fail",
+      "family": "made-up-garden",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "29-31"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-09",
+      "text": "The map said two hours. It took five, because the bridge was out and nobody had updated the sign.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 9).",
+      "gold": "pass",
+      "family": "made-up-map",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "33-35"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-10",
+      "text": "Travel delays can be mitigated through proactive itinerary management.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 10).",
+      "gold": "fail",
+      "family": "made-up-map",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "37-39"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-11",
+      "text": "He kept the receipts in a shoebox — every one since 2009.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 11).",
+      "gold": "uncertain",
+      "family": "made-up-shoebox",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "41-43"
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-12",
+      "text": "Short.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 12).",
+      "gold": "uncertain",
+      "family": "made-up-short",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "45-47"
+        }
+      }
+    }
+  ]
+}

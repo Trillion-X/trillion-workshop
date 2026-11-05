@@ -1,0 +1,68 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-SHOW-SHOW-TURNS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the source-repo-a port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:05a6b42c613e1578cd149559849f0589808b2999a307161d4d49de5263d293cc",
+   "lines": [
+    2,
+    10
+   ],
+   "multihash": "1f:bf010c24f20f1630eab09c9593cf4e8b4bd25b76fd5534061525138784bc1c02",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/show/show_turns.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of source-repo-a, byte for byte"
+  }
+ ],
+ "preserve": [
+  "each turn of at least min_s with its caption words"
+ ],
+ "allowed_deltas": [
+  "reads the shared events reader; turns files are <id>.turns.json"
+ ],
+ "banned_substitutions": [
+  "a second caption reader"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "show_turns.py <id.hf.json>",
+    "to": "show/show_turns.py <id.turns.json>"
+   }
+  ],
+  "source_multihash": "1f:bf010c24f20f1630eab09c9593cf4e8b4bd25b76fd5534061525138784bc1c02",
+  "target_multihash_at_baseline": "1f:10f49249b5758e126b44582758e21aed878938d286104c3b9a935ece2468945e",
+  "commit": "41041a87ab8ea0e362bea7fdc34c8024d9e16caa",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "for a, b in r['turns']:"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

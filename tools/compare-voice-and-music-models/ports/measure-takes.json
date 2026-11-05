@@ -1,0 +1,73 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEASURE-NARRATION-TAKES",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported",
+  "case": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:fced1f64e0c085d0d0daaafc6c3509e69e77b28fcc456506e71eaa5ae69acb71",
+   "lines": [
+    3,
+    138
+   ],
+   "multihash": "1f:dbb0c2500cfdffc13a5600092e6e605754c3b146309f3420a2829a42d9d72dcb",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/compare-voice-and-music-models/do-work/measure_takes.py",
+   "baseline_commit_message": "compare-voice-and-music-models: the narration voice A/B take makers, take measure and A/B render move byte for byte from source-repo-a"
+  }
+ ],
+ "preserve": [
+  "pauses: every silence of 120 ms or more inside the speech (10 ms RMS below -45 dBFS) with the word heard before and after",
+  "words per second over the speech, and articulation rate over voiced time only, counted in script words",
+  "F0 5th-95th percentile and span in semitones, onset F2 and voiced length of the vowel_check word (Praat through parselmouth)",
+  "word errors: Levenshtein over normalised words of the script against what whisper heard; whisper word times written to <take>.words.json",
+  "same_voice: cosine of a WeSpeaker embedding to the line's voice_reference; accent: mean classifier probability over 5 s windows"
+ ],
+ "allowed_deltas": [
+  "every model, level and length is a setting over DEFAULTS; the accent key is p_<accent_label> (p_england by default)",
+  "the pause finder is pauses_of(y, sr, words, ...); --words-from measures with saved word times; --no-voice-models leaves the voice models out",
+  "the words go to the take's folder's work/ (or --words-dir) instead of the script's film folder; parselmouth's python is a setting (default /tmp/pm-venv when there, else this python)",
+  "a last {result}/{error} line follows the per-take lines"
+ ],
+ "banned_substitutions": [
+  "a second pause finder beside pauses_of",
+  "a different word-error measure than the word Levenshtein"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:dbb0c2500cfdffc13a5600092e6e605754c3b146309f3420a2829a42d9d72dcb",
+  "target_multihash_at_baseline": "1f:dbb0c2500cfdffc13a5600092e6e605754c3b146309f3420a2829a42d9d72dcb",
+  "commit": "7b0b8d21b7c973201a3cef1c55e8e13067f92a35",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def voice_tools(reference",
+   "def same_voice_and_accent(path, reference",
+   "def wer(ref, hyp)",
+   "def measure(path, line",
+   "PITCH = r"
+  ],
+  "test_refs": [
+   "tools/compare-voice-and-music-models/test/test_voice_ab.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_lines": "The source is the file's lines named, in parts: the lines between them name the film's narrator and stay behind (their job is the line data and settings now)."
+}

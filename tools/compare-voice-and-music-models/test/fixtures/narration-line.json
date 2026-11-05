@@ -1,0 +1,14 @@
+{
+ "_what": "A made-up narration line for the tests and the README: `units` are said one generation each (a unit never splits a sentence; [word](/misaki IPA/) fixes one word for Kokoro, the other models get the plain word), `pause_after` is the silence after each unit in seconds, `inner_most` caps any silence the model makes inside a unit (an ellipsis), and `script` is the exact text. `hear_prompt` primes whisper with the names; `voice_reference` is the take each new take's speaker embedding is compared with. `vowel_check.word` is the one word whose vowel onset F2 measure_takes.py reports.",
+ "script": "Close. The kettle is on... and the toast is burning. Aren't you, Morwenna?",
+ "units": [
+  "Close.",
+  "The kettle is on... and the toast is burning.",
+  "Aren't you, [Morwenna](/mɔːwˈɛnə/)?"
+ ],
+ "pause_after": [0.65, 0.4, 0.0],
+ "inner_most": 0.45,
+ "hear_prompt": "Morwenna.",
+ "voice_reference": "reference-take.wav",
+ "vowel_check": {"word": "close", "expect": "British GOAT /əʊ/: onset F2 about 1300-1500 Hz (American /oʊ/ about 900-1000 Hz)"}
+}

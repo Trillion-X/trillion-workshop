@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "compare-voice-and-music-models-tool-rows",
-  "what_this_is": "The Workshop rows for the compare-voice-and-music-models folder: scripts the person's AI runs on the person's own computer to try candidate voice and music models before adopting one: say lines in a candidate cloned voice, score how alike lines sound to the real speaker, and play back a music model's note transcription as a test WAV.",
+  "what_this_is": "The Workshop rows for the compare-voice-and-music-models folder: scripts the person's AI runs on the person's own computer to try candidate voice and music models before adopting one: say lines in a candidate cloned voice, score how alike lines sound to the real speaker, and play back a music model's note transcription as a test WAV; and for a narration line, say it in Kokoro voices and voice-cloning models, measure the takes, and make and measure every A/B take at once.",
   "records": [
     {
       "payload": {
@@ -185,6 +185,291 @@
         ],
         "provenance": {
           "source": "Written for comparing music transcription models; MIDI pitch to frequency is 440 * 2 ^ ((pitch - 69) / 12)"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:say-a-narration-line-in-a-kokoro-voice",
+        "label": "Say one narration line in a Kokoro voice, the natural way (runs on your Mac)",
+        "job": "Say my narration line in a Kokoro voice with natural pauses, so I can compare voices",
+        "description": "Evaluation take of one narration line in Kokoro-82M through mlx-audio: one generation per unit (a unit never splits a sentence), pronunciation fixed in the text as misaki [word](/IPA/) markup with the G2P language of the voice's accent, a silence the model makes inside a unit (an ellipsis) kept but capped at inner_most seconds, each unit's own edge silence trimmed, and units joined by the line's set pause_after silences. Speech is never slowed or stretched. Writes a 24-bit WAV.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "line",
+            "voice",
+            "out"
+          ],
+          "properties": {
+            "line": {
+              "type": "string",
+              "description": "The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command."
+            },
+            "voice": {
+              "type": "string",
+              "description": "A Kokoro voice such as bm_lewis or af_heart, put where {voice} is."
+            },
+            "out": {
+              "type": "string",
+              "description": "The WAV to write, put where {out} is."
+            },
+            "settings_record": {
+              "type": "string",
+              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+            },
+            "film": {
+              "type": "string",
+              "description": "--film: the film the settings row is for (scope film); the person's and the account's rows are read too."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A last line {\"result\": {\"take\", \"voice\", \"model\", \"seconds\", \"sample_rate\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx-audio misaki numpy soundfile"
+          ],
+          "run": "python3 -I tools/compare-voice-and-music-models/do-work/say_a_line_in_kokoro.py {line} {voice} {out}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx-audio, misaki, numpy and soundfile"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout. Install the packages with get_it if they are missing; the first run downloads the model. Read the last line: { result } names the take; { error } says what to change. Then measure it beside the other takes with tool:measure-narration-takes."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from the narration voice A/B of source-repo-a (kokoro_take.py); Kokoro-82M is Apache-2.0"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:say-a-narration-line-in-a-cloned-voice-model",
+        "label": "Say one narration line in a voice-cloning model, best of N per sentence (runs on your Mac)",
+        "job": "Try a voice-cloning model on my narration line: keep the best of a few takes of each sentence",
+        "description": "Evaluation take of one narration line in a voice-cloning model mlx-audio loads (Qwen3-TTS, Chatterbox Turbo, Pocket TTS, or another the settings name), cloned from a reference recording. Same units, pauses and inner-pause cap as the Kokoro take. Each unit is made N times and heard by whisper; the one kept has the fewest word errors against the unit's words, then the length nearest the median of the N. Writes the take and <take>.units.json (what each kept unit was heard as).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "line",
+            "engine",
+            "out"
+          ],
+          "properties": {
+            "line": {
+              "type": "string",
+              "description": "The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command."
+            },
+            "engine": {
+              "type": "string",
+              "description": "qwen3, chatterbox, pocket, or an engine of the settings' clone_engines, put where {engine} is."
+            },
+            "out": {
+              "type": "string",
+              "description": "The WAV to write, put where {out} is."
+            },
+            "takes": {
+              "type": "integer",
+              "description": "--takes: how many tries per unit (default 3)."
+            },
+            "ref": {
+              "type": "string",
+              "description": "--ref: the recording the voice is cloned from (default: the settings' clone_reference); the person must own the voice or have consent."
+            },
+            "ref_text": {
+              "type": "string",
+              "description": "--ref-text: a file of the exact words of the reference (default: the reference with .txt)."
+            },
+            "settings_record": {
+              "type": "string",
+              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+            },
+            "film": {
+              "type": "string",
+              "description": "--film: the film the settings row is for (scope film); the person's and the account's rows are read too."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "One line per unit, then a last line {\"result\": {\"take\", \"engine\", \"model\", \"sample_rate\", \"units\", \"word_errors\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx-audio mlx-whisper numpy soundfile"
+          ],
+          "run": "python3 -I tools/compare-voice-and-music-models/do-work/say_a_line_in_a_cloned_voice.py {line} {engine} {out}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx-audio, mlx-whisper, numpy and soundfile",
+            "a reference recording of a voice the person may clone"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout. Install the packages with get_it if they are missing; the first run downloads the model. Read the last line: { result } names the take; { error } says what to change. Check the voice is the person's own or one they have consent to clone, and tell them each model's licence (Pocket TTS is CC-BY-4.0: credit Kyutai; Chatterbox output carries an inaudible watermark)."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from the narration voice A/B of source-repo-a (clone_take.py)"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-narration-takes",
+        "label": "Measure narration takes: pace, pauses, pitch, words heard, same voice and accent (runs on your computer)",
+        "job": "Measure my narration takes side by side so I can compare voice models with numbers as well as my ear",
+        "description": "For each take of one line: every pause of 120 ms or more (10 ms RMS below -45 dBFS) with the words on each side, words per second over the speech and over voiced time only, F0 5th-95th percentile and span in semitones, onset F2 and length of one vowel_check word, the words whisper heard and the word errors against the script, the cosine of a WeSpeaker speaker embedding to the line's voice_reference take, and the mean accent probability from a wav2vec2 accent classifier. Writes each take's word times to <words dir>/<take>.words.json. Every level, model and length is a setting.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "line",
+            "takes"
+          ],
+          "properties": {
+            "line": {
+              "type": "string",
+              "description": "The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command."
+            },
+            "takes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The takes, each one word after {line}."
+            },
+            "words_dir": {
+              "type": "string",
+              "description": "--words-dir: where the word times go (default: the take's folder's work/)."
+            },
+            "words_from": {
+              "type": "string",
+              "description": "--words-from: measure with word times already saved there instead of hearing the takes again."
+            },
+            "no_voice_models": {
+              "type": "boolean",
+              "description": "--no-voice-models: leave same_voice and the accent out."
+            },
+            "settings_record": {
+              "type": "string",
+              "description": "--settings-record: the JSON file holding the person's list:settings row for this folder (record:setting:compare-voice-and-music-models~<scope_kind>~<scope_id>) as records:read gives it; read by tools/settings (this film's row, else the person's, else the account's; --film names the film). Without it the defaults are used."
+            },
+            "film": {
+              "type": "string",
+              "description": "--film: the film the settings row is for (scope film); the person's and the account's rows are read too."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "One JSON line per take, then a last line {\"result\": {\"takes\": [...]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U numpy soundfile praat-parselmouth mlx-whisper torch pyannote.audio transformers librosa"
+          ],
+          "run": "python3 -I tools/compare-voice-and-music-models/do-work/measure_takes.py {line} {takes}",
+          "needs": [
+            "python",
+            "numpy and soundfile",
+            "praat-parselmouth",
+            "mlx-whisper (Apple) or a whisper_here folder",
+            "torch, pyannote.audio, transformers and librosa for same_voice and the accent"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Install the packages with get_it if they are missing. Read the last line: { result } has every take's measures; { error } says what to change. Show the takes side by side and say which numbers are outside the person's ranges; naturalness is still their ear's call."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from the narration voice A/B of source-repo-a (measure.py)"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-and-measure-every-voice-take-of-a-line",
+        "label": "Make every A/B take of one narration line, master them the same way and measure them (runs on your Mac)",
+        "job": "Make my narration line in every voice model I am comparing, mastered the same way, and measure them all",
+        "description": "Runs the takes the settings list (Kokoro voices and clone engines) one heavy job at a time, puts each through the same clean and master commands, moves a take already there into work/replaced/ before making it again, runs the ticks command, and measures every take into <out dir>/work/measure-final.jsonl.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "line",
+            "out_dir"
+          ],
+          "properties": {
+            "line": {
+              "type": "string",
+              "description": "The narration line as JSON (units, pause_after, inner_most, script; hear_prompt, voice_reference and vowel_check for the measure), put where {line} is in the command."
+            },
+            "out_dir": {
+              "type": "string",
+              "description": "The folder for the takes, put where {out_dir} is."
+            },
+            "settings_record": {
+              "type": "string",
+              "description": "The JSON file of the person's list:settings row (takes, clean_command, master_command, ticks_command, measure_glob), the third word."
+            },
+            "film": {
+              "type": "string",
+              "description": "The film the settings row is for, the fourth word."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Progress on stderr, then a last line {\"result\": {\"takes\", \"measures\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx-audio misaki mlx-whisper numpy soundfile praat-parselmouth torch pyannote.audio transformers librosa"
+          ],
+          "run": "bash tools/compare-voice-and-music-models/do-work/render_takes.sh {line} {out_dir} {settings_record} {film}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "bash",
+            "the master program the settings name (default showtime)",
+            "everything the take makers and the measure need"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, and takes minutes per take. Read the last line: { result } names the measures file; { error } says which take or step failed and what to change. Then show the measures beside each take for the person to listen to."
+        },
+        "maker": "maker:compare-voice-and-music-models",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from the narration voice A/B of source-repo-a (render_ab.sh)"
         }
       }
     }
