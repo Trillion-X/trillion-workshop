@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-READER-KNOWLEDGE-FROM-LAUNCH-VIDEO-COPY-GATE",
+ "status": "BASELINED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
+  "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
+  "quote": "Finish the launch-video port so that repository can be retired: move every job to its Workshop home, port one to one, and turn settings, words and checks into rows read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "job": "copy that gives the reader knowledge only the writer has, checked in reading order",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/reader_knowledge.py",
+   "lines": [
+    32,
+    266
+   ],
+   "multihash": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/reader_knowledge.py",
+   "lines": [
+    1,
+    31
+   ],
+   "multihash": "1f:a732f5967f1e09b78c3a2cde8f00618ede9434f3729eb650d6186fdaf159988c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/reader_knowledge.py"
+  }
+ ],
+ "preserve": [
+  "PRESERVE"
+ ],
+ "allowed_deltas": [
+  "DELTAS"
+ ],
+ "banned_substitutions": [
+  "BANNED"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
+  "target_multihash_at_baseline": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "TESTS"
+  ]
+ }
+}
