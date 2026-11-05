@@ -3,17 +3,18 @@
 Query file (JSON): {"<category>": {"queries": ["..."], "max_s": 3.0, "min_s": 0.0}, ...}
 Writes <out>: {"<category>": [ {id, user, user_id, title, duration_s, downloads, page, preview_hq_mp3, query,
 licence_filter}, ... ]}. One polite request every 1.5 s; pages are parsed as text, nothing is executed.
-Usage: python -I fs_search.py queries.json candidates.json
+Usage: python -I search_freesound.py queries.json candidates.json   (the last line printed is {"result": {"out", "counts"}})
 """
 import html
 import json
+import pathlib
 import re
 import sys
 import time
 import urllib.parse
 import urllib.request
 
-UA = 'trillion-launch-video sound sourcing (personal research; contact via gettrillion.ai)'
+UA = 'Trillion Workshop sound search (personal research)'
 LICENCES = ['Creative Commons 0', 'Attribution']
 FIELD = re.compile(r'data-(sound-id|username|user-id|title|duration|num-downloads)="([^"]*)"')
 
@@ -39,7 +40,7 @@ def parse(page):
 
 
 def main(qpath, opath):
-    spec = json.load(open(qpath))
+    spec = json.loads(pathlib.Path(qpath).read_text())
     res = {}
     for cat, c in spec.items():
         seen, rows = set(), []
@@ -57,11 +58,13 @@ def main(qpath, opath):
                     if r['id'] not in seen:
                         seen.add(r['id'])
                         rows.append(dict(r, query=q, licence_filter=lic))
-                print(f'{cat}: {q!r} [{lic}] -> {len(found)}', flush=True)
+                print(f'{cat}: {q!r} [{lic}] -> {len(found)}', file=sys.stderr, flush=True)
                 time.sleep(1.5)
         res[cat] = rows
-    json.dump(res, open(opath, 'w'), indent=1)
+    with open(opath, 'w') as fh:
+        json.dump(res, fh, indent=1)
+    return {'out': opath, 'counts': {k: len(v) for k, v in res.items()}}
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:3])
+    print(json.dumps({'result': main(*sys.argv[1:3])}))

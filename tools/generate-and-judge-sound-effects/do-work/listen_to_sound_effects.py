@@ -1,37 +1,20 @@
 """Listen to every SFX category with earshot (models load once): rank, find the cleanest trim, describe, realness, measure.
 
-Per category (CATS below, the precise descriptions are DATA): rank the folder, then for the top candidates find the
+Per category (a CATEGORIES.json the person gives: {name: {folder, query, kind, top, alts}}, the precise descriptions are DATA): rank the folder, then for the top candidates find the
 best segments, refine a 'head cut' / 'tail cut' trim by moving its edge outward (5 ms steps) until the edge is at or
 below -30 dB of the trim's peak, then describe / realness / measure that trim.
-Writes sound/sfx/listen.json. Usage: python -I sfx_listen.py [category ...]
+Merges into OUT.json (the categories it already holds are kept). Usage: <earshot venv python> -I listen_to_sound_effects.py CATEGORIES.json OUT.json [category ...]
 """
 import json
 import os
+import pathlib
 import sys
 
 import numpy as np
 
 from earshot import api, audio
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-CATS = {
-    'key': dict(query='a single soft laptop keyboard key press, close and dry', kind='event', top=5,
-                alts=['a loud clacky mechanical keyboard', 'a typewriter key', 'a camera shutter', 'a gunshot']),
-    'riser': dict(query='a short airy uplifter riser sweeping upward', kind='auto', top=8,
-                  alts=['a reverse cymbal crash', 'a jet engine passing', 'a gust of wind', 'a siren']),
-    'hit': dict(query='a deep low cinematic boom hit with a long tail', kind='event', top=5,
-                alts=['an explosion', 'a kick drum', 'a door slam', 'thunder']),
-    'whoosh': dict(query='a soft fast air whoosh passing by', kind='auto', top=5,
-                   alts=['a sword swing', 'wind blowing', 'a jet passing', 'a car passing']),
-    'chime': dict(query='a single clean soft bell chime ringing out', kind='event', top=5,
-                  alts=['a doorbell ding dong', 'a cartoon jingle', 'a phone ringtone', 'a church bell']),
-    'sting': dict(query='a cinematic logo reveal sting, a shimmering impact with a warm long tail', kind='event', top=8,
-                  alts=['an explosion', 'a trailer horn braam', 'a cartoon jingle', 'a gong']),
-    'sting_note': dict(folder='sting', query='a single soft resonant singing bowl or bell tone ringing out', kind='event',
-                       top=8, alts=['a gong crash', 'a doorbell ding dong', 'a church bell', 'a cartoon jingle']),
-    'tick': dict(query='a tiny short crisp tick click', kind='event', top=5,
-                 alts=['a clock ticking repeatedly', 'a mouse double click', 'a finger snap', 'a beep']),
-}
+CATS = {}   # the person's categories, read from CATEGORIES.json (argv)
 EDGE_DB = -30.0
 STEP = 0.005
 
@@ -57,7 +40,7 @@ def refine(path, start, end):
 
 
 def listen(cat, spec):
-    folder = os.path.join(ROOT, 'sfx', spec.get('folder', cat))
+    folder = spec['folder']
     rk = api.rank([folder], spec['query'])
     rows = []
     for r in rk['results'][:spec['top']]:
@@ -84,17 +67,20 @@ def listen(cat, spec):
         x = rows[-1]
         print(f"{cat:6s} {x['name'][:44]:44s} rank z {x['rank_z']} find z {x['find_z']} match z {x['match_z']} "
               f"trim {s0:.3f}-{s1:.3f} head {head} tail {tail} p_real {x['p_real']} {x['realness']} "
-              f"LUFS {x['lufs']} atk {x['attack_ms']} dec {x['decay_ms']}", flush=True)
+              f"LUFS {x['lufs']} atk {x['attack_ms']} dec {x['decay_ms']}", file=sys.stderr, flush=True)
     return dict(query=spec['query'], alts=spec['alts'], rank_summary=rk['summary'], candidates=rows)
 
 
-def main(cats):
-    out_path = os.path.join(ROOT, 'sfx', 'listen.json')
-    out = json.load(open(out_path)) if os.path.exists(out_path) else {}
+def main(out_path, cats):
+    out = json.loads(pathlib.Path(out_path).read_text()) if os.path.exists(out_path) else {}
     for cat in cats or list(CATS):
         out[cat] = listen(cat, CATS[cat])
-        json.dump(out, open(out_path, 'w'), indent=1, default=str)
+        with open(out_path, 'w') as fh:
+            json.dump(out, fh, indent=1, default=str)
+    return {'out': out_path, 'categories': len(out)}
 
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    with open(sys.argv[1]) as fh:
+        CATS.update(json.load(fh))
+    print(json.dumps({'result': main(sys.argv[2], sys.argv[3:])}))

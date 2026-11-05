@@ -1,6 +1,7 @@
 # The SFX layer alone: every cue of a cue plan placed at its frame with its gain, as audio/mix.py places it (sample
 # delay, gain in dB, summed), with no music and no voice. Used to measure and to listen to the effects without the mix
-# around them. usage: python3 -I sfx-ab/sfx_layer.py PALETTE_DIR CUES.json OUT.wav
+# around them. usage: python3 -I place_cues_into_an_effects_layer.py PALETTE_DIR CUES.json OUT.wav
+# (CUES.json: {DUR, cues: [[seconds, sound, gain_db], ...]}; the last line printed is {"result": {"layer", "lufs"}}).
 import json, pathlib, subprocess, sys
 import numpy as np
 import soundfile as sf
@@ -36,4 +37,6 @@ def lufs(path):
 if __name__ == '__main__':
     pal, cues, out = sys.argv[1:4]
     sf.write(out, layer(pal, json.loads(pathlib.Path(cues).read_text())), SR, subtype='FLOAT')
-    print(out, 'integrated', lufs(out), 'LUFS')
+    level = lufs(out)
+    print(out, 'integrated', level, 'LUFS')
+    print(json.dumps({'result': {'layer': out, 'lufs': level}}))

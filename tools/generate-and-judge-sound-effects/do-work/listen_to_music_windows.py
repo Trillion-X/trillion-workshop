@@ -1,34 +1,28 @@
 """Listen to every music excerpt with earshot (models load once).
 
-For each excerpt from music_windows.py: per-section mood match against the Raycast film's own section words,
-typicality against the Raycast music stem cut into its three sections, realness, and the top describe tags.
-Writes sound/music/listen.json. Usage: python -I music_listen.py
+For each excerpt from find_music_windows.py (OUT/music/windows.json): per-section mood match against the film's own section words,
+typicality against a reference music stem cut into its sections, realness, and the top describe tags. The words, the alternatives and
+the reference are the person's BRIEF.json: {sections: [{name, start, end, query}], alts: [...], reference: {stem, sections: [[from, to], ...]}}.
+Writes OUT/music/listen.json; the last line printed is {"result": {...}}. Usage: <earshot venv python> -I listen_to_music_windows.py BRIEF.json OUT
 """
 import json
 import os
+import pathlib
 import subprocess
+import sys
 
 from earshot import api
 
-import pathlib
-CHECKOUT = str(pathlib.Path(__file__).resolve().parents[2])  # this repository, wherever this place keeps it
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-STEM = CHECKOUT + '/.viral-clone/raycast-Mi173xGb0ZA/sep/htdemucs/raycast-Mi173xGb0ZA/no_vocals.wav'
-REF_SECTIONS = [(0.0, 7.5), (7.5, 29.15), (29.15, 38.5)]
-SECTIONS = [
-    dict(name='open', start=0.0, end=7.5, query='calm minimal electronic music with soft electric piano'),
-    dict(name='middle', start=7.5, end=29.0, query='ambient synth pad music with cinematic percussion, futuristic'),
-    dict(name='resolve', start=29.0, end=45.0, query='warm analog synth pad music, dreamy and ethereal'),
-]
-ALTS = ['upbeat pop song with drums and bass', 'acoustic guitar folk music', 'solo classical piano piece',
-        'heavy rock music with distorted guitars', 'orchestral string ensemble']
+ROOT = None   # OUT (argv): find_music_windows.py's folder
+STEM = None   # the reference stem (BRIEF.json)
+REF_SECTIONS = SECTIONS = ALTS = None   # the reference's sections, the film's sections and words, the alternatives (BRIEF.json)
 
 
 def ref_dir():
     d = os.path.join(ROOT, 'music', 'ref-sections')
     os.makedirs(d, exist_ok=True)
     for i, (a, b) in enumerate(REF_SECTIONS):
-        out = os.path.join(d, f'raycast-section{i + 1}_{a:g}-{b:g}.wav')
+        out = os.path.join(d, f'reference-section{i + 1}_{a:g}-{b:g}.wav')
         if not os.path.exists(out):
             subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', str(a), '-to', str(b), '-i', STEM, '-ar', '48000',
                             out], check=True)
@@ -68,4 +62,10 @@ def main():
 
 
 if __name__ == '__main__':
+    with open(sys.argv[1]) as fh:
+        brief = json.load(fh)
+    SECTIONS, ALTS = [dict(s) for s in brief['sections']], brief['alts']
+    STEM, REF_SECTIONS = brief['reference']['stem'], [tuple(r) for r in brief['reference']['sections']]
+    ROOT = sys.argv[2]
     main()
+    print(json.dumps({'result': {'listen': os.path.join(ROOT, 'music', 'listen.json')}}))
