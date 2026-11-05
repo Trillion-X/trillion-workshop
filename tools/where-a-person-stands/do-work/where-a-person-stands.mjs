@@ -25,8 +25,9 @@
 //      export, a transcript, a note), `why` must appear in it literally, at or after the line named (in a JSON-lines
 //      source, also as its JSON-escaped form), or nothing is kept. The record then names where they were said
 //      (`said_from`: the source's name, the BLAKE3 identity of its bytes, the byte range and line), so anyone can check
-//      the words against the file. A reload lists rows whose words are not there as unverified, never writes them, and
-//      writes no version it was told is already kept.
+//      the words against the file. A reload checks every stand it carries (the earlier ones too) against its own source,
+//      lists a row any of whose words are not there as unverified by its record id, never writes it, and writes no
+//      version it was told is already kept.
 //   7. A stand may name one rule (`rule`) of the person's rules: an agree on an exact text then waives that rule on that
 //      text alone. It is its own record (the rule is part of its id), never a stand on the whole thing.
 //
@@ -149,31 +150,36 @@ export function standFrom({ versions = [], next = null } = {}) {
 
 /**
  * Stands kept elsewhere, as the record versions to write: `stances` are rows { kind, text | contains | view, stance,
- * why?, by?, at, rule?, earlier?: [{ stance, why?, at }], ref?, source?, after_line? } and `fold` the fold their owner
- * declares. A row naming a `source` that `sources` holds ({ <name>: <its whole text> }) is kept only when its words are
- * literally there (stanceRecord); otherwise it is listed in summary.unverified and nothing of it is written. A version in
- * `kept` ([{ id, stance, why?, at }], what an earlier run already wrote) is not written again. Returns writes, one
- * version each ({ id, type, value }), every record's earlier stands first and oldest first, and summary: records and
- * versions by kind, how many rows' identity differs from their old `ref`, collisions (the records two or more rows
- * became under the fold, each with the rows' texts and times, so a merge is seen, never silent), already and unverified.
+ * why?, by?, at, rule?, earlier?: [{ stance, why?, at, source?, after_line? }], ref?, source?, after_line? } and `fold`
+ * the fold their owner declares. A row or an earlier stand naming a `source` that `sources` holds ({ <name>: <its whole
+ * text> }) is kept only when its own words are literally there (stanceRecord); otherwise the row is listed in
+ * summary.unverified, by the record id it would have been, and nothing of it is written. A version in `kept`
+ * ([{ id, stance, why?, at }], what an earlier run already wrote) is not written again. Returns writes, one version each
+ * ({ id, type, value }), every record's earlier stands first and oldest first, and summary: records and versions by kind,
+ * how many rows' identity differs from their old `ref`, collisions (the records two or more rows became under the fold,
+ * each with the rows' texts and times, so a merge is seen, never silent), already and unverified.
  */
 export function planReload({ stances = [], fold, by = 'person', sources = {}, kept = [] } = {}) {
   const records = new Map(), unverified = [];
   const keyOf = version => JSON.stringify([version.id, version.stance ?? null, version.why ?? null, version.at ?? null]);
   const done = new Set(kept.map(keyOf));
+  const saidIn = entry => (entry.source !== undefined
+    ? { source: entry.source, source_text: sources[entry.source] ?? null, after_line: entry.after_line ?? 1 } : {});
   let refsChanged = 0, already = 0;
   for (const row of stances) {
     const thing = { kind: row.kind, text: row.view === undefined ? row.text : undefined, contains: row.contains, view: row.view, fold, rule: row.rule };
-    const from = row.source !== undefined ? { source: row.source, source_text: sources[row.source] ?? null, after_line: row.after_line ?? 1 } : {};
+    const entries = [...(row.earlier ?? []), row];
     let versions;
     try {
-      versions = [...(row.earlier ?? []), row].map((entry, at, all) => stanceRecord({
-        ...thing, stance: entry.stance, why: entry.why, at: entry.at, by: entry.by ?? row.by ?? by, answered_by: 'person',
-        ...(at === all.length - 1 ? from : {}),
+      versions = entries.map(entry => stanceRecord({
+        ...thing, stance: entry.stance, why: entry.why, at: entry.at, by: entry.by ?? row.by ?? by, answered_by: 'person', ...saidIn(entry),
       }));
     } catch (error) {
-      if (row.source === undefined || !(error instanceof StanceRefusal)) throw error;
-      unverified.push({ kind: row.kind, why: row.why ?? null, source: row.source, reason: error.message });
+      if (!entries.some(entry => entry.source !== undefined) || !(error instanceof StanceRefusal)) throw error;
+      const named = entries.find(entry => entry.source !== undefined && !verbatimInSource(entry.why, sources[entry.source] ?? null,
+        { after_line: entry.after_line ?? 1, source: entry.source }).ok) ?? row;
+      unverified.push({ id: stanceRecordId(row.kind, identityOf(thing), row.rule), kind: row.kind, why: named.why ?? null, source: named.source ?? null,
+        reason: error.message });
       continue;
     }
     const fresh = versions.filter(version => !done.has(keyOf(version)));
@@ -201,4 +207,15 @@ export function planReload({ stances = [], fold, by = 'person', sources = {}, ke
     writes,
     summary: { rows: stances.length, records: records.size, versions: writes.length, by_kind: byKind, refs_changed: refsChanged, collisions, already, unverified },
   };
+}
+
+/**
+ * How many stands were read back, by kind and stand, how many carry earlier stands and how many were taken back: the
+ * count the copy gate's `verdicts.mjs stances` printed. `stands` are standFrom answers or stance record values.
+ */
+export function countStands({ stands = [] } = {}) {
+  const by_kind = {};
+  for (const one of stands.filter(row => row?.stance)) by_kind[one.kind] = { ...by_kind[one.kind], [one.stance]: (by_kind[one.kind]?.[one.stance] ?? 0) + 1 };
+  return { read: stands.length, by_kind, with_history: stands.filter(row => row?.earlier?.length).length,
+    taken_back: stands.filter(row => row && !row.stance).length };
 }
