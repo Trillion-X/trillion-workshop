@@ -39,6 +39,26 @@
    "repository": "trillion-workshop",
    "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-films-copy.mjs",
    "why": "A caller: tool:check-a-films-copy imports rulesOfBranch to get a film's checks branch, then reads the film's copy into units and hands both to the judge; it reads no branch rows itself."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/README.md",
+   "why": "This tool's own README, describing the branch mode (rulesOfBranch, checkABranch); documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-against-their-rules-and-verdicts.mjs",
+   "why": "The tool's command-line entry: when the request names a branch it imports checkABranch and prints its answer; a caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/answer-size.test.mjs",
+   "why": "A test calling checkABranch over made-up rows to hold the answer's size; it tests this job, it does not do it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
+   "why": "The branch mode's tests, calling rulesOfBranch and checkABranch over made-up rows; they test this job, they do not do it."
   }
  ],
  "proof": {
