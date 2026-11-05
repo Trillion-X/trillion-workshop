@@ -5,8 +5,8 @@
   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
  },
  "counts": {
-  "being_moved": 991,
-  "moved": 558,
+  "being_moved": 982,
+  "moved": 567,
   "retired": 26,
   "to_move": 83
  },
@@ -190,19 +190,27 @@
   },
   {
    "path": "assistants/apple/TrillionAssistant.swift",
-   "verdict": "being_moved",
-   "home": "trillion-apps:assistants/apple/TrillionAssistant.swift",
-   "pr": "https://github.com/Trillion-X/trillion-apps/pull/48",
-   "evidence": "byte-for-byte copy of assistants/apple/TrillionAssistant.swift at 5dc302be37 (BLAKE3 source identity equals identity here), receipt row in trillion-apps:assistants/moved-from.json; trillion-apps ios/project.yml:31-32 and macos/project.yml:31-32 read ../assistants/apple and ../assistants/assistant-catalog.json, test/native-legacy-keys-purged.test.mjs:55 reads assistants/apple/TrillionAssistant.swift",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/assistants/apple/TrillionAssistant.swift",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)",
+   "was": {
+    "verdict": "being_moved",
+    "pr": "https://github.com/Trillion-X/trillion-apps/pull/48",
+    "home": "trillion-apps:assistants/apple/TrillionAssistant.swift"
+   }
   },
   {
    "path": "assistants/assistant-catalog.json",
-   "verdict": "being_moved",
-   "home": "trillion-apps:assistants/assistant-catalog.json",
-   "pr": "https://github.com/Trillion-X/trillion-apps/pull/48",
-   "evidence": "byte-for-byte copy of assistants/assistant-catalog.json at 5dc302be37 (BLAKE3 source identity equals identity here), receipt row in trillion-apps:assistants/moved-from.json; trillion-apps ios/project.yml:31-32 and macos/project.yml:31-32 read ../assistants/apple and ../assistants/assistant-catalog.json, test/native-legacy-keys-purged.test.mjs:55 reads assistants/apple/TrillionAssistant.swift",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/assistants/assistant-catalog.json",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)",
+   "was": {
+    "verdict": "being_moved",
+    "pr": "https://github.com/Trillion-X/trillion-apps/pull/48",
+    "home": "trillion-apps:assistants/assistant-catalog.json"
+   }
   },
   {
    "path": "assistants/README.md",
@@ -5532,19 +5540,27 @@
   },
   {
    "path": "records/glance-feeds.json",
-   "verdict": "being_moved",
-   "home": "trillion-workshop:tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/glance-feeds.json",
-   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
-   "evidence": "byte-for-byte copy of records/glance-feeds.json at 5dc302be37 (BLAKE3 source identity equals identity here), receipt row in trillion-workshop:tools/tell-one-person-something-through-every-way-they/moved-from.json",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/records/glance-feeds.json",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)",
+   "was": {
+    "verdict": "being_moved",
+    "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
+    "home": "trillion-workshop:tools/tell-one-person-something-through-every-way-they/from-old-trillion/records/glance-feeds.json"
+   }
   },
   {
    "path": "records/hear-fetcher-records.json",
-   "verdict": "being_moved",
-   "home": "trillion-workshop:tools/audio-transcription/from-old-trillion/records/hear-fetcher-records.json",
-   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
-   "evidence": "byte-for-byte copy of records/hear-fetcher-records.json at 5dc302be37 (BLAKE3 source identity equals identity here), receipt row in trillion-workshop:tools/audio-transcription/moved-from.json",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/records/hear-fetcher-records.json",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)",
+   "was": {
+    "verdict": "being_moved",
+    "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
+    "home": "trillion-workshop:tools/audio-transcription/from-old-trillion/records/hear-fetcher-records.json"
+   }
   },
   {
    "path": "records/hosted-mcp-apps.json",
@@ -5578,11 +5594,15 @@
   },
   {
    "path": "records/local-model-records.json",
-   "verdict": "being_moved",
-   "home": "trillion-workshop:tools/models-on-this-computer/from-old-trillion/records/local-model-records.json",
-   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
-   "evidence": "byte-for-byte copy of records/local-model-records.json at 5dc302be37 (BLAKE3 source identity equals identity here), receipt row in trillion-workshop:tools/models-on-this-computer/moved-from.json",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/records/local-model-records.json",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)",
+   "was": {
+    "verdict": "being_moved",
+    "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
+    "home": "trillion-workshop:tools/models-on-this-computer/from-old-trillion/records/local-model-records.json"
+   }
   },
   {
    "path": "records/marketplace-screens.json",
@@ -5726,11 +5746,15 @@
   },
   {
    "path": "records/speech-engine-records.json",
-   "verdict": "being_moved",
-   "home": "trillion-workshop:tools/generate-speech/from-old-trillion/records/speech-engine-records.json",
-   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
-   "evidence": "byte-for-byte copy of records/speech-engine-records.json at 5dc302be37 (BLAKE3 source identity equals identity here), receipt row in trillion-workshop:tools/generate-speech/moved-from.json",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/records/speech-engine-records.json",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)",
+   "was": {
+    "verdict": "being_moved",
+    "pr": "https://github.com/Trillion-X/trillion-workshop/pull/203",
+    "home": "trillion-workshop:tools/generate-speech/from-old-trillion/records/speech-engine-records.json"
+   }
   },
   {
    "path": "records/starting-rules.json",
@@ -5762,10 +5786,10 @@
   },
   {
    "path": "records/video-list-rule-records.json",
-   "verdict": "being_moved",
-   "home": "trillion-workshop:tools/run-on-a-persons-computer/list-a-channel.json",
-   "evidence": "receipt trillion-workshop:tools/run-on-a-persons-computer/moved-from.json names from records/video-list-rule-records.json; its source_identity equals the BLAKE3 of the bytes on old main 5dc302be37 (content adapted at its new path, receipt verified) (home not on trillion-workshop:tools main yet)",
-   "group": "records-docs"
+   "verdict": "moved",
+   "home": "trillion-apps/records/video-list-rule-records.json",
+   "group": "records-docs",
+   "evidence": "same bytes on main (rescan 2026-11-05)"
   },
   {
    "path": "records/workflow-recipe-records.json",
@@ -6736,9 +6760,9 @@
   },
   {
    "path": "scripts/heavy-work-claim.mjs",
-   "verdict": "being_moved",
+   "verdict": "moved",
    "home": "trillion-apps/scripts/heavy-work-claim.mjs",
-   "evidence": "cmp: byte-identical to trillion-apps main scripts/heavy-work-claim.mjs (added by 9183581 'The Mac release's heavy-work entry scripts come with it', called by scripts/release-macos-app.sh:51-52). No receipt row there. (home not on trillion-apps main yet)",
+   "evidence": "cmp: byte-identical to trillion-apps main scripts/heavy-work-claim.mjs (added by 9183581 'The Mac release's heavy-work entry scripts come with it', called by scripts/release-macos-app.sh:51-52). No receipt row there.",
    "group": "scripts"
   },
   {
@@ -7430,9 +7454,9 @@
   },
   {
    "path": "scripts/run-heavy-work.mjs",
-   "verdict": "being_moved",
+   "verdict": "moved",
    "home": "trillion-apps/scripts/run-heavy-work.mjs",
-   "evidence": "cmp: byte-identical to trillion-apps main scripts/run-heavy-work.mjs (added by 9183581 'The Mac release's heavy-work entry scripts come with it', called by scripts/release-macos-app.sh:51-52). No receipt row there. (home not on trillion-apps main yet)",
+   "evidence": "cmp: byte-identical to trillion-apps main scripts/run-heavy-work.mjs (added by 9183581 'The Mac release's heavy-work entry scripts come with it', called by scripts/release-macos-app.sh:51-52). No receipt row there.",
    "group": "scripts"
   },
   {
