@@ -1,0 +1,79 @@
+{
+  "_what": "The Waiting on you DATA the walk-away nudge and the doer gate read (read-data/waiting-nudge.mjs, read-data/waiting-weigh.mjs), copied unchanged from trillion src/waiting-on-you.json at tag old-trillion-before-worker-retire: `nudge` (its `weigh` words hand a thing Trillion can do to the AIs) and `hold.no_control` (a thing with nothing to press goes back to the AIs). The person's own hold rules (setting:needs_you_hold_rules) lie over `hold`: a rule they keep wins.",
+  "nudge": {
+    "after_minutes": 120,
+    "every_minutes": 240,
+    "most_per_day": 3,
+    "notice_kind": "needs-you",
+    "title": "Waiting on you: {count}",
+    "body": "{rows}. Open Home to do them.",
+    "open": "/",
+    "own_origins": [
+      "https://app.gettrillion.ai",
+      "https://gettrillion.ai"
+    ],
+    "ladder": [
+      {
+        "id": "tell",
+        "after_minutes": 120,
+        "every_minutes": 240,
+        "most_per_day": 3,
+        "kind": "needs-you"
+      },
+      {
+        "id": "board",
+        "after_minutes": 480,
+        "every_minutes": 120,
+        "most_per_day": 6,
+        "kind": "needs-you-now",
+        "board": true,
+        "title": "Still waiting on you: {first}",
+        "body": "{rows}. One tap opens it."
+      },
+      {
+        "id": "take-over",
+        "after_minutes": 1440,
+        "every_minutes": 120,
+        "most_per_day": 8,
+        "kind": "needs-you-now",
+        "board": true,
+        "take_over": true,
+        "title": "Waiting on you since yesterday: {first}",
+        "body": "Trillion opened it for you. {rows}."
+      },
+      {
+        "id": "walked-away",
+        "after_minutes": 2880,
+        "every_minutes": 120,
+        "most_per_day": 8,
+        "kind": "needs-you-now",
+        "board": true,
+        "take_over": true,
+        "carries_stake": true,
+        "title": "Waiting on you for two days: {first}",
+        "body": "What you chose for walking away from it has happened. {rows}."
+      }
+    ],
+    "board": {
+      "key": "waiting-on-you",
+      "title": "Waiting on you: {count}",
+      "body": "{section}: {first}",
+      "source": "Waiting on you",
+      "ended_kind": "working",
+      "ended_title": "Nothing is waiting on you"
+    },
+    "weigh": {
+      "job": "This was put on the person's Waiting on you list, but Trillion can do it: {title}. {detail} {said} Do it now with {doers}{needs}, then mark the row Done. Never ask the person to do it.",
+      "said": "Doing it instead of asking you: {title}"
+    }
+  },
+  "hold": {
+    "no_control": {
+      "refused": "\"{title}\" was not filed: it gives the person nothing to press or do, so it could never be done. Give it do_it_in, the Trillion address where it is done, naming its target (such as /connections?show_row=<service>, the connect button for that service; a bare /connections is refused), a finish with a press, a response, or numbered steps they do by hand. If no control exists yet, build it first, or do the thing yourself.",
+      "whole_screen": "\"{title}\" was not filed: its do_it_in {address} opens the whole screen, with every account and form on it, but the person should see only the one thing to do. A do_it_in must name its target: {path}?show_row=<the service or saved login, as titled on that screen> (or ?show_section=<section id>).",
+      "not_a_screen": "\"{title}\" was not filed: its do_it_in {address} is not a Trillion screen, so the person would have nothing to press. Use the address of the screen where it is done, naming its target, such as /connections?show_row=<service>.",
+      "job": "This was put on the person's Waiting on you list with nothing they can press or do, so it never reached them: {title}. {detail} Give it a working control, do_it_in (the Trillion address where it is done, always naming its target, such as /connections?show_row=<service> for a sign-in, which shows that service's Connect button), a finish with a press, or numbered steps, and check the control is there and works; or do it yourself. Then put the row again with put_list_rows.",
+      "said": "Fixing a waiting thing that had nothing to press: {title}"
+    }
+  }
+}

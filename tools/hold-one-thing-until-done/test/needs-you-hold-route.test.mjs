@@ -131,6 +131,37 @@ test('a device tool that fails or is refused is let go: the read still answers',
   assert.deepEqual(run.runs.map(item => item.tool), ['tool:hold-a-device-quiet', 'tool:take-me-there'], 'an undeclared tool is refused by the door');
 });
 
+// Old src/native-waiting-account-owner.mjs reader: every card is weighed by the doer gate (src/waiting-weigh.mjs over
+// src/who-does-it.mjs) before the person sees it, and one Trillion can do, or one with nothing to press, is left out of
+// the person's view (its hand-off goes to the AIs from the nudge's own wake, runDue, not from this read). The hold's
+// prepareForHold then weighs what waited long enough again and hands what it finds once per card.
+test('a waiting row Trillion can do, or with nothing to press, is not held; one only the person can do is', async () => {
+  const records = [PERSON[0],
+    mustDo('draft', { what: 'Draft the sample reply', needs: 'write a draft', added: '2026-01-01T00:00:00.000Z' }),
+    mustDo('nothing', { what: 'Think about the sample', finish: 'Tap done' }),
+    mustDo('body', { what: 'Sign the sample form by hand', needs: 'sign by hand', reason_id: 'their-own-body', do_it_in: '/sample/sign' })];
+  const run = await answerOf(ROUTE, page('GET'), { records });
+  assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
+  assert.equal(run.result.body.held.key, 'record:waiting-on-you:body');
+  assert.deepEqual(run.result.body.ranked.map(thing => thing.key), ['record:waiting-on-you:body'], 'the AI-doable and the uncontrollable rows are left out');
+  assert.deepEqual(run.kept.filter(record => record.type === 'ai-job'), [], 'the read hands nothing the reader already left out');
+});
+
+test('prepareForHold hands what it weighs to the AIs once per card, and the hold is weighed over the rest', async () => {
+  const { makeWaitingNudge } = await import('../read-data/waiting-nudge.mjs');
+  const WAITING = JSON.parse(readFileSync(new URL('../read-data/waiting-on-you.json', import.meta.url), 'utf8'));
+  const handed = [];
+  const nudge = makeWaitingNudge({ read: async () => null, tell: async () => null, handOff: async job => { handed.push(job); },
+    weigh: () => ({ steps: [{ who: 'trillion', said: 'Trillion can.', doers: [{ id: 'your-ais' }], uncovered: [] }] }),
+    kept: { read: () => null, write: () => {} }, alongside: async () => null, settings: { ...WAITING, hold: { ...WAITING.hold, ...RULES } }, now: () => NOW });
+  const card = { id: 'record:waiting-on-you:draft', title: 'Draft the sample reply', needs: 'write a draft', does_in: '/sample/draft', at: '2026-01-01T00:00:00.000Z' };
+  const fresh = { ...card, id: 'record:waiting-on-you:fresh', at: new Date(NOW).toISOString() };
+  const prepared = await nudge.prepareForHold({ sections: [{ id: 'asks', cards: [card, fresh] }] }, 60);
+  assert.deepEqual(prepared.handed, ['record:waiting-on-you:draft'], 'only what waited long enough');
+  assert.equal(handed[0].once_per, 'weighed:record:waiting-on-you:draft');
+  assert.match(handed[0].job, /Draft the sample reply/);
+});
+
 test('seen marks read the notices the held thing\'s device runs told, on this page, from the thing; read is the read', async () => {
   const rules = { ...RULES, devices: { when_held: [{ tool_id: 'tool:hold-a-device-quiet', input: { id: 'needs-you-hold' } }, { tool_id: 'tool:take-me-there', input: { thing: '{key}', key: 'hold:{key}' } }] } };
   const told = (seq, key) => ({ id: `told-the-person:${seq}`, type: 'told-the-person', value: { item: { seq, key, kind: 'update', title: `Sample ${seq}`, at: '2026-01-10T11:00:00.000Z', results: { 'in-app': { sent: true, said: 'Shown in Trillion.' } } } } });
