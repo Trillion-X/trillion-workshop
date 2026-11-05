@@ -1034,6 +1034,22 @@
       "source_identity": "1f:ab01b27f7fe66446b985eb8dd8eb58c82acbe40ba7844ff8e67be61abb5c6546",
       "identity": "1f:5f1384eb88b2c1c51bdabe24b45957caf834ea7b80f0645f77a89b2b54068505",
       "adapted": "the five store-level tests are the old ones with import paths named; the whole-person-store wake count (bootPerson) is left out: that store went with the Worker."
+    },
+    {
+      "from": "test/team-review.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/team-review.test.mjs",
+      "source_identity": "1f:314f3192db95b94a2e5c2141c69dc8daa1ef4a206251ed74aeff4d6f96c72553",
+      "identity": "1f:e5c8579756596d67e4441dcfe50a6826c82b59edebd12299f70ff1c3f9d5a306",
+      "adapted": "the eight tests over the plain agent store are the old ones; the routing-owner test (old src/own-ais-routing.mjs) and the Workshop-tool run through the whole old person store are left out: neither runs anywhere."
+    },
+    {
+      "from": "test/own-ais-migrate-retire.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/own-ais-migrate-retire.test.mjs",
+      "source_identity": "1f:fa015b79f2824f5cbbcc9270bacfaacae15644237eedf97bb658e9d657995521",
+      "identity": "1f:daa20348c3565b917c12691a2f7817bfa395344b03cd789d30a641b1394b4ba6",
+      "adapted": "the old person store is replaced by what it composed (agents with its putCard and listed hooks, makeAis, own-ais retiring) and its migrateOwnAis lines applied in the test; every assertion is kept."
     }
   ]
 }
