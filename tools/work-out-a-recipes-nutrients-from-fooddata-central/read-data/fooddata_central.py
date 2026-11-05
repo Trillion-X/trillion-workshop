@@ -1,25 +1,16 @@
-"""Builds the tofu ice cream v1 recipe + nutrient profile rows from USDA FoodData Central CSV downloads.
+"""Reads USDA FoodData Central CSV downloads (SR Legacy, Foundation, or any dataset in the same layout) and answers
+per-100 g nutrient amounts and portion weights, with the reference data a profile is measured against: the nutrients
+(NUTS), the adult 19-30 Dietary Reference Intakes (DRI) and the nutrients that are limits, not targets (DOSE_MAX).
 
-usage: tofu_ice_cream_profile.py <sr_legacy_dir> <foundation_dir> <out_dir>
+A dataset is the four CSVs FoodData Central ships in each download folder:
+  nutrient.csv       id, name, unit_name, ...           (read but not needed: the profile's units are its own)
+  food_nutrient.csv  fdc_id, nutrient_id, amount, ...   (amount per 100 g of the food; an empty amount is skipped)
+  food_portion.csv   fdc_id, amount, modifier, portion_description, gram_weight, ...
+  food.csv           fdc_id, description, ...
+`load(base)` reads them from a folder; `load_texts(texts)` from their texts (food.csv and nutrient.csv optional there).
+Everything else here is pure.
 """
-import csv, json, sys, datetime
-
-SR, FOUND, OUT = sys.argv[1], sys.argv[2], sys.argv[3]
-
-def load(base):
-    nut = {r['id']: r for r in csv.DictReader(open(base + '/nutrient.csv'))}
-    fn = {}
-    for r in csv.DictReader(open(base + '/food_nutrient.csv')):
-        if r['amount'] == '':
-            continue
-        fn.setdefault(r['fdc_id'], {})[r['nutrient_id']] = float(r['amount'])
-    port = {}
-    for r in csv.DictReader(open(base + '/food_portion.csv')):
-        port.setdefault(r['fdc_id'], []).append(r)
-    food = {r['fdc_id']: r['description'] for r in csv.DictReader(open(base + '/food.csv'))}
-    return nut, fn, port, food
-
-srd, fod = load(SR), load(FOUND)
+import csv, io, os
 
 # nutrient key -> (label, unit, [FDC nutrient ids tried in order])
 NUTS = [
@@ -73,28 +64,68 @@ DRI = {
  'vit_d': (15, 15, 'RDA'), 'vit_e': (15, 15, 'RDA'), 'vit_k': (120, 90, 'AI'),
 }
 
+DOSE_MAX = {'sodium'}
+
+# The header of each optional file, standing in for it when its text is not given.
+OPTIONAL = {'nutrient': 'id,name,unit_name\n', 'food': 'fdc_id,description\n'}
+
+
+class Refusal(Exception):
+    """A request this cannot answer; the message says what to change."""
+
+
+def load(base, open=open):
+    nut = {r['id']: r for r in csv.DictReader(open(base + '/nutrient.csv'))}
+    fn = {}
+    for r in csv.DictReader(open(base + '/food_nutrient.csv')):
+        if r['amount'] == '':
+            continue
+        fn.setdefault(r['fdc_id'], {})[r['nutrient_id']] = float(r['amount'])
+    port = {}
+    for r in csv.DictReader(open(base + '/food_portion.csv')):
+        port.setdefault(r['fdc_id'], []).append(r)
+    food = {r['fdc_id']: r['description'] for r in csv.DictReader(open(base + '/food.csv'))}
+    return nut, fn, port, food
+
+
+def load_dir(base, name='dataset'):
+    """load(base) of a download folder, refused in words when the folder or a needed file is not there; a missing
+    nutrient.csv or food.csv reads as its header alone."""
+    for need in ('food_nutrient', 'food_portion'):
+        if not os.path.exists(os.path.join(base, need + '.csv')):
+            raise Refusal(f'dataset {name}: {base} has no {need}.csv: give the unzipped FoodData Central download folder')
+    return load(base, open=open_text)
+
+
+def open_text(path):
+    name = os.path.basename(path)[:-4]
+    if name in OPTIONAL and not os.path.exists(path):
+        return io.StringIO(OPTIONAL[name], newline='')
+    return io.open(path, encoding='utf-8', newline='')
+
+
+def load_texts(texts, name='dataset'):
+    """load() of the CSV texts of one dataset ({file name without .csv: text}); nutrient and food are optional."""
+    for need in ('food_nutrient', 'food_portion'):
+        if not isinstance(texts.get(need), str):
+            raise Refusal(f'dataset {name} has no {need}.csv: give its text as "{need}" or its folder as "dir"')
+    return load('', open=lambda path: io.StringIO(texts.get(path[1:-4], OPTIONAL.get(path[1:-4], '')), newline=''))
+
+
 def per100(src, fdc):
     nut, fn, port, food = src
+    if fdc not in fn:
+        raise Refusal(f'food {fdc} has no nutrient amounts in its dataset: check the fdc_id and which dataset it is in')
     row = fn[fdc]
     out = {}
     for key, _, _, ids in NUTS:
         out[key] = next((row[i] for i in ids if i in row), None)
     return out
 
+
 def portion_g(src, fdc, modifier_contains):
-    for r in src[2][fdc]:
+    modifier_contains = str(modifier_contains).lower()
+    for r in src[2].get(fdc, []):
         if modifier_contains in (r['modifier'] + ' ' + r['portion_description']).lower():
             return float(r['gram_weight']) / float(r['amount']), r
-    raise SystemExit('no portion %s %s' % (fdc, modifier_contains))
-
-TOFU_SR = '172475'   # Tofu, raw, firm, prepared with calcium sulfate
-SOY_F = '1750337'    # Soy milk, unsweetened, plain, shelf stable (Foundation)
-SOY_SR = '175215'    # Soymilk unsweetened (for the cup weight)
-COCOA = '169593'
-VANILLA = '173471'
-SALT = '173468'
-
-soy_cup_g, _ = portion_g(srd, SOY_SR, 'cup')
-cocoa_tbsp_g, _ = portion_g(srd, COCOA, 'tbsp')
-vanilla_tbsp_g, _ = portion_g(srd, VANILLA, 'tbsp')
-salt_tsp_g, _ = portion_g(srd, SALT, 'tsp')
+    raise Refusal('no portion of food %s says "%s": give grams instead, or a word its food_portion rows use (cup, tbsp, tsp)' % (fdc, modifier_contains))
