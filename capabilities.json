@@ -389,10 +389,10 @@
       "evidence": "do-work/assemble.py, do-work/cut.py"
     },
     {
-      "capability": "read a public web page: its title, words, links and the card it describes itself with; read a link into a preview card",
+      "capability": "read a public web page: its title, words, links and the card it describes itself with; read a link into a preview card; list every video a site plays",
       "owner": ["tools/browse-public-page/"],
       "entry": "tools/browse-public-page/tool-rows.json",
-      "evidence": "README.md:3 the one reader of a page's bytes, the container tool that reads one page, and the one that reads one link into a card"
+      "evidence": "README.md:3 the one reader of a page's bytes, the container tool that reads one page, the one that reads one link into a card, and the one that draws a site's pages in a headless browser and lists every video they play"
     },
     {
       "capability": "predict, second by second, how an average viewer's brain responds to a video, to compare two cuts of one video",
