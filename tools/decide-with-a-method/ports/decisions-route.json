@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECIDE-WITH-A-METHOD-DECISIONS-ROUTE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, home feeds lane",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "Each route becomes a Workshop route tool per the brief's contract (input {path, method, query, body, browser}, result {status, body}), reading and writing records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the page route GET /work/api/decisions as a Workshop route tool with the decisions screen read",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/decide-with-a-method/read-data/decisions-route.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-with-a-method/",
+   "why": "This tool itself: the screen read is read-data/work-screen.mjs seeMyDecisions, moved from trillion src/native-work-screen.mjs (ports/work-screen.json); this file only hands the page's request to it and answers { status, body }."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the page route GET /work/api/decisions as a Workshop route tool with the decisions screen read",
+    "answer the decisions page route as a Workshop route tool",
+    "decisions route tool"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerDecisionsRoute",
+    "answer-the-decisions-route"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/decide-with-a-method/test/decisions-route.test.mjs"
+  ]
+ }
+}
