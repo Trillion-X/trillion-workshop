@@ -89,3 +89,28 @@ export function setting(given, { folder, scopes, fallback = null, tool } = {}) {
   const found = chosen(given, folder, scopes);
   return found === null ? fallback : settingsOf(found, tool);
 }
+
+/**
+ * The same choice read through the person's records door (tools/records-door) at run time: each scope's row by
+ * records:read, most specific first; the settings of the first found, else `fallback`.
+ */
+export async function readSetting(door, { folder, scopes, fallback = null, tool } = {}) {
+  if (!Array.isArray(scopes) || !scopes.length) throw new SettingError('Give the scopes to try, most specific first: [[scope_kind, scope_id], ...].');
+  for (const [kind, scopeId] of scopes) {
+    const id = settingId(folder, kind, scopeId);
+    const value = await door.read(RECORD_TYPE, id);
+    if (value) return settingsOf({ id, type: RECORD_TYPE, value }, tool);
+  }
+  return fallback;
+}
+
+/** tool:read-a-tool-setting-through-my-door: { settings_prefix: "record:setting:<folder>~", scopes, tool? } in. */
+export async function readSettingRow(input, { door }) {
+  const prefix = input?.settings_prefix;
+  if (typeof prefix !== 'string' || !prefix.startsWith(ID_PREFIX) || !prefix.endsWith('~') || prefix.slice(ID_PREFIX.length, -1).includes('~')) {
+    throw new SettingError(`settings_prefix is ${ID_PREFIX}<workshop-folder>~, the rows the run may read.`);
+  }
+  const folder = prefix.slice(ID_PREFIX.length, -1);
+  const found = await readSetting(door, { folder, scopes: input.scopes, tool: input.tool });
+  return { folder, found: found !== null, settings: found };
+}
