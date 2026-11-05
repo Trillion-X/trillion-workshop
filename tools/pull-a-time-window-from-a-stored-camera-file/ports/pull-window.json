@@ -1,0 +1,84 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-PULL-A-TIME-WINDOW-FROM-A-FILMS-BYTE-RANGE-PULLER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools, sub-lane slate: a few seconds of sound, or one frame, from a camera file in cloud storage",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4d56f12f7b539c10157173c85662e7401c84f46d505333f4e191acbc4158cbca",
+   "multihash": "1f:3098bc1d2f564f8b70bdec7e2b9a5692a16ff78bb214af29861e9b61304ed83d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   },
+   "lines": [
+    33,
+    122
+   ]
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4d56f12f7b539c10157173c85662e7401c84f46d505333f4e191acbc4158cbca",
+   "multihash": "1f:7c79a6c54ce4ae55b0351d17b279d234ec46cfb1c542b189b20a63f96b24b33f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   },
+   "lines": [
+    1,
+    29
+   ]
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/pull-a-time-window-from-a-stored-camera-file/do-work/pull_window.py",
+   "baseline_commit_message": "pull-a-time-window-from-a-stored-camera-file: a film's byte-range audio and frame puller, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "top-level boxes walked by range up to and including moov, and a sparse copy with every box header and the whole moov",
+  "ffprobe names the audio packets inside the window; only those ranges (joined within GAP) are read",
+  "the wav starts with silence up to from (adelay), so second N of the wav is second N of the file",
+  "frame mode reads the one keyframe packet at or before the second"
+ ],
+ "allowed_deltas": [
+  "the reader command, store, account, credentials and gap are the person's list:settings row or request keys",
+  "the frame probe passes -fflags +noparse+nofillin, so ffmpeg keeps the file's own key flags in the sparse copy (the old probe found no keyframe)",
+  "reads and bytes counted and answered as one JSON result"
+ ],
+ "banned_substitutions": [
+  "downloading the whole file",
+  "an account id, store path or reader path written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:3098bc1d2f564f8b70bdec7e2b9a5692a16ff78bb214af29861e9b61304ed83d",
+  "target_multihash_at_baseline": "1f:3098bc1d2f564f8b70bdec7e2b9a5692a16ff78bb214af29861e9b61304ed83d",
+  "commit": "da1aa13dfa2d9a175506f68eb172e392a18ae240",
+  "recorded_at": "2026-11-05T23:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def walk_boxes",
+   "def sparse_copy",
+   "adelay={round(start * 1000)}:all=1",
+   "+noparse+nofillin"
+  ],
+  "test_refs": [
+   "tools/pull-a-time-window-from-a-stored-camera-file/test/test_pull_window.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. The second source (the file's first 29 lines: its description and imports) is listed for retention; the lines between the two, the person's storage account id, store and reader path, are not ported."
+}
