@@ -1,0 +1,14 @@
+{
+ "what_this_is": "How rulings on single lines are kept, read by do-work/ruling-records.mjs and do-work/rulings.mjs: each is a row of the person's generic Checks list (list:checks), a record `record_type` with id `id_prefix`<hex of the BLAKE3 of [text, verdict, by, rule]>, of kind `kinds.ruled` (a good or bad ruling, a labelled line like the decider's) or `kinds.escalated` (a line a checker escalated, no verdict on it yet), part_of the rule it was given under, or the branch the caller names when it names no rule. The ruling's own copy kind is kept as `line_kind`, so it never collides with the row's kind. Then the words of every refusal.",
+ "record_type": "record:check",
+ "id_prefix": "record:check:ruling-",
+ "kinds": { "ruled": "labelled-line", "escalated": "escalated-line" },
+ "line_kind_field": "line_kind",
+ "words": {
+  "refused_rows": "rows and existing are lists of rulings; refuse is a list of { field, one_of?: [values], contains_one_of?: [path parts] }; hand_rulings is { field: [words] }; place is { field, pattern }; escalated_verdicts is a list of words.",
+  "refused_row": "Every ruling needs its text (the line), verdict (one word, such as bad, good or escalated) and by (who gave it).",
+  "refused_parent": "A ruling that names no rule is kept under the branch unruled_part_of names (the person's setting, such as content-production); give it.",
+  "refused_fixture": "REFUSED: {count} row(s) come from a test piece or a temporary folder (the list's refuse setting); they never go into the person's rulings. Nothing is written.",
+  "refused_word": "A ruling given by hand needs its {field} to be one of {words}; it is {value}."
+ }
+}
