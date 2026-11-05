@@ -8,7 +8,7 @@
 // `applyResizeGeom` the item box uses — crop is "resize, but in the image's
 // normalized space, clamped to [0,1]²". Pure trig/clamp, zero I/O — unit-tested.
 
-import { applyResizeGeom, type ResizeEdge } from '../../ui';
+import { applyResizeGeom, type ResizeEdge } from '../../ui/index.ts';
 
 /** A crop window in normalized source coordinates (0..1). `{0,0,1,1}` = the full image. */
 export interface Crop {

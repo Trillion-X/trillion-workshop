@@ -12,9 +12,9 @@
 // presets (save-this-board's-look) layer on top once a per-index preset store
 // exists; the apply mechanism is identical (presetKeyWrites → setBoardAppearanceKey).
 
-import type { AppearancePreset } from './appearance-presets';
-import type { AppearanceProfile } from './item-appearance';
-import { mergeCatalog } from '../read-data/catalog-merge';
+import type { AppearancePreset } from './appearance-presets.ts';
+import type { AppearanceProfile } from './item-appearance.ts';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 /** The built-in named looks. Each `profile` key is an appearance-cascade key
  *  (`sizeMode`, `containerVariant`, …) — this catalog never has to enumerate

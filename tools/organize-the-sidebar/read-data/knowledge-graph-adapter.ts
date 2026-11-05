@@ -16,7 +16,7 @@
 //   - Edges are participation/connection projections — NEVER an invented
 //     {source,target,relation} family. The role/attributes ride through opaquely.
 
-import type { GraphFeedModel, GraphFeedNode, GraphFeedConnection, GraphFeedEndpoint } from './knowledge-graph-feed';
+import type { GraphFeedModel, GraphFeedNode, GraphFeedConnection, GraphFeedEndpoint } from './knowledge-graph-feed.ts';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);

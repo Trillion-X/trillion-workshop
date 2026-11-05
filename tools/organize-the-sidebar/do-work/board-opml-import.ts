@@ -14,9 +14,9 @@
 // text-outline import already uses (L069/L093 — owns no tree logic), so OPML nesting and indented-text paste
 // build the exact same mind-map. Un-escapes the five XML entities. Pure, deterministic; names no kind (L090).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { outlineParents, type OutlineLine } from './batch-actions';
-import { parseNestedTree, type NestedTreeSpec } from './nested-tree-xml';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { outlineParents, type OutlineLine } from './batch-actions.ts';
+import { parseNestedTree, type NestedTreeSpec } from './nested-tree-xml.ts';
 
 /** True when the text is an OPML document (carries an `<opml` root element). */
 export function looksLikeOpml(text: string): boolean {

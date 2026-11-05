@@ -7,8 +7,8 @@
 // (CORS-tainted) image, a missing canvas (SSR/jsdom), or any error yields `[]`, so the strip simply renders
 // nothing rather than throwing. So a mood board can read its hero image's palette (and feed it to a recolour).
 import React from 'react';
-import { Container, Text } from '../../ui';
-import { medianCutPalette, pixelsFromImageData } from '../do-work/median-cut-palette';
+import { Container, Text } from '../../ui/index.ts';
+import { medianCutPalette, pixelsFromImageData } from '../do-work/median-cut-palette.ts';
 
 export interface PaletteSwatchesProps {
   readonly colors: readonly string[];

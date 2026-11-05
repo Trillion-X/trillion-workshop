@@ -11,19 +11,19 @@
 // `labelColor` (b101), matching a note's tag-chip tints. Connectors are excluded.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemTags } from './item-tags';
-import { labelColor } from '../do-work/label-color';
-import { normalizeText } from '../do-work/text-similarity';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemTags } from './item-tags.ts';
+import { labelColor } from '../do-work/label-color.ts';
+import { normalizeText } from '../do-work/text-similarity.ts';
 import {
   frequencyTally,
   tallyToRanked,
   frequencyScale,
   countRange,
   type FrequencyScaleKind,
-} from '../do-work/frequency-tally';
+} from '../do-work/frequency-tally.ts';
 
 /** One rendered cloud chip — DATA the cloud draws blindly. */
 export interface CloudEntry {

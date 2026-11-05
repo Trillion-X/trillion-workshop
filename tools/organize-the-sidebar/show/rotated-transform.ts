@@ -14,8 +14,8 @@
 // At θ=0 this reduces EXACTLY to `applyResizeGeom`. Pure trig, zero I/O — verified
 // by unit tests (θ=0 identity + opposite-handle pin-invariance).
 
-import { applyResizeGeom, type ResizeEdge } from '../../ui';
-import { finiteCoord } from '../read-data/finite-coord';
+import { applyResizeGeom, type ResizeEdge } from '../../ui/index.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 export interface Rect {
   x: number;

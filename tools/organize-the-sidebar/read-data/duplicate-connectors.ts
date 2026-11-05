@@ -13,8 +13,8 @@
 // relationship graph (`buildRelationGraph`, which already drops DANGLING connectors, L069/L093 — owns no edge
 // logic). Pure, deterministic (connector-id order).
 
-import type { BoardItem } from './group-board-model';
-import { buildRelationGraph } from './relationship-graph';
+import type { BoardItem } from './group-board-model.ts';
+import { buildRelationGraph } from './relationship-graph.ts';
 
 /** A set of connectors that express the identical relationship — same endpoints AND kind, drawn ≥2 times. */
 export interface DuplicateConnectorGroup {

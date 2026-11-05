@@ -9,10 +9,10 @@
 // constrained by the board's existing keymap (Tab/Enter = mind-map child/sibling, arrows = nudge,
 // Space = pan), so this leaf owns the non-conflicting screen-reader dimension only.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { kindFamilyOf } from './board-item-facets';
-import { ownValue } from '../read-data/facet-filter';
-import { hostFromHref, readLinkPreview } from '../do-work/link-preview';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { kindFamilyOf } from './board-item-facets.ts';
+import { ownValue } from '../read-data/facet-filter.ts';
+import { hostFromHref, readLinkPreview } from '../do-work/link-preview.ts';
 
 /** Nouns for kinds `kindFamilyOf` intentionally returns empty for (a section is a container, a
  *  pending item is a transient placeholder — neither is a "content family", but both still deserve

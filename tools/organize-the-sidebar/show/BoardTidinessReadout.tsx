@@ -9,15 +9,15 @@
 // `ui`-only chrome (Container/Text — L065-safe). Connectors are excluded (edges have no footprint to tidy).
 
 import React from 'react';
-import { Badge, Button, Card, Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
+import { Badge, Button, Card, Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
 import {
   analyzeTidiness,
   TIDINESS_DETECTORS,
   type TidinessReport,
   type TidyDetectorDef,
-} from '../do-work/board-tidiness';
+} from '../do-work/board-tidiness.ts';
 
 /** Run the tidiness analysis over the board's non-connector items. */
 export function boardTidiness(items: readonly BoardItem[], detectors: readonly TidyDetectorDef[] = TIDINESS_DETECTORS): TidinessReport {

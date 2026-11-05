@@ -16,7 +16,7 @@
 //     A preset is therefore just "set these cascade keys at once", nothing new.
 //   - EMPTY-SAFE: an undefined/empty profile yields zero writes (a no-op preset).
 
-import type { AppearanceProfile } from './item-appearance';
+import type { AppearanceProfile } from './item-appearance.ts';
 
 /** A named, reusable appearance profile — stored as DATA (a preset record). */
 export interface AppearancePreset {

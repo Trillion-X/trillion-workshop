@@ -10,7 +10,7 @@
 // The metric set is an injected-capability catalog (`BALANCE_METRICS`, L069/L090) — a new composition check is
 // one row, zero engine code. Pure leaf: deterministic, `finiteCoord`-guarded, zero I/O.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** A rectangle in board space (a card's footprint). */
 export interface BalRect {

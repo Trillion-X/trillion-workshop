@@ -30,21 +30,21 @@
 // into the `items` array; this fn is flat + pure.
 // =============================================================================
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { finiteCoord } from '../read-data/finite-coord';
-import { connectorLabelOf, type RelationKindSpec } from '../read-data/relation-kind-catalog';
-import { presentationFrameOf } from './board-frames';
-import { arrowheadById, type ArrowheadShape } from './arrowhead-catalog';
-import { readFrameBorder } from './frame-border';
-import { svgItemTransform, svgCropImageRect, svgImageFilter } from '../show/board-svg-transforms';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
+import { connectorLabelOf, type RelationKindSpec } from '../read-data/relation-kind-catalog.ts';
+import { presentationFrameOf } from './board-frames.ts';
+import { arrowheadById, type ArrowheadShape } from './arrowhead-catalog.ts';
+import { readFrameBorder } from './frame-border.ts';
+import { svgItemTransform, svgCropImageRect, svgImageFilter } from '../show/board-svg-transforms.ts';
 import {
   connectorPath,
   readConnectorAnchor,
   readWaypoints,
   type ConnectorRect,
-} from './connector-geometry';
-import { strokePathD, hashSeed, resolveStroke, arrowheadPoints, type Point } from '../show/stroke-style';
+} from './connector-geometry.ts';
+import { strokePathD, hashSeed, resolveStroke, arrowheadPoints, type Point } from '../show/stroke-style.ts';
 
 /** The default export font stack (the old hardcoded literal, now a fallback DATA value). */
 const DEFAULT_EXPORT_FONT = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";

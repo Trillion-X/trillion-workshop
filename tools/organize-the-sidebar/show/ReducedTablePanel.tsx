@@ -7,8 +7,8 @@
 // the cards the group holds. Read the breakdown, grab a slice. Distinct from Diversity (per-facet EVENNESS +
 // the single dominant value): this shows the FULL distribution, every value clickable (L090 — data in, behavior
 // injected). Renders an honest empty line when there is nothing to break down.
-import { Badge, Button, Card, Container, Text } from '../../ui';
-import type { ReducedGroup, ReducedTable } from '../read-data/reduced-table';
+import { Badge, Button, Card, Container, Text } from '../../ui/index.ts';
+import type { ReducedGroup, ReducedTable } from '../read-data/reduced-table.ts';
 
 export interface ReducedTablePanelProps {
   readonly title: string;

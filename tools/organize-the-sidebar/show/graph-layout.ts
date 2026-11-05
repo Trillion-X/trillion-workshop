@@ -17,7 +17,7 @@
 // circle). All three are cycle-safe (feedback edges on the current path are skipped, never a
 // silent no-op when a root exists) and forest-safe (disconnected components lay out side by side).
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** A positionable node. `x`/`y` are its CURRENT position — used only as a stable visual
  *  tie-break for sibling/within-rank ordering (never as an output). Connectors are excluded

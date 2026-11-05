@@ -46,7 +46,7 @@ import {
   openFloatingPanel,
   canOpenFloatingPanel,
   type PlaceableSurfacePayload,
-} from '../../ui';
+} from '../../ui/index.ts';
 import { emitPlaceableSurfaceIntent as emitPlaceableSurfaceBrowserIntent, setPlaceableSurfaceDragData } from '../../ui/show/placeable-surface-intent/placeable-surface-intent';
 import { PaneTab } from '../../ui/show/pane-tab';
 import { NestingGuide } from '../../ui/show/nesting-guide';
@@ -58,7 +58,7 @@ import { useSurfaceBadge } from '../../ui/show/surface-badges/surface-badges';
 import { useSurfaceChip } from '../../ui/show/surface-chips/surface-chips';
 import { useSurfaceNote } from '../../ui/show/surface-notes/surface-notes';
 import { SortableRows } from '../../ui/show/drag-reorder-list/SortableRows';
-import { shouldPublishPlaceableIntentOnClick } from '../read-data/activation-routing';
+import { shouldPublishPlaceableIntentOnClick } from '../read-data/activation-routing.ts';
 import { DisclosureHeading } from '../../ui/show/disclosure-heading/DisclosureHeading';
 import { SearchField } from '../../ui/show/search-field/SearchField';
 import {
@@ -66,15 +66,15 @@ import {
   removeSurfaceFromCollection,
   reorderSurfaceInCollection,
   updateSurfaceCollectionPlacement,
-} from '../do-work/edit-surface-collections';
-import type { SurfaceCollection } from '../read-data/read-surface-collections';
-import type { SidebarPlacementState } from '../read-data/read-sidebar-placement';
-import { SIDEBAR_SWITCHES, mergeSidebarSettings, sidebarAllows, type SidebarSettings } from '../read-data/sidebar-settings';
-import { SIDEBAR_BADGE_MARK_TABLE, sidebarBadgeMark, sidebarDotStatus, type SidebarBadgeMark } from '../read-data/sidebar-badge-marks';
-import type { SidebarPlacementController } from './useSidebarPlacement';
+} from '../do-work/edit-surface-collections.ts';
+import type { SurfaceCollection } from '../read-data/read-surface-collections.ts';
+import type { SidebarPlacementState } from '../read-data/read-sidebar-placement.ts';
+import { SIDEBAR_SWITCHES, mergeSidebarSettings, sidebarAllows, type SidebarSettings } from '../read-data/sidebar-settings.ts';
+import { SIDEBAR_BADGE_MARK_TABLE, sidebarBadgeMark, sidebarDotStatus, type SidebarBadgeMark } from '../read-data/sidebar-badge-marks.ts';
+import type { SidebarPlacementController } from './useSidebarPlacement.ts';
 import { foldAtPatch, placeAtPatch } from '../../ui/show/dockable-placement/dockable-placement';
-import { SPACE_ROW_LOOK } from '../read-data/space-row';
-import { itemContainsSelection, itemsWithinSelectionCap, sectionContainsSelection } from '../read-data/selection-visibility';
+import { SPACE_ROW_LOOK } from '../read-data/space-row.ts';
+import { itemContainsSelection, itemsWithinSelectionCap, sectionContainsSelection } from '../read-data/selection-visibility.ts';
 
 const SIDEBAR_COLLECTION_DRAG_MIME = 'application/x-bitfield-sidebar-collection-member+json';
 

@@ -13,8 +13,8 @@
 // balance all fall out of ONE measure — the deletion test made a test below (a never-coded number list balances
 // with zero engine change). Pure, deterministic, NaN-safe.
 
-import type { BoardItem } from './group-board-model';
-import { facetCensus, type FacetExtract } from './board-facet-census';
+import type { BoardItem } from './group-board-model.ts';
+import { facetCensus, type FacetExtract } from './board-facet-census.ts';
 
 /** A distribution reduced to its balance: `evenness` 0..1 (1 = perfectly even, 0 = one bucket dominates),
  *  `topShare` 0..1 (the largest bucket's fraction), `distinct` nonzero buckets, `total` sum. */

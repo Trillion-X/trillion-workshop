@@ -10,7 +10,7 @@
 // it; this leaf adds zero rendering.
 
 import type { AddressRef, VisualLayerStackRecord, VisualLayerDescriptor } from '../../ui/show/visual-layer-stack';
-import { mergeCatalog } from '../read-data/catalog-merge';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 /** The capabilityId of the built-in solid-colour fill (see visual-layer-stack
  *  capabilities/builtin.ts). A board fill IS a solid layer. */

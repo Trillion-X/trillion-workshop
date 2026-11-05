@@ -26,8 +26,8 @@
 // =============================================================================
 
 import type { AddressRef } from '../../ui/show/group/group-graph';
-import type { ProducerItem, ProducerOutput } from '../read-data/producer-output';
-import type { ProducerDraft } from './layout-producer-drafts';
+import type { ProducerItem, ProducerOutput } from '../read-data/producer-output.ts';
+import type { ProducerDraft } from './layout-producer-drafts.ts';
 
 /** A reconcile item: a {@link ProducerDraft} that MAY carry an existing `memberId`.
  *  With a memberId → edit that member in place. Without → a new note to lay out. */

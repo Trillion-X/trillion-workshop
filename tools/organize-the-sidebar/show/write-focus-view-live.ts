@@ -10,8 +10,8 @@
 
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 import { buildEngineWriteBatchRequestFromLabels } from '#workspace-records';
-import { writeCountOf } from '../read-data/write-count';
-import { FOCUS_VIEW_CATALOG_KIND, FOCUS_VIEW_SCHEMA_VERSION, focusViewSlug, type FocusView } from './focus-view';
+import { writeCountOf } from '../read-data/write-count.ts';
+import { FOCUS_VIEW_CATALOG_KIND, FOCUS_VIEW_SCHEMA_VERSION, focusViewSlug, type FocusView } from './focus-view.ts';
 
 const textEncoder = new TextEncoder();
 

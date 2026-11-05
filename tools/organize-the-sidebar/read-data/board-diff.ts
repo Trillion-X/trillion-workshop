@@ -20,7 +20,7 @@
 // card (`x`/`y` differ) is distinguished from a renamed one (`text` differs) purely by which field keys land
 // in `changedFields`. Pure, deterministic (every list sorted), zero I/O — a read-data leaf.
 
-import type { BoardState, MemberState } from './board-merge';
+import type { BoardState, MemberState } from './board-merge.ts';
 
 /** The closed, Physics-determined kind of change to a member between two board states. */
 export type MemberChangeStatus = 'added' | 'removed' | 'changed';

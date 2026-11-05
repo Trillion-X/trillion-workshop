@@ -23,15 +23,15 @@
 //      the rule's answer changes.
 
 import * as React from 'react';
-import { DEFAULT_SIDEBAR_SCOPE, readSurfaceCollections, type SurfaceCollection } from '../read-data/read-surface-collections';
-import { mergeSurfaceCollections, showEachSurfaceOnce, surfaceCollectionIds } from '../read-data/merge-surface-collections';
-import { loadSurfaceCollectionsGraph } from '../do-work/edit-surface-collections';
-import { useProjectedGraph } from '../read-data/live-graph';
+import { DEFAULT_SIDEBAR_SCOPE, readSurfaceCollections, type SurfaceCollection } from '../read-data/read-surface-collections.ts';
+import { mergeSurfaceCollections, showEachSurfaceOnce, surfaceCollectionIds } from '../read-data/merge-surface-collections.ts';
+import { loadSurfaceCollectionsGraph } from '../do-work/edit-surface-collections.ts';
+import { useProjectedGraph } from '../read-data/live-graph.ts';
 import { subscribeSavedChanges } from '#workspace-records';
 import { listRules } from '#workspace-list-rules';
-import { applyDecidedRules, ruleListsOf, undecidedRules, type DecidedListRules } from '../read-data/apply-list-rules';
+import { applyDecidedRules, ruleListsOf, undecidedRules, type DecidedListRules } from '../read-data/apply-list-rules.ts';
 
-import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';
+import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text.ts';
 // The longest a browser timer can wait (about 24.8 days); a later moment is waited for in steps.
 const LONGEST_WAIT_MS = 2_147_483_647;
 

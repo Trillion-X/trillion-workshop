@@ -10,7 +10,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { SavedItemsStrip, type SavedItem } from './SavedItemsStrip';
+import { SavedItemsStrip, type SavedItem } from './SavedItemsStrip.tsx';
 
 /** A saved report as the strip sees it — just an id + display name (the descriptor lives in the store). */
 export type SavedReportChip = SavedItem;

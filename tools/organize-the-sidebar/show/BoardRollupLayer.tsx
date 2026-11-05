@@ -7,7 +7,7 @@
 // instead). Click opens the breakdown panel. L065: ui only; the badge is a positioned Container because
 // its coordinate is dynamic (like the metric / time / due badges).
 
-import { Button, Container, Text } from '../../ui';
+import { Button, Container, Text } from '../../ui/index.ts';
 
 export interface RollupPillRect {
   readonly x: number;

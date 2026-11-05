@@ -15,7 +15,7 @@
 
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 import { buildEngineWriteBatchRequestFromLabels } from '#workspace-records';
-import { writeCountOf } from '../read-data/write-count';
+import { writeCountOf } from '../read-data/write-count.ts';
 
 const textEncoder = new TextEncoder();
 

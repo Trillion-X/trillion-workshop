@@ -7,9 +7,9 @@
 // Connectors + auto furniture are never habit targets — you track CONTENT, not the board's scaffolding.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 import {
   type HabitItem,
   type HabitLog,
@@ -18,7 +18,7 @@ import {
   habitLogFromRaw,
   isLoggedOn,
   toggleDay,
-} from '../read-data/board-habit';
+} from '../read-data/board-habit.ts';
 import {
   type Cadence,
   type CadencePeriod,
@@ -27,7 +27,7 @@ import {
   currentPeriodProgress,
   cadenceLabel,
   habitPulse,
-} from '../read-data/board-habit-cadence';
+} from '../read-data/board-habit-cadence.ts';
 
 /** An item is a habit TARGET iff it is real content, not a connector or furniture. */
 export function itemIsHabitTarget(item: BoardItem): boolean {

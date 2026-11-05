@@ -14,12 +14,12 @@
 // new measure or a new tag needs zero readout code (L090). Deterministic layout (angle = index/N, no random).
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemTags } from './item-tags';
-import { finiteCoord } from '../read-data/finite-coord';
-import { labelColor } from '../do-work/label-color';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemTags } from './item-tags.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
+import { labelColor } from '../do-work/label-color.ts';
 import {
   tagTotals,
   tagAffinities,
@@ -28,7 +28,7 @@ import {
   type TagPair,
   type TagSuggestion,
   type CoOccurrenceMeasure,
-} from '../do-work/tag-cooccurrence';
+} from '../do-work/tag-cooccurrence.ts';
 
 /** The board as tag sets (one per non-connector card). Connectors have no tags. */
 export function boardTagSets(items: readonly BoardItem[]): string[][] {

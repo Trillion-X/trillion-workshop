@@ -26,15 +26,15 @@
 
 import * as React from 'react';
 import { ChevronDown, ChevronRight, GripHorizontal, GripVertical, Minus, MoreHorizontal, MoreVertical, Plus } from 'lucide-react';
-import { Button, Container, Icon, Text, Tooltip } from '../../ui';
+import { Button, Container, Icon, Text, Tooltip } from '../../ui/index.ts';
 import { NamedIcon } from '../../ui/show/icon';
 import { AnchoredOverlay } from '../../ui/show/anchored-overlay';
 import { Popover, PopoverPopup, PopoverTrigger } from '../../ui/show/coss/ui/popover';
 import type { DockFit } from '../../ui/show/dockable-placement/dockable-placement';
-import { CollapsibleSection, NavItem, type NavItemData, type NavSectionData } from './SidebarContent';
+import { CollapsibleSection, NavItem, type NavItemData, type NavSectionData } from './SidebarContent.tsx';
 import bar from '../read-data/sidebar-bar.json';
-import { rowsShown, splitBarEntries, type BarEntry } from '../read-data/bar-fit';
-import { SPACE_ROW_LOOK } from '../read-data/space-row';
+import { rowsShown, splitBarEntries, type BarEntry } from '../read-data/bar-fit.ts';
+import { SPACE_ROW_LOOK } from '../read-data/space-row.ts';
 
 /** One thing the bar can show: a screen's row, or a list's own panel opened from its icon. */
 type BarRow =

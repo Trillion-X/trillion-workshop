@@ -44,7 +44,7 @@ import {
   useDockablePlacement,
   type DockablePlacementState,
 } from '../../ui/show/dockable-placement'
-import { updateSidebarPlacement } from '../do-work/update-sidebar-placement'
+import { updateSidebarPlacement } from '../do-work/update-sidebar-placement.ts'
 import {
   decodeSidebarPlacementFeed,
   DEFAULT_SIDEBAR_PLACEMENT_STATE,
@@ -56,7 +56,7 @@ import {
   type SidebarSeam,
   type SidebarPoint,
   type SidebarFit,
-} from '../read-data/read-sidebar-placement'
+} from '../read-data/read-sidebar-placement.ts'
 
 export type {
   SidebarSeam,
@@ -67,7 +67,7 @@ export type {
   SidebarMode,
   SidebarPlacementState,
   SidebarPosition,
-} from '../read-data/read-sidebar-placement'
+} from '../read-data/read-sidebar-placement.ts'
 
 export interface SidebarPlacementController extends SidebarPlacementState {
   setPosition: (position: SidebarPosition) => void

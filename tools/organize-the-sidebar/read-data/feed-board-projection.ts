@@ -38,7 +38,7 @@
 // =============================================================================
 
 import type { AddressRef } from '../../ui/show/group/group-graph';
-import type { ProducerOutput, ProducerItem } from './producer-output';
+import type { ProducerOutput, ProducerItem } from './producer-output.ts';
 
 /** The card surface a projected item mounts as its live content (a name pair). */
 export interface FeedCardSurface {

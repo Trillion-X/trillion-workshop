@@ -15,8 +15,8 @@
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import type { LiveSurfacePersonView } from '../../ui/show/live-surface-people';
-import { EMPTY_PRESENCE, activeParticipants, colorForParticipant, pruneStale, upsertPresence, type PresenceState } from '../read-data/presence';
-import { openPresenceRoom } from './presence-channel';
+import { EMPTY_PRESENCE, activeParticipants, colorForParticipant, pruneStale, upsertPresence, type PresenceState } from '../read-data/presence.ts';
+import { openPresenceRoom } from './presence-channel.ts';
 
 const TTL_MS = 10_000;
 const HEARTBEAT_MS = 3_000;

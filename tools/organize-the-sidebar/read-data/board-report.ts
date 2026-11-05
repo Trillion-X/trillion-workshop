@@ -12,16 +12,16 @@
 // exports` imports them here rather than redefining, so there is ONE definition of "a card's progress / word
 // count / deadline" and "the tag / colour / cluster dimension".
 
-import type { BoardItem } from './group-board-model';
-import { facetCensus, facetCensusText, type FacetExtract } from './board-facet-census';
-import { facetPivot, facetPivotText, AGGREGATORS, aggregatorById, type BoardMeasure, type Aggregator } from './board-facet-pivot';
-import { bucketDistribution, bucketDistributionText, bucketFacet, evenBuckets, type BucketSpec } from './board-measure-bucket';
-import { crossTab, crossTabText } from './board-crosstab';
-import { clusterFacet } from './board-cluster-facet';
-import { cardCompletion } from './card-completion';
-import { dueDateFromRaw, dueMsToDateLabel } from './board-due-date';
-import { itemTags } from '../show/item-tags';
-import { colorFacetOf, kindFamilyOf } from '../show/board-item-facets';
+import type { BoardItem } from './group-board-model.ts';
+import { facetCensus, facetCensusText, type FacetExtract } from './board-facet-census.ts';
+import { facetPivot, facetPivotText, AGGREGATORS, aggregatorById, type BoardMeasure, type Aggregator } from './board-facet-pivot.ts';
+import { bucketDistribution, bucketDistributionText, bucketFacet, evenBuckets, type BucketSpec } from './board-measure-bucket.ts';
+import { crossTab, crossTabText } from './board-crosstab.ts';
+import { clusterFacet } from './board-cluster-facet.ts';
+import { cardCompletion } from './card-completion.ts';
+import { dueDateFromRaw, dueMsToDateLabel } from './board-due-date.ts';
+import { itemTags } from '../show/item-tags.ts';
+import { colorFacetOf, kindFamilyOf } from '../show/board-item-facets.ts';
 
 // ─── Canonical measures + buckets (one source) ──────────────────────────────────────────────────────────
 /** A card's 0..1 completion as a measure (undefined → null: unmeasured, not a fake 0). */

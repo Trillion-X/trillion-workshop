@@ -15,15 +15,15 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { readConnectorAnchor, readWaypoints } from '../do-work/connector-geometry';
-import type { ConnectorModel } from './ConnectorLayer';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readConnectorAnchor, readWaypoints } from '../do-work/connector-geometry.ts';
+import type { ConnectorModel } from './ConnectorLayer.tsx';
 import {
   DEFAULT_RELATION_KINDS,
   relationKindSpec,
   connectorLabelOf,
   type RelationKindSpec,
-} from '../read-data/relation-kind-catalog';
+} from '../read-data/relation-kind-catalog.ts';
 
 /** The two member ids a connector links, or null when the item is NOT a connector.
  *  A connector is self-describing: it carries string `extra.fromMemberId` +

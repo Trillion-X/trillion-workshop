@@ -13,7 +13,7 @@
 // edge without ever snapping it smaller). `frameFitBox` is the spatial-frame special case of this primitive
 // (exact fit, no header); this is the general one. Pure leaf (zero I/O).
 
-import { selectionBounds, type Rect } from './group-resize';
+import { selectionBounds, type Rect } from './group-resize.ts';
 
 export type FitRect = Rect;
 

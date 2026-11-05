@@ -14,8 +14,8 @@
 // `buildGroupWriteBatch(before, after)` diff → one write-batch. Zero new write path.
 
 import type { GroupGraph } from '../../ui/show/group/group-graph';
-import { patchItems, addMembersVerbatim, patchItem } from '../read-data/group-board-model';
-import { normalizeProducerPresentation, type ProducerOutput } from '../read-data/producer-output';
+import { patchItems, addMembersVerbatim, patchItem } from '../read-data/group-board-model.ts';
+import { normalizeProducerPresentation, type ProducerOutput } from '../read-data/producer-output.ts';
 
 /**
  * Apply a producer's emitted members to its target group, returning the next

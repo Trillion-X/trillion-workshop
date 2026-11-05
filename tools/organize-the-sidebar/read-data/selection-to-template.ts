@@ -9,9 +9,9 @@
 // template-local ids to freshly minted member ids on apply). Pure, deterministic — no
 // Date.now / Math.random / I/O.
 
-import type { BoardTemplate, TemplateItem } from './board-template-apply';
-import { finiteCoord } from './finite-coord';
-import { ownValue } from './facet-filter';
+import type { BoardTemplate, TemplateItem } from './board-template-apply.ts';
+import { finiteCoord } from './finite-coord.ts';
+import { ownValue } from './facet-filter.ts';
 
 /** Sanitize a persisted item dimension (w/h) into a finite, non-negative board coord. */
 const fdim = (v: number): number => Math.max(0, finiteCoord(v));

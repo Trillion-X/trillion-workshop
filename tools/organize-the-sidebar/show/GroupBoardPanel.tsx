@@ -12,9 +12,9 @@
 // The board IS a group; an item is a positioned member (position in opaque
 // presentation) — the leaf/EEAF stay blind to the owning product.
 
-import { watchBoardLoad } from './board-load';
+import { watchBoardLoad } from './board-load.ts';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Button, CommandPalette, CanvasSurface, CanvasNode, CanvasWorldTransform, AnchoredOverlay, Badge, Card, Container, Dropdown, Icon, MediaCarousel, Text, applyResizeGeom, downloadTextFile, downloadBlob } from '../../ui';
+import { Button, CommandPalette, CanvasSurface, CanvasNode, CanvasWorldTransform, AnchoredOverlay, Badge, Card, Container, Dropdown, Icon, MediaCarousel, Text, applyResizeGeom, downloadTextFile, downloadBlob } from '../../ui/index.ts';
 import { ShortcutSheet } from '../../ui/show/keyboard-shortcuts/ShortcutSheet';
 import { CanvasMinimap } from '../../ui/show/canvas-minimap';
 import { CanvasPresentBar } from '../../ui/show/canvas-present-bar';
@@ -31,11 +31,11 @@ import { SelectionBoundsOverlay } from '../../ui/show/selection-bounds';
 import { CropOverlay } from '../../ui/show/crop-overlay';
 import { svgToPngBlob } from '../../ui/show/raster/svg-to-png';
 import { copyImageBlobToClipboard } from '../../ui/show/clipboard/copy-blob';
-import { copyTextToClipboard } from '../../ui/show/clipboard/copy-text';
+import { copyTextToClipboard } from '../../ui/show/clipboard/copy-text.ts';
 import { Notice } from '../../ui/show/notice/Notice';
 import { withKeyboardClaim } from '../../ui/show/keyboard-claim/keyboard-claim';
 import { MediaFrame } from '../../ui/show/media-frame/MediaFrame';
-import type { ResizeEdge } from '../../ui';
+import type { ResizeEdge } from '../../ui/index.ts';
 import type { NodeActionPack, NodeRef, BatchActionCapability } from '../../ui/show/node-actions';
 import type { CanvasToolApi } from '../../ui/show/canvas-tools';
 import type { FrameDef } from '../../ui/show/visual-layer-stack';
@@ -87,26 +87,26 @@ import {
   sectionRef,
   ungroupItems,
   type BoardItem,
-} from '../read-data/group-board-model';
-import { groupRecordAddress } from '../read-data/group-eeaf';
-import { nearestInDirection, type NavRect, type NavDir } from '../read-data/spatial-nav';
-import { panToReveal } from '../read-data/viewport-visibility';
-import { viewIndexRef, rememberLastCamera, readLastCamera } from '../read-data/board-view-store';
-import { nextInCycle } from '../read-data/cyclic-step';
-import { backgroundById, readBackgroundCatalog } from './board-backgrounds';
-import { readAppearancePresetCatalog } from './appearance-preset-catalog';
-import { makeAppearancePreset, presetIsEmpty } from './appearance-presets';
-import { writeAppearancePresetLive } from './write-appearance-preset-live';
-import { readProducerStatus, type ProducerStatusAddresses } from '../read-data/read-producer-status';
-import { producerStartMs, producerLimitMs, producerTimedOut } from '../read-data/producer-timeout';
-import { computeAppearDelays } from '../read-data/appear-stagger';
-import { buildItemShelf, ShelfToolButton, rendererForKind, itemFrame, textToHtml, type ShelfEntry, type ShelfVariantCreator } from './item-renderers';
-import { writeBoardCatalogItemLive } from './write-board-catalog-live';
-import { BoardActionsButton } from './BoardActionsButton';
-import { readStampCatalog } from './board-stamps';
-import { readShapeCatalog } from './board-shapes';
-import { readFillSwatchCatalog } from './item-fill';
-import { TextInputModal, type TextInputRequest } from './TextInputModal';
+} from '../read-data/group-board-model.ts';
+import { groupRecordAddress } from '../read-data/group-eeaf.ts';
+import { nearestInDirection, type NavRect, type NavDir } from '../read-data/spatial-nav.ts';
+import { panToReveal } from '../read-data/viewport-visibility.ts';
+import { viewIndexRef, rememberLastCamera, readLastCamera } from '../read-data/board-view-store.ts';
+import { nextInCycle } from '../read-data/cyclic-step.ts';
+import { backgroundById, readBackgroundCatalog } from './board-backgrounds.ts';
+import { readAppearancePresetCatalog } from './appearance-preset-catalog.ts';
+import { makeAppearancePreset, presetIsEmpty } from './appearance-presets.ts';
+import { writeAppearancePresetLive } from './write-appearance-preset-live.ts';
+import { readProducerStatus, type ProducerStatusAddresses } from '../read-data/read-producer-status.ts';
+import { producerStartMs, producerLimitMs, producerTimedOut } from '../read-data/producer-timeout.ts';
+import { computeAppearDelays } from '../read-data/appear-stagger.ts';
+import { buildItemShelf, ShelfToolButton, rendererForKind, itemFrame, textToHtml, type ShelfEntry, type ShelfVariantCreator } from './item-renderers.tsx';
+import { writeBoardCatalogItemLive } from './write-board-catalog-live.ts';
+import { BoardActionsButton } from './BoardActionsButton.tsx';
+import { readStampCatalog } from './board-stamps.ts';
+import { readShapeCatalog } from './board-shapes.ts';
+import { readFillSwatchCatalog } from './item-fill.ts';
+import { TextInputModal, type TextInputRequest } from './TextInputModal.tsx';
 import { PlaceableSurfaceHost } from '../../ui/show/placeable-surface-host';
 import {
   readActionAffordances,
@@ -142,7 +142,7 @@ import {
   boardAffordanceContextActions,
   ownerSelectionContext,
   templateBindsTypedText,
-} from './board-action-affordances';
+} from './board-action-affordances.ts';
 import { InspectorSidebar } from '../../ui/show/inspector-sidebar';
 import { createBlindRegistry } from '../../ui/show/blind-registry/blind-registry';
 import { resolveInspection, type InspectionSource, type InspectionWriteDescriptor } from '../../ui/show/inspection-ref';
@@ -153,17 +153,17 @@ import {
   createBoardWriteOpRegistry,
   dispatchBoardModelWrite,
   readInspectionFieldSets,
-} from './board-inspection';
-import { SavedArrangementGallery } from './SavedArrangementGallery';
-import { applyTemplate, materializeItems, type BoardTemplate, type TemplateItem } from '../read-data/board-template-apply';
+} from './board-inspection.ts';
+import { SavedArrangementGallery } from './SavedArrangementGallery.tsx';
+import { applyTemplate, materializeItems, type BoardTemplate, type TemplateItem } from '../read-data/board-template-apply.ts';
 import {
   readSavedArrangementLibrary,
   readArrangementLensCatalog,
   saveBoardAsArrangement,
   resolveArrangementTemplate,
   type SavedArrangement,
-} from '../read-data/saved-arrangement';
-import { boardSelectionToTemplate } from '../read-data/selection-to-template';
+} from '../read-data/saved-arrangement.ts';
+import { boardSelectionToTemplate } from '../read-data/selection-to-template.ts';
 import {
   addBasketPick,
   basketPickFromSelection,
@@ -173,48 +173,48 @@ import {
   basketBoardCount,
   basketPickCount,
   clearBasket,
-} from '../do-work/collection-basket';
-import { CollectionSaveButton } from './CollectionSaveButton';
-import { CollectionBasketBar } from './CollectionBasketBar';
-import { ShareScopeControl } from './ShareScopeControl';
-import { RelationInspector } from './RelationInspector';
-import { buildRelationGraph, pathBetween } from '../read-data/relationship-graph';
-import { cardReferences, backlinksOf, brokenReferencesFrom } from '../read-data/card-references';
-import { orphanCards } from '../read-data/board-orphans';
-import { readyCardIds, boardHasReadyCards as computeBoardHasReadyCards } from '../do-work/board-readiness-actions';
-import { cardsWithUnlinkedMentions, boardHasUnlinkedMentions as computeBoardHasUnlinkedMentions } from '../read-data/board-mentions';
-import { cardsWithQuestions, boardHasQuestions as computeBoardHasQuestions } from '../read-data/board-questions';
-import { ambiguousTitleIds, boardHasDuplicateTitles as computeBoardHasDuplicateTitles } from '../read-data/board-titles';
-import { cardsWithFragmentedTag, boardHasFragmentedTags as computeBoardHasFragmentedTags } from '../do-work/board-tag-hygiene';
-import { canonicalTagMap, canonicalizeTags, tagsEqual } from '../do-work/board-tag-canonicalize';
-import { largestIsland, boardHasMultipleClusters as computeBoardHasMultipleClusters } from '../read-data/board-islands';
-import { redundantConnectorIds, boardHasDuplicateConnectors as computeBoardHasDuplicateConnectors } from '../read-data/duplicate-connectors';
-import { boardSources, boardSinks, boardHasSources as computeBoardHasSources, boardHasSinks as computeBoardHasSinks } from '../do-work/board-sources-sinks';
-import { undatedCardIds, boardHasDateGaps as computeBoardHasDateGaps } from '../do-work/board-date-coverage';
-import { cardIdsForTopTheme, boardHasThemes as computeBoardHasThemes } from '../read-data/board-themes';
-import { cardIdsWithEntity, boardHasEntities as computeBoardHasEntities } from '../read-data/board-entity-index';
-import { splitCandidateIds, boardHasSplitCandidates as computeBoardHasSplitCandidates } from '../read-data/board-split-candidates';
-import { untaggedCardIds as computeUntaggedCardIds, boardHasTagGaps as computeBoardHasTagGaps } from '../read-data/board-tag-coverage';
-import { cardIdsInTopRelationship, boardHasRelationships as computeBoardHasRelationships } from '../read-data/board-connector-legend';
-import { cardIdsWithHealthIssues, boardHasHealthIssues as computeBoardHasHealthIssues } from '../read-data/board-health';
-import { cardIdsForTopFacetValue, boardHasFacet } from '../read-data/board-facet-census';
-import { cardIdsForTopPair, boardHasCooccurrence } from '../read-data/board-cooccurrence';
-import { templateChangelog } from '../do-work/board-diff-actions';
-import { WalkthroughOverlay, renderedTargetRect } from './WalkthroughOverlay';
-import { BoardToolsPanel } from './BoardToolsPanel';
-import { BoardChromeMenu } from './BoardChromeMenu';
+} from '../do-work/collection-basket.ts';
+import { CollectionSaveButton } from './CollectionSaveButton.tsx';
+import { CollectionBasketBar } from './CollectionBasketBar.tsx';
+import { ShareScopeControl } from './ShareScopeControl.tsx';
+import { RelationInspector } from './RelationInspector.tsx';
+import { buildRelationGraph, pathBetween } from '../read-data/relationship-graph.ts';
+import { cardReferences, backlinksOf, brokenReferencesFrom } from '../read-data/card-references.ts';
+import { orphanCards } from '../read-data/board-orphans.ts';
+import { readyCardIds, boardHasReadyCards as computeBoardHasReadyCards } from '../do-work/board-readiness-actions.ts';
+import { cardsWithUnlinkedMentions, boardHasUnlinkedMentions as computeBoardHasUnlinkedMentions } from '../read-data/board-mentions.ts';
+import { cardsWithQuestions, boardHasQuestions as computeBoardHasQuestions } from '../read-data/board-questions.ts';
+import { ambiguousTitleIds, boardHasDuplicateTitles as computeBoardHasDuplicateTitles } from '../read-data/board-titles.ts';
+import { cardsWithFragmentedTag, boardHasFragmentedTags as computeBoardHasFragmentedTags } from '../do-work/board-tag-hygiene.ts';
+import { canonicalTagMap, canonicalizeTags, tagsEqual } from '../do-work/board-tag-canonicalize.ts';
+import { largestIsland, boardHasMultipleClusters as computeBoardHasMultipleClusters } from '../read-data/board-islands.ts';
+import { redundantConnectorIds, boardHasDuplicateConnectors as computeBoardHasDuplicateConnectors } from '../read-data/duplicate-connectors.ts';
+import { boardSources, boardSinks, boardHasSources as computeBoardHasSources, boardHasSinks as computeBoardHasSinks } from '../do-work/board-sources-sinks.ts';
+import { undatedCardIds, boardHasDateGaps as computeBoardHasDateGaps } from '../do-work/board-date-coverage.ts';
+import { cardIdsForTopTheme, boardHasThemes as computeBoardHasThemes } from '../read-data/board-themes.ts';
+import { cardIdsWithEntity, boardHasEntities as computeBoardHasEntities } from '../read-data/board-entity-index.ts';
+import { splitCandidateIds, boardHasSplitCandidates as computeBoardHasSplitCandidates } from '../read-data/board-split-candidates.ts';
+import { untaggedCardIds as computeUntaggedCardIds, boardHasTagGaps as computeBoardHasTagGaps } from '../read-data/board-tag-coverage.ts';
+import { cardIdsInTopRelationship, boardHasRelationships as computeBoardHasRelationships } from '../read-data/board-connector-legend.ts';
+import { cardIdsWithHealthIssues, boardHasHealthIssues as computeBoardHasHealthIssues } from '../read-data/board-health.ts';
+import { cardIdsForTopFacetValue, boardHasFacet } from '../read-data/board-facet-census.ts';
+import { cardIdsForTopPair, boardHasCooccurrence } from '../read-data/board-cooccurrence.ts';
+import { templateChangelog } from '../do-work/board-diff-actions.ts';
+import { WalkthroughOverlay, renderedTargetRect } from './WalkthroughOverlay.tsx';
+import { BoardToolsPanel } from './BoardToolsPanel.tsx';
+import { BoardChromeMenu } from './BoardChromeMenu.tsx';
 import { boardSelectionChromeVisible } from './board-selection-chrome-visibility';
-import { smartSetIndexRef, readActiveSmartSets, readArchivedSmartSets, readUnavailableSmartSets, saveSmartSet, archiveSmartSet, restoreSmartSet, renameSmartSet, replaceSmartSetQuery, smartQueryText } from '../read-data/saved-smart-set';
-import { nextIndex as tourNext, prevIndex as tourPrev, type Tour } from '../read-data/walkthrough';
-import { readingTour } from '../do-work/reading-tour-actions';
-import { boardHasReadingOrder } from '../read-data/board-reading-order';
-import { DraftSparringView, type SparringDraft } from './DraftSparringView';
-import { RewriteLoopView } from './RewriteLoopView';
-import { ListBlockEditor } from './ListBlockEditor';
-import { OutlineDisplay } from './OutlineDisplay';
-import { MarkerPicker } from './MarkerPicker';
-import { type ListItem } from '../read-data/list-block-model';
-import { parseOutline, serializeOutline } from '../read-data/outline-text';
+import { smartSetIndexRef, readActiveSmartSets, readArchivedSmartSets, readUnavailableSmartSets, saveSmartSet, archiveSmartSet, restoreSmartSet, renameSmartSet, replaceSmartSetQuery, smartQueryText } from '../read-data/saved-smart-set.ts';
+import { nextIndex as tourNext, prevIndex as tourPrev, type Tour } from '../read-data/walkthrough.ts';
+import { readingTour } from '../do-work/reading-tour-actions.ts';
+import { boardHasReadingOrder } from '../read-data/board-reading-order.ts';
+import { DraftSparringView, type SparringDraft } from './DraftSparringView.tsx';
+import { RewriteLoopView } from './RewriteLoopView.tsx';
+import { ListBlockEditor } from './ListBlockEditor.tsx';
+import { OutlineDisplay } from './OutlineDisplay.tsx';
+import { MarkerPicker } from './MarkerPicker.tsx';
+import { type ListItem } from '../read-data/list-block-model.ts';
+import { parseOutline, serializeOutline } from '../read-data/outline-text.ts';
 import {
   buildShareCapsule,
   capsuleSummary,
@@ -222,17 +222,17 @@ import {
   encodeShareLink,
   hasCapsuleLink,
   type CapsuleSourceItem,
-} from '../read-data/share-capsule';
-import { boardToCapsuleSource } from '../read-data/board-to-capsule-source';
-import { shareReferenceWarnings } from '../do-work/share-reference-warnings';
-import type { ShareScopeRequest } from '../read-data/share-scope';
-import { boardToTemplate } from '../read-data/group-board-model';
-import { runArrangementLibraryAction } from '../read-data/arrangement-library-actions';
-import { collectionIndexRef, saveCollection } from '../read-data/collection-store';
+} from '../read-data/share-capsule.ts';
+import { boardToCapsuleSource } from '../read-data/board-to-capsule-source.ts';
+import { shareReferenceWarnings } from '../do-work/share-reference-warnings.ts';
+import type { ShareScopeRequest } from '../read-data/share-scope.ts';
+import { boardToTemplate } from '../read-data/group-board-model.ts';
+import { runArrangementLibraryAction } from '../read-data/arrangement-library-actions.ts';
+import { collectionIndexRef, saveCollection } from '../read-data/collection-store.ts';
 import { addStrategyFor, type BoardItemDraft, type PickedBytes } from './item-add-strategies';
-import { imageFootprint } from './image-footprint';
-import { placeableSurfaceVariants } from './placeable-surface-shelf';
-import { commitAddressedPlaceableSurface } from './addressed-placeable-surface-placement';
+import { imageFootprint } from './image-footprint.ts';
+import { placeableSurfaceVariants } from './placeable-surface-shelf.ts';
+import { commitAddressedPlaceableSurface } from './addressed-placeable-surface-placement.ts';
 import { AddressedSurfaceIntentRecipient } from '../../ui/show/placeable-surface-intent/addressed-surface-intent-recipient';
 import { normalizeAddressedSurfaceIntentRecords, type SurfaceIntentReaderConfig } from '../../ui/show/placeable-surface-intent/addressed-surface-intent-data';
 import { placeableSurfaceCatalogForViewer } from '../../ui/show/placeable-surface-intent/entry-context-intent';
@@ -241,86 +241,86 @@ import { SurfaceIntentReader } from '../../ui/show/placeable-surface-intent/surf
 import { ViewerAccessRefsContext } from '../../ui/show/placeable-surface-intent/viewer-access-refs-context';
 import { findPlaceableSurfaces } from '../../ui/show/placeable-surface-intent/placeable-surface-record';
 import { readPublishedRecords } from '../../ui/show/placeable-surface-intent/placeable-surface-record';
-import { normalizeFeedRows } from '../read-data/feed-rows';
+import { normalizeFeedRows } from '../read-data/feed-rows.ts';
 import { useBitfieldData } from '#workspace-records';
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 
-import { createGroupBoardStore, type GroupBoardStore } from '../read-data/read-group-board';
+import { createGroupBoardStore, type GroupBoardStore } from '../read-data/read-group-board.ts';
 import { chooseLocalFiles } from '../../local-files/do-work/choose-local-files';
 import { materializeBrowserBytes } from '../../ui/show/action-affordance/materialize-browser-artifact';
 import { groupKey } from '../../ui/show/group/group-graph';
-import { openExternalHref } from '../do-work/open-external';
-import { submitProducerRequest, type ProducerSubmitDescriptor } from '../do-work/submit-producer-request';
-import { applyProducerOutput, applyPartialProducerOutput } from '../do-work/apply-producer-output';
-import { isSingleUrl, linkCardDraft, readLinkPreview, hostFromHref, mergeLinkPreviewEdit } from '../do-work/link-preview';
-import { textToNoteDrafts } from './paste-to-notes';
-import { markdownTreeToTemplateItems } from './markdown-to-drafts';
-import { routeImport } from './import-router';
-import { isImportableTextFile, IMPORT_TEXT_EXTENSIONS } from './document-imports';
-import { boardToSvg, exportFillOf, type BoardSvgStyle, type BoardSvgOverlay } from '../do-work/board-svg';
-import { boardToDeck, deckToHtml, deckToMediaCarouselItems } from '../do-work/board-deck';
-import { boardFrameMedia, type BoardFrameMedia } from '../do-work/board-frame-media';
-import { BoardCommentsLayer, type CommentPin } from './BoardCommentsLayer';
-import type { CommentEntry } from '../read-data/board-comments';
+import { openExternalHref } from '../do-work/open-external.ts';
+import { submitProducerRequest, type ProducerSubmitDescriptor } from '../do-work/submit-producer-request.ts';
+import { applyProducerOutput, applyPartialProducerOutput } from '../do-work/apply-producer-output.ts';
+import { isSingleUrl, linkCardDraft, readLinkPreview, hostFromHref, mergeLinkPreviewEdit } from '../do-work/link-preview.ts';
+import { textToNoteDrafts } from './paste-to-notes.ts';
+import { markdownTreeToTemplateItems } from './markdown-to-drafts.ts';
+import { routeImport } from './import-router.ts';
+import { isImportableTextFile, IMPORT_TEXT_EXTENSIONS } from './document-imports.ts';
+import { boardToSvg, exportFillOf, type BoardSvgStyle, type BoardSvgOverlay } from '../do-work/board-svg.ts';
+import { boardToDeck, deckToHtml, deckToMediaCarouselItems } from '../do-work/board-deck.ts';
+import { boardFrameMedia, type BoardFrameMedia } from '../do-work/board-frame-media.ts';
+import { BoardCommentsLayer, type CommentPin } from './BoardCommentsLayer.tsx';
+import type { CommentEntry } from '../read-data/board-comments.ts';
 type SharedCommentEntry = CommentEntry & { readonly record: string; readonly resolved: boolean };
 type SharedCommentSummary = { readonly record: string; readonly count: number; readonly lastAt: number; readonly resolved: boolean };
-import { CommentsReviewPanel } from './CommentsReviewPanel';
-import { addCommentToItem, boardCommentThreads, commentThreadOf, setItemThreadResolved } from '../do-work/board-comments-actions';
-import { threadSummary, type ThreadSummary } from '../read-data/board-comments';
-import { BoardVotesLayer, type VoteChip } from './BoardVotesLayer';
-import { VoteRankingPanel } from './VoteRankingPanel';
-import { boardTallies, castVoteOnItem, voteRankingRows } from '../do-work/board-votes-actions';
-import { actorBudgetRemaining, totalVotes, voteCount } from '../read-data/board-votes';
-import { ChecklistPanel } from './ChecklistPanel';
-import { BoardChecklistLayer, type ChecklistPill } from './BoardChecklistLayer';
-import { addStepToItem, boardChecklists, boardRollup, checklistOf, removeStepFromItem, toggleStepOnItem } from '../do-work/board-checklist-actions';
-import { checklistProgress } from '../read-data/board-checklist';
-import { BoardDueDateLayer, type DueBadge } from './BoardDueDateLayer';
-import { InsightsMenu } from './InsightsMenu';
-import { boardInsightLenses } from './board-insight-lenses';
-import { boardDueItems, setItemDueDate } from '../do-work/board-due-date-actions';
-import { relativeDue } from '../read-data/board-due-date';
-import { BoardHabitLayer, type HabitPill } from './BoardHabitLayer';
-import { PresenceLayer } from './PresenceLayer';
-import { PresenceRoster } from './PresenceRoster';
-import { useBoardPresence } from './use-board-presence';
-import { toggleHabitToday, cadenceOfItem, setHabitCadence, itemIsHabitTarget, habitBadgeOf } from '../do-work/board-habit-actions';
-import { cadenceLabel, type Cadence } from '../read-data/board-habit-cadence';
-import { BoardMetricLayer, type MetricPill } from './BoardMetricLayer';
-import { MetricPanel } from './MetricPanel';
-import { boardMetricSummary, boardMetrics, bumpItemMetric, itemIsMetricTarget, metricOf, setItemMetric } from '../do-work/board-metric-actions';
-import { boardCompletion } from '../read-data/board-completion';
-import { BoardCompletionChip } from './BoardCompletionChip';
-import { formatValue, isComplete as metricIsComplete, progressPct, setCurrent as metricSetCurrent, setTarget as metricSetTarget } from '../read-data/board-metric';
-import { BoardTimeLayer, type TimePill } from './BoardTimeLayer';
-import { TimeLogPanel } from './TimeLogPanel';
-import { boardTimeLogs, clearTimeLog, logMinutes, logSession, removeLastSession, timeLogOf, totalTimeOf } from '../do-work/board-time-log-actions';
-import { formatDuration, lastWorkedAtMs, totalDurationMs } from '../read-data/board-time-log';
-import { BoardExportPanel } from './BoardExportPanel';
-import { getBoardExportDestinationsWithTargets } from './board-output-destinations';
-import { nextFocus } from '../do-work/board-next-focus-actions';
-import { BoardRollupLayer, type RollupPill } from './BoardRollupLayer';
-import { RollupPanel } from './RollupPanel';
-import { rollupChildren, rollupOfItem, rollupParents, rollupSpecFromRaw } from '../do-work/board-rollup-actions';
-import { relationKinds } from '../read-data/relationship-graph';
-import { setBoardRollupSpec } from '../read-data/group-board-model';
-import { placeItems, removeItems, removeUnlockedItems, patchItems, moveItemsToGroup } from '../read-data/group-board-model';
-import { flattenBoardTree, findMemberRef, findParentRef } from '../read-data/board-tree';
+import { CommentsReviewPanel } from './CommentsReviewPanel.tsx';
+import { addCommentToItem, boardCommentThreads, commentThreadOf, setItemThreadResolved } from '../do-work/board-comments-actions.ts';
+import { threadSummary, type ThreadSummary } from '../read-data/board-comments.ts';
+import { BoardVotesLayer, type VoteChip } from './BoardVotesLayer.tsx';
+import { VoteRankingPanel } from './VoteRankingPanel.tsx';
+import { boardTallies, castVoteOnItem, voteRankingRows } from '../do-work/board-votes-actions.ts';
+import { actorBudgetRemaining, totalVotes, voteCount } from '../read-data/board-votes.ts';
+import { ChecklistPanel } from './ChecklistPanel.tsx';
+import { BoardChecklistLayer, type ChecklistPill } from './BoardChecklistLayer.tsx';
+import { addStepToItem, boardChecklists, boardRollup, checklistOf, removeStepFromItem, toggleStepOnItem } from '../do-work/board-checklist-actions.ts';
+import { checklistProgress } from '../read-data/board-checklist.ts';
+import { BoardDueDateLayer, type DueBadge } from './BoardDueDateLayer.tsx';
+import { InsightsMenu } from './InsightsMenu.tsx';
+import { boardInsightLenses } from './board-insight-lenses.tsx';
+import { boardDueItems, setItemDueDate } from '../do-work/board-due-date-actions.ts';
+import { relativeDue } from '../read-data/board-due-date.ts';
+import { BoardHabitLayer, type HabitPill } from './BoardHabitLayer.tsx';
+import { PresenceLayer } from './PresenceLayer.tsx';
+import { PresenceRoster } from './PresenceRoster.tsx';
+import { useBoardPresence } from './use-board-presence.ts';
+import { toggleHabitToday, cadenceOfItem, setHabitCadence, itemIsHabitTarget, habitBadgeOf } from '../do-work/board-habit-actions.ts';
+import { cadenceLabel, type Cadence } from '../read-data/board-habit-cadence.ts';
+import { BoardMetricLayer, type MetricPill } from './BoardMetricLayer.tsx';
+import { MetricPanel } from './MetricPanel.tsx';
+import { boardMetricSummary, boardMetrics, bumpItemMetric, itemIsMetricTarget, metricOf, setItemMetric } from '../do-work/board-metric-actions.ts';
+import { boardCompletion } from '../read-data/board-completion.ts';
+import { BoardCompletionChip } from './BoardCompletionChip.tsx';
+import { formatValue, isComplete as metricIsComplete, progressPct, setCurrent as metricSetCurrent, setTarget as metricSetTarget } from '../read-data/board-metric.ts';
+import { BoardTimeLayer, type TimePill } from './BoardTimeLayer.tsx';
+import { TimeLogPanel } from './TimeLogPanel.tsx';
+import { boardTimeLogs, clearTimeLog, logMinutes, logSession, removeLastSession, timeLogOf, totalTimeOf } from '../do-work/board-time-log-actions.ts';
+import { formatDuration, lastWorkedAtMs, totalDurationMs } from '../read-data/board-time-log.ts';
+import { BoardExportPanel } from './BoardExportPanel.tsx';
+import { getBoardExportDestinationsWithTargets } from './board-output-destinations.ts';
+import { nextFocus } from '../do-work/board-next-focus-actions.ts';
+import { BoardRollupLayer, type RollupPill } from './BoardRollupLayer.tsx';
+import { RollupPanel } from './RollupPanel.tsx';
+import { rollupChildren, rollupOfItem, rollupParents, rollupSpecFromRaw } from '../do-work/board-rollup-actions.ts';
+import { relationKinds } from '../read-data/relationship-graph.ts';
+import { setBoardRollupSpec } from '../read-data/group-board-model.ts';
+import { placeItems, removeItems, removeUnlockedItems, patchItems, moveItemsToGroup } from '../read-data/group-board-model.ts';
+import { flattenBoardTree, findMemberRef, findParentRef } from '../read-data/board-tree.ts';
 import {
   layoutMixedProducerOutput,
   isIdentityPreserving,
   layoutDraftsToOutput,
   type ProducerDraft,
-} from '../do-work/layout-producer-drafts';
-import { reconcileOutputFromItems, producerItemsToReconcileItems } from '../do-work/reconcile-output-from-items';
-import { reconcileBoardGraphFromUntrustedResult } from '../do-work/reconcile-board-producer';
-import { subjectBag, selectedSubjectBag, idAnnotatedLine } from '../do-work/board-subject-bag';
+} from '../do-work/layout-producer-drafts.ts';
+import { reconcileOutputFromItems, producerItemsToReconcileItems } from '../do-work/reconcile-output-from-items.ts';
+import { reconcileBoardGraphFromUntrustedResult } from '../do-work/reconcile-board-producer.ts';
+import { subjectBag, selectedSubjectBag, idAnnotatedLine } from '../do-work/board-subject-bag.ts';
 import { MarkSessionProvider } from '../../addressed-marks/show/MarkSessionContext';
 import { useBoardInkSvgReader } from '../../addressed-marks/show/use-board-ink-svg';
-import { BoardMarkLayers, DrawToolBinder, boardWorldMarkTarget } from './BoardMarkLayers';
-import { ConnectorLayer, type ConnectorModel } from './ConnectorLayer';
-import { InsightLensSvg, INSIGHT_LENSES } from './insight-lenses';
-import { connectorEndpoints, buildConnectorModels } from './connector-models';
+import { BoardMarkLayers, DrawToolBinder, boardWorldMarkTarget } from './BoardMarkLayers.tsx';
+import { ConnectorLayer, type ConnectorModel } from './ConnectorLayer.tsx';
+import { InsightLensSvg, INSIGHT_LENSES } from './insight-lenses.tsx';
+import { connectorEndpoints, buildConnectorModels } from './connector-models.ts';
 import {
   connectorPath,
   readWaypoints,
@@ -328,67 +328,67 @@ import {
   moveWaypoint,
   removeWaypoint,
   readConnectorAnchor,
-} from '../do-work/connector-geometry';
-import { selectionCapabilityFlags } from './selection-capabilities';
-import { SnapGuideLayer } from './SnapGuideLayer';
-import { computeSnap, computeResizeSnap, snapRectToGrid, type SnapGuide, type SnapRect } from './snap-guides';
-import { frameCamera, zoomAroundCenter, zoomAroundPoint } from './camera-frame';
-import { SelectionHud } from './SelectionHud';
-import { RotateHandle } from './RotateHandle';
-import { resizeRotated, orbitPoint } from './rotated-transform';
-import { resizeCrop, isCrop, FULL_CROP, type Crop } from './crop-rect';
-import { BOARD_FILTER_PRESETS, filterCssById, presetIdForCss } from './filter-presets';
-import { normalizeHref, itemHref } from './item-link';
-import { markerById, readMarkerCatalog, resolveLevelMarkers, DEFAULT_OUTLINE_MARKER_IDS } from './board-marker-catalog';
-import { boardDefaultItemSize, boardExportLook, resolveAppearanceKey } from './item-appearance';
-import { itemBoardLink } from './item-board-link';
-import { pushBoardHistory, popBoardHistory } from './board-history';
-import { beginEditSession, endEditSession, type EditSession } from './note-edit-session';
-import { parseTags, itemTags, formatTags, distinctTags, mergeTags } from './item-tags';
-import { hasActiveFacets, toggleFacetValue, facetValues, facetValueCounts, facetColorAssignment, matchesFacets, type FacetSelection } from '../read-data/facet-filter';
-import { BOARD_ITEM_FACETS, BOARD_FOCUS_FACETS, boardFocusMatch, focusedItemIds, nonFocusedVisibleIds } from './board-item-facets';
-import { BOARD_PALETTES } from './board-palettes';
-import { nodeAriaLabel } from './node-accessibility';
-import { CONNECTOR_ITEM_FACETS, CONNECTOR_FOCUS_FACETS, dimmedConnectorIds, focusedConnectorIds } from './connector-facets';
-import { readFocusViews, makeFocusView, archiveFocusView, sanitizeFocusView, type FocusView } from './focus-view';
-import { writeFocusViewLive } from './write-focus-view-live';
-import { similarIds } from './item-similarity';
-import { BOARD_COMMANDS, BOARD_SHORTCUTS } from './board-shortcuts';
+} from '../do-work/connector-geometry.ts';
+import { selectionCapabilityFlags } from './selection-capabilities.ts';
+import { SnapGuideLayer } from './SnapGuideLayer.tsx';
+import { computeSnap, computeResizeSnap, snapRectToGrid, type SnapGuide, type SnapRect } from './snap-guides.ts';
+import { frameCamera, zoomAroundCenter, zoomAroundPoint } from './camera-frame.ts';
+import { SelectionHud } from './SelectionHud.tsx';
+import { RotateHandle } from './RotateHandle.tsx';
+import { resizeRotated, orbitPoint } from './rotated-transform.ts';
+import { resizeCrop, isCrop, FULL_CROP, type Crop } from './crop-rect.ts';
+import { BOARD_FILTER_PRESETS, filterCssById, presetIdForCss } from './filter-presets.ts';
+import { normalizeHref, itemHref } from './item-link.ts';
+import { markerById, readMarkerCatalog, resolveLevelMarkers, DEFAULT_OUTLINE_MARKER_IDS } from './board-marker-catalog.ts';
+import { boardDefaultItemSize, boardExportLook, resolveAppearanceKey } from './item-appearance.ts';
+import { itemBoardLink } from './item-board-link.ts';
+import { pushBoardHistory, popBoardHistory } from './board-history.ts';
+import { beginEditSession, endEditSession, type EditSession } from './note-edit-session.ts';
+import { parseTags, itemTags, formatTags, distinctTags, mergeTags } from './item-tags.ts';
+import { hasActiveFacets, toggleFacetValue, facetValues, facetValueCounts, facetColorAssignment, matchesFacets, type FacetSelection } from '../read-data/facet-filter.ts';
+import { BOARD_ITEM_FACETS, BOARD_FOCUS_FACETS, boardFocusMatch, focusedItemIds, nonFocusedVisibleIds } from './board-item-facets.ts';
+import { BOARD_PALETTES } from './board-palettes.ts';
+import { nodeAriaLabel } from './node-accessibility.ts';
+import { CONNECTOR_ITEM_FACETS, CONNECTOR_FOCUS_FACETS, dimmedConnectorIds, focusedConnectorIds } from './connector-facets.ts';
+import { readFocusViews, makeFocusView, archiveFocusView, sanitizeFocusView, type FocusView } from './focus-view.ts';
+import { writeFocusViewLive } from './write-focus-view-live.ts';
+import { similarIds } from './item-similarity.ts';
+import { BOARD_COMMANDS, BOARD_SHORTCUTS } from './board-shortcuts.ts';
 import { coachedCommand, paletteItems as tablePaletteItems } from '../../ui/show/command-table/command-table';
 import { coach, tipsOn, type CoachingHistory } from '../../ui/show/command-table/shortcut-coaching';
 import coaching from '../../ui/show/command-table/shortcut-coaching.json';
-import { ConnectorFormatControls, type ConnectorArrow, type ConnectorRouting } from './ConnectorFormatControls';
-import { BoardFillControls } from './BoardFillControls';
-import { itemFillColor, setStackFill, emptyStack, BOARD_ITEM_LAYER_REGISTRY, inheritedBranchStyle } from './item-fill';
-import { BoardShapeControls } from './BoardShapeControls';
-import { ItemStylePicker } from './ItemStylePicker';
-import { shapeSvgPathById, shapeOutlineById } from './board-shapes';
+import { ConnectorFormatControls, type ConnectorArrow, type ConnectorRouting } from './ConnectorFormatControls.tsx';
+import { BoardFillControls } from './BoardFillControls.tsx';
+import { itemFillColor, setStackFill, emptyStack, BOARD_ITEM_LAYER_REGISTRY, inheritedBranchStyle } from './item-fill.ts';
+import { BoardShapeControls } from './BoardShapeControls.tsx';
+import { ItemStylePicker } from './ItemStylePicker.tsx';
+import { shapeSvgPathById, shapeOutlineById } from './board-shapes.ts';
 import type { FormatCommand } from '../../ui/show/rich-text-toolbar';
 import {
   readTextStylePalette,
   writeTextStylePalette,
   TEXT_STYLE_CAPTURE_PROPERTIES,
   type SavedTextStyle,
-} from '../do-work/text-style-palette';
-import { buildBoardBatchPack, batchActionsAsNodeActions, distributeByGap, BOARD_ITEM_FAMILY, BOARD_GRID, applyBundleToAll, minOf, reorderZ, reorderZStep, setHidden, setLocked, reorderZToOrder, branchToggleStates, setBranchHidden, parentViaConnectors, directChildCount, branchColorAssignments, connectorBranchColors, reshapeFramesToAspect, unlockedOf, connectorPairKey, invertedNodeIds, mindMapOutline, outlineToMarkdown, planOutlineMindMap, branchMemberIds, upstreamMemberIds, mindMapNonRootIds, COLOR_BY_FACET_KEYS, type ConnectorTopology } from '../do-work/batch-actions';
-import { planCardMerge, mergeCardsInGraph } from '../do-work/board-card-merge';
-import { splitSegments, splitCardInGraph } from '../do-work/board-card-split';
+} from '../do-work/text-style-palette.ts';
+import { buildBoardBatchPack, batchActionsAsNodeActions, distributeByGap, BOARD_ITEM_FAMILY, BOARD_GRID, applyBundleToAll, minOf, reorderZ, reorderZStep, setHidden, setLocked, reorderZToOrder, branchToggleStates, setBranchHidden, parentViaConnectors, directChildCount, branchColorAssignments, connectorBranchColors, reshapeFramesToAspect, unlockedOf, connectorPairKey, invertedNodeIds, mindMapOutline, outlineToMarkdown, planOutlineMindMap, branchMemberIds, upstreamMemberIds, mindMapNonRootIds, COLOR_BY_FACET_KEYS, type ConnectorTopology } from '../do-work/batch-actions.ts';
+import { planCardMerge, mergeCardsInGraph } from '../do-work/board-card-merge.ts';
+import { splitSegments, splitCardInGraph } from '../do-work/board-card-split.ts';
 import { Upload } from 'lucide-react';
-import { createFrameFromSelection, nextFrameOrder, appendCopiedFrameOrders, boardFrames, frameRect, presentStep, itemsInsideFrame, withFrameContents, tidyFrameLayout, moveFrameOrder, frameLinkTarget, presentationCaptionOf, presentationFrameOf, frameFitBox } from '../do-work/board-frames';
-import type { FrameAspect } from './frame-aspects';
-import { BoardObjectsButton } from './BoardObjectsButton';
-import { BoardSwitcherMenu } from './BoardSwitcherMenu';
-import { BoardBackgroundPicker } from './BoardBackgroundPicker';
-import { BoardZoomCluster } from './BoardZoomCluster';
-import { BoardBreadcrumb } from './BoardBreadcrumb';
-import { BoardFocusBar, type BoardFocusBarHandle } from './BoardFocusBar';
-import { applyTextReplace } from '../do-work/board-text-replace';
-import { NodeCornerActions } from './NodeCornerActions';
-import { SelectedItemToolbar } from './SelectedItemToolbar';
-import { BoardStatusOverlay } from './BoardStatusOverlay';
-import { SavedPresetsRow, FrameAspectRow } from './BulkBarPickerRows';
-import { arrangeWith } from './arrange-strategies';
-import { boardLayerTree } from './board-layer-rows';
+import { createFrameFromSelection, nextFrameOrder, appendCopiedFrameOrders, boardFrames, frameRect, presentStep, itemsInsideFrame, withFrameContents, tidyFrameLayout, moveFrameOrder, frameLinkTarget, presentationCaptionOf, presentationFrameOf, frameFitBox } from '../do-work/board-frames.ts';
+import type { FrameAspect } from './frame-aspects.ts';
+import { BoardObjectsButton } from './BoardObjectsButton.tsx';
+import { BoardSwitcherMenu } from './BoardSwitcherMenu.tsx';
+import { BoardBackgroundPicker } from './BoardBackgroundPicker.tsx';
+import { BoardZoomCluster } from './BoardZoomCluster.tsx';
+import { BoardBreadcrumb } from './BoardBreadcrumb.tsx';
+import { BoardFocusBar, type BoardFocusBarHandle } from './BoardFocusBar.tsx';
+import { applyTextReplace } from '../do-work/board-text-replace.ts';
+import { NodeCornerActions } from './NodeCornerActions.tsx';
+import { SelectedItemToolbar } from './SelectedItemToolbar.tsx';
+import { BoardStatusOverlay } from './BoardStatusOverlay.tsx';
+import { SavedPresetsRow, FrameAspectRow } from './BulkBarPickerRows.tsx';
+import { arrangeWith } from './arrange-strategies.ts';
+import { boardLayerTree } from './board-layer-rows.ts';
 import {
   copyItemsToClipboard,
   clipboardToDrafts,
@@ -401,7 +401,7 @@ import {
   setStyleClipboard,
   getStyleClipboard,
   type PasteDraft,
-} from '../do-work/board-clipboard';
+} from '../do-work/board-clipboard.ts';
 import {
   selectionBounds,
   anchorForHandle,
@@ -410,16 +410,16 @@ import {
   constrainToAxis,
   type ResizeHandle as GroupResizeHandle,
   type Rect as GroupRect,
-} from '../do-work/group-resize';
-import { fitRectToContents, needsGrow } from '../do-work/fit-to-contents';
+} from '../do-work/group-resize.ts';
+import { fitRectToContents, needsGrow } from '../do-work/fit-to-contents.ts';
 import {
   readBundlePalette,
   writeBundlePalette,
   type SavedBundle,
-} from '../do-work/attribute-bundle-palette';
+} from '../do-work/attribute-bundle-palette.ts';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 
-import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text';
+import { errorWords } from '../../ui/show/safe-error-card/sanitize-error-text.ts';
 /** Alignment-snap radius in SCREEN pixels — divided by zoom for a constant feel. */
 // What the person has been told about shortcuts, kept on this device (shortcut-coaching.ts decides from it).
 const TIPS_KEY = 'trillion-shortcut-tips';
@@ -643,7 +643,7 @@ function buildDraftPlacement(
 }
 
 /** #169 — world-px breathing room a "Frame selection" leaves around the bounded items. */
-import { sourceActionsOf, sourcePortsOf } from '../do-work/board-source';
+import { sourceActionsOf, sourcePortsOf } from '../do-work/board-source.ts';
 const FRAME_SELECTION_PADDING = 48;
 // A source card's live state (board-source.ts `sourceState`): words and a tone, the tone a badge variant or a plain
 // tone word (good, attention, bad, quiet), each said by the badge variant that already means it.

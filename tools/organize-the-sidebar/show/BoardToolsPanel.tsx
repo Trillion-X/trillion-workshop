@@ -15,16 +15,16 @@
 // =============================================================================
 
 import React, { useState } from 'react';
-import { Button, Container, Icon, Text } from '../../ui';
+import { Button, Container, Icon, Text } from '../../ui/index.ts';
 import { ChevronDown, X } from 'lucide-react';
-import type { BoardItem } from '../read-data/group-board-model';
-import type { FacetExtractors } from '../read-data/facet-filter';
-import type { StoredSmartSet, SmartQuery } from '../read-data/saved-smart-set';
-import { ReportPanel } from './ReportPanel';
-import { SelectionMenu } from './SelectionMenu';
-import { SelectionCombineBar } from './SelectionCombineBar';
-import { SelectionSummaryBar } from './SelectionSummaryBar';
-import { SmartSetStrip } from './SmartSetStrip';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import type { FacetExtractors } from '../read-data/facet-filter.ts';
+import type { StoredSmartSet, SmartQuery } from '../read-data/saved-smart-set.ts';
+import { ReportPanel } from './ReportPanel.tsx';
+import { SelectionMenu } from './SelectionMenu.tsx';
+import { SelectionCombineBar } from './SelectionCombineBar.tsx';
+import { SelectionSummaryBar } from './SelectionSummaryBar.tsx';
+import { SmartSetStrip } from './SmartSetStrip.tsx';
 
 export interface BoardToolsPanelProps {
   readonly items: readonly BoardItem[];

@@ -12,9 +12,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Button, Card, Container, Text } from '../../ui';
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { AgendaGroup } from '../read-data/board-agenda';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { AgendaGroup } from '../read-data/board-agenda.ts';
 
 export interface AgendaPanelProps {
   readonly groups: readonly AgendaGroup[];

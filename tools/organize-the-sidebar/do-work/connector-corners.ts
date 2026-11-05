@@ -12,7 +12,7 @@
 // connector-readability primitives: jumps (b87) / fan (b88) / self-loop (b89) are about how MULTIPLE edges
 // relate; this is one edge's own corner STYLE.
 
-import type { Pt } from './connector-geometry';
+import type { Pt } from './connector-geometry.ts';
 
 const DEFAULT_RADIUS = 10;
 

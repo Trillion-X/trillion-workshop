@@ -2,9 +2,9 @@
 // The board-switcher title dropdown: pick a board or run a board-level action.
 
 import React from 'react';
-import { Button, Dropdown, Icon, Text } from '../../ui';
+import { Button, Dropdown, Icon, Text } from '../../ui/index.ts';
 import { ChevronDown } from 'lucide-react';
-import type { BoardEntry } from '../read-data/group-board-model';
+import type { BoardEntry } from '../read-data/group-board-model.ts';
 
 /** Switcher sentinels: these rows act instead of opening a board. */
 const NEW_BOARD_VALUE = '__new-board__';

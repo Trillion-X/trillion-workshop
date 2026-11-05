@@ -6,8 +6,8 @@
 // zero panel code. Read-only by design — distinct from Board health (a hygiene SCORE + things to fix) and
 // Breakdown (per-facet distribution you click into): this answers "how big is this board and how much is done?"
 // in one look. Non-zero-omission lives in the builder, so a plain board shows just Cards + Words (no filler).
-import { Button, Card, Container, Text } from '../../ui';
-import type { SummaryStat } from '../read-data/board-summary';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
+import type { SummaryStat } from '../read-data/board-summary.ts';
 
 export interface SummaryPanelProps {
   readonly rows: readonly SummaryStat[];

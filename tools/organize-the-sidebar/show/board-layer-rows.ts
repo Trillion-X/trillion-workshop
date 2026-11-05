@@ -13,8 +13,8 @@
 // stays blind to what a "section" stores. The panel is a blind renderer of these
 // nodes.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsLocked } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsLocked } from '../read-data/group-board-model.ts';
 
 /** A row kind names only how to LABEL/icon the row — derived from the item's data
  *  shape (section flag / image src / else note), never a stored Society string.

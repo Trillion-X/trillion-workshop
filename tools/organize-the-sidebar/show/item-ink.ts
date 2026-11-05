@@ -9,7 +9,7 @@
 // only when a fill is present, so an unfilled note is byte-identical (zero regression), and any
 // explicit rich-text span colour still wins by CSS specificity (this only sets the inherited base).
 
-import { parseRgb } from './item-fill';
+import { parseRgb } from './item-fill.ts';
 
 // The two ink poles. Not pure #000/#fff — a near-black + near-white read softer while still
 // clearing WCAG AAA on their opposite fills. DATA constants, overridable per call.

@@ -13,7 +13,7 @@
 // catalogs live there. The grid is BOUNDED (cellSize auto-grows so `cols·rows ≤ MAX_CELLS`), so a malformed
 // huge-span board can never allocate an unbounded grid (OOM) — it fails closed to a coarser field.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** A weighted footprint (an item's world box). */
 export interface DensityRect {

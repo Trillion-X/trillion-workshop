@@ -15,7 +15,7 @@
 // fail-closed is for security boundaries; presence is an additive signal,
 // so absence degrades to "nobody else visible", never a crash).
 
-import type { Participant } from '../read-data/presence';
+import type { Participant } from '../read-data/presence.ts';
 
 export interface PresenceChannel {
   /** Broadcast this window's participant update to every sibling window. */

@@ -9,10 +9,10 @@
 // `connectorComponents` returns, so a new island appears with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { connectorComponents, type ConnectorComponent } from '../do-work/board-components';
-import { cardLabel } from './BoardOutlineReadout';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { connectorComponents, type ConnectorComponent } from '../do-work/board-components.ts';
+import { cardLabel } from './BoardOutlineReadout.tsx';
 
 /** The board's connector islands. */
 export function boardComponents(items: readonly BoardItem[]): ConnectorComponent[] {

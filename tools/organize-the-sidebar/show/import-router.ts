@@ -12,9 +12,9 @@
 //                        null                → not a recognized document (caller falls through to plain paste)
 
 import type { BoardItemDraft } from './item-add-strategies';
-import type { BoardItem } from '../read-data/group-board-model';
-import { flattenTreeToDrafts, type MarkdownNode } from './markdown-to-drafts';
-import { detectImport } from './document-imports';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { flattenTreeToDrafts, type MarkdownNode } from './markdown-to-drafts.ts';
+import { detectImport } from './document-imports.ts';
 
 /** A placement instruction: a hierarchy-bearing tree (place via `materializeItems`), a flat draft list
  *  (place via `fillFromDrafts`), a pre-built board FRAGMENT with positions + connectors (place via the clone

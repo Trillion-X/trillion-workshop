@@ -26,8 +26,8 @@ import {
   type ScopeItem,
   type ScopeResolver,
   type ShareScopeRequest,
-} from './share-scope';
-import { finiteCoord, BOARD_COORD_LIMIT } from './finite-coord';
+} from './share-scope.ts';
+import { finiteCoord, BOARD_COORD_LIMIT } from './finite-coord.ts';
 
 // ---- untrusted-decode DoS bounds (a capsule arrives inside a pasted/opened LINK) ----------
 // These are GUARDS, not feature caps: no legitimate share approaches them, but a hostile link

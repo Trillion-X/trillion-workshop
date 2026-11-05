@@ -11,7 +11,7 @@
 // id'd edge list (dependency-depth columns, the node's own id as memberId) for the GRAPH importers. Two genuinely
 // different inputs, two builders — not one forced abstraction. Pure, deterministic; names no kind (L090).
 
-import type { BoardItem } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 
 /** A graph node: a stable id + a human label. */
 export interface GraphNode {

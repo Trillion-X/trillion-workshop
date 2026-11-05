@@ -17,8 +17,8 @@
 //      are dropped — only a genuinely-unlinked mention survives, so the signal is "add a link here", not noise.
 // Deterministic (emitted in board order, deduped one per from→to pair). No I/O.
 
-import type { BoardItem } from './group-board-model';
-import { cardTitle, normalizeTitle, buildTitleIndex, cardReferences } from './card-references';
+import type { BoardItem } from './group-board-model.ts';
+import { cardTitle, normalizeTitle, buildTitleIndex, cardReferences } from './card-references.ts';
 
 /** An unlinked mention: a card whose prose names another card's title without a `[[link]]` — a link to SUGGEST. */
 export interface UnlinkedMention {

@@ -8,9 +8,9 @@
 // reuse the time-log leaf's formatDuration (hours -> ms), so there is no new formatter. `now` is injected.
 // A row jumps to that goal. ui only.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import { formatDuration } from '../read-data/board-time-log';
-import type { CriticalPathResult } from '../read-data/board-critical-path';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import { formatDuration } from '../read-data/board-time-log.ts';
+import type { CriticalPathResult } from '../read-data/board-critical-path.ts';
 
 export interface CriticalPathPanelProps {
   readonly result: CriticalPathResult;

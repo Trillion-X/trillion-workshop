@@ -17,10 +17,10 @@
 // [x,y,x] yields only {x,y}). Cards with <2 distinct values impose no pair. Pure, deterministic (sorted by
 // shared-card count desc, then a asc, then b asc), connectors/furniture excluded.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import { COOCCURRENCE_MEASURES, measureById, type CoOccurrenceMeasure } from '../do-work/tag-cooccurrence';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import { COOCCURRENCE_MEASURES, measureById, type CoOccurrenceMeasure } from '../do-work/tag-cooccurrence.ts';
 
 /** An unordered pair of facet values and the content cards carrying BOTH. `a` < `b` (canonical order);
  *  `cardCount === cardIds.length` always. */

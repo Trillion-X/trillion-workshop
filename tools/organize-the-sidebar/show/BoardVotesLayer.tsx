@@ -8,7 +8,7 @@
 // mount resolves each target to a screen rect and owns voting-mode + actor + budget. L065: ui only; the
 // chip is a positioned Container because its coordinate is dynamic (like the comments pin).
 
-import { Button, Container, Icon, Text } from '../../ui';
+import { Button, Container, Icon, Text } from '../../ui/index.ts';
 import { ThumbsUp } from 'lucide-react';
 
 export interface VoteChipRect {

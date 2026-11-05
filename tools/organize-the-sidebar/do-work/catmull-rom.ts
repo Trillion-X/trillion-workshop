@@ -11,7 +11,7 @@
 // Pure leaf (only the `Pt` type). A 2-point chain (no bends) yields a single cubic that is visually a
 // straight line (its controls sit on the chord), so `smooth` with no waypoints degrades to straight.
 
-import type { Pt } from './connector-geometry';
+import type { Pt } from './connector-geometry.ts';
 
 /**
  * The SVG path `d` (an `M` + one `C` per segment) of the uniform Catmull-Rom spline through `points`.

@@ -7,9 +7,9 @@
 // hides when there are no rows to act on. Distinct from the per-row click (that grabs ONE group); this grabs the
 // whole slice a rule matches (the analysis→action bridge at the set level).
 import { useState } from 'react';
-import { Button, Container, Text } from '../../ui';
-import type { ReportRow } from '../read-data/board-report';
-import { ROW_SELECTORS, reportRowSelection } from '../read-data/report-row-select';
+import { Button, Container, Text } from '../../ui/index.ts';
+import type { ReportRow } from '../read-data/board-report.ts';
+import { ROW_SELECTORS, reportRowSelection } from '../read-data/report-row-select.ts';
 
 export interface ReportRowSelectControlProps {
   readonly rows: readonly ReportRow[];

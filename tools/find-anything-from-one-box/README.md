@@ -10,6 +10,7 @@ Package-owned global command palette entry and current-item selection runner.
 | `entry-to-package-data-map.json` | Records the package entry source mapping used by package-entry scope generation. |
 | `show/` | Browser palette UI, root gate, reply reader, and mount function. |
 | `do-work/` | Requests current-item ranking and runs selected palette results. |
+| `package.json`, `read-data/records-in-node.mjs` | What `#workspace-records` is when this folder runs in Node (condition `node`), as `tools/tours-screen` does: the sender throws, so the pure reply readers load and their tests (`parts/command-palette/`) run under `node --test`. |
 
 ## Rules
 

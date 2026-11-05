@@ -7,11 +7,11 @@
 // zero panel edits. Document formats are registry rows, same as before.
 
 import * as React from 'react';
-import { Button, Card, Container, Spinner, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
+import { Button, Card, Container, Spinner, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
 import type { OutputDestination } from '../../ui/show/output-destination';
-import { DOCUMENT_EXPORTS, exportFilename } from '../do-work/board-document-exports';
+import { DOCUMENT_EXPORTS, exportFilename } from '../do-work/board-document-exports.ts';
 
 /**
  * An IMAGE (binary) export the panel can offer alongside the text formats (R43c). Text

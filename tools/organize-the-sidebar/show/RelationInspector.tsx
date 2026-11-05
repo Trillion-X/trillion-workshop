@@ -11,7 +11,7 @@
 // Renders null when the card has no relations (no filler, L118). Colour is the only dynamic
 // style (per-kind DATA); everything else is ui components (L065).
 
-import { Container, Text } from '../../ui';
+import { Container, Text } from '../../ui/index.ts';
 import {
   impactCone,
   isInCycle,
@@ -20,11 +20,11 @@ import {
   relationsFrom,
   relationsTo,
   type RelationGraph,
-} from '../read-data/relationship-graph';
+} from '../read-data/relationship-graph.ts';
 import {
   relationKindSpec,
   type RelationKindSpec,
-} from '../read-data/relation-kind-catalog';
+} from '../read-data/relation-kind-catalog.ts';
 
 export interface RelationInspectorProps {
   readonly graph: RelationGraph;

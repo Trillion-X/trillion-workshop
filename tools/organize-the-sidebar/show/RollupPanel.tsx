@@ -5,9 +5,9 @@
 // rolled-up aggregate honestly — "72% · 2/3 tracked", or "No measured child progress" when none of the
 // children carry a metric (no fake 0%, per the Codex convergence). A row jumps to that sub-goal. ui only.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { RollupResult } from '../read-data/board-rollup';
-import type { RollupChild } from '../do-work/board-rollup-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { RollupResult } from '../read-data/board-rollup.ts';
+import type { RollupChild } from '../do-work/board-rollup-actions.ts';
 
 export interface RollupPanelProps {
   readonly parentLabel: string;

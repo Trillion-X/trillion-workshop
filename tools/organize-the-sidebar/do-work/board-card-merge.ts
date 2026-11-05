@@ -16,14 +16,14 @@
 // (`applyCardMerge`, for tests/proof) + a live graph action (`mergeCardsInGraph`). The planner names no kind and
 // reads only self-describing fields (L090); deterministic throughout.
 
-import type { BoardItem } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 import {
   readItems,
   patchItem,
   patchItems,
   removeItems,
   itemIsConnector,
-} from '../read-data/group-board-model';
+} from '../read-data/group-board-model.ts';
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
 
 /** A machine-readable description of a merge -- what the primary becomes, what to drop, what to re-anchor. */

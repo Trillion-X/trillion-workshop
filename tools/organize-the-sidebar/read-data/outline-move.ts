@@ -11,7 +11,7 @@
 // Every op re-runs the pure `normalizeIndents` so the result is always a well-formed outline.
 // Pure, deterministic, engine-free — one primitive, three emergent motions (up, down, drag-to-drop).
 
-import { normalizeIndents, type ListItem } from './list-block-model';
+import { normalizeIndents, type ListItem } from './list-block-model.ts';
 
 const indexOfId = (items: readonly ListItem[], id: string): number =>
   items.findIndex((it) => it.id === id);

@@ -12,9 +12,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Button, Card, Container, Text } from '../../ui';
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { CardReadiness } from '../read-data/board-readiness';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { CardReadiness } from '../read-data/board-readiness.ts';
 
 export interface ReadinessPanelProps {
   /** Every content card's readiness verdict (done / ready / blocked + blockers) from `boardReadiness`. */

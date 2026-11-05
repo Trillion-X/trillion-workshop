@@ -15,10 +15,10 @@
 // The stopword set is an INJECTED default (L083 maximally-capable) — an owner can pass a domain list. Pure,
 // deterministic (document-frequency tally, tie-break by term).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import type { ReducedTable } from './reduced-table';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import type { ReducedTable } from './reduced-table.ts';
 
 /** A recurring theme: the term, how many cards it appears on, and which ones (sorted). */
 export interface ThemeGroup {

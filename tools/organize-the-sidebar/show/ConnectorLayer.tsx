@@ -21,18 +21,18 @@ import {
   type ConnectorAnchor,
   type ConnectorRect,
   type Pt,
-} from '../do-work/connector-geometry';
-import { strokePathD, hashSeed, resolveStroke, arrowheadPoints } from './stroke-style';
-import { pointsAlongPath, pointsFromLinePath, verticalSegments, pathWithJumps, type Seg } from '../do-work/connector-jumps';
-import { fanLaneMultipliers, bowedChord, FAN_SPACING } from '../do-work/connector-fan';
-import { selfLoopIndices, selfLoopPath } from '../do-work/connector-self-loop';
-import { roundedPolyline } from '../do-work/connector-corners';
-import { CONNECTOR_ARROWHEADS, arrowheadById } from '../do-work/arrowhead-catalog';
+} from '../do-work/connector-geometry.ts';
+import { strokePathD, hashSeed, resolveStroke, arrowheadPoints } from './stroke-style.ts';
+import { pointsAlongPath, pointsFromLinePath, verticalSegments, pathWithJumps, type Seg } from '../do-work/connector-jumps.ts';
+import { fanLaneMultipliers, bowedChord, FAN_SPACING } from '../do-work/connector-fan.ts';
+import { selfLoopIndices, selfLoopPath } from '../do-work/connector-self-loop.ts';
+import { roundedPolyline } from '../do-work/connector-corners.ts';
+import { CONNECTOR_ARROWHEADS, arrowheadById } from '../do-work/arrowhead-catalog.ts';
 
 // ConnectorRect + the geometry now live in the pure `do-work/connector-geometry`
 // module (unit-tested, no DOM). Re-exported here so existing importers of the
 // rect type keep working.
-export type { ConnectorRect } from '../do-work/connector-geometry';
+export type { ConnectorRect } from '../do-work/connector-geometry.ts';
 
 /** One connector to draw: its id + the two member ids it relates + selection. */
 export interface ConnectorModel {

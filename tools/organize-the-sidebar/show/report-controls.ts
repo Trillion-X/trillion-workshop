@@ -12,8 +12,8 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { ReportDescriptor } from '../read-data/board-report';
-import { REDUCTIONS, BOARD_DIMENSIONS, BOARD_MEASURES, measureDefById } from '../read-data/board-report';
+import type { ReportDescriptor } from '../read-data/board-report.ts';
+import { REDUCTIONS, BOARD_DIMENSIONS, BOARD_MEASURES, measureDefById } from '../read-data/board-report.ts';
 
 /** A pickable option (key + human label) surfaced as a control button. */
 export interface ReportOption {

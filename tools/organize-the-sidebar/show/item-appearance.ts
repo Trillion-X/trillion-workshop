@@ -13,15 +13,15 @@
 // ZERO new branching (L090). `sizeMode` (fit/fill/scroll and infinite future modes via the
 // capability map) is the first property wired through it — Society as records over the engine.
 
-import { MARKER_DEFAULT_OPTIONS } from './board-marker-catalog';
-import { CONTENT_ANCHORS } from '../do-work/content-placement';
-import { ELEVATION_LEVELS } from '../do-work/elevation-shadow';
-import { CONNECTOR_ARROWHEAD_OPTIONS } from '../do-work/arrowhead-catalog';
-import { BOARD_FILTER_PRESETS } from './filter-presets';
-import { SHAPE_DEFAULT_OPTIONS } from './board-shapes';
-import { STROKE_STYLES } from './stroke-style';
-import { ownValue } from '../read-data/facet-filter';
-import { finiteCoord } from '../read-data/finite-coord';
+import { MARKER_DEFAULT_OPTIONS } from './board-marker-catalog.ts';
+import { CONTENT_ANCHORS } from '../do-work/content-placement.ts';
+import { ELEVATION_LEVELS } from '../do-work/elevation-shadow.ts';
+import { CONNECTOR_ARROWHEAD_OPTIONS } from '../do-work/arrowhead-catalog.ts';
+import { BOARD_FILTER_PRESETS } from './filter-presets.ts';
+import { SHAPE_DEFAULT_OPTIONS } from './board-shapes.ts';
+import { STROKE_STYLES } from './stroke-style.ts';
+import { ownValue } from '../read-data/facet-filter.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** A bag of appearance defaults (board or global), keyed by appearance property name. Every
  *  value is opaque DATA — this leaf never enumerates which keys are "allowed" (L090). */

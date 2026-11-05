@@ -8,9 +8,9 @@
 // ticks, lane headers) are never comment anchors — you annotate CONTENT, not the board's own scaffolding.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 import {
   type AnchoredThread,
   type CommentEntry,
@@ -21,7 +21,7 @@ import {
   setResolved,
   threadFromRaw,
   threadSummary,
-} from '../read-data/board-comments';
+} from '../read-data/board-comments.ts';
 
 /** An item is a comment ANCHOR iff it is real content (a note/frame/image/…), not a connector or furniture. */
 export function itemIsCommentAnchor(item: BoardItem): boolean {

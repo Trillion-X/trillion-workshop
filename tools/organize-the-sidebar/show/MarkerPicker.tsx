@@ -1,8 +1,8 @@
 // packages/group/show/MarkerPicker.tsx — Dropdown to pick a board list-marker glyph/numbering.
 
 import type { JSX } from 'react';
-import { Button, Dropdown } from '../../ui';
-import { BOARD_MARKERS, markerTextForIndex, type BoardMarker } from './board-marker-catalog';
+import { Button, Dropdown } from '../../ui/index.ts';
+import { BOARD_MARKERS, markerTextForIndex, type BoardMarker } from './board-marker-catalog.ts';
 
 /** Pure — build the Dropdown items for a marker catalog. Each label previews the
  *  marker at position 0 followed by its name, e.g. "•  Disc", "1.  Decimal". The

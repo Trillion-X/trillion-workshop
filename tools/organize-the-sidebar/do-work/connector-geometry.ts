@@ -24,9 +24,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { finiteCoord } from '../read-data/finite-coord';
-import { orthogonalAvoidRoute } from './orthogonal-route';
-import { catmullRomPath } from './catmull-rom';
+import { finiteCoord } from '../read-data/finite-coord.ts';
+import { orthogonalAvoidRoute } from './orthogonal-route.ts';
+import { catmullRomPath } from './catmull-rom.ts';
 
 export interface ConnectorRect {
   x: number;

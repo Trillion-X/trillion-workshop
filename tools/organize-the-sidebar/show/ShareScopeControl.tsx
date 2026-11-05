@@ -1,8 +1,8 @@
 // Share-scope picker: a Dropdown to choose WHAT to share from a board.
 
-import { Button, Dropdown, Icon } from '../../ui';
+import { Button, Dropdown, Icon } from '../../ui/index.ts';
 import { ChevronDown } from 'lucide-react';
-import { DEFAULT_SCOPE_RESOLVERS } from '../read-data/share-scope';
+import { DEFAULT_SCOPE_RESOLVERS } from '../read-data/share-scope.ts';
 import { controlShown, useShowChange } from '../../ui/show/show-rules/show-of';
 
 function titleCase(key: string): string {

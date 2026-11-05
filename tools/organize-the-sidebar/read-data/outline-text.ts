@@ -10,7 +10,7 @@
 // INDENT UNIT: two leading spaces = one level (tabs count as one level each). This is the
 // same convention Markdown/org-mode use, so a pasted indented list round-trips unchanged.
 
-import { normalizeIndents, type ListItem } from './list-block-model';
+import { normalizeIndents, type ListItem } from './list-block-model.ts';
 
 const INDENT_SPACES = 2;
 

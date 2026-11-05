@@ -17,7 +17,7 @@
 // (Brainstorm, Kanban, Retrospective, 2×2 Matrix, Weekly plan, Mind map).
 // =============================================================================
 
-import type { BoardTemplate } from '../read-data/board-template-apply';
+import type { BoardTemplate } from '../read-data/board-template-apply.ts';
 
 const NOTE_W = 200;
 const NOTE_H = 120;

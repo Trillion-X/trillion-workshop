@@ -1,28 +1,81 @@
 // The part of vitest's API the tools' .test.ts files use, on node:test, so they run with `node --test` unchanged.
-import { test, describe } from 'node:test';
+import { test as nodeTest, describe as nodeDescribe, beforeEach, afterEach, before, after } from 'node:test';
+import { format } from 'node:util';
 import assert from 'node:assert/strict';
 
-export { test, describe };
+export { beforeEach, afterEach, before as beforeAll, after as afterAll };
 
-// it.each(cases)(name, fn): one test per case; "$field" in the name is that case's field.
-export const it = (...args) => test(...args);
-it.each = cases => (name, run) => {
-  for (const item of cases) test(name.replace(/\$(\w+)/g, (_, key) => String(item?.[key])), () => run(item));
+// A case's test name, as vitest names it: printf-style %s %d %i %f %j %o %O take the case's arguments in order, %# is
+// the case's index, %% is a percent sign, and "$field" is that field of an object case ("$0" an array case's first item).
+const caseName = (name, args, index) => {
+  let at = 0;
+  const named = name.replace(/%([sdifjoO#%])/g, (match, flag) => {
+    if (flag === '%') return '%';
+    if (flag === '#') return String(index);
+    if (at >= args.length) return match;
+    const value = args[at++];
+    if (flag === 'j') return JSON.stringify(value);
+    return format(`%${flag}`, value);
+  });
+  const fields = args.length === 1 && args[0] !== null && typeof args[0] === 'object' ? args[0] : args;
+  return named.replace(/\$(\w+)/g, (match, key) => (key in Object(fields) ? String(fields[key]) : match));
 };
+
+// each(cases)(name, fn): one test per case. A case that is a list is spread into the function's arguments
+// (it.each([[1, 2], [3, 4]])('%d + %d', (a, b) => ...)); any other case is its one argument.
+const withEach = run => {
+  const each = cases => (name, fn) => {
+    cases.forEach((item, index) => {
+      const args = Array.isArray(item) ? item : [item];
+      run(caseName(name, args, index), () => fn(...args));
+    });
+  };
+  return Object.assign((...args) => run(...args), { each, skip: run.skip, only: run.only, todo: run.todo });
+};
+export const it = withEach(nodeTest);
+export const test = withEach(nodeTest);
+export const describe = withEach(nodeDescribe);
 
 // vitest's toMatchObject: every field the expected object names matches, recursively; a list matches item by item.
 const matches = (actual, expected) => {
+  if (isAsymmetric(expected)) return expected.asymmetricMatch(actual);
   if (Array.isArray(expected)) return Array.isArray(actual) && actual.length === expected.length && expected.every((item, index) => matches(actual[index], item));
   if (expected !== null && typeof expected === 'object') return actual !== null && typeof actual === 'object' && Object.entries(expected).every(([key, value]) => matches(actual[key], value));
+  return Object.is(actual, expected);
+};
+
+// Asymmetric matchers (expect.objectContaining, expect.any) stand inside an expected value and decide that place.
+class Asymmetric {
+  constructor(asymmetricMatch, description) { this.asymmetricMatch = asymmetricMatch; this.description = description; }
+  toJSON() { return this.description; }
+}
+const isAsymmetric = value => value instanceof Asymmetric;
+const hasAsymmetric = value => isAsymmetric(value)
+  || (Array.isArray(value) ? value.some(hasAsymmetric) : value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype && Object.values(value).some(hasAsymmetric));
+
+// vitest's toEqual where an expected value holds an asymmetric matcher: that place is the matcher's to decide, every
+// other place is equal recursively, and a field whose value is undefined counts as absent.
+const equalWith = (actual, expected) => {
+  if (isAsymmetric(expected)) return expected.asymmetricMatch(actual);
+  if (Array.isArray(expected)) return Array.isArray(actual) && actual.length === expected.length && expected.every((item, index) => equalWith(actual[index], item));
+  if (expected !== null && typeof expected === 'object') {
+    if (actual === null || typeof actual !== 'object' || Array.isArray(actual)) return false;
+    const keys = value => Object.keys(value).filter(key => value[key] !== undefined).sort();
+    const [mine, theirs] = [keys(actual), keys(expected)];
+    return mine.length === theirs.length && mine.every((key, index) => key === theirs[index] && equalWith(actual[key], expected[key]));
+  }
   return Object.is(actual, expected);
 };
 
 const matchers = (actual, negate) => {
   const check = (pass, message) => assert.ok(negate ? !pass : pass, negate ? `not: ${message}` : message);
   const same = (a, b) => { try { assert.deepStrictEqual(a, b); return true; } catch { return false; } };
+  const equal = (a, b) => (hasAsymmetric(b) ? equalWith(a, b) : same(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))));
   return {
     toBe: expected => check(Object.is(actual, expected), `${JSON.stringify(actual)} to be ${JSON.stringify(expected)}`),
-    toEqual: expected => check(same(JSON.parse(JSON.stringify(actual ?? null)), JSON.parse(JSON.stringify(expected ?? null))), `${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`),
+    toEqual: expected => check(equal(actual, expected), `${JSON.stringify(actual)} to equal ${JSON.stringify(expected)}`),
+    toContainEqual: expected => check(Array.isArray(actual) && actual.some(item => equal(item, expected)), `${JSON.stringify(actual)} to contain an item equal to ${JSON.stringify(expected)}`),
+    toBeTypeOf: type => check(typeof actual === type, `${JSON.stringify(actual)} to be of type ${type} (is ${typeof actual})`),
     toBeNull: () => check(actual === null, `${JSON.stringify(actual)} to be null`),
     toBeUndefined: () => check(actual === undefined, `${JSON.stringify(actual)} to be undefined`),
     toBeDefined: () => check(actual !== undefined, 'to be defined'),
@@ -88,6 +141,7 @@ export const vi = {
 // expect.any(Constructor): matches a value of that type inside the arguments a spy was called with.
 const anyOf = constructor => ({ anyOf: constructor });
 const argumentMatches = (actual, expected) => {
+  if (isAsymmetric(expected)) return expected.asymmetricMatch(actual);
   if (expected !== null && typeof expected === 'object' && 'anyOf' in expected && Object.keys(expected).length === 1) {
     const constructor = expected.anyOf;
     if (constructor === String) return typeof actual === 'string';
@@ -122,6 +176,8 @@ export const expect = actual => ({
   ...matchers(actual, false),
   ...spyMatchers(actual, false),
   not: { ...matchers(actual, true), ...spyMatchers(actual, true) },
+  // expect(promise).resolves.<matcher>(...): the matcher, on what the promise resolves to (a rejection fails it).
+  resolves: Object.fromEntries(Object.keys(matchers(undefined, false)).map(name => [name, async (...args) => matchers(await actual, false)[name](...args)])),
   rejects: {
     toThrow: async expected => {
       let thrown = null;
@@ -132,3 +188,5 @@ export const expect = actual => ({
   },
 });
 expect.any = anyOf;
+// expect.objectContaining(fields): an object holding at least these fields, each matched as toMatchObject matches it.
+expect.objectContaining = fields => new Asymmetric(actual => actual !== null && typeof actual === 'object' && matches(actual, fields), `ObjectContaining ${JSON.stringify(fields)}`);

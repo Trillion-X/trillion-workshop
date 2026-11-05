@@ -9,9 +9,9 @@
 // Container/AnchoredOverlay/Text/Tooltip) — zero raw HTML (L065).
 
 import React, { useRef, useState } from 'react';
-import { Button, Container, Text, Tooltip, AnchoredOverlay } from '../../ui';
+import { Button, Container, Text, Tooltip, AnchoredOverlay } from '../../ui/index.ts';
 import { NamedIcon } from '../../ui/show/icon/NamedIcon';
-import { BOARD_SHAPES } from './board-shapes';
+import { BOARD_SHAPES } from './board-shapes.ts';
 
 export interface BoardShapeControlsProps {
   /** The anchor item's current shape id (undefined / 'rectangle' = no shape). */

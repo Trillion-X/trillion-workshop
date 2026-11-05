@@ -7,11 +7,11 @@
 // connector/section predicates) — it owns no domain logic beyond a trivial word count (L069/L093, no god
 // package). Pure + deterministic.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { dueDateFromRaw } from './board-due-date';
-import { metricFromRaw, progressPct } from './board-metric';
-import { orphanCards } from './board-orphans';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { dueDateFromRaw } from './board-due-date.ts';
+import { metricFromRaw, progressPct } from './board-metric.ts';
+import { orphanCards } from './board-orphans.ts';
 
 export interface BoardSummary {
   /** Content cards — not connectors, not sections. */

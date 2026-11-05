@@ -12,7 +12,7 @@
 // to attribute order + self-closing tags, un-escaping the five XML entities the exporters write. Deterministic
 // (document order); malformed nesting tolerated (depth never goes below 0), never thrown.
 
-import type { OutlineLine } from './batch-actions';
+import type { OutlineLine } from './batch-actions.ts';
 
 /** How to read ONE nested-XML mind-map dialect: the nesting element name + the attribute(s) that hold a node's
  *  label (first present wins). OPML = `{tag:'outline', textAttrs:['text','title']}`; FreeMind =

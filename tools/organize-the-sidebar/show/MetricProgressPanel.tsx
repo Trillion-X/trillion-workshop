@@ -6,9 +6,9 @@
 // blind list; a row click jumps to that goal. The FIFTH caller of RankedJumpList — the primitive holds
 // across five surfaces.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import { formatValue } from '../read-data/board-metric';
-import type { MetricRankRow } from '../do-work/board-metric-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import { formatValue } from '../read-data/board-metric.ts';
+import type { MetricRankRow } from '../do-work/board-metric-actions.ts';
 
 export interface MetricProgressPanelProps {
   readonly rows: readonly MetricRankRow[];

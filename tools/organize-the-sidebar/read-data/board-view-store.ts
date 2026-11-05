@@ -12,9 +12,9 @@
 // random — the caller supplies `savedAt`.
 
 import { type AddressRef, type GroupGraph } from '../../ui/show/group/group-graph';
-import type { BoardItem } from './group-board-model';
-import type { Camera, Viewport } from './viewport-visibility';
-import { frameSelection } from './camera-frame';
+import type { BoardItem } from './group-board-model.ts';
+import type { Camera, Viewport } from './viewport-visibility.ts';
+import { frameSelection } from './camera-frame.ts';
 import {
   recordIndexRef,
   readRecords,
@@ -27,7 +27,7 @@ import {
   restoreRecord,
   type RecordStoreSpec,
   type StoredRecord,
-} from './named-record-index';
+} from './named-record-index.ts';
 
 /** A saved viewport: the camera to restore, plus (when present) the card ids it framed so it can RE-FRAME the
  *  current board instead of trusting stale coordinates. */

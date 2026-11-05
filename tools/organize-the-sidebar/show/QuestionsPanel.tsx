@@ -6,8 +6,8 @@
 // asks it). BLIND (L090): it renders the `CardQuestions[]` it is handed, one row per question, naming no card.
 // Distinct from every other lens — Readiness is dependencies, Outline is structure, Health is hygiene; this is
 // the GRAMMAR of the content: "what have I not answered yet?".
-import { Badge, Button, Card, Container, Text } from '../../ui';
-import type { CardQuestions } from '../read-data/board-questions';
+import { Badge, Button, Card, Container, Text } from '../../ui/index.ts';
+import type { CardQuestions } from '../read-data/board-questions.ts';
 
 export interface QuestionsPanelProps {
   readonly cards: readonly CardQuestions[];

@@ -8,7 +8,7 @@
 // ZERO code change in the overlay/control/picker (L069/L090). A caller may still override with its
 // own descriptors; this is the default catalog.
 
-import type { SettingInfoDescriptor } from './SettingInfoOverlay';
+import type { SettingInfoDescriptor } from './SettingInfoOverlay.tsx';
 
 export const BOARD_SETTING_INFO: Readonly<Record<string, SettingInfoDescriptor>> = {
   containerVariant: {

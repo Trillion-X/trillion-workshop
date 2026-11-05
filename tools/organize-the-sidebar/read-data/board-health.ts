@@ -11,16 +11,16 @@
 // deletion test: drop `orphans`, add any `{weight, detect}`, the score still computes). The reducer is blind —
 // it never names a signal. Pure, deterministic.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import { buildRelationGraph } from './relationship-graph';
-import { orphanCards } from './board-orphans';
-import { ambiguousTitleIds } from './board-titles';
-import { cardsWithUnlinkedMentions } from './board-mentions';
-import { redundantConnectorIds } from './duplicate-connectors';
-import { untaggedCardIds, tagCoverage } from './board-tag-coverage';
-import { splitCandidateIds } from './board-split-candidates';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import { buildRelationGraph } from './relationship-graph.ts';
+import { orphanCards } from './board-orphans.ts';
+import { ambiguousTitleIds } from './board-titles.ts';
+import { cardsWithUnlinkedMentions } from './board-mentions.ts';
+import { redundantConnectorIds } from './duplicate-connectors.ts';
+import { untaggedCardIds, tagCoverage } from './board-tag-coverage.ts';
+import { splitCandidateIds } from './board-split-candidates.ts';
 
 /** What one signal found: the affected item ids + the population the ratio is measured against. */
 export interface HealthSignalResult {
