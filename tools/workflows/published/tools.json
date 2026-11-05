@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:bd8b616cba91fd30e3e2c5d558a0fb2f513ceacca121f794c4125cee9073adff"
+  "blake3": "1f:ffcb0bb73cd6c345b578e7ed8f952b5e91fb58f4027167f468ab06f2ae1452c8"
  },
  "fields": [
   {
@@ -7733,6 +7733,21 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
+    ],
+    "folder": "settings"
+   }
+  },
+  {
+   "id": "tool:read-a-tool-setting-through-my-door",
+   "values": {
+    "title": "Read the settings I keep for one of my tools, from my own lists",
+    "job": "Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
+    "description": "Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there. The run may read only that tool's rows (its right is the settings_prefix). A retired row, or a row for another tool than the one named, is refused. The same choice as tool:read-a-tool-setting, without first writing the rows to a file.",
+    "status": "active",
+    "maker": "maker:settings",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
     ],
     "folder": "settings"
    }
