@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SAVED-EXAMPLES-PAGE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:9ed5c330511f3ab73bc1783f1ddc912e3471464769a65002c0195ebaecd6d332",
+  "quote": "Your job is to port old trillion's behaviour for your family's routes one to one, with the old tests ported alongside, so each route gets a real owner."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/saved-examples.mjs",
+   "multihash": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the Trillion-X/trillion change that retires src/saved-examples.mjs, now that the Saved examples page is answered by this Workshop route tool"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/saved-examples/do-work/answer-the-saved-examples-page.mjs"
+  }
+ ],
+ "preserve": [
+  "makeSavedExamples and handleSavedExamplesRequest unchanged: one example per address by its BLAKE3 id, what was not given read from the link the first time, every save checked whole before it is kept",
+  "GET /saved-examples, POST /saved-examples and POST /saved-examples/remove answer the same status and body, 400 for a refused save, 404 for any other spelling"
+ ],
+ "allowed_deltas": [
+  "answerTheSavedExamplesPage added after the owner: the store is the person's saved-example records through the records door, read before and written after the owner runs",
+  "a removed example ({ id, removed_at }) is written as a null value, as tool:remove-a-saved-example removes one",
+  "the link is read by tools/read-a-public-web-link-whole-its-card readLinkCard"
+ ],
+ "banned_substitutions": [
+  "a second store of saved examples beside the saved-example records",
+  "a guessed title, words or picture when neither the caller nor the link gives one"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T01:37:14Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050",
+  "target_multihash_at_baseline": "1f:2f3983566dac754a5fdf0277836fe9529976da35a33d0a812ad57e3dae45d050",
+  "commit": "9f150361c689d0ed4dba707e5c4fb832584d71d1"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/saved-examples/test/answer-the-saved-examples-page.test.mjs the tag's test/saved-examples.test.mjs and test/native-saved-example-browser-routes.test.mjs, ported"
+  ]
+ }
+}

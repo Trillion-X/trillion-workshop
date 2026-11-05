@@ -144,3 +144,31 @@ export async function handleSavedExamplesRequest(examples, request) {
     return Response.json({ error: error.message }, { status: error instanceof SavedExamplesError || error instanceof SyntaxError ? 400 : 500 });
   }
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// tools/saved-examples: the owner above is old trillion's src/saved-examples.mjs at tag old-trillion-before-worker-retire,
+// unchanged. The Saved examples page's routes reach it here as a @workshop-routes tool (input { path, method, query,
+// body, browser }, result { status, body }), with its store the person's saved-example records through the run's
+// records door, read once before the owner runs and written once after (a refused save writes nothing). An example
+// the owner removes ({ id, removed_at }) is removed as tool:remove-a-saved-example removes it: its record's value is
+// null, and the records keep its history. What a save was not given is read from the public link itself
+// (tools/read-a-public-web-link-whole-its-card readLinkCard, the same reader src/read-link.mjs was).
+import { readLinkCard } from '../../read-a-public-web-link-whole-its-card/src/read-link.mjs';
+
+const KIND = 'saved-example';
+
+/** tool:answer-the-saved-examples-page: run by tools/records-door/do-work/run-an-export.mjs as fn(input, { door }). */
+export async function answerTheSavedExamplesPage(input, { door }) {
+  const { path = '', method = 'GET', body } = object(input) ? input : {};
+  const values = new Map();
+  for await (const record of door.list({ type: KIND })) if (object(record.value)) values.set(record.id, record.value);
+  const writes = new Map();
+  const store = { list: () => [...values.values()], put: (id, value) => { values.set(id, value); writes.set(id, value); } };
+  const examples = makeSavedExamples({ store, readLink: url => readLinkCard(url) });
+  const request = new Request(`https://person${path}`, method === 'GET' ? {} : { method, body: JSON.stringify(body ?? {}) });
+  const response = await handleSavedExamplesRequest(examples, request);
+  if (response.status < 400 && writes.size) {
+    await door.write([...writes].map(([id, value]) => ({ id, type: KIND, value: value.removed_at ? null : value })));
+  }
+  return { status: response.status, body: await response.json() };
+}

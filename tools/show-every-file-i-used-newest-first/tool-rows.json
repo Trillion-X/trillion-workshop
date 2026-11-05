@@ -1,0 +1,189 @@
+{
+ "kind": "tool-rows",
+ "record_set": "show-every-file-i-used-newest-first-tool-rows",
+ "what_this_is": "The Workshop row for tools/show-every-file-i-used-newest-first: the Recent screen's route, the files the person used newest first and keeping a use, over their own recent-file-use records and Namespace files through the run's records door.",
+ "records": [
+  {
+   "id": "package::show-every-file-i-used-newest-first::tool::answer-the-recent-files-page",
+   "address": "package::show-every-file-i-used-newest-first::tool::answer-the-recent-files-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:answer-the-recent-files-page",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "Answer the Recent screen",
+    "job": "Answer the Recent screen: list the files I used, newest first, and keep that I used one",
+    "description": "The Recent screen's route, as the old account owner answered it (src/recent-files.mjs recentFilesStore, unchanged): GET /recent-files?limit=&before= answers { items, next_before, said }, each item one file the person keeps (identity, name, title, media_type, last_at, last_kind, last_words, kinds); POST /recent-files { file, kind } keeps that a file (a name starting with / or its identity) was used as one short word, stamped with the owner's own clock, and answers { recorded: true, file }; a file that is not theirs is 400 with words. Each use is one recent-file-use record per file and kind. Answers { status, body }.",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The page route after /work/api: /recent-files"
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "GET",
+        "POST"
+       ]
+      },
+      "query": {
+       "type": "object",
+       "description": "The route's query parameters, by name"
+      },
+      "body": {
+       "description": "The JSON body the page sent ({} when none)"
+      },
+      "browser": {
+       "type": "object",
+       "description": "The asking browser's own facts: user_agent, origin, visitor"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "show-every-file-i-used-newest-first",
+        "paths": [
+         "do-work",
+         "src"
+        ],
+        "at": "/opt/show-every-file-i-used-newest-first"
+       },
+       {
+        "package": "recently-deleted-and-storage",
+        "paths": [
+         "time-cursor.mjs"
+        ],
+        "at": "/opt/recently-deleted-and-storage"
+       },
+       {
+        "package": "organize-my-files",
+        "paths": [
+         "src/namespace-file-lookup.mjs"
+        ],
+        "at": "/opt/organize-my-files"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/show-every-file-i-used-newest-first",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/show-every-file-i-used-newest-first/do-work/answer-the-recent-files-page.mjs",
+      "answerTheRecentFilesPage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "recent-file-use",
+        "operations": [
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "find_file"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/work-media.mjs (RECENT) and src/native-media-account-actions.mjs nativeRecentFiles over src/recent-files.mjs recentFilesStore (tag old-trillion-before-worker-retire), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/recent-files",
+       "method": "GET",
+       "query": {
+        "limit": "5"
+       },
+       "body": {}
+      },
+      "door_files": {
+       "/Recordings/serve.mp4": "made-up video bytes"
+      },
+      "records": []
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}
