@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:fa75b16b9b0603d48b5c2d56d5d3cc5117d1b9d26ce748c2b1d173203cfbe6e9"
+  "blake3": "1f:fd1e0af731332bad4cdf45a32559516202af8676d0a032686d1f025701c8375c"
  },
  "fields": [
   {
@@ -5911,6 +5911,22 @@
      "placement:small-container"
     ],
     "folder": "check-against-a-persons-rules-and-verdicts"
+   }
+  },
+  {
+   "id": "tool:make-marketplace-tiles-with-their-icons",
+   "values": {
+    "title": "Make Marketplace tiles with their icons (runs on your computer)",
+    "job": "Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+    "description": "Reads the tools and workflows as the shelf's readers answer them (two JSON files of { items: [{ id, kind, title, job, steps?, icon? }] }) and the icons folder of an installed lucide-react, and answers one tile per item: id, kind, title, job (cut to 90 characters), steps, icon and svg, the icon's own shape elements (the item's icon, else its kind's icon from marketplace-kinds.json; an alias icon file is followed). Titles that read as machine names are left out. With --out it writes window.<global>=<tiles>; for a page (global TILES unless --global names another). The icon files are read as data, never run. Last line: {\"result\": {tiles, counts}} or {\"error\": ...}.",
+    "status": "active",
+    "maker": "maker:browse-and-publish-what-my-ai-can-use",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "browse-and-publish-what-my-ai-can-use"
    }
   },
   {
