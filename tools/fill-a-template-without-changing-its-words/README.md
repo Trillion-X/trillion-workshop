@@ -18,7 +18,8 @@ Four commands, run by the person's AI on the person's own computer, and `build.p
 | `read-data/wt_core.py` | Errors, words, source checks and the readers (the only per-format code). |
 | `read-data/wt_ops.py` | The operations, drift and metrics. |
 | `read-data/wt_render.py` | The template markdown, the fill markdown and the drift text. |
-| `read-data/dimensions.json` | The generic registry (data): value kinds, media, readers, slot rules, tokenizer and 25 dimensions for words, layout and colour. A craft's own dimensions are the person's registry file, passed with `--registry`. |
+| `read-data/dimensions.json` | The generic registry (data): value kinds, media, readers, slot rules, tokenizer and 25 dimensions for words, layout and colour. A craft's own dimensions are the person's: a row of their `list:settings` (`--settings-record`) or a registry file (`--registry`). |
+| `test/test_settings_record.py` | The registry, discovery and films read from a made-up `list:settings` row (`--settings-record`, `--scope`): the template remembers the row, fill and drift ask for it again, a registry file beats the row, the most specific scope wins, a changed row rebuilds, and every refusal says how to fix it. |
 | `test/test_word_template.py`, `test/test_bound_to.py` | Unit tests: operation matrix, a data-only dimension, a data-only medium and value kind, flipped assumptions, every reader, incremental library builds, binding and re-timing. |
 | `test/sample_registry.py` | The registry the tests use: the shipped one plus invented tasting-sample dimensions and a few sound and rhythm dimensions, so no one person's vocabulary is in the repository. |
 | `test/fill-a-template.test.mjs` | Runs the Python tests under `npm test`, then the four commands end to end on a written example. |
@@ -86,6 +87,8 @@ Nothing about what can be measured lives in code:
 | `tokenizer` | scripts written without spaces (one token per character), line pause, chance-match filter | values |
 
 Seeded: 25 generic dimensions across 11 media (video, carousel, static, text post, thread, article, newsletter, thumbnail and title, landing page, podcast, audio): spoken words, speaker, word duration, speaking rate; on-screen text, caption cards, post text, article copy, buttons, alt text, hashtags, mentions, links, media, posting day and hour; text and background colour; layout box, type size, type style, unit order, canvas size, image slot; drift status. Dimensions whose only measure is a `method` stay `pending` until a reader or a `records` overlay supplies them.
+
+**Your own dimensions are a settings row.** A person keeps their registry (and, for `build.py`, their discovery) as one row of their generic list `list:settings`: type `record:setting`, id `record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>` (usually `account~main`), read through the shared reader `tools/settings/read-data/settings.py`. Its `settings` hold `{"registry": <a registry, the shape of dimensions.json>, "discovery"?: <what a discovery file holds; its "films" may be the films object itself>}`. Every command takes `--settings-record FILE` (the record as `records:read` gives it, its value, a list of them or a JSON file of them) and `--scope KIND:ID` (most specific first) when several rows are given. The order is: `--registry FILE`, then the row's registry, then the registry the piece remembers, then the shipped one. A template made from a row remembers `"registry": "setting:<row id>"`, so `fill.py`, `drift.py` and `retime.py` refuse it without the row instead of quietly measuring with another registry. `build.py --settings-record FILE` with no discovery file reads the row's discovery; a changed row rebuilds what it measured.
 
 **Your own dimensions are your data.** Nothing here names one person's craft: the fields of a tasting sheet, a sound timeline, a checklist or a house style are dimensions in a registry file the person keeps, passed with `--registry FILE` (the template remembers it, so `fill.py` and `drift.py` use the same one). A registry row is `{id, media, region, value_kind, measure: [{reader, field, token}], drift}`; a reader row may set `id_prefix` for the ids it gives rows that have no id column (default `row`).
 
@@ -177,7 +180,7 @@ A reader that measures something with automatic labels can set `ctx["<name>_prov
 
 ## Dependencies
 
-**Depends on:** Python 3 standard library; `tesseract` for the `ocr_images` reader only.
+**Depends on:** Python 3 standard library; `tesseract` for the `ocr_images` reader only; `tools/settings/read-data/settings.py` (the shared settings reader) when `--settings-record` is given.
 
 **Depended on by:** nothing in this repository; the Workshop rows run the four commands.
 
