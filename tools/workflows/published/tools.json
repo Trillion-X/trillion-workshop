@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9423e42b9c7fc40874473ea475e9d2697bd16290f35e9ea0a280ef0e8b4ae838"
+  "blake3": "1f:ebebe9a4e6e7e213dbd6289dab8b771684bdb73177555d49d5bd04a1af9a319c"
  },
  "fields": [
   {
@@ -1978,6 +1978,21 @@
    }
   },
   {
+   "id": "tool:check-takes-are-complete-with-a-small-local-model",
+   "values": {
+    "title": "Check whether my spoken takes are complete with a small model (runs on your computer)",
+    "job": "Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts",
+    "description": "Give transcripts (a folder of word-timed transcript JSON) and model (a decider snapshot). Takes are built from real sentences: as said (usable) or with one controlled fault (not usable), so the labels are true by construction. Returns accuracy, accuracy per fault, and how many it answers and gets right at confidence 0.7, 0.8 and 0.9.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:check-the-facebook-page-connection",
    "values": {
     "title": "Check the Facebook Page connection",
@@ -2195,7 +2210,7 @@
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
     "job": "Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did",
-    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, with the person's own intro and outro put in as written. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
+    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, written into the person's own Markdown template: their words stay as written, marked sections are filled from the registry, and principle ids, counts and evidence named in their words are filled in. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:cite-principles-from-captions",
     "licence_class": "licence:maker-own",
@@ -2973,6 +2988,21 @@
      "placement:your-computer"
     ],
     "folder": "file-spoken-moments-into-topic-buckets"
+   }
+  },
+  {
+   "id": "tool:fill-a-scripts-blanks-with-small-local-models",
+   "values": {
+    "title": "Fill a script template's blanks from sourced phrases with small models on my computer (runs on your computer)",
+    "job": "Fill the blanks of my script template with true, sourced phrases chosen by small models on my computer: gather the phrases, rank them per blank, add the typed candidates, let a model choose, and render the fills with their drift",
+    "description": "make_candidate_pool gathers short phrases with a checkable source (a listing, a site's JSON, git histories, a product name, ages); template_blanks (read-data) reads the template's lines and blanks; rank_pool_for_blanks keeps a cross-encoder's 12 best per blank; make_typed_options adds every candidate of the blank's type; choose_fills_with_decider, judge_filled_lines_with_decider and choose_fills_with_language_model choose; render_choices_as_fills writes the fills (abstaining below a line) through tool:fill-a-template-without-changing-its-words and measures the drift. A blank of type PERSON-LINE is never filled from a pool. Steps: make_candidate_pool, rank_pool_for_blanks, make_typed_options, choose_fills_with_decider, judge_filled_lines_with_decider, choose_fills_with_language_model, render_choices_as_fills.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -4546,6 +4576,21 @@
    }
   },
   {
+   "id": "tool:insert-frame-holds-into-a-filmcraft-project-copy",
+   "values": {
+    "title": "Insert my rendered corrections into a copy of my FilmCraft project as editable clips (runs on your computer)",
+    "job": "Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+    "description": "Reads a FilmCraft project (.fcproj, JSON) and writes a NEW project. For each shot named, from <shots>/<shot id>.json (its plate source file and frame) and the three files in <out>/<shot id>/ (<id>-overlay-prores4444.mov, <id>-narrator.wav, <id>-sfx-music.wav), it ripple-inserts a frame-hold segment of the plate's own clip at that frame (the clip's own effects, so its grade applies), razors every clip that spans the point and moves everything after it, extends the adjustment layer over the inserted span, and places the overlay on video track 3, the voice on audio track 2 and the music and sound effects on audio track 3, with each file's facts read by ffprobe. Refuses, saying what to change: an output that is the input, a missing shot file, a missing rendered file, a plate that is not a media file of the project, a frame no clip on the first video track holds. The input project is never written. It does not open or script FilmCraft. The inserts here are the person's own corrections; a project the person protects takes picked options only through its own apply tool, so run this on a copy.",
+    "status": "active",
+    "maker": "maker:edit-a-copy-of-a-premiere-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "edit-a-copy-of-a-premiere-project"
+   }
+  },
+  {
    "id": "tool:install-an-engine-builder",
    "values": {
     "title": "Install an engine builder",
@@ -4911,6 +4956,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:label-video-frames-with-small-local-models",
+   "values": {
+    "title": "Label frames of my videos with a small model on my computer (runs on your computer)",
+    "job": "Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places",
+    "description": "Give shots (with frames), vocabulary ({field: {value: plain definition}}) and the model. label_frames_with_image_text_model asks each value two ways (bare word, plain definition) of an open_clip model; label_frames_with_vision_decider asks a decider-vision snapshot one lettered question per field (questions, context, mode bare | defined), as a two-round tournament past ten values; label_frames_with_vision_language_model asks an mlx-vlm model for one JSON answer per frame (instruction, phrases for free text); rank_free_text_places ranks every distinct reference phrase per frame two ways. Each answer has meta (load seconds, time per frame, memory) and one row per frame. Steps: label_frames_with_image_text_model, label_frames_with_vision_decider, label_frames_with_vision_language_model, rank_free_text_places.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -5389,6 +5449,21 @@
    }
   },
   {
+   "id": "tool:list-the-longest-still-holds-of-my-video",
+   "values": {
+    "title": "List where my video holds still longest (runs on your computer)",
+    "job": "Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it",
+    "description": "Reads a video with the same frame-difference measure as tool:check-a-videos-motion-against-a-reference (every frame as a small grey picture; a frame moves when it or a neighbour changed by more than the still level and less than a cut) and lists its longest holds, longest first, each with its length and the second it starts. The still level is the one the person gives (for example a reference's still_threshold from the check, so the list matches what the check counted) or, left out, the one read from this video. The person can measure only the first seconds of the video (up to its end card) and say how many holds to list. It names no bar and judges nothing: it says where the stills are.",
+    "status": "active",
+    "maker": "maker:check-a-videos-motion-against-a-reference",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-a-videos-motion-against-a-reference"
+   }
+  },
+  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -5607,6 +5682,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:make-a-frame-contact-sheet-of-a-video-section",
+   "values": {
+    "title": "Make one picture of the frames of a short part of a video (runs on your computer)",
+    "job": "Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it",
+    "description": "Cuts at most 300 seconds of a video and makes a contact sheet: one frame every `step` seconds (4 unless given), 320 pixels wide, `cols` frames to a row (4 unless given), as one JPEG. A link is fetched with yt-dlp, only that section, at 360p or less, into the folder's clips/ and used again on the next run; a video file on the computer is read directly from start to end. Every command and its output go to a log beside the sheet; a failure says which program failed with what exit code and shows the log's last lines. Each heavy program runs alone at the lowest priority (nice -n 20), so the computer stays usable.",
+    "status": "active",
+    "maker": "maker:make-a-frame-contact-sheet-of-a-video-section",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "make-a-frame-contact-sheet-of-a-video-section"
    }
   },
   {
@@ -7422,6 +7512,36 @@
    }
   },
   {
+   "id": "tool:rank-candidate-clips-for-a-slot-with-small-local-models",
+   "values": {
+    "title": "Rank candidate clips for each slot of my video with a small model (runs on your computer)",
+    "job": "Rank the candidate clips for each slot of my video with a small model on my computer, and see how often its best is the one I would pick",
+    "description": "Give slots (each with its candidates' frames and library text), method (siglip, decider-vision, decider-text, bge-text or qwen3vl) and model; optional reference ({slot: [candidate, best first]}) and reference_name give top1 and top1 within the reference's first three.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
+   "id": "tool:rank-my-titles-with-a-small-local-model",
+   "values": {
+    "title": "Rank my title ideas with a small model on my computer (runs on your computer)",
+    "job": "Rank my video title ideas by how strongly a small decider model on my computer answers yes to my question about each",
+    "description": "Give titles ({ref: title}), question (your yes/no question) and model (a decider snapshot). P(yes) is used only as a ranking.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:rank-open-trip-things",
    "values": {
     "title": "Rank what is still open on a trip",
@@ -7675,6 +7795,21 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:read-a-tool-setting",
+   "values": {
+    "title": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
+    "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
+    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records records:read returned (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record records:write takes, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+    "status": "active",
+    "maker": "maker:settings",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "settings"
    }
   },
   {
@@ -9458,6 +9593,21 @@
    }
   },
   {
+   "id": "tool:sample-shots-and-frames-from-my-format-library",
+   "values": {
+    "title": "Sample shots and their frames from my format library (runs on your computer)",
+    "job": "Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use",
+    "description": "sample_shots_across_groups takes up to N videos round-robin over creators and evenly spaced shots of each (seeded); sample_candidates_for_slots takes, per described slot, candidates of the right kind from different videos; cut_sample_frames and cut_candidate_frames cut each frame at its middle second with frame_tool (an `evidence frames` command) and copy it beside the others. The library is formats/<creator>/<video>/shots.tsv with videos/<video>.mp4. Steps: sample_shots_across_groups, sample_candidates_for_slots, cut_sample_frames, cut_candidate_frames.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:save-a-form",
    "values": {
     "title": "Save a form",
@@ -9729,6 +9879,21 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:score-small-model-labels-against-my-labels",
+   "values": {
+    "title": "Score small models' frame labels against the labels I already have (runs on your computer)",
+    "job": "Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline",
+    "description": "Give shots (the sample, each with reference labels, width and height), vocabulary, labels (the files the label steps wrote), reference_name, unknown, list_separator, thresholds, and optionally shape_field with shape_ratios (the field whose reference is the named ratio nearest the frame's own). Standard library only.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -11365,6 +11530,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:time-a-small-local-decider",
+   "values": {
+    "title": "Time how fast a small decider model loads and answers on my computer (runs on your computer)",
+    "job": "Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds",
+    "description": "Give model (a decider snapshot in the Hugging Face cache) and optionally revision and device. Runs a made-up two-question case four times.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
