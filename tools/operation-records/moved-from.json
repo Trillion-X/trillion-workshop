@@ -11,6 +11,42 @@
       "to": "tools/operation-records/part.json",
       "source_identity": "1f:5a304af33fe82f792869cc11630295e6aac52a4f460dc27542c38479abde660e",
       "identity": "1f:a60aff1e8ae9922c8acb2498e55a687928f5ee3834f3b5ae59be541c951d76ef"
+    },
+    {
+      "from": "parts/operation-records/do-work/invoke-operation-transition.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/operation-records/do-work/invoke-operation-transition.ts",
+      "source_identity": "1f:50096cd8576856f71b2bd6ff1bb1fdcca0fd9c8c4171a1fff0e40d3b83c282b5",
+      "identity": "1f:50096cd8576856f71b2bd6ff1bb1fdcca0fd9c8c4171a1fff0e40d3b83c282b5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/operation-records/read-data/operation-action-invocation.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/operation-records/read-data/operation-action-invocation.ts",
+      "source_identity": "1f:504e3813ba3407d63e7a7417f7b172cbaff5a6f4d207e1a11d0b675d596ff2cd",
+      "identity": "1f:504e3813ba3407d63e7a7417f7b172cbaff5a6f4d207e1a11d0b675d596ff2cd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/operation-records/read-data/operation-records.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/operation-records/read-data/operation-records.ts",
+      "source_identity": "1f:b10d65f52dc4892d49d64aebc06a31c2e9afb67d4c15ddc0e7c22471f86f6edd",
+      "identity": "1f:b10d65f52dc4892d49d64aebc06a31c2e9afb67d4c15ddc0e7c22471f86f6edd",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/operation-records/read-data/operation-work.ts",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/operation-records/read-data/operation-work.ts",
+      "source_identity": "1f:becf967d92806ccf5c5d80c019279aab8567b0bb74a5fbc0eb6055f9bb521c51",
+      "identity": "1f:becf967d92806ccf5c5d80c019279aab8567b0bb74a5fbc0eb6055f9bb521c51",
+      "found_by": "same bytes"
     }
   ],
   "not_matched": [

@@ -11,6 +11,96 @@
       "source_identity": "1f:85a38373a91e16c6db6b8f52bdfba35256346e80e7b9b521e240dc17be0c8d9c",
       "identity": "1f:ba34329ce4ef6f2f48fe2e266c0ebe8a65419b153d8108580910af27af00a6eb",
       "changed": "its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "parts/live-namespace/built-stored-bytes/content-chunks/content_chunks.js",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/built-stored-bytes/content-chunks/content_chunks.js",
+      "source_identity": "1f:7163c659907f80784ba107f282db3f3457ea093aa5c47ad7c097539056db1182",
+      "identity": "1f:7163c659907f80784ba107f282db3f3457ea093aa5c47ad7c097539056db1182",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/content-chunks-browser.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/browse-and-upload-my-files/do-work/content-chunks-browser.mjs",
+      "source_identity": "1f:19db69ce5ff6756dca13902b1d4750195ffbf5c332aa0165d31d25030ca8db7e",
+      "identity": "1f:19db69ce5ff6756dca13902b1d4750195ffbf5c332aa0165d31d25030ca8db7e",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/content-chunks.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/content-chunks.mjs",
+      "source_identity": "1f:209c651ef17f8b50ca40cc11f4e650f691d48e1ac134a54f6b31c4d924a9e313",
+      "identity": "1f:209c651ef17f8b50ca40cc11f4e650f691d48e1ac134a54f6b31c4d924a9e313",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/namespace-client.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/namespace-client.mjs",
+      "source_identity": "1f:e9cc4e87e629c6895231c72eaa457cdd49c88d3606abca8310ac369bf46c22f9",
+      "identity": "1f:e9cc4e87e629c6895231c72eaa457cdd49c88d3606abca8310ac369bf46c22f9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/send-a-file-to-a-namespace.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs",
+      "source_identity": "1f:7c1d1d1b8cae3ce3a2b9f7426b69e258dee2ecdb503b47765fcc1034b9b7b816",
+      "identity": "1f:7c1d1d1b8cae3ce3a2b9f7426b69e258dee2ecdb503b47765fcc1034b9b7b816",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/send-a-file-to-namespace-browser.mjs",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "deleted_by": "7fa97544cf901ea2bf98dc49408d1fad577e52eb",
+      "to": "tools/browse-and-upload-my-files/do-work/send-a-file-to-namespace-browser.mjs",
+      "source_identity": "1f:21d4ed37bd0fd003ca955344c42ee2ec459066a37ddff48a75d4d497ed813149",
+      "identity": "1f:21d4ed37bd0fd003ca955344c42ee2ec459066a37ddff48a75d4d497ed813149",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/send-a-folder-to-a-namespace.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/send-a-folder-to-a-namespace.mjs",
+      "source_identity": "1f:6cf3a6c442b0c71f2eb6fe7b6717710810f0416fa6320b27d415f0229d8ba5b3",
+      "identity": "1f:6cf3a6c442b0c71f2eb6fe7b6717710810f0416fa6320b27d415f0229d8ba5b3",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/send-window.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/send-window.mjs",
+      "source_identity": "1f:e3259719ed55160f698c1f47df32c54c7546119c4a470b157022c229978b1f7f",
+      "identity": "1f:e3259719ed55160f698c1f47df32c54c7546119c4a470b157022c229978b1f7f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/send-without-copies.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/send-without-copies.mjs",
+      "source_identity": "1f:b8ad7edef8a7ac57ef9c64009d809f779b7be298ecd51142754a02b0d026ce58",
+      "identity": "1f:b8ad7edef8a7ac57ef9c64009d809f779b7be298ecd51142754a02b0d026ce58",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/live-namespace/do-work/upload-a-folder.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/browse-and-upload-my-files/do-work/upload-a-folder.mjs",
+      "source_identity": "1f:88e670f2f3b7bdabc8351990b52aea3cbf61f042e05704574b97fd91d656dea3",
+      "identity": "1f:88e670f2f3b7bdabc8351990b52aea3cbf61f042e05704574b97fd91d656dea3",
+      "found_by": "same bytes"
     }
   ]
 }

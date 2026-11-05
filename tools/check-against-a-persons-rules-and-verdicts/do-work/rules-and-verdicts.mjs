@@ -31,7 +31,11 @@
 //      unknown, never a pass. A row's `ask.adapter`, `ask.model` and `ask.examples` go with its questions, and a finding
 //      from a row with an adapter names the adapter's `blake3`, so an answer is always tied to what gave it. A row is
 //      asked once a sentence of each unit, or once of each whole unit when its `ask.per` is "unit" (a person's reading
-//      rows: hundreds of rows asked once a sentence would be thousands of questions a paragraph).
+//      rows: hundreds of rows asked once a sentence would be thousands of questions a paragraph). A question not yet
+//      settled (no answer, or a model not calibrated to answer it) is one finding a unit and cause with its count
+//      (`reading-questions-unsettled`), never one a row: it says nothing of the text, and a branch of 1,200 reading rows
+//      would repeat the unit's whole text 1,200 times in the answer. `askedOf` puts the questions in an answer as one entry
+//      a rule, in pages that fit one run's answer.
 //   7. Only the person's own agree on one exact line, naming one rule (a stand with `rule`), waives that rule on that line
 //      (`waived`). Nothing else waives anything: not a stand by anyone else, not disagree or partly, not a stand without
 //      a rule, not another line, however close. A stand that names a rule is never a verdict on the whole thing.
@@ -40,6 +44,7 @@
 import { CHECK_NAMES, makeJudge, ruleApplies, valuesAt } from '../../judge-words/do-work/judge-words.mjs';
 import { artifactRef, foldWith } from '../../where-a-person-stands/do-work/artifact-ref.mjs';
 import WORDS from '../read-data/words.json' with { type: 'json' };
+import ANSWER from '../read-data/answer.json' with { type: 'json' };
 
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const IDS = WORDS.rule_ids;
@@ -221,6 +226,16 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
   const itemOf = unit => (unit.view !== undefined ? { kind: unit.kind, value: unit.view, field: fieldOf(unit), path: unit.path ?? [] }
     : { text: unit.text, field: fieldOf(unit), kind: unit.kind, path: unit.path ?? [], value: factsOf(unit) });
   const readingOf = new Map(), ruleBreaksByResult = new Map();
+  // A model question that is not settled (no answer, or a model not calibrated to answer it) says nothing about the text,
+  // only about the question, and every row of a branch says it the same way: one finding a unit and cause, with its count,
+  // never one a row (a branch of 1,200 reading rows would repeat the unit's whole text 1,200 times in the answer).
+  const unsettledOf = new Map();
+  const unsettled = (at, why, qualified) => {
+    const causes = unsettledOf.get(at) ?? new Map();
+    const key = JSON.stringify([why, qualified]);
+    causes.set(key, { why, qualified, count: (causes.get(key)?.count ?? 0) + 1 });
+    unsettledOf.set(at, causes);
+  };
   const results = units.map((unit, at) => {
     const item = itemOf(unit);
     // Word rules judge words, never a JSON artifact; a rule that reads a value (`path`, `evidence`) judges a unit's view.
@@ -237,8 +252,9 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     // DATA and no question is asked; its own calibration.status turning "usable" is what asks the model.
     const asksModel = row => (row.ask.at_most ?? row.at_most) !== 'uncertain' || row.ask.calibration?.status === WORDS.usable;
     readingOf.set(at, verdict.reading.filter(asksModel));
-    const unqualified = verdict.reading.filter(row => !asksModel(row)).map(row => ({ rule: row.id, says: row.says, found: textOf(unit), p_fail: null,
-      why: fill(WORDS.reading_not_asked, { status: row.ask.calibration?.status ?? WORDS.no_status }), qualified: false }));
+    for (const row of verdict.reading.filter(row => !asksModel(row))) {
+      unsettled(at, fill(WORDS.reading_not_asked, { status: row.ask.calibration?.status ?? WORDS.no_status }), false);
+    }
     const titled = verdict.findings.map(({ outcome, ...finding }) => ({ outcome, finding }));
     breaks.push(...titled.filter(entry => entry.outcome === 'fail').map(entry => entry.finding));
     const exempt = verdict.decided === 'pass' ? verdictRules.doc.agree_clears.rules : [];
@@ -251,7 +267,7 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     return { ...unit, applicable_rule_ids: [...applicableRules.map(rule => rule.id), ...verdictRows],
       qualification: qualified ? 'word-rules-only' : 'unqualified',
       breaks, uncertain: [...held, ...titled.filter(entry => entry.outcome !== 'fail').map(entry => entry.finding),
-        ...also.filter(entry => entry.outcome !== 'fail').map(entry => entry.finding), ...unqualified,
+        ...also.filter(entry => entry.outcome !== 'fail').map(entry => entry.finding),
         ...(qualified ? [] : [{ rule: IDS.no_applicable_rule, says: WORDS.no_applicable_rule.says, found: textOf(unit), why: WORDS.no_applicable_rule.why }])] };
   });
   // A model row judges the kinds its DATA lists; a JSON artifact carries a value, not words, so no model row reads it as words.
@@ -269,24 +285,30 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
   const per = new Map();
   refs.forEach((ref, index) => {
     const key = `${ref.at}\u0000${ref.rule.id}`;
-    if (!per.has(key)) per.set(key, { result: results[ref.at], rule: ref.rule, scores: [] });
+    if (!per.has(key)) per.set(key, { at: ref.at, result: results[ref.at], rule: ref.rule, scores: [] });
     per.get(key).scores.push({ sentence: ref.sentence, p: probability(answers[questions[index].id]?.[ref.rule.ask.fail]) });
   });
-  for (const { result, rule, scores } of per.values()) {
+  for (const { at: refAt, result, rule, scores } of per.values()) {
     const cal = rule.ask.calibration ?? {};
     const known = scores.filter(score => score.p !== null);
     const worst = known.reduce((best, score) => (score.p > (best?.p ?? -1) ? score : best), null);
     const entry = { rule: rule.id, says: rule.says, found: worst?.sentence ?? scores[0].sentence, p_fail: worst?.p ?? null,
       ...(rule.ask.adapter?.blake3 ? { adapter: rule.ask.adapter.blake3 } : {}) };
     if ((rule.ask.at_most ?? rule.at_most) === 'uncertain') {
-      if (cal.status !== WORDS.usable) result.uncertain.push({ ...entry, why: fill(WORDS.ask_unqualified, { status: cal.status ?? WORDS.no_status }), qualified: false });
-      else if (known.length < scores.length) result.uncertain.push({ ...entry, why: WORDS.ask_no_answer });
+      if (cal.status !== WORDS.usable) unsettled(refAt, fill(WORDS.ask_unqualified, { status: cal.status ?? WORDS.no_status }), false);
+      else if (known.length < scores.length) unsettled(refAt, WORDS.ask_no_answer, true);
       else if (worst.p >= cal.t_fail) result.uncertain.push({ ...entry, why: fill(WORDS.ask_capped_over, { p: worst.p.toFixed(4), t_fail: cal.t_fail }) });
-    } else if (cal.status !== WORDS.usable) result.uncertain.push({ ...entry, why: fill(WORDS.ask_not_usable, { status: cal.status ?? WORDS.no_calibration }), qualified: false });
+    } else if (cal.status !== WORDS.usable) unsettled(refAt, fill(WORDS.ask_not_usable, { status: cal.status ?? WORDS.no_calibration }), false);
     else if (![cal.t_pass, cal.t_fail].every(bounded) || cal.t_pass > cal.t_fail) result.uncertain.push({ ...entry, why: WORDS.ask_bad_bounds });
     else if (worst && worst.p >= cal.t_fail) result.breaks.push(entry);
-    else if (known.length < scores.length) result.uncertain.push({ ...entry, why: WORDS.ask_no_answer });
+    else if (known.length < scores.length) unsettled(refAt, WORDS.ask_no_answer, true);
     else if (worst.p >= cal.t_pass) result.uncertain.push({ ...entry, why: fill(WORDS.ask_between, { p: worst.p.toFixed(2), t_pass: cal.t_pass, t_fail: cal.t_fail }) });
+  }
+  for (const [at, causes] of unsettledOf) {
+    for (const { why, qualified, count } of causes.values()) {
+      results[at].uncertain.push({ rule: IDS.reading_unsettled, says: fill(WORDS.reading_unsettled, { count }), found: textOf(results[at]), count, why,
+        ...(qualified ? {} : { qualified: false }) });
+    }
   }
   const waived = waivers(stands, { by: waivedBy });
   for (const [at, result] of results.entries()) {
@@ -320,6 +342,39 @@ export function check(units, rules, { answers = {}, stands = [], verdictRules = 
     result.advisory = result.verdict === 'uncertain' && result.uncertain.every(finding => finding.qualified === false || finding.advisory === true);
   }
   return { results, questions };
+}
+
+/**
+ * The questions of a check as one entry a rule, in pages that fit one answer. A question is a rule's ask put to a unit, so
+ * a branch of n reading rows over k units is n * k questions; the ask itself (question, options, fail, adapter, model,
+ * examples) is the rule's, said once, and each unit it is put to is { id, text? } (`text` only when the thing asked is not
+ * the whole unit, the unit's own words and `context` being in its result). An entry is { rule, question, ...ask, asked: [{ id,
+ * text? }] }; a field of the ask (options, fail, adapter, model, examples) that every rule of the check has the same is not
+ * in the entries but once in `ask_all`, every question being its entry over `ask_all`. A page holds entries up to read-data/answer.json `questions_at_most_bytes` (one
+ * at least) and `next` is the `after` (the last rule of the page) of the next, null on the last: { questions, questions_page:
+ * { rules, returned, next }, ask_all }. `after` that names no rule of the questions is refused.
+ */
+export function askedOf(questions, results, { after = null } = {}) {
+  const rules = new Map();
+  for (const { id, rule, text, context, ...ask } of questions) {
+    const unit = results[Number.parseInt(id, 10)];
+    if (!rules.has(rule)) rules.set(rule, { rule, ...ask, asked: [] });
+    rules.get(rule).asked.push({ id, ...(text === textOf(unit) ? {} : { text }) });
+  }
+  const entries = [...rules.values()];
+  const same = field => entries.every(entry => JSON.stringify(entry[field]) === JSON.stringify(entries[0][field]));
+  const ask_all = Object.fromEntries(ANSWER.ask_fields.filter(field => entries.length && entries[0][field] !== undefined && same(field)).map(field => [field, entries[0][field]]));
+  for (const entry of entries) for (const field of Object.keys(ask_all)) delete entry[field];
+  const from = after === null ? 0 : entries.findIndex(entry => entry.rule === after) + 1;
+  if (after !== null && from === 0) throw new CheckRefusal(fill(WORDS.refused.questions_after, { after }));
+  const page = [];
+  let bytes = 0;
+  for (const entry of entries.slice(from)) {
+    bytes += Buffer.byteLength(JSON.stringify(entry));
+    if (page.length && bytes > ANSWER.questions_at_most_bytes) break;
+    page.push(entry);
+  }
+  return { questions: page, questions_page: { rules: entries.length, returned: page.length, next: from + page.length < entries.length ? page.at(-1).rule : null }, ask_all };
 }
 
 /** The status of a whole check: unqualified, failed, uncertain or passed. */

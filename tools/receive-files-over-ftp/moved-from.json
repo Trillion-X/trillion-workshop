@@ -1,0 +1,71 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here; deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/receive-files-over-ftp/do-work/ftp-receiver.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/ftp-receiver.mjs",
+      "source_identity": "1f:700bd6be9eba03976f710c77cb58efd10dc658ae003b48f0ca15ef795dab4c9a",
+      "identity": "1f:700bd6be9eba03976f710c77cb58efd10dc658ae003b48f0ca15ef795dab4c9a",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-files-over-ftp/do-work/keychain.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/keychain.mjs",
+      "source_identity": "1f:ce4172ddd84da4d8e044e142d6914bbb34b33bda57b5ce8a591e53c51d3adefe",
+      "identity": "1f:ce4172ddd84da4d8e044e142d6914bbb34b33bda57b5ce8a591e53c51d3adefe",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-files-over-ftp/do-work/know-which-devices.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/know-which-devices.mjs",
+      "source_identity": "1f:af885505364912f4a68dc9a4816878c636ec750d983a00e9c49d0b0bdd1f0ce5",
+      "identity": "1f:af885505364912f4a68dc9a4816878c636ec750d983a00e9c49d0b0bdd1f0ce5",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-files-over-ftp/do-work/send-what-arrives-to-a-namespace.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/send-what-arrives-to-a-namespace.mjs",
+      "source_identity": "1f:5654ede88fbac3adec94eaa73d7d1eb8a238ef7084a989c2c16763cbe5298247",
+      "identity": "1f:5654ede88fbac3adec94eaa73d7d1eb8a238ef7084a989c2c16763cbe5298247",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-files-over-ftp/do-work/set-up-this-computer.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/set-up-this-computer.mjs",
+      "source_identity": "1f:9050fa602fbda33d38a2d4d16bd55fe91ea64c8134ceac42a68892e2451e9d2f",
+      "identity": "1f:9050fa602fbda33d38a2d4d16bd55fe91ea64c8134ceac42a68892e2451e9d2f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-files-over-ftp/do-work/tell-the-account.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/tell-the-account.mjs",
+      "source_identity": "1f:f623dcf242b92d056e686f60265ecbc6d51e7b9dc1e41593879d5e140b579b07",
+      "identity": "1f:f623dcf242b92d056e686f60265ecbc6d51e7b9dc1e41593879d5e140b579b07",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/receive-files-over-ftp/do-work/this-computers-address.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/receive-files-over-ftp/do-work/this-computers-address.mjs",
+      "source_identity": "1f:81e6fe26461ae616c1943779dccb86c21c6dbbf74b644b9fbc98b5d2f9ab7b71",
+      "identity": "1f:81e6fe26461ae616c1943779dccb86c21c6dbbf74b644b9fbc98b5d2f9ab7b71",
+      "found_by": "same bytes"
+    }
+  ]
+}

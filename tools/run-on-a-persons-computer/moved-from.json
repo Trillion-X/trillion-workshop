@@ -224,6 +224,188 @@
       "source_identity": "1f:35c5adcdc83c00603c77798bd174af9a6b07b53fce76c1db158f6d1ff012a9c6",
       "identity": "1f:3253a4a586f410efd2a01f40ddb251a43a656e651c7c04cb2866573c3b60bcf1",
       "changed": "import paths; its BLAKE3 calls go through tools/content-identity (same bytes out) instead of @noble/hashes directly"
+    },
+    {
+      "from": "computer/end-with-the-app.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/end-with-the-app.mjs",
+      "source_identity": "1f:02d1f425a783f5fc5d9624f79d5e7468d94e9ff2167cc8ff6fec3b22e6a87486",
+      "identity": "1f:02d1f425a783f5fc5d9624f79d5e7468d94e9ff2167cc8ff6fec3b22e6a87486",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/hear-with-mlx-whisper.py",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/hear-with-mlx-whisper.py",
+      "source_identity": "1f:d363aa2bc9e3107f054257623f9d87fbd9473f2b3d4b102730b271fc7cf2ec6f",
+      "identity": "1f:d363aa2bc9e3107f054257623f9d87fbd9473f2b3d4b102730b271fc7cf2ec6f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/know-who.py",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/know-who.py",
+      "source_identity": "1f:b14e14919edef1bc7c2ee27e6b6c07e3ba5b740665c5e7273fffd2d67ce3872c",
+      "identity": "1f:b14e14919edef1bc7c2ee27e6b6c07e3ba5b740665c5e7273fffd2d67ce3872c",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/observe-visual.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/observe-visual.mjs",
+      "source_identity": "1f:ae8f3d6c72b63a5e6a5e9c3ebb9c5d4d6b26cb409514c693727bae94e107b3b9",
+      "identity": "1f:ae8f3d6c72b63a5e6a5e9c3ebb9c5d4d6b26cb409514c693727bae94e107b3b9",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/offer-in-browsers.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/offer-in-browsers.mjs",
+      "source_identity": "1f:b212d9f9584e9cd88fc53c82108a94343856179c90b51ee2fed8a13ed1ca0302",
+      "identity": "1f:b212d9f9584e9cd88fc53c82108a94343856179c90b51ee2fed8a13ed1ca0302",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/report-progress.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/report-progress.mjs",
+      "source_identity": "1f:205128c60662c84b630aba578fb1ae271ed50a46db4e87e138e4d161653c597f",
+      "identity": "1f:205128c60662c84b630aba578fb1ae271ed50a46db4e87e138e4d161653c597f",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/resident.py",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/resident.py",
+      "source_identity": "1f:4b546ad1af7e7f2ccca1a0ea99d6dc2b3cdcee5230c981db1f95ec1bb2478730",
+      "identity": "1f:4b546ad1af7e7f2ccca1a0ea99d6dc2b3cdcee5230c981db1f95ec1bb2478730",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/see-a-recording.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/see-a-recording.mjs",
+      "source_identity": "1f:b5f39e82b33c2af3ac653c97da96c98a8954a835dc13e1819e6129a266d0d23b",
+      "identity": "1f:b5f39e82b33c2af3ac653c97da96c98a8954a835dc13e1819e6129a266d0d23b",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/app-job.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/app-job.mjs",
+      "source_identity": "1f:048502bb0cb61e0de0f88166fe373f7033d709dbc6deafd147c42680c6da5597",
+      "identity_at_move": "1f:048502bb0cb61e0de0f88166fe373f7033d709dbc6deafd147c42680c6da5597",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/carry-connections.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/carry-connections.mjs",
+      "source_identity": "1f:6e095d485b0acd2650ce54c69c41e8af09041abf561c87b10fc2e7d77a112cab",
+      "identity_at_move": "1f:6e095d485b0acd2650ce54c69c41e8af09041abf561c87b10fc2e7d77a112cab",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/keep-drive-files.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/keep-drive-files.mjs",
+      "source_identity": "1f:5ec2171ab73ae4a68360e16b724fed7fbea606180e2c4fc29ed7a711b131bf71",
+      "identity_at_move": "1f:5ec2171ab73ae4a68360e16b724fed7fbea606180e2c4fc29ed7a711b131bf71",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/listen.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/listen.mjs",
+      "source_identity": "1f:be93e1d8c89f3af66ca7bd319c9891f5015d0571d3983741c5037160d6743950",
+      "identity_at_move": "1f:be93e1d8c89f3af66ca7bd319c9891f5015d0571d3983741c5037160d6743950",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/local-models.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/local-models.mjs",
+      "source_identity": "1f:55155a091f7062f2e50702dce4609e6d43ff2f4e7acbc9f2d8c3e126b305d229",
+      "identity_at_move": "1f:55155a091f7062f2e50702dce4609e6d43ff2f4e7acbc9f2d8c3e126b305d229",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/mac-tools.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/mac-tools.mjs",
+      "source_identity": "1f:4d549de249cd32c0977eaa8996a306d1ff9cbdde1e1e1fd5a291b7d7a770fc88",
+      "identity_at_move": "1f:4d549de249cd32c0977eaa8996a306d1ff9cbdde1e1e1fd5a291b7d7a770fc88",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/native-app-build.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/native-app-build.mjs",
+      "source_identity": "1f:5a8cf40fe479455301836c3a4d1879b50a75c3a3fa5b6683b74b394fa9955f2b",
+      "identity_at_move": "1f:5a8cf40fe479455301836c3a4d1879b50a75c3a3fa5b6683b74b394fa9955f2b",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/program-host.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/program-host.mjs",
+      "source_identity": "1f:cc4f478960ed6157814689ef294a9eb2608935bf488a4963c36e86700619de3c",
+      "identity_at_move": "1f:cc4f478960ed6157814689ef294a9eb2608935bf488a4963c36e86700619de3c",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/read-this-computer.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/read-this-computer.mjs",
+      "source_identity": "1f:12d8b2612ea80801ff54c856aa142a9335852b82a4a25419af30e922e7a69ad1",
+      "identity_at_move": "1f:12d8b2612ea80801ff54c856aa142a9335852b82a4a25419af30e922e7a69ad1",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/send-opened-files.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/run-on-a-persons-computer/send-opened-files.mjs",
+      "source_identity": "1f:13d544febbe473433a78f5330c5020a1e44b38acaf69830374ea06f44f220e4b",
+      "identity_at_move": "1f:13d544febbe473433a78f5330c5020a1e44b38acaf69830374ea06f44f220e4b",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }

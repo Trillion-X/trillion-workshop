@@ -1,0 +1,63 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here (or, for a file changed here since, to its bytes at byte_copy_commit); deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "computer/drive-tools/drive-work.mjs",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "deleted_by": "3239bd7fb735dae89f61b0df058f44ca52a3a266",
+      "to": "tools/work-on-connected-drives/read-data/drive-work.mjs",
+      "source_identity": "1f:5a08fff9e4071e4a54bbf75a39fbb5164ec503ecd3b0a250fc7a2f73379e51e5",
+      "identity_at_move": "1f:5a08fff9e4071e4a54bbf75a39fbb5164ec503ecd3b0a250fc7a2f73379e51e5",
+      "byte_copy_commit": "1e8e2e6e9f4ea64c5ecf1c31982b420e311c36e6",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/drive-tools/file-places.mjs",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "deleted_by": "3239bd7fb735dae89f61b0df058f44ca52a3a266",
+      "to": "tools/work-on-connected-drives/read-data/file-places.mjs",
+      "source_identity": "1f:b2f87d1f273ee33c79212326e29d7d18d0f20d991669222298c75ec549b4de83",
+      "identity_at_move": "1f:b2f87d1f273ee33c79212326e29d7d18d0f20d991669222298c75ec549b4de83",
+      "byte_copy_commit": "1e8e2e6e9f4ea64c5ecf1c31982b420e311c36e6",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/drive-tools/file-transfer.mjs",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "deleted_by": "3239bd7fb735dae89f61b0df058f44ca52a3a266",
+      "to": "tools/work-on-connected-drives/read-data/file-transfer.mjs",
+      "source_identity": "1f:9fa652e2c95d9c2a131d5f5258e79211a734ad8268cef9a4e8ca5278cec8970c",
+      "identity_at_move": "1f:9fa652e2c95d9c2a131d5f5258e79211a734ad8268cef9a4e8ca5278cec8970c",
+      "byte_copy_commit": "1e8e2e6e9f4ea64c5ecf1c31982b420e311c36e6",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "computer/drive-tools/work-control.mjs",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "deleted_by": "3239bd7fb735dae89f61b0df058f44ca52a3a266",
+      "to": "tools/work-on-connected-drives/read-data/work-control.mjs",
+      "source_identity": "1f:07078c7495a0d7a5c5427956051681a8eddcf16a58c1886998b2a571690661c8",
+      "identity_at_move": "1f:07078c7495a0d7a5c5427956051681a8eddcf16a58c1886998b2a571690661c8",
+      "byte_copy_commit": "1e8e2e6e9f4ea64c5ecf1c31982b420e311c36e6",
+      "changed": true,
+      "found_by": "same bytes"
+    },
+    {
+      "from": "test/file-places.test.mjs",
+      "commit": "9b5614150bf2ff506cb296337b79af328ffc7381",
+      "deleted_by": "3239bd7fb735dae89f61b0df058f44ca52a3a266",
+      "to": "tools/work-on-connected-drives/test/file-places.test.mjs",
+      "source_identity": "1f:81f056e78627db872c06866a762ec62f89d38b8582798b07a36d71db74d7041f",
+      "identity_at_move": "1f:81f056e78627db872c06866a762ec62f89d38b8582798b07a36d71db74d7041f",
+      "byte_copy_commit": "1e8e2e6e9f4ea64c5ecf1c31982b420e311c36e6",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}
