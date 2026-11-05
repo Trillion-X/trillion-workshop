@@ -34,7 +34,7 @@
 //
 
 import { weighCards } from './waiting-weigh.mjs';
-import { sameOrigin } from '../parts/http-client/do-work/same-origin.mjs';
+import { sameOrigin } from '../../http-client/do-work/same-origin.mjs';
 
 const MINUTE = 60_000;
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
