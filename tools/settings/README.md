@@ -39,12 +39,30 @@ values = settings.setting(request.get('settings_record'), 'my-tool-folder',
 
 To make the rows a loader writes, use `make_record(...)` (and `list_record()` once); the records go in a `records:write` plan in the shape `tools/export-records-as-list-rows` builds.
 
+## Reading a named row through the records door
+
+A tool may also take `settings_record` as a row's id, `record:setting:<folder>~<scope_kind>~<scope_id>`, and read it at run time through the run's records door. Its row then grants `records:read` on its own folder's prefix only, and packs `tools/settings` (`read-data`, `do-work`) at `/opt/settings` beside `tools/records-door` at `/opt/records-door`:
+
+```json
+"records": { "fd": 3, "rights": [{ "kind": "record:setting", "prefix": "record:setting:<folder>~", "operations": ["records:read"] }] }
+```
+
+What the tool runs with is, weakest first: its own defaults, the row's settings, the request's own `settings` object (plain objects merge key by key; anything else is replaced whole). A named id the person does not keep is refused, because running on defaults would silently change the answer.
+
+- **JavaScript:** `await settingsFor(input, { door, folder, scopes, defaults, tool })` answers `{ settings, from }`. `readSettingRecord(door, id, { folder })` reads one row (or null) and refuses another folder's row. `layOver(under, over)` is the merge.
+- **Python, or any other program:** run it under `node /opt/settings/do-work/run-with-settings.mjs --folder <folder> -- <program...>`. When `settings_record` is an id, the command reads the row through the door and hands the program the request with `settings_record` replaced by the record itself and `settings_from` naming it. The program calls `settings.request_settings(request, defaults, folder=..., scopes=..., tool=...)`. Its output is passed through unchanged.
+
+| File | Purpose |
+|---|---|
+| `do-work/run-with-settings.mjs` | The command above. |
+| `test/run-with-settings.test.mjs`, `test/echo_settings.py` | Reading through the stand-in records door, the merge, refusals, and a made-up Python program run under the command. |
+
 ## Moved from Trillion
 
 Old Trillion kept a setting as one record of type `setting` (Trillion-X/trillion `src/decision-store.mjs` before 4ffa1dc4a2: line 8 names the kind; lines 751-754 `setting(name)` reads `setting:<name>` and gives its value or `null`, `setSetting` writes it). Here the name is the tool's folder plus a scope, and the value is the row's `settings` field. `settingsPage` (a page of settings by prefix) is the door's `records:list` on `list:settings` and is not repeated.
 
 ## Dependencies
 
-**Depends on:** Python 3 and Node's standard library only.
+**Depends on:** Python 3 and Node's standard library; `tools/records-door` only for reading a named row through the door (`settingsFor` with a door, `do-work/run-with-settings.mjs`).
 
 **Depended on by:** every Workshop tool that takes `settings_record`.

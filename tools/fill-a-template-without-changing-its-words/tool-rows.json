@@ -149,6 +149,74 @@
           "source": "Events bound to words rather than seconds, so a rewrite does not strand them"
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
+        "label": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer)",
+        "job": "Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+        "description": "Writes word-template@1 token tables from a request: for each template a name, a time span, where its words came from, parts (kept words, and slot words each naming a slot) and the slots (type and note). Each word becomes a token marked KEEP or SLOT in order, with its slot, slot type and note; only the slots a word uses are listed; every dimension other than the spoken words is left pending with the reason. The words, slots, sources and notes are the person's own and come in the request (one file, or several laid over each other key by key, so their settings can be a row of their records and the output folder stays with the run); the tool names no piece, speaker or film. The templates are the same shape make_template.py writes, so tool:fill-a-word-template and tool:check-words-against-a-word-template take them.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "properties": {
+            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {out, registry?, dim, templates: [{name, t0, t1, source, parts, slots, piece_id?, unit_id?, medium?, kind?, notes?}], reader?, by?}. README.md: Hand-written token tables. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\" (or its id, with the command run under tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words and the request on standard input); a \"settings\" object lays over the row, and both lie under the request's own keys." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A last line {\"result\": {\"written\": [{\"file\", \"tokens\", \"slots\"}]}} or {\"error\": \"what to change\"}; exit 0, or 2 on an error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/token_table_from_parts.py --request {request}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request from the words the person says stay and the specifics they leave open (README.md: Hand-written token tables), run `run`, and read the last line: { result } lists each template written with its token and slot counts; { error } says what to change. Then tool:fill-a-word-template can fill the slots. Read the person's settings row for this tool first and put it in the request as settings_record; never write their words into this folder."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Moved from a film repository's films/<film>/narrator/work/<line>-slots/build_templates.py: its build() with the words, times and paths made request fields"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+        "label": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer)",
+        "job": "Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+        "description": "From a request of slots (each with a base pick and candidates, each candidate with the words it adds and the claim it makes) and sentence templates ({SLOT} where a slot's words go), writes the base variant, then every other candidate of each slot with all other slots at their base pick. Each variant gets a script line, a shot file naming that script and a claims file with one entry per sentence taken from the candidate that formed the sentence (a sentence whose filled words are empty is left out with its claim), plus a manifest of the variants and a list of their lines. A picked candidate that has words but no claim is refused. The words, claims, ids and file shapes are the person's own and come in the request (one file, or several laid over each other key by key); the tool names no film, speaker or claim.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "properties": {
+            "request": { "type": "string", "description": "The request JSON file, put where {request} is in the command: {slots, sentences, id_prefix, script_path, shot_about, claims_about, out: {here, narrator}}. README.md: Slot candidates. The person's own words, slots and ids are their list:settings row record:setting:fill-a-template-without-changing-its-words~<scope_kind>~<scope_id>: put the row as records:read gives it in the request as \"settings_record\" (or its id, with the command run under tools/settings/do-work/run-with-settings.mjs --folder fill-a-template-without-changing-its-words and the request on standard input); a \"settings\" object lays over the row, and both lie under the request's own keys." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "A last line {\"result\": {\"variants\": N, \"ids\": [...]}} or {\"error\": \"what to change\"}; exit 0, or 2 on an error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/fill-a-template-without-changing-its-words/do-work/vary_slots_one_at_a_time.py --request {request}",
+          "needs": ["python"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request from the slots and candidates the person is weighing (README.md: Slot candidates), run `run`, and read the last line: { result } lists the variant ids; { error } says what to change. Each variant's claims file is what a fact check reads before the line is voiced. Read the person's settings row for this tool first and put it in the request as settings_record; never write their words into this folder."
+        },
+        "maker": "maker:fill-a-template-without-changing-its-words",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Moved from a film repository's films/<film>/narrator/work/<line>-slots/assemble.py: its slot tables and sentence rules made request fields; its output files were compared byte for byte"
+        }
+      }
     }
   ]
 }
