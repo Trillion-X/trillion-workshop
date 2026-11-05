@@ -8,13 +8,6 @@
   ],
   "files": [
     {
-      "from": "parts/timed-action/README.md",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/run-work-later-or-on-a-repeat/README.md",
-      "source_identity": "1f:a0064cc845f91bba51b07c4ff9c9ae35cc98e2333d10c153609b2ee7a99a11e4",
-      "identity": "1f:a0064cc845f91bba51b07c4ff9c9ae35cc98e2333d10c153609b2ee7a99a11e4"
-    },
-    {
       "from": "parts/timed-action/do-work/evaluate-due-scheduled-actions.ts",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/run-work-later-or-on-a-repeat/do-work/evaluate-due-scheduled-actions.ts",
@@ -41,6 +34,21 @@
       "to": "tools/run-work-later-or-on-a-repeat/do-work/quiet-hours.ts",
       "source_identity": "1f:d3540f4f09479e50d5c19df938e3ecd3a1946c8dde29e06e08164b1e8922745a",
       "identity": "1f:d3540f4f09479e50d5c19df938e3ecd3a1946c8dde29e06e08164b1e8922745a"
+    },
+    {
+      "from": "parts/timed-action/do-work/spread-fires.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/spread-fires.ts",
+      "source_identity": "1f:c7c714b235b794c427e6a3cfe5fc860217f5dfe4f2cc9d6c12f17220b6e476c6",
+      "identity": "1f:c7c714b235b794c427e6a3cfe5fc860217f5dfe4f2cc9d6c12f17220b6e476c6"
+    },
+    {
+      "from": "parts/timed-action/do-work/spread-fires.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/do-work/spread-fires.ts",
+      "source_identity": "1f:c7c714b235b794c427e6a3cfe5fc860217f5dfe4f2cc9d6c12f17220b6e476c6",
+      "identity": "1f:c7c714b235b794c427e6a3cfe5fc860217f5dfe4f2cc9d6c12f17220b6e476c6",
+      "reused": true
     },
     {
       "from": "parts/timed-action/do-work/wall-time.ts",
@@ -78,11 +86,18 @@
       "identity": "1f:eb2fcd258b9b958d794df997836071d5e9f094be713217d0d097bb7be364efd2"
     },
     {
-      "from": "parts/timed-action/do-work/spread-fires.ts",
-      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
-      "to": "tools/run-work-later-or-on-a-repeat/do-work/spread-fires.ts",
-      "source_identity": "1f:c7c714b235b794c427e6a3cfe5fc860217f5dfe4f2cc9d6c12f17220b6e476c6",
-      "identity": "1f:c7c714b235b794c427e6a3cfe5fc860217f5dfe4f2cc9d6c12f17220b6e476c6"
+      "from": "parts/timed-action/README.md",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/README.md",
+      "source_identity": "1f:a0064cc845f91bba51b07c4ff9c9ae35cc98e2333d10c153609b2ee7a99a11e4",
+      "identity": "1f:a0064cc845f91bba51b07c4ff9c9ae35cc98e2333d10c153609b2ee7a99a11e4"
+    },
+    {
+      "from": "test/timed-action/spread-fires.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/run-work-later-or-on-a-repeat/test/timed-action/spread-fires.test.mjs",
+      "source_identity": "1f:cb84e4a695e761cefb7a681bdc71784ef090c8aa3a89186a766a246252a3c8f4",
+      "identity": "1f:8e9da5b91d3f3d00a80a54eb7040f1582badc9295cd34625c3b937a6052f7d05"
     }
   ],
   "not_matched": []
