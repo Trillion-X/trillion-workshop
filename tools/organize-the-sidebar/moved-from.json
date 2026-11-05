@@ -1897,8 +1897,10 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/organize-the-sidebar/read-data/group-eeaf.ts",
       "source_identity": "1f:af3eb24fbb02ba324f39568fbe80fd9067368b4b2a8acd3fb7a1f7ef57909c56",
-      "identity": "1f:af3eb24fbb02ba324f39568fbe80fd9067368b4b2a8acd3fb7a1f7ef57909c56",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:af3eb24fbb02ba324f39568fbe80fd9067368b4b2a8acd3fb7a1f7ef57909c56",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true
     },
     {
       "from": "parts/group/read-data/grouped-rows.ts",
@@ -4591,8 +4593,10 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/organize-the-sidebar/sidebar.mjs",
       "source_identity": "1f:401d51fd847831a1c36fe6302661678b2813d4da2fb95e8bfa0c1f3485f23380",
-      "identity": "1f:401d51fd847831a1c36fe6302661678b2813d4da2fb95e8bfa0c1f3485f23380",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:401d51fd847831a1c36fe6302661678b2813d4da2fb95e8bfa0c1f3485f23380",
+      "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "changed": true
     },
     {
       "from": "parts/group/do-work/__tests__/apply-grouping-intent.test.ts",

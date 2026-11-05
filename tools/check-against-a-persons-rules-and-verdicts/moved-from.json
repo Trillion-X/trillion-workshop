@@ -1,0 +1,19 @@
+{
+  "about": "Files old trillion deleted from 2026-10-10 on whose last bytes before deletion were already here, byte for byte, under the same file name, with no receipt naming them. Each row was found by reading every deletion since 2026-10-10 in old trillion's history and matching the bytes at the deleting commit's parent (commit) to a file here (or, for a file changed here since, to its bytes at byte_copy_commit); deleted_by is the deleting commit. Nothing was copied or changed for these rows: the receipt only names where the code already lives.",
+  "source": "trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "scripts/method-atoms.mjs",
+      "commit": "5f62447f4873af3b8d0fd232d38f47c2700a1fbf",
+      "deleted_by": "a9246ff74960e6a73c41aca455d042ccddb6087a",
+      "to": "tools/check-against-a-persons-rules-and-verdicts/do-work/pieces.mjs",
+      "source_identity": "1f:b5dd1dea093af129917998cf10d5e5f8e74eb07dcadf39abcd4ef359ee3dfaf1",
+      "identity_at_move": "1f:b5dd1dea093af129917998cf10d5e5f8e74eb07dcadf39abcd4ef359ee3dfaf1",
+      "byte_copy_commit": "77419dd1bbfbad94bfae79cec87ae541493c4a68",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

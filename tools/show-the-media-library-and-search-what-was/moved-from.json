@@ -19,6 +19,17 @@
       "source_identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
       "identity": "1f:9914033119a093e2010359c4f3051b46719b9196320c06210df96ea2dd6c2623",
       "held": true
+    },
+    {
+      "from": "src/work-media.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/show-the-media-library-and-search-what-was/do-work/answer-the-media-page.mjs",
+      "source_identity": "1f:c4f605f31b1ff934bd1422ae2c3aea30512a851cc6abba565529c057c77b7bfe",
+      "identity_at_move": "1f:c4f605f31b1ff934bd1422ae2c3aea30512a851cc6abba565529c057c77b7bfe",
+      "byte_copy_commit": "62c2d11936d93c8d68261cafb18c81013c327e82",
+      "changed": true,
+      "found_by": "same bytes"
     }
   ]
 }
