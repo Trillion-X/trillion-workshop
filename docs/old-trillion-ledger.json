@@ -6,9 +6,9 @@
  },
  "counts": {
   "moved": 1500,
-  "being_moved": 104,
+  "being_moved": 106,
   "retired": 25,
-  "to_move": 29
+  "to_move": 27
  },
  "rows": [
   {
@@ -14752,9 +14752,10 @@
   },
   {
    "path": "test/sales-contracts.test.mjs",
-   "verdict": "to_move",
-   "evidence": "Needs src/sales-contracts.mjs (trillion-workshop #204, tools/build-and-send-a-sales-contract/from-old-trillion/src/) and records/workshop-sales-contract-tool-records.json (#203). With both present it passes 2/2 at tools/build-and-send-a-sales-contract/from-old-trillion/test/ (three record addresses repointed), but #203 and #204 conflict in 15 receipt/README files, so it cannot stack on both; it moves once either is on main.",
-   "group": "rest2"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/build-and-send-a-sales-contract/from-old-trillion/test/sales-contracts.test.mjs",
+   "evidence": "byte copy, only three record addresses changed; passes 2/2; receipt in the tool moved-from.json",
+   "group": "lead"
   },
   {
    "path": "test/screen-mount-allowance.json",
@@ -14915,8 +14916,10 @@
   },
   {
    "path": "test/shared-cargo-target.test.mjs",
-   "verdict": "to_move",
-   "evidence": "no home found yet",
+   "verdict": "being_moved",
+   "home": "trillion-apps/web/test/shared-cargo-target.test.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/55",
+   "evidence": "byte-for-byte copy with receipt in web/moved-from.json; 6/6 tests pass",
    "group": "lead"
   },
   {
