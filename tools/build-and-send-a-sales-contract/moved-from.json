@@ -19,6 +19,13 @@
       "to": "tools/build-and-send-a-sales-contract/from-old-trillion/src/sales-contracts.mjs",
       "source_identity": "1f:22c4b476f7384fbb193e2830a27f0b4dc168ad0a04ac8634cc43400b2c506bdd",
       "identity": "1f:22c4b476f7384fbb193e2830a27f0b4dc168ad0a04ac8634cc43400b2c506bdd"
+    },
+    {
+      "from": "test/sales-contracts.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/build-and-send-a-sales-contract/from-old-trillion/test/sales-contracts.test.mjs",
+      "source_identity": "1f:9a0abd7940ccc01317f88708e1140004eba80179f2548c83ccda89f7fd817846",
+      "identity": "1f:59ec78a17fe8cfce1bd84f1c1680e3e21cfb71d67d9719d88191a15efeca41cc"
     }
   ]
 }
