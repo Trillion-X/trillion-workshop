@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9423e42b9c7fc40874473ea475e9d2697bd16290f35e9ea0a280ef0e8b4ae838"
+  "blake3": "1f:3b0010855b65a9043a4ad911228e04f1714af29b3d53c049c97eb32844f3b1e9"
  },
  "fields": [
   {
@@ -2195,7 +2195,7 @@
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
     "job": "Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did",
-    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, with the person's own intro and outro put in as written. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
+    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, written into the person's own Markdown template: their words stay as written, marked sections are filled from the registry, and principle ids, counts and evidence named in their words are filled in. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:cite-principles-from-captions",
     "licence_class": "licence:maker-own",
@@ -2233,6 +2233,21 @@
      "placement:your-computer"
     ],
     "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:collect-and-rank-viewer-questions",
+   "values": {
+    "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
+    "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+    "status": "active",
+    "maker": "maker:collect-and-rank-viewer-questions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "collect-and-rank-viewer-questions"
    }
   },
   {
@@ -4546,6 +4561,21 @@
    }
   },
   {
+   "id": "tool:insert-frame-holds-into-a-filmcraft-project-copy",
+   "values": {
+    "title": "Insert my rendered corrections into a copy of my FilmCraft project as editable clips (runs on your computer)",
+    "job": "Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+    "description": "Reads a FilmCraft project (.fcproj, JSON) and writes a NEW project. For each shot named, from <shots>/<shot id>.json (its plate source file and frame) and the three files in <out>/<shot id>/ (<id>-overlay-prores4444.mov, <id>-narrator.wav, <id>-sfx-music.wav), it ripple-inserts a frame-hold segment of the plate's own clip at that frame (the clip's own effects, so its grade applies), razors every clip that spans the point and moves everything after it, extends the adjustment layer over the inserted span, and places the overlay on video track 3, the voice on audio track 2 and the music and sound effects on audio track 3, with each file's facts read by ffprobe. Refuses, saying what to change: an output that is the input, a missing shot file, a missing rendered file, a plate that is not a media file of the project, a frame no clip on the first video track holds. The input project is never written. It does not open or script FilmCraft. The inserts here are the person's own corrections; a project the person protects takes picked options only through its own apply tool, so run this on a copy.",
+    "status": "active",
+    "maker": "maker:edit-a-copy-of-a-premiere-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "edit-a-copy-of-a-premiere-project"
+   }
+  },
+  {
    "id": "tool:install-an-engine-builder",
    "values": {
     "title": "Install an engine builder",
@@ -5389,6 +5419,21 @@
    }
   },
   {
+   "id": "tool:list-the-longest-still-holds-of-my-video",
+   "values": {
+    "title": "List where my video holds still longest (runs on your computer)",
+    "job": "Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it",
+    "description": "Reads a video with the same frame-difference measure as tool:check-a-videos-motion-against-a-reference (every frame as a small grey picture; a frame moves when it or a neighbour changed by more than the still level and less than a cut) and lists its longest holds, longest first, each with its length and the second it starts. The still level is the one the person gives (for example a reference's still_threshold from the check, so the list matches what the check counted) or, left out, the one read from this video. The person can measure only the first seconds of the video (up to its end card) and say how many holds to list. It names no bar and judges nothing: it says where the stills are.",
+    "status": "active",
+    "maker": "maker:check-a-videos-motion-against-a-reference",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-a-videos-motion-against-a-reference"
+   }
+  },
+  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -5607,6 +5652,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:make-a-frame-contact-sheet-of-a-video-section",
+   "values": {
+    "title": "Make one picture of the frames of a short part of a video (runs on your computer)",
+    "job": "Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it",
+    "description": "Cuts at most 300 seconds of a video and makes a contact sheet: one frame every `step` seconds (4 unless given), 320 pixels wide, `cols` frames to a row (4 unless given), as one JPEG. A link is fetched with yt-dlp, only that section, at 360p or less, into the folder's clips/ and used again on the next run; a video file on the computer is read directly from start to end. Every command and its output go to a log beside the sheet; a failure says which program failed with what exit code and shows the log's last lines. Each heavy program runs alone at the lowest priority (nice -n 20), so the computer stays usable.",
+    "status": "active",
+    "maker": "maker:make-a-frame-contact-sheet-of-a-video-section",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "make-a-frame-contact-sheet-of-a-video-section"
    }
   },
   {
@@ -7675,6 +7735,21 @@
      "placement:small-container"
     ],
     "folder": "social-posts"
+   }
+  },
+  {
+   "id": "tool:read-a-tool-setting",
+   "values": {
+    "title": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
+    "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
+    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records records:read returned (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record records:write takes, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+    "status": "active",
+    "maker": "maker:settings",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "settings"
    }
   },
   {
