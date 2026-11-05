@@ -1,0 +1,129 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FINE-TUNE-BUILD-TRAINING-ROWS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-04, models-research lane, finetune slice",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4dfebad14d4e2026ee54f0258665c8bad4e57562175d9096b9c93ab9b148e140",
+   "multihash": "1f:1528d1443e062ce3bf52c9f9f4816186e56be12f08011e11415ed839eacb6fa6",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   },
+   "lines": [
+    57,
+    89
+   ]
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4dfebad14d4e2026ee54f0258665c8bad4e57562175d9096b9c93ab9b148e140",
+   "multihash": "1f:0351ce9b923be9290b446444c8a3b0874ed08ee6986bc955ef6a4c8dbf2e2247",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   },
+   "lines": [
+    96,
+    135
+   ]
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4dfebad14d4e2026ee54f0258665c8bad4e57562175d9096b9c93ab9b148e140",
+   "multihash": "1f:98065184333749832e399485732954353fb9aa8e0789e8375310ed9013926b2e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   },
+   "lines": [
+    137,
+    139
+   ]
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4dfebad14d4e2026ee54f0258665c8bad4e57562175d9096b9c93ab9b148e140",
+   "multihash": "1f:2076515f708de0c55d5f057e42e52ae6de8d8a4cf4fa768e842d50aa60e67d56",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   },
+   "lines": [
+    141,
+    143
+   ]
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4dfebad14d4e2026ee54f0258665c8bad4e57562175d9096b9c93ab9b148e140",
+   "multihash": "1f:b406ecf7663ebe112df4b99d9062ffaf9ec91f698354138f7c27d626beef1ae7",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   },
+   "lines": [
+    145,
+    196
+   ]
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/fine-tune-a-small-model-on-a-persons-rules/do-work/build_training_rows.py",
+   "baseline_commit_message": "fine-tune-a-small-model-on-a-persons-rules: the decider-laws-finetune build, train, score and model code, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "lines split by source before any training: guide lines by (file, nearest heading), spoken by halves, captions by video",
+  "one seeded random generator draws every sample in the old order, so the same request makes the same rows byte for byte",
+  "never-train and held-out lines are never trained on; a synthetic line that is a test line is dropped",
+  "a line some law rules bad is never also a good line; a line bad only for another law is not a label",
+  "each law trains on other laws' synthetic good lines and on short good lines, except the laws and kinds named"
+ ],
+ "allowed_deltas": [
+  "the laws, set names, never-train lines, paths and counts are the request's (the person's settings row), not constants",
+  "guides are read in sorted order, so a line found in two guides is grouped the same on every computer",
+  "the answer is one JSON line after the old summary lines"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job beside the old one",
+  "the person's laws, lines, paths or counts written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:1528d1443e062ce3bf52c9f9f4816186e56be12f08011e11415ed839eacb6fa6",
+  "target_multihash_at_baseline": "1f:1528d1443e062ce3bf52c9f9f4816186e56be12f08011e11415ed839eacb6fa6",
+  "commit": "dffdb933a890c3abb7bc1e73b24d054a519bd814",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def norm",
+   "def sentences",
+   "def side",
+   "def skill_group",
+   "def caption_lines",
+   "RNG.shuffle(rows)"
+  ],
+  "test_refs": [
+   "tools/fine-tune-a-small-model-on-a-persons-rules/test/test_fine_tune.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines 57-196 are its functions (the constants above them are the person's settings and moved to their list:settings row), less the five lines that name the person (90, 95, 136, 140, 144); the first range is the byte copy."
+}

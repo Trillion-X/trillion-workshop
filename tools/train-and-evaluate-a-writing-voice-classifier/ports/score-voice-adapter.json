@@ -1,0 +1,60 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-SCORE-ADAPTER-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-launch-video",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:9254eea6bd75dc6114879e7513d17b67b79787c2f96f2979656965b9b54589f8",
+      "multihash": "1f:aa8e804792bcd501fbd9bc54e2240258c30d78436b62e1769efece98e359e887",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
+    }
+  ],
+  "preserve": [
+    "challenge DATA passes the maintained validator before weights load",
+    "the adapter receipt and weights are bound by BLAKE3 to the base snapshot",
+    "every row keeps its full probabilities, and summaries never invent accuracy for unlabeled rows",
+    "the exposure audit of training rows against targets is part of the report"
+  ],
+  "allowed_deltas": [
+    "the folder holding the decider model frame (common.py) is the caller's --decider-common-dir instead of a sibling folder of the old repository",
+    "the maintained validator is this folder's read-data/evaluation-integrity.mjs"
+  ],
+  "banned_substitutions": [
+    "a production threshold inferred from a diagnostic run"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:aa8e804792bcd501fbd9bc54e2240258c30d78436b62e1769efece98e359e887",
+    "target_multihash_at_baseline": "1f:aa8e804792bcd501fbd9bc54e2240258c30d78436b62e1769efece98e359e887",
+    "commit": "b64680e8a957fc944d4da7b71e0cf3b34cae1900"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def validate_challenge_file(",
+      "def scoring_limit_metadata("
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/test_score_voice_admission.py"
+    ]
+  }
+}

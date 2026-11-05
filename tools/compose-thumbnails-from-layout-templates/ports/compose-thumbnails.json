@@ -1,0 +1,77 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-THUMBNAIL-LAYOUT-TEMPLATES-FROM-A-FILMS-THUMBNAIL-BUILDER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools: the thumbnail builder of a film",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ffbf96b0d7f1c165ad9d6358900b399f1be73849911eef4b35d5f16b06dd2b4b",
+   "multihash": "1f:b38ab31d2d0cf5fc98fb321eec6e9b4a63b175f1bc7ddca470f314fe0c915f11",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/compose-thumbnails-from-layout-templates/do-work/compose_thumbnails.py",
+   "baseline_commit_message": "compose-thumbnails-from-layout-templates: a film's thumbnail builder, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "the six layout functions (split_claim, face_right_stack, zoom_flaw, tags, hold_quote, corner_face) with every number they fix",
+  "punch, crop_cover, sticker, place_cut, boxed, stroked, arrow, zoom_circle, tag and blurred_bg as they were",
+  "a cut-out is placed so its face box lands at the candidate's canvas point and height",
+  "each candidate is written as <id>.png, 1280x720"
+ ],
+ "allowed_deltas": [
+  "the candidate table (CANDIDATES, the face boxes F and the zoom point) is the person's settings row, read with tools/settings request_settings; JSON lists become the tuples the templates use",
+  "the frames and cut-outs folders, the cut-out crop offset, the output folder and the font are request fields",
+  "zoom_flaw's zoomed spot is mapped from zoom_c through the cut-out's placement (the one candidate that had it computed the same numbers in a lambda)",
+  "one JSON request in, one answer out; a missing frame, value or candidate is refused in words"
+ ],
+ "banned_substitutions": [
+  "a second thumbnail layout engine",
+  "a candidate, face box or font path written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b38ab31d2d0cf5fc98fb321eec6e9b4a63b175f1bc7ddca470f314fe0c915f11",
+  "target_multihash_at_baseline": "1f:c663acc1d6c76ea191b144a3a5c9d4456505c47450011d5e3bbf6b8583edb68e",
+  "commit": "89cd3bf046c4eea89b5f631af76c3bb8c801cb90",
+  "recorded_at": "2026-11-05T22:00:00Z",
+  "redactions": [
+   {
+    "from": "TOFU",
+    "to": "BEANS"
+   }
+  ]
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def t_split_claim",
+   "def t_face_right_stack",
+   "def t_zoom_flaw",
+   "def t_tags",
+   "def t_hold_quote",
+   "def t_corner_face",
+   "request_settings"
+  ],
+  "test_refs": [
+   "tools/compose-thumbnails-from-layout-templates/test/test_compose_thumbnails.py",
+   "tools/compose-thumbnails-from-layout-templates/test/compose-thumbnails.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

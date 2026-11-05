@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-BENCHMARK-SMALL-LOCAL-MODELS-CHECK-TAKES-WITH-DECIDER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-04, models-research lane, slice small-models",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "a6dc4ca72b5efafdbfa92456c3f34bd1b3794863",
+   "path_multihash": "1f:40d40680ea11366c3e6606c6ed8828511789c74ee325c9227e23f29cc8438096",
+   "multihash": "1f:3f72b36eb19bbae4d02dcde983b26147ec3110eb0c067a913582acf47f192537",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:21:29Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/benchmark-small-local-models/do-work/check_takes_with_decider.py",
+   "baseline_commit_message": "Close the open tie lines: device, model cache, stores and checkouts the place reports"
+  }
+ ],
+ "preserve": [
+  "every 9th transcript in name order, at most 25, sentences of 9 to 22 words, seed 7, 40 takes",
+  "faults cycle complete, complete, cut, restart, selfcorrect; cut keeps 45-70 percent and at least 3 words; restart says 2-4 words then 'uh, sorry, let me start again.'; selfcorrect adds ', no wait, that's wrong, let me redo that.'",
+  "accuracy at 0.5, per fault, and abstention lines 0.7, 0.8, 0.9"
+ ],
+ "allowed_deltas": [
+  "its fixed paths, model names, prompts and words of the person became request fields, read with the person's list:settings row under them (read-data/place.py request)",
+  "one JSON line out ({ result } or { error }) instead of a file written beside the script; print lines kept"
+ ],
+ "banned_substitutions": [
+  "a person's path, model list, vocabulary or question written in code",
+  "a second settings reader beside tools/settings"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:3f72b36eb19bbae4d02dcde983b26147ec3110eb0c067a913582acf47f192537",
+  "target_multihash_at_baseline": "1f:09ae2b038a1e2694594fb616638f9019a3488e845bca3f4396ab33af130a491a",
+  "commit": "826253b6fc647a0db4dd1fa3feb4f6650dd07a07",
+  "recorded_at": "2026-11-05T20:22:29Z",
+  "redactions": [
+   {
+    "from": "Paul Borg's job",
+    "to": "An editor's job"
+   }
+  ]
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "random.Random(7)",
+   "let me start again",
+   "abst[th]"
+  ],
+  "test_refs": [
+   "tools/benchmark-small-local-models/test/test_benchmark.py",
+   "tools/benchmark-small-local-models/test/benchmark-small-local-models.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

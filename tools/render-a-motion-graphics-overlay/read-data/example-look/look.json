@@ -1,0 +1,548 @@
+{
+ "recipe": {
+  "frame": {
+   "width": 3840,
+   "height": 2160,
+   "fps_num": 24000,
+   "fps_den": 1001
+  },
+  "motion": {
+   "stop_motion_hold_frames": 2,
+   "jitter_px": 1.5
+  },
+  "palette": {
+   "sticker_outline": "#f6f1e4",
+   "paper_cream": "#f2ead8",
+   "paper_white": "#fcfcfa",
+   "name_mint": "#5fc7b4",
+   "name_mint_dark": "#4fb39f",
+   "role_green": "#1f6b4f",
+   "figure_cream": "#fbf5d0",
+   "subtitle": "#f8c21a",
+   "subtitle_edge": "#3b2a05",
+   "ink": "#1c1b19",
+   "kraft": "#c6a676",
+   "light_leak": [
+    "#f7a24a",
+    "#fde6bb"
+   ]
+  },
+  "fonts": {
+   "name": {
+    "file": "builtin:default",
+    "weight": 760,
+    "cap_height_frac": 0.125,
+    "tracking_em": -0.05
+   },
+   "role": {
+    "file": "builtin:default",
+    "weight": 620
+   },
+   "figure": {
+    "file": "builtin:default",
+    "weight": 860
+   },
+   "subtitle": {
+    "file": "builtin:default",
+    "weight": 820,
+    "size_px": 46,
+    "edge_px": 2.2
+   },
+   "typewriter": {
+    "file": "builtin:default"
+   },
+   "marker": {
+    "file": "builtin:default"
+   },
+   "ransom": [
+    "builtin:default",
+    "builtin:default",
+    "builtin:default",
+    "builtin:default",
+    "builtin:default",
+    "builtin:default",
+    "builtin:default",
+    "builtin:default"
+   ]
+  },
+  "textures": {
+   "sheet": "paper.png",
+   "crumpled": "paper.png",
+   "kraft": "paper.png",
+   "newsprint": "paper.png",
+   "texture_strength": 0.55,
+   "grain_strength": 0.035
+  },
+  "pause_badge": {
+   "size_px": 120,
+   "bar_w_frac": 0.28,
+   "gap_frac": 0.22,
+   "radius_frac": 0.12,
+   "in_s": 0.17,
+   "hold_s": 0.38,
+   "out_s": 0.12
+  },
+  "cutout": {
+   "outline_px": 18,
+   "shadow": {
+    "dx": 4,
+    "dy": 7,
+    "blur": 12,
+    "opacity": 0.38
+   },
+   "pop_scale_from": 0.94,
+   "pop_overshoot": 1.03,
+   "pop_s": 0.17,
+   "pencil": {
+    "line_blur_px": 5,
+    "line_gamma": 2.4,
+    "smooth_sigma_s": 30,
+    "smooth_sigma_r": 0.3,
+    "saturation": 1.2,
+    "hatch_density": 3,
+    "hatch_len_px": 13,
+    "hatch_angle_deg": -60,
+    "hatch_strength": 0.9,
+    "line_mix": 0.9,
+    "detail_keep": 0.18,
+    "paper_rgb": [
+     246,
+     240,
+     226
+    ],
+    "paper_show": 2.5
+   }
+  },
+  "paper_sweep": {
+   "delay_after_cutout_s": 0.25,
+   "sweep_s": 0.25,
+   "edge_amp_px": [
+    22,
+    60
+   ],
+   "edge_period_px": [
+    70,
+    170
+   ],
+   "colour": "paper_cream"
+  },
+  "type_on": {
+   "chars_per_s": 15,
+   "rotation_deg": -2.5
+  },
+  "arrow": {
+   "stroke_px": 5,
+   "draw_s": 0.22,
+   "colour": "role_green"
+  },
+  "card": {
+   "border_px": 14,
+   "caption_border_px": 58,
+   "slam_from_scale": 1.18,
+   "slam_s": 0.125,
+   "shadow": {
+    "dx": 6,
+    "dy": 10,
+    "blur": 16,
+    "opacity": 0.42
+   }
+  },
+  "ransom": {
+   "letter_px": 120,
+   "pad_px": [
+    10,
+    18
+   ],
+   "rot_deg": 8,
+   "stagger_s": 0.06,
+   "scrap_papers": [
+    "paper_white",
+    "kraft",
+    "newsprint",
+    "name_mint",
+    "ink"
+   ]
+  },
+  "scrap": {
+   "text_px": 44,
+   "pad_px": 34,
+   "torn_amp_px": 5,
+   "rot_deg": 3
+  },
+  "marker_strike": {
+   "stroke_px": 16,
+   "passes": 5,
+   "draw_s": 0.32,
+   "colour": "ink"
+  },
+  "big_figure": {
+   "size_px": 270,
+   "label_px": 64,
+   "count_s": 1,
+   "shadow": {
+    "blur": 18,
+    "opacity": 0.5
+   }
+  },
+  "subtitles": {
+   "max_words": 3,
+   "y_frac": 0.905
+  },
+  "exit": {
+   "drop_s": 0.28,
+   "leak_s": 0.45,
+   "leak_peak_alpha": 0.72
+  },
+  "sound": {
+   "music": {
+    "file": "tick.wav",
+    "start_s": 105.7,
+    "gain_db": -21,
+    "fade_in_s": 0.12,
+    "fade_out_s": 0.45
+   },
+   "voice_gain_db": -4,
+   "stem_gain_db": -4,
+   "events": {
+    "brush": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "count_tick": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "crumple": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "exit_air": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "fall": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "key": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "marker": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "paper": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "pause": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "piece1": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "piece2": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "piece3": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "piece4": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "pop": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "pop2": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "pop3": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "rip": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "room_tone": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "shutter": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "slide_in": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "slide_out": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "tear": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "thump": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "tick": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "whoosh": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "word_in": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ],
+    "word_out": [
+     {
+      "file": "tick.wav",
+      "gain_db": -14
+     }
+    ]
+   }
+  }
+ },
+ "look": {
+  "fonts": {
+   "display_bold": "builtin:default",
+   "display_semibold": "builtin:default",
+   "display_heavy": "builtin:default",
+   "text_semibold": "builtin:default",
+   "text_medium": "builtin:default",
+   "typewriter": "builtin:default"
+  },
+  "colour": {
+   "white": "#ffffff",
+   "ink": "#1c1b19",
+   "accent_red": "#d8322b",
+   "paper_cream": "#f2ead8",
+   "paper_white": "#fcfcfa",
+   "grid": "#9fbcd6"
+  },
+  "text_shadow": {
+   "dx": 0,
+   "dy": 4,
+   "blur": 22,
+   "opacity": 0.55
+  },
+  "print": {
+   "border_px": 12,
+   "label_border_px": 54,
+   "label_px": 25,
+   "slam_s": 0.125
+  },
+  "slide": {
+   "in_s": 0.32,
+   "out_s": 0.28
+  }
+ },
+ "look3": {
+  "safe_margin_px": 58,
+  "exit_distance_px": 1400,
+  "compass": {
+   "N": [
+    0,
+    -1
+   ],
+   "NE": [
+    0.93,
+    -0.83
+   ],
+   "E": [
+    1,
+    0
+   ],
+   "SE": [
+    0.93,
+    0.83
+   ],
+   "S": [
+    0,
+    1
+   ],
+   "SW": [
+    -0.93,
+    0.83
+   ],
+   "W": [
+    -1,
+    0
+   ],
+   "NW": [
+    -0.93,
+    -0.83
+   ]
+  },
+  "fall": {
+   "gravity_px_s2": 4200,
+   "spin_deg_s": 420,
+   "drift_px_s": 70
+  },
+  "sound_overlap": {
+   "within_s": 0.04,
+   "stagger_s": 0.09
+  },
+  "edges": {
+   "straight": {
+    "border_px": 12
+   },
+   "deckle": {
+    "amp": 4,
+    "step": 6,
+    "border_px": 14
+   },
+   "jagged": {
+    "amp": 11,
+    "step": 15,
+    "border_px": 20
+   },
+   "pinking": {
+    "amp": 8,
+    "period": 16,
+    "border_px": 18
+   },
+   "wavy": {
+    "amp": 7,
+    "period": 44,
+    "border_px": 18
+   },
+   "scallop": {
+    "amp": 8,
+    "period": 26,
+    "border_px": 18
+   },
+   "stamp": {
+    "hole_r": 5,
+    "period": 18,
+    "border_px": 18
+   },
+   "clipped": {
+    "cut_px": [
+     6,
+     38
+    ],
+    "border_px": 14
+   }
+  },
+  "letter_faces": [
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default",
+   "builtin:default"
+  ],
+  "letter_papers": [
+   "white",
+   "newsprint",
+   "kraft",
+   "black",
+   "graph",
+   "ruled",
+   "cardboard"
+  ],
+  "roll": {
+   "keys": [
+    "tick.wav",
+    "tick.wav",
+    "tick.wav",
+    "tick.wav",
+    "tick.wav",
+    "tick.wav"
+   ],
+   "max_clicks_per_s": 26,
+   "click_max_s": 0.09,
+   "gain_db": -6,
+   "last_boost_db": 3
+  },
+  "type": {
+   "gain_db": -8,
+   "rhythm_spread": 0.35,
+   "word_gap": 1.6
+  },
+  "preview_loudness": {
+   "I": -15,
+   "TP": -1.5,
+   "LRA": 11
+  }
+ },
+ "frame": [
+  1920,
+  1080
+ ],
+ "faces": "builtin",
+ "sound_layers": []
+}
