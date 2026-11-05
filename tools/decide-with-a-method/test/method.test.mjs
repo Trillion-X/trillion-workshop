@@ -107,3 +107,26 @@ test('a part_of kept as a one-element list builds the method from its parent and
   assert.deepEqual(cat.checklistFor(record, cat.stepsFor(record).find(step => step.id === 'outcome')).map(row => row.id), ['outcome-before-after']);
   assert.throws(() => methodCatalogue([plainMethod(), other, { id: 'both', part_of: ['plain', 'other'] }], plainChecks()), /plain and other/);
 });
+
+test('old rows still read by DATA: a method through extends and its checks through method ask what part_of rows ask; part_of wins over a stale method', async () => {
+  const { default: DATA } = await import('../read-data/decide-with-a-method.json', { with: { type: 'json' } });
+  const link = [DATA.records.method_link, ...DATA.records.old_method_links];
+  const other = { ...plainMethod(), id: 'other', default_for: [] };
+  const foreign = { id: 'other-outcome', part_of: 'other', step: 'outcome', check: 'A check only the other method asks', good_answer: 'Anything' };
+  const toOld = ({ part_of, ...row }, field) => (part_of === undefined ? row : { ...row, [field]: part_of });
+  const asked = (methods, checks, id) => {
+    const cat = methodCatalogue(methods, checks, { link });
+    const record = opened(cat.snapshotMethod(id));
+    record.guidance.push({ step_id: 'scope', answer: { decision_context: { worth_weighing: true, compare_existing: true }, evidence_refs: ['e1'] } });
+    return cat.checklistFor(record, cat.stepsFor(record).find(step => step.id === 'outcome')).map(row => row.id);
+  };
+  const quick = { id: 'quick', name: 'Quick', part_of: 'plain' };
+  const now = [plainMethod(), quick, other], nowChecks = [...plainChecks(), foreign];
+  const then = now.map(row => toOld(row, 'extends')), thenChecks = nowChecks.map(row => toOld(row, 'method'));
+  for (const id of ['plain', 'quick', 'other']) assert.deepEqual(asked(then, thenChecks, id), asked(now, nowChecks, id), id);
+  assert.deepEqual(asked(then, thenChecks, 'quick'), ['outcome-before-after'], 'an old extends still builds on its parent');
+  // Rewritten to part_of other, the row's stale method (plain) no longer makes plain ask it.
+  const moved = { ...foreign, id: 'moved', part_of: 'other', method: 'plain' };
+  assert.ok(!asked(now, [...nowChecks, moved], 'plain').includes('moved'));
+  assert.ok(asked(now, [...nowChecks, moved], 'other').includes('moved'));
+});

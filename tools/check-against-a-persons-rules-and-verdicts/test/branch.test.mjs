@@ -62,15 +62,18 @@ test('a lineage is nearest first, up to the root, through part_of; an unknown id
   assert.deepEqual(checksOfBranch([...checks(), { id: 'everyone' }], lineage, link).map(row => row.id), ['no-glitter', 'base-question', 'no-sparkle', 'no-wibble', 'everyone']);
 });
 
-test('the branch rows are read once from the Checks list, then each branch of the lineage with where { part_of }, never the whole list, and nothing is written', async () => {
+// The fields a node's parent is read from: the link, then the old fields still read until the rows are rewritten.
+const LINK_FIELDS = [SETTINGS_OF_BRANCH.link_field, ...SETTINGS_OF_BRANCH.old_link_fields];
+
+test('the branch rows are read once from the Checks list, then each branch of the lineage with where { part_of } and each old field, never the whole list, and nothing is written', async () => {
   const door = memoryDoor();
   const { lineage, rows_used } = await rulesOfBranch(door, 'made-up-grandchild');
   const checkCalls = door.calls.filter(call => call.type === 'record:check');
-  assert.deepEqual(checkCalls.map(call => call.where), [SETTINGS_OF_BRANCH.branch_where, ...lineage.map(part_of => ({ part_of }))]);
-  assert.equal(checkCalls.length, 1 + 3);
+  assert.deepEqual(checkCalls.map(call => call.where), [SETTINGS_OF_BRANCH.branch_where, ...lineage.flatMap(id => LINK_FIELDS.map(field => ({ [field]: id })))]);
+  assert.equal(checkCalls.length, 1 + 3 * LINK_FIELDS.length);
   // made-up-base holds two branches below it (made-up-branch, made-up-other) and made-up-branch one (made-up-grandchild).
   assert.deepEqual(rows_used, { branches: { 'made-up-grandchild': 1, 'made-up-branch': 3, 'made-up-base': 4 }, lists: { 'list:made-up-voice': 1 }, skipped: { branch: 3, step: 1, off: 1, no_test: 0 } });
-  assert.equal(door.calls.length, 1 + 3 + 2, 'the branches once, each branch\'s rows once, the list record and its rows once');
+  assert.equal(door.calls.length, 1 + 3 * LINK_FIELDS.length + 2, 'the branches once, each branch\'s rows once a link field, the list record and its rows once');
   assert.ok(!door.calls.some(call => call.type === 'record:method'), 'no Methods list is read: the branches are nodes of the one Checks list');
 });
 
@@ -308,11 +311,45 @@ test('the branch mode judges branches whose part_of is a list, asking the door w
   const { lineage, rows_used } = await rulesOfBranch(door, 'made-up-grandchild');
   assert.deepEqual(lineage, ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
   const checkCalls = door.calls.filter(call => call.type === 'record:check');
-  assert.deepEqual(checkCalls.slice(1).map(call => call.where), lineage.map(id => ({ part_of: [id] })));
+  assert.deepEqual(checkCalls.slice(1).filter(call => 'part_of' in call.where).map(call => call.where), lineage.map(id => ({ part_of: [id] })));
   assert.deepEqual(rows_used.branches, { 'made-up-grandchild': 1, 'made-up-branch': 3, 'made-up-base': 4 });
 });
 
 test('the branch mode refuses a branch whose part_of names two branches', async () => {
   const methodRows = listed(methods()).map(row => (row.id === 'made-up-grandchild' ? { ...row, part_of: ['made-up-branch', 'made-up-other'] } : row));
   await assert.rejects(rulesOfBranch(memoryDoor({ methodRows, checkRows: listed(checks()) }), 'made-up-grandchild'), /made-up-branch and made-up-other/);
+});
+
+// Rows not yet rewritten: a branch names its parent in `extends`, a leaf its branch in `method` (read-data/branch.json old_link_fields).
+test('old rows still read: a lineage through extends, leaves through method, the same rules as part_of', async () => {
+  const oldMethods = methods().map(({ part_of, ...row }) => (part_of === undefined ? row : { ...row, extends: part_of }));
+  const oldChecks = checks().map(({ part_of, ...row }) => ({ ...row, method: part_of }));
+  const link = [SETTINGS_OF_BRANCH.link_field, ...SETTINGS_OF_BRANCH.old_link_fields];
+  assert.deepEqual(lineageOf(oldMethods, 'made-up-grandchild', link), ['made-up-grandchild', 'made-up-branch', 'made-up-base']);
+  const now = await rulesOfBranch(memoryDoor(), 'made-up-grandchild');
+  const then = await rulesOfBranch(memoryDoor({ methodRows: oldMethods, checkRows: oldChecks }), 'made-up-grandchild');
+  assert.deepEqual(then.lineage, now.lineage);
+  assert.deepEqual(then.rows_used, now.rows_used);
+  assert.deepEqual(then.rules.map(row => row.id), now.rules.map(row => row.id));
+  assert.deepEqual(then.verdict_rules.rows.map(row => row.id), now.verdict_rules.rows.map(row => row.id));
+});
+
+test('a row rewritten to part_of wins over its stale method; a branch is never a rule; a piece that is Off is never judged', async () => {
+  const checkRows = [
+    ...checks(),
+    // Rewritten to part_of the other branch, its old method still names the base: it is the other branch's row only.
+    { id: 'moved', part_of: 'made-up-other', method: 'made-up-base', words: ['moved'], says: 'Moved away.' },
+    // A piece of a source file with no check yet: Off, never judged, even with words to read.
+    { id: 'a-piece', kind: SETTINGS_OF_BRANCH.piece_kind, part_of: 'made-up-branch', on: SETTINGS_OF_BRANCH.off, says: 'a piece of a file' },
+    { id: 'old-piece', kind: SETTINGS_OF_BRANCH.piece_kind, method: 'made-up-branch', on: SETTINGS_OF_BRANCH.off, says: 'an old piece' },
+  ];
+  const { rules, verdict_rules, rows_used, read_by_a_model } = await rulesOfBranch(memoryDoor({ checkRows }), 'made-up-grandchild');
+  const judged = [...rules, ...verdict_rules.rows];
+  assert.ok(!judged.some(row => row.id === 'moved'), 'its part_of names another branch');
+  assert.ok(!judged.some(row => row.kind === 'branch' || methods().some(branch => branch.id === row.id)), 'no branch row is a rule');
+  assert.ok(!judged.some(row => row.id === 'a-piece' || row.id === 'old-piece'), 'no piece is judged');
+  assert.ok(!read_by_a_model.rows.some(row => row.kind === SETTINGS_OF_BRANCH.piece_kind));
+  assert.equal(rows_used.skipped.off, 3, 'no-wibble and the two pieces');
+  const other = await rulesOfBranch(memoryDoor({ checkRows }), 'made-up-other');
+  assert.ok(other.rules.some(row => row.id === 'moved'));
 });
