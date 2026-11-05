@@ -31,6 +31,14 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/agent-receiver-replays-one-at-a-time.test.mjs",
       "source_identity": "1f:6ceaace369ab54795b4eb53f0051c12e6cebcc1e7f8c526805dab001ad80ae39",
       "identity": "1f:6ceaace369ab54795b4eb53f0051c12e6cebcc1e7f8c526805dab001ad80ae39"
+    },
+    {
+      "from": "test/metered-use.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/metered-use.test.mjs",
+      "source_identity": "1f:c53fb1335c79ccb603c57b19999f776abe1701a6c9acda8fd5a386f36bc3daec",
+      "identity": "1f:ad26e374170f0283353a94ad458a8ecd1e4118b0cfc1914b34a61fb24cbb954a",
+      "adapted": "only the scheduler's use-budget wait is kept, its built-in when-to-run-next answered by run-work-later-or-on-a-repeat when-to-wake.ts; the sixty tests of old src/metered-use.mjs are left out: nothing meters that way now."
     }
   ]
 }
