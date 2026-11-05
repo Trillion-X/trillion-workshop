@@ -1,0 +1,69 @@
+{
+  "kind": "package-set-records",
+  "record_set": "collect-and-rank-viewer-questions-tool-rows",
+  "what_this_is": "The Workshop row for the collect-and-rank-viewer-questions folder: a script the person's AI runs on the person's own computer to find the real questions people ask in forum posts and video comments, sort them into the person's buckets, measure how often each recurs, and match each to the moments of the person's own recordings that answer it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:collect-and-rank-viewer-questions",
+        "label": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
+        "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+        "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "enum": [
+                "candidates",
+                "rank",
+                "embed_moments",
+                "build_library",
+                "rematch",
+                "add_package_questions",
+                "apply_gate",
+                "remap_picks",
+                "reports"
+              ],
+              "description": "Which script to run, put where {command} is in the command."
+            },
+            "arguments": {
+              "type": "string",
+              "description": "That script's arguments (the README and the top of each script say them), put where {arguments} is: the person's files on their computer, and the file holding their settings row as the door read it."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line each script prints: {\"result\": ...}, or {\"error\": words saying what to fix}. candidates: {candidates, posts, videos, out}. rank: {ranked, per_bucket}. embed_moments: {moments, out}. build_library: {questions, with_answers, out}. rematch: {questions, with_answers, answers_by_reach, pool}. add_package_questions: {added: {observed, hypothesis}, skipped, total}. apply_gate: {verdicts, failing}. remap_picks: {remapped}. reports: the view asked for."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install sentence-transformers numpy"
+          ],
+          "run": "python3 trillion-workshop/tools/collect-and-rank-viewer-questions/do-work/{command}.py {arguments}",
+          "needs": [
+            "python",
+            "for embed_moments, build_library, rematch and reports vectors: sentence-transformers and numpy, and the model files BAAI/bge-small-en-v1.5 (about 130 MB) and BAAI/bge-reranker-v2-m3 (about 2.3 GB), fetched once by sentence-transformers",
+            "for apply_gate: node, and the person's copy rules as a tool:check-copy request",
+            "the person's settings row (record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>), read through tool:read-a-tool-setting and written to a file, for rank, build_library, rematch and add_package_questions"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Their buckets, codes, overrides, inferred questions, package readings and reach rules are their list:settings row for this tool: read it (tool:read-a-tool-setting) and write it to a file for the run. Their forum posts and video comments are the files the research tools kept. Run `candidates` on them, then `rank` with the settings file and read the ranked candidates with them; the picks are theirs (picks.txt). Then `embed_moments` on their word-timed transcripts, `build_library` with the picks and the settings, and `apply_gate` with their copy rules. Write what the run makes (the questions, with their frequency and answers) back as rows of their library. Tell them how many questions recur, which have a strong answer in their own recordings, and which have none yet. An inferred or hypothesis question is never a viewer's words: say so. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:collect-and-rank-viewer-questions",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from a film repository's viewer-questions scripts (candidates, rank, build_library, rematch, embed_moments, add_package_questions, apply_gate, remap_picks and the reports), each a byte copy first, then adapted: every person's bucket, code, override, segment, note and path made an argument or a settings row. Uses sentence-transformers (Apache-2.0, https://github.com/UKPLab/sentence-transformers) and the BAAI bge models (MIT)."
+        }
+      }
+    }
+  ]
+}
