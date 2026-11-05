@@ -8,8 +8,9 @@
 //   lines (both rows of their one Checks list, list:checks). The answering itself is the Python file beside this one.
 //
 // Non-negotiable invariants
-//   1. The settings are read only through tools/settings readSettings, for this tool's folder; nothing here has a default
-//      for a model, a path or a bar.
+//   1. The settings are read only through tools/settings `setting`, for this tool's folder; nothing here has a default
+//      for a model, a path or a bar. `settings_record` is the setting row's id (read here through the door), or the
+//      record itself as records:read gives it, its value, a list of them or a JSON file of them (tools/settings).
 //   2. A set of labelled lines is the person's Checks rows of kind `labelled-line` and that `set`, in their `at` order; a
 //      labelled line's own kind of copy is kept in `copy_kind` (the row's `kind` says what the row is) and handed to the
 //      answerer as `kind`, as the lines were before they moved; the row's own fields (part_of, set, at, from) are not.
@@ -22,7 +23,7 @@
 import { spawn } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readSettings } from '../../settings/read-data/settings.mjs';
+import { RECORD_TYPE, ID_PREFIX, setting } from '../../settings/read-data/settings.mjs';
 
 export const TOOL = 'ask-a-small-model-for-a-verdict';
 export const CHECK_TYPE = 'record:check';
@@ -81,10 +82,18 @@ export function runAnswerer(action, request, { python = 'python3' } = {}) {
 }
 
 const settingsOf = async (input, door) => {
-  if (typeof input?.settings_record !== 'string') {
-    throw new AnswerRefused(`settings_record is required: the id of the person's setting row for this tool, record:setting:${TOOL}~<scope_kind>~<scope_id>`);
+  let given = input?.settings_record;
+  if (given === undefined || given === null || given === '') {
+    throw new AnswerRefused(`settings_record is required: the person's setting row for this tool, ${ID_PREFIX}${TOOL}~<scope_kind>~<scope_id>`);
   }
-  return readSettings(door, input.settings_record, { tool: TOOL });
+  if (typeof given === 'string' && given.startsWith(ID_PREFIX)) {
+    const value = await door.read(RECORD_TYPE, given);
+    if (!value) throw new AnswerRefused(`There is no setting row ${given} in the person's list:settings.`);
+    given = { id: given, type: RECORD_TYPE, value };
+  }
+  const found = setting(given, { folder: TOOL });
+  if (found === null) throw new AnswerRefused(`settings_record holds no setting row for ${TOOL}: give the row ${ID_PREFIX}${TOOL}~<scope_kind>~<scope_id>.`);
+  return found;
 };
 
 export async function answerAsks(input, { door } = {}) {

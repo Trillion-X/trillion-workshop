@@ -11,6 +11,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { answerAsks, calibrateAsks, readLineSet, runAnswerer } from '../do-work/answer-with-a-downloaded-model.mjs';
 import { check } from '../../check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs';
+import { makeRecord } from '../../settings/read-data/settings.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const ANSWERER = join(here, '..', 'do-work', 'answer_with_a_downloaded_model.py');
@@ -217,7 +218,7 @@ function door(records) {
     },
   };
 }
-const settingRow = (settings = SETTINGS) => ({ id: SETTING_ID, type: 'record:setting', value: { name: 'made up', tool: 'ask-a-small-model-for-a-verdict', scope_kind: 'person', scope_id: 'made-up-person', settings, status: 'active' } });
+const settingRow = (settings = SETTINGS) => makeRecord('ask-a-small-model-for-a-verdict', 'person', 'made-up-person', settings, { name: 'made up', tool: 'tool:answer-a-checks-questions-with-a-model-on-this-computer', source: 'made up' });
 const lineRow = (set, at, line) => ({ id: `record:check:labelled-line-${set}-${at}`, type: 'record:check', value: { kind: 'labelled-line', part_of: ['made-up-vague'], set, at, ...line } });
 const RECORDS = [
   settingRow(),
@@ -243,7 +244,9 @@ test('answerAsks reads the settings through tools/settings and the examples\' li
   assert.deepEqual(await answerAsks({ settings_record: SETTING_ID, asks }, { door: records }), [yes(0.4)]);
   assert.deepEqual(records.reads, [SETTING_ID]);
   await assert.rejects(answerAsks({ asks }, { door: records }), /settings_record is required/);
-  await assert.rejects(answerAsks({ settings_record: 'record:setting:another-tool~person~p', asks }, { door: records }), /another-tool/);
+  await assert.rejects(answerAsks({ settings_record: 'record:setting:another-tool~person~p', asks }, { door: records }), /no setting row record:setting:another-tool/);
+  await assert.rejects(answerAsks({ settings_record: makeRecord('another-tool', 'person', 'p', SETTINGS, { name: 'x', source: 'x' }), asks }, { door: records }), /holds no setting row for ask-a-small-model-for-a-verdict/);
+  assert.deepEqual(await answerAsks({ settings_record: settingRow(), asks }, { door: records }), [yes(0.4)]);
   await assert.rejects(answerAsks({ settings_record: SETTING_ID }, { door: records }), /asks is required/);
   await assert.rejects(answerAsks({ settings_record: SETTING_ID, asks }, { door: door([{ ...settingRow(), value: { ...settingRow().value, status: 'retired' } }, ...RECORDS.slice(1)]) }));
 });
