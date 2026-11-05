@@ -1,0 +1,11 @@
+{
+ "what_this_is": "How rulings on single lines are kept, read by do-work/ruling-records.mjs: each is a row of the person's list whose row type the caller names, kept as one record `record_prefix`<row type>:<hex of the BLAKE3 of [text, verdict, by, rule]>, and the words of every refusal.",
+ "record_prefix": "record:",
+ "words": {
+  "refused_row_type": "row_type is the row type of the list the rulings are kept in (lowercase letters, digits and '-'), as the list record's row_type says.",
+  "refused_rows": "rows and existing are lists of rulings; refuse is a list of { field, one_of?: [values], contains_one_of?: [path parts] }; hand_rulings is { field: [words] }; place is { field, pattern }.",
+  "refused_row": "Every ruling needs its text (the line), verdict (one word, such as bad, good or escalated) and by (who gave it).",
+  "refused_fixture": "REFUSED: {count} row(s) come from a test piece or a temporary folder (the list's refuse setting); they never go into the person's rulings. Nothing is written.",
+  "refused_word": "A ruling given by hand needs its {field} to be one of {words}; it is {value}."
+ }
+}

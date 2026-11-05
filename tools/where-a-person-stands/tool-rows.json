@@ -251,35 +251,35 @@
      }
     ],
     "record_model": {
-      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-      "kinds": [
-        {
-          "type": "record-stance",
-          "properties": {
-            "record": "text",
-            "kind": "text",
-            "about": "objects",
-            "stance": "text",
-            "said": "text",
-            "why": "text",
-            "by": "text",
-            "at": "text",
-            "decision_generation": "number",
-            "earlier": "objects",
-            "correction": "object"
-          },
-          "_read_by": "src/record-stance.mjs: the person's stand, its history and durable correction recovery"
-        },
-        {
-          "type": "private-response",
-          "properties": {
-            "anchor": "object",
-            "rows": "objects"
-          },
-          "_read_by": "src/private-responses.mjs: the person's own reactions on one record or part of it"
-        }
-      ],
-      "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
+     "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+     "kinds": [
+      {
+       "type": "record-stance",
+       "properties": {
+        "record": "text",
+        "kind": "text",
+        "about": "objects",
+        "stance": "text",
+        "said": "text",
+        "why": "text",
+        "by": "text",
+        "at": "text",
+        "decision_generation": "number",
+        "earlier": "objects",
+        "correction": "object"
+       },
+       "_read_by": "src/record-stance.mjs: the person's stand, its history and durable correction recovery"
+      },
+      {
+       "type": "private-response",
+       "properties": {
+        "anchor": "object",
+        "rows": "objects"
+       },
+       "_read_by": "src/private-responses.mjs: the person's own reactions on one record or part of it"
+      }
+     ],
+     "_what_moved": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it."
     }
    }
   },
@@ -563,7 +563,7 @@
     "label": "Plan moving kept stands into stance records",
     "status": "active",
     "job": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
-    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) collisions (records two or more rows became under the fold, with each row's text and time), already (versions in kept, not written again) and unverified (rows whose words are not in their source, never written). A row may name a rule (a waiver stand) and a source with after_line, checked against sources. summary_only true leaves the writes out. It writes nothing.",
+    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) collisions (records two or more rows became under the fold, with each row's text and time), already (versions in kept, not written again) and unverified (rows whose words are not in their source, never written). A row may name a rule (a waiver stand) and a source with after_line, and so may each of its earlier stands; every stand naming a source is checked against sources, and a row any of whose words are not there is listed in unverified by the id of the record it would have been. summary_only true leaves the writes out. It writes nothing.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -577,7 +577,7 @@
        "items": {
         "type": "object"
        },
-       "description": "The stands kept elsewhere, one row per thing"
+       "description": "The stands kept elsewhere, one row per thing; a row and each of its earlier stands may name the source its words were said in (source, after_line)"
       },
       "fold": {
        "type": "object",
@@ -731,6 +731,1022 @@
       },
       "output_selector": "$.summary.collisions[0].kind",
       "contains": "title"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::where-a-person-stands::tool::keep-rulings-on-lines",
+   "address": "package::where-a-person-stands::tool::keep-rulings-on-lines",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-rulings-on-lines",
+    "label": "Keep rulings on lines",
+    "status": "active",
+    "job": "Write down rulings on single lines of copy, such as a line a checker flagged for the person or a reviewer's good or bad, as rows of the person's list",
+    "description": "Give rows (each ruling: text, verdict, by, and optionally rule, at, where and any other field the list keeps), existing (the rulings already in the list, as records:list pages them, so a ruling is written once) and settings_record (the person's setting for this tool: row_type, the row type of their rulings list; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use), or those fields themselves. by_hand true checks hand_rulings. Returns write, the records:write input to send at @own-records (one record per text, verdict, by and rule, id record:<row_type>:<BLAKE3 hex>), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "rows"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "rows": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Rulings on single lines: text, verdict (bad, good, escalated or any one word), by (who gave it), rule (optional), at (optional) and any other field the list keeps (where, kind, p_fail, why, note)"
+      },
+      "row_type": {
+       "type": "string",
+       "pattern": "^[a-z0-9][a-z0-9-]*$",
+       "description": "The row type of the list the rulings are kept in"
+      },
+      "at": {
+       "type": "string",
+       "description": "When, for a ruling without its own at (default now)"
+      },
+      "settings_record": {
+       "type": [
+        "object",
+        "array"
+       ],
+       "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as records:read gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+      },
+      "existing": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The rulings already in the list (records or their values)"
+      },
+      "refuse": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The list's refuse setting: [{ field, one_of?: [values], contains_one_of?: [path parts] }]"
+      },
+      "place": {
+       "type": "object",
+       "description": "{ field, pattern }: the field a ruling's place is kept in and the pattern whose first group reads it from where"
+      },
+      "by_hand": {
+       "type": "boolean",
+       "description": "The rows were given by hand: each field must use a word hand_rulings allows"
+      },
+      "hand_rulings": {
+       "type": "object",
+       "description": "{ field: [words] } a ruling given by hand may use"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "write",
+      "fresh"
+     ],
+     "properties": {
+      "write": {
+       "type": "object",
+       "required": [
+        "records"
+       ]
+      },
+      "fresh": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/settings"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/where-a-person-stands",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/where-a-person-stands/do-work/ruling-records.mjs",
+      "keepRulings"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:where-a-person-stands",
+    "provenance": {
+     "source": "the copy gate's verdict log of the decision engine's launch film work (verdicts.mjs), as a tool: a ruling is a row of the person's list, one record per text, verdict, by and rule"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "row_type": "line-rulings",
+       "at": "2026-01-01T00:00:00Z",
+       "refuse": [
+        {
+         "field": "piece",
+         "one_of": [
+          "practice-piece"
+         ]
+        }
+       ],
+       "existing": [
+        {
+         "text": "A quiet line.",
+         "verdict": "good",
+         "by": "reviewer"
+        }
+       ],
+       "rows": [
+        {
+         "text": "The plum is loud.",
+         "verdict": "escalated",
+         "by": "small-model",
+         "rule": "quiet",
+         "p_fail": 0.97
+        },
+        {
+         "text": "A quiet line.",
+         "verdict": "good",
+         "by": "reviewer"
+        }
+       ]
+      },
+      "output_selector": "$.write.records[0].type",
+      "contains": "record:line-rulings"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::where-a-person-stands::tool::make-examples-from-rulings",
+   "address": "package::where-a-person-stands::tool::make-examples-from-rulings",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-examples-from-rulings",
+    "label": "Make examples from rulings on lines",
+    "status": "active",
+    "job": "Make labelled examples for calibrating a small model from the rulings a person gave on lines of copy, and from lines they said themselves",
+    "description": "Give rulings (the rows of the person's rulings list), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "rulings"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "rulings": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Rulings on single lines: text, verdict (bad, good, escalated or any one word), by (who gave it), rule (optional), at (optional) and any other field the list keeps (where, kind, p_fail, why, note)"
+      },
+      "real": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Who counts as real: the people whose rulings count (a ruling by anyone else is never an example)"
+      },
+      "needs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Fields a ruling must carry to count, such as the piece it was judged in"
+      },
+      "speech": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Lines the person said, each { text, sets }"
+      },
+      "speech_set": {
+       "type": "string"
+      },
+      "exclude": {
+       "type": "array",
+       "description": "Lists of lines (texts or { text }) a model was trained on; never examples"
+      },
+      "bad_label": {
+       "type": "string"
+      },
+      "contexts": {
+       "type": "object"
+      },
+      "verdicts": {
+       "type": "object",
+       "description": "The two verdict words: { bad, good } (default bad and good)"
+      },
+      "settings_record": {
+       "type": [
+        "object",
+        "array"
+       ],
+       "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as records:read gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "items",
+      "left_out"
+     ],
+     "properties": {
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "left_out": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/settings"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/where-a-person-stands",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/where-a-person-stands/do-work/rulings.mjs",
+      "makeExamplesFromRulings"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:where-a-person-stands",
+    "provenance": {
+     "source": "the copy gate's verdict log of the decision engine's launch film work (verdicts.mjs), as a tool: a ruling is a row of the person's list, one record per text, verdict, by and rule"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "real": [
+        "person"
+       ],
+       "bad_label": "real-bad",
+       "rulings": [
+        {
+         "text": "The plum is loud.",
+         "verdict": "bad",
+         "by": "person"
+        },
+        {
+         "text": "A quiet line.",
+         "verdict": "good",
+         "by": "helper"
+        }
+       ]
+      },
+      "output_selector": "$.items[0].bad_for[0]",
+      "contains": "real-bad"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::where-a-person-stands::tool::make-examples-from-picks",
+   "address": "package::where-a-person-stands::tool::make-examples-from-picks",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-examples-from-picks",
+    "label": "Make examples from the options a person picked",
+    "status": "active",
+    "job": "Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
+    "description": "Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected). Units of a picked option are good except the lines its row names; a rejection labels bad only the lines it names. Returns items, left_out (excluded, ruled_directly, both_labels, no_spec, several_specs) and units_needed: the specs whose lines to read and send again. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "films"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "films": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The pieces: { name, gate, decisions, files, units }"
+      },
+      "rulings": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Rulings on single lines: text, verdict (bad, good, escalated or any one word), by (who gave it), rule (optional), at (optional) and any other field the list keeps (where, kind, p_fail, why, note)"
+      },
+      "real": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Who counts as real: the people whose rulings count (a ruling by anyone else is never an example)"
+      },
+      "needs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Fields a ruling must carry to count, such as the piece it was judged in"
+      },
+      "verdicts": {
+       "type": "object",
+       "description": "The two verdict words: { bad, good } (default bad and good)"
+      },
+      "bad_label": {
+       "type": "string"
+      },
+      "rejected": {
+       "type": "string"
+      },
+      "settings_record": {
+       "type": [
+        "object",
+        "array"
+       ],
+       "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as records:read gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "items",
+      "left_out",
+      "units_needed"
+     ],
+     "properties": {
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "left_out": {
+       "type": "object"
+      },
+      "units_needed": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/settings"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/where-a-person-stands",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/where-a-person-stands/do-work/picks.mjs",
+      "makeExamplesFromPicks"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:where-a-person-stands",
+    "provenance": {
+     "source": "the copy gate's verdict log of the decision engine's launch film work (verdicts.mjs), as a tool: a ruling is a row of the person's list, one record per text, verdict, by and rule"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "films": [
+        {
+         "name": "piece-1",
+         "gate": {
+          "picked_verdicts": [
+           "picked"
+          ],
+          "pick_labels": {
+           "spec_globs": [
+            "cuts/{option}.json"
+           ]
+          }
+         },
+         "decisions": [
+          {
+           "option_id": "o1",
+           "verdict": "picked"
+          }
+         ],
+         "files": [
+          "cuts/o1.json"
+         ],
+         "units": {
+          "cuts/o1.json": [
+           {
+            "text": "A kept line.",
+            "kind": "onscreen"
+           }
+          ]
+         }
+        }
+       ]
+      },
+      "output_selector": "$.items[0].source",
+      "contains": "pick-implied"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::where-a-person-stands::tool::count-real-rulings",
+   "address": "package::where-a-person-stands::tool::count-real-rulings",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:count-real-rulings",
+    "label": "Count the real bad rulings on lines",
+    "status": "active",
+    "job": "Count how many lines a person ruled bad, whether that is enough to let a model row fail lines, and how many of them each model row catches",
+    "description": "Give rulings (the rows of the person's rulings list) and settings_record (the person's setting for this tool: real, who counts; needs, fields a ruling must carry to count; needed, how many real bad rulings a model row needs before it may fail lines; and optionally verdict, the bad word, and default_kind), or those fields themselves. Returns real_bad_film (the real bad rulings), needed, promotion_allowed, counts (every \"<by> <verdict>\" of the log) and bad_lines (one per text: text, kind, where), the lines to check. Send again with rules (the model rows, [{ id, ask: { calibration: { t_fail } } }]) and results (the check's results on the bad lines: [{ text, uncertain: [{ rule, p_fail }] }]) to add escalated_by_any, per_rule (lines each row catches at its own t_fail) and unanswered. It runs no check and writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "rulings"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "rulings": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "Rulings on single lines: text, verdict (bad, good, escalated or any one word), by (who gave it), rule (optional), at (optional) and any other field the list keeps (where, kind, p_fail, why, note)"
+      },
+      "real": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Who counts as real: the people whose rulings count (a ruling by anyone else is never an example)"
+      },
+      "needs": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Fields a ruling must carry to count, such as the piece it was judged in"
+      },
+      "needed": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "verdict": {
+       "type": "string"
+      },
+      "default_kind": {
+       "type": "string"
+      },
+      "rules": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The model rows: [{ id, ask: { calibration: { t_fail } } }] as the person's check rows keep them"
+      },
+      "settings_record": {
+       "type": [
+        "object",
+        "array"
+       ],
+       "description": "The person's row of list:settings for this tool (record:setting:where-a-person-stands~<scope kind>~<scope id>) as records:read gives it, its value, or a list of them; read by tools/settings. The input's own fields win over it"
+      },
+      "results": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The check's results on bad_lines: [{ text, uncertain: [{ rule, p_fail }] }]"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "real_bad_film",
+      "needed",
+      "promotion_allowed",
+      "counts",
+      "bad_lines"
+     ],
+     "properties": {
+      "needed": {
+       "type": "integer"
+      },
+      "promotion_allowed": {
+       "type": "boolean"
+      },
+      "counts": {
+       "type": "object"
+      },
+      "bad_lines": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "escalated_by_any": {
+       "type": "integer"
+      },
+      "per_rule": {
+       "type": "object"
+      },
+      "unanswered": {
+       "type": "integer"
+      },
+      "real_bad_film": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/settings"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/where-a-person-stands",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/where-a-person-stands/do-work/ruling-status.mjs",
+      "countRealRulings"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:where-a-person-stands",
+    "provenance": {
+     "source": "the copy gate's verdict log of the decision engine's launch film work (verdicts.mjs), as a tool: a ruling is a row of the person's list, one record per text, verdict, by and rule"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "real": [
+        "person"
+       ],
+       "needed": 1,
+       "rulings": [
+        {
+         "text": "The plum is loud.",
+         "verdict": "bad",
+         "by": "person"
+        }
+       ],
+       "rules": [
+        {
+         "id": "quiet",
+         "ask": {
+          "calibration": {
+           "t_fail": 0.9
+          }
+         }
+        }
+       ],
+       "results": [
+        {
+         "text": "The plum is loud.",
+         "uncertain": [
+          {
+           "rule": "quiet",
+           "p_fail": 0.95
+          }
+         ]
+        }
+       ]
+      },
+      "output_selector": "$.per_rule.quiet",
+      "contains": "1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::where-a-person-stands::tool::count-where-a-person-stands",
+   "address": "package::where-a-person-stands::tool::count-where-a-person-stands",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:count-where-a-person-stands",
+    "label": "Count where a person stands",
+    "status": "active",
+    "job": "Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back",
+    "description": "Give stands: the stands read back (each the answer of tool:read-where-you-stand, or a stance record's value: kind, stance, and earlier when its history was read). Returns read (how many), by_kind ({ kind: { stance: count } }), with_history (stands with earlier stands) and taken_back (read with no stand now). It reads and writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "stands"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "stands": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "The stands read back: standFrom answers or stance record values"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "read",
+      "by_kind",
+      "with_history",
+      "taken_back"
+     ],
+     "properties": {
+      "read": {
+       "type": "integer"
+      },
+      "by_kind": {
+       "type": "object"
+      },
+      "with_history": {
+       "type": "integer"
+      },
+      "taken_back": {
+       "type": "integer"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/where-a-person-stands",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/where-a-person-stands/do-work/where-a-person-stands.mjs",
+      "countStands"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:where-a-person-stands",
+    "provenance": {
+     "source": "the copy gate's stance count of the decision engine's launch film work (verdicts.mjs stances), as a tool over the stands the caller read back"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "stands": [
+        {
+         "kind": "title",
+         "stance": "agree",
+         "earlier": [
+          {
+           "stance": "disagree"
+          }
+         ]
+        },
+        {
+         "kind": "title",
+         "stance": "disagree"
+        },
+        {
+         "kind": "voice",
+         "stance": null
+        }
+       ]
+      },
+      "output_selector": "$.by_kind.title.agree",
+      "contains": "1"
      }
     ]
    }
