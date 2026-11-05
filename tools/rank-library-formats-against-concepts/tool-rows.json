@@ -1,0 +1,333 @@
+{
+  "kind": "package-set-records",
+  "record_set": "rank-library-formats-against-concepts-tool-rows",
+  "what_this_is": "The Workshop row for the rank-library-formats-against-concepts folder: a program run on the person's own computer, over a folder they let it change, to lay every format of their library beside every concept for judges to rank, and to write the judged ranking into their titles file.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rank-library-formats-against-concepts",
+        "label": "Match every video format I have collected to every idea I could film, and keep the best fits",
+        "job": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+        "description": "Two steps. catalog lists every candidate format (each analysed item in the library's index, the title templates in a bank that name a form, and the person's own formats) and every concept (each concept heading with its beats and how many of its moments were found, and how many of those are on this computer or in cloud storage) as tab-separated lines for judges to read; the concept lines never name a format. apply reads judged files ({concept id: [{format, fit, material?}] best first}), refuses a format key the catalog does not hold and a concept nobody judged, and writes format_options (each judged option with its type, medium, library path, fit and the concept's moment counts), format_palette (every format some concept's options use, plus each plan's pick) and format_ranking_about into the titles file. The ranking is a reading of the whole catalog per concept by judges, not a model score: a cross-encoder scores topic, not form. Everything that belongs to the person (their form templates, stable format keys, their own formats, the package ids, which concepts to skip, the material wording and the about text) is their settings: a row of their list:settings (record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, named by settings_record) read through tools/settings, with the run's own settings laid over it. Paths are inside the folder the person let this tool change (apply rewrites the titles file there). Run catalog, read every candidate against every concept (yourself or with judges), write each concept's best three to five formats with why to a judged file, then run apply; never pick a format by a model score, and never change the person's titles file without their say.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "step"
+          ],
+          "properties": {
+            "step": {
+              "enum": [
+                "catalog",
+                "apply"
+              ]
+            },
+            "library": {
+              "type": "string",
+              "description": "The library folder (INDEX.md and formats/<folder>/FORMAT.md)."
+            },
+            "bank": {
+              "type": "string",
+              "description": "A title-template bank markdown file."
+            },
+            "concepts": {
+              "type": "object",
+              "required": [
+                "files"
+              ],
+              "properties": {
+                "files": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "package": {
+              "type": "string",
+              "description": "An optional CSV of package concepts."
+            },
+            "titles": {
+              "type": "string",
+              "description": "apply: the titles JSON file to rewrite."
+            },
+            "judged": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "apply: judged JSON files, laid over each other in order."
+            },
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:rank-library-formats-against-concepts~",
+              "description": "The person's list:settings row for this tool (for one film: its form templates, stable keys, own formats, skipped concepts, package ids and prose)."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings for this run, laid over the row's."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "step"
+          ],
+          "properties": {
+            "step": {
+              "enum": [
+                "catalog",
+                "apply"
+              ]
+            },
+            "candidates": {
+              "type": "integer"
+            },
+            "concepts": {
+              "type": "integer"
+            },
+            "palette": {
+              "type": "integer"
+            },
+            "distinct_in_options": {
+              "type": "integer"
+            },
+            "settings_from": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/rank-library-formats-against-concepts",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/settings/do-work/run-with-settings.mjs",
+            "--folder",
+            "rank-library-formats-against-concepts",
+            "--",
+            "python3",
+            "-I",
+            "/opt/rank-library-formats-against-concepts/do-work/rank_formats.py",
+            "--base",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:rank-library-formats-against-concepts~",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "rank-library-formats-against-concepts",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/rank-library-formats-against-concepts"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "maker": "maker:rank-library-formats-against-concepts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from a film folder's tools/rank_formats.py (film-making repository, commit 5a9ba39); the person's templates, keys, own formats and prose became a list:settings row"
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "step": "catalog",
+              "library": "library",
+              "concepts": {
+                "files": [
+                  "ideas/A.md"
+                ]
+              },
+              "settings_record": "record:setting:rank-library-formats-against-concepts~film~sample-film"
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "library/INDEX.md",
+                "text": "# Library\n\n## All items\n\n| creator | item | format type | medium & aspect | length s | cuts/min | wpm | views | likes | bookmarks | one-line premise | link to folder |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| alpha | A tour of a workshop | launch film | video 16:9 | 81 | 4 | 188 | 1,000 | 10 | 2 | \"Show the place.\" | [folder](formats/alpha/alpha-001/) |\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "ideas/A.md",
+                "text": "# Ideas\n\n## A01 | First idea\n\n| beat | where |\n|---|---|\n| HOOK: opening line | local clip |\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "titles.json",
+                "text": "{\"titles\": []}\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "judged.json",
+                "text": "{\"A01\": [{\"format\": \"tour\", \"fit\": \"a walk through one place suits it\"}]}\n"
+              }
+            ],
+            "records": [
+              {
+                "id": "record:setting:rank-library-formats-against-concepts~film~sample-film",
+                "type": "record:setting",
+                "value": {
+                  "name": "Format ranking for a sample film",
+                  "tool": "tool:rank-library-formats-against-concepts",
+                  "scope_kind": "film",
+                  "scope_id": "sample-film",
+                  "settings": {
+                    "stable_keys": {
+                      "alpha-001": "tour"
+                    },
+                    "own_formats": [
+                      {
+                        "key": "own_one",
+                        "type": "own",
+                        "medium": "long video",
+                        "creator": "someone",
+                        "stats": "their template",
+                        "path": "no library item",
+                        "text": "their long structure"
+                      }
+                    ]
+                  },
+                  "from": "made up for this sample",
+                  "status": "active"
+                }
+              }
+            ]
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "step": "apply",
+              "library": "library",
+              "concepts": {
+                "files": [
+                  "ideas/A.md"
+                ]
+              },
+              "titles": "titles.json",
+              "judged": [
+                "judged.json"
+              ],
+              "settings": {
+                "stable_keys": {
+                  "alpha-001": "tour"
+                },
+                "own_formats": [
+                  {
+                    "key": "own_one",
+                    "type": "own",
+                    "medium": "long video",
+                    "creator": "someone",
+                    "stats": "their template",
+                    "path": "no library item",
+                    "text": "their long structure"
+                  }
+                ]
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "library/INDEX.md",
+                "text": "# Library\n\n## All items\n\n| creator | item | format type | medium & aspect | length s | cuts/min | wpm | views | likes | bookmarks | one-line premise | link to folder |\n|---|---|---|---|---|---|---|---|---|---|---|---|\n| alpha | A tour of a workshop | launch film | video 16:9 | 81 | 4 | 188 | 1,000 | 10 | 2 | \"Show the place.\" | [folder](formats/alpha/alpha-001/) |\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "ideas/A.md",
+                "text": "# Ideas\n\n## A01 | First idea\n\n| beat | where |\n|---|---|\n| HOOK: opening line | local clip |\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "titles.json",
+                "text": "{\"titles\": []}\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "judged.json",
+                "text": "{\"A01\": [{\"format\": \"tour\", \"fit\": \"a walk through one place suits it\"}]}\n"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

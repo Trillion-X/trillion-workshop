@@ -3,6 +3,10 @@
   | check-a-rendered-video variety <ledger folder> --limits <file>
   | check-a-rendered-video map-add <ledger folder> --id T --event-types a,b [--chapter1]
   | check-a-rendered-video declare <ledger folder> --lane L --option ID --moment 2:19 --techniques a,b --kind K
+  | check-a-rendered-video pins --limits <file> [--reviewed <pins.json>]
+  | check-a-rendered-video inspect settle|type-sync|eyes|placement ...   (rendercheck/inspect_<what>.py)
+  | check-a-rendered-video export-spans <specs dir> --limits <file> --bases-key REGEX ...   (rendercheck/spans.py)
+  | check-a-rendered-video request < {"argv": [...], "settings_record": <list:settings row>}   (under tools/settings run-with-settings.mjs)
 
 Checks a rendered video's frames, joins and audio and prints PASS / WARN / FAIL per check with the times."""
 import argparse
@@ -64,9 +68,71 @@ def _spec_for(video, specs_dir):
     return p if p and os.path.exists(p) else None
 
 
+def pins_report(cfg, reviewed):
+    """The pin of every check now, and against the person's reviewed pins ({check: pin}) which changed, which are new and which are gone:
+    a check whose pin changed has new code or limits, and its recorded answers are void until the person reviews it again."""
+    now = pins.check_pins(cfg)
+    return {'pins': now,
+            'changed': [{'check': k, 'reviewed': reviewed[k], 'now': v} for k, v in now.items() if k in reviewed and reviewed[k] != v],
+            'added': sorted(k for k in now if k not in reviewed), 'gone': sorted(k for k in reviewed if k not in now)}
+
+
+NEEDS_LIMITS = {'check', 'batch', 'pins', 'variety', 'review-pack', 'export-spans', 'inspect'}
+
+
+def request_argv(request, folder):
+    """`request`: one JSON request on standard input, {"argv": [command...], "settings_record": <the list:settings row>, "settings"?: {...}}, as
+    tools/settings/do-work/run-with-settings.mjs hands it. The settings are read by the shared reader (request_settings: the row, then the
+    request's own settings over it); settings.limits and settings.reviewed_pins are written to files in `folder` and named by --limits/--reviewed."""
+    argv = list(request.get('argv') or [])
+    if not argv or not all(isinstance(x, str) for x in argv):
+        raise ValueError('the request needs argv: a list of strings, the command first (check, batch, pins, ...)')
+    if any(x in ('--limits', '--reviewed') for x in argv):
+        raise ValueError('give the limits and reviewed pins as settings (settings.limits, settings.reviewed_pins), not as --limits or --reviewed')
+    reader = config_mod.settings_reader()
+    try:
+        settings = reader.request_settings(request, {}, folder=config_mod.FOLDER, tool=config_mod.TOOL)
+    except reader.SettingError as exc:
+        raise ValueError(str(exc)) from None
+    for key, flag, name in (('limits', '--limits', 'limits.json'), ('reviewed_pins', '--reviewed', 'reviewed-pins.json')):
+        wanted = argv[0] in NEEDS_LIMITS and not argv[1:2] in (['eyes'], ['placement']) if key == 'limits' else argv[0] == 'pins'
+        if wanted and not isinstance(settings.get(key), dict) and key == 'limits':
+            raise ValueError(f"{argv[0]} needs the person's limits: name their list:settings row in settings_record (run under tools/settings/do-work/run-with-settings.mjs), or give settings.limits")
+        if wanted and isinstance(settings.get(key), dict):
+            jsonio.write(os.path.join(folder, name), settings[key])
+            argv += [flag, os.path.join(folder, name)]
+    return argv
+
+
+def request_main(stdin=None):
+    import tempfile
+    try:
+        request = json.loads((stdin or sys.stdin).read() or '{}')
+        with tempfile.TemporaryDirectory(prefix='check-a-rendered-video-') as folder:
+            return main(request_argv(request, folder))
+    except ValueError as exc:
+        print(json.dumps({'error': str(exc)}))
+        return 2
+
+
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == 'inspect':
+        what = {'settle': 'settle', 'type-sync': 'type', 'eyes': 'eyes', 'placement': 'placement'}.get(argv[1] if len(argv) > 1 else '')
+        if not what:
+            print('usage: check-a-rendered-video inspect settle|type-sync|eyes|placement ...', file=sys.stderr)
+            return 2
+        return importlib.import_module(f'rendercheck.inspect_{what}').main(argv[2:])
+    if argv and argv[0] == 'export-spans':
+        from . import spans
+        return spans.main(argv[1:])
+    if argv and argv[0] == 'request':
+        return request_main()
     ap = argparse.ArgumentParser(prog='check-a-rendered-video', description=__doc__)
     sub = ap.add_subparsers(dest='cmd', required=True)
+    pp = sub.add_parser('pins', help="each check's pin now, and which differ from the person's reviewed pins")
+    pp.add_argument('--limits', required=True, help="the person's limits file, or their list:settings row for this tool")
+    pp.add_argument('--reviewed', help='JSON {check: pin} of the pins the person reviewed, or their list:settings row (its settings.reviewed_pins)')
     vp = sub.add_parser('variety', help='judge the whole variety ledger at once (exit 1 on any breach)')
     vp.add_argument('target', help='the folder holding the ledger and the technique map')
     vp.add_argument('--limits', required=True, help='the person\'s limits file (its variety section)')
@@ -118,6 +184,9 @@ def main(argv=None):
             return 2
         return 0
     cfg = config_mod.load(args.limits)
+    if args.cmd == 'pins':
+        print(json.dumps({'result': pins_report(cfg, config_mod.load_reviewed(args.reviewed) if args.reviewed else {})}))
+        return 0
     if args.cmd == 'variety':
         from .checks import variety
         return variety.report(args.target, cfg)

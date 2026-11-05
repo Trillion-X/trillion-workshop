@@ -1,0 +1,59 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-PACK-SECTION-CHUNKS-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-launch-video",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:94fc571e045c22ec9ab7ddd652436fc1333d3bbd9e50a2e3f64156a177ff5a56",
+      "multihash": "1f:6feb4bf5695d78b6b5289a465eb045f01ae200e6e6cf47d5d3f1853e7595456f",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/pack-section-chunks.py",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
+    }
+  ],
+  "preserve": [
+    "complete ordered section blocks are packed greedily under the target token count and never past the serving limit",
+    "request composition is the maintained requestPlan, sizing the pinned tokenizer and prompt builder",
+    "no inference request is sent"
+  ],
+  "allowed_deltas": [
+    "the decider prompt package is found in the folder the caller names, not beside the old repository"
+  ],
+  "banned_substitutions": [
+    "a truncated state"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6feb4bf5695d78b6b5289a465eb045f01ae200e6e6cf47d5d3f1853e7595456f",
+    "target_multihash_at_baseline": "1f:6feb4bf5695d78b6b5289a465eb045f01ae200e6e6cf47d5d3f1853e7595456f",
+    "commit": "b64680e8a957fc944d4da7b71e0cf3b34cae1900"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def maintained_plans(",
+      "def collect_token_requests(",
+      "def criterion_row_tokens("
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/test_pack_section_chunks.py"
+    ]
+  }
+}
