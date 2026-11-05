@@ -38,9 +38,12 @@ def reference(args):
         cfg = AutoConfig.from_pretrained(os.path.dirname(os.path.abspath(args.random_config)))
         with torch.device("cpu"):
             lm = AutoModelForCausalLM.from_config(cfg, dtype=torch.float32)
-        lm = lm.to(dtype).eval()
+        # round the weights to bfloat16 (the model's own dtype) and save them so; then compute in --dtype.
+        # Both frameworks read the same bfloat16 weights, and the saved copy is half the size.
+        lm = lm.to(torch.bfloat16).eval()
         model_dir = os.path.join(args.out, "model")
         lm.save_pretrained(model_dir, safe_serialization=True)
+        lm = lm.to(dtype)
         tok = S.SyntheticTokenizer()
         tokenizer = "synthetic"
         temperature = 1.18 if args.temperature is None else args.temperature
