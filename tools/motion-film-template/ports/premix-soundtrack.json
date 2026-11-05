@@ -1,0 +1,72 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MOTION-FILM-SOUNDTRACK-PREMIX-FROM-A-FILMS-MIX-SCRIPT",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools (films-a): the motion-film format's soundtrack premix and icon writer",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:125fd7866bbc18b46e6b7678f58b48bf76925d3f99cca74bff27800edc471998",
+   "lines": [
+    20,
+    53
+   ],
+   "multihash": "1f:b8b07e4d2d57c7eef8958109065670b6601d6cc67ef48e0a03d09e3b9091c88a",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/motion-film-template/do-work/premix_soundtrack.py",
+   "baseline_commit_message": "motion-film-template: a film's soundtrack premix and icon writer, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "the music bed as input 0, each palette sound as one more input at its time (adelay in whole milliseconds, never before 0) and gain, summed by amix with no normalising and trimmed to the film",
+  "the premix written to a 32-bit float work file, then loudness in two passes: measure, limit the true peak under a gain, measure again, then loudnorm in linear mode with the measured values; the work file removed after",
+  "the same printed lines: the loudnorm result and \"wrote <out> <DUR> s, <n> effects from <k> recordings\"",
+  "the ffmpeg arguments of every step, so a film's settings row makes the same soundtrack (parity: three films byte-identical, two within one sample step, from effect order alone)"
+ ],
+ "allowed_deltas": [
+  "every value the newest film's script fixed (music file, bed level, fades, filter chains, loudness target and limiter) is the film's list:settings row record:setting:motion-film-template~film~<film>, read through tools/settings; its old values are the defaults where they are the format's",
+  "the other films' copies of the same mix script (four more films of this lane and two of the next) are not ported separately: their differences are settings of this one script (a scheduled music gain ducked under the voice lines with set, add and ramp windows; the voice lines laid at their offsets; a stereo narrowing or a one-pass loudnorm after the sum; the measured-gain-then-limiter pass of two wordless films; music input arguments that open more than one file; cut voice lines skipped)",
+  "one JSON request in, one JSON answer as the last line; run: false answers the commands without running them (a recorder stands in for subprocess and stops at the first measurement)",
+  "the work file is removed with unlink instead of the trash command, which is not on every computer"
+ ],
+ "banned_substitutions": [
+  "a second soundtrack mixer beside this one",
+  "a music file, level or loudness target written in code for one film"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b8b07e4d2d57c7eef8958109065670b6601d6cc67ef48e0a03d09e3b9091c88a",
+  "target_multihash_at_baseline": "1f:b8b07e4d2d57c7eef8958109065670b6601d6cc67ef48e0a03d09e3b9091c88a",
+  "commit": "7b522d437c703e61e14d0defc0b30573467f9a5c",
+  "recorded_at": "2026-11-05T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "for j, (t, name, g) in enumerate(CUES):",
+   "def measure(",
+   "linear=true",
+   "pcm_f32le"
+  ],
+  "test_refs": [
+   "tools/motion-film-template/test/test_premix_soundtrack.py",
+   "tools/motion-film-template/test/motion-film-template.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines 20-53 are the premix and its loudness passes; lines 1-19 are that film's own music choice and comments, which became its settings row."
+}

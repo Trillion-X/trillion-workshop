@@ -1,0 +1,68 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SORT-YOUTUBE-WATCH-LATER-PLAN-SORT-COMMAND",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05, models-research lane, slice yt-library",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "efcb1952440490be712e3a56f92249adb495fd4a",
+   "path_multihash": "1f:97fc017d4b630a91330e45c0358b22a064089eb81fe723df4eece6ffae277cd0",
+   "lines": [
+    88,
+    93
+   ],
+   "multihash": "1f:d8fa5edd8fc4db2b6cb12e68eb20f2a748d9cc9a80b99b395550855782faa9d5",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T12:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/sort-youtube-watch-later-into-playlists/do-work/plan_sort.py",
+   "baseline_commit_message": "sort-youtube-watch-later-into-playlists: launch-video tools/yt-library's client, readers, planner, apply and verify, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "sort-plan.json and SORT-PLAN.md written into the accounts folder"
+ ],
+ "allowed_deltas": [
+  "the settings come from settings_record (the person's list:settings row, read by tools/settings) or inline settings",
+  "the folder is the request's out_dir; without it the plan is in the answer",
+  "the per-channel counts go to standard error and the answer is one JSON line"
+ ],
+ "banned_substitutions": [
+  "a person's channels, account numbers, emails, rules or cookies path written in the code",
+  "a second reader of the settings row beside tools/settings"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d8fa5edd8fc4db2b6cb12e68eb20f2a748d9cc9a80b99b395550855782faa9d5",
+  "target_multihash_at_baseline": "1f:d8fa5edd8fc4db2b6cb12e68eb20f2a748d9cc9a80b99b395550855782faa9d5",
+  "commit": "740bde78de7ab553e0a0358ffe75318e75da3fc1",
+  "recorded_at": "2026-11-05T20:15:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def run",
+   "def sort_settings",
+   "sort-plan.json",
+   "SORT-PLAN.md"
+  ],
+  "test_refs": [
+   "tools/sort-youtube-watch-later-into-playlists/test/test_sort.py",
+   "tools/sort-youtube-watch-later-into-playlists/test/sort-youtube-watch-later.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Source lines that named the person's channels, accounts and cookies file were left behind; they are the person's settings row."
+}
