@@ -1,0 +1,274 @@
+{
+  "kind": "tool-rows",
+  "record_set": "render-a-motion-graphics-overlay-tool-rows",
+  "what_this_is": "The Workshop row for tools/render-a-motion-graphics-overlay: draw a spec of timed events into a see-through overlay video with its sound stem and timeline, with the look read from the person's settings.",
+  "records": [
+    {
+      "id": "package::render-a-motion-graphics-overlay::tool::render-a-motion-graphics-overlay",
+      "address": "package::render-a-motion-graphics-overlay::tool::render-a-motion-graphics-overlay",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:render-a-motion-graphics-overlay",
+        "status": "active",
+        "label": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks",
+        "job": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
+        "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec, or a piece's settings row named by spec_record. Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "assets",
+            "out"
+          ],
+          "properties": {
+            "settings_record": {
+              "description": "The person's look row of list:settings: its id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id> (usually ~film~<film>), read through the records door, or the record itself",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^record:setting:render-a-motion-graphics-overlay~(person|film|piece|account)~[a-z0-9][a-z0-9._-]*$"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "settings": {
+              "type": "object",
+              "description": "The look, or changes laid over the row's: recipe, look, look3, frame, faces, sound_layers and named sections"
+            },
+            "settings_files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "JSON files of a look kept on this computer, laid under settings in order"
+            },
+            "spec_record": {
+              "type": "string",
+              "pattern": "^record:setting:render-a-motion-graphics-overlay~piece~[a-z0-9][a-z0-9._-]*$",
+              "description": "A piece's row of list:settings whose settings.spec is the spec"
+            },
+            "spec": {
+              "type": "object",
+              "required": [
+                "id",
+                "duration_s",
+                "events"
+              ],
+              "description": "The spec: id, duration_s, events [{type, at, ...}], and optionally voice {wav, words, start_s}, canvas [w, h], still_bg, still_format, qscale, sound_trim_db, subtitles"
+            },
+            "assets": {
+              "type": "string",
+              "description": "The folder the look's relative file names (faces, textures, recordings) are read from"
+            },
+            "root": {
+              "type": "string",
+              "description": "The folder a spec's relative file names (voice, clips, pictures, mattes) are read from; default assets"
+            },
+            "out": {
+              "type": "string",
+              "description": "The folder the overlay, sound, timeline and the render's scratch are written to"
+            },
+            "stills": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "Seconds: write those frames over the spec's still_bg instead of the video"
+            },
+            "lock": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "type": "string"
+                },
+                "wait_while": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "file"
+              ],
+              "description": "One render at a time on this computer: an exclusive lock on this file"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "frames": {
+              "type": "integer"
+            },
+            "duration_s": {
+              "type": "number"
+            },
+            "overlay": {
+              "type": "string"
+            },
+            "sound": {
+              "type": "string"
+            },
+            "sfx_only": {
+              "type": "string"
+            },
+            "timeline": {
+              "type": "string"
+            },
+            "stills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "id"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "render-a-motion-graphics-overlay",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/render-a-motion-graphics-overlay",
+                "exclude": [
+                  "__pycache__"
+                ]
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/render-a-motion-graphics-overlay",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/render-a-motion-graphics-overlay/do-work/render-overlay.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:render-a-motion-graphics-overlay~",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": false,
+          "memory_mb": 4096
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:render-a-motion-graphics-overlay",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_files": [
+                "read-data/example-look/look.json"
+              ],
+              "assets": "read-data/example-look",
+              "out": "out/sample-strip",
+              "spec": {
+                "id": "sample-strip",
+                "duration_s": 2.0,
+                "canvas": [
+                  640,
+                  360
+                ],
+                "events": [
+                  {
+                    "type": "strip",
+                    "id": "line",
+                    "text": "made-up words",
+                    "font": "typewriter",
+                    "size": 34,
+                    "paper": "white",
+                    "pos": [
+                      160,
+                      150
+                    ],
+                    "at": 0.2
+                  },
+                  {
+                    "type": "exit",
+                    "at": 1.2
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "kind": "needs-a-machine",
+            "requires": "python3 with Pillow, numpy and OpenCV (cv2), and ffmpeg with the prores_ks encoder; the sample run above proves the row wherever they are installed",
+            "proved_on": "2026-11-05"
+          }
+        ],
+        "provenance": {
+          "source": "render-a-motion-graphics-overlay/do-work/render_a_motion_graphics_overlay.py: the overlay renderer of a film's option rounds (one Build, one module per event type), with the film's look, words, pictures and sounds moved to settings and the spec"
+        }
+      }
+    }
+  ]
+}

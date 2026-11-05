@@ -1,0 +1,76 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-RECIPE-NUTRIENTS-FOODDATA-CENTRAL-READER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port lane 2026-11-05: recipe nutrients from FoodData Central",
+  "message_multihash": "1f:91b38540ec246acc6f849e5ea571b3b01faae7d4bce719fe5598ac1c6e3243ce",
+  "quote": "Port every behaviour one to one (unit handling, nutrient id fallbacks, portions, rounding)."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d1eb0f5cb2e78dd993779609324ad8de2474ad5c2795962fb01333b5156491ea",
+   "lines": [
+    1,
+    100
+   ],
+   "multihash": "1f:eef60a9121f8301735006cf30d3d3ce9fd611682f6328ee55af3113405eb963f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/work-out-a-recipes-nutrients-from-fooddata-central/read-data/fooddata_central.py",
+   "baseline_commit_message": "work-out-a-recipes-nutrients-from-fooddata-central: the byte copy of launch-video's recipe profile reader and summer"
+  },
+  {
+   "path": "tools/work-out-a-recipes-nutrients-from-fooddata-central/do-work/work_out_recipe_nutrients.py"
+  }
+ ],
+ "preserve": [
+  "the 33 nutrients, their labels, units and FoodData Central nutrient ids tried in order (the first one a food has wins)",
+  "the adult 19-30 DRIs, male and female, with their kinds (RDA, AI)",
+  "an empty food_nutrient amount is skipped; a later row for the same food and nutrient wins",
+  "a portion's grams are gram_weight / amount of the first food_portion row whose modifier and description contain the word"
+ ],
+ "allowed_deltas": [
+  "the folder arguments and the hard-coded FDC ids, grams and portion words become the request (datasets, ingredients)",
+  "load reads CSV texts as well as a folder, as UTF-8; nutrient.csv and food.csv are optional",
+  "the portion word is lower-cased too",
+  "a missing food or portion is refused in words instead of SystemExit or a KeyError"
+ ],
+ "banned_substitutions": [
+  "a person's recipe, grams, label numbers or words written in code",
+  "a second nutrient list or DRI table"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:eef60a9121f8301735006cf30d3d3ce9fd611682f6328ee55af3113405eb963f",
+  "target_multihash_at_baseline": "1f:eef60a9121f8301735006cf30d3d3ce9fd611682f6328ee55af3113405eb963f",
+  "commit": "33952dcde3c26ab7021ef93d82f5a8f5092a48fc",
+  "recorded_at": "2026-11-05T21:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def load(",
+   "def per100(",
+   "def portion_g(",
+   "NUTS = [",
+   "DRI = {"
+  ],
+  "test_refs": [
+   "tools/work-out-a-recipes-nutrients-from-fooddata-central/test/work-out-a-recipes-nutrients.test.mjs",
+   "tools/work-out-a-recipes-nutrients-from-fooddata-central/test/test_recipe_nutrients.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines 101-115 and 153-197 of the same file are one person's recipe, evidence and words: they did not move as code, they are the request (README, The request), so they are not a source here."
+}

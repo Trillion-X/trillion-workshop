@@ -11,6 +11,14 @@ Both take an optional `spread: { per_file, seconds_apart }` so many neighbouring
 
 `tool:make-a-picture-vector-set-of-my-videos` makes such a set on the person's own computer (`do-work/make_picture_vector_set.py`, below).
 
+| Row | Seam export | What it does |
+|---|---|---|
+| `tool:find-closest-across-my-indexes` | `findSimilarAcross` | The same query vector over several descriptors (`index_ids`), merged best first. The package ranks each descriptor; the merge sorts the answers by score and applies `spread` and `limit` to the merged list. Descriptors of different models are refused. |
+| `tool:find-words-said-in-my-recordings` | `findWordsSaid` | The lines of the descriptors' sets whose `points_to.text` field says every word of `query_text` longer than two letters (case ignored), in the order the sets hold them, at most `limit` (8). No model. |
+| `tool:make-a-vector-set-from-picture-vectors-my-apps-kept` | `do-work/make_vector_set_from_kept_vectors.py` | On the person's computer: an asset index of CLIP matrices (with readable names), a folder of timed frames, and an app's results store of timed frames (with each video's namespace id) each become `items.jsonl`, `vectors.npy` and `vector-set.json`. |
+
+A descriptor's `points_to` may name `carry`: item fields (a readable name, an id in another app) that an answer's `points_to` and a words answer pass through as the item holds them.
+
 ## Files
 
 | File | Purpose |
@@ -18,10 +26,12 @@ Both take an optional `spread: { per_file, seconds_apart }` so many neighbouring
 | `do-work/process-scripts/` | The package's process scripts, copied unchanged: `prepare-semantic-index-process-input.mjs`, `ann-index.mjs`, `nearest-embedding-facts.mjs`, `embed-text-ollama.mjs`, `pyjson.mjs`, `make-embedding-facts-from-command-output.py`, and their tests `canonical-multihash.test.mjs` and `test_make_embedding_facts.py`. `canonical_multihash.mjs` has one change: it takes BLAKE3 from `tools/content-identity` and checks the canonical `1f:<64 lowercase hex>` form directly. |
 | `read-data/meaning-search.mjs` | The seam: `findSimilarVector` and `findSimilar`. It runs the scripts in the order the package's actions ran them, then applies a `spread` when one is asked for (`spreadItems`). |
 | `do-work/make_picture_vector_set.py` | Builds a picture vector set from a folder of videos: one frame every `--every` seconds (2), key frames only, small, an optional `--lut` (log footage) and `--proxy` (a smaller copy on the same timeline, a pattern with `{dir}` and `{stem}`), CLIP ViT-B-32 openai (`--model`, `--pretrained`). Writes `frames.npy` (float16, normalised), `frames.jsonl` (`video`, `path`, `t`, `decoded`), `done.json` (resumable: a run goes on where the last stopped, a new folder adds only its videos) and `vector-set.json` (the descriptor's `vector_set` member and the model). Needs ffmpeg, numpy, torch, open_clip_torch and Pillow. |
+| `do-work/make_vector_set_from_kept_vectors.py` | Ported from a film repository's `tools/clip-search/q.py` (5a9ba39), the part that read its stores (`ports/make-vector-set-from-kept-vectors.json`): `--out DIR [--asset-index DIR] [--ssd-index DIR] [--expansion-results FILE] [--namespace FILE] [--kind video\|image\|all]`. Opens sources read-only; writes one set per store: `items.jsonl` (`path`, `kind`, `t` or null, and `name`, or `id` and `b2`), `vectors.npy` (float16, normalised) and `vector-set.json` with `points_to.carry`. Needs numpy. |
 | `read-data/meaning-search.json` | The record kind of the descriptors, the files door read operation, the read span, and the names the package writes facts under. |
-| `tool-rows.json` | Three rows. The two search rows run through `tools/records-door`'s `run-an-export.mjs`, list descriptor records and read the person's files, and change nothing. `tool:make-a-picture-vector-set-of-my-videos` runs the builder on the person's computer. |
+| `tool-rows.json` | Six rows. The four search rows run through `tools/records-door`'s `run-an-export.mjs`, list descriptor records and read the person's files, and change nothing. `tool:make-a-picture-vector-set-of-my-videos` and `tool:make-a-vector-set-from-picture-vectors-my-apps-kept` run the builders on the person's computer. |
 | `part.json` | Nothing here is imported by other code. |
 | `test/meaning-search.test.mjs` | Synthetic vector sets through a stand-in door. Covers ranking, half-precision vectors, `min_score`, the package's refusals, spoken lines embedded by a stand-in model, the spread, the builder on solid-colour videos with a stand-in picture model (frames and times, resuming, the proxy) and its set searched by the seam, the package's Python test and the rows. |
+| `test/kept_vectors_check.py` | The converter run as the person runs it on a made-up asset index, timed frames, results store and namespace store: normalising, the names, `--kind`, a short frames file cut, the wrong-sized vector skipped, the `b2` id, the stores only read, no store refused. |
 | `test/synthetic_picture_set.py` | Makes the solid-colour videos and runs the builder with a stand-in model (a frame's mean colour). |
 
 ## Key Types / Functions
@@ -29,9 +39,9 @@ Both take an optional `spread: { per_file, seconds_apart }` so many neighbouring
 | Name | Shape | Role |
 |---|---|---|
 | descriptor record | kind `semantic-index-descriptor`: `{ index_id, model_id, model_version, model_endpoint, descriptor_revision, model_provenance_ref, min_score, result_limit, ann_params: { hyperplane_count, table_count, seed, candidate_limit }, vector_set }` | The package's descriptor, kept in the person's own records. `vector_set` is the only new field. |
-| `vector_set` | `{ items: { file }, vectors?: { file }, points_to: { file, start?, end?, text? } }` | `items` is JSON lines, one item per line. `vectors` is a 2-D little-endian float `.npy` matrix (16, 32 or 64 bit); row i is the vector of line i. `points_to` names the item fields. Without `vectors`, each item's text is embedded by the descriptor's model. |
+| `vector_set` | `{ items: { file }, vectors?: { file }, points_to: { file, start?, end?, text?, carry?: [field] } }` | `items` is JSON lines, one item per line. `vectors` is a 2-D little-endian float `.npy` matrix (16, 32 or 64 bit); row i is the vector of line i. `points_to` names the item fields. Without `vectors`, each item's text is embedded by the descriptor's model. |
 | item address | `<items file>#<line>` | The package's content and canonical address. Payload hash is the BLAKE3 identity of the line. Revision is the identity of the line plus its vector bytes. Source snapshot is the identity of both files. |
-| answer | `{ index_id, result: { items: [{ address, score, revision, payload_hash, ... }], considered, skipped, min_score }, model_id, model_version, points_to: { [address]: { file, start, end, text } } }` | What the package's actions answered, plus `points_to`. |
+| answer | `{ index_id, result: { items: [{ address, score, revision, payload_hash, ... }], considered, skipped, min_score }, model_id, model_version, points_to: { [address]: { file, start, end, text, ...carried } } }` | What the package's actions answered, plus `points_to`. An answer across indexes has `index_ids` and the merged items. |
 
 ## Invariants
 
@@ -56,6 +66,7 @@ These parts of the package only commit to or read from the retired record store.
 - `tools/content-identity` (BLAKE3);
 - Node, and Python 3 for `make-embedding-facts-from-command-output.py` (standard library only);
 - for `tool:find-similar-by-meaning`, an Ollama-compatible endpoint the run can reach;
+- for `do-work/make_vector_set_from_kept_vectors.py`, Python 3 with numpy on the person's computer;
 - for `do-work/make_picture_vector_set.py`, ffmpeg, numpy, torch, open_clip_torch and Pillow on the person's computer.
 
 **Depended on by:** the rows in `tool-rows.json`.

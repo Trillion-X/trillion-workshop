@@ -1,0 +1,51 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEANING-SEARCH-ACROSS-AND-WORDS",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "bb1b1cdca590cf0c2df67bb27ba31c83d86d371c",
+   "path": "tools/meaning-search/read-data/meaning-search.mjs",
+   "multihash": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/meaning-search/read-data/meaning-search.mjs"
+  }
+ ],
+ "preserve": [
+  "findSimilarVector and findSimilar answer as before, the package's process scripts run in the same order, and spread keeps its rule"
+ ],
+ "allowed_deltas": [
+  "findSimilarAcross: the same query vector over several descriptors, merged by score, spread and limit on the merged list, descriptors of different models refused",
+  "findWordsSaid: the lines of the descriptors' sets that say every word of query_text longer than two letters",
+  "points_to.carry: item fields passed through to an answer"
+ ],
+ "banned_substitutions": [
+  "a second ranking beside the package's: each descriptor is still ranked by findSimilarVector",
+  "a person's index paths, film folders or drive names written into the code"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T22:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+  "target_multihash_at_baseline": "1f:a53af0d18cb07a74cc0b0aa69d49f45174b1f9ca3d168176e9b157def110042e",
+  "commit": "bb1b1cdca590cf0c2df67bb27ba31c83d86d371c"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/meaning-search/test/meaning-search.test.mjs one query over two indexes is ranked together, best first, and carries the fields the descriptor names",
+   "tools/meaning-search/test/meaning-search.test.mjs words said: every word longer than two letters, case ignored, in the order the sets hold them, up to the limit"
+  ]
+ }
+}
