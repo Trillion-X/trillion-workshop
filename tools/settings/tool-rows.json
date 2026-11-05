@@ -1,52 +1,174 @@
 {
   "kind": "package-set-records",
   "record_set": "settings-tool-rows",
-  "what_this_is": "The Workshop row for the settings folder: the one reader every Workshop tool uses to read the settings a person keeps for it as rows of their list:settings, by person, film, piece or account.",
+  "what_this_is": "The one row of the settings library: read one of a person's tool settings from their settings list.",
   "records": [
     {
+      "id": "package::settings::tool::read-a-tool-setting",
+      "address": "package::settings::tool::read-a-tool-setting",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
       "payload": {
         "kind": "ai-tool-descriptor",
         "id": "tool:read-a-tool-setting",
-        "label": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
-        "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
-        "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records records:read returned (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record records:write takes, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+        "label": "Read a tool setting",
         "status": "active",
+        "job": "Read one of my tool settings: what a tool is set to for me, a film, a piece or my account",
+        "description": "Give settings_record, the id of one row of your settings list (record:setting:<tool folder>~<scope kind>~<scope id>, scope kind person, film, piece or account), and optionally tool, the tool folder it must be for. Returns the tool, scope and its settings object. A setting that is missing, not active or for another tool is refused with what to do.",
         "input_schema": {
           "type": "object",
+          "required": [
+            "settings_record"
+          ],
+          "additionalProperties": false,
           "properties": {
-            "settings_record": { "description": "A record:setting as records:read gives it, its value, a list of them, or the path of a JSON file holding them." },
-            "folder": { "type": "string", "description": "The Workshop folder whose settings to read, e.g. make-a-frame-contact-sheet-of-a-video-section." },
-            "scopes": { "type": "array", "items": { "type": "object", "properties": { "kind": { "enum": ["piece", "film", "person", "account"] }, "id": { "type": "string" } }, "required": ["kind", "id"] }, "description": "Most specific first." },
-            "default": { "description": "What to answer when no row matches." },
-            "tool": { "type": "string", "description": "Refuse a row written for another tool." },
-            "make": { "type": "object", "description": "{folder, scope_kind, scope_id, settings, name, tool, from, status?}: make the row instead of reading one." },
-            "with_list": { "type": "boolean" }
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:[^~/]+~(person|film|piece|account)~[^~/]+$"
+            },
+            "tool": {
+              "type": "string",
+              "minLength": 1
+            }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "The last line printed: {\"result\": {found, id, settings}} for read, {\"result\": {records}} for make; {\"error\": ...} with exit 2 when the request cannot be read."
+          "required": [
+            "settings_record",
+            "tool",
+            "scope_kind",
+            "scope_id",
+            "settings"
+          ],
+          "properties": {
+            "settings_record": {
+              "type": "string"
+            },
+            "tool": {
+              "type": "string"
+            },
+            "scope_kind": {
+              "type": "string"
+            },
+            "scope_id": {
+              "type": "string"
+            },
+            "settings": {
+              "type": "object"
+            }
+          }
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "repository": "https://github.com/Trillion-X/trillion-workshop",
-          "get_it": [
-            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          "kind": "container",
+          "workdir": "/opt/settings",
+          "stdout": "json",
+          "internet": false,
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/settings/do-work/read-a-tool-setting.mjs",
+            "readATool"
           ],
-          "run": "python3 -I trillion-workshop/tools/settings/do-work/read_setting.py < {input}",
-          "needs": [
-            "python"
-          ],
-          "say": "Read the person's list:settings rows for the tool through their records door (records:list on list:settings, or records:read of record:setting:<folder>~<scope_kind>~<scope_id>), write them to a file, and pass that file as settings_record with the folder and the scopes to try. A tool that takes settings_record in its own request reads it with read-data/settings.py or read-data/settings.mjs itself."
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "settings_record"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "settings",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
         },
+        "result_selector": "$.result",
+        "licence_class": "licence:permissive",
         "maker": "maker:settings",
-        "licence_class": "licence:maker-own",
         "placements": [
-          "placement:your-computer"
+          "placement:small-container"
         ],
-        "provenance": {
-          "source": "Ported from old Trillion's setting record kind: Trillion-X/trillion src/decision-store.mjs before 4ffa1dc4a2, lines 8 and 751-754 (setting(name) gives the value or null; setSetting writes { id: setting:<name>, type: setting })."
-        }
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_record": "record:setting:sample-tool~film~kitchen-short",
+              "tool": "sample-tool"
+            },
+            "records": [
+              {
+                "id": "record:setting:sample-tool~film~kitchen-short",
+                "type": "record:setting",
+                "value": {
+                  "name": "Sample tool for a made-up film",
+                  "tool": "sample-tool",
+                  "scope_kind": "film",
+                  "scope_id": "kitchen-short",
+                  "settings": {
+                    "speed": 1.25,
+                    "voice": "calm"
+                  },
+                  "from": "tools/sample/settings.json@0000000",
+                  "status": "active"
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ]
