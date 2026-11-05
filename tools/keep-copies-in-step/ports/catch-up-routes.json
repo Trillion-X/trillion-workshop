@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-KEEP-COPIES-IN-STEP-CATCH-UP-ROUTES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, home feeds lane",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "Each route becomes a Workshop route tool per the brief's contract (input {path, method, query, body, browser}, result {status, body}), reading and writing records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the page route POST /work/api/catch-up/here as a Workshop route tool, keeping the device's report through the records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/keep-copies-in-step/do-work/catch-up-routes.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-copies-in-step/",
+   "why": "This tool itself: the route and its decisions are read-data/catch-up.mjs handleCatchUpRequest and here(), moved byte for byte from trillion src/catch-up.mjs (ports/catch-up.json); this file only hands the page's request to that moved route over an owner that keeps the report through the records door."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the page route POST /work/api/catch-up/here as a Workshop route tool, keeping the device's report through the records door",
+    "answer the page route POST /work/api/catch-up/here as a Workshop route tool",
+    "catch-up here route tool through the records door",
+    "answer a page route as a Workshop route tool"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerCatchUpRoute",
+    "answer-the-catch-up-here-route"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "04f8c5b10769b35d636c1d4c86c2e8910199fcfb"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/keep-copies-in-step/test/catch-up-routes.test.mjs"
+  ]
+ }
+}
