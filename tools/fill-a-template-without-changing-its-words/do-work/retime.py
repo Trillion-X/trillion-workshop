@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""retime.py <piece.json> <transcript.json> <out.piece.json> [--report]
+"""retime.py <piece.json> <transcript.json> <out.piece.json> [--report] [--settings-record S [--scope KIND:ID]]
 
 Events bound to words, not seconds. A token with a `bound_to` field ({"words", "edge", "offset_s"}, optional "slot"
 and "occurrence") responds to a word or phrase. Give the word-timed transcript of the rewritten script (what
@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'read-data'))
-from wt_core import READERS, Registry, WTError, load_json, write_json  # noqa: E402
+from wt_core import READERS, WTError, load_json, parse_scopes, registry_for, tool_settings, write_json  # noqa: E402
 from wt_ops import retime  # noqa: E402
 
 
@@ -21,10 +21,13 @@ def main(argv=None):
     ap.add_argument("transcript")
     ap.add_argument("out")
     ap.add_argument("--report", action="store_true", help="list every bound token and where it went")
+    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns); its settings.registry is the registry")
+    ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     a = ap.parse_args(argv)
     try:
         piece = load_json(a.piece, "piece")
-        reg = Registry.load(piece.get("registry"))
+        settings = tool_settings(a.settings_record, parse_scopes(a.scope)) if a.settings_record else None
+        reg = registry_for(piece.get("registry"), None, settings)
         words = READERS["transcript_words"](Path(a.transcript), {})
         out = retime(piece, words, reg)
         write_json(a.out, out)

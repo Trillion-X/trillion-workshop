@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""fill.py <template.json> <fills.json> <out.md> [--piece out.piece.json] [--root DIR]
+"""fill.py <template.json> <fills.json> <out.md> [--piece out.piece.json] [--root DIR] [--settings-record S [--scope KIND:ID]]
 
 fills.json: {"title": ..., "root": <dir that relative sources are read from>,
              "fills": {"<slot id>": {"value": ..., "sources": ["path:12" | "path@12.5s" | "path@12.5-18.2s" | "https://..." | "git:<repo>@<commit>"],
@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'read-data'))
-from wt_core import Registry, WTError, load_json, write_json  # noqa: E402
+from wt_core import WTError, load_json, parse_scopes, registry_for, tool_settings, write_json  # noqa: E402
 from wt_ops import fill  # noqa: E402
 from wt_render import render_fill_md  # noqa: E402
 
@@ -27,11 +27,14 @@ def main(argv=None):
     ap.add_argument("out")
     ap.add_argument("--piece", help="also write the filled piece (same schema) here")
     ap.add_argument("--root")
+    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns); its settings.registry is the registry")
+    ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     a = ap.parse_args(argv)
     try:
         tpl = load_json(a.template, "template")
         doc = load_json(a.fills, "fills file")
-        reg = Registry.load(tpl.get("registry"))
+        settings = tool_settings(a.settings_record, parse_scopes(a.scope)) if a.settings_record else None
+        reg = registry_for(tpl.get("registry"), None, settings)
         root = a.root or doc.get("root") or str(Path(a.fills).resolve().parent)
         piece = fill(tpl, doc, reg, root)
         Path(a.out).write_text(render_fill_md(piece, doc, reg, a.template, a.fills), encoding="utf-8")
