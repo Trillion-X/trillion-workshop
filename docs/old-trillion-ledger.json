@@ -5,10 +5,10 @@
   "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
  },
  "counts": {
-  "being_moved": 982,
+  "being_moved": 1017,
   "moved": 567,
-  "retired": 26,
-  "to_move": 83
+  "retired": 27,
+  "to_move": 47
  },
  "rows": [
   {
@@ -4395,15 +4395,19 @@
   },
   {
    "path": "parts/command-palette/do-work/ask-palette-bulk-action-descriptors.test.ts",
-   "verdict": "to_move",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject tools/find-anything-from-one-box/do-work/ask-palette-bulk-action-descriptors.ts imports #workspace-records, which the workshop package.json does not define, so the subject does not load under node.",
-   "group": "parts"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/find-anything-from-one-box/parts/command-palette/do-work/ask-palette-bulk-action-descriptors.test.ts",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/find-anything-from-one-box/parts/command-palette/do-work/ask-palette-bulk-action-descriptors.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/content-media-evidence/read-data/content-media-evidence.test.ts",
-   "verdict": "to_move",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It uses it.each with array cases and %s names. The workshop shim's it.each passes the case as one argument, so \"rejects %s\" fails. The shim needs extending first.",
-   "group": "parts"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/record-voice-and-meetings/parts/content-media-evidence/read-data/content-media-evidence.test.ts",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/record-voice-and-meetings/parts/content-media-evidence/read-data/content-media-evidence.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/delight-moments/read-data/choose-moment.mjs",
@@ -4457,10 +4461,11 @@
   },
   {
    "path": "parts/group/do-work/build-application-board-surface-contribution.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/do-work/build-application-board-surface-contribution.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject tools/organize-the-sidebar/read-data/application-board-surface-contribution.ts does not load under node: it imports ./application-board-surface-contribution with no extension.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/do-work/build-application-board-surface-contribution.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/do-work/color-harmony.test.ts",
@@ -4554,8 +4559,8 @@
    "path": "parts/group/do-work/open-external.test.ts",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/do-work/open-external.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It imports beforeEach, which test-helpers/vitest-shim.mjs does not export. The shim needs extending first.",
-   "group": "parts"
+   "evidence": "Held. Its assertions need a DOM (document, window and HTMLAnchorElement), which vitest's jsdom gave it. The workshop declares no DOM library (no jsdom, happy-dom or linkedom in package.json), and there is no precedent for adding one, so it would fail under node --test. Its subject loads under node since PR #219. It moves once the workshop has a DOM test environment.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/do-work/open-graph.test.ts",
@@ -4569,15 +4574,16 @@
    "path": "parts/group/do-work/sanitize-capsule-html.test.ts",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/do-work/sanitize-capsule-html.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its assertions fail under node --test: the sanitizer needs a DOM (DOMParser), which vitest's jsdom gave it. Failing assertions: \"strips on* handlers even off an ALLOWED tag\" and \"sanitizes inline style\".",
-   "group": "parts"
+   "evidence": "Held. Its assertions need a DOM (DOMParser), which vitest's jsdom gave it. The workshop declares no DOM library (no jsdom, happy-dom or linkedom in package.json), and there is no precedent for adding one, so it would fail under node --test. Its subject loads under node since PR #219. It moves once the workshop has a DOM test environment.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/do-work/submit-producer-request.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/do-work/submit-producer-request.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject in tools/organize-the-sidebar imports #workspace-records, which the workshop package.json does not define, so it does not load under node.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/do-work/submit-producer-request.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/do-work/tag-cooccurrence.test.ts",
@@ -4615,8 +4621,8 @@
    "path": "parts/group/read-data/application-board-surface-contribution.test.ts",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/application-board-surface-contribution.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It reads ../things-to-store-and-run.json and ../entry-read-scope-packages.json beside the source folder, which this tree does not hold there. Failing test: \"materializes a group-owned surface over the registered group-board entry\".",
-   "group": "parts"
+   "evidence": "Held. Since PR #219, 5 of its 8 tests pass under node --test. The other 3 ('is registered and built by the group owner package', 'declares the addressed-marks owner only for entries that render board overlays', 'keeps the data-driven live-feed selector inside its generated provider scope') read ../things-to-store-and-run.json, ../entry-read-scope-packages.json and ../built-stored-bytes/entry-bytes-build-application-board-surface-contribution beside parts/group. No tree holds these group manifests: they are not in trillion at 5dc302be37 or anywhere in its git history, and not in trillion-workshop or trillion-apps. It moves only if the group package's manifests are restored, or if the owner decides those 3 assertions are obsolete.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/board-checklist.test.ts",
@@ -4744,10 +4750,11 @@
   },
   {
    "path": "parts/group/read-data/collection-search.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/collection-search.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/facet-filter is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/collection-search.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/cyclic-step.test.ts",
@@ -4759,10 +4766,11 @@
   },
   {
    "path": "parts/group/read-data/facet-filter.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/facet-filter.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It uses expect().toBeTypeOf, which test-helpers/vitest-shim.mjs does not provide. Failing test: \"count keys match the exact casing facetValues returns\".",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/facet-filter.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/grouped-rows.test.ts",
@@ -4776,8 +4784,8 @@
    "path": "parts/group/read-data/highlight-html.test.ts",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/highlight-html.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its assertions fail under node --test: highlighting needs a DOM, which vitest's jsdom gave it. Failing assertion: \"wraps a plain-text match in <mark>\".",
-   "group": "parts"
+   "evidence": "Held. Its assertions need a DOM (DOMParser), which vitest's jsdom gave it. The workshop declares no DOM library (no jsdom, happy-dom or linkedom in package.json), and there is no precedent for adding one, so it would fail under node --test. Its subject loads under node since PR #219. It moves once the workshop has a DOM test environment.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/kept-library.ts",
@@ -4795,24 +4803,24 @@
   },
   {
    "path": "parts/group/read-data/knowledge-graph-pipeline.test.ts",
-   "verdict": "to_move",
-   "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-pipeline.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It imports trillion-workshop/tools/relationship-graph/read-data/read-connection-graph.ts, which no tree holds (that file is missing from the workshop).",
-   "group": "parts"
+   "verdict": "retired",
+   "evidence": "Its whole point is running readConnectionGraph from trillion-workshop/tools/relationship-graph/read-data/read-connection-graph.ts end to end. That path is retired in trillion-workshop/retired-paths.json: {\"path\": \"tools/relationship-graph\", \"replaced_by\": \"The one generic record graph: relations and activities over any records, from the engine's product/record-model.json (read and written through records:read, records:list and records:write), ported into this Workshop as the record-graph tools\", \"retired_at\": \"2026-11-01\", \"tag\": \"retired/relationship-graph-2026-11-01\", \"reason\": \"Owner decision, 2026-11-01: killed; instance-solving; one generic record graph. ...\"}. Its import also matches that row's reference_pattern \\\\bread-connection-graph\\\\b, so adding it would be refused. The adapter and fold it also used are still covered by tools/organize-the-sidebar/parts/group/read-data/knowledge-graph-adapter.test.ts, which is already in the workshop.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/linkify-html.test.ts",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/linkify-html.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/do-work/text-entities is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "evidence": "Held. Its assertions need a DOM (DOMParser (its parse helper calls new DOMParser())), which vitest's jsdom gave it. The workshop declares no DOM library (no jsdom, happy-dom or linkedom in package.json), and there is no precedent for adding one, so it would fail under node --test. Its subject loads under node since PR #219. It moves once the workshop has a DOM test environment.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/list-block-model.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/list-block-model.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/list-block-model is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/list-block-model.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/outline-filter.test.ts",
@@ -4832,24 +4840,27 @@
   },
   {
    "path": "parts/group/read-data/outline-keys.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/outline-keys.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/list-block-model is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/outline-keys.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/outline-move.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/outline-move.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/list-block-model is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/outline-move.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/outline-text.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/outline-text.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/list-block-model is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/outline-text.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/producer-timeout.test.ts",
@@ -4861,17 +4872,19 @@
   },
   {
    "path": "parts/group/read-data/read-producer-status.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/read-producer-status.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject in tools/organize-the-sidebar imports #workspace-records, which the workshop package.json does not define, so it does not load under node.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/read-producer-status.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/rewrite-loop.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/rewrite-loop.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/writing-judge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/rewrite-loop.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/read-data/search-field-key.test.ts",
@@ -4939,10 +4952,11 @@
   },
   {
    "path": "parts/group/read-data/writing-judge.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/read-data/writing-judge.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/facet-filter is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/read-data/writing-judge.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/README.md",
@@ -4954,31 +4968,34 @@
   },
   {
    "path": "parts/group/show/appearance-preset-catalog.readCatalog.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/appearance-preset-catalog.readCatalog.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/appearance-preset-catalog.readCatalog.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/appearance-presets.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/appearance-presets.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/appearance-presets.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-backgrounds.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-backgrounds.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/board-backgrounds.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-commit-history.test.ts",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-commit-history.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It imports the package vite, which the workshop does not declare, and reads the bitfield-era path packages/group/show/GroupBoardPanel.tsx.",
-   "group": "parts"
+   "evidence": "Held. It imports transformWithEsbuild from the package vite, which the workshop does not declare (it has esbuild, which does not export that function). It also reads readFileSync('packages/group/show/GroupBoardPanel.tsx'), a cwd-relative string from the bitfield era and not an import specifier, so it cannot be changed under the byte-for-byte rule. The callbacks it pins (commit, newBoard, duplicateCurrentBoard, createBoardFromTemplate, landOnBoard) are still in tools/organize-the-sidebar/show/GroupBoardPanel.tsx, so the test is not obsolete.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-history.test.ts",
@@ -4990,31 +5007,35 @@
   },
   {
    "path": "parts/group/show/board-marker-catalog.levelMarkers.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-marker-catalog.levelMarkers.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/board-marker-catalog.levelMarkers.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-marker-catalog.readMarkerCatalog.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-marker-catalog.readMarkerCatalog.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/board-marker-catalog.readMarkerCatalog.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-marker-catalog.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-marker-catalog.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/board-marker-catalog.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-palettes.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-palettes.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/show/item-fill is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/board-palettes.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/board-search.test.ts",
@@ -5040,17 +5061,19 @@
   },
   {
    "path": "parts/group/show/board-stamps.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/board-stamps.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/board-stamps.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/color-harmony.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/color-harmony.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/show/item-fill is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/color-harmony.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/filter-presets.test.ts",
@@ -5062,10 +5085,11 @@
   },
   {
    "path": "parts/group/show/focus-view.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/focus-view.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/focus-view.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/frame-aspects.test.ts",
@@ -5093,17 +5117,19 @@
   },
   {
    "path": "parts/group/show/item-fill.readFillSwatchCatalog.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/item-fill.readFillSwatchCatalog.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/catalog-merge is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/item-fill.readFillSwatchCatalog.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/item-ink.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/item-ink.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/show/item-fill is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/item-ink.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/item-link.test.ts",
@@ -5115,10 +5141,11 @@
   },
   {
    "path": "parts/group/show/item-tags.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/item-tags.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/do-work/text-entities is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/item-tags.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/note-autofit.test.ts",
@@ -5164,43 +5191,47 @@
    "path": "parts/group/show/RotateHandle.test.tsx",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/RotateHandle.test.tsx",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It needs @testing-library/react and a DOM, which the workshop does not install. Its subject is in tools/organize-the-sidebar/show/RotateHandle.tsx.",
-   "group": "parts"
+   "evidence": "Held. It imports @testing-library/react and react and renders into a DOM. The workshop declares none of these and has no precedent for adding them. Also, .test.tsx is outside the workshop's npm test glob (tools/**/*.test.ts and *.test.mjs).",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/selection-combine.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/selection-combine.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. The test copies correctly, but its subject chain does not load under node --test: tools/organize-the-sidebar/read-data/selection-algebra is imported without an extension (the bundler-style resolution vitest used). Fix the subject imports in the workshop first.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/selection-combine.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/SelectionHud.test.tsx",
    "verdict": "to_move",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/SelectionHud.test.tsx",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. It needs @testing-library/react and a DOM, which the workshop does not install. Its subject is in tools/organize-the-sidebar/show/SelectionHud.tsx.",
-   "group": "parts"
+   "evidence": "Held. It imports @testing-library/react and react and renders into a DOM. The workshop declares none of these and has no precedent for adding them. Also, .test.tsx is outside the workshop's npm test glob (tools/**/*.test.ts and *.test.mjs).",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/write-appearance-preset-live.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/write-appearance-preset-live.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject in tools/organize-the-sidebar imports #workspace-records, which the workshop package.json does not define, so it does not load under node.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/write-appearance-preset-live.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/write-board-catalog-live.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/write-board-catalog-live.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject in tools/organize-the-sidebar imports #workspace-records, which the workshop package.json does not define, so it does not load under node.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/write-board-catalog-live.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/group/show/write-focus-view-live.test.ts",
-   "verdict": "to_move",
+   "verdict": "being_moved",
    "home": "trillion-workshop/tools/organize-the-sidebar/parts/group/show/write-focus-view-live.test.ts",
-   "evidence": "Home is the tool that holds its subject. Not landed, because it would add a failing test to the workshop's node --test glob. Its subject in tools/organize-the-sidebar imports #workspace-records, which the workshop package.json does not define, so it does not load under node.",
-   "group": "parts"
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/219",
+   "evidence": "Copied byte for byte from trillion 5dc302be37, with only import specifiers changed, to tools/organize-the-sidebar/parts/group/show/write-focus-view-live.test.ts. It passes under node --test in PR #219, which stacks on #200. The fixes were on the code side: organize-the-sidebar's relative imports now name their extensions; #workspace-records is mapped for node in the tool's package.json, as tools/tours-screen does; the vitest shim gained beforeEach, each with list cases, toBeTypeOf, toContainEqual, objectContaining and .resolves. Receipt row in the tool's moved-from.json.",
+   "group": "parts2"
   },
   {
    "path": "parts/judge-words/do-work/judge-words.mjs",
@@ -5654,9 +5685,11 @@
   },
   {
    "path": "records/sales-contract-template-records.json",
-   "verdict": "to_move",
-   "evidence": "personal data: belongs in the account's rows, not a public repo. Names a real person (offer:one-on-one-with-a real first name, \"a real first name sees what the customer works through\") and real customer deals (tennis-client-services, cpg-venture-studio, peptide-price-experiment); its reader is held at trillion-workshop tools/draft-and-send-a-sales-contract-to-a-customer-from/from-old-trillion/src/sales-contract-templates.mjs.held. Like commercial-offer-records.json it is the operator's commercial content; no private repo holds account rows.",
-   "group": "records-docs"
+   "verdict": "being_moved",
+   "home": "trillion-apps/from-old-trillion/records/sales-contract-template-records.json",
+   "pr": "https://github.com/Trillion-X/trillion-apps/pull/69",
+   "evidence": "Byte for byte from old trillion 5dc302be (cmp identical; source_identity = identity = 1f:7530e0c33c7081a425cc22df3e53dd9a84833947682b82efb8f7f49c421c81c6), receipt row in trillion-apps from-old-trillion/moved-from.json and a README note; private repo because it names a real person and real customer deals. Workshop side: tools/draft-and-send-a-sales-contract-to-a-customer-from/from-old-trillion/src/sales-contract-templates.mjs.held imports ../records/sales-contract-template-records.json as its bootstrap rows (and src/marketplace-content-sources.mjs, also not in the Workshop); to run publicly it needs a made-up sample of the same shape (kind, package_set, record_set, what_this_is, records). Not invented here; noted as a follow-up. (home not on trillion-apps main yet)",
+   "group": "personal2"
   },
   {
    "path": "records/saved-instruction-starters.json",
@@ -8002,9 +8035,11 @@
   },
   {
    "path": "src/community-own.mjs",
-   "verdict": "to_move",
-   "evidence": "personal data: needs redaction to synthetic before public home. Its header quotes the owner by first name (line 4). Home when redacted: trillion-workshop tools/run-a-community; it also imports ../communities/own-default.json (group records-docs).",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/run-a-community/from-old-trillion/src/community-own.mjs.held",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/220",
+   "evidence": "Only change: call made-up-quoted-owner swaps the owner's first name in the header quote for 'Alex Example' (find matches the name by place, a capitalised word before the quote's date, so the receipt never spells it). No other personal data (no emails, phones, addresses, ids, home paths). Held (.held) because it imports ../communities/own-default.json, which is read_as_rows opinion content (account owner's rows, retired from repos per ledger-records-docs), kept as written per the move tool's read_as_rows rule. Source proof (check-move vs 5dc302be): ok. (home not on trillion-workshop main yet)",
+   "group": "personal2"
   },
   {
    "path": "src/compound-select.mjs",
@@ -8631,9 +8666,11 @@
   },
   {
    "path": "src/network-profile-fill.mjs",
-   "verdict": "to_move",
-   "evidence": "personal data: needs redaction to synthetic before public home. Its header quotes a real person by first name (line 4). Home when redacted: trillion-workshop tools/person-profile.",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/person-profile/from-old-trillion/src/network-profile-fill.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/220",
+   "evidence": "Only change: call made-up-quoted-person swaps the quoted person's first name for 'Sam Example' (matched by place, not spelled). No imports; loads in Node. New receipt tools/person-profile/moved-from.json and from-old-trillion/README.md. Its email handling is generic code ('ana.lopez' example is already made up). Source proof: ok. (home not on trillion-workshop main yet)",
+   "group": "personal2"
   },
   {
    "path": "src/not-the-person.mjs",
@@ -9069,9 +9106,11 @@
   },
   {
    "path": "src/steps-ais-leave.json",
-   "verdict": "to_move",
-   "evidence": "personal data: needs redaction to synthetic before public home. Its _what quotes a real person by first name (line 2). Home when redacted: trillion-workshop tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/ beside steps-ais-leave.mjs.held, which is held on it.",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.json",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/220",
+   "evidence": "Only change: call made-up-quoted-person in _what ('Sam Example'). steps-ais-leave.mjs and its two tests dropped .held (same bytes, receipt to paths updated) and pass: 19/19. A data file with calls was not provable by check-move (it compared non-code bytes raw), so check-move now swaps a data file's listed calls before comparing, with a test in move-code.test.mjs (20/20 pass) and README rows. Source proof: ok except the pre-existing test/steps-ais-leave.test.mjs -> records/starting-rules.json landing note, which base src-crates already has. (home not on trillion-workshop main yet)",
+   "group": "personal2"
   },
   {
    "path": "src/steps-ais-leave.mjs",
@@ -9181,9 +9220,11 @@
   },
   {
    "path": "src/waiting-filing.mjs",
-   "verdict": "to_move",
-   "evidence": "personal data: needs redaction to synthetic before public home. Comment lines 5 and 23 quote a real person by first name. Home when redacted: trillion-workshop tools/what-is-waiting-on-me/from-old-trillion/src/ beside waiting-weigh.mjs. It also imports ./card-sections.mjs, which is in trillion-apps web/src.",
-   "group": "src-crates"
+   "verdict": "being_moved",
+   "home": "trillion-workshop/tools/what-is-waiting-on-me/from-old-trillion/src/waiting-filing.mjs",
+   "pr": "https://github.com/Trillion-X/trillion-workshop/pull/220",
+   "evidence": "Changes: two import specifiers (./card-sections.mjs -> ../../../browse-inspiration-clips/card-sections.mjs, same bytes at 5dc302be as the b6ae0ebf copy there, recorded as a reused receipt row; trillion-workshop/tools/hold-one-thing-until-done/... -> relative, as waiting-weigh.mjs did) and call made-up-quoted-person for the two quoted first names. Remaining incident notes (a Cloudflare token, a certificate, a shelf test) identify no one. Loads in Node; source proof ok. (home not on trillion-workshop main yet)",
+   "group": "personal2"
   },
   {
    "path": "src/waiting-nudge.mjs",
