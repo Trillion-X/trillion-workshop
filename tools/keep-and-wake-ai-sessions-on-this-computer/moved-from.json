@@ -3168,20 +3168,44 @@
       "adapted": "the registry is set-up-my-account's failure-codes.json; the calls through the retired MCP handler are left out, the payloadOf assertions kept"
     },
     {
-      "from": "test/file-card-offers.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
-      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
-      "identity": "1f:a77e1b23244f6735aa59ec766ccacd6413daf777a46146611afe0fc531ce9ca3",
-      "adapted": "the cards are read from this tool's records/workshop-*.json and every tool folder's tool-rows.json, where the Workshop's rows live now; every assertion is the old one"
-    },
-    {
       "from": "test/decision-read-correction.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/decision-read-correction.test.mjs",
       "source_identity": "1f:8bc998997fd025e32cad645da3d8d3377e9f326193b6ee8370b66522e422a424",
       "identity": "1f:82d674e5fee4ad42ce5e596912c75ae74f696972ef7d1fda69470c8904c03842",
       "adapted": "the outcomeCorrection test runs as it was; three tests through the retired PersonStore's /cases routes are left out, as no running code serves them"
+    },
+    {
+      "from": "test/file-card-offers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
+      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
+      "identity": "1f:e570c52f5c7e66c81976cd1c23a04f8466a4b3bd9dda2bc8225ce8dd5e3a8b4c",
+      "adapted": "the cards are read from this tool's records/workshop-*.json and every tool folder's tool-rows.json, where the Workshop's rows live now; every assertion is the old one"
+    },
+    {
+      "from": "test/kept-range-frontier-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/kept-range-frontier-recovery.test.mjs",
+      "source_identity": "1f:d740f9dd83cdd7742aa042f37f09eafd7525130b61d42c96a2670447bf885830",
+      "identity": "1f:2d8b21398c5a0afc86e3e037d2712fec65a45086ca19087d423df359400dd0b7",
+      "adapted": "the instrumented kept-runs copy is imported from a scratch folder with its one relative import made absolute, in place of the old in-memory loader; every assertion is the old one"
+    },
+    {
+      "from": "test/hybrid-clock.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/hybrid-clock.test.mjs",
+      "source_identity": "1f:330b986cf5a614cc459f3804993292ee3102f4ba0bef61f7253763bd5ae36968",
+      "identity": "1f:7ea18beeca39ef45fbefa00334035a88214b9956d1706b73d89df3c4e8aa68a4",
+      "adapted": "the retired arrival door is stood in by its one messages.record call, listen.mjs is run-on-a-persons-computer's, and the microphone state lives in a scratch folder; every assertion is the old one"
+    },
+    {
+      "from": "test/instant-wake.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/instant-wake.test.mjs",
+      "source_identity": "1f:c4b520803e0881002c91a0c0cae7b0aced6fa003d2d9de06d4d1cca45d21b909",
+      "identity": "1f:230712d01cb5a22c515052b667313cf971acf002cd9b504b280982eea08732a3",
+      "adapted": "agents and delivery come from shared-code, taskQuestions is stood in, and the test reading the retired person-store.mjs source is left out; every other assertion is the old one"
     }
   ]
 }

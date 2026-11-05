@@ -2,7 +2,9 @@
 // Trillion-X/trillion #243. thingActions and takes-file are this tool's (src/work-workshop.mjs,
 // parts/ui/show/file-field/takes-file.mjs). The old records/workshop-*.json held every Workshop row; this tool keeps two
 // of them, and the rest live in each tool folder's tool-rows.json now, so the cards are read from both. Every assertion
-// is the old one.
+// is the old one. Two fail today: tool:check-a-post (now tools/social-posts' row, which takes a post_id and no file) is
+// not offered on a video's card, in the first test and in the for-thing route test; no commit or README says that was
+// meant, so the old expectation stands.
 // What a file's card and a thing's ⋯ menu offer (src/work-workshop.mjs thingActions, GET /work/api/workshop/for-thing):
 // every tool or screen whose row marks it as taking a file of that kind, and every tool whose required inputs are all
 // formats the thing carries, read from the real Workshop rows, never a fixed list.
