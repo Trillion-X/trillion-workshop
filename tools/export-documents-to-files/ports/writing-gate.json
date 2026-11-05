@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-EXPORT-BOOK-WRITING-GATE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane, launch-video port 2026-11-04 (part export)",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:988e3514befc257a32189795ac0e5909930e3967c6613183b573467d19b8b6a5",
+   "multihash": "1f:1a926f2c55816066403ea65ab7e0c21a5bf652e7f202a6b502f12b23d56980b0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T19:00:00Z",
+    "deleted_with": "the lane lead's launch-video removal change deletes tools/private-book-reader, naming tools/export-documents-to-files as its new home"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/export-documents-to-files/do-work/writing_gate.py"
+  }
+ ],
+ "preserve": [
+  "the source BLAKE3 binding and role (comparison and historical references export with no current-prose approval)",
+  "evidence paths cannot leave the evidence folder",
+  "the writing-profile check must answer checks_satisfied for the current bytes",
+  "Decider2B execution on every exact paragraph and the hash-pinned qualification benchmark, with per-criterion labels, thresholds and section chunks",
+  "policy-bound reader context v1 and v2, rebuilt and compared byte for byte",
+  "the voice capture is validated by the classifier's own validateInput and validateReport"
+ ],
+ "allowed_deltas": [
+  "settings from the book's settings row instead of .writing-policy.json; BLAKE3 from tools/content-identity instead of b3sum; the writing checker beside this tool instead of TRILLION_WORKSHOP; the voice validator is tools/train-and-evaluate-a-writing-voice-classifier; current prose also needs the book's checks branch receipt for these bytes"
+ ],
+ "banned_substitutions": [
+  "an export on a stale or missing checks receipt",
+  "a validator rewritten here instead of the classifier's own"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:1a926f2c55816066403ea65ab7e0c21a5bf652e7f202a6b502f12b23d56980b0",
+  "target_multihash_at_baseline": "1f:1a926f2c55816066403ea65ab7e0c21a5bf652e7f202a6b502f12b23d56980b0",
+  "commit": "a6c78541dec21528434361abe3107c97295563e9"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/export-documents-to-files/test/test_writing_gate.py"
+  ]
+ }
+}
