@@ -12,7 +12,8 @@ or raw/reddit.jsonl, for each post's comment count), moments/moments.jsonl + mom
                     file named in inferred_file (each source is <inferred_file>:<number>), in inferred_segment
   comment_segment   the segment of a comment's question, {} where the video's segment goes
   basis, note, buckets_note   the words that say what the sample, the library and the buckets are
-  moment_buckets    {name: {description}}: each answer moment's nearest bucket is written as moment_bucket_field
+  moment_buckets    {name: {description}} or [[name, {description}]]: each answer moment's nearest bucket is written as
+                    moment_bucket_field
 A question is always the asker's verbatim sentence. Frequency is measured, not guessed: how many other
 sentences in the whole sample (every candidate from 25 subreddits and 8 YouTube videos) mean nearly the same thing,
 plus the post's score and comment count or the comment's likes.
@@ -85,6 +86,8 @@ def main():
         comments["https://www.reddit.com" + (post["permalink"] or "")] = post["num_comments"] or 0
     overrides = settings.get("asker_overrides") or {}
     bucket_info = settings.get("moment_buckets") or {}
+    if isinstance(bucket_info, list):  # [[name, {description}], ...]: the order kept in a row whose keys are sorted
+        bucket_info = dict(bucket_info)
     unknown = sorted({line.split()[1] for line in open(picks) if line.strip() and not line.startswith("#")} - set(CODES))
     if unknown:
         print(json.dumps({"error": f"The picks use bucket codes the settings do not name ({', '.join(unknown)}): add them to bucket_codes."}))

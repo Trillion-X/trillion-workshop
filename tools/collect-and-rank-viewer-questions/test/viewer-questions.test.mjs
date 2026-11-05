@@ -89,6 +89,14 @@ test('rank puts each candidate in the bucket of the person\'s settings its patte
   assert.deepEqual(lastLine(out).result, { ranked: 4, per_bucket: { 'starter-care': 2, shaping: 2 } });
 });
 
+test('buckets given as [name, patterns] pairs keep their order in a row whose keys are sorted', () => {
+  const pairs = put('pairs.json', settingRow({ buckets: [['shaping', ['crumb', 'stretch', 'tear', 'starter', 'feed']], ['starter-care', ['starter', 'feed']]] }));
+  const out = run('rank.py', pairs, join(root, 'raw', 'candidates.tsv'), '5', join(root, 'raw', 'ranked-pairs.tsv'));
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(Object.keys(lastLine(out).result.per_bucket), ['shaping', 'starter-care']);
+  assert.equal(tsv(join(root, 'raw', 'ranked-pairs.tsv')).find(r => r[0] === '3')[1], 'shaping', 'a tie goes to the bucket listed first');
+});
+
 test('a settings row of another tool, or a retired one, is refused saying what to give', () => {
   const other = run('rank.py', put('other.json', settingRow(SETTINGS, 'some-other-tool')), join(root, 'raw', 'candidates.tsv'), '5');
   assert.equal(other.status, 2);
