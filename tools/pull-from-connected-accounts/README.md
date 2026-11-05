@@ -38,7 +38,9 @@ A conversation is one record, so one with a very large number of messages is one
 | `read-data/fold.mjs` | The one pure fold: dedup by identity, order, and the three conflict policies (`keep`, `newer`, `merge`). |
 | `read-data/pointer.mjs` | JSON-pointer reads and the small value expressions a description uses. |
 | `read-data/snapshot.mjs` | Record ids, `readParts` and `assemble`. Public (`part.json`). |
-| `tool-rows.json` | Eight pull rows and `tool:read-what-i-pulled-from-an-account`. |
+| `do-work/signal-client.mjs` | The Signal client rows: `readSignalOnThisComputer` (receive, fold, hand to the `signal` pull) and `linkSignalOnThisComputer` (link and its QR code). |
+| `read-data/signal-envelopes.mjs` | `readEnvelopeLines` and `envelopesToConversations`: what `signal-cli -o json receive` prints, in the `signal` pull's contract. |
+| `tool-rows.json` | Eight pull rows, the two Signal client rows and `tool:read-what-i-pulled-from-an-account`. |
 | `test/` | Fold, pointer, source and row tests, and every service pulled against a stand-in in the shape the service documents. `test/fixtures/signal-client-output.json` is the Signal client's contract as a made-up output. |
 
 ## Key Types / Functions
@@ -63,7 +65,19 @@ A conversation is one record, so one with a very large number of messages is one
 ## What is not here
 
 - WhatsApp Web (Baileys) and Instagram by logging in as the person (instagrapi) are not pulled: each needs a session or a local daemon, not a token for a public interface.
-- Running Signal's client is not here either. `signal` takes what a client printed; the computer-kind row that runs `signal-cli` and hands its output in is a separate decision, and it is built to the contract below. The old connector asked `signal-cli` for a `listConversations` command that does not exist, so a transport that gets envelopes from the client has to turn them into this shape.
+
+## The Signal client on this computer
+
+Two computer-kind rows run Signal's own client, `signal-cli`, on the person's computer, and need no grant: the only person step is scanning a code once.
+
+| Row | What it does |
+|---|---|
+| `tool:link-signal-on-this-computer` | A session: runs `signal-cli link` and, as soon as the address arrives, prints `{ state: "scan", link, qr_text, qr_svg }` (the QR code as text and as SVG) in the session's output; the person scans it in Signal on the phone (Settings, Linked devices, Link new device). Answers `linked` with `self_id`, or `not_linked` with why. |
+| `tool:read-my-signal-messages-on-this-computer` | Runs `signal-cli -o json receive`, folds the envelopes into the contract below (`read-data/signal-envelopes.mjs`) and hands them to the `signal` pull in the same run. Answers the pull's answer plus `received` and `left_out`; `needs_link` (starting nothing) until the link row has run. |
+
+Both rows declare their programs themselves in `invoke.programs`: `signal-cli` 0.14.9, the publisher's archive (pinned BLAKE3, checked against its GPG signature), and Java, the Temurin 25.0.5+8 JRE every system's pin of which is copied unchanged from old trillion's java row (trillion-rust 62d1aa7b). The engine fetches both the first time, puts their folders on the run's PATH (signal-cli's launcher finds `java` there) and lets the contained run start them. Both declare `invoke.kept_folder`, a folder the engine keeps for this tool between runs and hands in as `client_folder`: signal-cli keeps the linked account (its keys and store) there. Signal gives a linked device each message once, so what `receive` printed is written to `trillion-pending.jsonl` in that folder before it is kept, and handed in again by the next run if keeping it failed. Java reaches the internet through the run's proxy (`JAVA_TOOL_OPTIONS`, set from the run's `HTTPS_PROXY`).
+
+How envelopes become conversations: a group is `group:<groupId>`, titled by the group name an envelope carries; a person is their service id (never a phone number), titled by the name their messages came with. A message is `<author service id>:<sent time>`, as Signal identifies it, so an edit (`editMessage.targetSentTimestamp`) lands on its message with `editedTimestamp`. The account's own messages sent from the phone arrive as sync messages and are `from` `self_id` (the account's service id, read from signal-cli's `data/accounts.json`). An offered call is a `call_started` message; receipts, typing, stories, reactions and data messages that say nothing (group or timer changes) are counted in `left_out`. `test/fixtures/signal-cli-receive.jsonl` is a made-up `receive` output and `test/signal-client.test.mjs` folds and keeps it.
 
 ## What the Signal client must hand in
 
@@ -87,6 +101,6 @@ The cursor is the greatest message `timestamp` seen, in the state record (`read-
 
 ## Dependencies
 
-**Depends on:** Node's standard library and `tools/records-door` (packed beside this folder's files by every row: the door client and `run-an-export.mjs`). Tests import `tools/records-door/test/` for the stand-in door.
+**Depends on:** Node's standard library, `uqr` (the link row's QR code), and `tools/records-door` (packed beside this folder's files by every row: the door client and `run-an-export.mjs`). Tests import `tools/records-door/test/` for the stand-in door.
 
 **Depended on by:** any tool that reads a pulled account through `read-data/snapshot.mjs`.
