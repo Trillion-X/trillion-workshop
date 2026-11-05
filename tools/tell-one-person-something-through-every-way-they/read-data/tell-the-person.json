@@ -1,0 +1,116 @@
+{
+  "what_this_is": "Every way Trillion can tell a person something, and which of those each kind of news goes through, read by src/tell-the-person.mjs (tool:tell-the-person, which any rule, schedule, workflow or AI runs) and drawn on the Notification settings screen. A channel names the sender that carries it (`sender`, one of the senders the person store wires: kept-list, web-push, apns, apns-activity, device-pull, mail, ai-notices, connection-tool, carried-connection) and that sender's own `settings`; a credential or key is named, never written here. A channel whose sender needs a connected account names its vendor in `connects`. `on_by_default` is whether it is on until the person changes it. A kind lists the channels it goes through until the person changes it, and `open` is the address a notice of that kind opens, with {name} filled from the notice's refs. Work still going on (`report`, tool:report-progress) is one notice per key changed in place, shown only through `shown_here` while its state is running (one of `work_states`); when it ends it is told once through its kind's other channels, and a running notice not reported for `running_quiet_minutes` reads as stopped. A running report may offer at most `report_actions_most` actions (such as Pause or Stop); pressing one sends the agent that reported it (`answered_by`) one `action_event`, worded with `action_words`. `needs` is what the screen says when a channel cannot send yet. The told list keeps the newest `keep` notices and the newest `keep_each_kind` of every kind, so one kind's flood never takes away another's last notices. `shown_here` is the channel whose notices the open Trillion page shows, the newest `shown_most` of them. A channel a computer carries (sender carried-connection, src/carried-connections.mjs) sends to `settings.to` on that service, where \"me\" is the person's own account. A new channel or kind is a row here and nothing else. Devices (src/tell-devices.mjs): every device a person is told on registers itself on one `devices.routes` row (POST /tell/devices with the route, its address in the row's `address` shape, a label, the app and its environment); a sender reads the devices of the route its channel's `settings.route` names, and a device-pull channel's devices read their own notices (GET /tell/notices?channel=<id>&after=<seq>). Every notice carries `actions`, buttons a device shows: its kind's `actions` (or `default_actions`), each an `actions` row whose `road` the person store wires by name (reply: the words go to every AI as the person's message; open: the device opens the notice's address; read: marks it read), plus what a running report offers. A kind's `level` (or `default_level`) is how loudly a device shows it: passive, active or time-sensitive. A kind's `quiet_minutes` is how long its running notices stay up between reports, in place of `running_quiet_minutes` (a Waiting on you board is reported every few hours while it waits, not every few minutes like work). A device asked for a reply shows `input` (its placeholder and button words). A channel with `while_running` (a Live Activity) also hears every report of running work, from its start to its end; telling something that is not running work skips it. Each send to it carries the whole board, every running notice that channel carries; the apns-activity sender draws that board as ONE Live Activity named by `board_key`, at most `items_most` jobs of at most `words_most` characters each (Apple takes at most 4 KB), started once by push-to-start and not started again for `start_again_hours` while its token is on its way, changed through its own token, ended when nothing runs or once it is `lasts_hours` old (iOS keeps a Live Activity at most eight hours and then ignores changes, so an older board is ended and a new one started), or when the device ends it, and marked stale `running_quiet_minutes` after its last change. `show_subject` is what the person's show rules (src/workspace/show-rules.json) call a notice, and a channel's `device` is the device it reaches: before a notice goes out on any channel but `shown_here`, a rule that silences it there (such as one kind, only on the phone) holds it back. A channel's `can` says what it can do for the person (show, answer, speak, ask, hear-answer, tell-ais), so whatever picks a way to reach them reads what each way does instead of knowing channel names. A device route's `device` is the kind of device it is (computer, phone). A device may say whether the person is at it (`devices.present` words, here or away); a kind with `reach_now` then leaves out the devices `reach_now.rules` name for the device the person is at, within `reach_now.fresh_minutes` of its report. A kind's `reach` is its ordered reach: rows of { after_minutes, channels }; a channel in a row is told only once that many minutes have passed while the person has not read the notice, so they are reached down their ways until they see it, and the surface they read it on is kept as `read_on` (src/tell-the-person.mjs invariant 17). A kind's `group` (filled from refs) is the thread its notices share, shown as one notification replaced by the newest. `spoken_answers` is how an answer spoken out loud to a notice the `channel` said is read: `later` words leave it to be asked again, `stop` words mark what that channel carried read and turn it off, and any other words answer through the kind's first action that takes words. The `answer` action's road `thread` sends the words into the conversation the notice came from (refs app and conversation_id) and wakes the chat that wrote it. An action that says `needs_ref` is offered only by a notice whose refs name that thing: `finish` (road `finish`) answers a notice about one waiting thing (refs card, set by every Waiting on you reminder) the way that thing's own Finish does on the screen, its words filling its one box or, for a press, counting as done only when they are among `done_says`; what words cannot finish stays waiting and `words` says why.",
+  "chips_most": 6,
+  "keep": 200,
+  "keep_each_kind": 10,
+  "delivery_claim_seconds": 300,
+  "delivery_words": { "accepted": "The delivery provider accepted the notice through {channels}. Whether the person read it is unknown.", "read": "A read receipt is recorded for this notice. The task still needs its own completion evidence.", "stored": "The notice is recorded, but no outside delivery is confirmed. Awareness is unknown.", "uncertain": "A delivery attempt has an unknown outcome. It is held for reconciliation before any repeat.", "repeat": "This notice is already recorded. ", "checking": "The channel is being checked before delivery.", "attempting": "The request is in flight; acceptance is not yet known." },
+  "first_reply": { "title": "Your first result is back from {app}: {subject}" },
+  "title_max": 120,
+  "body_max": 600,
+  "default_kind": "update",
+  "default_open": "/notifications",
+  "shown_here": "in-app",
+  "show_subject": "notification",
+  "shown_most": 60,
+  "work_states": ["running", "done", "failed"],
+  "running_quiet_minutes": 10,
+  "report_actions_most": 2,
+  "action_event": "progress.action",
+  "action_words": { "asked": "Asked {source} to {label}.", "not_offered": "{label} is not something this work offers now.", "unreachable": "{source} cannot be reached right now. It hears this when it is back.", "cannot_ask": "This account cannot reach the program doing this work.", "not_an_action": "{action} is not something this notice offers.", "needs_words": "Write what to send first." },
+  "channels": [
+    { "id": "in-app", "label": "In Trillion", "sender": "kept-list", "delivery_evidence": "stored", "can": ["show", "answer"], "on_by_default": true, "settings": {} },
+    {
+      "id": "this-computer", "label": "On this computer", "sender": "web-push", "delivery_evidence": "provider-accepted", "device": "computer", "can": ["show", "answer"], "on_by_default": true,
+      "settings": { "route": "web-push", "key_secret": "TRILLION_PUSH_KEY", "contact": "mailto:hello@gettrillion.ai", "ttl_seconds": 86400, "icon": "/icon-192.png" }
+    },
+    {
+      "id": "phone", "label": "On your iPhone and Apple Watch", "sender": "apns", "delivery_evidence": "provider-accepted", "device": "phone", "can": ["show", "answer", "speak"], "on_by_default": true,
+      "settings": { "route": "apns", "key_secret": "TRILLION_APNS_KEY", "sound": "default", "category_prefix": "trillion", "expire_hours": 24 }
+    },
+    { "id": "mac-app", "label": "In Trillion for Mac", "sender": "device-pull", "delivery_evidence": "queued", "device": "computer", "can": ["show", "answer"], "on_by_default": true, "settings": { "route": "live" } },
+    { "id": "mac-voice", "label": "Said out loud on your computer", "sender": "device-pull", "delivery_evidence": "queued", "device": "computer", "can": ["speak", "ask", "hear-answer"], "on_by_default": true, "settings": { "route": "live" } },
+    {
+      "id": "phone-live", "label": "Live on your iPhone lock screen", "sender": "apns-activity", "delivery_evidence": "provider-accepted", "device": "phone", "while_running": true, "can": ["show"], "on_by_default": true,
+      "settings": { "route": "apns-activity", "key_secret": "TRILLION_APNS_KEY", "attributes_type": "TrillionWorkAttributes", "board_key": "running", "items_most": 4, "words_most": 80, "start_again_hours": 0.25, "end_shown_seconds": 900, "lasts_hours": 7.5 }
+    },
+    {
+      "id": "email", "label": "Email", "sender": "mail", "delivery_evidence": "provider-accepted", "can": ["show"], "on_by_default": false,
+      "settings": { "reply_to": "hello@gettrillion.ai", "open_origin": "https://app.gettrillion.ai", "open_label": "Open in Trillion" }
+    },
+    {
+      "id": "your-ais", "label": "Your AIs", "sender": "ai-notices", "delivery_evidence": "queued", "can": ["tell-ais"], "on_by_default": true,
+      "settings": { "said": "Trillion recorded a notice: \"{title}\". {body} This record alone does not establish delivery or awareness." }
+    },
+    { "id": "telegram", "label": "Telegram", "sender": "connection-tool", "delivery_evidence": "provider-accepted", "connects": "telegram", "can": ["show", "answer"], "on_by_default": true, "settings": { "tool_id": "tool:send-a-telegram-message", "accepted_when": { "path": ["output", "sent"], "equals": true } } },
+    { "id": "text-messages", "label": "Text messages", "sender": "connection-tool", "delivery_evidence": "provider-accepted", "connects": "twilio", "can": ["show", "answer"], "on_by_default": true, "settings": { "tool_id": "tool:send-a-text-message", "accepted_when": { "path": ["output", "sent"], "equals": true } } },
+    { "id": "whatsapp", "label": "WhatsApp", "sender": "carried-connection", "delivery_evidence": "provider-accepted", "connects": "whatsapp", "can": ["show", "answer"], "on_by_default": true, "settings": { "to": "me" } },
+    { "id": "imessage", "label": "iMessage", "sender": "carried-connection", "delivery_evidence": "provider-accepted", "connects": "imessage", "can": ["show", "answer"], "on_by_default": true, "settings": { "to": "me", "open_origin": "https://app.gettrillion.ai" } }
+  ],
+  "devices": {
+    "most": 40,
+    "can_show": ["allowed", "denied", "not-asked", "quiet"],
+    "present": ["here", "away"],
+    "turn_on_schemes": ["https", "x-apple.systempreferences", "app-settings", "ms-settings"],
+    "routes": [
+      { "id": "web-push", "device": "computer", "address": "web-push-subscription", "label": "A browser" },
+      { "id": "apns", "device": "phone", "address": "hex-token", "label": "An iPhone" },
+      { "id": "apns-activity", "device": "phone", "address": "hex-token", "label": "An iPhone's live work" },
+      { "id": "live", "device": "computer", "address": "device-id", "label": "A Mac" }
+    ]
+  },
+  "actions": [
+    { "id": "reply", "label": "Reply", "road": "reply", "input": { "placeholder": "Tell your AIs", "button": "Send" }, "said": "Sent to your AIs.", "message": "{text}\n\n(My reply to the notice \"{title}\")" },
+    { "id": "answer", "label": "Reply", "road": "thread", "input": { "placeholder": "Reply in this chat", "button": "Send" }, "said": "Sent to the chat.", "job": "The person answered your reply in this chat from a notification. Their words: \"{text}\". Take it as their next message here: do what it asks, then reply to them.", "no_chat_message": "{text}\n\n(My answer to {app}'s reply \"{title}\"; that chat could not be reached)", "no_chat_said": "That chat could not be reached, so your AIs got it instead." },
+    { "id": "finish", "label": "Answer", "road": "finish", "needs_ref": "card", "input": { "placeholder": "Your answer, or done", "button": "Send" }, "said": "Done.", "done_says": ["done", "it's done", "did it", "i did it", "finished", "yes", "yep", "yeah"], "words": { "gone": "That one is already done.", "not-done": "It stays waiting on you. Say done once it is.", "by-screen": "This one needs the screen. Open it in Trillion to finish it.", "failed": "It could not be finished: {error}" } },
+    { "id": "open", "label": "Open", "road": "open", "opens": true, "said": "Opening it in Trillion." },
+    { "id": "read", "label": "Mark read", "road": "read", "said": "Marked read." }
+  ],
+  "default_actions": ["reply", "open"],
+  "reach_now": { "fresh_minutes": 10, "rules": [{ "when_present": "computer", "skip_devices": ["phone"], "said": "You were at your computer, so it was shown there and not on your phone." }] },
+  "spoken_answers": {
+    "channel": "mac-voice",
+    "later": { "says": ["later", "not now", "in a bit", "remind me later", "ask me later"], "said": "Trillion asks again later." },
+    "stop": { "says": ["stop talking", "be quiet", "stop speaking", "don't talk", "quiet"], "said": "Trillion stopped speaking out loud. Turn Said out loud back on in Notification settings." },
+    "no_answer": "This notice takes no answer; open it in Trillion."
+  },
+  "default_level": "active",
+  "kinds": [
+    { "id": "update", "label": "Anything else Trillion tells you", "channels": ["in-app", "your-ais"] },
+    { "id": "ai-reply", "label": "An AI replied to you", "channels": ["in-app", "this-computer", "phone", "mac-app", "mac-voice"], "open": "{open}", "actions": ["answer", "open"], "group": "{conversation}", "reach_now": true },
+    { "id": "ai-unavailable", "label": "AI checks paused because no model answered", "channels": ["in-app", "this-computer", "phone", "mac-app"], "open": "/ai", "actions": ["open"], "group": "ai-connection", "level": "active" },
+    { "id": "needs-you", "label": "Something is waiting for your answer", "channels": { "every": true, "except": ["phone-live", "telegram", "text-messages", "whatsapp", "imessage"] }, "level": "time-sensitive", "actions": ["finish", "reply", "open"], "reach_now": true },
+    { "id": "limit-status", "label": "A limit or spending level Trillion keeps, near or reached", "channels": ["in-app", "this-computer", "mac-app", "email", "your-ais"], "level": "time-sensitive", "open": "/spend", "actions": ["open"] },
+    { "id": "needs-you-request", "label": "An answer or action needs you", "channels": ["in-app", "this-computer", "phone", "mac-app", "imessage"], "level": "time-sensitive", "actions": ["finish", "reply", "open"], "open": "{open}" },
+    { "id": "needs-you-now", "label": "Something has waited on you for hours", "channels": { "every": true, "except": ["telegram", "text-messages", "whatsapp"] }, "level": "time-sensitive", "quiet_minutes": 480, "actions": ["finish", "reply", "open"], "reach_now": true },
+    { "id": "video-made", "label": "A new video is in your files", "channels": ["in-app", "this-computer", "phone", "mac-app"], "open": "/file/{file}", "preview_ref": "file" },
+    { "id": "post-drafted", "label": "A draft post is ready for you to look at", "channels": ["in-app", "this-computer", "phone", "mac-app"], "open": "/use/check-a-post/{post}" },
+    { "id": "post-not-published", "label": "A post did not go out everywhere it was meant to", "channels": ["in-app", "this-computer", "phone", "mac-app", "your-ais"], "open": "/use/check-a-post/{post}", "level": "time-sensitive" },
+    { "id": "work-finished", "label": "Your AIs finished work you handed off", "channels": ["in-app", "this-computer", "phone", "mac-app"] },
+    { "id": "reading-got-worse", "label": "Something Trillion reads for you every day got worse than the day before", "channels": ["in-app", "this-computer", "phone", "mac-app"] },
+    { "id": "stopped", "label": "Something Trillion keeps running stopped and one of your AIs has it", "channels": ["in-app", "this-computer", "phone", "mac-app", "your-ais"], "open": "/workflows" },
+    { "id": "waiting-for-an-ai", "label": "Something you asked for or recorded is waiting for an AI to take it", "channels": ["in-app", "this-computer", "phone", "mac-app"], "open": "/ai-work" },
+    { "id": "program-application", "label": "Someone applies to work with you", "channels": ["in-app", "this-computer", "phone", "mac-app", "email", "your-ais"], "open": "/clients", "level": "time-sensitive" },
+    { "id": "transfer", "label": "Files copying from a drive or card", "channels": ["in-app", "this-computer", "phone", "mac-app", "phone-live"], "open": "/use/tool:drives", "level": "passive" },
+    { "id": "transcription", "label": "Recordings being transcribed", "channels": ["in-app", "phone-live"], "open": "/media", "level": "passive" },
+    { "id": "export", "label": "A video being made or exported", "channels": ["in-app", "this-computer", "phone", "mac-app", "phone-live"], "open": "/media", "level": "passive" },
+    { "id": "working", "label": "Other work a tool is doing for you", "channels": ["in-app", "phone-live"], "level": "passive" },
+    { "id": "program-accepted", "label": "You are accepted into a program you applied to", "channels": ["in-app", "this-computer", "phone", "mac-app", "email", "your-ais"], "open": "{apply}" },
+    { "id": "sidebar-note", "label": "Your AI points you to something in your sidebar", "channels": ["in-app", "this-computer", "phone", "mac-app"], "open": "{open}" },
+    { "id": "take-me-there", "label": "Your AI opened something for you to do", "channels": ["in-app", "this-computer", "phone", "mac-app", "your-ais", "imessage", "whatsapp", "text-messages", "email"], "reach": [{ "after_minutes": 15, "channels": ["imessage", "whatsapp", "text-messages", "email"] }], "level": "time-sensitive", "open": "{open}" },
+    { "id": "questions", "label": "Trillion has questions only you can answer", "channels": ["in-app", "this-computer", "phone", "mac-app"], "open": "{open}", "level": "passive" }
+  ],
+  "needs": {
+    "permission": "Turn this on to allow notifications on this computer.",
+    "blocked": "Your browser is blocking notifications from Trillion. Allow them in your browser's site settings.",
+    "address": "Add the email address to send to.",
+    "connection": "Connect {label} to turn this on.",
+    "sender": "Trillion cannot send through {label} yet.",
+    "setup": "This is not ready on Trillion's side yet.",
+    "registration": "Connect this browser to your account to turn notifications on.",
+    "lookup": "Could not check this browser's notifications. Turn the switch on to try again.",
+    "off": "This browser could not finish turning notifications off. Turn the switch on to reconnect it, then try again.",
+    "device": "This starts once you open the Trillion app on that device and allow notifications."
+  },
+  "test": { "kind": "update", "title": "This is a test from Trillion", "body": "This is where Trillion will tell you things." }
+}
