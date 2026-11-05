@@ -1,12 +1,13 @@
 """Caption lines with the median stored window pitch (from an .emb.npz), for hand-labelling who speaks.
-usage: python3 -I line_pitch.py <id> <start> <end>"""
+usage: python3 -I show/show_line_pitch.py <id> <start> <end> <data_folder> <youtube_folder>
+(the windows are <data_folder>/voice/<id>.emb.npz of do-work/find_voice.py; the captions <youtube_folder>/{captions,videos}/<id>.en*.json3)"""
 import os, sys, glob, numpy as np
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lines import events
-import hf_speaker as H
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'read-data'))
+from shared import events
+VOICE, YT = os.path.join(sys.argv[4], 'voice'), sys.argv[5]
 vid, a, b = sys.argv[1], float(sys.argv[2]), float(sys.argv[3])
-d = np.load(os.path.join(H.VOICE, vid + '.emb.npz')); t, f = d['t'], d['f0']
-fs = [x for dd in ('captions', 'videos') for x in sorted(glob.glob(os.path.join(H.HOME, 'library', 'youtube', dd, vid + '.en*.json3')))]
+d = np.load(os.path.join(VOICE, vid + '.emb.npz')); t, f = d['t'], d['f0']
+fs = [x for dd in ('captions', 'videos') for x in sorted(glob.glob(os.path.join(YT, dd, vid + '.en*.json3')))]
 ev = events(fs[0])
 for i, (s, du, x) in enumerate(ev):
     if not a <= s <= b: continue

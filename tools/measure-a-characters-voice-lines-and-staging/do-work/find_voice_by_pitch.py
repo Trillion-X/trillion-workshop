@@ -1,3 +1,15 @@
+"""Find the stretches of a recording spoken in a high pitch band, by pitch alone: a first look at a character voiced well
+above the rest of the cast, before any windows are labelled (pitch alone also catches every other high voice;
+do-work/find_voice.py tells them apart).
+Writes <out_dir>/<id>.json: per-frame-free summary = runs of high-pitch voiced speech (start, end, median F0), and
+<out_dir>/<id>.f0.npy, the pitch of each voiced frame (0 elsewhere).
+One JSON request on standard input: {audio, out_dir, settings_record?, settings?}; the settings give the character's band
+(pitch_run_band_low_hz, pitch_run_band_high_hz). {"result": ...} is the last line printed."""
+import sys, os, json, subprocess, numpy as np, librosa
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'read-data'))
+import shared  # noqa: E402
+SR, HOP, FRAME = 8000, 200, 800          # 25 ms hop
+LO, HI = 225.0, 600.0                     # the character's band, set from the settings
 MIN_RUN, MERGE_GAP = 0.5, 1.2             # seconds
 
 def f0_track(path):
@@ -52,7 +64,9 @@ def runs(f0, vf, vp):
     return out
 
 if __name__ == '__main__':
-    path, od = sys.argv[1], sys.argv[2]
+    req, s = shared.request(['pitch_run_band_low_hz', 'pitch_run_band_high_hz'])
+    LO, HI = float(s['pitch_run_band_low_hz']), float(s['pitch_run_band_high_hz'])
+    path, od = shared.needed(req, 'audio', 'out_dir')
     os.makedirs(od, exist_ok=True)
     f0, vf, vp = f0_track(path)
     total = len(f0) * HOP / SR
@@ -66,3 +80,4 @@ if __name__ == '__main__':
     np.save(os.path.join(od, vid + '.f0.npy'), np.where(vf, f0, 0).astype(np.float32))
     json.dump(res, open(os.path.join(od, vid + '.json'), 'w'), indent=1)
     print(vid, res['duration_s'], 'hi_s', res['hi_s'], 'runs', len(r))
+    shared.answer({'id': vid, 'json': os.path.join(od, vid + '.json'), 'hi_s': res['hi_s'], 'runs': len(r)})
