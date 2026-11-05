@@ -855,7 +855,7 @@
       "capability": "transcribe recordings with a time for every word, and redo the places where the speech model looped; hear a recording in the person's files, or a link's video, into words on their own computer",
       "owner": ["tools/audio-transcription/"],
       "entry": "tools/audio-transcription/tool-rows.json",
-      "evidence": "tools/audio-transcription/README.md:3 the package's local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again; read-data/hear-here.mjs is the old Mac runner's tool:hear-a-recording and tool:hear-a-link"
+      "evidence": "tools/audio-transcription/README.md:3 the package's local Whisper transcription with word times, plus finding where Whisper looped and hearing only those windows again; read-data/hear-here.mjs is the old Mac runner's tool:hear-a-recording and tool:hear-a-link; do-work/whisper_here.py hears with whichever Whisper engine the place has (mlx-whisper, faster-whisper, openai-whisper), moved from Trillion-X/trillion-launch-video tools/place-capabilities@5a9ba39"
     },
     {
       "capability": "work out a business's unit economics (ARPU, gross margin, CAC, LTV, payback) from plain numbers",
