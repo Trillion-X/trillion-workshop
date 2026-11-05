@@ -23,6 +23,44 @@
       "held": false,
       "wired": "tools/tell-one-person-something-through-every-way-they/test/tell-the-person.test.mjs",
       "wired_by": "ports/tell-the-person.json (SOURCE_FIRST_PORT: byte copy at 3cffafe5, then adapted)"
+    },
+    {
+      "from": "records/tell-the-person.json",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.json",
+      "source_identity": "1f:c46a6bef4761bc898ab567ccdd9b74970fd1b19d17002791b522031f69e37fe7",
+      "identity": "1f:c46a6bef4761bc898ab567ccdd9b74970fd1b19d17002791b522031f69e37fe7",
+      "reused": true
+    },
+    {
+      "from": "src/tell-the-person.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs",
+      "source_identity": "1f:20850d5a2a00697c6eb0507e908211149615ce1092f59d13ba00ba0b61e47f1c",
+      "identity": "1f:27cbbef37db44af7355bf072261e37f59067f57d0bbdfd7d373a310d17ec52fc",
+      "reused": true,
+      "adapted": "an earlier lane adapted it here (backlog row (workshop-tool)); not the same bytes once import paths are set aside"
+    },
+    {
+      "from": "test/assignment-notice-receipts.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/tell-one-person-something-through-every-way-they/test/assignment-notice-receipts.test.mjs",
+      "source_identity": "1f:fffc25f0c5fbd39496be85c246e7fa86b69895414397fb9d2e9ac1370aa8bc3c",
+      "identity": "1f:b78b41f7e6f14fbf7b99b51d691277fc9a260cbb7cbcb020f02b073d141119e5"
+    },
+    {
+      "from": "test/native-tell-notices.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/tell-one-person-something-through-every-way-they/test/native-tell-notices.test.mjs",
+      "source_identity": "1f:5570bd76a10b209687154b296823f08de20824ebcc86f8689f75aac43ba664a8",
+      "identity": "1f:a3a7dbe8064bf442908c2a33c0a57e192933610dbf5e484a3d2a2c7208a93312"
+    },
+    {
+      "from": "test/notice-frequency.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/tell-one-person-something-through-every-way-they/test/notice-frequency.test.mjs",
+      "source_identity": "1f:fc8a24cc0a339be9e1a761db8f773a2946f6df32bfe8801f591ff803bf6d8c1e",
+      "identity": "1f:518dae87a907f8ab11101400c94e272add7c7febfb76dd8d04ee0336731d9f0b"
     }
   ]
 }
