@@ -1,0 +1,273 @@
+{
+ "kind": "tool-rows",
+ "record_set": "show-the-media-library-and-search-what-was-tool-rows",
+ "what_this_is": "The Workshop row for tools/show-the-media-library-and-search-what-was: the Media page's routes, old trillion's handleWorkMedia run unchanged over the person's media-edit records and the files door.",
+ "records": [
+  {
+   "id": "package::show-the-media-library-and-search-what-was::tool::answer-the-media-page",
+   "address": "package::show-the-media-library-and-search-what-was::tool::answer-the-media-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:answer-the-media-page",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "Answer the Media page's saved edits",
+    "job": "Answer the Media page: read and save an edit of my recordings",
+    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia unchanged: GET /media/edit?id= answers { edit } (null when none is saved); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), keeps it as one media-edit record and keeps each clip as edited on Recent. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what a records-door run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The page route after /work/api: /media/edit"
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "GET",
+        "POST"
+       ]
+      },
+      "query": {
+       "type": "object",
+       "description": "The route's query parameters, by name"
+      },
+      "body": {
+       "description": "The JSON body the page sent ({} when none)"
+      },
+      "browser": {
+       "type": "object",
+       "description": "The asking browser's own facts: user_agent, origin, visitor"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "show-the-media-library-and-search-what-was",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/show-the-media-library-and-search-what-was"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "parts/live-namespace/do-work/shared-file-reference.mjs",
+         "src/connecting-without-the-store.json",
+         "src/connecting-without-the-store.mjs",
+         "src/execution-context.mjs",
+         "src/namespace-preview.mjs",
+         "src/read-bounded-json.mjs",
+         "src/record-model-tools.mjs",
+         "src/record-model.json",
+         "src/record-scope.json",
+         "src/workspace/file-previews.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "do-work/fractional-order.ts"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "keep-the-media-editors-open-session-its-published",
+        "paths": [
+         "src/work-media-session.mjs"
+        ],
+        "at": "/opt/keep-the-media-editors-open-session-its-published"
+       },
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work/filmcraft-edit-job.mjs",
+         "read-data/edit-command-log.json",
+         "read-data/edit-command-log.mjs",
+         "read-data/layers-to-edit.mjs",
+         "read-data/media-versions.json",
+         "read-data/media-versions.mjs",
+         "read-data/track-alignment.json",
+         "read-data/track-alignment.mjs"
+        ],
+        "at": "/opt/media-composition"
+       },
+       {
+        "package": "record-log",
+        "paths": [
+         "do-work/record-model.mjs"
+        ],
+        "at": "/opt/record-log"
+       },
+       {
+        "package": "see-what-my-ais-did",
+        "paths": [
+         "activity-marks.json",
+         "activity.mjs"
+        ],
+        "at": "/opt/see-what-my-ais-did"
+       },
+       {
+        "package": "send-a-saved-edit-from-the-media-editor",
+        "paths": [
+         "src/editor-handoff.json",
+         "src/editor-handoff.mjs",
+         "src/work-media-editor.mjs"
+        ],
+        "at": "/opt/send-a-saved-edit-from-the-media-editor"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/work-media-session.json"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "show-live-words-while-recording",
+        "paths": [
+         "src/live-words.json"
+        ],
+        "at": "/opt/show-live-words-while-recording"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/show-the-media-library-and-search-what-was",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/show-the-media-library-and-search-what-was/do-work/answer-the-media-page.mjs",
+      "answerTheMediaPage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "media-edit",
+        "prefix": "media-edit:",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "files": "/",
+        "operations": [
+         "record_file_use"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/work-media.mjs handleWorkMedia (tag old-trillion-before-worker-retire), with the person carrier of src/native-browser-media.mjs over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/media/edit",
+       "method": "GET",
+       "query": {
+        "id": "sample-cut"
+       },
+       "body": {}
+      },
+      "records": [
+       {
+        "id": "media-edit:sample-cut",
+        "type": "media-edit",
+        "value": {
+         "title": "Sample cut",
+         "clips": [
+          {
+           "identity": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+           "start": 0,
+           "end": 3,
+           "bytes": "/sample"
+          }
+         ],
+         "ratio": "9:16",
+         "file": null,
+         "saved_at": "2026-11-01T00:00:00.000Z"
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

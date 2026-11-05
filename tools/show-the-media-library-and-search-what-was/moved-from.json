@@ -5,14 +5,6 @@
   "calls": [],
   "files": [
     {
-      "from": "src/work-media.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/src/work-media.mjs.held",
-      "source_identity": "1f:c4f605f31b1ff934bd1422ae2c3aea30512a851cc6abba565529c057c77b7bfe",
-      "identity": "1f:067a82ccc081a4a3e573488899e5a4beb7275a34b7dd1d526ad80b11baf2b33d",
-      "held": true
-    },
-    {
       "from": "test/work-media-session.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/show-the-media-library-and-search-what-was/from-old-trillion/test/work-media-session.test.mjs.held",

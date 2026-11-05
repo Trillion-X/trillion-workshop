@@ -4,6 +4,7 @@ Files of old trillion whose job is this tool's (show the media library and searc
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/work-media.mjs` | `src/work-media.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/activity.mjs (already gone at the tag), src/media-library.mjs (already gone at the tag), parts/media-composition/read-data/layers-to-edit.mjs (already gone at the tag) |
 | `test/work-media-session.test.mjs` | `test/work-media-session.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
 | `test/work-media.test.mjs` | `test/work-media.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/media-run-seam-for-tests.mjs (at the tag, not moved here yet) |
+
+`src/work-media.mjs` is wired: it is `do-work/answer-the-media-page.mjs` (ported, `ports/answer-the-media-page.json`).
