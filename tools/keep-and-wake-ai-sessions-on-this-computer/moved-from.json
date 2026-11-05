@@ -3206,6 +3206,14 @@
       "source_identity": "1f:c4b520803e0881002c91a0c0cae7b0aced6fa003d2d9de06d4d1cca45d21b909",
       "identity": "1f:230712d01cb5a22c515052b667313cf971acf002cd9b504b280982eea08732a3",
       "adapted": "agents and delivery come from shared-code, taskQuestions is stood in, and the test reading the retired person-store.mjs source is left out; every other assertion is the old one"
+    },
+    {
+      "from": "test/harness-guidance-mcp-and-runs.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/harness-guidance-mcp-and-runs.test.mjs",
+      "source_identity": "1f:7fd8999d5a6b9806e16c67bc202c34df45deda6d1477cc021e348da3eed8c603",
+      "identity": "1f:8893a3d9d9e0671649bb802dd6f1769329964275943dd30087131d854ef32afd",
+      "adapted": "the client catalogue and report-progress come from set-up-my-account and run-on-a-persons-computer, and the retired setup answer's command checks read this tool's MCP row; its default-clients check is left out, the row taking the apps from the caller"
     }
   ]
 }
