@@ -31,7 +31,8 @@
 //
 // A source may also carry `lay_over: [{ where: { <entry field>: <value>, ... }, row: { ... } }]`: fields the source's
 // owner adds to every derived row whose entry matches all of `where` (a price the seller sets on one service's tools,
-// which the service's own records never carry). Matching is on the renamed entry fields; the row is laid over last.
+// which the service's own records never carry). Matching is on the renamed entry fields; the row is laid over last, its
+// `{ fill: { from: "entry" } }` values filled from the entry like the template's.
 //
 // A source may also carry `about` (plain words about what everything in it does, from its row in records/live-tool-sources.json):
 // each derived row's job and description start with it, followed by the entry's own.
@@ -73,7 +74,7 @@ export function rowsFromList(source, list) {
       ...filled,
       ...Object.assign({}, ...(source.lay_over ?? [])
         .filter(over => object(over?.where) && object(over.row) && Object.entries(over.where).every(([field, value]) => entry[field] === value))
-        .map(over => over.row)),
+        .map(over => fillFromEntry(over.row, entry))),
       provenance: { ...(filled.provenance ?? {}), source: source.id },
     };
     const admitted = admitToolDescriptor(payload);

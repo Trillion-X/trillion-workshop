@@ -30,3 +30,11 @@ test('the Python tests of edit-a-copy-of-a-premiere-project pass', { skip }, () 
   assert.equal(run.status, 0, `${run.stdout}\n${run.stderr}`);
   assert.match(run.stderr, /\nOK/);
 });
+
+test('the FilmCraft frame-hold row names the script that exists and runs on the person\'s computer', () => {
+  const holds = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records[1].payload;
+  assert.equal(holds.id, 'tool:insert-frame-holds-into-a-filmcraft-project-copy');
+  assert.equal(holds.invoke.kind, 'on-your-computer');
+  assert.match(holds.invoke.run, /^python3 -I tools\/edit-a-copy-of-a-premiere-project\/do-work\/filmcraft_insert_frame_holds\.py \{project\} \{output\} --shots \{shots\} --out \{out\} \{shot_ids\}$/);
+  assert.ok(existsSync(join(folder, 'do-work', 'filmcraft_insert_frame_holds.py')));
+});

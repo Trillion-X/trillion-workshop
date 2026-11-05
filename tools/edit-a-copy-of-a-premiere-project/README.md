@@ -105,6 +105,22 @@ It reads `new_order` rows (`clip`, `src_in`, `src_out`, `inner_cuts`, `INSERT-<i
 - **Pause trim:** a gap of more than `--pause-over` s between two words, with both words inside the row, keeps `--pause-keep` s (half on each side). Word timings come from `--transcripts DIR`: one `<clip>.json` per clip with `words[]` (`type`, `start`, `end` in seconds). `--fps` sets the sequence frame rate (default 24000/1001). `--protect` rows and `--protect-window CLIP:FROM:TO` keep their pauses.
 - **Not done:** filler words (um, uh). The join needs an ear, so they are left in.
 
+## FilmCraft frame holds (`filmcraft_insert_frame_holds.py`)
+
+The same kind of job for a FilmCraft project (`.fcproj`, JSON): put each rendered correction into a **copy** of the project at its freeze frame, as editable clips.
+
+```sh
+python3 -I tools/edit-a-copy-of-a-premiere-project/do-work/filmcraft_insert_frame_holds.py IN.fcproj OUT.fcproj \
+  --shots SHOTS --out RENDERED [--sequence-suffix ' + corrections'] SHOT-ID [SHOT-ID ...]
+```
+
+- `SHOTS/<id>.json` holds `{"plate": {"source": <the plate's media path in the project>, "frame": <frame in that file>}}`.
+- `RENDERED/<id>/` holds `<id>-overlay-prores4444.mov`, `<id>-narrator.wav` and `<id>-sfx-music.wav`.
+- For each shot: a frame-hold segment of the same clip is ripple-inserted at the frame (source_in = hold, the clip's own effects, so its grade applies); every clip spanning the point is razored and everything after it moves by the hold's length; the adjustment layer grows over the span; the overlay goes on video track 3, the narrator file on audio track 2 and the music and sound effects on audio track 3, their facts read by ffprobe.
+- The input project is never written and the output must be a new file. A missing shot or rendered file, a plate that is not a media file of the project and a frame no clip on the first video track holds are refused with what to change. The last line is `{"result": {output, inserts}}` or `{"error": ...}`.
+- The sequence name gets `--sequence-suffix` (default ` + corrections`); the FilmCraft label colours of the three files are the tool's constants.
+- Moved from the film repository's `films/<film>/narrator/tools/filmcraft_insert.py`. The old script took its folders from where it sat; now they are `--shots` and `--out`. On a real project, shot and rendered files its output and this tool's were identical byte for byte.
+
 ## Checks before writing
 
 - Each piece's facts come from ffprobe. The tool refuses: a different frame rate from the sequence; audio that is not stereo; a video file with audio; a missing track; drop-frame timecode; a missing file.
@@ -125,6 +141,7 @@ It reads `new_order` rows (`clip`, `src_in`, `src_out`, `inner_cuts`, `INSERT-<i
 - `compile_edit_plan.py`: EDIT-PLAN `new_order` to ops plan.
 - `prproj.py`: read, write, timecode and track helpers.
 - `validate.py`, `prdump.py`, `proxy_render.py`: checks, listing and the ungraded check render.
+- `filmcraft_insert_frame_holds.py`: the FilmCraft frame-hold inserter above.
 - `grade_check.py`: each pre-graded plate's last frame against the next V1 frame as the graded export shows it
   (found through the original project's V1). Prints PSNR and mean Y/U/V and writes side-by-side PNGs. This is the
   only colour check possible without Premiere; it is not a render of the new project.
@@ -134,3 +151,5 @@ It reads `new_order` rows (`clip`, `src_in`, `src_out`, `inner_cuts`, `INSERT-<i
 `node --test tools/edit-a-copy-of-a-premiere-project/test/*.test.mjs` runs `test/test_edit_a_copy.py` on a made-up project that
 `test/synthetic_prproj.py` builds in the test (two invented recordings on a 23.976 sequence). Needs python3 and BLAKE3;
 the file-insert and proxy tests also need ffmpeg.
+
+`test/test_filmcraft_insert.py` runs `filmcraft_insert_frame_holds.py` for real on a made-up FilmCraft-shaped project (one 24 fps sequence, one clip with linked sound, an adjustment layer) with an overlay and two sound files made by ffmpeg: the ripple, the links, the tracks and labels, unique ids, two shots in a row, every refusal and the command's one JSON answer. It skips without ffmpeg.
