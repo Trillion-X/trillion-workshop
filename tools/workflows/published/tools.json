@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:b5ba10c5779b0a8b7352103d277a62339ab2a9ff8e73a9c9bbb0761fca8e92aa"
+  "blake3": "1f:e2ed0d17ca1533902c2bcda68f7dbf6acd43e3e07534536cc7738036efb62947"
  },
  "fields": [
   {
@@ -3154,6 +3154,21 @@
      "placement:small-container"
     ],
     "folder": "published-destinations"
+   }
+  },
+  {
+   "id": "tool:find-a-spoken-passage-in-word-times",
+   "values": {
+    "title": "Find where a spoken passage starts and ends in a recording's word times",
+    "job": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+    "description": "Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change. step span: given the passage's first words and last words (and after, a second to search from), answers the start of the first word, the end of the last word and the words between, so a cut lands on word edges; words match ignoring case and punctuation. step sentences: every sentence (ended by . ? or !) whose words start inside from and to, with its start and end. step words-file: writes {source, timing, words} to out, adding offset seconds to every time (a window heard alone). Instead of words, clip names <words_folder>/<clip>.words.json, where words_folder is the person's setting (their list:settings row, named by settings_record); timing and round_to are settings too. It reads only the word-time file and writes only out.",
+    "status": "active",
+    "maker": "maker:find-a-spoken-passage-in-word-times",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "find-a-spoken-passage-in-word-times"
    }
   },
   {
