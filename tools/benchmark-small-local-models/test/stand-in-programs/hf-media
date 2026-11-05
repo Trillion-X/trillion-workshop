@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+"""Stand-in frame tool: hf-media evidence frames <video> --out <folder> --times <json> --max-width <n>, as a media
+tool's frame command takes it. A made-up video holds one line, `<width>x<height> <seconds> <rotation>`; each time it
+holds becomes frame-<index:08d>.png, a file of words naming the video and the time, and manifest.json names which frame
+answers each time (selection.time_requests). A time past the video's seconds gets no frame."""
+import json
+import sys
+from pathlib import Path
+
+args = sys.argv[1:]
+assert args[:2] == ["evidence", "frames"], args
+media = args[2]
+out = Path(args[args.index("--out") + 1])
+times = json.loads(args[args.index("--times") + 1])
+seconds = float(open(media).read().split()[1])
+out.mkdir(parents=True)
+requests = []
+for k, t in enumerate(times):
+    if t <= seconds:
+        (out / f"frame-{k:08d}.png").write_text(f"{Path(media).stem} at {t}")
+        requests.append({"requested_seconds": t, "selected_index": k})
+(out / "manifest.json").write_text(json.dumps({"selection": {"time_requests": requests}}))

@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:57fb262b693bf14970c19ce3e808ea51a9f25da4727c3690819e94d4a10fe760"
+  "blake3": "1f:ee0977c6c645ba87a73f380148243226404f869d50c593706a224b40d8decd00"
  },
  "fields": [
   {
@@ -2008,6 +2008,21 @@
    }
   },
   {
+   "id": "tool:check-takes-are-complete-with-a-small-local-model",
+   "values": {
+    "title": "Check whether my spoken takes are complete with a small model (runs on your computer)",
+    "job": "Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts",
+    "description": "Give transcripts (a folder of word-timed transcript JSON) and model (a decider snapshot). Takes are built from real sentences: as said (usable) or with one controlled fault (not usable), so the labels are true by construction. Returns accuracy, accuracy per fault, and how many it answers and gets right at confidence 0.7, 0.8 and 0.9.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:check-the-facebook-page-connection",
    "values": {
     "title": "Check the Facebook Page connection",
@@ -3078,6 +3093,21 @@
      "placement:your-computer"
     ],
     "folder": "file-spoken-moments-into-topic-buckets"
+   }
+  },
+  {
+   "id": "tool:fill-a-scripts-blanks-with-small-local-models",
+   "values": {
+    "title": "Fill a script template's blanks from sourced phrases with small models on my computer (runs on your computer)",
+    "job": "Fill the blanks of my script template with true, sourced phrases chosen by small models on my computer: gather the phrases, rank them per blank, add the typed candidates, let a model choose, and render the fills with their drift",
+    "description": "make_candidate_pool gathers short phrases with a checkable source (a listing, a site's JSON, git histories, a product name, ages); template_blanks (read-data) reads the template's lines and blanks; rank_pool_for_blanks keeps a cross-encoder's 12 best per blank; make_typed_options adds every candidate of the blank's type; choose_fills_with_decider, judge_filled_lines_with_decider and choose_fills_with_language_model choose; render_choices_as_fills writes the fills (abstaining below a line) through tool:fill-a-template-without-changing-its-words and measures the drift. A blank of type PERSON-LINE is never filled from a pool. Steps: make_candidate_pool, rank_pool_for_blanks, make_typed_options, choose_fills_with_decider, judge_filled_lines_with_decider, choose_fills_with_language_model, render_choices_as_fills.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -5091,6 +5121,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:label-video-frames-with-small-local-models",
+   "values": {
+    "title": "Label frames of my videos with a small model on my computer (runs on your computer)",
+    "job": "Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places",
+    "description": "Give shots (with frames), vocabulary ({field: {value: plain definition}}) and the model. label_frames_with_image_text_model asks each value two ways (bare word, plain definition) of an open_clip model; label_frames_with_vision_decider asks a decider-vision snapshot one lettered question per field (questions, context, mode bare | defined), as a two-round tournament past ten values; label_frames_with_vision_language_model asks an mlx-vlm model for one JSON answer per frame (instruction, phrases for free text); rank_free_text_places ranks every distinct reference phrase per frame two ways. Each answer has meta (load seconds, time per frame, memory) and one row per frame. Steps: label_frames_with_image_text_model, label_frames_with_vision_decider, label_frames_with_vision_language_model, rank_free_text_places.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -7828,6 +7873,21 @@
    }
   },
   {
+   "id": "tool:rank-candidate-clips-for-a-slot-with-small-local-models",
+   "values": {
+    "title": "Rank candidate clips for each slot of my video with a small model (runs on your computer)",
+    "job": "Rank the candidate clips for each slot of my video with a small model on my computer, and see how often its best is the one I would pick",
+    "description": "Give slots (each with its candidates' frames and library text), method (siglip, decider-vision, decider-text, bge-text or qwen3vl) and model; optional reference ({slot: [candidate, best first]}) and reference_name give top1 and top1 within the reference's first three.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:rank-library-formats-against-concepts",
    "values": {
     "title": "Match every video format I have collected to every idea I could film, and keep the best fits",
@@ -7840,6 +7900,21 @@
      "placement:your-computer"
     ],
     "folder": "rank-library-formats-against-concepts"
+   }
+  },
+  {
+   "id": "tool:rank-my-titles-with-a-small-local-model",
+   "values": {
+    "title": "Rank my title ideas with a small model on my computer (runs on your computer)",
+    "job": "Rank my video title ideas by how strongly a small decider model on my computer answers yes to my question about each",
+    "description": "Give titles ({ref: title}), question (your yes/no question) and model (a decider snapshot). P(yes) is used only as a ranking.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -9939,6 +10014,21 @@
    }
   },
   {
+   "id": "tool:sample-shots-and-frames-from-my-format-library",
+   "values": {
+    "title": "Sample shots and their frames from my format library (runs on your computer)",
+    "job": "Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use",
+    "description": "sample_shots_across_groups takes up to N videos round-robin over creators and evenly spaced shots of each (seeded); sample_candidates_for_slots takes, per described slot, candidates of the right kind from different videos; cut_sample_frames and cut_candidate_frames cut each frame at its middle second with frame_tool (an `evidence frames` command) and copy it beside the others. The library is formats/<creator>/<video>/shots.tsv with videos/<video>.mp4. Steps: sample_shots_across_groups, sample_candidates_for_slots, cut_sample_frames, cut_candidate_frames.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:save-a-form",
    "values": {
     "title": "Save a form",
@@ -10225,6 +10315,21 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:score-small-model-labels-against-my-labels",
+   "values": {
+    "title": "Score small models' frame labels against the labels I already have (runs on your computer)",
+    "job": "Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline",
+    "description": "Give shots (the sample, each with reference labels, width and height), vocabulary, labels (the files the label steps wrote), reference_name, unknown, list_separator, thresholds, and optionally shape_field with shape_ratios (the field whose reference is the named ratio nearest the frame's own). Standard library only.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -11861,6 +11966,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:time-a-small-local-decider",
+   "values": {
+    "title": "Time how fast a small decider model loads and answers on my computer (runs on your computer)",
+    "job": "Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds",
+    "description": "Give model (a decider snapshot in the Hugging Face cache) and optionally revision and device. Runs a made-up two-question case four times.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
