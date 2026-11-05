@@ -1050,6 +1050,14 @@
       "source_identity": "1f:fa015b79f2824f5cbbcc9270bacfaacae15644237eedf97bb658e9d657995521",
       "identity": "1f:daa20348c3565b917c12691a2f7817bfa395344b03cd789d30a641b1394b4ba6",
       "adapted": "the old person store is replaced by what it composed (agents with its putCard and listed hooks, makeAis, own-ais retiring) and its migrateOwnAis lines applied in the test; every assertion is kept."
+    },
+    {
+      "from": "test/spend-plan-unavailable.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/spend-plan-unavailable.test.mjs",
+      "source_identity": "1f:8e7e6293e65342cfa7024c6194a173405f4578527c5d4a0fb6958913b1e7dd8e",
+      "identity": "1f:c33193685ade45e7b7f104a2d3c7be1af8316a737e5623a1866baf6d48731301",
+      "adapted": "the data test over src/spend-meter.json is the old one; the four tests of old NativeResourceSpend spendList's plan row are left out: nothing makes the Spend list now."
     }
   ]
 }
