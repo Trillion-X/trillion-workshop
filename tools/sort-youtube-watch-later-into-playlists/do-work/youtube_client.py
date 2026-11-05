@@ -1,15 +1,63 @@
+"""A small YouTube InnerTube client that acts as the signed-in channel of a Netscape cookies.txt. Never prints cookie values.
+
+Ported from launch-video tools/yt-library/ytc.py. The cookies file is the request's (load_cookies), not a fixed path; only
+youtube.com cookies are sent; a channel's account is found by its sign_in_as (client_for); each command answers one JSON
+line (answer).
+"""
+import os, re, json, time, hashlib, sys, urllib.request, urllib.error
 ORIGIN = 'https://www.youtube.com'
 UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 
-def _load():
+
+class Refusal(Exception):
+    """A request this tool cannot do, with what to change."""
+
+
+def read_request():
+    """The JSON request on standard input, or a refusal that says how to send one."""
+    text = sys.stdin.read()
+    try:
+        req = json.loads(text) if text.strip() else None
+    except json.JSONDecodeError as e:
+        raise Refusal(f'the request on standard input is not JSON ({e}): send one JSON object')
+    if not isinstance(req, dict):
+        raise Refusal('send one JSON object on standard input')
+    return req
+
+
+def answer(run):
+    """Run one command: print {"result": ...} or {"error": ...} as the last line (progress lines may come before it)."""
+    try:
+        result = run(read_request())
+    except (Refusal, RuntimeError) as e:
+        print(json.dumps({'error': str(e)}))
+        return 2
+    print(json.dumps({'result': result}, ensure_ascii=False))
+    return 0
+
+
+def _load(path):
+    """The cookies a browser sends to www.youtube.com: those of youtube.com only. A google.com cookie of the same
+    name (SID, HSID, SAPISID ...) holds another value, and sending it instead makes YouTube answer signed out."""
     jar = {}
-    for l in open(COOKIES):
+    try:
+        lines = open(path, encoding='utf8').readlines()
+    except OSError as e:
+        raise Refusal(f'could not read the cookies file {path} ({e.strerror}): export the browser login with tool:export-browser-login-cookies-for-yt-dlp and pass its file as cookies')
+    for l in lines:
         if l.startswith('#HttpOnly_'): l = l[10:]
         f = l.rstrip('\n').split('\t')
-        if len(f) >= 7 and ('youtube.com' in f[0] or 'google.com' in f[0]):
+        if len(f) >= 7 and (f[0] == 'youtube.com' or f[0].endswith('.youtube.com')):
             jar[f[5]] = f[6]
     return jar
-JAR = _load()
+JAR = {}
+def load_cookies(path):
+    """Read the request's cookies file into JAR, the cookies every Client of this run sends."""
+    jar = _load(path)
+    if not (jar.get('SAPISID') or jar.get('__Secure-3PAPISID')):
+        raise Refusal(f'the cookies file {path} holds no YouTube sign-in (no SAPISID): sign in to YouTube in the browser, then export its login again')
+    JAR.clear(); JAR.update(jar)
+    return JAR
 def cookie_header():
     return '; '.join(f'{k}={v}' for k, v in JAR.items())
 def sapisidhash(origin=ORIGIN):
@@ -32,13 +80,18 @@ class Client:
     def bootstrap(self):
         req = urllib.request.Request(f'{ORIGIN}/?authuser={self.authuser}', headers={'User-Agent': UA, 'Cookie': cookie_header()})
         html = urllib.request.urlopen(req, timeout=30).read().decode('utf8', 'replace')
-        self.key = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', html).group(1)
-        ver = re.search(r'"INNERTUBE_CLIENT_VERSION":"([^"]+)"', html).group(1)
+        try:
+            self.key = re.search(r'"INNERTUBE_API_KEY":"([^"]+)"', html).group(1)
+            ver = re.search(r'"INNERTUBE_CLIENT_VERSION":"([^"]+)"', html).group(1)
+        except AttributeError:
+            raise Refusal('YouTube\'s page held no InnerTube key: the page shape changed or the request was blocked; try again later')
         self.ctx = {'client': {'clientName': 'WEB', 'clientVersion': ver, 'hl': 'en', 'gl': 'US'}}
         vd = re.search(r'"VISITOR_DATA":"([^"]+)"', html)
         if vd: self.ctx['client']['visitorData'] = vd.group(1)
         self.sess_idx = re.search(r'"SESSION_INDEX":"?(\d+)', html)
         return html
+    def signed_in(self):
+        return re.findall(r'"LOGGED_IN":(\w+)', self.bootstrap()) == ['true']
     def call(self, endpoint, body, retries=5):
         if not self.ctx: self.bootstrap()
         body = dict(body); ctx = json.loads(json.dumps(self.ctx))
@@ -56,6 +109,24 @@ class Client:
             except Exception:
                 if a == retries - 1: raise
                 time.sleep(3 * (a + 1))
+
+
+def client_for(cookies, ch, most=8):
+    """A client for one channel of the settings or the plan. The account number (authuser) a browser gives an account
+    changes as accounts sign in and out, so a channel naming sign_in_as (the account's email or its channel handle) is
+    found by it each run; without it, authuser is used as given."""
+    load_cookies(cookies)
+    who = ch.get('sign_in_as')
+    if not who:
+        return Client(ch.get('authuser', 0), ch.get('page_id'))
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from list_signed_in_accounts import account_at
+    for n in range(most):
+        acct = account_at(n)
+        if acct.get('email') == who or acct.get('handle') == who:
+            return Client(n, ch.get('page_id'))
+    raise Refusal(f'no account signed in to this browser login has the email or handle the settings name (sign_in_as) for channel {ch.get("slug")}: sign it in to YouTube in the browser, export the login again, or correct sign_in_as')
+
 
 def walk(o, key):
     if isinstance(o, dict):
@@ -94,6 +165,7 @@ def _tokens(r):
             if t: toks.append(t)
     return toks[:1]
 def playlist_items(c, browse_id, limit=None):
+    """Every video of a playlist (VLWL is Watch Later), page by page; with the header and the last page read."""
     out = []; r = c.call('browse', {'browseId': browse_id})
     header = r.get('header') or {}
     while True:

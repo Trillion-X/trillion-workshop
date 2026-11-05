@@ -1,0 +1,172 @@
+{
+  "kind": "package-set-records",
+  "record_set": "sort-youtube-watch-later-into-playlists-tool-rows",
+  "what_this_is": "The Workshop rows for the sort-youtube-watch-later-into-playlists folder: find which YouTube accounts a browser login holds, read a signed-in channel's Watch Later, subscriptions and playlists, plan which public playlist each Watch Later video goes in from the person's sort settings, make those playlists by only adding videos, and check what was made.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:plan-sorting-youtube-watch-later-into-playlists",
+        "label": "Plan which playlist each Watch Later video goes in",
+        "job": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
+        "description": "Places each video of one or more channels' Watch Later into the playlists the person's sort settings name, and writes nothing to YouTube. A channel is sorted by rules (a channel-name expression scores 3, a strong title expression 3, a weak one 1; a video goes to every playlist scoring 3 or more, at most max_per_video, else to its best weak match marked low confidence; titles matching hold_back are kept off public playlists with hold_back_reason) or by hand-made lists kept in their order. Within a rules playlist, videos are ordered by views, highest first. The answer is the plan and a summary per channel; with out_dir it also writes sort-plan.json and SORT-PLAN.md, the page to show the person before anything is made.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "anyOf": [{ "required": ["settings_record"] }, { "required": ["settings"] }],
+          "properties": {
+            "settings_record": {
+              "type": ["object", "string"],
+              "description": "The person's sort settings row, record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their list:settings, exactly as the door's records:read answers it ({id, type: \"record:setting\", value: {name, tool, scope_kind, scope_id, settings, from, status}}), or the path of a JSON file holding it. Read and checked by the shared reader in tools/settings; its settings field holds what settings would."
+            },
+            "settings": {
+              "type": "object",
+              "required": ["channels"],
+              "description": "The sort settings inline, for a sample run or a test, when no settings_record is given: {\"channels\": [{\"slug\", \"label\", \"email\", \"sign_in_as\", \"authuser\", \"page_id\", \"sort\": \"rules\"|\"hand-made\", \"rules\": {\"max_per_video\", \"hold_back\", \"hold_back_reason\", \"rules\": [{\"key\", \"title\", \"description\", \"channels\", \"strong\", \"weak\"}]}, \"playlists\": [{\"key\", \"title\", \"description\", \"videos\": [[video id, reason]]}]}]}. A channel without sort is only read, never sorted.",
+              "properties": { "channels": { "type": "array", "items": { "type": "object", "required": ["slug", "label"] } } }
+            },
+            "watch_later": { "type": "object", "description": "{slug: [videos]} for each sorted channel, each video {id, url, title, channel, views}, as read_channel.py writes them." },
+            "accounts_dir": { "type": "string", "description": "A folder holding <slug>/watch-later.json, used for a channel watch_later does not give." },
+            "out_dir": { "type": "string", "description": "Where to write sort-plan.json and SORT-PLAN.md; without it the plan is in the answer." },
+            "generated": { "type": "string", "description": "The time the plan says it was made (default: now)." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["summary"],
+          "properties": {
+            "summary": { "type": "array", "items": { "type": "object", "required": ["channel", "watch_later", "unsorted", "held_back", "playlists"] } },
+            "plan": { "type": "object", "required": ["generated", "accounts"] },
+            "plan_file": { "type": "string" },
+            "plan_page": { "type": "string" }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "workdir": "/opt/sort-youtube-watch-later-into-playlists",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["python3", "/opt/sort-youtube-watch-later-into-playlists/do-work/plan_sort.py"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "sort-youtube-watch-later-into-playlists", "paths": ["do-work", "read-data"], "at": "/opt/sort-youtube-watch-later-into-playlists" },
+              { "package": "settings", "paths": ["read-data/read_setting.py"], "at": "/opt/settings" }
+            ]
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings": {
+                "channels": [
+                  {
+                    "slug": "kitchen",
+                    "label": "Kitchen Channel",
+                    "sort": "rules",
+                    "rules": {
+                      "max_per_video": 2,
+                      "hold_back": "(Secret Recipe)",
+                      "hold_back_reason": "kept off public playlists",
+                      "rules": [
+                        { "key": "bread", "title": "Bread Baking", "description": "Loaves.", "channels": "^(Crumb Club)", "strong": "(sourdough)", "weak": "(flour)" }
+                      ]
+                    }
+                  },
+                  { "slug": "watch-only", "label": "Watch Only" }
+                ]
+              },
+              "watch_later": {
+                "kitchen": [
+                  { "id": "v1", "url": "https://www.youtube.com/watch?v=v1", "title": "Easy sourdough", "channel": "Crumb Club", "views": "1K views" },
+                  { "id": "v2", "url": "https://www.youtube.com/watch?v=v2", "title": "Which flour", "channel": "Someone", "views": "10 views" },
+                  { "id": "v3", "url": "https://www.youtube.com/watch?v=v3", "title": "The Secret Recipe", "channel": "Someone", "views": "5 views" }
+                ]
+              },
+              "generated": "2026-01-01T00:00:00"
+            }
+          }
+        ],
+        "result_selector": "$.result",
+        "maker": "maker:sort-youtube-watch-later-into-playlists",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-youtube-watch-later-and-playlists",
+        "label": "Read my YouTube Watch Later, subscriptions and playlists (runs on your Mac)",
+        "job": "Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels",
+        "description": "Acts as each signed-in channel the request names (brand channels too, by page_id) through YouTube's own web API, with the browser login tool:export-browser-login-cookies-for-yt-dlp wrote, and writes <out_dir>/<slug>/watch-later.json, subscriptions.json and playlists.json. A channel naming sign_in_as (its account's email or channel handle) is found by it each run, since the account number a browser gives an account changes as accounts sign in and out. Reads only; never changes YouTube. Also tells which accounts the login holds (list_signed_in_accounts.py) and whether it is still signed in.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["cookies", "out_dir"],
+          "properties": {
+            "cookies": { "type": "string", "description": "The cookies.txt tool:export-browser-login-cookies-for-yt-dlp wrote, put where {request} is." },
+            "channels": { "type": "array", "items": { "type": "object", "required": ["slug", "label"] }, "description": "The channels to read: slug, label, sign_in_as or authuser, page_id. Without it, every channel of settings_record (or inline settings) is read." },
+            "settings_record": { "type": ["object", "string"], "description": "The person's sort settings row record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> from their list:settings, as the door read it, or a JSON file holding it." },
+            "settings": { "type": "object", "description": "The sort settings inline, when neither channels nor settings_record is given." },
+            "out_dir": { "type": "string" },
+            "only": { "type": "array", "items": { "type": "string" }, "description": "Read only these slugs." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {\"channels\": [{\"slug\", \"watch_later\", \"subscriptions\", \"playlists\", \"folder\"}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/read_channel.py < {request}",
+          "needs": ["python", "a YouTube browser login exported by tool:export-browser-login-cookies-for-yt-dlp"],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and acts as their signed-in YouTube channels, so it reads only. Read the person's sort settings row (record:setting:sort-youtube-watch-later-into-playlists~person~<them>, list:settings) through their door and put it in the request as settings_record with the cookies file and a private out_dir, as one JSON file named where {request} is. First run do-work/list_signed_in_accounts.py with {\"cookies\"}: when signed_in is false, export the login again with tool:export-browser-login-cookies-for-yt-dlp, wait about 20 seconds and check again a few times before asking the person to sign in to YouTube in that browser. Read the last line: { result } gives each channel's counts; { error } says what to change. The files hold the person's lists: keep them private."
+        },
+        "maker": "maker:sort-youtube-watch-later-into-playlists",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-youtube-playlists-from-a-sort-plan",
+        "label": "Make the planned public playlists on YouTube (runs on your Mac)",
+        "job": "Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+        "description": "Creates each playlist of a plan from tool:plan-sorting-youtube-watch-later-into-playlists as a public playlist on the same channel, with its description, and adds its videos in batches. It never removes a video and never changes Watch Later. A playlist already on the channel with the same title is reused, never duplicated. What was made is kept in applied_file and each playlist is read back before adding, so running it again adds only what is missing; a recorded playlist that reads back empty stops the run, so a lost sign-in cannot add videos twice. Then verify_sort.py checks each playlist holds the planned number of videos and anyone can see it, that each Watch Later is unchanged, and writes verification.json, INDEX.md and a table of every Watch Later video with its playlists.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["cookies", "plan_file", "applied_file"],
+          "properties": {
+            "cookies": { "type": "string" },
+            "plan_file": { "type": "string", "description": "sort-plan.json from the plan row." },
+            "applied_file": { "type": "string", "description": "Where what was made is kept (read, then updated)." },
+            "only_slug": { "type": "string" },
+            "only_title": { "type": "string" },
+            "limit_playlists": { "type": "integer" },
+            "batch": { "type": "integer", "description": "Videos per add (default 25)." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {\"playlists\": [{\"slug\", \"title\", \"id\", \"created\", \"reused\", \"planned\", \"added_now\"}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": ["clone the Workshop repository (package.json repository.url)"],
+          "run": "python3 -I tools/sort-youtube-watch-later-into-playlists/do-work/apply_sort.py < {request}",
+          "needs": ["python", "a YouTube browser login exported by tool:export-browser-login-cookies-for-yt-dlp", "a plan the person has read"],
+          "say": "This publishes playlists on the person's channels, so show them SORT-PLAN.md and ask before running it; held-back and low-confidence videos are marked there. Run it from the root of the Workshop checkout with one JSON request file named where {request} is. Try one playlist first with limit_playlists 1 or only_title. Read the last line: { result } names each playlist and how many videos were added now; { error } says what to change. Then run do-work/verify_sort.py with {cookies, plan_file, applied_file, accounts_dir} and show the person INDEX.md and any problems."
+        },
+        "maker": "maker:sort-youtube-watch-later-into-playlists",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    }
+  ]
+}
