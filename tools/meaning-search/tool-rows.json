@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "meaning-search-tool-rows",
-  "what_this_is": "The Workshop rows for tools/meaning-search: the package's find-similar-vector and find-similar actions, run on the person's own index descriptor and vector set.",
+  "what_this_is": "The Workshop rows for tools/meaning-search: the package's find-similar-vector and find-similar actions on the person's own index descriptor and vector set, the same question over several descriptors, the words said in a set's lines, and the builders of a vector set.",
   "records": [
     {
       "payload": {
@@ -165,6 +165,498 @@
             "model: CLIP ViT-B-32 with the openai weights (MIT licence; open_clip downloads them on first run)"
           ],
           "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, ask which folder of videos (add --pattern '*.MP4' to take only some files, --lut FILE.cube when the footage is log, --proxy '{dir}/../SUB/{stem}S03.MP4' or the like when the camera wrote smaller copies, --every N for a frame every N seconds), run `run`, and tell the person how many frames were added. It can run for hours on a large card; run it again to go on. Then put vector-set.json's vector_set, with the model it names, into a semantic-index-descriptor record of theirs and search it with tool:find-similar-to-a-vector (words become a query vector through tool:words-as-picture-vector). If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:meaning-search",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "ffmpeg and open_clip (https://github.com/mlfoundations/open_clip) CLIP ViT-B-32 openai weights"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-closest-across-my-indexes",
+        "label": "Find what is closest to a vector across several of my indexes",
+        "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
+        "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "index_ids",
+            "query_vector_base64"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "index_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "The index_id of each of the person's semantic-index-descriptor records to search together"
+            },
+            "query_vector_base64": {
+              "type": "string",
+              "minLength": 1,
+              "description": "base64 of JSON {\"vector\": [...]}, made by the model the descriptor names"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "At most this many items; the descriptor's result_limit caps it"
+            },
+            "spread": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "per_file"
+              ],
+              "description": "Keep one recording from filling the answer: best first, an item is set aside when its file already has per_file items in the answer or one closer than seconds_apart to it (an item with no time counts once per file). The package ranks up to the descriptor's result_limit, then the answer is cut to limit; result.spread says how many were set aside.",
+              "properties": {
+                "per_file": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "seconds_apart": {
+                  "type": "number",
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "index_ids",
+            "result",
+            "points_to"
+          ],
+          "properties": {
+            "index_ids": {
+              "type": "array"
+            },
+            "model_id": {
+              "type": "string"
+            },
+            "model_version": {
+              "type": "string"
+            },
+            "result": {
+              "type": "object",
+              "required": [
+                "items"
+              ],
+              "properties": {
+                "items": {
+                  "type": "array"
+                }
+              }
+            },
+            "points_to": {
+              "type": "object"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/meaning-search",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/meaning-search/read-data/meaning-search.mjs",
+            "findSimilarAcross"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "meaning-search",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/meaning-search"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "semantic-index-descriptor",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "read_file"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false,
+          "memory_mb": 2048
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:meaning-search",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "index_ids": [
+                "synthetic-a",
+                "synthetic-b"
+              ],
+              "query_vector_base64": "eyJ2ZWN0b3IiOlsxLDAsMCwwXX0="
+            },
+            "door_files": {
+              "/Sets/a.jsonl": "",
+              "/Sets/b.jsonl": ""
+            },
+            "records": [
+              {
+                "id": "semantic-index-descriptor:synthetic-a",
+                "type": "semantic-index-descriptor",
+                "value": {
+                  "kind": "semantic-index-descriptor",
+                  "index_id": "synthetic-a",
+                  "model_id": "synthetic-picture-model",
+                  "model_version": "1",
+                  "model_endpoint": "http://127.0.0.1:9",
+                  "descriptor_revision": "1f:0000000000000000000000000000000000000000000000000000000000000000",
+                  "model_provenance_ref": "model:synthetic-picture-model@1",
+                  "min_score": 0,
+                  "result_limit": 3,
+                  "ann_params": {
+                    "hyperplane_count": 2,
+                    "table_count": 4,
+                    "seed": 7,
+                    "candidate_limit": 100
+                  },
+                  "vector_set": {
+                    "items": {
+                      "file": "/Sets/a.jsonl"
+                    },
+                    "points_to": {
+                      "file": "clip",
+                      "start": "t"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "semantic-index-descriptor:synthetic-b",
+                "type": "semantic-index-descriptor",
+                "value": {
+                  "kind": "semantic-index-descriptor",
+                  "index_id": "synthetic-b",
+                  "model_id": "synthetic-picture-model",
+                  "model_version": "1",
+                  "model_endpoint": "http://127.0.0.1:9",
+                  "descriptor_revision": "1f:0000000000000000000000000000000000000000000000000000000000000000",
+                  "model_provenance_ref": "model:synthetic-picture-model@1",
+                  "min_score": 0,
+                  "result_limit": 3,
+                  "ann_params": {
+                    "hyperplane_count": 2,
+                    "table_count": 4,
+                    "seed": 7,
+                    "candidate_limit": 100
+                  },
+                  "vector_set": {
+                    "items": {
+                      "file": "/Sets/b.jsonl"
+                    },
+                    "points_to": {
+                      "file": "clip",
+                      "start": "t"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-words-said-in-my-recordings",
+        "label": "Find the lines my recordings say, by their words",
+        "job": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
+        "description": "Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked). Needs no model: it matches the words themselves, where tool:find-similar-by-meaning matches what they mean. Returns index_ids and lines: each line's address, file, start, end, text and any field the descriptor's points_to.carry names.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "index_ids",
+            "query_text"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "index_ids": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "description": "The index_id of each of the person's semantic-index-descriptor records to search together"
+            },
+            "query_text": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The words to look for; every word longer than two letters must be in a line"
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "At most this many lines (8 when none is asked)"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "index_ids",
+            "lines"
+          ],
+          "properties": {
+            "index_ids": {
+              "type": "array"
+            },
+            "lines": {
+              "type": "array"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/meaning-search",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/meaning-search/read-data/meaning-search.mjs",
+            "findWordsSaid"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "meaning-search",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/meaning-search"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "semantic-index-descriptor",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "read_file"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false,
+          "memory_mb": 2048
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:meaning-search",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "index_ids": [
+                "synthetic-said"
+              ],
+              "query_text": "made-up words"
+            },
+            "door_files": {
+              "/Sets/said.jsonl": "{\"clip\": \"/Clips/made-up.m4a\", \"t\": 0, \"text\": \"some made-up words here\"}\n"
+            },
+            "contains": "some made-up words here",
+            "records": [
+              {
+                "id": "semantic-index-descriptor:synthetic-said",
+                "type": "semantic-index-descriptor",
+                "value": {
+                  "kind": "semantic-index-descriptor",
+                  "index_id": "synthetic-said",
+                  "model_id": "synthetic-picture-model",
+                  "model_version": "1",
+                  "model_endpoint": "http://127.0.0.1:9",
+                  "descriptor_revision": "1f:0000000000000000000000000000000000000000000000000000000000000000",
+                  "model_provenance_ref": "model:synthetic-picture-model@1",
+                  "min_score": 0,
+                  "result_limit": 3,
+                  "ann_params": {
+                    "hyperplane_count": 2,
+                    "table_count": 4,
+                    "seed": 7,
+                    "candidate_limit": 100
+                  },
+                  "vector_set": {
+                    "items": {
+                      "file": "/Sets/said.jsonl"
+                    },
+                    "points_to": {
+                      "file": "clip",
+                      "start": "t",
+                      "text": "text"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+        "label": "Make a searchable set from picture vectors another program kept (runs on your computer)",
+        "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
+        "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float16, normalised) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "For matrix: the .npy file. For results-db: the results store file. Put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder of the vector set, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"items\", \"out\"}}. {output}/vector-set.json holds the vector_set member for the descriptor."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy"
+          ],
+          "run": "python3 trillion-workshop/tools/meaning-search/do-work/make_vector_set_from_kept_vectors.py --asset-index {input} --out {output}",
+          "needs": [
+            "python"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Give each store they keep: --asset-index (a folder of clip-video-embeddings.npy, clip-video-ids.json, clip-embeddings.npy, clip-ids.json and assets.jsonl), --ssd-index (frames.npy and frames.jsonl), --expansion-results (an app's results store of timed frames) and --namespace (a namespace store, so each Expansion item carries its b2 id); --kind video, image or all. Each store becomes its own set in --out. The model of the vectors must be the one the person's search words are turned into vectors with (tool:words-as-picture-vector); say which model the descriptor names. Then put each vector-set.json's vector_set, with that model, into a semantic-index-descriptor record of theirs and make the two files readable to their AI through their files. If you cannot run commands, give them these steps."
         },
         "maker": "maker:meaning-search",
         "licence_class": "licence:maker-own",
