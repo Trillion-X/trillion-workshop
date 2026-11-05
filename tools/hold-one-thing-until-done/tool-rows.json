@@ -481,7 +481,21 @@
         "provenance": {
           "source": "trillion src/needs-you-hold.mjs setAside, handBack, chooseStake, askOff and turnOn, moved here; the write path the Rust engine dropped (trillion-rust d77e5f6)"
         },
-        "verify": [{"kind": "sample-run", "input": {"change": "turn-on", "request_key": "sample-turn-on", "rules": {"after_minutes": 0}, "now": "2026-01-01T00:00:00.000Z"}, "output_selector": "$.changed", "contains": "true"}]
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "change": "turn-on",
+              "request_key": "sample-turn-on",
+              "rules": {
+                "after_minutes": 0
+              },
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "output_selector": "$.changed",
+            "contains": "true"
+          }
+        ]
       }
     },
     {
@@ -497,7 +511,7 @@
         "label": "Answer the page that shows the one thing that holds me",
         "status": "active",
         "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
-        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when it changed meanwhile), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; a refused change answers 400 { error }. Any other path or method answers 404.",
+        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when it changed meanwhile), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -545,6 +559,47 @@
                   "read-data"
                 ],
                 "at": "/opt/hold-one-thing-until-done"
+              },
+              {
+                "package": "tell-one-person-something-through-every-way-they",
+                "paths": [
+                  "read-data/tell-the-person.mjs",
+                  "read-data/tell-the-person.json",
+                  "read-data/tell-quiet-hours.json",
+                  "read-data/glance-feeds.json"
+                ],
+                "at": "/opt/tell-one-person-something-through-every-way-they"
+              },
+              {
+                "package": "tell-the-person-something-on-all-of-their-own-phones-computers",
+                "paths": [
+                  "src/tell-devices.mjs"
+                ],
+                "at": "/opt/tell-the-person-something-on-all-of-their-own-phones-computers"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/workspace/screens.mjs",
+                  "src/web-push.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "hand-off-jobs-between-agents",
+                "paths": [
+                  "src/workspace/addresses.mjs",
+                  "src/workspace/view-transition.mjs"
+                ],
+                "at": "/opt/hand-off-jobs-between-agents"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "src/workspace/surfaces.json",
+                  "records/workshop-screen-tool-records.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
               {
                 "package": "records-door",
@@ -604,6 +659,14 @@
               },
               {
                 "kind": "setting",
+                "id": "setting:needs_you_held",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "setting",
                 "id": "setting:needs_you_hold_rules",
                 "operations": [
                   "records:read"
@@ -618,6 +681,26 @@
               {
                 "kind": "ai-job",
                 "prefix": "ai-job:hold-",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "id": "told-the-person",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "prefix": "told-the-person:",
                 "operations": [
                   "records:write"
                 ]

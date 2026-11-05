@@ -28,7 +28,8 @@ Covers a person's workspace until every required setup step is done, then holds 
 | `do-work/needs-you-hold-route.mjs` | `answerNeedsYouHoldRoute`, `tool:answer-the-needs-you-hold-route`: the page routes GET and POST /work/api/needs-you-hold as a route tool (`{ path, method, query, body, browser }` in, `{ status, body }` out), answering as old trillion's needsYouHold did (src/worker.mjs:1100-1121, src/native-waiting-account-owner.mjs): the read with `said` and `words` (503 busy when it fails), each change by its old op name (aside, hand_back, stake, off, on; seen; read) with the read after it, and each job kept once as an `ai-job` for the person's AIs. Contract: `ports/needs-you-hold-route.json`. |
 | `part.json` | The public modules |
 | `tool-rows.json` | The three Workshop rows |
-| `test/needs-you-hold-route.test.mjs` | The route tool against the records door stand-in: the read and its words, free, busy, a change with its job handed once, refusals (400), a conflict (409), seen, 404. |
+| `test/needs-you-hold-route.test.mjs` | The route tool against the records door stand-in: the read and its words, free, busy, a change with its job handed once, refusals (400), a conflict (409), the held thing kept, seen marking notices read (with old trillion's phone-tap test), 404. |
+| `test/needs-you-hold-old.test.mjs` | Old trillion's test/needs-you-hold.test.mjs, the tests whose subject is here, assertions unchanged; its header names where the others run |
 | `test/hold.test.mjs` | The cover, ranking, each change, a conflict, a resent change, refusals and each row's sample run in the container (made-up rows) |
 
 ## The rows
@@ -38,11 +39,13 @@ Covers a person's workspace until every required setup step is done, then holds 
 | `tool:see-what-holds-me` | `seeWhatHoldsMe` | `{ cover: { covered, key }, hold }`: whether setup still covers everything, and the one row held (nothing is held while the cover stands) |
 | `tool:change-what-holds-me` | `changeWhatHoldsMe` | `set-aside`, `hand-back`, `choose-stake`, `turn-off` or `turn-on`, written on condition; answers the jobs to hand |
 
-## The page route: what it does not do yet
+## The page route: what it does and does not do
 
-Old trillion's needsYouHold also did these, and this route tool does not:
+Like old trillion's needsYouHold, the route keeps the held thing as `setting:needs_you_held` (`{ key, title }`, null when nothing is held, written only when it changed), and `seen` marks read the notices the held thing's own device runs told (each `hold.devices.when_held` run whose input `key` names the thing), on the page's surface with `from: 'thing'`. It marks them with the moved tell owner's `markRead` (tools/tell-one-person-something-through-every-way-they) over the person's `told-the-person` records.
 
-- It read the hold's cards from the whole Waiting on you answer (every source of src/waiting-on-you.json). This route reads the person's own Waiting on you rows (`record:waiting-on-you`) only.
-- Before it read, it handed things the person walked away from to their AIs (src/waiting-nudge.mjs `prepareForHold`).
-- It kept the held thing as `needs_you_held` and ran the person's device tools when that changed (`hold.devices`).
-- On `seen`, it marked the held thing's notices read through tell-the-person.
+Old needsYouHold also did three things this route cannot, each for an exact reason:
+
+- **The cards.** Old trillion read them from the whole Waiting on you answer (src/native-waiting-account-owner.mjs `waiting`, every source of src/waiting-on-you.json). This route reads the person's own Waiting on you rows (`record:waiting-on-you`) only. The rest of that answer is not a route run's to read: see the waiting-on-you notes in the lane report (shared-space assignments through the network relay, stuck work on the agents board, connections needing the person, social posts, voices and their Namespace clip searches, and what the AIs made).
+- **The walk-away nudge** (src/waiting-nudge.mjs `prepareForHold`) weighs that whole answer's sections and their `step` DATA, so it waits for the whole answer.
+- **The device tools** of `hold.devices` (`when_held`: tool:hold-a-device-quiet, tool:take-me-there; `when_free`: tool:release-a-device) are other Workshop tools. A run's capability holds only the records door's `run_operations` (trillion-rust src/record_value/records-routes.json: records:read, records:list, records:search, records:write, workspace:read, workspace:write, sharing.receive, wake:switch, wake:causes), and none of them starts another tool's run (`tools:run` at `@workshop-tools`).
+- A notice's delivery receipt (old `tell-delivery:<key>`, a Workshop fact) is not a record, so a read mark does not reach it.

@@ -8,6 +8,8 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
 import { answerNeedsYouHoldRoute } from '../do-work/needs-you-hold-route.mjs';
+import { makeTellThePerson } from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs';
+import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
 
 const ROWS = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8'));
 const ROUTE = rowOf(ROWS, 'tool:answer-the-needs-you-hold-route');
@@ -78,12 +80,63 @@ test('a refused change answers 400 with its words and writes nothing', async () 
   assert.match(unknown.result.body.error, /Say what to do/);
 });
 
-test('seen names the held thing and changes nothing; read is the read', async () => {
+test('the read keeps the held thing as setting:needs_you_held, written again only when it changed', async () => {
+  const run = await answerOf(ROUTE, page('GET'), { records: PERSON });
+  const held = run.kept.find(record => record.id === 'setting:needs_you_held');
+  assert.deepEqual(held.value.value, { key: 'record:waiting-on-you:sign-in', title: 'Sign in to the sample service' });
+  const writes = [];
+  const kept = new Map(run.kept.map(record => [record.id, record]));
+  const door = {
+    readRecord: async (type, id) => { const record = kept.get(id); return record ? { type: record.type, value: record.value } : null; },
+    list: async function* ({ type }) { for (const record of kept.values()) if (record.type === type) yield record; },
+    write: async records => { writes.push(records); },
+  };
+  const again = await answerNeedsYouHoldRoute(page('GET'), { door, now: () => NOW });
+  assert.equal(again.status, 200);
+  assert.deepEqual(writes, [], 'the same thing held is not written again');
+  const free = await answerOf(ROUTE, page('GET'), { records: [PERSON[0], held] });
+  assert.equal(free.kept.find(record => record.id === 'setting:needs_you_held').value.value, null, 'nothing held any more is kept as null');
+});
+
+test('seen marks read the notices the held thing\'s device runs told, on this page, from the thing; read is the read', async () => {
+  const rules = { ...RULES, devices: { when_held: [{ tool_id: 'tool:hold-a-device-quiet', input: { id: 'needs-you-hold' } }, { tool_id: 'tool:take-me-there', input: { thing: '{key}', key: 'hold:{key}' } }] } };
+  const told = (seq, key) => ({ id: `told-the-person:${seq}`, type: 'told-the-person', value: { item: { seq, key, kind: 'update', title: `Sample ${seq}`, at: '2026-01-10T11:00:00.000Z', results: { 'in-app': { sent: true, said: 'Shown in Trillion.' } } } } });
+  const records = [setting('setting:needs_you_hold_rules', rules), ...PERSON.slice(1),
+    { id: 'told-the-person', type: 'told-the-person', value: { seqs: [1, 2] } }, told(1, 'hold:record:waiting-on-you:sign-in'), told(2, 'another')];
+  const run = await answerOf(ROUTE, page('POST', { op: 'seen', key: 'record:waiting-on-you:sign-in', device_id: 'browser-sample' }), { records });
+  assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
+  assert.equal(run.result.body.seen, 'record:waiting-on-you:sign-in');
+  assert.deepEqual(run.result.body.read.map(item => item.ids), [['told:1']], 'only the take-me-there notice names the thing');
+  const one = run.kept.find(record => record.id === 'told-the-person:1').value.item;
+  assert.equal(one.read, true);
+  assert.deepEqual({ ...one.read_on, at: undefined }, { channel: 'in-app', device_id: 'browser-sample', from: 'thing', at: undefined });
+  assert.equal(run.kept.find(record => record.id === 'told-the-person:2').value.item.read, undefined, 'another notice stays as it was');
   const door = { readRecord: () => { throw new Error('read'); } };
-  assert.deepEqual(await answerNeedsYouHoldRoute(page('POST', { op: 'seen', key: 'thing-1' }), { door }), { status: 200, body: { seen: 'thing-1', read: [] } });
   assert.deepEqual(await answerNeedsYouHoldRoute(page('POST', { op: 'seen' }), { door }), { status: 200, body: { seen: null, read: [] } });
-  const run = await answerOf(ROUTE, page('POST', { op: 'read' }), { records: PERSON });
-  assert.equal(run.result.body.said, 'Holding: Sign in to the sample service');
+  const read = await answerOf(ROUTE, page('POST', { op: 'read' }), { records: PERSON });
+  assert.equal(read.result.body.said, 'Holding: Sign in to the sample service');
+});
+
+// Old trillion test/needs-you-hold.test.mjs 'a tap on the phone's notice is where the held thing was seen, even when the
+// page it brought forward said so first', on the route: the page's seen marks it read from the thing; the phone's own
+// read on a way that carried it replaces that surface; a later seen on another page moves nothing.
+test('a tap on the phone\'s notice is where the held thing was seen, even when the page it brought forward said so first', async () => {
+  const rules = { ...RULES, devices: { when_held: [{ tool_id: 'tool:take-me-there', input: { thing: '{key}', key: 'hold:{key}' } }] } };
+  const notice = { seq: 1, key: 'hold:asks:mom', kind: 'update', title: 'Reply to Mom', at: '2026-01-10T11:00:00.000Z',
+    results: { 'in-app': { sent: true, said: 'Shown in Trillion.' }, phone: { sent: true, said: 'Sent.' } } };
+  let records = [setting('setting:needs_you_hold_rules', rules),
+    { id: 'told-the-person', type: 'told-the-person', value: { seqs: [1] } }, { id: 'told-the-person:1', type: 'told-the-person', value: { item: notice } }];
+  const item = () => records.find(record => record.id === 'told-the-person:1').value.item;
+  records = (await answerOf(ROUTE, page('POST', { op: 'seen', key: 'asks:mom', device_id: 'd-page-in-app' }), { records })).kept;
+  assert.equal(item().read_on.from, 'thing');
+  // The phone's own read, as the moved owner keeps it.
+  let notices = [item()];
+  const tell = makeTellThePerson({ rows: tellRows, senders: {}, store: { choices: () => null, notices: () => notices, putNotices: list => { notices = list; } } });
+  tell.markRead({ ids: ['told:1'], on: { channel: 'phone', device_id: 'apns-phone-1' } });
+  assert.deepEqual([notices[0].read_on.channel, notices[0].read_on.device_id, notices[0].read_on.from], ['phone', 'apns-phone-1', undefined]);
+  records = records.map(record => (record.id === 'told-the-person:1' ? { ...record, value: { item: notices[0] } } : record));
+  records = (await answerOf(ROUTE, page('POST', { op: 'seen', key: 'asks:mom', device_id: 'd-page-2' }), { records })).kept;
+  assert.equal(item().read_on.device_id, 'apns-phone-1');
 });
 
 test('a hold setting changed between the read and the write answers 409 and hands nothing', async () => {
