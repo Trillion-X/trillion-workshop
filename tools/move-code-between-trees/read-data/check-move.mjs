@@ -119,6 +119,10 @@ export function checkMove({ sources, destinationFolder, sourceAfterFolder, folde
           const reached = resolveRequest(file.to, is[at].specifier, destinationExists);
           if (target && (expected ? !expected.includes(reached) : reached !== null)) problems.push(`${file.to}: ${is[at].specifier} reaches ${reached ?? 'nothing'}, where ${file.from} reached ${target} (now ${expected?.join(' or ') ?? 'not moved'})`);
         }
+      } else if (file.calls?.length) {
+        // A data file with calls (a made-up name for a real one in a public tree) is its source once those calls are swapped.
+        const swapped = swapCalls(before.toString('utf8'), (receipt.calls ?? []).filter(row => file.calls.includes(row.id))).text;
+        if (swapped !== now.toString('utf8')) problems.push(`${file.to} differs from ${file.from} beyond its swapped calls`);
       } else if (!now.equals(before)) problems.push(`${file.to} differs from ${file.from}`);
       if (sourceAfterFolder && existsSync(join(sourceAfterFolder, file.from))) problems.push(`${file.from} is still in the source: two copies`);
     }
