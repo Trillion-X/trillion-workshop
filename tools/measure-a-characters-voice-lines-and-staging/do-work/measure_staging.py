@@ -1,10 +1,24 @@
+"""Staging around the character's turns, measured from a video's picture rhythm and sound timeline
+(<youtube_folder>/measure/<id>/rhythm.json and earshot-timeline.txt):
+- is there a picture cut within 0.5 s of the turn start (the cutaway to the character or the head turn)?
+- median shot length inside the character's exchanges vs the rest of the episode
+- do the music stop-downs (earshot GAP lines) cluster just before the character's turns (within 2 s) vs chance?
+One JSON request on standard input: {ids, data_folder, youtube_folder}; the turns are <data_folder>/voice/<id>.turns.json
+(do-work/find_voice.py). Prints one row per id and adds or updates them in <data_folder>/staging.tsv; {"result": ...}
+is the last line printed."""
+import os, sys, json, re, statistics, csv
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'read-data'))
+from shared import request, needed, answer
+req, s = request([])
+D, YT, IDS = needed(req, 'data_folder', 'youtube_folder', 'ids')
+M = os.path.join(YT, 'measure')
 def ts(s):
     p = s.split(':'); return float(p[0]) * 60 + float(p[1]) if len(p) == 2 else float(p[0]) * 3600 + float(p[1]) * 60 + float(p[2])
-out = {}
+out, measured = {}, []
 p = os.path.join(D, 'staging.tsv')
 if os.path.exists(p):
     for r in csv.DictReader(open(p), delimiter='\t'): out[r['id']] = r
-for vid in sys.argv[1:]:
+for vid in IDS:
     rj = os.path.join(M, vid, 'rhythm.json'); hj = os.path.join(D, 'voice', vid + '.turns.json'); ej = os.path.join(M, vid, 'earshot-timeline.txt')
     if not (os.path.exists(rj) and os.path.exists(hj)): print(vid, 'missing measure or voice'); continue
     try:
@@ -38,8 +52,10 @@ for vid in sys.argv[1:]:
            'stopdown_before_turn_share': round(gap_before / max(len(turns), 1), 2), 'stopdown_chance_share': round(chance, 2)}
     out[vid] = row
     print(row)
+    measured.append(vid)
 cols = ['id', 'turns', 'character_s', 'cuts_per_min', 'cut_at_entry_share', 'cut_chance_share', 'median_shot_in_exchange_s',
         'median_shot_elsewhere_s', 'stopdown_before_turn_share', 'stopdown_chance_share']
 with open(p, 'w') as o:
     o.write('\t'.join(cols) + '\n')
     for r in out.values(): o.write('\t'.join(str(r.get(c, '')) for c in cols) + '\n')
+answer({'table': p, 'measured': measured})

@@ -1,7 +1,9 @@
+"""Median F0 (pyin) per caption event over a time range, to see whether the character's voice separates from the
+others by pitch.
 usage: python3 -I show/pitch_by_line.py <media> <json3> <start_s> <end_s>"""
 import sys, os, subprocess, numpy as np, librosa
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lines import events
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'read-data'))
+from shared import events
 media, cap, a, b = sys.argv[1], sys.argv[2], float(sys.argv[3]), float(sys.argv[4])
 sr = 16000
 raw = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-ss', str(a), '-t', str(b - a), '-i', media, '-ac', '1', '-ar', str(sr), '-f', 's16le', '-'],
