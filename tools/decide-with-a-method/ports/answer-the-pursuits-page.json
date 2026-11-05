@@ -1,0 +1,66 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECIDE-WITH-A-METHOD-ANSWER-THE-PURSUITS-PAGE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "route owner port, account/devices/misc lane, 2026-11-05",
+  "message_multihash": "1f:fed836d8e73e3cb4f3fa28ee8f76da2de7049213cd5d484c0cb478ec6103e824",
+  "quote": "Port behaviour one to one from the tag, with its tests. Do not invent behaviour, and do not stub an answer just to get an owner."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path_multihash": "1f:e1b6fec15d99527647ac4d6f1db4397d2a58067990946cf3ebf7ccd45c14b712",
+   "lines": [
+    410,
+    444
+   ],
+   "multihash": "1f:305c371b4d8a1a02ab2ba07ce7c862be641e9f0f51d1db6e2c3c8b7c4992bb6a",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T02:02:57Z",
+    "deleted_with": "old trillion retired the Worker after tag old-trillion-before-worker-retire: the file is no longer on its main line"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/decide-with-a-method/do-work/answer-the-pursuits-page.mjs",
+   "baseline_commit_message": "Byte copies of the old owners of /work/api/client-version and /work/api/pursuits"
+  }
+ ],
+ "preserve": [
+  "current pursuits are those not ended and not archived",
+  "every refusal word of recordPursuits, and which are 400",
+  "replace_all ends every current pursuit left out except one with a room; a room is never moved by what an AI sent",
+  "a pursuit id is made from its id or title"
+ ],
+ "allowed_deltas": [
+  "the DecisionEngine store is the records door: pursuits are pursuit records listed and written there, each changed one written once with its expected prior value instead of the whole state",
+  "the route glue of src/own-resource-compatibility.mjs lines 243-247 and src/native-record-consumers.mjs lines 193-194 (GET pursuits:list as { pursuits }, PUT pursuits:replace as the array) is in the same file",
+  "pursuits are read back by id from the least, the order the old store read them in (test/pursuits.test.mjs)"
+ ],
+ "banned_substitutions": [
+  "a second pursuit store",
+  "a rewrite of the refusal rules"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:305c371b4d8a1a02ab2ba07ce7c862be641e9f0f51d1db6e2c3c8b7c4992bb6a",
+  "target_multihash_at_baseline": "1f:305c371b4d8a1a02ab2ba07ce7c862be641e9f0f51d1db6e2c3c8b7c4992bb6a",
+  "commit": "7712a478233d64f7cba8e042b0b080522ee1bedf",
+  "recorded_at": "2026-11-05T03:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "async recordPursuits(list",
+   "currentPursuit"
+  ],
+  "test_refs": [
+   "tools/decide-with-a-method/test/answer-the-pursuits-page.test.mjs"
+  ]
+ }
+}
