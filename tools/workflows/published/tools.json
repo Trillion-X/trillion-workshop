@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:460eed5fa3c44dce2d345aee62174fbef7c26b91c85c1f256fd356e3c69084a1"
+  "blake3": "1f:57fb262b693bf14970c19ce3e808ea51a9f25da4727c3690819e94d4a10fe760"
  },
  "fields": [
   {
@@ -7761,6 +7761,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:put-a-picked-option-into-a-filmcraft-project",
+   "values": {
+    "title": "Put the option I picked into my FilmCraft project (runs on your computer)",
+    "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
+    "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
    }
   },
   {
