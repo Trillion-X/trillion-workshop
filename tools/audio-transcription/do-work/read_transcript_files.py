@@ -1,13 +1,19 @@
-"""Parse a drive's transcript files read from B2 (srt, vtt, json, txt) into the common words.json shape.
+#!/usr/bin/env python3
+"""Parse a drive's transcript files (srt, vtt, json, txt) into the common words.json shape.
 
-Reads library/transcripts/drive/b2-only.tsv and b2-bytes/<hex>.<ext>; writes b2/<hex>.words.json with
-{source, root:"drive", origin:"b2", identity, kind, timing: word|segment|none, duration, words, segments}.
+  read_transcript_files.py read-file  --file FILE --out FILE.words.json [--format EXT] [--fps N]
+  read_transcript_files.py read-files --list LIST.tsv --bytes DIR --out-dir DIR [--root NAME] [--origin NAME] [--fps N]
+
+read-files reads a tab-separated list with a header (kind, ext, origin, identity, bytes, sha256, display_path: what
+pick_transcript_files.py writes) and the bytes of each file as <bytes>/<hex>.<ext>, the hex being the identity after its
+"1f:"; it writes <out-dir>/<hex>.words.json with
+{source, display_path, root, origin, identity, kind, timing: word|segment|none, duration, words, segments} and, when nothing
+in the file is timed, its whole text. A file already read, or whose bytes are not in the folder, is skipped and counted.
+txt files in hh:mm:ss:ff timecode are read at --fps frames a second (24 by default). The last line printed is
+{"result": {...}}.
 """
-import html, json, os, re
+import argparse, html, json, os, re, sys
 
-import pathlib
-CHECKOUT = str(pathlib.Path(__file__).resolve().parents[1])  # this repository, wherever this place keeps it
-D = CHECKOUT + "/library/transcripts/drive"
 TS = r"(\d+):(\d\d):(\d\d)[.,](\d+)"
 TC = r"(\d\d):(\d\d):(\d\d):(\d\d)"
 FPS = 24.0
@@ -71,24 +77,71 @@ def parse(path, ext):
             "text": None if segs else " ".join(raw.split())}
 
 
-def main():
-    os.makedirs(D + "/b2", exist_ok=True)
-    counts = {}
-    for line in list(open(D + "/b2-only.tsv"))[1:]:
+def read_files(args):
+    os.makedirs(args.out_dir, exist_ok=True)
+    counts, written, already, missing = {}, 0, 0, 0
+    with open(args.list, encoding="utf-8") as listing:
+        rows = list(listing)
+    for line in rows[1:]:
         kind, ext, origin, ident, nbytes, sha, display = line.rstrip("\n").split("\t")
         hexid = ident.split(":", 1)[1]
-        p = f"{D}/b2-bytes/{hexid}.{ext}"
-        if not os.path.exists(p) or os.path.exists(f"{D}/b2/{hexid}.words.json"):
+        p = os.path.join(args.bytes, f"{hexid}.{ext}")
+        out = os.path.join(args.out_dir, f"{hexid}.words.json")
+        if not os.path.exists(p) or os.path.exists(out):
+            missing += not os.path.exists(p)
+            already += os.path.exists(p)
             continue
         r = parse(p, ext)
-        doc = {"source": r["source"] or display, "display_path": display, "root": "drive", "origin": "b2", "identity": ident,
+        doc = {"source": r["source"] or display, "display_path": display, "root": args.root, "origin": args.origin, "identity": ident,
                "kind": kind, "timing": r["timing"], "duration": r["duration"], "words": r["words"], "segments": r["segments"]}
         if r["text"]:
             doc["text"] = r["text"]
-        json.dump(doc, open(f"{D}/b2/{hexid}.words.json", "w"), ensure_ascii=False)
+        with open(out, "w", encoding="utf-8") as handle:
+            json.dump(doc, handle, ensure_ascii=False)
+        written += 1
         counts[(ext, r["timing"])] = counts.get((ext, r["timing"]), 0) + 1
     for k, v in sorted(counts.items()):
         print(k, v)
+    return {"written": written, "already_read": already, "not_in_files": missing,
+            "by_format_and_timing": {f"{ext} {timing}": n for (ext, timing), n in sorted(counts.items())}}
 
 
-main()
+def read_file(args):
+    ext = (args.format or os.path.splitext(args.file)[1][1:]).lower()
+    if ext not in ("srt", "vtt", "json", "txt"):
+        raise SystemExit(f"{args.file}: give --format srt, vtt, json or txt; {ext or 'no extension'} is not a transcript format read here")
+    r = parse(args.file, ext)
+    doc = {"source": r["source"] or args.file, "timing": r["timing"], "duration": r["duration"], "words": r["words"], "segments": r["segments"]}
+    if r["text"]:
+        doc["text"] = r["text"]
+    with open(args.out, "w", encoding="utf-8") as handle:
+        json.dump(doc, handle, ensure_ascii=False)
+    print(args.file, r["timing"], len(r["segments"]), "segments", len(r["words"]), "words")
+    return {"words_json": args.out, "timing": r["timing"], "segments": len(r["segments"]), "words": len(r["words"]), "duration": r["duration"]}
+
+
+def main(argv=None):
+    global FPS
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = parser.add_subparsers(dest="command", required=True)
+    one = sub.add_parser("read-file", help="one transcript file into one words.json")
+    one.add_argument("--file", required=True)
+    one.add_argument("--out", required=True)
+    one.add_argument("--format", help="srt, vtt, json or txt (default: the file's extension)")
+    many = sub.add_parser("read-files", help="every file of a list, from a folder of their bytes")
+    many.add_argument("--list", required=True, help="the tab-separated list pick_transcript_files.py writes")
+    many.add_argument("--bytes", required=True, help="the folder holding <hex>.<ext> for each listed file")
+    many.add_argument("--out-dir", required=True, help="where <hex>.words.json goes")
+    many.add_argument("--root", default="", help="the drive or library the files came from, kept in each words.json")
+    many.add_argument("--origin", default="", help="where the bytes were read from (a store's name), kept in each words.json")
+    for p in (one, many):
+        p.add_argument("--fps", type=float, default=FPS, help="frames a second of hh:mm:ss:ff timecode in txt files (default 24)")
+    args = parser.parse_args(argv)
+    FPS = args.fps
+    result = (read_file if args.command == "read-file" else read_files)(args)
+    print(json.dumps({"result": result}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
