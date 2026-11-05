@@ -12,8 +12,7 @@ sys.path.insert(0, WORK)
 import say_a_line_in_kokoro as kt  # noqa: E402
 
 HAVE = {name: importlib.util.find_spec(name) is not None for name in ('numpy', 'soundfile', 'mlx_audio', 'mlx_whisper', 'parselmouth')}
-NODE = shutil.which('node')
-STAND_IN = os.path.join(HERE, 'stand-in-settings-reader.mjs')
+ROW = os.path.join(FIX, 'settings-row.json')
 SR = 24000
 
 
@@ -131,35 +130,44 @@ class Settings(unittest.TestCase):
         self.assertEqual(kt.settings(), kt.DEFAULTS)
         self.assertIsNot(kt.settings()['takes'], kt.DEFAULTS['takes'])
 
-    @unittest.skipUnless(NODE, 'needs node')
-    def test_the_record_is_read_by_the_settings_reader_over_the_defaults(self):
-        cfg = kt.settings(os.path.join(FIX, 'settings-row.json'), reader=STAND_IN)
+    def test_the_film_row_is_read_by_the_settings_reader_over_the_defaults(self):
+        cfg = kt.settings(ROW, 'made-up-film')
         self.assertEqual(cfg['clone_takes'], 5)
         self.assertEqual(cfg['master_command'], '')
         self.assertEqual(cfg['kokoro_model'], kt.DEFAULTS['kokoro_model'])
         self.assertEqual(kt.take_rows(cfg), ['pocket|B pocket|say_a_line_in_a_cloned_voice.py pocket',
                                              'kokoro-af_heart|A kokoro|say_a_line_in_kokoro.py af_heart'])
 
-    @unittest.skipUnless(NODE, 'needs node')
+    def test_the_most_specific_scope_wins_and_a_value_alone_is_read_as_given(self):
+        film = read(ROW)
+        person = {**film, 'id': 'record:setting:compare-voice-and-music-models~person~me',
+                  'value': {**film['value'], 'scope_kind': 'person', 'scope_id': 'me', 'settings': '{"clone_takes":7}'}}
+        self.assertEqual(kt.settings([person, film], 'made-up-film')['clone_takes'], 5)
+        self.assertEqual(kt.settings([person, film], 'another-film')['clone_takes'], 7)
+        self.assertEqual(kt.settings([person, film])['clone_takes'], 7)
+        self.assertEqual(kt.settings({'settings': '{"kokoro_speed":0.9}', 'status': 'active'})['kokoro_speed'], 0.9)
+
+    def test_a_row_for_another_film_says_which_film_to_pass(self):
+        with self.assertRaises(kt.Refusal) as caught:
+            kt.settings(ROW, 'another-film')
+        self.assertIn('pass --film', str(caught.exception))
+        with self.assertRaises(kt.Refusal):
+            kt.settings(ROW)
+
     def test_a_record_the_reader_refuses_is_refused_with_its_reason(self):
         d = tempfile.mkdtemp()
         try:
-            row = read(os.path.join(FIX, 'settings-row.json'))
+            row = read(ROW)
             row['value']['status'] = 'retired'
             path = os.path.join(d, 'row.json'); write(path, row)
             with self.assertRaises(kt.Refusal) as caught:
-                kt.settings(path, reader=STAND_IN)
+                kt.settings(path, 'made-up-film')
             self.assertIn('retired', str(caught.exception))
+            with self.assertRaises(kt.Refusal) as caught:
+                kt.settings('/nowhere/row.json')
+            self.assertIn('does not exist', str(caught.exception))
         finally:
             shutil.rmtree(d)
-
-    def test_a_missing_record_or_reader_is_refused(self):
-        with self.assertRaises(kt.Refusal) as caught:
-            kt.settings('/nowhere/row.json')
-        self.assertIn('is not there', str(caught.exception))
-        with self.assertRaises(kt.Refusal) as caught:
-            kt.settings(os.path.join(FIX, 'settings-row.json'), reader='/nowhere/settings-record.mjs')
-        self.assertIn('settings-record.mjs is not in this Workshop checkout', str(caught.exception))
 
     def test_take_rows_and_chain_are_what_render_takes_reads(self):
         rows = kt.take_rows(kt.settings())
@@ -321,26 +329,17 @@ class Render(unittest.TestCase):
             shutil.rmtree(d)
 
     @unittest.skipIf(HAVE['mlx_audio'], 'mlx-audio is installed here')
-    @unittest.skipUnless(NODE, 'needs node')
     def test_a_take_that_cannot_be_made_stops_the_render_and_says_why(self):
+        # The made-up film row: master_command empty (no master), the takes pocket then af_heart.
         d = tempfile.mkdtemp()
         try:
-            # The made-up settings: master_command empty (no master), the takes pocket then af_heart. Read by the stand-in
-            # reader in place of tools/settings, which this test cannot assume.
-            env = {**os.environ, 'NODE': NODE}
-            fake_root = os.path.join(d, 'root')
-            shutil.copytree(os.path.join(WORK), os.path.join(fake_root, 'tools', 'compare-voice-and-music-models', 'do-work'))
-            os.makedirs(os.path.join(fake_root, 'tools', 'settings', 'read-data'))
-            shutil.copy(STAND_IN, os.path.join(fake_root, 'tools', 'settings', 'read-data', 'settings-record.mjs'))
-            write(os.path.join(fake_root, 'capabilities.json'), '{}')
-            script = os.path.join(fake_root, 'tools', 'compare-voice-and-music-models', 'do-work', 'render_takes.sh')
-            ref = os.path.join(d, 'ref.wav'); open(ref, 'wb').close()
-            done, last = run('bash', script, LINE, os.path.join(d, 'out'), os.path.join(FIX, 'settings-row.json'), env=env)
+            done, last = run('bash', os.path.join(WORK, 'render_takes.sh'), LINE, os.path.join(d, 'out'), ROW, 'made-up-film')
             self.assertEqual(done.returncode, 2, done.stderr)
             self.assertIn('take pocket was not made', last['error'])
+            done, last = run('bash', os.path.join(WORK, 'render_takes.sh'), LINE, os.path.join(d, 'out'), ROW, 'another-film')
+            self.assertIn('pass --film', last['error'])
         finally:
             shutil.rmtree(d)
-
 
 if __name__ == '__main__':
     unittest.main()

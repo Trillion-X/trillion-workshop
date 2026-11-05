@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""say_a_line_in_a_cloned_voice.py <line.json> <engine> <out.wav> [--takes N] [--ref wav --ref-text txt] [--settings-record F]: one narration line in a
+"""say_a_line_in_a_cloned_voice.py <line.json> <engine> <out.wav> [--takes N] [--ref wav --ref-text txt] [--settings-record F [--film ID]]: one narration line in a
 voice-cloning model, cloned from the narrator's own voice (the settings' clone_reference, or --ref: for example two other narrator
 sentences in Kokoro bm_lewis, ending on a sentence end), so the timbre stays and only the model's rhythm and
 intonation change.
@@ -92,9 +92,10 @@ def main(argv=None):
     ap.add_argument('--ref')
     ap.add_argument('--ref-text', help='file with the exact words of --ref (default: --ref with .txt)')
     ap.add_argument('--settings-record')
+    ap.add_argument('--film', help='the film the settings row is for (scope film); the person and account rows are read too')
     a = ap.parse_args(argv)
     try:
-        cfg = kt.settings(a.settings_record)
+        cfg = kt.settings(a.settings_record, a.film)
         ENGINES.update({k: tuple(v) for k, v in (cfg.get('clone_engines') or {}).items()})
         if a.engine not in ENGINES:
             raise kt.Refusal(f'{a.engine} is not an engine here: use one of {", ".join(sorted(ENGINES))}, or add it to clone_engines')

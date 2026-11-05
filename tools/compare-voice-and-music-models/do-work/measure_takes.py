@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""measure_takes.py <line.json> <take.wav> [...] [--settings-record F] [--words-dir D] [--words-from D]: the numbers the person's ear is compared with, per take, as one JSON line each.
+"""measure_takes.py <line.json> <take.wav> [...] [--settings-record F [--film ID]] [--words-dir D] [--words-from D]: the numbers the person's ear is compared with, per take, as one JSON line each.
 
   pauses      every silence of 120 ms or more inside the speech (10 ms RMS below -45 dBFS), with the words on
               each side (word times from mlx-whisper large-v3-turbo)
@@ -183,12 +183,13 @@ def main(argv=None):
     ap.add_argument('line')
     ap.add_argument('takes', nargs='+')
     ap.add_argument('--settings-record')
+    ap.add_argument('--film', help='the film the settings row is for (scope film); the person and account rows are read too')
     ap.add_argument('--words-dir')
     ap.add_argument('--words-from')
     ap.add_argument('--no-voice-models', action='store_true')
     a = ap.parse_args(argv)
     try:
-        cfg = kt.settings(a.settings_record)
+        cfg = kt.settings(a.settings_record, a.film)
         line = kt.read_line(a.line)
         if 'vowel_check' not in line or (not a.no_voice_models and 'voice_reference' not in line):
             raise kt.Refusal('the line needs vowel_check.word, and voice_reference unless --no-voice-models')
