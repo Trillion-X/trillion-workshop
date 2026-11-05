@@ -3102,6 +3102,38 @@
       "source_identity": "1f:73311ab46d766832687657ed05a37dd12d5ea84679b38179c0de48ffe910597d",
       "identity": "1f:8f051b7baeab7c5eaa950b3fc173391ceee2cd38dd7aba070f09cc0d5f10265c",
       "adapted": "the three tests over check-uses' own functions run as they were; seven that made decisions through the retired DecisionEngine and routes are left out, decide-with-a-method's work-screen test checking the same view over records"
+    },
+    {
+      "from": "test/eeaf-ids-prefix.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/eeaf-ids-prefix.test.mjs",
+      "source_identity": "1f:2544d39ed7566be5760cb38f1eb4aa2c16e5232dcfe98e46580e3bb0f81ee098",
+      "identity": "1f:f1cd29124e6fb35b5b2be33991e2c59f023cba3f748ccaf89536e05f5443a9b1",
+      "adapted": "countingHost comes from test/counting-host-for-tests.mjs, the old helper without its PersonStore; every assertion is the old one"
+    },
+    {
+      "from": "test/entity-mentions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/entity-mentions.test.mjs",
+      "source_identity": "1f:652cfdcfaa5d7d604ed08d3ae23f949fb59620375e950e4be51e7ff4e5c9f045",
+      "identity": "1f:5ddaf50eb7ea0269b4484ae8935b506a89a9fd5625e993067b176210af45c652",
+      "adapted": "makeLists is keep-lists-of-rows'; the eight tests that sent words through the retired arrival door (src/inbound.mjs) are left out, as no running code ingests through resolveKeptMessage"
+    },
+    {
+      "from": "test/erasable-fields.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/erasable-fields.test.mjs",
+      "source_identity": "1f:39fcaf0ec5255f48fe56bcc2c74f9698de14bd0892d47ec844c758a048cd99df",
+      "identity": "1f:2f3fe5c5d2031e66a5501259ab3262fd1f8ed99679260804c93f26b38777c325",
+      "adapted": "record-sync comes from tools/record-log; the search-index steps and the kept-history rewrite test are not carried, their owners being trillion-rust record_store search.rs and history_archive.rs"
+    },
+    {
+      "from": "test/erase-record-route.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/erase-record-route.test.mjs",
+      "source_identity": "1f:a349ae4cbd680e80bb39475dbb8417bec77f9e12293e24d2068837aac185449c",
+      "identity": "1f:0680caf24032b290da8f5ac694f82f6347efbf12c5a5d3067ed7b2385c28f8b2",
+      "adapted": "the erase_record tool-row test runs as it was; the PersonStore /records/erase test is not carried, the route being trillion-rust src/record_value/account_routes.rs"
     }
   ]
 }
