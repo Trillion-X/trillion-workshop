@@ -3078,6 +3078,30 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/your-records-tool-input-bound.test.mjs",
       "source_identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43",
       "identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43"
+    },
+    {
+      "from": "test/blake3-allocation-compat.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/blake3-allocation-compat.test.mjs",
+      "source_identity": "1f:4850085eb556cd8e2e363be81977e43d47b7a846550e34caaa22665e818940e5",
+      "identity": "1f:642ea70dcbebe3c3ace9a23ac3d4a8598c8f802b99f1ab858e0a7bb15de9e4a0",
+      "adapted": "the compiled identity is browse-and-upload-my-files loadChunking's Identity, loaded without the retired restartable wrapper, and readHandoffResultSource is shared-code's; every assertion is the old one"
+    },
+    {
+      "from": "test/caller-run-claim.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/caller-run-claim.test.mjs",
+      "source_identity": "1f:6795bccb362b931d42f1917ac38badafd94ed554c585c0e7eb256beaa4f41401",
+      "identity": "1f:c3644f54179aab000cc33a6e4c6be209179405dd088c9bd375f0f6a06fdd0731",
+      "adapted": "the held workshop-tasks-for-tests taskQuestions is stood in over the same empty task list; every assertion is the old one"
+    },
+    {
+      "from": "test/check-uses.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/check-uses.test.mjs",
+      "source_identity": "1f:73311ab46d766832687657ed05a37dd12d5ea84679b38179c0de48ffe910597d",
+      "identity": "1f:8f051b7baeab7c5eaa950b3fc173391ceee2cd38dd7aba070f09cc0d5f10265c",
+      "adapted": "the three tests over check-uses' own functions run as they were; seven that made decisions through the retired DecisionEngine and routes are left out, decide-with-a-method's work-screen test checking the same view over records"
     }
   ]
 }
