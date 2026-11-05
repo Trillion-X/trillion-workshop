@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MARKETPLACE-MAKE-SHELF-TILES",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:738c8e8bb07d06c09250c940031d6ad3ef1330f9e8d6e6efe786a0328bb6398d",
+   "multihash": "1f:16133a162a3242df5bcc0b8d58b0b3c2464d5cd1824bb675ce3af0a614f54a78",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/browse-and-publish-what-my-ai-can-use/do-work/make-shelf-tiles.mjs"
+  }
+ ],
+ "preserve": [
+  "kebab, the icon-file read with at most three alias hops, the shape rows without key, the item icon else the kind icon, the machine-title filter, the job cut at 90 and the window.TILES file: the same bytes out on the same items (parity)"
+ ],
+ "allowed_deltas": [
+  "the items files, the icons folder, the output file and the global name are arguments (the old fixed paths stay the defaults, except the output, tiles.js)",
+  "the shape rows are parsed as JSON, never run as code",
+  "the kind icons are marketplace-kinds.json's",
+  "a refusal is { error } on the last line, and the last line is { result: { tiles, counts, written } }"
+ ],
+ "banned_substitutions": [
+  "running an icon file's code",
+  "a film's paths written into the code"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T22:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:16133a162a3242df5bcc0b8d58b0b3c2464d5cd1824bb675ce3af0a614f54a78",
+  "target_multihash_at_baseline": "1f:16133a162a3242df5bcc0b8d58b0b3c2464d5cd1824bb675ce3af0a614f54a78",
+  "commit": "dbde1da726f83989728d8b0bf1e87372246355d3"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/browse-and-publish-what-my-ai-can-use/test/make-shelf-tiles.test.mjs tiles: own icons, an alias, the kind icon for a missing or absent icon, machine titles left out, the job cut",
+   "tools/browse-and-publish-what-my-ai-can-use/test/make-shelf-tiles.test.mjs an icon file is read as data, never run"
+  ]
+ }
+}

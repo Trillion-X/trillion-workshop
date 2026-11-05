@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:cd9145547beb9e73089cac29ce91dd91dd337e7258f21ea9970c412a3df4cfb4"
+  "blake3": "1f:ee0977c6c645ba87a73f380148243226404f869d50c593706a224b40d8decd00"
  },
  "fields": [
   {
@@ -1775,6 +1775,21 @@
    }
   },
   {
+   "id": "tool:check-every-claim-against-its-facts-and-sources",
+   "values": {
+    "title": "Check every claim my narrator makes, spoken or on screen, against my facts and sources before it is voiced (runs on your computer)",
+    "job": "Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
+    "description": "Reads a run's shots (shots/<id>.json: the voice script and the on-screen events), their claims files (claims/<id>.json: one entry per spoken sentence and per on-screen text, each citing world facts, source wordings, transcript quotes or saved frames), the person's world rows (lists.json, rows/<list>.json, relations.json: entities, facts and relations) and their sources file with its plain-text extracts. The world's own check runs first (row shapes, links, roles, every fact's words at its transcript second or file line); then each shot fails a claim that: is not covered (script or screen text without an entry, or an entry for nothing); is about the subject but has no support said by someone other than the narrator; ignores a world fact on one of its topics; quotes a source or transcript that does not hold the words; is stronger than its source on a strength scale; says a number not derived from its cited numbers or outside its qualifier; breaks a bound a world fact sets; makes a comparison the numbers do not hold; counts a number in another container than its source; says something is visible without a saved frame; uses a private, believed, past or planned fact without saying so, a claim not recorded as its speaker's statement, or a conflicting fact it has not weighed; or carries a hedge or attribution phrase. Every rule word (strength scales, qualifiers, subject words, labels, tense markers, quantity units) is the person's settings, and the hedge phrases are their no-hedge check row's words. Prints each shot's report lines to standard error and one JSON answer.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:check-every-piece-is-covered",
    "values": {
     "title": "Check every piece of a person's files has a check or a reason",
@@ -2266,6 +2281,21 @@
    }
   },
   {
+   "id": "tool:collect-and-rank-viewer-questions",
+   "values": {
+    "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
+    "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+    "status": "active",
+    "maker": "maker:collect-and-rank-viewer-questions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "collect-and-rank-viewer-questions"
+   }
+  },
+  {
    "id": "tool:commit-changes",
    "values": {
     "title": "Commit the chosen changes",
@@ -2324,6 +2354,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:compose-thumbnails-from-layout-templates",
+   "values": {
+    "title": "Build thumbnail candidates from my frames with layout templates (runs on your computer)",
+    "job": "Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
+    "description": "Six layout templates read off strong reference thumbnails (a claim box across a split, a big face beside stacked words, a magnifier on a flaw, price tags on a flat backdrop, a held object with quoted words, a corner face with stroked words) compose 1280x720 candidates from the person's full-size frames and cut-outs: crops, punch-up, white sticker outlines with shadow, boxed or stroked words, curved arrows, price tags, a magnifier. Each candidate is one row of values in the person's settings row (which frame, face box, words, sizes, arrow ends); the font is the person's.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compose-thumbnails-from-layout-templates"
    }
   },
   {
@@ -3040,7 +3085,7 @@
    "values": {
     "title": "Sort what I said in my recordings into topics and rate how usable each moment is (runs on your computer)",
     "job": "Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson",
-    "description": "Cuts each transcript (a <name>.words.json with segments) into moments (a new one starts after a silence of 4 seconds or past 120 words), then asks a model that runs on the person's own computer (Ollama) which topic buckets each moment belongs to (0 to 3) and how much it stands alone as a usable spoken idea, claim, story or lesson (0 to 1: camera setup, filler and half sentences score near 0, a complete quotable idea 0.6 to 1). The model judges each moment only from its own words. The buckets come from a vocabulary file that starts from a short seed and grows as the model proposes new buckets, so the person can edit it. A moment the model leaves out of its answer is asked about again alone. The tool writes the moments, their buckets and relevance back into each transcript (or to a separate file with --dry-out), can tag a long file of moments one batch at a time and continue after a stop, and reports how many moments each bucket holds and how many are usable. Nothing leaves the computer, nothing is paid for and no key is needed.",
+    "description": "Cuts each transcript (a <name>.words.json with segments) into moments (a new one starts after a silence of 4 seconds or past 120 words), then asks a model that runs on the person's own computer (Ollama) which topic buckets each moment belongs to (0 to 3) and how much it stands alone as a usable spoken idea, claim, story or lesson (0 to 1: camera setup, filler and half sentences score near 0, a complete quotable idea 0.6 to 1). The model judges each moment only from its own words. The buckets come from a vocabulary file that starts from a short seed and grows as the model proposes new buckets, so the person can edit it. A moment the model leaves out of its answer is asked about again alone. The tool writes the moments, their buckets and relevance back into each transcript (or to a separate file with --dry-out), can tag a long file of moments one batch at a time and continue after a stop, and reports how many moments each bucket holds and how many are usable. Transcripts with no times at all (a cloud-results copy's text) are cut by do-work/cut_text_into_moments.py into moments of whole sentences up to 120 words, each placed by its share of the text (and by seconds when the recording's length is known), with each transcript's source in the person's file store and identical copies kept once and named; it answers how many moments and transcripts each source holds and how many hours of media they cover. tag-moments then files those moments. Nothing leaves the computer, nothing is paid for and no key is needed.",
     "status": "active",
     "maker": "maker:file-spoken-moments-into-topic-buckets",
     "licence_class": "licence:maker-own",
@@ -3142,6 +3187,21 @@
    }
   },
   {
+   "id": "tool:find-a-spoken-passage-in-word-times",
+   "values": {
+    "title": "Find where a spoken passage starts and ends in a recording's word times",
+    "job": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+    "description": "Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change. step span: given the passage's first words and last words (and after, a second to search from), answers the start of the first word, the end of the last word and the words between, so a cut lands on word edges; words match ignoring case and punctuation. step sentences: every sentence (ended by . ? or !) whose words start inside from and to, with its start and end. step words-file: writes {source, timing, words} to out, adding offset seconds to every time (a window heard alone). Instead of words, clip names <words_folder>/<clip>.words.json, where words_folder is the person's setting (their list:settings row, named by settings_record); timing and round_to are settings too. It reads only the word-time file and writes only out.",
+    "status": "active",
+    "maker": "maker:find-a-spoken-passage-in-word-times",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "find-a-spoken-passage-in-word-times"
+   }
+  },
+  {
    "id": "tool:find-action-moments",
    "values": {
     "title": "Find action moments in a video",
@@ -3169,6 +3229,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-closest-across-my-indexes",
+   "values": {
+    "title": "Find what is closest to a vector across several of my indexes",
+    "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
+    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "meaning-search"
    }
   },
   {
@@ -3222,7 +3297,7 @@
    "values": {
     "title": "Find my files in my index",
     "job": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
-    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. It never builds or changes an index, and it reads nothing outside index_dir.",
+    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. names (instead of or beside query) looks up where named files are kept: a name matches a file whose name without its extension equals it, or starts with it, ignoring case, when the name ends in *; type and root narrow the rows; the answer's by_name gives each name's display paths and not_in_index lists the names no file matched. index_dir is required unless the person's settings (settings_record, a row of their list:settings, or settings) hold it; their settings fill every key the request leaves out (index_dir, index_file, types_file, type, root, limit, fields, weights, lane_weights). It never builds or changes an index, and it reads nothing outside index_dir.",
     "status": "active",
     "maker": "maker:find-files-in-an-index",
     "licence_class": "licence:maker-own",
@@ -3551,6 +3626,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:find-words-said-in-my-recordings",
+   "values": {
+    "title": "Find the lines my recordings say, by their words",
+    "job": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
+    "description": "Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked). Needs no model: it matches the words themselves, where tool:find-similar-by-meaning matches what they mean. Returns index_ids and lines: each line's address, file, start, end, text and any field the descriptor's points_to.carry names.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "meaning-search"
    }
   },
   {
@@ -5880,6 +5970,21 @@
    }
   },
   {
+   "id": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+   "values": {
+    "title": "Make a searchable set from picture vectors another program kept (runs on your computer)",
+    "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
+    "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float16, normalised) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "meaning-search"
+   }
+  },
+  {
    "id": "tool:make-a-view-patch",
    "values": {
     "title": "Send only what changed in an answer",
@@ -5959,6 +6064,37 @@
    }
   },
   {
+   "id": "tool:make-marketplace-tiles-with-their-icons",
+   "values": {
+    "title": "Make Marketplace tiles with their icons (runs on your computer)",
+    "job": "Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+    "description": "Reads the tools and workflows as the shelf's readers answer them (two JSON files of { items: [{ id, kind, title, job, steps?, icon? }] }) and the icons folder of an installed lucide-react, and answers one tile per item: id, kind, title, job (cut to 90 characters), steps, icon and svg, the icon's own shape elements (the item's icon, else its kind's icon from marketplace-kinds.json; an alias icon file is followed). Titles that read as machine names are left out. With --out it writes window.<global>=<tiles>; for a page (global TILES unless --global names another). The icon files are read as data, never run. Last line: {\"result\": {tiles, counts}} or {\"error\": ...}.",
+    "status": "active",
+    "maker": "maker:browse-and-publish-what-my-ai-can-use",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "browse-and-publish-what-my-ai-can-use"
+   }
+  },
+  {
+   "id": "tool:make-plain-text-extracts-of-claim-sources",
+   "values": {
+    "title": "Make the plain-text copy of every source my claims cite, from the files I saved (runs on your computer)",
+    "job": "Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
+    "description": "Reads a sources file ({\"sources\": {id: {raw, extract, text}}}) and writes each source's plain-text extract beside it: html (scripts and styles dropped, tags removed, entities decoded, spaces joined), fdc-json (a FoodData Central food as one line per nutrient amount per 100 g), new-order (an edit plan's new_order rows as one line each) or copy. A kind made by its own tool (a word-timed transcript, a text) keeps its extract and is refused when it is missing. Run it after adding or re-fetching a source; tool:check-every-claim-against-its-facts-and-sources checks quotes against these extracts.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:make-quiz-questions",
    "values": {
     "title": "Make quiz questions from text",
@@ -5971,6 +6107,21 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+   "values": {
+    "title": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer)",
+    "job": "Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+    "description": "From a request of slots (each with a base pick and candidates, each candidate with the words it adds and the claim it makes) and sentence templates ({SLOT} where a slot's words go), writes the base variant, then every other candidate of each slot with all other slots at their base pick. Each variant gets a script line, a shot file naming that script and a claims file with one entry per sentence taken from the candidate that formed the sentence (a sentence whose filled words are empty is left out with its claim), plus a manifest of the variants and a list of their lines. A picked candidate that has words but no claim is refused. The words, claims, ids and file shapes are the person's own and come in the request (one file, or several laid over each other key by key); the tool names no film, speaker or claim.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {
@@ -6479,6 +6630,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:name-the-recording-behind-transcript-lines",
+   "values": {
+    "title": "Find which recording a cited passage of my transcript archive comes from",
+    "job": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+    "description": "Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words. A range that no window overlaps is listed in not_found. A range is written first-last, for example 120-180; a malformed or reversed range is refused with what to write. archive is a path inside the granted folder (or the archive setting a film's settings row holds, named by settings_record); preview_chars (a setting, default 120) sets how many first characters are shown. It changes nothing and reads only the index file.",
+    "status": "active",
+    "maker": "maker:name-the-recording-behind-transcript-lines",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "name-the-recording-behind-transcript-lines"
    }
   },
   {
@@ -7493,6 +7659,21 @@
    }
   },
   {
+   "id": "tool:pull-a-time-window-from-a-stored-camera-file",
+   "values": {
+    "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it",
+    "job": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+    "description": "Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg. Camera files run about 13 MB per second of footage, so this takes seconds where a whole-file pull takes hours and costs a few megabytes of storage reads instead of the file. The wav starts with silence up to the window's start, so second N of the wav is second N of the camera file. The request names the stored file's identity, the mode (window with from and to, or frame with at) and out (a file in the folder the person let this tool change). The person's own storage, kept in their list:settings row for this tool (settings_record) or given as settings: store (the store the reader is pointed at), account (the storage account id), reader {argv, cwd, env, ok_marker, retries, retry_seconds} (argv is a template filled with {store} {account} {identity} {out} {offset} {length}), credentials (names of environment variables the reader needs, set from the person's vault), gap (bytes; audio reads closer than this are joined). A key at the top of the request wins over the same setting. The tool never reads, prints or keeps a key; the reader program reads the storage itself.",
+    "status": "active",
+    "maker": "maker:pull-a-time-window-from-a-stored-camera-file",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-a-time-window-from-a-stored-camera-file"
+   }
+  },
+  {
    "id": "tool:pull-my-discord-messages",
    "values": {
     "title": "Pull the messages from the Discord text channels my bot can read into my own records",
@@ -7628,6 +7809,21 @@
    }
   },
   {
+   "id": "tool:put-a-picked-option-into-a-filmcraft-project",
+   "values": {
+    "title": "Put the option I picked into my FilmCraft project (runs on your computer)",
+    "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
+    "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:put-records-into-my-account",
    "values": {
     "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
@@ -7689,6 +7885,21 @@
      "placement:your-computer"
     ],
     "folder": "benchmark-small-local-models"
+   }
+  },
+  {
+   "id": "tool:rank-library-formats-against-concepts",
+   "values": {
+    "title": "Match every video format I have collected to every idea I could film, and keep the best fits",
+    "job": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+    "description": "Two steps. catalog lists every candidate format (each analysed item in the library's index, the title templates in a bank that name a form, and the person's own formats) and every concept (each concept heading with its beats and how many of its moments were found, and how many of those are on this computer or in cloud storage) as tab-separated lines for judges to read; the concept lines never name a format. apply reads judged files ({concept id: [{format, fit, material?}] best first}), refuses a format key the catalog does not hold and a concept nobody judged, and writes format_options (each judged option with its type, medium, library path, fit and the concept's moment counts), format_palette (every format some concept's options use, plus each plan's pick) and format_ranking_about into the titles file. The ranking is a reading of the whole catalog per concept by judges, not a model score: a cross-encoder scores topic, not form. Everything that belongs to the person (their form templates, stable format keys, their own formats, the package ids, which concepts to skip, the material wording and the about text) is their settings: a row of their list:settings (record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, named by settings_record) read through tools/settings, with the run's own settings laid over it. Paths are inside the folder the person let this tool change (apply rewrites the titles file there). Run catalog, read every candidate against every concept (yourself or with judges), write each concept's best three to five formats with why to a judged file, then run apply; never pick a format by a model score, and never change the person's titles file without their say.",
+    "status": "active",
+    "maker": "maker:rank-library-formats-against-concepts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "rank-library-formats-against-concepts"
    }
   },
   {
@@ -12520,6 +12731,21 @@
      "placement:your-computer"
     ],
     "folder": "export-documents-to-files"
+   }
+  },
+  {
+   "id": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
+   "values": {
+    "title": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer)",
+    "job": "Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+    "description": "Writes word-template@1 token tables from a request: for each template a name, a time span, where its words came from, parts (kept words, and slot words each naming a slot) and the slots (type and note). Each word becomes a token marked KEEP or SLOT in order, with its slot, slot type and note; only the slots a word uses are listed; every dimension other than the spoken words is left pending with the reason. The words, slots, sources and notes are the person's own and come in the request (one file, or several laid over each other key by key, so their settings can be a row of their records and the output folder stays with the run); the tool names no piece, speaker or film. The templates are the same shape make_template.py writes, so tool:fill-a-word-template and tool:check-words-against-a-word-template take them.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {

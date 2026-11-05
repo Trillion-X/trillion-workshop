@@ -1,0 +1,73 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-TOKEN-TABLE-FROM-PARTS-FROM-A-FILMS-BUILD-TEMPLATES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools: the narrator tools of a film",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:854c4040e44e224d88cd6db2428587d22c84911c84cc86725e020f67a38cee43",
+   "lines": [
+    17,
+    45
+   ],
+   "multihash": "1f:0cc34860e3bf8285e032f6e1ed546af66ddf9c8936f2f75067aa580931f98310",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/fill-a-template-without-changing-its-words/do-work/token_table_from_parts.py",
+   "baseline_commit_message": "fill-a-template-without-changing-its-words: a film's hand-written token table and slot-variant writer, moved byte for byte"
+  },
+  {
+   "path": "tools/fill-a-template-without-changing-its-words/read-data/request_files.py"
+  }
+ ],
+ "preserve": [
+  "every word of the kept and slot parts becomes one token marked KEEP or SLOT, in order, ids <unit>/speech/<n>",
+  "a slot token carries its slot, type, note and slot dims; only slots a word uses are listed",
+  "the word-template@1 shape: piece, registry, one unit, one line, slots, tokens, empty fills, pending drift.status, notes"
+ ],
+ "allowed_deltas": [
+  "the templates (words, times, sources, slots), the registry path and the dimension are the request's, read from the person's list:settings row with tools/settings request_settings (read-data/request_files.py), instead of the script's tables",
+  "medium, kind, reader and the maker named in provenance are request fields with the old values as defaults",
+  "one JSON answer as the last line; refusals say what to change"
+ ],
+ "banned_substitutions": [
+  "a second token-table writer beside make_template.py's shape",
+  "a person's words written into the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0cc34860e3bf8285e032f6e1ed546af66ddf9c8936f2f75067aa580931f98310",
+  "target_multihash_at_baseline": "1f:0cc34860e3bf8285e032f6e1ed546af66ddf9c8936f2f75067aa580931f98310",
+  "commit": "c78ab6230293bb0b1c52538d63ec8164ff6f5e39",
+  "recorded_at": "2026-11-05T22:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def build(pid",
+   "DIM, REG = dim, registry",
+   "request_settings"
+  ],
+  "test_refs": [
+   "tools/fill-a-template-without-changing-its-words/test/test_token_table_from_parts.py",
+   "tools/fill-a-template-without-changing-its-words/test/test_vary_slots.py",
+   "tools/fill-a-template-without-changing-its-words/test/fill-a-template.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines holding a person's name or a private path are left out of the sources (each source names its lines), so they never reach this public repository; the first source is the byte copy. The source is build() (lines 17-45); the rest of the file was one film's data (four reference intros and its own opening), now the person's settings rows."
+}
