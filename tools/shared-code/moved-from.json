@@ -1058,6 +1058,22 @@
       "source_identity": "1f:8e7e6293e65342cfa7024c6194a173405f4578527c5d4a0fb6958913b1e7dd8e",
       "identity": "1f:c33193685ade45e7b7f104a2d3c7be1af8316a737e5623a1866baf6d48731301",
       "adapted": "the data test over src/spend-meter.json is the old one; the four tests of old NativeResourceSpend spendList's plan row are left out: nothing makes the Spend list now."
+    },
+    {
+      "from": "test/agents-before-the-record-move.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/agents-before-the-record-move.test.mjs",
+      "source_identity": "1f:aa233a84112754bddb69942421e6c2d724aae6a24c8843238c4b7bd12e12991b",
+      "identity": "1f:8a1a21e54c3d13ce917aaa0a9e6fffa03971243d6a1e1b14d880d72db04f4480",
+      "adapted": "the booted old person store is replaced by what it composed (record engine and move, agent records, legacy rows, table mover, makeAgents) put together as its agentRecordStore did; every assertion is kept."
+    },
+    {
+      "from": "test/own-ais-local.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/own-ais-local.test.mjs",
+      "source_identity": "1f:445c25e3699fe5585f46426d0facde7677886231dca48ddde3ca11ac05d1a189",
+      "identity": "1f:a7d3e13b9368e85c9a489291325416bf0bcff03937f31283e5d8b38d2ae39770",
+      "adapted": "only deviceRowConnected's test is kept, the local tool's descriptor read from models-on-this-computer/tool-rows.json (it fails: that row's invoke.kind is computer, the module asks computer-tool); the seventeen ownAisRouting tests are left out: no repository keeps that routing."
     }
   ]
 }
