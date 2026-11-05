@@ -9,7 +9,7 @@
         "id": "tool:transcribe-audio-and-repair-whisper-loops",
         "label": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer)",
         "job": "Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
-        "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long, refusing one judge rejects. Nothing leaves the computer and no key is needed.",
+        "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long (with the title and header lines the person gives), refusing one judge rejects. When a transcript does not carry its recording's length, judge and text take it as --duration, or judge takes each recording's length from a tab-separated list (--durations). Nothing leaves the computer and no key is needed.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -51,6 +51,53 @@
         ],
         "provenance": {
           "source": "The audio-transcription package's transcribe-audio.py (copied unchanged), run with whisper.cpp (MIT, https://github.com/ggml-org/whisper.cpp) and ffmpeg"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-transcript-files-and-captions-into-timed-words",
+        "label": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer)",
+        "job": "Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
+        "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the files door's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The transcript file, list or folder on the person's computer, put where {input} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The file or folder to write, put where {output} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line each command prints: {\"result\": ...}. read_transcript_files.py read-file: {words_json, timing, segments, words, duration}; read-files: {written, already_read, not_in_files, by_format_and_timing}. pick_transcript_files.py: {files, list, by_kind_and_origin}. caption_transcripts.py: {rows, with_captions, index}. find_whisper_quotes.py: {quotes, problems, hits: [{video, stamp, quote, found, start, end, in_window, hit, of}]}. show_segments.py: {segments: [{start, text}]}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/audio-transcription/do-work/read_transcript_files.py read-file --file {input} --out {output}",
+          "needs": [
+            "python 3.10 or later"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. For one transcript file run `run` with the file in place of {input} and a new .words.json for {output}. For a drive's transcripts: ask for the asset index file, the drive's root name and the store (the files door's answer saved as JSON, or a namespace sqlite copy), run `pick_transcript_files.py --assets FILE --root NAME --held FILE --out LIST.tsv`, then, once the listed files' bytes are in a folder as <hex>.<ext>, `read_transcript_files.py read-files --list LIST.tsv --bytes FOLDER --out-dir FOLDER --root NAME --origin STORE` (add --fps for timecode transcripts not at 24 frames a second). For a channel downloaded with yt-dlp: `caption_transcripts.py --corpus FOLDER --channel LABEL`; for videos with no captions use tool:hear-a-link, then audio_transcription.py judge and text. Before trusting quotes taken from whisper transcripts run `find_whisper_quotes.py --corpus FOLDER` and tell the person every quote not found or outside its window. `show_segments.py FILE START END` shows what was said between two seconds. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:audio-transcription",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from Trillion-X/source-repo-a tools/ (the drive transcript-file parser and picker, the channel caption builder, the whisper quote audit and the segment printer); ports/ names each source"
         }
       }
     },
