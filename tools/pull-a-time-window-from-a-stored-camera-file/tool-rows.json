@@ -1,0 +1,323 @@
+{
+  "kind": "package-set-records",
+  "record_set": "pull-a-time-window-from-a-stored-camera-file-tool-rows",
+  "what_this_is": "The Workshop row for the pull-a-time-window-from-a-stored-camera-file folder: a program run on the person's own computer to take the audio of one stretch, or one picture, out of a camera file kept in their cloud storage without downloading the file.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:pull-a-time-window-from-a-stored-camera-file",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:pull-a-time-window-from-a-stored-camera-file",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true
+        },
+        "label": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it",
+        "job": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+        "description": "Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg. Camera files run about 13 MB per second of footage, so this takes seconds where a whole-file pull takes hours and costs a few megabytes of storage reads instead of the file. The wav starts with silence up to the window's start, so second N of the wav is second N of the camera file. The request names the stored file's identity, the mode (window with from and to, or frame with at) and out (a file in the folder the person let this tool change). The person's own storage, kept in their list:settings row for this tool (settings_record) or given as settings: store (the store the reader is pointed at), account (the storage account id), reader {argv, cwd, env, ok_marker, retries, retry_seconds} (argv is a template filled with {store} {account} {identity} {out} {offset} {length}), credentials (names of environment variables the reader needs, set from the person's vault), gap (bytes; audio reads closer than this are joined). A key at the top of the request wins over the same setting. The tool never reads, prints or keeps a key; the reader program reads the storage itself.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "identity",
+            "out"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "window",
+                "frame"
+              ]
+            },
+            "identity": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The stored file's identity as the store names it."
+            },
+            "from": {
+              "type": "number",
+              "minimum": 0
+            },
+            "to": {
+              "type": "number",
+              "minimum": 0
+            },
+            "at": {
+              "type": "number",
+              "minimum": 0
+            },
+            "out": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The wav (window) or jpg (frame) to write, in the folder the person let this tool change."
+            },
+            "store": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "reader": {
+              "type": "object"
+            },
+            "credentials": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "gap": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:pull-a-time-window-from-a-stored-camera-file~",
+              "description": "The person's list:settings row holding their store, account and reader."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings for this run, laid over the row's: store, account, reader, credentials, gap."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "mode",
+            "identity",
+            "out",
+            "bytes_fetched",
+            "reads"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "window",
+                "frame"
+              ]
+            },
+            "identity": {
+              "type": "string"
+            },
+            "out": {
+              "type": "string"
+            },
+            "bytes_fetched": {
+              "type": "integer"
+            },
+            "reads": {
+              "type": "integer"
+            },
+            "from": {
+              "type": "number"
+            },
+            "to": {
+              "type": "number"
+            },
+            "audio_packets": {
+              "type": "integer"
+            },
+            "audio_reads": {
+              "type": "integer"
+            },
+            "audio_bytes": {
+              "type": "integer"
+            },
+            "frame_at": {
+              "type": "number"
+            },
+            "asked_at": {
+              "type": "number"
+            },
+            "packet_bytes": {
+              "type": "integer"
+            },
+            "settings_from": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program",
+            "change-a-folder"
+          ],
+          "workdir": "/opt/pull-a-time-window-from-a-stored-camera-file",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/settings/do-work/run-with-settings.mjs",
+            "--folder",
+            "pull-a-time-window-from-a-stored-camera-file",
+            "--",
+            "python3",
+            "-I",
+            "/opt/pull-a-time-window-from-a-stored-camera-file/do-work/pull_window.py",
+            "--base",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.change-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:pull-a-time-window-from-a-stored-camera-file~",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-a-time-window-from-a-stored-camera-file",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/pull-a-time-window-from-a-stored-camera-file"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from a film folder's tools/b2_audio_window.py (film-making repository, commit 5a9ba39); the reader, store and account became the person's settings"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "identity": "12:made-up",
+              "from": 1,
+              "to": 2,
+              "out": "window.wav",
+              "settings_record": "record:setting:pull-a-time-window-from-a-stored-camera-file~person~all"
+            },
+            "records": [
+              {
+                "id": "record:setting:pull-a-time-window-from-a-stored-camera-file~person~all",
+                "type": "record:setting",
+                "value": {
+                  "name": "My camera files in cloud storage",
+                  "tool": "tool:pull-a-time-window-from-a-stored-camera-file",
+                  "scope_kind": "person",
+                  "scope_id": "all",
+                  "settings": {
+                    "store": "sample-store",
+                    "account": "acct-made-up",
+                    "reader": {
+                      "argv": [
+                        "camera-store-reader",
+                        "{store}",
+                        "{account}",
+                        "{identity}",
+                        "{out}",
+                        "{offset}",
+                        "{length}"
+                      ],
+                      "retries": 2,
+                      "retry_seconds": 0
+                    }
+                  },
+                  "from": "made up for this sample",
+                  "status": "active"
+                }
+              }
+            ],
+            "stand_in_programs": {
+              "camera-store-reader": "printf '\\000\\000\\000\\020moov\\000\\000\\000\\000\\000\\000\\000\\000' > \"$4\"\necho ok-range\n",
+              "ffprobe": "echo '{\"packets\": [{\"pts_time\": \"1.000000\", \"pos\": \"0\", \"size\": \"16\", \"flags\": \"K__\"}]}'\n",
+              "ffmpeg": "last=\"\"; for a in \"$@\"; do last=\"$a\"; done\nprintf 'RIFF' > \"$last\"\n"
+            }
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "mode": "frame",
+              "identity": "12:made-up",
+              "at": 1,
+              "out": "frame.jpg",
+              "settings": {
+                "store": "sample-store",
+                "account": "acct-made-up",
+                "reader": {
+                  "argv": [
+                    "camera-store-reader",
+                    "{store}",
+                    "{account}",
+                    "{identity}",
+                    "{out}",
+                    "{offset}",
+                    "{length}"
+                  ],
+                  "retries": 2,
+                  "retry_seconds": 0
+                }
+              }
+            },
+            "stand_in_programs": {
+              "camera-store-reader": "printf '\\000\\000\\000\\020moov\\000\\000\\000\\000\\000\\000\\000\\000' > \"$4\"\necho ok-range\n",
+              "ffprobe": "echo '{\"packets\": [{\"pts_time\": \"1.000000\", \"pos\": \"0\", \"size\": \"16\", \"flags\": \"K__\"}]}'\n",
+              "ffmpeg": "last=\"\"; for a in \"$@\"; do last=\"$a\"; done\nprintf 'RIFF' > \"$last\"\n"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

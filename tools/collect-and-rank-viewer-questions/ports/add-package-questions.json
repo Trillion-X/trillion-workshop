@@ -1,0 +1,94 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VIEWER-QUESTION-PACKAGES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: models-research lane, slice viewer-questions",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c720bec4f14035b75a336a86ec63ec88afb1e0090d922ace368c12ac5847407f",
+   "lines": [
+    10,
+    81
+   ],
+   "multihash": "1f:23159280d8036220ba7a7ad8afbdffc47f892119a6aca965d127f532ac08fd9f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c720bec4f14035b75a336a86ec63ec88afb1e0090d922ace368c12ac5847407f",
+   "lines": [
+    2,
+    8
+   ],
+   "multihash": "1f:375472af4f193f2ffc5ca2738c2c9df4d755f1d73ed0f8f149449c7615694fa5",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c720bec4f14035b75a336a86ec63ec88afb1e0090d922ace368c12ac5847407f",
+   "lines": [
+    84,
+    90
+   ],
+   "multihash": "1f:60ffd1a75e996ff90aeb10a71bf1ae4d3fb92f554386766c461e353e1e20e22a",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/collect-and-rank-viewer-questions/do-work/add_package_questions.py",
+   "baseline_commit_message": "collect-and-rank-viewer-questions: the old viewer-questions scripts, byte copies (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "a row the observed rule matches joins as observed with the asker's words and link; every other row is a hypothesis",
+  "a package bucket with no bucket here is kept as proposed_bucket",
+  "a question already held or a row already merged is skipped; new ids continue after the highest vq- id"
+ ],
+ "allowed_deltas": [
+  "how each package is read and the library's note are the person's settings row (packages, note)",
+  "an unknown package is refused; the last line is {result}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another folder",
+  "a person's bucket, code, segment, path or name written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:23159280d8036220ba7a7ad8afbdffc47f892119a6aca965d127f532ac08fd9f",
+  "target_multihash_at_baseline": "1f:23159280d8036220ba7a7ad8afbdffc47f892119a6aca965d127f532ac08fd9f",
+  "commit": "5137c28293a249a497e448d180d9948edb9aa235",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def codes_of",
+   "def norm"
+  ],
+  "test_refs": [
+   "tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of source-repo-a beside this one finds it."
+}

@@ -1,0 +1,109 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VIEWER-QUESTION-MOMENTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: models-research lane, slice viewer-questions",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1e77ec8dba5f5c8f74f2533676fed25d86e825be365eb80a02f8b499f4e6aad2",
+   "lines": [
+    8,
+    44
+   ],
+   "multihash": "1f:7971f02f71beacafdc079c1f41be43c6f577fc36fa6d2fb449fdba3d21afed94",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1e77ec8dba5f5c8f74f2533676fed25d86e825be365eb80a02f8b499f4e6aad2",
+   "lines": [
+    46,
+    78
+   ],
+   "multihash": "1f:dfee07ea1b5503d30b73156400d3ed5748fbb9e72cc638ee164592944027c857",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1e77ec8dba5f5c8f74f2533676fed25d86e825be365eb80a02f8b499f4e6aad2",
+   "lines": [
+    2,
+    4
+   ],
+   "multihash": "1f:130e9efee55906097076e350cfaa3ecc6f4968af5ff0214b927c68669223c88c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1e77ec8dba5f5c8f74f2533676fed25d86e825be365eb80a02f8b499f4e6aad2",
+   "lines": [
+    6,
+    6
+   ],
+   "multihash": "1f:d9933a13b7c805bd346906e6a78ecf6bfda87fb44add71645941bc95dbef1f33",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/collect-and-rank-viewer-questions/do-work/embed_moments.py",
+   "baseline_commit_message": "collect-and-rank-viewer-questions: the old viewer-questions scripts, byte copies (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "word-timed words cut into sentences at . ? ! (at least 8 words, cut at 45)",
+  "a Whisper loop (under 55% different words) is dropped",
+  "table rows without times are skipped; estimated time basis from est-from-duration",
+  "the same quote is kept once; vectors are bge-small, normalized"
+ ],
+ "allowed_deltas": [
+  "the transcripts folder and the moments table are arguments (- for no table)",
+  "the last line is {result}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another folder",
+  "a person's bucket, code, segment, path or name written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:7971f02f71beacafdc079c1f41be43c6f577fc36fa6d2fb449fdba3d21afed94",
+  "target_multihash_at_baseline": "1f:7971f02f71beacafdc079c1f41be43c6f577fc36fa6d2fb449fdba3d21afed94",
+  "commit": "5137c28293a249a497e448d180d9948edb9aa235",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def distinct_enough",
+   "def sentences"
+  ],
+  "test_refs": [
+   "tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of source-repo-a beside this one finds it."
+}

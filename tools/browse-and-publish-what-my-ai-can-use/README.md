@@ -12,4 +12,5 @@ The Marketplace shelf: everything a person's AI can use, theirs and everyone's (
 | `do-work/read-a-shelf.mjs` | `readAShelf({ kind, rows, published })`: rows of one kind as shelf items (what `tool-rows.json` runs) |
 | `moved-from.json` | Where the two moved parts came from, their line ranges and the identity of their source bytes |
 | `ports/` | The port contracts of the three do-work files |
-| `tool-rows.json` | The row `tool:read-rows-as-marketplace-shelf-items` |
+| `test/make-shelf-tiles.test.mjs` | Tiles against a made-up icons folder: own icons, an alias, the kind icon, machine titles left out, the job cut, the page file, icon files read and never run |
+| `tool-rows.json` | The rows `tool:read-rows-as-marketplace-shelf-items` and `tool:make-marketplace-tiles-with-their-icons` (on the person's computer) |

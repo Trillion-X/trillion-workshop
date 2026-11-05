@@ -1,0 +1,357 @@
+{
+  "kind": "package-set-records",
+  "record_set": "work-out-a-recipes-nutrients-from-fooddata-central-tool-rows",
+  "what_this_is": "The Workshop row for the work-out-a-recipes-nutrients-from-fooddata-central folder: works out a recipe's nutrients from the person's USDA FoodData Central downloads, one JSON request in, one JSON answer out.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:work-out-a-recipes-nutrients-from-fooddata-central",
+        "status": "active",
+        "label": "Work out a recipe's nutrients from USDA FoodData Central",
+        "job": "Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
+        "description": "Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value. Nutrient ids fall back in order (energy 1008 then 2047, sugars 2000 then 1063, and so on). An ingredient can be scaled so one nutrient matches its pack label. It answers the profile, the recipe with the person's own words kept, and a printed table; with write_to it also writes <id>.profile.json and <id>.recipe.json. It reads only the CSVs it is given and makes no calls. The recipe can come from the person's list:settings row (settings_record, read through tools/settings) instead of the request.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "datasets"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "basis": {
+              "type": "string"
+            },
+            "built": {
+              "type": "string",
+              "description": "The time stamped on the answer (default: now)"
+            },
+            "yield_note": {
+              "type": "string",
+              "description": "Kept in the recipe; {mix_g:.0f} is replaced by the mix mass"
+            },
+            "datasets": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "description": "One FoodData Central download (SR Legacy, Foundation or another in the same CSV layout): {\"dir\": \"<the unzipped folder>\"} when it runs on the person's computer, or the CSV texts themselves (food_nutrient and food_portion needed; nutrient and food optional).",
+                "properties": {
+                  "dir": {
+                    "type": "string"
+                  },
+                  "food_nutrient": {
+                    "type": "string",
+                    "description": "food_nutrient.csv: fdc_id, nutrient_id, amount (per 100 g)"
+                  },
+                  "food_portion": {
+                    "type": "string",
+                    "description": "food_portion.csv: fdc_id, amount, modifier, portion_description, gram_weight"
+                  },
+                  "nutrient": {
+                    "type": "string"
+                  },
+                  "food": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "ingredients": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "A short word for the ingredient, unique in the recipe"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string",
+                    "description": "The amount in the person's words"
+                  },
+                  "fdc_id": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ],
+                    "description": "The FoodData Central food id; leave out to count the ingredient as nothing (it is still listed)"
+                  },
+                  "dataset": {
+                    "type": "string",
+                    "description": "Which of datasets holds fdc_id"
+                  },
+                  "grams": {
+                    "type": "number"
+                  },
+                  "portion": {
+                    "type": "object",
+                    "required": [
+                      "unit_contains"
+                    ],
+                    "description": "Grams from a portion instead: count x the grams of one portion of fdc_id in dataset (both default to the ingredient's own) whose modifier or description contains unit_contains",
+                    "properties": {
+                      "dataset": {
+                        "type": "string"
+                      },
+                      "fdc_id": {
+                        "type": [
+                          "string",
+                          "integer"
+                        ]
+                      },
+                      "unit_contains": {
+                        "type": "string"
+                      },
+                      "count": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "scale": {
+                    "type": "number",
+                    "description": "Multiply every nutrient by this (default 1)"
+                  },
+                  "scale_to_label": {
+                    "type": "object",
+                    "required": [
+                      "nutrient",
+                      "amount"
+                    ],
+                    "description": "Scale every nutrient so this nutrient's amount for the ingredient equals a pack label's (e.g. protein 45)",
+                    "properties": {
+                      "nutrient": {
+                        "type": "string"
+                      },
+                      "amount": {
+                        "type": "number"
+                      }
+                    }
+                  },
+                  "base": {
+                    "type": "boolean",
+                    "description": "A main ingredient: where FoodData Central has no value for it, the nutrient is flagged unknown_lower_bound_only, not a gap"
+                  },
+                  "amount_status": {},
+                  "evidence": {},
+                  "modelling_note": {
+                    "type": "string",
+                    "description": "Kept in the recipe; {scale:.3f} is replaced by the label scale"
+                  }
+                }
+              }
+            },
+            "nutrient_caveats": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "string"
+              },
+              "description": "A caveat to show on a nutrient's row, by nutrient key"
+            },
+            "cross_check": {
+              "type": "object",
+              "description": "Other counts to show beside this one (e.g. what the person said); this_model is added"
+            },
+            "recipe_notes": {
+              "type": "object",
+              "description": "More fields kept in the recipe as given (method, open questions)"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "A folder on the person's computer to write the two JSON files into"
+            },
+            "settings_record": {
+              "description": "The person's saved recipe: their list:settings row(s) as records:read gives them ({id, type, value}, id record:setting:work-out-a-recipes-nutrients-from-fooddata-central~piece~<piece-id>, value.settings the request fields without datasets), read through tools/settings. A field the request gives itself wins."
+            },
+            "piece": {
+              "type": "string",
+              "description": "Which saved recipe (the piece id) to read from settings_record"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "profile",
+            "recipe",
+            "summary_lines",
+            "written"
+          ],
+          "properties": {
+            "profile": {
+              "type": "object",
+              "required": [
+                "id",
+                "mix_mass_g",
+                "nutrients"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "built": {
+                  "type": "string"
+                },
+                "basis": {
+                  "type": "string"
+                },
+                "mix_mass_g": {
+                  "type": "number"
+                },
+                "cross_check": {
+                  "type": "object"
+                },
+                "nutrients": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "key",
+                      "nutrient",
+                      "unit",
+                      "per_batch",
+                      "per_100g",
+                      "ingredients_without_data"
+                    ]
+                  }
+                },
+                "per_ingredient_contribution_per_batch": {
+                  "type": "object"
+                },
+                "dri_source": {
+                  "type": "string"
+                },
+                "food_data_sources": {
+                  "type": "object"
+                },
+                "scale_factors": {
+                  "type": "object"
+                }
+              }
+            },
+            "recipe": {
+              "type": "object",
+              "required": [
+                "id",
+                "ingredients"
+              ]
+            },
+            "summary_lines": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "written": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "work-out-a-recipes-nutrients-from-fooddata-central",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/work-out-a-recipes-nutrients-from-fooddata-central"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          },
+          "workdir": "/opt/work-out-a-recipes-nutrients-from-fooddata-central",
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "do-work/work_out_recipe_nutrients.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          }
+        },
+        "result_selector": "$",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false,
+          "memory_mb": 512
+        },
+        "maker": "maker:work-out-a-recipes-nutrients-from-fooddata-central",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container",
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "A one-off recipe profile script in Trillion-X/source-repo-a (tools/tofu_ice_cream_profile.py at 5a9ba39), with its recipe moved out of the code into the request",
+          "data": "USDA FoodData Central (public domain) downloads the person gives; adult 19-30 DRIs transcribed from the NASEM Dietary Reference Intakes summary tables (read-data/nutrients.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "id": "made-up-smoothie",
+              "title": "Made-up smoothie",
+              "built": "2026-01-01T00:00:00+00:00",
+              "datasets": {
+                "made_up": {
+                  "food_nutrient": "id,fdc_id,nutrient_id,amount\n1,101,1008,60\n2,101,1003,3\n3,101,1087,120\n4,102,2047,90\n5,102,1003,1\n6,102,1093,\n",
+                  "food_portion": "id,fdc_id,seq_num,amount,measure_unit_id,portion_description,modifier,gram_weight\n1,101,1,1,1,,cup,240\n",
+                  "food": "fdc_id,description\n101,Made-up drink\n102,Made-up fruit\n"
+                }
+              },
+              "ingredients": [
+                {
+                  "id": "drink",
+                  "name": "Made-up drink",
+                  "amount": "1 cup",
+                  "fdc_id": "101",
+                  "dataset": "made_up",
+                  "portion": {
+                    "unit_contains": "cup",
+                    "count": 1
+                  },
+                  "base": true
+                },
+                {
+                  "id": "fruit",
+                  "name": "Made-up fruit",
+                  "amount": "100 g",
+                  "fdc_id": "102",
+                  "dataset": "made_up",
+                  "grams": 100
+                }
+              ]
+            },
+            "output_selector": "$.profile.mix_mass_g",
+            "contains": "340"
+          }
+        ]
+      }
+    }
+  ]
+}
