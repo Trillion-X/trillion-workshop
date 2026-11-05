@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:fd1e0af731332bad4cdf45a32559516202af8676d0a032686d1f025701c8375c"
+  "blake3": "1f:3d938574aacf731a79551f686dc6edb6062b44e8abdfb876418ba268bd2304d5"
  },
  "fields": [
   {
@@ -12262,6 +12262,22 @@
      "placement:small-container"
     ],
     "folder": "coordination-sessions"
+   }
+  },
+  {
+   "id": "tool:work-out-a-recipes-nutrients-from-fooddata-central",
+   "values": {
+    "title": "Work out a recipe's nutrients from USDA FoodData Central",
+    "job": "Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
+    "description": "Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value. Nutrient ids fall back in order (energy 1008 then 2047, sugars 2000 then 1063, and so on). An ingredient can be scaled so one nutrient matches its pack label. It answers the profile, the recipe with the person's own words kept, and a printed table; with write_to it also writes <id>.profile.json and <id>.recipe.json. It reads only the CSVs it is given and makes no calls. The recipe can come from the person's list:settings row (settings_record, read through tools/settings) instead of the request.",
+    "status": "active",
+    "maker": "maker:work-out-a-recipes-nutrients-from-fooddata-central",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container",
+     "placement:your-computer"
+    ],
+    "folder": "work-out-a-recipes-nutrients-from-fooddata-central"
    }
   },
   {
