@@ -316,6 +316,13 @@
                 "at": "/opt/set-up-my-account"
               },
               {
+                "package": "set-up-my-devices-and-cameras",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/set-up-my-devices-and-cameras"
+              },
+              {
                 "package": "records-door",
                 "paths": [
                   "do-work",
@@ -343,6 +350,15 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "uqr",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "dist/index.mjs"
+                ],
+                "at": "/opt/node_modules/uqr"
               }
             ]
           },
@@ -383,12 +399,12 @@
                   "workspace:read"
                 ]
               }
+            ],
+            "runs": [
+              "tool:see-what-is-left-to-set-up"
             ]
           }
         },
-        "runs": [
-          "tool:see-what-is-left-to-set-up"
-        ],
         "needs": {
           "expected_seconds": 5,
           "network_egress": false

@@ -26,6 +26,7 @@
 //   4. Nothing is written.
 import showRules from '../read-data/show-rules.json' with { type: 'json' };
 import setupSettings from '../read-data/setup-steps.json' with { type: 'json' };
+import { devicesFor, installationObserver, systemOf } from '../../set-up-my-devices-and-cameras/src/devices.mjs';
 
 const SCREEN_TOOL = 'tool:see-what-is-left-to-set-up';
 const SETUP_FACTS = 'setup_facts';
@@ -65,11 +66,21 @@ export async function readSetup(input = {}, { door } = {}) {
     throw Object.assign(new Error(error?.message ?? 'Setup could not be read.'), { status: Number.isInteger(error?.status) ? error.status : 502 });
   }
   if (!object(answer)) throw Object.assign(new Error('Setup could not be read.'), { status: 502 });
+  // Old /setup/facts drew `devices` from the names the account's sign-ins were made under (devicesFor({ signedInAs, system,
+  // observer, distribution, now }), src/native-setup.mjs:243) only when those names could be read; the files door answers
+  // them as `signed_in.names`. The device releases (`distribution`) have no owner here, so each app's ways to get it are
+  // its published entries alone, as old devicesFor drew them when the distribution read failed.
+  const userAgent = text(input.user_agent);
+  const system = Object.hasOwn(answer, 'system') ? answer.system : systemOf(userAgent);
+  const signedIn = object(answer.signed_in) && Array.isArray(answer.signed_in.names) ? answer.signed_in.names.filter(name => typeof name === 'string') : null;
+  const now = typeof input.now === 'string' && Number.isFinite(Date.parse(input.now)) ? Date.parse(input.now) : Date.now();
+  const devices = signedIn ? devicesFor({ signedInAs: signedIn, system, observer: installationObserver(userAgent), distribution: null, now }) : undefined;
   const [rules, personalContext] = await Promise.all([ownRecord(door, showRules.record), ownRecord(door, setupSettings.policy.context_record)]);
   const request = {
     account_id: accountId,
-    facts: object(answer.facts) ? answer.facts : {},
+    facts: { ...(object(answer.facts) ? answer.facts : {}), ...(devices && !object(answer.facts?.devices) && !Array.isArray(answer.facts?.devices) ? { devices } : {}) },
     ...Object.fromEntries(BESIDE.filter(name => Object.hasOwn(answer, name)).map(name => [name, answer[name]])),
+    ...(Object.hasOwn(answer, 'system') ? {} : { system }),
     ...(rules !== undefined ? { rules } : {}),
     ...(personalContext !== undefined ? { personal_context: personalContext } : {}),
     origin,
