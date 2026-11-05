@@ -21,16 +21,30 @@
 //      jobs up there, tools/hand-work-to-ais); the row's rights grant no more.
 //   4. The hold setting is written with `expected` set to what was read; one changed meanwhile answers 409 { error }
 //      and nothing is written. A job is written only while absent, under its `once_per`, so one is handed once.
+//   5. Every read keeps what the hold holds now as the person's `setting:needs_you_held` ({ key, title }, or null when
+//      nothing is held), written only when it changed, as old keepHeld did, so every AI's turn can be told it cheaply.
+//   6. `seen` marks read the notices the held thing's own device runs told (each `hold.devices.when_held` run whose
+//      input `key` names the thing), on this page's surface, `from: 'thing'`, with the moved tell owner's markRead over
+//      the person's told-the-person records, as old needsYouHold did.
+//
+// NOT HERE (each needs what a route run does not have; see README.md)
+//   - The cards are the person's Waiting on you rows, not old trillion's whole Waiting on you answer.
+//   - The walk-away nudge (prepareForHold) weighs that whole answer's sections; it is not run.
+//   - The device tools of `hold.devices` (when_held, when_free) are other Workshop tools: a run cannot start one.
 //
 import ROWS from '../read-data/hold-rows.json' with { type: 'json' };
-import { askOff, chooseStake, handBack, holdView, setAside, turnOn } from '../read-data/needs-you-hold.mjs';
+import { askOff, chooseStake, handBack, heldInput, holdView, setAside, turnOn } from '../read-data/needs-you-hold.mjs';
 import { answerOfRows } from './hold.mjs';
+import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
+import { makeTellThePerson } from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs';
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
 const settingValue = value => (object(value) && object(value.value) ? value.value : null);
 const CONFLICT = 'original_command_conflict';
 const BUSY = { error: 'Busy for a moment. Try again.', busy: true };
+const HELD = { type: 'setting', id: 'setting:needs_you_held' };
+const TOLD = 'told-the-person';
 // Who hands the hold's jobs to the person's AIs: old trillion handed them `from_agent: 'trillion-waiting'`.
 const JOBS = { kind: 'ai-job', start: 'waiting', from: 'ai:trillion-waiting', priority: 5, key: /[^A-Za-z0-9._:-]/g };
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
@@ -63,9 +77,69 @@ async function read(door, now, rules) {
   const settings = rules ?? await rulesOf(door);
   const state = (await readSetting(door, ROWS.state)).value ?? {};
   const view = holdView(await cardsOf(door), state, settings, now);
+  await keepHeld(door, view.held);
   const said = view.held ? fill(settings.words?.held, { title: view.held.card.title ?? '' })
     : view.on ? settings.words?.free : fill(settings.words?.off, view);
   return { ...view, said, words: settings.words };
+}
+
+/** What the hold holds now, kept as setting:needs_you_held when it changed (old keepHeld, without its device runs). */
+async function keepHeld(door, held) {
+  const heldFact = held ? { key: held.key, title: held.card.title ?? '' } : null;
+  const kept = await door.readRecord(HELD.type, HELD.id);
+  const before = object(kept?.value) ? kept.value.value ?? null : null;
+  if ((before?.key ?? null) === (heldFact?.key ?? null) && (before?.title ?? null) === (heldFact?.title ?? null)) return;
+  try {
+    await door.write([{ id: HELD.id, type: HELD.type, value: { ...(object(kept?.value) ? kept.value : {}), value: heldFact },
+      expected: kept ? { type: HELD.type, value: kept.value } : null }], { key: `needs-you-held:${heldFact?.key ?? 'free'}:${heldFact?.title ?? ''}` });
+  } catch (error) { if (error?.code !== CONFLICT) throw error; }
+}
+
+/** The person's kept notices as the moved tell owner's store reads and writes them (tools/tell-the-person's layout). */
+async function noticesOverDoor(door) {
+  const held = new Map();
+  for await (const record of door.list({ type: TOLD })) held.set(record.id, record);
+  const head = held.get(TOLD)?.value ?? {};
+  const legacy = Array.isArray(head.items);
+  let notices = legacy ? head.items : (head.seqs ?? []).map(seq => held.get(`${TOLD}:${seq}`)?.value?.item).filter(Boolean);
+  const writes = [];
+  return {
+    store: {
+      choices: () => null,
+      notices: () => notices,
+      putNotices: list => {
+        if (legacy) writes.splice(0, writes.length, { id: TOLD, type: TOLD, value: { ...head, items: list }, expected: { type: TOLD, value: held.get(TOLD).value } });
+        else for (const item of list) {
+          const record = held.get(`${TOLD}:${item.seq}`);
+          if (!record || JSON.stringify(record.value?.item) === JSON.stringify(item)) continue;
+          const at = writes.findIndex(write => write.id === record.id);
+          const write = { id: record.id, type: TOLD, value: { ...record.value, item }, expected: { type: TOLD, value: record.value } };
+          if (at >= 0) writes[at] = write; else writes.push(write);
+        }
+        notices = list;
+      },
+    },
+    writes,
+  };
+}
+
+/** seen: the notices the held thing's device runs told, marked read on this page's surface (old needsYouHold). */
+async function seen(door, body, now) {
+  const key = text(body.key);
+  if (!key) return { seen: null, read: [] };
+  const rules = await rulesOf(door);
+  const keys = (rules.devices?.when_held ?? []).map(run => heldInput(run.input, { key, title: '' })?.key)
+    .filter((notice, index) => typeof notice === 'string' && notice !== rules.devices.when_held[index].input?.key);
+  if (!keys.length) return { seen: key, read: [] };
+  const kept = await noticesOverDoor(door);
+  const tell = makeTellThePerson({ rows: tellRows, store: kept.store, senders: {}, now: () => new Date(now) });
+  const on = { here: true, ...(text(body.device_id) ? { device_id: text(body.device_id) } : {}), from: 'thing' };
+  const read = keys.map(notice => tell.markRead({ key: notice, on }));
+  if (kept.writes.length) {
+    try { await door.write(kept.writes, { key: `needs-you-hold-seen:${key}:${now}` }); }
+    catch (error) { if (error?.code === CONFLICT) throw new Refused('The notices changed meanwhile. Try again.', 409); throw error; }
+  }
+  return { seen: key, read };
 }
 
 const CHANGES = {
@@ -86,7 +160,7 @@ async function handOff(door, job, now) {
 }
 
 async function change(door, body, now) {
-  if (body?.op === 'seen') return { seen: text(body.key) || null, read: [] };
+  if (body?.op === 'seen') return seen(door, body, now);
   if (!body?.op || body.op === 'read') return read(door, now);
   const operation = CHANGES[body.op];
   if (!operation) throw new Error('Say what to do: read, aside, hand_back, stake, off or on.');
