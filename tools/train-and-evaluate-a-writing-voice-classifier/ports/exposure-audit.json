@@ -1,0 +1,57 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-EXPOSURE-AUDIT-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:0854025c47736786be40293f13e3247b41c13eb66f3350359fbf81a24e85a21e",
+      "multihash": "1f:0c73ef0c4950de23c4ab7c2e750fa56a3648ddee23015eabbce060bc1504d2e2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/exposure_audit.py"
+    }
+  ],
+  "preserve": [
+    "text matches are exact or NFKC, casefold and whitespace normalized substrings with word boundaries and a 16-character minimum",
+    "same-family and complete-state matches are reported",
+    "source identities are echoed only as safe tokens, never paths",
+    "no match is never claimed as independence"
+  ],
+  "allowed_deltas": [
+    "a command entry reads one JSON request on standard input and prints the audit as the last line"
+  ],
+  "banned_substitutions": [
+    "fuzzy or semantic overlap claimed as measured"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:0c73ef0c4950de23c4ab7c2e750fa56a3648ddee23015eabbce060bc1504d2e2",
+    "target_multihash_at_baseline": "1f:0c73ef0c4950de23c4ab7c2e750fa56a3648ddee23015eabbce060bc1504d2e2"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "def audit_exposure(",
+      "def _boundary_match("
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/test_exposure_audit.py"
+    ]
+  }
+}

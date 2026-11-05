@@ -1,0 +1,63 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-EVALUATION-INTEGRITY-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:4d214cef22957fc9c695c44bafdc473251eaf5eb39dfbd23eb7fe0c435111210",
+      "multihash": "1f:200bc25563eb39175276f86f2e47890daf2244245c07dfcda1322b9eee6c6640",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/read-data/evaluation-integrity.mjs"
+    }
+  ],
+  "preserve": [
+    "v1, v2 and v3 challenge DATA is validated before any request: unique ids, one split per family, typed block kinds, criteria shapes and gold labels",
+    "the request plan sends the passage and only criterion-scoped or pinned reference context, never general item context",
+    "a section heading is judged over complete ordered source-bound chunks; one fail chunk fails it, all pass chunks pass it, else uncertain",
+    "a prior report resumes only when data, rubric, model, endpoint, serving identity, request policy, captured request and raw response all match",
+    "a decision is the predicted option only when its probability exceeds the diagnostic minimum, else uncertain"
+  ],
+  "allowed_deltas": [
+    "the hosted classifier wire shape (intoBatchRequest, outOfBatchReply) is imported from tools/ask-a-small-model-for-a-verdict, its one home, instead of a checkout an environment variable names",
+    "the place-reports helper and its words file are not carried: endpoint and model are the caller's settings"
+  ],
+  "banned_substitutions": [
+    "a second copy of the hosted classifier wire shape",
+    "a fitted threshold presented as calibration"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:200bc25563eb39175276f86f2e47890daf2244245c07dfcda1322b9eee6c6640",
+    "target_multihash_at_baseline": "1f:200bc25563eb39175276f86f2e47890daf2244245c07dfcda1322b9eee6c6640"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "export function validateInput",
+      "export function requestPlan",
+      "export function validateReport",
+      "export function aggregateSectionChunkResults",
+      "export function expectedDecision"
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/evaluation-integrity.test.mjs"
+    ]
+  }
+}

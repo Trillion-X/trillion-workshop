@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-EVALUATE-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:6922715077e626a70835370ad9fc6493898cdd7ed04f12f41e526ac202cec82b",
+      "multihash": "1f:96177dd9ee8c8bda733646c753d0b86b3947aaefdd81a40c980ce45499536d01",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/evaluate-voice.mjs"
+    }
+  ],
+  "preserve": [
+    "each result is checkpointed as it lands and the report is validated before it is written",
+    "raw probabilities, confidence, timing and every request and response are kept",
+    "a reply whose model or serving identity differs from health is an error, never a result",
+    "nothing unjudged becomes a pass: errors are kept as errors",
+    "summaries by criterion, family and source kind with confusion matrices and abstentions"
+  ],
+  "allowed_deltas": [
+    "endpoint, model, attempts and workers come from the person's settings row (tools/settings) or arguments instead of environment variables",
+    "the evaluation runs as a function the row calls with a stand-in post that plays recorded replies; the command line keeps the old flags"
+  ],
+  "banned_substitutions": [
+    "a default endpoint or model named in code",
+    "converting uncertain to pass"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:96177dd9ee8c8bda733646c753d0b86b3947aaefdd81a40c980ce45499536d01",
+    "target_multihash_at_baseline": "1f:96177dd9ee8c8bda733646c753d0b86b3947aaefdd81a40c980ce45499536d01"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "function confusionFor(",
+      "function summarizePredictions(",
+      "function assertResponseIdentity("
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/evaluate-voice-cli.test.mjs"
+    ]
+  }
+}
