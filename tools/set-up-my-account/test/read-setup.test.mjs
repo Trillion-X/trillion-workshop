@@ -123,5 +123,27 @@ test('the row runs through the door with exactly its rights: setup_facts, its ow
   assert.equal(typeof at, typeof goldenAt);
   assert.deepEqual(drawn, golden);
   assert.deepEqual(run.runs.map(item => item.tool), ['tool:see-what-is-left-to-set-up']);
-  assert.deepEqual(ROW.runs, ['tool:see-what-is-left-to-set-up']);
+  assert.deepEqual(ROW.invoke.records.runs, ['tool:see-what-is-left-to-set-up']);
+});
+
+// The engine's setup_facts answers the names the account's sign-ins were made under (`signed_in.names`) and no `system`;
+// old /setup/facts drew `devices` from those names (devicesFor({ signedInAs, system, observer, distribution, now }),
+// src/native-setup.mjs:243) and the system from the asking browser. Read here the same way.
+test('the apps the account has come from the names its sign-ins were made under, and the system from the asking browser', async () => {
+  const sent = [];
+  const engine = {
+    async files() { return { facts: {}, signed_in: { names: ['Trillion for Mac', 'Claude'], complete: true }, shared_rules: null, context: null, origin: ORIGIN }; },
+    async readWorkspace([label]) { return { records: { [label]: null } }; },
+    async run(tool, input) { sent.push(input); return seeWhatIsLeftToSetUp(input); },
+  };
+  await readSetup({ account_id: 'acct-a', user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 15_1)', origin: ORIGIN, now: NOW }, { door: engine });
+  const [input] = sent;
+  assert.equal(input.system, 'macos');
+  const installed = Object.fromEntries(input.facts.devices.map(device => [device.id, device.installed]));
+  assert.equal(installed.desktop, true, 'signed in as Trillion for Mac');
+  assert.equal(installed.iphone, false);
+  // No names read: devices stay unknown, never "none installed".
+  const unknown = [];
+  await readSetup({ account_id: 'acct-a', now: NOW }, { door: { ...engine, async files() { return { facts: {}, shared_rules: null, context: null }; }, async run(tool, input) { unknown.push(input); return seeWhatIsLeftToSetUp(input); } } });
+  assert.equal(unknown[0].facts.devices, undefined);
 });

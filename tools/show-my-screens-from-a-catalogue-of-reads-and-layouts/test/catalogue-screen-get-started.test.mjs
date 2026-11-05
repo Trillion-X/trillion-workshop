@@ -47,7 +47,7 @@ test('the read is a Workshop row that takes what the screen sends and runs the s
   assert.ok(readRow, 'tool:read-setup is in tools/set-up-my-account');
   assert.deepEqual(Object.keys(screenRow.screen.reads[0].input).sort(), ['account_id', 'origin', 'user_agent']);
   for (const name of Object.keys(screenRow.screen.reads[0].input)) assert.ok(readRow.input_schema.properties[name], name);
-  assert.deepEqual(readRow.runs, ['tool:see-what-is-left-to-set-up']);
+  assert.deepEqual(readRow.invoke.records.runs, ['tool:see-what-is-left-to-set-up']);
   assert.deepEqual(readRow.invoke.records.rights.map(right => right.files ? ['files', right.operations] : [right.id, right.operations]),
     [['files', ['setup_facts']], ['show-rules', ['workspace:read']], ['setup-context', ['workspace:read']]]);
 });
