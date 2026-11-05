@@ -749,6 +749,16 @@
       "to": "tools/media-composition/from-old-trillion/records/workshop-media-generation-tool-records.json",
       "source_identity": "1f:da9e692cec206a9c4d1d2c3a4596e57f4898e951be6a8549bfff5e1c01c907a8",
       "identity": "1f:da9e692cec206a9c4d1d2c3a4596e57f4898e951be6a8549bfff5e1c01c907a8"
+    },
+    {
+      "from": "test/relink-editor-projects.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/from-old-trillion/test/relink-editor-projects.test.mjs",
+      "source_identity": "1f:1cf26a4d28eab13fd8c59f5fed3d5d4e3cb43ccbd0a3b8ff513b59ac6d28210d",
+      "identity": "1f:182f77a44c04a146f73f836240830d995458ff13ba4187c8c7cc441722fa8c04",
+      "homes": {
+        "records/workshop-tool-records.json": "tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json"
+      }
     }
   ],
   "values": [
