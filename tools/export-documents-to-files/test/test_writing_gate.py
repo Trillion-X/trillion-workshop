@@ -1,4 +1,10 @@
-"""Actual CLI consumer tests for caller-owned manuscript writing policies."""
+"""Actual CLI consumer tests for the person's manuscript writing settings.
+
+Moved from trillion-launch-video tools/private-book-reader/test_writing_gate.py. The writing settings are one settings
+row's object (record:setting:export-documents-to-files~piece~<book-id>) instead of a .writing-policy.json beside the
+manuscript; the book's checks branch receipt is handed in; the book-voice classifier is a stand-in
+(voice-classifier-stand-in.mjs). Everything here is made up.
+"""
 import json
 import re
 import subprocess
@@ -8,13 +14,20 @@ import unittest
 from unittest.mock import patch
 from pathlib import Path
 from docx import Document
-import private_book_reader as builder
-from writing_gate import _reader_contexts, _validate_section_chunk_qualification, _writing_blocks, enforce_writing_policy
+
+HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE.parent / "do-work"))
+import export_markdown_book_to_word as builder  # noqa: E402
+import writing_gate  # noqa: E402
+from writing_gate import _reader_contexts, _validate_section_chunk_qualification, _writing_blocks, enforce_writing_policy  # noqa: E402
+
+STAND_IN = HERE / "voice-classifier-stand-in.mjs"
+BRANCH = "made-up-book-branch"
 
 
 def digest(data):
     raw = data.encode("utf-8") if isinstance(data, str) else data
-    return subprocess.check_output(["b3sum", "--no-names"], input=raw).decode().strip()
+    return writing_gate._snapshot_hash(raw)
 
 
 def fixture_confidence(probabilities):
@@ -28,7 +41,10 @@ def fixture_confidence(probabilities):
 class WritingGateTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
+        voice = patch.object(writing_gate, "VOICE_CLASSIFIER", STAND_IN)
+        voice.start()
+        self.addCleanup(voice.stop)
         self.source = self.root / "current.md"
         self.source.write_text("# Fixture\n\nA clear passage.\n")
         self.template = self.root / "template.docx"
@@ -36,7 +52,8 @@ class WritingGateTests(unittest.TestCase):
         self.output = self.root / "result.docx"
         self.profile = {"schema": "writing-profile-v1", "document_role": "current_prose", "rejections": [{"id": "r", "text": "Known rejected phrase", "authority": "author_confirmed"}], "protected_literals": [], "superseded_terms": [], "required_components": []}
         (self.root / "profile.json").write_text(json.dumps(self.profile))
-        self.policy = {"schema": "book-writing-policy-v1", "unknown_documents": "deny", "documents": {"current.md": {"source_blake3": digest(self.source.read_text()), "role": "current_prose", "profile": "profile.json"}}}
+        self.settings = {"source_blake3": digest(self.source.read_text()), "role": "current_prose", "profile": "profile.json",
+                         "evidence_folder": str(self.root), "checks_branch": BRANCH}
         self.save_policy()
 
     def tearDown(self):
@@ -74,30 +91,31 @@ class WritingGateTests(unittest.TestCase):
                                                   ["pass", "fail", "uncertain"], 0.5)
 
     def save_policy(self):
-        (self.root / ".writing-policy.json").write_text(json.dumps(self.policy))
+        (self.root / "settings.json").write_text(json.dumps(self.settings))
+
+    def receipt(self, source=None, status="passed"):
+        """What export-a-book.mjs hands in after the branch mode judged these bytes."""
+        return {"branch": BRANCH, "lineage": [BRANCH, "made-up-writing"], "status": status, "passed": status == "passed",
+                "document_blake3": digest((source or self.source).read_bytes())}
+
+    def enforce(self, source=None, settings=None, receipt=None):
+        return enforce_writing_policy(source or self.source, settings=self.settings if settings is None else settings,
+                                      checks_receipt=receipt or self.receipt(source))
 
     def admit_reviews(self):
         text = self.source.read_text()
         blocks = text.strip().split("\n\n")
         reviews = {"schema": "writing-review-v1", "document_blake3": digest(text), "blocks": [{"block_index": i, "block_blake3": digest(value), "reviewer_role": "model", "reviewer": "fixture", "reason": "Synthetic current-byte review.", "decision": "retain"} for i, value in enumerate(blocks)], "components": []}
         (self.root / "reviews.json").write_text(json.dumps(reviews))
-        self.policy["documents"]["current.md"]["reviews"] = "reviews.json"
+        self.settings["reviews"] = "reviews.json"
         self.save_policy()
 
     def evaluation_report(self, data, data_path, model, serving, predictions):
         typed = data.get("schema") == "book-voice-decider-challenge-v3"
         plans = None
         if typed:
-            module = Path(__file__).resolve().parent.parent / "copy-gate" / "evaluate-book-voice-integrity.mjs"
-            script = """
-import {pathToFileURL} from 'node:url';
-import {readFileSync} from 'node:fs';
-const m=await import(pathToFileURL(process.argv[1]).href),d=JSON.parse(readFileSync(0,'utf8'));
-process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.id,m.requestPlan(d,i)])),criteria:m.reportCriteria(d.criteria),policy:m.requestPolicyFor(d)}));
-"""
             plans = json.loads(subprocess.check_output(
-                ["node", "--input-type=module", "-e", script, str(module)],
-                input=json.dumps(data), text=True))
+                ["node", str(STAND_IN), "plans"], input=json.dumps(data), text=True))
         report_items = []
         for item in data["items"]:
             item_checks = item.get("checks", {})
@@ -198,7 +216,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         current_report = self.evaluation_report(current_data, current_data_path, model, serving, current_predictions)
         current_report_path = self.root / "decider-report.json"
         current_report_path.write_text(json.dumps(current_report))
-        self.policy["documents"]["current.md"].update({
+        self.settings.update({
             "decider_evidence": {"data": current_data_path.name, "report": current_report_path.name},
             "decider_requirements": {"model": model, "criteria": criteria},
         })
@@ -227,7 +245,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         report = self.evaluation_report(data, data_path, model, serving, predictions)
         report_path = self.root / "qualification-report.json"
         report_path.write_text(json.dumps(report))
-        self.policy["documents"]["current.md"]["decider_qualification"] = {
+        self.settings["decider_qualification"] = {
             "data": data_path.name, "report": report_path.name,
             "data_blake3": digest(data_path.read_bytes()), "report_blake3": digest(report_path.read_bytes()),
             "required_labels": ["pass", "fail"],
@@ -264,7 +282,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         for prefix, data in [("decider", current), ("qualification", qualification)]:
             (self.root / f"{prefix}-data.json").write_text(json.dumps(data))
             self.rebuild_typed_capture(prefix)
-        self.policy["documents"]["current.md"].update({
+        self.settings.update({
             "decider_evidence": {"data": "decider-data.json", "report": "decider-report.json"},
             "decider_requirements": {"model": "fixture-classifier", "criteria": criteria, "reader_context_blocks": 2},
             "decider_qualification": {"data": "qualification-data.json", "report": "qualification-report.json",
@@ -315,7 +333,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             for item in qualification["items"]
         }
         self.rebuild_typed_capture("qualification", predictions)
-        policy_entry = self.policy["documents"]["current.md"]
+        policy_entry = self.settings
         policy_entry["decider_requirements"]["criteria"] = criteria
         policy_entry["decider_qualification"]["required_labels"] = {
             "voice": ["pass", "fail"],
@@ -329,7 +347,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
     def admit_earlier_reader_context(self):
         text = "# Fixture\n\nThe method means version A.\n\nShared middle.\n\nShared recent.\n\nA clear passage.\n"
         self.source.write_text(text)
-        self.policy["documents"]["current.md"]["source_blake3"] = digest(self.source.read_bytes())
+        self.settings["source_blake3"] = digest(self.source.read_bytes())
         self.save_policy()
         self.admit_reviews()
         self.admit_typed_decider()
@@ -351,7 +369,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             item["reader_context"] = context
         current_path.write_text(json.dumps(current))
         self.rebuild_typed_capture("decider")
-        self.policy["documents"]["current.md"]["decider_requirements"]["reader_context_binding"] = {
+        self.settings["decider_requirements"]["reader_context_binding"] = {
             "data": binding_path.name,
             "data_blake3": digest(binding_path.read_bytes()),
         }
@@ -383,7 +401,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                 "### Nested details\n\nNested content stays in this section.\n\n"
                 "## Next section\n\nOutside section content.\n")
         self.source.write_text(text)
-        self.policy["documents"]["current.md"]["source_blake3"] = digest(self.source.read_bytes())
+        self.settings["source_blake3"] = digest(self.source.read_bytes())
         self.save_policy()
         self.admit_reviews()
         self.admit_typed_decider()
@@ -399,7 +417,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             item["reader_context"] = context
         current_path.write_text(json.dumps(current))
         self.rebuild_typed_capture("decider")
-        self.policy["documents"]["current.md"]["decider_requirements"]["reader_context_binding"] = binding_spec
+        self.settings["decider_requirements"]["reader_context_binding"] = binding_spec
         self.save_policy()
         return binding_path
 
@@ -421,7 +439,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         change(binding)
         binding_path.write_text(json.dumps(binding))
         if update_hash:
-            self.policy["documents"]["current.md"]["decider_requirements"]["reader_context_binding"]["data_blake3"] = digest(binding_path.read_bytes())
+            self.settings["decider_requirements"]["reader_context_binding"]["data_blake3"] = digest(binding_path.read_bytes())
             self.save_policy()
 
     def test_typed_context_checks_all_blocks_with_applicable_criteria(self):
@@ -439,7 +457,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         path.write_text(json.dumps(data))
         self.rebuild_typed_capture("decider")
         with self.assertRaisesRegex(ValueError, "reader context"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_policy_bound_earlier_context_changes_the_maintained_request_state(self):
         binding_path = self.admit_earlier_reader_context()
@@ -489,7 +507,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         path.write_text(json.dumps(data))
         self.rebuild_typed_capture("decider")
         with self.assertRaisesRegex(ValueError, "reader context"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_v2_rejects_different_document_and_stale_raw_data_hashes(self):
         text = ("# Root\n\nBefore.\n\n## Target\n\nInside one.\n\n"
@@ -525,19 +543,19 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
 
     def test_earlier_context_binding_hash_is_policy_pinned(self):
         self.admit_earlier_reader_context()
-        self.policy["documents"]["current.md"]["decider_requirements"]["reader_context_binding"]["data_blake3"] = "0" * 64
+        self.settings["decider_requirements"]["reader_context_binding"]["data_blake3"] = "0" * 64
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "binding hash"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_earlier_context_binding_requires_typed_v3(self):
         self.admit_reviews()
         self.admit_decider()
-        self.policy["documents"]["current.md"]["decider_requirements"]["reader_context_binding"] = {
+        self.settings["decider_requirements"]["reader_context_binding"] = {
             "data": "unused.json", "data_blake3": "0" * 64}
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "requires the typed Decider2B schema"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_earlier_context_binding_rejects_current_and_future_indices(self):
         for invalid in (4, 5):
@@ -545,19 +563,19 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                 binding_path = self.admit_earlier_reader_context()
                 self.rewrite_context_binding(binding_path, lambda data: data["items"][2].update(earlier_block_indices=[invalid]))
                 with self.assertRaisesRegex(ValueError, "chronology"):
-                    enforce_writing_policy(self.source)
+                    self.enforce()
 
     def test_earlier_context_binding_rejects_duplicate_indices(self):
         binding_path = self.admit_earlier_reader_context()
         self.rewrite_context_binding(binding_path, lambda data: data["items"][4].update(earlier_block_indices=[0, 0]))
         with self.assertRaisesRegex(ValueError, "chronology"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_earlier_context_binding_requires_complete_rows(self):
         binding_path = self.admit_earlier_reader_context()
         self.rewrite_context_binding(binding_path, lambda data: data["items"].pop())
         with self.assertRaisesRegex(ValueError, "does not cover every current block"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_earlier_context_binding_rejects_arbitrary_challenge_context(self):
         self.admit_earlier_reader_context()
@@ -567,7 +585,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         path.write_text(json.dumps(data))
         self.rebuild_typed_capture("decider")
         with self.assertRaisesRegex(ValueError, "reader context"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_typed_policy_cannot_omit_reference_or_applicability(self):
         for field, invalid_values in {
@@ -578,7 +596,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                 with self.subTest(field=field, value=value):
                     self.admit_reviews()
                     self.admit_typed_decider()
-                    entry = self.policy["documents"]["current.md"]
+                    entry = self.settings
                     for criterion in entry["decider_requirements"]["criteria"]:
                         if value is None:
                             criterion.pop(field, None)
@@ -591,7 +609,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                         path.write_text(json.dumps(data))
                     self.save_policy()
                     with self.assertRaisesRegex(ValueError, "nonempty reference and explicit block applicability"):
-                        enforce_writing_policy(self.source)
+                        self.enforce()
 
     def test_typed_context_cannot_change_benchmark_reference(self):
         self.admit_reviews()
@@ -601,12 +619,12 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         data["criteria"][0]["reference_context"] = "A different reference only for the benchmark."
         path.write_text(json.dumps(data))
         self.rebuild_typed_capture("qualification")
-        spec = self.policy["documents"]["current.md"]["decider_qualification"]
+        spec = self.settings["decider_qualification"]
         spec["data_blake3"] = digest(path.read_bytes())
         spec["report_blake3"] = digest((self.root / "qualification-report.json").read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "policy-required"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_typed_context_cannot_tag_prose_as_heading(self):
         self.admit_reviews()
@@ -617,7 +635,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         path.write_text(json.dumps(data))
         self.rebuild_typed_capture("decider")
         with self.assertRaisesRegex(ValueError, "integrity validator"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_typed_context_cannot_supply_row_specific_answer_hint(self):
         self.admit_reviews()
@@ -628,10 +646,14 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         path.write_text(json.dumps(data))
         self.rebuild_typed_capture("decider")
         with self.assertRaisesRegex(ValueError, "integrity validator"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
-    def invoke(self):
-        return builder.main([str(self.source), "--template", str(self.template), "--output", str(self.output)])
+    def invoke(self, settings=True):
+        receipt = self.root / "checks-receipt.json"
+        receipt.write_text(json.dumps(self.receipt()))
+        return builder.main([str(self.source), "--template", str(self.template), "--output", str(self.output),
+                             *(["--settings", str(self.root / "settings.json")] if settings else []),
+                             "--checks-receipt", str(receipt)])
 
     def test_unreviewed_current_prose_does_not_create_docx(self):
         with self.assertRaises(SystemExit):
@@ -639,13 +661,13 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         self.assertFalse(self.output.exists())
 
     def test_export_without_a_policy_is_blocked(self):
-        (self.root / ".writing-policy.json").unlink()
         with self.assertRaises(SystemExit):
-            self.invoke()
+            self.invoke(settings=False)
         self.assertFalse(self.output.exists())
+        with self.assertRaisesRegex(ValueError, "No writing settings admit this document"):
+            enforce_writing_policy(self.source)
 
     def test_structural_check_remains_available_without_a_policy(self):
-        (self.root / ".writing-policy.json").unlink()
         self.assertEqual(builder.main([str(self.source), "--check"]), 0)
         self.assertFalse(self.output.exists())
 
@@ -657,7 +679,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
 
     def test_known_rejection_does_not_create_docx_even_with_reviews(self):
         self.source.write_text("# Fixture\n\nKnown rejected phrase.\n")
-        self.policy["documents"]["current.md"]["source_blake3"] = digest(self.source.read_text())
+        self.settings["source_blake3"] = digest(self.source.read_text())
         self.admit_reviews()
         self.admit_decider()
         with self.assertRaises(SystemExit):
@@ -673,7 +695,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
     def test_policy_benchmark_qualifies_model_without_certifying_author_voice(self):
         self.admit_reviews()
         self.admit_decider(model="policy-selected-classifier")
-        receipt = enforce_writing_policy(self.source)
+        receipt = self.enforce()
         self.assertEqual(self.invoke(), 0)
         self.assertTrue(self.output.exists())
         self.assertEqual(receipt["decider2b_evidence"]["status"], "decider_execution_passed")
@@ -689,7 +711,7 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             "benchmark-negative": {"voice": "pass"},
         })
         with self.assertRaisesRegex(ValueError, "missed or abstained"):
-            enforce_writing_policy(self.source)
+            self.enforce()
         with self.assertRaises(SystemExit):
             self.invoke()
         self.assertFalse(self.output.exists())
@@ -697,10 +719,10 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
     def test_missing_qualification_evidence_blocks_current_prose(self):
         self.admit_reviews()
         self.admit_decider()
-        del self.policy["documents"]["current.md"]["decider_qualification"]
+        del self.settings["decider_qualification"]
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "policy-pinned Decider2B qualification"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_policy_criterion_defaults_are_compared_with_data_fields(self):
         self.admit_reviews()
@@ -710,19 +732,19 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         data["criteria"][0]["primitive"] = "true-or-false"
         data_path.write_text(json.dumps(data))
         with self.assertRaisesRegex(ValueError, "question, option, or criterion default"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         data["criteria"][0]["primitive"] = "one-of"
         data["criteria"][0]["deterministic"] = True
         data_path.write_text(json.dumps(data))
         with self.assertRaisesRegex(ValueError, "question, option, or criterion default"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         data["criteria"][0]["deterministic"] = False
         data["criteria"][0]["diagnostic_min_probability"] = 0.1
         data_path.write_text(json.dumps(data))
         with self.assertRaisesRegex(ValueError, "question, option, or criterion default"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_qualification_criterion_and_default_must_match_current_policy(self):
         self.admit_reviews()
@@ -731,14 +753,14 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         data = json.loads(qualification_path.read_text())
         data["criteria"][0]["options"] = ["pass", "uncertain"]
         qualification_path.write_text(json.dumps(data))
-        self.policy["documents"]["current.md"]["decider_qualification"]["data_blake3"] = digest(qualification_path.read_bytes())
+        self.settings["decider_qualification"]["data_blake3"] = digest(qualification_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "question, option, or criterion default"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_per_criterion_labels_qualify_mixed_binary_and_uncertain_answers(self):
         self.admit_mixed_label_qualification()
-        receipt = enforce_writing_policy(self.source)
+        receipt = self.enforce()
         self.assertEqual(receipt["decider2b_evidence"]["model_qualification"],
                          "qualified_on_policy_benchmark")
         self.assertEqual(receipt["decider2b_evidence"]["qualification_required_labels"], {
@@ -754,18 +776,18 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
 
     def test_per_criterion_mapping_is_exact_and_uncertain_requires_an_option(self):
         self.admit_mixed_label_qualification()
-        spec = self.policy["documents"]["current.md"]["decider_qualification"]
+        spec = self.settings["decider_qualification"]
         spec["required_labels"] = {"voice": ["pass", "fail"]}
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "must match required criteria"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         self.admit_mixed_label_qualification()
-        spec = self.policy["documents"]["current.md"]["decider_qualification"]
+        spec = self.settings["decider_qualification"]
         spec["required_labels"]["voice"] = ["pass", "uncertain"]
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "must uniquely include pass and fail"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         self.admit_mixed_label_qualification()
         # The policy may only require `uncertain` when that criterion's
@@ -778,13 +800,13 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             path.write_text(json.dumps(data))
         current = json.loads(current_path.read_text())
         qualification = json.loads(qualification_path.read_text())
-        self.policy["documents"]["current.md"]["decider_requirements"]["criteria"] = current["criteria"]
+        self.settings["decider_requirements"]["criteria"] = current["criteria"]
         self.rebuild_typed_capture("decider")
-        spec = self.policy["documents"]["current.md"]["decider_qualification"]
+        spec = self.settings["decider_qualification"]
         spec["data_blake3"] = digest(qualification_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "must be answer options for their criterion"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_per_criterion_mapping_requires_each_declared_label_in_qualification_data(self):
         self.admit_mixed_label_qualification()
@@ -797,12 +819,12 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             for criterion in data["criteria"] if item["block_kind"] in criterion["applies_to"]}
             for item in data["items"]}
         self.rebuild_typed_capture("qualification", predictions)
-        spec = self.policy["documents"]["current.md"]["decider_qualification"]
+        spec = self.settings["decider_qualification"]
         spec["data_blake3"] = digest(path.read_bytes())
         spec["report_blake3"] = digest((self.root / "qualification-report.json").read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "omitted a policy-required expected label"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_confidence_abstention_does_not_satisfy_an_uncertain_benchmark_label(self):
         self.admit_mixed_label_qualification()
@@ -822,11 +844,11 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                                               "confidence": confidence})
         exchange["response"] = json.dumps(response)
         report_path.write_text(json.dumps(report))
-        self.policy["documents"]["current.md"]["decider_qualification"]["report_blake3"] = digest(
+        self.settings["decider_qualification"]["report_blake3"] = digest(
             report_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "lacks captured probability above its criterion threshold"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_low_probability_uncertain_choice_does_not_satisfy_uncertain_label(self):
         self.admit_mixed_label_qualification()
@@ -846,11 +868,11 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                                               "confidence": confidence})
         exchange["response"] = json.dumps(response)
         report_path.write_text(json.dumps(report))
-        self.policy["documents"]["current.md"]["decider_qualification"]["report_blake3"] = digest(
+        self.settings["decider_qualification"]["report_blake3"] = digest(
             report_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "lacks captured probability above its criterion threshold"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_uncertain_label_uses_policy_specific_probability_threshold(self):
         self.admit_mixed_label_qualification(diagnostic_min_probability=0.7)
@@ -867,31 +889,31 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
                                               "confidence": fixture_confidence(probabilities)})
         exchange["response"] = json.dumps(response)
         report_path.write_text(json.dumps(report))
-        self.policy["documents"]["current.md"]["decider_qualification"]["report_blake3"] = digest(
+        self.settings["decider_qualification"]["report_blake3"] = digest(
             report_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "lacks captured probability above its criterion threshold"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_qualification_model_serving_and_missing_labels_block(self):
         self.admit_reviews()
         self.admit_decider()
-        self.policy["documents"]["current.md"]["decider_requirements"]["model"] = "another-model"
+        self.settings["decider_requirements"]["model"] = "another-model"
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "policy-owned model"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         self.admit_decider()
         report_path = self.root / "qualification-report.json"
         report_path.write_text(report_path.read_text() + " ")
         with self.assertRaisesRegex(ValueError, "DATA/report hash does not match policy"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         self.admit_decider()
-        self.policy["documents"]["current.md"]["decider_qualification"]["required_labels"] = ["uncertain", "fail"]
+        self.settings["decider_qualification"]["required_labels"] = ["uncertain", "fail"]
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "qualification must declare unique required labels"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         self.admit_decider()
         report_path = self.root / "qualification-report.json"
@@ -903,20 +925,20 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             response["served_identity"] = report["serving"]
             exchange["response"] = json.dumps(response)
         report_path.write_text(json.dumps(report))
-        self.policy["documents"]["current.md"]["decider_qualification"]["report_blake3"] = digest(report_path.read_bytes())
+        self.settings["decider_qualification"]["report_blake3"] = digest(report_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "match the current report model, serving identity"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
         self.admit_decider()
         qualification_path = self.root / "qualification-data.json"
         data = json.loads(qualification_path.read_text())
         data["items"][1]["checks"] = {}
         qualification_path.write_text(json.dumps(data))
-        self.policy["documents"]["current.md"]["decider_qualification"]["data_blake3"] = digest(qualification_path.read_bytes())
+        self.settings["decider_qualification"]["data_blake3"] = digest(qualification_path.read_bytes())
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "omitted required labels"):
-            enforce_writing_policy(self.source)
+            self.enforce()
 
     def test_uncertain_or_unsupported_decider_results_block_export(self):
         self.admit_reviews()
@@ -925,50 +947,52 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
             self.invoke()
         self.assertFalse(self.output.exists())
         self.admit_decider(model="fixture-selected-model")
-        self.policy["documents"]["current.md"]["decider_requirements"]["model"] = "different-policy-model"
+        self.settings["decider_requirements"]["model"] = "different-policy-model"
         self.save_policy()
         with self.assertRaisesRegex(ValueError, "policy-owned model"):
-            enforce_writing_policy(self.source)
+            self.enforce()
         self.assertFalse(self.output.exists())
 
     def test_changed_source_and_unknown_filename_are_blocked(self):
         self.admit_reviews()
         self.source.write_text("# Fixture\n\nChanged after review.\n")
         with self.assertRaises(ValueError):
-            enforce_writing_policy(self.source)
+            self.enforce()
         other = self.root / "other.md"
         other.write_text("New prose")
         with self.assertRaises(ValueError):
-            enforce_writing_policy(other)
+            self.enforce(other)
 
     def test_bound_comparison_can_preserve_rejected_copy_without_current_approval(self):
         self.source.write_text("# Comparison\n\nKnown rejected phrase.\n")
-        self.policy["documents"]["current.md"] = {"role": "comparison", "source_blake3": digest(self.source.read_text())}
+        self.settings = {"role": "comparison", "source_blake3": digest(self.source.read_text())}
         self.save_policy()
         self.assertEqual(self.invoke(), 0)
 
     def test_missing_or_corrupt_evidence_fails_closed(self):
         (self.root / "profile.json").unlink()
         with self.assertRaises(ValueError):
-            enforce_writing_policy(self.source)
-        (self.root / ".writing-policy.json").write_text("not json")
-        with self.assertRaises(ValueError):
-            enforce_writing_policy(self.source)
+            self.enforce()
+        (self.root / "settings.json").write_text("not json")
+        with self.assertRaises(SystemExit):
+            builder.main([str(self.source), "--template", str(self.template), "--output", str(self.output),
+                          "--settings", str(self.root / "settings.json")])
+        self.assertFalse(self.output.exists())
 
     def test_malformed_policy_shapes_fail_closed(self):
-        for malformed in ([], "policy", {"documents": []}, {"documents": {"current.md": []}}):
-            (self.root / ".writing-policy.json").write_text(json.dumps(malformed))
+        for malformed in ([], "policy", {"documents": []}, {"role": "approved", "source_blake3": digest(self.source.read_bytes())},
+                          {"role": "current_prose"}, {**self.settings, "evidence_folder": "relative/folder"}):
             with self.subTest(policy=malformed), self.assertRaises(ValueError):
-                enforce_writing_policy(self.source)
+                self.enforce(settings=malformed)
 
     def test_evidence_paths_cannot_escape_policy_root(self):
         outside = self.root.parent / (self.root.name + "-outside-profile.json")
         try:
             outside.write_text(json.dumps(self.profile))
-            self.policy["documents"]["current.md"]["profile"] = "../" + outside.name
+            self.settings["profile"] = "../" + outside.name
             self.save_policy()
             with self.assertRaisesRegex(ValueError, "within its policy directory"):
-                enforce_writing_policy(self.source)
+                self.enforce()
         finally:
             outside.unlink(missing_ok=True)
 
@@ -978,11 +1002,11 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         actual = actual_root / "current.md"
         actual.write_text(self.source.read_text())
         (actual_root / "profile.json").write_text(json.dumps(self.profile))
-        policy = {"schema": "book-writing-policy-v1", "unknown_documents": "deny", "documents": {"current.md": {"source_blake3": digest(actual.read_text()), "role": "comparison"}}}
-        (actual_root / ".writing-policy.json").write_text(json.dumps(policy))
+        actual.write_text(self.source.read_text() + "\nOnly in the linked file.\n")
+        settings = {"source_blake3": digest(actual.read_text()), "role": "comparison"}
         link = self.root / "linked.md"
         link.symlink_to(actual)
-        self.assertEqual(enforce_writing_policy(link)["status"], "declared_reference")
+        self.assertEqual(self.enforce(link, settings=settings)["status"], "declared_reference")
 
     def test_concurrent_new_approval_cannot_authorize_a_different_parsed_snapshot(self):
         self.admit_reviews()
@@ -990,13 +1014,104 @@ process.stdout.write(JSON.stringify({items:Object.fromEntries(d.items.map(i=>[i.
         def changed_after_read(value):
             parsed = original_parse(value)
             self.source.write_text("# Fixture\n\nA different approved snapshot.\n")
-            self.policy["documents"]["current.md"]["source_blake3"] = digest(self.source.read_text())
+            self.settings["source_blake3"] = digest(self.source.read_text())
             self.admit_reviews()
             return parsed
         with patch.object(builder, "parse_markdown", side_effect=changed_after_read):
             with self.assertRaises(SystemExit):
                 self.invoke()
         self.assertFalse(self.output.exists())
+
+
+    # The book's checks: the branch of list:checks its settings name (new in the Workshop port).
+    def test_current_prose_requires_the_books_checks_branch(self):
+        self.admit_reviews()
+        self.admit_decider()
+        self.assertEqual(self.enforce()["book_checks"]["branch"], BRANCH)
+        del self.settings["checks_branch"]
+        with self.assertRaisesRegex(ValueError, "checks branch"):
+            self.enforce()
+
+    def test_checks_receipt_must_be_for_these_bytes_and_that_branch(self):
+        self.admit_reviews()
+        self.admit_decider()
+        other = self.root / "other.md"
+        other.write_text("# Something else\n")
+        with self.assertRaisesRegex(ValueError, "not run on this exact manuscript"):
+            self.enforce(receipt=self.receipt(other))
+        with self.assertRaisesRegex(ValueError, "not run on this exact manuscript"):
+            self.enforce(receipt={**self.receipt(), "branch": "another-branch"})
+        with self.assertRaisesRegex(ValueError, "not run on this exact manuscript"):
+            enforce_writing_policy(self.source, settings=self.settings)
+
+    def test_failed_or_unsettled_checks_create_no_docx(self):
+        self.admit_reviews()
+        self.admit_decider()
+        for status in ("failed", "uncertain", "no-applicable-rule"):
+            with self.subTest(status=status), self.assertRaisesRegex(ValueError, "did not pass"):
+                self.enforce(receipt=self.receipt(status=status))
+        receipt = self.root / "checks-receipt.json"
+        receipt.write_text(json.dumps(self.receipt(status="failed")))
+        with self.assertRaises(SystemExit):
+            builder.main([str(self.source), "--template", str(self.template), "--output", str(self.output),
+                          "--settings", str(self.root / "settings.json"), "--checks-receipt", str(receipt)])
+        self.assertFalse(self.output.exists())
+
+    def test_comparison_needs_no_checks_receipt(self):
+        self.settings = {"role": "comparison", "source_blake3": digest(self.source.read_bytes())}
+        self.assertEqual(enforce_writing_policy(self.source, settings=self.settings)["status"], "declared_reference")
+
+
+REAL_VOICE_CLASSIFIER = HERE.parents[1] / "train-and-evaluate-a-writing-voice-classifier" / "read-data" / "evaluation-integrity.mjs"
+
+
+@unittest.skipUnless(REAL_VOICE_CLASSIFIER.is_file(), "tools/train-and-evaluate-a-writing-voice-classifier is not in this checkout")
+class RealVoiceClassifierGateTests(WritingGateTests):
+    """Every gate test again, with the Workshop's own voice-capture validator in place of the stand-in."""
+
+    def setUp(self):
+        super().setUp()
+        real = patch.object(writing_gate, "VOICE_CLASSIFIER", REAL_VOICE_CLASSIFIER)
+        real.start()
+        self.addCleanup(real.stop)
+
+
+@unittest.skipUnless((HERE.parents[1] / "settings" / "read-data" / "settings.py").is_file(), "tools/settings is not in this checkout")
+class SettingsRowTests(unittest.TestCase):
+    """The settings come from the book's row of list:settings, read through tools/settings."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name).resolve()
+        self.source = self.root / "book.md"
+        self.source.write_text("# A made-up book\n\nA made-up passage.\n")
+        Document().save(self.root / "template.docx")
+        settings = {"role": "comparison", "source_blake3": digest(self.source.read_bytes()),
+                    "manuscript": str(self.source), "template": str(self.root / "template.docx"),
+                    "output_folder": str(self.root / "out")}
+        self.record = self.root / "row.json"
+        self.record.write_text(json.dumps({"id": "record:setting:export-documents-to-files~piece~made-up-book",
+                                           "type": "record:setting", "value": {
+                                               "name": "made-up book export", "tool": builder.TOOL_ID,
+                                               "scope_kind": "piece", "scope_id": "made-up-book",
+                                               "settings": json.dumps(settings), "from": "made-up@0", "status": "active"}}))
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_the_row_names_manuscript_template_and_output_folder(self):
+        self.assertEqual(builder.main(["--settings-record", str(self.record), "--book-id", "made-up-book"]), 0)
+        self.assertTrue((self.root / "out" / "made-up-book.docx").is_file())
+
+    def test_another_book_or_a_retired_row_is_refused(self):
+        with self.assertRaises(SystemExit):
+            builder.main(["--settings-record", str(self.record), "--book-id", "another-book"])
+        row = json.loads(self.record.read_text())
+        row["value"]["status"] = "retired"
+        self.record.write_text(json.dumps(row))
+        with self.assertRaises(SystemExit):
+            builder.main(["--settings-record", str(self.record), "--book-id", "made-up-book"])
+        self.assertFalse((self.root / "out").exists())
 
 
 if __name__ == "__main__":
