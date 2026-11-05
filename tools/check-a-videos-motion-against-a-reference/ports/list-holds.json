@@ -1,0 +1,62 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LIST-HOLDS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:b0133f6741b26546193c8b488e390505350d1fddf20610d16f74955bac119952",
+    "quote": "Port every behaviour and test; count old and new tests. Run the old code and the new tool on the same real input that is in git."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-launch-video",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:ebf13458ca4255e215bfb1e1e43c86cdbc775b5350b3715a8b902a2a50dd8d81",
+      "lines": [
+        14,
+        21
+      ],
+      "multihash": "1f:848f9e0115f1a0016ff968c435c1fd8ead99dcb7d5689e3611c70e3b0f5cb145",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the pull request in the source repository that removes the film's hold list once this tool is merged"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-a-videos-motion-against-a-reference/do-work/list-holds.mjs"
+    }
+  ],
+  "preserve": [
+    "a frame moves when it or a neighbour changed by more than the still level and no more than the cut level",
+    "a hold is a run of frames that neither move nor cut, timed by the frame rate, kept with the frame it starts on",
+    "holds are listed longest first (holds of one length in the order they start)",
+    "each hold is printed as <seconds>s@<start> with two decimals, two spaces between holds"
+  ],
+  "allowed_deltas": [
+    "the frames, the frame changes, the frame rate and the cut level come from this tool's own measure (read-data/measure-motion.mjs and motion-measure.json) instead of the place's installed motion tools",
+    "the video, seconds, still level and how many to list are flags; seconds and still level may be left out (all of the video, the still level read from it)",
+    "the answer is one JSON line: the holds as {seconds, at} and the old printed line as text"
+  ],
+  "banned_substitutions": [
+    "a still level or a bar written into the code",
+    "judging the holds"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T21:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:848f9e0115f1a0016ff968c435c1fd8ead99dcb7d5689e3611c70e3b0f5cb145",
+    "target_multihash_at_baseline": "1f:848f9e0115f1a0016ff968c435c1fd8ead99dcb7d5689e3611c70e3b0f5cb145",
+    "commit": "a50e4dd4c3c4be687cb7d4185431a50b0f42ca80"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/check-a-videos-motion-against-a-reference/test/list-holds.test.mjs the longest hold comes first, each with the second it starts, and top keeps that many",
+      "tools/check-a-videos-motion-against-a-reference/test/list-holds.test.mjs a still picture is one hold from its first frame, and a moving one has none",
+      "tools/check-a-videos-motion-against-a-reference/test/list-holds.test.mjs the seconds asked for cut the video short, and a given still level is used"
+    ]
+  }
+}
