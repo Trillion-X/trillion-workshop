@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-TELL-NOTICES-ROUTE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, home feeds lane",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "Each route becomes a Workshop route tool per the brief's contract (input {path, method, query, body, browser}, result {status, body}), reading and writing records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the page route GET /work/api/tell/notices as a Workshop route tool over the moved tell the person owner",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/tell-one-person-something-through-every-way-they/do-work/tell-routes.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/tell-one-person-something-through-every-way-they/",
+   "why": "This tool itself: the route and its answers are read-data/tell-the-person.mjs handleTellRequest, moved from trillion src/tell-the-person.mjs (ports/tell-the-person.json); this file only reads the person's kept notices for it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/tell-the-person/",
+   "why": "The AI tools over the same told-the-person records (tool:my-notices, my-device-notices): their own answer shapes for an AI; this route answers the page with the old route's shape, and reuses that folder's reader of the records."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the page route GET /work/api/tell/notices as a Workshop route tool over the moved tell the person owner",
+    "answer the tell notices page route as a Workshop route tool",
+    "tell notices route tool"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerTellNoticesRoute",
+    "answer-the-tell-notices-route"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "04f8c5b10769b35d636c1d4c86c2e8910199fcfb"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/tell-one-person-something-through-every-way-they/test/tell-routes.test.mjs"
+  ]
+ }
+}

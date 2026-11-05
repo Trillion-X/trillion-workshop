@@ -4,12 +4,12 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { keptListSender, makeTellThePerson, handleTellRequest, kindChannels } from '../src/tell-the-person.mjs';
-import { tellDevices } from '../src/tell-devices.mjs';
+import { keptListSender, makeTellThePerson, handleTellRequest, kindChannels } from '../read-data/tell-the-person.mjs';
+import { tellDevices } from '../../tell-the-person-something-on-all-of-their-own-phones-computers/src/tell-devices.mjs';
 
-const rows = JSON.parse(readFileSync(new URL('../records/tell-the-person.json', import.meta.url), 'utf8'));
-const toolRows = JSON.parse(readFileSync(new URL('../records/workshop-account-tool-records.json', import.meta.url), 'utf8')).records.map(row => row.payload);
-const starting = JSON.parse(readFileSync(new URL('../records/starting-rules.json', import.meta.url), 'utf8'));
+const rows = JSON.parse(readFileSync(new URL('../read-data/tell-the-person.json', import.meta.url), 'utf8'));
+const toolRows = JSON.parse(readFileSync(new URL('../../keep-and-wake-ai-sessions-on-this-computer/records/workshop-account-tool-records.json', import.meta.url), 'utf8')).records.map(row => row.payload);
+const starting = JSON.parse(readFileSync(new URL('../../starting-set/starting-rules.json', import.meta.url), 'utf8'));
 const channelsOf = id => kindChannels(rows.kinds.find(kind => kind.id === id), rows.channels);
 const live = new Set(rows.channels.filter(row => row.while_running).map(row => row.id));
 
@@ -184,7 +184,7 @@ test('a running report not heard from for the quiet minutes reads as stopped, an
 test('the report tool row, the account action and the run rows agree with the kinds', () => {
   const tool = toolRows.find(row => row.id === 'tool:report-progress');
   assert.equal(tool.invoke.action, 'report-progress');
-  const runs = JSON.parse(readFileSync(new URL('../records/run-progress.json', import.meta.url), 'utf8'));
+  const runs = JSON.parse(readFileSync(new URL('../read-data/run-progress.json', import.meta.url), 'utf8'));
   const kinds = new Set(rows.kinds.map(kind => kind.id));
   for (const [id, row] of Object.entries(runs.tools)) assert.ok(kinds.has(row.kind), `${id} names kind ${row.kind}, which records/tell-the-person.json has no row for`);
   for (const state of Object.values(runs.states)) assert.ok(rows.work_states.includes(state));
@@ -345,7 +345,7 @@ test('a live channel is sent its whole board: every job it carries that still ru
 });
 
 test('glance feeds are DATA a device reads: each names how to read its rows and which parts to draw', async () => {
-  const feeds = JSON.parse(readFileSync(new URL('../records/glance-feeds.json', import.meta.url), 'utf8')).feeds;
+  const feeds = JSON.parse(readFileSync(new URL('../read-data/glance-feeds.json', import.meta.url), 'utf8')).feeds;
   const answer = await (await handleTellRequest({}, new Request('https://person/tell/feeds'))).json();
   assert.deepEqual(answer.feeds, feeds);
   for (const feed of feeds) {
@@ -356,10 +356,10 @@ test('glance feeds are DATA a device reads: each names how to read its rows and 
 });
 
 test('every glance surface names feeds that exist, and Running now leaves out exactly the Waiting on you board', () => {
-  const glance = JSON.parse(readFileSync(new URL('../records/glance-feeds.json', import.meta.url), 'utf8'));
+  const glance = JSON.parse(readFileSync(new URL('../read-data/glance-feeds.json', import.meta.url), 'utf8'));
   const ids = new Set(glance.feeds.map(feed => feed.id));
   for (const [surface, shown] of Object.entries(glance.surfaces)) for (const id of shown) assert.ok(ids.has(id), `${surface} names ${id}`);
-  const waiting = JSON.parse(readFileSync(new URL('../src/waiting-on-you.json', import.meta.url), 'utf8')).nudge;
+  const waiting = JSON.parse(readFileSync(new URL('../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json', import.meta.url), 'utf8')).nudge;
   const boardKinds = [...new Set([waiting.notice_kind, ...waiting.ladder.map(rung => rung.kind)])].sort();
   const running = glance.feeds.find(feed => feed.id === 'running');
   const left = [running.where].flat().find(test => test.none_of)?.none_of ?? [];
@@ -497,7 +497,7 @@ test('a flood of one kind never takes away the newest notices of another, and th
 });
 
 test('a notice that arrives in the person\'s quiet hours is shown passively only when that row is turned on (it is off by default)', async () => {
-  assert.equal(JSON.parse(readFileSync(new URL('../src/tell-quiet-hours.json', import.meta.url), 'utf8')).enabled, false, 'shipped off');
+  assert.equal(JSON.parse(readFileSync(new URL('../read-data/tell-quiet-hours.json', import.meta.url), 'utf8')).enabled, false, 'shipped off');
   const levelOf = async options => {
     const { tell, sent } = owner(options);
     await tell.tell({ kind: 'needs-you-request', key: `quiet:${Math.random()}`, title: 'Ping', refs: { card: 'asks:x' } });

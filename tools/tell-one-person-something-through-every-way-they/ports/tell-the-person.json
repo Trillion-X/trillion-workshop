@@ -1,0 +1,67 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-TELL-THE-PERSON-FROM-THE-OLD-APP",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, home feeds lane, round 2",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "Then waiting-on-you and waiting-on-you/done, tell and tell/notices (move the parked .held tell-the-person.mjs imports), and responses/react."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/tell-the-person.mjs",
+   "multihash": "1f:20850d5a2a00697c6eb0507e908211149615ce1092f59d13ba00ba0b61e47f1c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs",
+   "baseline_commit_message": "tell-one-person: byte copy of old trillion src/tell-the-person.mjs, its rows and test"
+  }
+ ],
+ "preserve": [
+  "every route of handleTellRequest answers what it answered at the tag, with the same statuses and words",
+  "a notice is kept once per key and told once per channel",
+  "what the open page shows is the notices its own channel carried, newest first (recent)",
+  "a device reads only what its channel carried after its cursor (forDevice)",
+  "the first surface a notice was read on is kept (keptSurface)"
+ ],
+ "allowed_deltas": [
+  "import paths name the files this repository already holds (tell-devices.mjs, workspace/screens.mjs, workspace/addresses.mjs)",
+  "records/glance-feeds.json is read from read-data/glance-feeds.json, the same bytes",
+  "GET /tell/feeds answers the shipped glance feeds: old trillion let the marketplace publish over them (src/marketplace-content-document.mjs), a read of the published shelf, another account, which no run of this tool reaches"
+ ],
+ "banned_substitutions": [
+  "a second notice store or a second list of channels or kinds",
+  "words or rows copied into code in place of read-data/tell-the-person.json"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:20850d5a2a00697c6eb0507e908211149615ce1092f59d13ba00ba0b61e47f1c",
+  "target_multihash_at_baseline": "1f:20850d5a2a00697c6eb0507e908211149615ce1092f59d13ba00ba0b61e47f1c",
+  "commit": "6ca39debcfbd870062e5fe9a8ca54e02f7ee3a2e",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function makeTellThePerson",
+   "export async function handleTellRequest",
+   "const recent = ",
+   "const forDevice = ",
+   "function markRead"
+  ],
+  "test_refs": [
+   "tools/tell-one-person-something-through-every-way-they/test/tell-the-person.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}
