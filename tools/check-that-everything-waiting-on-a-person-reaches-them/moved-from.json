@@ -58,6 +58,13 @@
       "calls": [
         "made-up-quoted-person"
       ]
+    },
+    {
+      "from": "test/steps-ais-leave-equal-time-progress.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave-equal-time-progress.test.mjs",
+      "source_identity": "1f:5a968ee9f0b1e394de959e9c23cc70d4b0e42fddce9e2868f9027721c63ef158",
+      "identity": "1f:4475fbf3214ec2b26bf3fb9e66660d4ed4b8fe74c600a94fd547f9785ce7e517"
     }
   ]
 }
