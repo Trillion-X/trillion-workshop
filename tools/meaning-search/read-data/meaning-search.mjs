@@ -11,6 +11,9 @@
 //
 //   node /opt/records-door/do-work/run-an-export.mjs /opt/meaning-search/read-data/meaning-search.mjs findSimilarVector
 //
+//   `findSimilarAcross` and `findWordsSaid` below ask the same question of several of the person's descriptors at once
+//   (see their headers); they add no ranking of their own.
+//
 // What is new here, and only this
 //   1. The descriptor comes from the person's own records (kind semantic-index-descriptor, read-data/meaning-search.json)
 //      through the records door, where the package read it from its record store.
@@ -102,6 +105,13 @@ function npyMatrix(bytes, name) {
   };
 }
 
+// What an item points to: its file, start, end and text, and the other item fields the descriptor's `carry` names (a
+// readable name, an id in another app), passed through as the item holds them.
+const pointOf = (item, field) => ({
+  file: item[field.file] ?? null, start: item[field.start] ?? null, end: item[field.end] ?? null, text: item[field.text] ?? null,
+  ...Object.fromEntries((field.carry ?? []).map(name => [name, item[name] ?? null])),
+});
+
 // The package's index plan for the person's vector set, and what each address points to.
 async function planOf(descriptor, door) {
   const set = descriptor.vector_set;
@@ -122,7 +132,7 @@ async function planOf(descriptor, door) {
     const address = `${set.items.file}#${index}`;
     const lineBytes = Buffer.from(line, 'utf8');
     const vector = matrix?.row(index);
-    pointsTo.set(address, { file: item[field.file] ?? null, start: item[field.start] ?? null, end: item[field.end] ?? null, text: item[field.text] ?? null });
+    pointsTo.set(address, pointOf(item, field));
     return {
       index_id: descriptor.index_id, content_address: address, canonical_address: address,
       canonical_revision: mintCanonicalMultihashOfBytes(vector ? Buffer.concat([lineBytes, vector.bytes]) : lineBytes),
@@ -248,4 +258,75 @@ export async function findSimilarVector(input, { door }) {
     put(work, 'embedding.json', embedding.toString('utf8'));
     put(work, 'vector.json', JSON.parse(embedding.toString('utf8')).vector);
   });
+}
+
+const ACROSS = 'Send index_ids: the ids of one or more of your semantic-index-descriptor records.';
+
+// The descriptors' ids a request names, or a refusal.
+function indexIds(input) {
+  const ids = input?.index_ids;
+  if (!Array.isArray(ids) || !ids.length || ids.some(id => typeof id !== 'string' || !id) || new Set(ids).size !== ids.length) throw new Error(ACROSS);
+  return ids;
+}
+
+/**
+ * The same query vector over several of the person's descriptors at once, best first across all of them. Each
+ * descriptor is ranked by the package exactly as findSimilarVector ranks one; their answers are then merged by score and the optional spread and the limit are applied to the merged list. Scores compare
+ * only vectors of one model, so descriptors of different models are refused, never merged.
+ */
+export async function findSimilarAcross(input, { door }) {
+  const ids = indexIds(input);
+  checkSpread(input.spread, input.limit);
+  const { spread } = input;
+  const asked = { ...input };
+  delete asked.index_ids;
+  delete asked.spread;
+  const answers = [];
+  for (const id of ids) answers.push(await findSimilarVector({ ...asked, index_id: id }, { door }));
+  const models = new Set(answers.map(answer => `${answer.model_id}@${answer.model_version}`));
+  if (models.size > 1) throw new Error(`These indexes were made by different models (${[...models].join(', ')}); their scores cannot be compared. Search them one at a time.`);
+  const items = answers.flatMap(answer => answer.result.items).sort((a, b) => b.score - a.score);
+  const pointsTo = new Map(answers.flatMap(answer => Object.entries(answer.points_to)));
+  const limit = Number.isInteger(input.limit) ? input.limit : Math.max(...answers.map(answer => answer.result.items.length), 1);
+  const result = { items, considered: answers.reduce((sum, a) => sum + (a.result.considered ?? 0), 0), skipped: answers.reduce((sum, a) => sum + (a.result.skipped ?? 0), 0), min_score: answers[0].result.min_score };
+  if (spread) {
+    const { kept, setAside } = spreadItems(items, pointsTo, spread, limit);
+    result.items = kept;
+    result.spread = { per_file: spread.per_file, seconds_apart: spread.seconds_apart ?? 0, set_aside: setAside };
+  } else {
+    result.items = items.slice(0, limit);
+  }
+  return {
+    index_ids: ids, result, model_id: answers[0].model_id, model_version: answers[0].model_version,
+    points_to: Object.fromEntries(result.items.map(item => [item.address, pointsTo.get(item.address)])),
+  };
+}
+
+const WORD = /[a-z']+/g;
+
+/**
+ * The lines of the person's vector sets that say every word of query_text longer than two letters (case ignored), in the
+ * order the sets hold them: the words lane of a search, for items whose descriptor names a `text` field. Answers
+ * { index_ids, lines: [{ address, file, start, end, text, ...carried }] }, at most `limit` (8 when none is asked).
+ */
+export async function findWordsSaid(input, { door }) {
+  const ids = indexIds(input);
+  if (typeof input.query_text !== 'string') throw new Error('Send query_text: the words to look for.');
+  if (input.limit !== undefined && !(Number.isInteger(input.limit) && input.limit >= 1)) throw new Error('limit must be a whole number of at least 1.');
+  const limit = input.limit ?? 8;
+  const words = (input.query_text.toLowerCase().match(WORD) ?? []).filter(word => word.length > 2);
+  const lines = [];
+  for (const id of ids) {
+    const [descriptor] = (await descriptorReply(door, id)).items;
+    const set = descriptor?.vector_set;
+    if (!set?.items?.file || !set.points_to?.file || !set.points_to.text) throw new Error(`Descriptor ${id} needs vector_set.items.file and points_to: { file, text }.`);
+    const rows = (await readFile(door, set.items.file)).toString('utf8').split('\n').filter(line => line.trim());
+    for (const [index, line] of rows.entries()) {
+      if (!words.length || lines.length >= limit) break;
+      const item = JSON.parse(line);
+      const said = String(item[set.points_to.text] ?? '').toLowerCase();
+      if (words.every(word => said.includes(word))) lines.push({ address: `${set.items.file}#${index}`, ...pointOf(item, set.points_to) });
+    }
+  }
+  return { index_ids: ids, lines };
 }

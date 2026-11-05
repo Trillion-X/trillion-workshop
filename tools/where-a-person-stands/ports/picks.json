@@ -1,0 +1,65 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WHERE-A-PERSON-STANDS-PICKS-FROM-COPY-GATE-PICK-ITEMS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane, part stands: tools/copy-gate/verdicts.mjs to tools/where-a-person-stands",
+    "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+    "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "source-repo-a",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:be03c1a03d957980155d0fb6742e357848d510e2e974168cc71e4211d1635eb2",
+      "lines": [
+        255,
+        292
+      ],
+      "multihash": "1f:7449298cc3512bdcc0234fb6f4eca94215fa76ad5eaf6866e0c1d160f4f3b599",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T13:00:00-07:00",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which deletes tools/copy-gate/verdicts.mjs and names this folder as its new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/where-a-person-stands/do-work/picks.mjs"
+    }
+  ],
+  "preserve": [
+    "the latest decision of each option governs",
+    "every unit of an option whose latest row is a picked verdict is good, except the lines its row names",
+    "the lines a rejection names are bad only while that option's latest row is a rejection",
+    "excluded strings, texts ruled on directly and texts picks label both ways are left out and counted",
+    "a pick whose spec is not found or not unique is listed, never guessed",
+    "a film takes part only when its pick settings carry pick_labels"
+  ],
+  "allowed_deltas": [
+    "the caller hands in each film's decisions, file list and option units (read by pick-gate and the unit reader) instead of this file running python and globbing a film folder; a matched spec whose units were not sent is listed in units_needed",
+    "the bad label, the real people and the field a ruling must carry come from the person's setting instead of being written in the code",
+    "the person's words on an option are their_words, and the ledger path is not echoed",
+    "the claim starts at line 255, inside pickItems: its doc comment and decisionsOf (lines 240-254) are carried in the file too, but outside the claimed lines, because those lines name the person and a contract would have to spell the name to redact it"
+  ],
+  "banned_substitutions": [
+    "a film folder, person or path written into the code",
+    "a pick written into the rulings list (a pick is not a line ruling)"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T13:30:00-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:7449298cc3512bdcc0234fb6f4eca94215fa76ad5eaf6866e0c1d160f4f3b599",
+    "target_multihash_at_baseline": "1f:7449298cc3512bdcc0234fb6f4eca94215fa76ad5eaf6866e0c1d160f4f3b599",
+    "commit": "399f1f2f58e1b811d21231095ab4358385931e89"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/where-a-person-stands/test/said-words-and-rulings.test.mjs picks imply examples: a picked option is good but for the lines it names, a rejection is bad only where it names lines",
+      "tools/where-a-person-stands/test/rulings-from-the-verdict-log.test.mjs picks follow the pick ledger: the latest picked row gives good, a standing rejection gives its named lines bad"
+    ]
+  }
+}
