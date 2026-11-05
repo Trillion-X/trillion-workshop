@@ -17,6 +17,13 @@
       "to": "tools/check-every-capability-still-works/src/capability-checks.mjs",
       "source_identity": "1f:18b589469497fac5832f1de7a39bfcc6cca9a481213b226a23be27de8edb0125",
       "identity": "1f:18b589469497fac5832f1de7a39bfcc6cca9a481213b226a23be27de8edb0125"
+    },
+    {
+      "from": "records/workshop-job-probe-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/check-every-capability-still-works/from-old-trillion/records/workshop-job-probe-records.json",
+      "source_identity": "1f:141a617aba9701a432bad562645ad15a6cac08e7571a95a808ee118e2ad98bfd",
+      "identity": "1f:141a617aba9701a432bad562645ad15a6cac08e7571a95a808ee118e2ad98bfd"
     }
   ]
 }

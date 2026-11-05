@@ -1,0 +1,571 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-file-tidy-tool-records",
+  "what_this_is": "Tidying a person's files as Workshop tools that run inside that person's store (placement:this-account; src/file-tidy.mjs through src/person-store.mjs accountActions): their own AI suggests titles and folders grounded in what is known about each file, the person accepts or rejects each on the Tidy up screen (the list tool's screen, entry file-tidy), and the accepted ones are applied as one tidy-up that can be undone. The same verbs are MCP tools in src/file-tools.mjs (propose_file_tidy, list_file_tidy, apply_file_tidy, undo_file_tidy, file_tidy_history).",
+  "records": [
+    {
+      "id": "package::trillion::tool::propose-file-tidy",
+      "address": "package::trillion::tool::propose-file-tidy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:propose-file-tidy",
+        "listed_on": "2026-09-30T06:38:38Z",
+        "label": "Suggest titles and folders for files",
+        "job": "Suggest a title and a folder for some of this person's files, each grounded in what is already known about the file (its transcript, summary or facts), for the person to accept or reject",
+        "description": "items is a list of { name, title?, folder?, evidence, reason? }: name is the file's path, evidence the kinds of results already kept about it that the suggestion comes from. A title (or a new folder) that those results' words do not mention is refused with why, as is a file with nothing kept about it. Nothing changes until the person accepts a suggestion and it is applied. Returns proposed (each suggestion with its id and state review), unchanged, refused ({ index, name, reason }) and said.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "items"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 200,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "evidence"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string",
+                    "maxLength": 160
+                  },
+                  "folder": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "minItems": 1,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 1000
+                  }
+                }
+              }
+            },
+            "produced_by": {
+              "type": "string"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "proposed",
+            "unchanged",
+            "refused",
+            "said"
+          ],
+          "properties": {
+            "proposed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "folder": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "produced_by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "problem": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "proposed_at": {
+                    "type": "string"
+                  },
+                  "tidy_up": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "unchanged": {
+              "type": "integer"
+            },
+            "refused": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "propose-file-tidy"
+        },
+        "provenance": {
+          "source": "src/file-tidy.mjs (ported from media-workspace/organization-owner.mjs, recording-evidence.mjs and media-titles.mjs)"
+        },
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.unchanged",
+            "at_least": 0,
+            "at_most": 200
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::list-file-tidy",
+      "address": "package::trillion::tool::list-file-tidy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:list-file-tidy",
+        "listed_on": "2026-09-30T06:38:38Z",
+        "label": "Tidy up",
+        "job": "Show the title and folder suggestions for this person's files, waiting for them to accept or reject, with what each is grounded in and the tidy-ups already applied",
+        "description": "Lists every suggestion newest first with its file, suggested title and folder, the results it cites, why, who suggested it, its state (review, accepted, rejected, applied, stale, undone) and the tidy-up it was applied in. state (optional) keeps one state. Returns proposals, counts per state, can_undo (the tidy-up an undo reverses) and said. Its screen is where the person accepts, rejects, applies and undoes.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "review",
+                "accepted",
+                "rejected",
+                "applied",
+                "stale",
+                "undone"
+              ]
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "proposals",
+            "counts",
+            "said"
+          ],
+          "properties": {
+            "proposals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "identity": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "folder": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "evidence": {
+                    "type": "array"
+                  },
+                  "produced_by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "problem": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "proposed_at": {
+                    "type": "string"
+                  },
+                  "tidy_up": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            },
+            "counts": {
+              "type": "object"
+            },
+            "can_undo": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "list-file-tidy"
+        },
+        "provenance": {
+          "source": "src/file-tidy.mjs (ported from media-workspace/organization-owner.mjs, recording-evidence.mjs and media-titles.mjs)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "Waiting for the person"
+          }
+        ],
+        "screen": {
+          "kind": "app-entry",
+          "entry": "file-tidy",
+          "icon": "Sparkles",
+          "label": "Tidy up",
+          "about": "New names and folders for your files, for you to review.",
+          "inputs": {
+            "state": {
+              "label": "Show",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "All of them"
+                },
+                {
+                  "value": "review",
+                  "label": "To review"
+                },
+                {
+                  "value": "accepted",
+                  "label": "Accepted"
+                },
+                {
+                  "value": "rejected",
+                  "label": "Turned down"
+                },
+                {
+                  "value": "applied",
+                  "label": "Done"
+                },
+                {
+                  "value": "stale",
+                  "label": "Out of date"
+                },
+                {
+                  "value": "undone",
+                  "label": "Undone"
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::apply-file-tidy",
+      "address": "package::trillion::tool::apply-file-tidy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:apply-file-tidy",
+        "listed_on": "2026-09-30T06:38:38Z",
+        "label": "Apply accepted file suggestions",
+        "job": "Apply the title and folder suggestions this person accepted as one tidy-up: record each title and move each file into its folder by name",
+        "description": "Every accepted suggestion (or those of ids) is checked again first: a file renamed, moved or replaced since, what is known about it changed since, or a name already taken refuses that one (state stale, with why). The rest are applied together as one tidy-up that can be undone; the files' bytes are never touched. Returns tidy_up, applied, refused ({ id, name, reason }) and said.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "applied",
+            "refused",
+            "said"
+          ],
+          "properties": {
+            "tidy_up": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "applied": {
+              "type": "integer"
+            },
+            "refused": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "apply-file-tidy"
+        },
+        "provenance": {
+          "source": "src/file-tidy.mjs (ported from media-workspace/organization-owner.mjs, recording-evidence.mjs and media-titles.mjs)"
+        },
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.applied",
+            "at_least": 0,
+            "at_most": 1000
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::undo-file-tidy",
+      "address": "package::trillion::tool::undo-file-tidy",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:undo-file-tidy",
+        "listed_on": "2026-09-30T06:38:38Z",
+        "label": "Undo the last tidy-up of files",
+        "job": "Undo this person's latest tidy-up of their files: put every title and every moved file back as it was",
+        "description": "Reverses the latest tidy-up not undone yet, only when every file it touched is still as it left them; otherwise it is refused and names the files that changed. Returns undone (the tidy-up), changes and said.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "undone",
+            "changes",
+            "said"
+          ],
+          "properties": {
+            "undone": {
+              "type": "string"
+            },
+            "changes": {
+              "type": "integer"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "undo-file-tidy"
+        },
+        "provenance": {
+          "source": "src/file-tidy.mjs (ported from media-workspace/organization-owner.mjs, recording-evidence.mjs and media-titles.mjs)"
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.undone",
+            "text": "tidy-up:"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::file-tidy-history",
+      "address": "package::trillion::tool::file-tidy-history",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:file-tidy-history",
+        "listed_on": "2026-09-30T06:38:38Z",
+        "label": "Past tidy-ups of files",
+        "job": "List this person's applied tidy-ups of their files: when, each file's name and title before and after, and which one can be undone",
+        "description": "Newest first, at most 50 (limit). Each tidy-up has id, applied_at, undone_at, can_undo and changes ({ identity, name_before, name_after, title_before, title_after }). Returns tidy_ups and said.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "tidy_ups",
+            "said"
+          ],
+          "properties": {
+            "tidy_ups": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "file-tidy-history"
+        },
+        "provenance": {
+          "source": "src/file-tidy.mjs (ported from media-workspace/organization-owner.mjs, recording-evidence.mjs and media-titles.mjs)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "Tidy-ups kept"
+          }
+        ]
+      }
+    }
+  ]
+}

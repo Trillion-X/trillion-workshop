@@ -1,0 +1,84 @@
+{
+  "kind": "record-set",
+  "record_set": "hear-fetchers",
+  "what_this_is": "The programs that read a link to a video or a recording on a person's Mac (kind hear-fetcher), tried in order by computer/hear-a-link.mjs and computer/list-a-channel.mjs: the first whose `check` answers here (its program found in `search_path`, then PATH) is used. Each payload has `info` (prints the page's facts as JSON), `captions` (writes the captions the page offers, in `languages`, into {folder}), `sound` (writes the sound alone into {folder}) and `list` (prints, as JSON, every video a channel, a channel's tab or a playlist lists, each without being read, for computer/list-a-channel.mjs); every value in braces is filled when it runs ({url}, {folder}, {languages}, {node}), and `update_hint` is what is told when a page refuses an old copy. The rest of how a link is heard (languages, kept sound, time, words) stays in computer/hear-a-link.json. A new reader is a new row.",
+  "records": [
+    {
+      "id": "hear-fetcher:yt-dlp",
+      "kind": "hear-fetcher",
+      "payload": {
+        "id": "yt-dlp",
+        "label": "yt-dlp on this computer",
+        "search_path": [
+          "/opt/homebrew/bin",
+          "/usr/local/bin",
+          "/opt/homebrew/anaconda3/bin",
+          "~/anaconda3/bin",
+          "~/miniconda3/bin",
+          "~/miniforge3/bin",
+          "~/.local/bin"
+        ],
+        "check": [
+          "yt-dlp",
+          "--version"
+        ],
+        "info": [
+          "yt-dlp",
+          "--no-update",
+          "--no-warnings",
+          "--js-runtimes",
+          "node:{node}",
+          "--skip-download",
+          "--dump-single-json",
+          "--no-playlist",
+          "{url}"
+        ],
+        "list": [
+          "yt-dlp",
+          "--no-update",
+          "--no-warnings",
+          "--js-runtimes",
+          "node:{node}",
+          "--flat-playlist",
+          "--dump-single-json",
+          "{url}"
+        ],
+        "captions": [
+          "yt-dlp",
+          "--no-update",
+          "--no-warnings",
+          "--js-runtimes",
+          "node:{node}",
+          "--skip-download",
+          "--no-playlist",
+          "--write-subs",
+          "--write-auto-subs",
+          "--sub-format",
+          "vtt/best",
+          "--convert-subs",
+          "vtt",
+          "--sub-langs",
+          "{languages}",
+          "-o",
+          "{folder}/captions.%(ext)s",
+          "{url}"
+        ],
+        "sound": [
+          "yt-dlp",
+          "--no-update",
+          "--no-warnings",
+          "--js-runtimes",
+          "node:{node}",
+          "--no-playlist",
+          "-f",
+          "bestaudio/best",
+          "-x",
+          "-o",
+          "{folder}/sound.%(ext)s",
+          "{url}"
+        ],
+        "update_hint": "python3 -m pip install -U yt-dlp"
+      }
+    }
+  ]
+}

@@ -10,3 +10,11 @@ Files of old trillion whose job is this tool's (start a new account with the rul
 | `test/starting-rules-continuity.test.mjs` | `test/starting-rules-continuity.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/starting-rules.json (at the tag, not moved here yet) |
 | `test/starting-rules-real-automations.test.mjs` | `test/starting-rules-real-automations.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), src/automations.mjs (at the tag, not moved here yet), src/shipped-defaults.mjs (at the tag, not moved here yet), records/starting-rules.json (at the tag, not moved here yet) and 1 more |
 | `test/starting-rules.test.mjs` | `test/starting-rules.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/local-store.mjs (at the tag, not moved here yet), src/automations.mjs (at the tag, not moved here yet), src/shipped-defaults.mjs (at the tag, not moved here yet), src/inbound.mjs (at the tag, not moved here yet) and 6 more |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/workshop-event-source-records.json` | `records/workshop-event-source-records.json` |

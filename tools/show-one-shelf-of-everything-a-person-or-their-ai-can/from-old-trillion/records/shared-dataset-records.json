@@ -1,0 +1,74 @@
+{
+  "about": "Libraries every Trillion account shares for free (src/design-library.mjs). Any connected AI adds what it studied and every account searches all of it. One row per library: a new library (landing pages, recipes, anything) is one more row, and no code changes. Each field is a JSON Schema fragment (string, array of strings, boolean; maxLength, maxItems, enum, format uri). title_field names the field an entry is listed by; meaning_from names the fields its meaning and words are read from; one_entry_per names the fields that make one contributor's second entry replace their first (one screen studied twice is one entry). found_by, when it is \"words\", says the library is found by the words asked and not by meaning: no vector is computed or kept for its entries, and a word index finds them, which is what lets a library hold tens of thousands of entries for the cost of a few rows each; a library without found_by is found by meaning. image.kept_only_when names the field that must be true for a picture to be kept: a picture is kept only when the contributor captured it itself, never one copied from another library.",
+  "added_by": {
+    "yours": "You",
+    "others": "Member {code}"
+  },
+  "limits": {
+    "default_limit": 20,
+    "max_limit": 50,
+    "max_query_characters": 500,
+    "max_bulk_entries": 100
+  },
+  "search": {
+    "comment": "An entry is found when its meaning is at least min_similarity close to the words asked (the pool's embedding model, src/pool-settings.json embedding_model), or when it holds the words asked as written; holding them adds words_bonus to its rank.",
+    "min_similarity": 0.55,
+    "words_bonus": 0.25
+  },
+  "image": {
+    "max_bytes": 5242880,
+    "types": [
+      { "content_type": "image/png", "signature": [{ "offset": 0, "hex": "89504e470d0a1a0a" }] },
+      { "content_type": "image/jpeg", "signature": [{ "offset": 0, "hex": "ffd8ff" }] },
+      { "content_type": "image/gif", "signature": [{ "offset": 0, "hex": "47494638" }] },
+      { "content_type": "image/webp", "signature": [{ "offset": 0, "hex": "52494646" }, { "offset": 8, "hex": "57454250" }] }
+    ]
+  },
+  "datasets": [
+    {
+      "id": "studied-screens",
+      "label": "Studied screens",
+      "description": "Screens of apps and sites an AI studied (on Mobbin, 21st.dev, or a live app or site): what is on each screen, how it is laid out and which patterns it uses.",
+      "title_field": "title",
+      "meaning_from": ["title", "app", "platform", "screen_kind", "anatomy", "patterns"],
+      "one_entry_per": ["source_url", "title"],
+      "image": { "kept_only_when": "captured_by_contributor" },
+      "required": ["app", "platform", "screen_kind", "title", "anatomy", "source_url", "captured_by_contributor"],
+      "fields": {
+        "app": { "type": "string", "maxLength": 120, "title": "App", "description": "The app or site the screen belongs to." },
+        "platform": { "type": "string", "enum": ["ios", "android", "web", "mac", "windows", "watch", "tv"], "title": "Platform" },
+        "screen_kind": { "type": "string", "maxLength": 80, "title": "Kind of screen", "description": "What the screen is for, in a few words: sign up, paywall, settings, checkout, empty state." },
+        "title": { "type": "string", "maxLength": 160, "title": "Title", "description": "A short name for this screen." },
+        "anatomy": { "type": "string", "maxLength": 4000, "title": "What is on it", "description": "What is on the screen and how it is laid out, top to bottom: the parts, their order, sizes, spacing, type and colour, and what each control does." },
+        "patterns": { "type": "array", "items": { "type": "string", "maxLength": 80 }, "maxItems": 20, "title": "Patterns", "description": "The patterns it uses, a few words each: bottom sheet, progress dots, social sign in." },
+        "source_url": { "type": "string", "format": "uri", "maxLength": 2000, "title": "Where it was seen", "description": "The page where the screen was studied." },
+        "captured_by_contributor": { "type": "boolean", "title": "Captured by the one who added it", "description": "True only when the AI took the picture itself from a public app or page. False for a screen seen in another library such as Mobbin: then only the link and the observations are kept, never its picture." }
+      }
+    },
+    {
+      "id": "design-components",
+      "label": "Design components",
+      "description": "Ready-made interface parts (buttons, menus, charts, forms, whole page sections) from the design sources Trillion follows: what each is called, where it comes from, what kind of part it is, which frameworks it is for, whether it may be shipped in a product, and how to pull it in.",
+      "found_by": "words",
+      "title_field": "name",
+      "meaning_from": ["name", "kind", "category", "tags", "frameworks", "source", "licence"],
+      "one_entry_per": ["source", "name"],
+      "required": ["name", "source"],
+      "fields": {
+        "name": { "type": "string", "maxLength": 200, "title": "Name", "description": "What the component is called at its source." },
+        "source": { "type": "string", "maxLength": 200, "title": "Source", "description": "The row key of the design source it comes from in the design sources list, such as ui-spectrumhq-in." },
+        "source_url": { "type": "string", "format": "uri", "maxLength": 2000, "title": "Source address", "description": "The address of the design source's own site." },
+        "kind": { "type": "string", "maxLength": 80, "title": "Kind of part", "description": "What sort of part it is, in a word or two: button, menu, chart, form, section." },
+        "category": { "type": "string", "maxLength": 120, "title": "Group", "description": "The group the source files it under." },
+        "tags": { "type": "array", "items": { "type": "string", "maxLength": 80 }, "maxItems": 30, "title": "Tags", "description": "Words the source describes it with." },
+        "frameworks": { "type": "array", "items": { "type": "string", "maxLength": 60 }, "maxItems": 12, "title": "Made for", "description": "The frameworks or tools it is written for." },
+        "licence": { "type": "string", "maxLength": 120, "title": "Licence", "description": "The licence it is shared under, as the source states it." },
+        "can_ship": { "type": "boolean", "title": "May be shipped", "description": "True when the licence lets it ship inside a product that is sold." },
+        "docs_url": { "type": "string", "format": "uri", "maxLength": 2000, "title": "Documentation", "description": "The page that explains how to use it." },
+        "preview_url": { "type": "string", "format": "uri", "maxLength": 2000, "title": "Preview", "description": "A page or picture that shows it." },
+        "item_url": { "type": "string", "format": "uri", "maxLength": 2000, "title": "Component page", "description": "The page of this one component at its source." },
+        "how_to_pull": { "type": "string", "maxLength": 1000, "title": "How to pull it in", "description": "The steps or command that bring it into a project." }
+      }
+    }
+  ]
+}

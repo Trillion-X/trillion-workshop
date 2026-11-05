@@ -1,0 +1,580 @@
+{
+  "records": [
+    {
+      "id": "workflow:setup-with-your-ai",
+      "payload": {
+        "id": "workflow:setup-with-your-ai",
+        "default_for": ["setup"],
+        "label": "Set up my whole Trillion experience",
+        "kind": "workflow-recipe",
+        "job": "Set up and verify the whole personal Trillion experience with minimal human effort: identity, AI connection, hooks, durable background work, devices, permissions, widgets, sources, pursuits and a checked first result.",
+        "made_from": [
+          "workflow:do-it-for-me",
+          "workflow:method-name-question-delete"
+        ],
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "goal",
+            "required_components"
+          ],
+          "properties": {
+            "goal": {
+              "type": "string",
+              "minLength": 10
+            },
+            "required_components": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "previous_run_id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "recheck_reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "steps": [
+          {
+            "id": "discover",
+            "title": "Read what already works and what is actually needed",
+            "do": "Read read_setup, the person's actual current request and the current AI host's exposed capabilities. Read the setup policy's acceptance criteria. Recover known identity, devices, accounts, history and pursuits before asking. Treat the requirements as outcomes, not tasks the person must perform. Question each requirement; delete irrelevant or duplicate work, simplify the rest, then parallelize independent safe work. Retain every required component, with evidence for any genuine inapplicability. Unknown, unavailable and missing implementation are not inapplicability. Add any other requirement discovered from the person's real goals. Decompose the remaining work into actions. Use the actual who-does-each-step needs and only_a_person reasons; carry any original already-given consent reference. At least one action must verify current state even when configuration is already present. Do not copy the founder's settings, infer legal identity from email, collect unknown credentials, or force unsupported devices. For each requirement, include scope_ids as exact computer-sources:<computer_id> references where a local computer applies, device_ids as the applicable IDs returned by install/known.devices (iphone, desktop or extension), and notification_routes as the applicable web-push, apns or live routes. Empty lists mean no discovered instance for that requirement, not a successful capability check. Preserve this initially observed inventory unchanged. If authorized configuration enrolls a new computer or discovers an applicable harness, its admitted results may add the exact account-owned scope; never pre-invent a computer identity or use not-applicable for planned or unknown native work. Required policy capabilities cannot be marked not-applicable. When input.previous_run_id is present, read that run and reuse its evidenced inventory and completed work. Recheck the changed or failed scope without making the person repeat known facts. A stopped prior run can be restarted only on an explicit restart request. Include harness_scopes as the exact discovered {scope_id: computer-sources:<id>, harness: claude-code or codex} pairs; include both if both are used. A web-only host with no local hook facility has an empty list and an evidenced native-hook applicability decision, while the shared MCP instructions still apply. Carry every discovered pair through configuration. Admitted configuration may add only actually observed pairs on current account-owned computers; final verification must exactly match that settled configured scope. Original requirement IDs and applicability never change.",
+            "submit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "requirements",
+                "actions",
+                "removed"
+              ],
+              "properties": {
+                "requirements": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "title",
+                      "applicability",
+                      "reason",
+                      "evidence_refs",
+                      "scope_ids",
+                      "device_ids",
+                      "notification_routes",
+                      "harness_scopes"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "applicability": {
+                        "enum": [
+                          "applicable",
+                          "not-applicable"
+                        ]
+                      },
+                      "reason": {
+                        "type": "string",
+                        "minLength": 20
+                      },
+                      "evidence_refs": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "scope_ids": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "device_ids": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "notification_routes": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "harness_scopes": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "scope_id",
+                            "harness"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "scope_id": {
+                              "type": "string",
+                              "pattern": "^computer-sources:"
+                            },
+                            "harness": {
+                              "type": "string",
+                              "enum": [
+                                "claude-code",
+                                "codex"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "actions": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "words",
+                      "needs"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "words": {
+                        "type": "string",
+                        "minLength": 3
+                      },
+                      "needs": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "only_a_person_because": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "given_in": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "input": {
+                        "type": "object"
+                      }
+                    }
+                  }
+                },
+                "removed": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 10
+                  }
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "path": [
+                  "this",
+                  "requirements",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "input",
+                  "required_components",
+                  "*"
+                ],
+                "says": "Every required capability is assessed; missing work is not silently dropped."
+              }
+            ]
+          },
+          {
+            "id": "assign",
+            "title": "Let the shared engine assign every action",
+            "do": "The existing responsibility classifier assigns the setup actions. Its result chooses who can do work, not whether it is done.",
+            "run_tool": {
+              "tool_id": "tool:who-does-each-step",
+              "input": {
+                "steps": {
+                  "all_from": [
+                    "steps",
+                    "discover",
+                    "actions",
+                    "*"
+                  ]
+                }
+              }
+            },
+            "submit": {
+              "type": "object",
+              "required": [
+                "steps",
+                "counts",
+                "said"
+              ],
+              "properties": {
+                "steps": {
+                  "type": "array",
+                  "minItems": 1
+                },
+                "counts": {
+                  "type": "object"
+                },
+                "said": {
+                  "type": "string"
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "path": [
+                  "this",
+                  "steps",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "discover",
+                  "actions",
+                  "*",
+                  "id"
+                ],
+                "says": "Every discovered action is assigned by the shared responsibility engine."
+              }
+            ]
+          },
+          {
+            "id": "configure",
+            "title": "Do the setup and keep every unfinished action owned",
+            "do": "Execute every authorized service or host action now, reusing existing tools and the caller's permitted capabilities before handing work to another capable agent. The person's own AIs means you too; a handoff does not complete the action. Use the runtime start already performed by start_setup; do not recursively call start_setup from this workflow. For local supported harnesses use install.harness_setup, inspect configuration before applying, preserve unrelated hooks and permissions, then verify actual events. The installed Mac app owns its existing reader and wake helper; do not add duplicate polling services. Preserve chosen providers, stopped schedules and budgets. Configure a supported pickup/delivery path and run a harmless proof when possible. Discover authorized source imports and show a real item arriving before marking intake ready. For a required OS gesture or unavailable fact, prepare the exact screen and keep one stable Waiting on you item, with reason and resume reference, visible in the person's current AI conversation. Mark product/access failures as owned unfinished work, never as the person's job. Complete the applicable setup before submitting this step. Do not submit a success while anything required is pending or blocked. For each applicable native harness, run the actual installer inspection after real hook events. Keep its exact JSON report as an AI-attributed evidence message with JSON text {\"schema\":\"trillion.setup-local-evidence/v1\",\"capability\":\"harness\",\"scope_id\":\"computer-sources:<actual-id>\",\"report\":<exact inspector output>}, in a separate stable setup-evidence conversation for this run and scope. Preserve its original time on retries. Do not invent a person message or duplicate the native transcript. Cite the resulting stored message ID. Where you cannot keep that message (a harness whose transcript hook records this chat refuses record_messages), cite what the transcript hook kept by itself instead: a message:<id> of the person's words it kept through the carrier door in that harness's <harness>:<session> conversation and an execution:<id> host_transcript receipt it kept for the same session with the same sign-in (read_messages and read_execution find both). That proves the transcript hook ran, not the other hooks. A report with only configuration entries or an unobserved ran-* hook cannot pass. The local report proves process execution, while intake and actual delivery have separate owner checks. Reuse a working connector or pickup scheduler owned by this AI host when it supports the capability; do not force duplicate Trillion authorization or a different paid model. For external host evidence, read runtime.workflow.evidence_protocol.external_host from read_setup and follow its exact trillion.setup-host-evidence/v1 shape. Keep only selected non-secret fields of the actual tool result in an attributed AI setup-evidence message, with its real observation time and tool result ID. A connector needs its linked real owned source arrival and source message. A pickup schedule needs its enabled next run and an actually observed scheduled execution linked to this registered AI’s finished handoff and exact result; configuring a timer or manually taking work does not prove it. Include the evidence message and all linked account, source, agent, work and result references in the capability row. External host execution is agent_kept_external_tool_evidence, not an independent account-side query of that host. Preserve every original requirement and applicability decision. Keep discovered scope_ids and harness_scopes; add only exact computer-sources references created by real enrollment and supported harness pairs actually observed on those current account-owned computers. Include current computer coverage for each policy scope_from requirement. Only originally applicable requirements can gain scope; additions under not-applicable need applicability review. These admitted results settle the configured scope without rewriting discovery. Every added pair needs the same complete current inspector report and all ran-* observations. Do not replace or remove a discovered scope or pair.",
+            "submit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "results",
+                "remaining"
+              ],
+              "properties": {
+                "results": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "state",
+                      "observed",
+                      "evidence_refs",
+                      "scope_ids",
+                      "harness_scopes"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "state": {
+                        "enum": [
+                          "verified",
+                          "not-applicable"
+                        ]
+                      },
+                      "observed": {
+                        "type": "string",
+                        "minLength": 20
+                      },
+                      "evidence_refs": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "scope_ids": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "harness_scopes": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "scope_id",
+                            "harness"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "scope_id": {
+                              "type": "string",
+                              "pattern": "^computer-sources:"
+                            },
+                            "harness": {
+                              "type": "string",
+                              "enum": [
+                                "claude-code",
+                                "codex"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "remaining": {
+                  "type": "array",
+                  "maxItems": 0
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "path": [
+                  "this",
+                  "results",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "discover",
+                  "requirements",
+                  "*",
+                  "id"
+                ],
+                "says": "Every applicable requirement is actually configured or evidenced as inapplicable."
+              },
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "results",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "discover",
+                  "requirements",
+                  "*",
+                  "id"
+                ],
+                "says": "Configuration cannot substitute easier invented requirements."
+              }
+            ]
+          },
+          {
+            "id": "verify-outcome",
+            "title": "Prove a real result and continuity",
+            "do": "Independently read_setup again and inspect each claimed configuration. The current runtime must show defaults, event intake and timed work actually available, with deliberate pauses distinguished from failure. Run or inspect a harmless authorized input through capture, work pickup, result creation and display in this person's actual AI/device surface. Reopen the durable run or session and verify the same input, work and result are retained; recording a schedule or starting a task is not proof of execution. Verify the installed local harness with actual hook evidence where applicable, and notification/widget/device claims on their real owner. Cite original result identities and the observable facts. Do not broaden import, spend, posting or messaging authority for the test. Any unresolved requirement keeps this run open. Return the usable result in the current chat and only the necessary human remainder, which must be empty for completion. Use the person's actual setup request or actual authorized input message, never an invented person-authored test message. The loop references must resolve in this account: input_ref is that message, work_ref is its finished handoff, result_ref is the automatically linked result message, and resumed_ref is the subsequent read_handoff activity read_setup describes. When no such message exists, hand one harmless job through Trillion, have it actually taken and finished with a concrete result, and give its h_<id> as input_ref, work_ref and result_ref: the work's own kept job and kept result. This proves persisted readback; do not call it a new host session. Use real installer execution receipts separately for each applicable harness and scope. Evidence references must resolve to this account's own records, not arbitrary claims or public documentation alone. After submitting the final step, call start_setup once to verify and retain the owner-backed receipt, then read_setup again. If owner evidence is rejected, repair the actual missing operation and use the existing workflow recovery; do not report completion. Follow every requirement's policy evidence kind and read_setup evidence protocol. Profile, pursuits, connected services, real source arrivals and a picked-up agent need their corresponding current owner facts; an arbitrary saved message is not a substitute. Native hooks need the exact stored local report with current definition hashes and all applicable executed hooks, or the transcript hook's own kept prompt and execution receipt for that harness session. State the report's agent-associated scope honestly; use a signed source return when proving native transcript delivery. Use exact current refs: profile is setting:network_profile (display name does not by itself prove a legal name); pursuits are current pursuit rows with title/now/after; source intake uses a message:<id> of the person's words kept through the carrier door (what read_setup counts as arrived) or a real arrival:<id> plus its linked message, with an active tracked import backlog allowed; connected services use connection:<connection_id> from list_connections; agent pickup cites the finished handoff and its current published agent/delivery route. Follow read_setup for the exact evidence checks and any unavailable host-scheduler observation. Preserve each observation’s verification basis: signed native source return, account-owned record, structured local inspector report, or agent-kept external tool evidence. Do not describe an AI-kept external observation as a signed or independently queried host fact. Read the identity-admitted configure output. Final scope_ids and harness_scopes must exactly equal its results while retaining every discovered scope and pair. Recheck every current account-owned computer and the full evidence for every configured harness. A missing or changed configuration output is unfinished setup, never permission to fall back to an empty discovery.",
+            "submit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "verified",
+                "loop",
+                "remaining",
+                "delivered_where"
+              ],
+              "properties": {
+                "verified": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "state",
+                      "observed",
+                      "evidence_refs",
+                      "scope_ids",
+                      "harness_scopes"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "state": {
+                        "enum": [
+                          "verified",
+                          "not-applicable"
+                        ]
+                      },
+                      "observed": {
+                        "type": "string",
+                        "minLength": 20
+                      },
+                      "evidence_refs": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "scope_ids": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      },
+                      "harness_scopes": {
+                        "type": "array",
+                        "uniqueItems": true,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "scope_id",
+                            "harness"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "scope_id": {
+                              "type": "string",
+                              "pattern": "^computer-sources:"
+                            },
+                            "harness": {
+                              "type": "string",
+                              "enum": [
+                                "claude-code",
+                                "codex"
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "loop": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "input_ref",
+                    "work_ref",
+                    "result_ref",
+                    "resumed_ref",
+                    "observed"
+                  ],
+                  "properties": {
+                    "input_ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "work_ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "result_ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "resumed_ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "observed": {
+                      "type": "string",
+                      "minLength": 30
+                    }
+                  }
+                },
+                "remaining": {
+                  "type": "array",
+                  "maxItems": 0
+                },
+                "delivered_where": {
+                  "type": "string",
+                  "minLength": 10
+                }
+              }
+            },
+            "checks": [
+              {
+                "kind": "covers",
+                "path": [
+                  "this",
+                  "verified",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "discover",
+                  "requirements",
+                  "*",
+                  "id"
+                ],
+                "says": "Every discovered setup requirement has observed evidence before completion."
+              },
+              {
+                "kind": "subset-of",
+                "path": [
+                  "this",
+                  "verified",
+                  "*",
+                  "id"
+                ],
+                "of": [
+                  "steps",
+                  "discover",
+                  "requirements",
+                  "*",
+                  "id"
+                ],
+                "says": "Verification preserves the exact original requirement IDs and applicability; configured scope may only add observed owned instances."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

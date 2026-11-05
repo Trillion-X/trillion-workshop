@@ -5,3 +5,11 @@ Files of old trillion whose job is this tool's (run the service's own price expe
 | Old path | Here | Status |
 |---|---|---|
 | `src/service-price-experiments.mjs` | `src/service-price-experiments.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/price-experiments.mjs (at the tag, not moved here yet), src/payment.mjs (at the tag, not moved here yet), records/service-price-experiments.json (at the tag, not moved here yet), src/resource-host.mjs (at the tag, not moved here yet) |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/service-price-experiments.json` | `records/service-price-experiments.json` |

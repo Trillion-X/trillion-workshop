@@ -43,6 +43,20 @@
       "source_identity": "1f:2717bc1294a13ceccdb761ea4913d33697cfc1a1666a3e58fe7d4fa7f60aaa00",
       "identity": "1f:e6d7dedc75147fa786633eda8d6cfee4fd16d45203cd0e2c6dc04d4deb0e84ad",
       "held": true
+    },
+    {
+      "from": "records/skill-import-rules.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/records/skill-import-rules.json",
+      "source_identity": "1f:1d375b7793ed5df1c018eb0eea2a776019e82551832b32849a735c0a0aa922ec",
+      "identity": "1f:1d375b7793ed5df1c018eb0eea2a776019e82551832b32849a735c0a0aa922ec"
+    },
+    {
+      "from": "records/skill-sources.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/read-public-repositories-of-agent-skills-and-offer/from-old-trillion/records/skill-sources.json",
+      "source_identity": "1f:14b566789343b4670fa254b7110ad5d788a29877136cc8c3c9b5171afb357ca8",
+      "identity": "1f:14b566789343b4670fa254b7110ad5d788a29877136cc8c3c9b5171afb357ca8"
     }
   ]
 }

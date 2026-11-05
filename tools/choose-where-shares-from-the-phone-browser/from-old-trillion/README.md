@@ -8,3 +8,12 @@ Files of old trillion whose job is this tool's (choose where shares from the pho
 | `src/share-history.mjs` | `src/share-history.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/share-destination-starters.json (at the tag, not moved here yet), src/namespace.mjs (at the tag, not moved here yet) |
 | `src/share-starting-action.mjs` | `src/share-starting-action.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports parts/http-client/do-work/same-origin.mjs (already gone at the tag) |
 | `test/share-destinations.test.mjs` | `test/share-destinations.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/agent-store-for-tests.mjs (at the tag, not moved here yet), src/execution-modes.mjs (at the tag, not moved here yet), records/saved-instruction-starters.json (at the tag, not moved here yet), parts/record-audio/read-data/meeting-settings.mjs (already gone at the tag) |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/saved-instruction-starters.json` | `records/saved-instruction-starters.json` |
+| `records/share-destination-starters.json` | `records/share-destination-starters.json` |

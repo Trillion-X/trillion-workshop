@@ -41,6 +41,13 @@
       "to": "tools/write-a-sales-page/do-work/write-a-sales-page.mjs",
       "source_identity": "1f:cb98ff9cb2409795580b9c80196405998ae90f9c9e31781ffac0286d18a0ed29",
       "identity": "1f:c80bfd89d4ea585784c915994ec741c7b6991bf5c0f88007f8e64770c291f76d"
+    },
+    {
+      "from": "records/workshop-page-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/write-a-sales-page/from-old-trillion/records/workshop-page-tool-records.json",
+      "source_identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff",
+      "identity": "1f:fc333a784c3649600268c219ffde83c5151dcf82e319e72fd2d12ec700d8e6ff"
     }
   ],
   "not_matched": []

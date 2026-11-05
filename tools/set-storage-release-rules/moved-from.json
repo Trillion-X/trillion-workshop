@@ -10,6 +10,13 @@
       "to": "tools/set-storage-release-rules/src/namespace-release-rules.mjs",
       "source_identity": "1f:2db09b187c266911c54710ee5e77629e4bccea8b34dfe74fce2a055aa69cf995",
       "identity": "1f:ff24a4264eadf4c114d1b0d90e141a27e933f68278b8f93ed195c195a6b39564"
+    },
+    {
+      "from": "records/workshop-storage-release-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/set-storage-release-rules/from-old-trillion/records/workshop-storage-release-tool-records.json",
+      "source_identity": "1f:05367a7bc8a66a3fb29810183986b4b3836b57b51af8190e6ef030dc984057c8",
+      "identity": "1f:05367a7bc8a66a3fb29810183986b4b3836b57b51af8190e6ef030dc984057c8"
     }
   ]
 }

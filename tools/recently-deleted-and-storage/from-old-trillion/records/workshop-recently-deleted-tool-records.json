@@ -1,0 +1,906 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-recently-deleted-tool-records",
+  "what_this_is": "Recently Deleted and Archived for a person's files as Workshop tools that run inside that person's store (placement:this-account; src/namespace-set-aside.mjs through src/person-store.mjs accountActions): delete or archive files, folders or recordings (they leave Files, Media and search), list them with the days each has left, put them back, and read or change how long each state keeps things. The store's alarm moves each on when its time ends: Archived to Recently Deleted, Recently Deleted gone for good. The list tool's screen is the Recently Deleted screen (entry recently-deleted). The same verbs are MCP tools in src/file-tools.mjs (delete_file, archive_file, list_recently_deleted, put_back_file, read_keep_for, set_keep_for).",
+  "records": [
+    {
+      "id": "package::trillion::tool::delete-files",
+      "address": "package::trillion::tool::delete-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:delete-files",
+        "listed_on": "2026-09-30T06:40:06Z",
+        "label": "Delete files to Recently Deleted",
+        "job": "Delete some of this person's files, folders or recordings so they leave Files, Media and search and wait in Recently Deleted, where they can be put back until their keep-for days end",
+        "description": "state is \"deleted\"; items is a list of { name } (a file or folder path) or { identity, label? } (a recording or file with every name it has). Each goes to Recently Deleted with the days it has left; after the keep-for days (read-deleted-files-keep-for) its names are gone for good. Bytes are never erased. A file still uploading, or a name that is not there, is refused with why. The same owner as the Files and Media Delete action and the delete_file MCP tool (src/namespace-set-aside.mjs).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "state"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 500,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "A file or folder's path name, starting with /"
+                  },
+                  "identity": {
+                    "type": "string",
+                    "description": "A file's content identity (1f: or 12: then 64 hex): every name it has goes"
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              }
+            },
+            "state": {
+              "type": "string",
+              "const": "deleted",
+              "description": "Always \"deleted\""
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "set_aside",
+            "refused",
+            "said"
+          ],
+          "properties": {
+            "set_aside": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "state",
+                  "days_left"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "state_label": {
+                    "type": "string"
+                  },
+                  "folder": {
+                    "type": "boolean"
+                  },
+                  "names": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "name_count": {
+                    "type": "integer"
+                  },
+                  "byte_length": {
+                    "type": "integer"
+                  },
+                  "where": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "set_aside_at": {
+                    "type": "string"
+                  },
+                  "by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "days_left": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "asked": {
+                    "type": "object"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "set-aside-files"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "items": [
+                {
+                  "name": "/a file that is not there"
+                }
+              ],
+              "state": "deleted"
+            },
+            "output_selector": "$.said",
+            "contains": "Recently Deleted"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::archive-files",
+      "address": "package::trillion::tool::archive-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:archive-files",
+        "listed_on": "2026-09-30T06:40:06Z",
+        "label": "Archive files",
+        "job": "Archive some of this person's files, folders or recordings so they leave Files, Media and search and wait in Archived, moving on to Recently Deleted when Archived's keep-for days end",
+        "description": "state is \"archived\"; items is a list of { name } or { identity, label? } as for tool:delete-files. Each goes to Archived with the days it has left before it moves to Recently Deleted. tool:put-back-files brings it back.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "state"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "items": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 500,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "A file or folder's path name, starting with /"
+                  },
+                  "identity": {
+                    "type": "string",
+                    "description": "A file's content identity (1f: or 12: then 64 hex): every name it has goes"
+                  },
+                  "label": {
+                    "type": "string",
+                    "maxLength": 200
+                  }
+                }
+              }
+            },
+            "state": {
+              "type": "string",
+              "const": "archived",
+              "description": "Always \"archived\""
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "set_aside",
+            "refused",
+            "said"
+          ],
+          "properties": {
+            "set_aside": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "state",
+                  "days_left"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "state_label": {
+                    "type": "string"
+                  },
+                  "folder": {
+                    "type": "boolean"
+                  },
+                  "names": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "name_count": {
+                    "type": "integer"
+                  },
+                  "byte_length": {
+                    "type": "integer"
+                  },
+                  "where": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "set_aside_at": {
+                    "type": "string"
+                  },
+                  "by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "days_left": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "asked": {
+                    "type": "object"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "set-aside-files"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "items": [
+                {
+                  "name": "/a file that is not there"
+                }
+              ],
+              "state": "archived"
+            },
+            "output_selector": "$.said",
+            "contains": "Archived"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::recently-deleted",
+      "address": "package::trillion::tool::recently-deleted",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:recently-deleted",
+        "listed_on": "2026-09-30T06:40:06Z",
+        "label": "Recently Deleted",
+        "job": "List what this person deleted or archived, newest first, with how many days each has left before it moves on, so any of it can be put back",
+        "description": "state (optional) keeps one state (deleted or archived); after (optional) is the previous page's next_after. Each item has its id (for tool:put-back-files), label, state, the names it had, where it was, when and by whom, and days_left (null: kept until put back). Also answers keep_for. Its screen is the Recently Deleted screen.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "state": {
+              "type": "string"
+            },
+            "after": {
+              "type": "object",
+              "properties": {
+                "ms": {
+                  "type": "integer"
+                },
+                "id": {
+                  "type": "string"
+                }
+              }
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "items",
+            "next_after",
+            "keep_for"
+          ],
+          "properties": {
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "state",
+                  "days_left"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "state_label": {
+                    "type": "string"
+                  },
+                  "folder": {
+                    "type": "boolean"
+                  },
+                  "names": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "name_count": {
+                    "type": "integer"
+                  },
+                  "byte_length": {
+                    "type": "integer"
+                  },
+                  "where": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "set_aside_at": {
+                    "type": "string"
+                  },
+                  "by": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_at": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "days_left": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "due_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "next_after": {
+              "type": [
+                "object",
+                "null"
+              ]
+            },
+            "keep_for": {
+              "type": "object",
+              "required": [
+                "states",
+                "choices"
+              ],
+              "properties": {
+                "states": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "id",
+                      "label",
+                      "after_days"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "label": {
+                        "type": "string"
+                      },
+                      "after_days": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "default_after_days": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "when_due": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "due_words": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "choices": {
+                  "type": "array"
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "list-set-aside"
+        },
+        "screen": {
+          "kind": "app-entry",
+          "entry": "recently-deleted",
+          "icon": "Trash2",
+          "label": "Recently Deleted",
+          "about": "Files you deleted, and how long until they go.",
+          "inputs": {
+            "limit": {
+              "label": "How many",
+              "placeholder": "How many to show"
+            },
+            "state": {
+              "hidden": true
+            },
+            "after": {
+              "hidden": true
+            }
+          }
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.keep_for.states[0].id",
+            "contains": "deleted"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::put-back-files",
+      "address": "package::trillion::tool::put-back-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:put-back-files",
+        "listed_on": "2026-09-30T06:40:06Z",
+        "label": "Put back deleted files",
+        "job": "Put back what this person deleted or archived: every name it had comes back where it was",
+        "description": "ids are the items' ids from tool:recently-deleted. One whose name another file took in the meantime stays where it is and says so. Returns results: { id, label, put_back: true } or { id, label, error }.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "ids"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "ids": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 500,
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "results"
+          ],
+          "properties": {
+            "results": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "put_back": {
+                    "type": "boolean"
+                  },
+                  "error": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "put-back-files"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "ids": [
+                "not-set-aside"
+              ]
+            },
+            "output_selector": "$.results[0].error",
+            "contains": "not in"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-deleted-files-keep-for",
+      "address": "package::trillion::tool::read-deleted-files-keep-for",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:read-deleted-files-keep-for",
+        "listed_on": "2026-09-30T06:40:06Z",
+        "label": "How long deleted files are kept",
+        "job": "Read how many days this person's Recently Deleted and Archived keep things before they move on",
+        "description": "Takes no input. states: each with its id, label, after_days (null: until put back), default_after_days and what happens when its time ends; choices: the usual numbers of days.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "states",
+            "choices"
+          ],
+          "properties": {
+            "states": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "after_days"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "default_after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "when_due": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "due_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "choices": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-keep-for"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.states[0].id",
+            "contains": "deleted"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::set-deleted-files-keep-for",
+      "address": "package::trillion::tool::set-deleted-files-keep-for",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:set-deleted-files-keep-for",
+        "listed_on": "2026-09-30T06:40:06Z",
+        "label": "Change how long deleted files are kept",
+        "job": "Change how many days this person's Recently Deleted or Archived keep things before they move on",
+        "description": "after_days is { state: days } (a whole number from 0 to 36500, or null to keep until put back). It applies at once to everything already there, so a shorter time can make things move on, or be gone for good, at the next sweep. A state left out keeps its days.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "after_days"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "after_days": {
+              "type": "object",
+              "additionalProperties": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "minimum": 0,
+                "maximum": 36500
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "states",
+            "choices"
+          ],
+          "properties": {
+            "states": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "label",
+                  "after_days"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "default_after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ]
+                  },
+                  "when_due": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "due_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "choices": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "set-keep-for"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "after_days": {}
+            },
+            "output_selector": "$.states[0].id",
+            "contains": "deleted"
+          }
+        ]
+      }
+    }
+  ]
+}

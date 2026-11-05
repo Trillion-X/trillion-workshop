@@ -1,0 +1,122 @@
+{
+  "about": "Workflows made from the decision method's own sources (methods/sources.json), so any AI on any account can find and run them with find_workflow and start_workflow, and the decision engine names them on its questions (methods/methods.json `workflows`). scripts/method-workflows.mjs writes them into records/workflow-recipe-records.json under id_prefix, replacing only its own rows. A row with `sources` walks those source files as a workflow: one step per step of the universal method that has checks from them, in the method's order, asking every check written from the files and every check their pieces are recorded as covered by, so the workflow says what the files say in the method's own plain words and changes when the checks change. A source row that also names a `method` walks only that method's own steps, in its order. A row with `runs` is a variant that runs those workflows in order on the same request. test/method-workflows.test.mjs fails when the shipped rows are behind the checks. A new source walked as a workflow, or a new variant, is a new row here.",
+  "id_prefix": "workflow:method-",
+  "request": {
+    "type": "string",
+    "minLength": 10,
+    "description": "What you are deciding, designing or building, in plain words"
+  },
+  "answer_min_length": 40,
+  "check_answer_min_length": 20,
+  "workflows": [
+    {
+      "id": "workflow:method-name-question-delete",
+      "label": "Name the change, question it, delete, then simplify",
+      "job": "Before building or changing anything: name the change (who or what is in which state now and which state it should reach), question every assumption and every requirement against it, delete what is not needed, simplify what survives, shorten how long it takes, and only then automate it.",
+      "sources": ["algorithm-elon-musk.md"]
+    },
+    {
+      "id": "workflow:method-find-the-constraints",
+      "label": "Find the constraints that leave one right answer",
+      "job": "List every hard constraint a design must meet and find the ones that, combined, rule out every lazy answer, so the right design is the only one left standing.",
+      "sources": ["1000x-maximize-the-constraints.md"]
+    },
+    {
+      "id": "workflow:method-test-a-design-against-every-case",
+      "label": "Test a design against every case it will meet",
+      "job": "Test a proposed design or feature from outside the box it was drawn in: the underlying building block it is one case of, what it gives for free combined with everything already there, how it holds for any number of people in completely different fields, and what breaks first.",
+      "sources": ["adversarial-1000x-compliance-gate.md"]
+    },
+    {
+      "id": "workflow:method-research-plan-build",
+      "label": "Research the field, then plan and build it end to end",
+      "job": "Research how a capability is done across the whole field and from first principles, turn the findings into a plan, and carry that plan through to the real working result.",
+      "sources": ["L78-research-plus-first-principles-gauntlet-create-plan-fully-execute-e2e.md"]
+    },
+    {
+      "id": "workflow:method-build-the-real-thing",
+      "label": "Build the real thing people use, not a demo",
+      "job": "Build a capability as the real running product people can reach and use, with a generic mechanism (no person, product or vendor in it, every open set a row of data), what it makes possible for free built in the same change, and proof from the running product.",
+      "sources": ["1000000000x-e2e-full-production-app-from-start.md"]
+    },
+    {
+      "id": "workflow:method-do-it-completely",
+      "label": "Do it completely and correctly the first time",
+      "job": "Hold the work to the full result on the first pass: no stopgaps, no partial versions, nothing left for later, every claim checked against what is actually there.",
+      "sources": ["00-must-follow-this-mandate-perfection-rigor.md"]
+    },
+    {
+      "id": "workflow:method-name-things-by-what-they-do",
+      "label": "Name things by what they do",
+      "job": "Name every part, field, screen and message by what it does for the person, in plain words a newcomer understands, so each name can be pointed at in the real result.",
+      "sources": ["generic-naming.md"]
+    },
+    {
+      "id": "workflow:method-plan-only-what-helps",
+      "label": "Write only the plan that helps, then do it",
+      "job": "Write a short plan only when it helps: the change and the exact messages it answers, who owns it now, the smallest change, the features asked for, made possible and found by combining, and the proof, with every identified step done in the same pass.",
+      "sources": ["plan-file-template.md"]
+    },
+    {
+      "id": "workflow:method-hold-to-the-hardest-test",
+      "label": "Hold any plan to the hardest test",
+      "job": "Walk any decision, plan or claim through the method's hardest questions: attack every claim and say how each source found it out, hear every voice and name the least obvious insights, find unexplored ground that fits the person, pick the move with the most result for its time, money and attention (hiring included), let what the pursuit already makes pay for it, have the next need ready before it is asked, and show the result where the person already is.",
+      "sources": ["worldview.json"]
+    },
+    {
+      "id": "workflow:method-contact-reality",
+      "label": "Make contact with reality",
+      "job": "Hold any decision, design or test to contact with reality: assume no limit before investigating it, say what is being optimized before choosing any dimension, describe what happens before naming it, keep your opinion out of the person's words, reconcile disagreeing answers, test against real outcomes with predictions written first and counted in tiers, fold what is learned into the person's life automatically, run Trillion's own copy from the Marketplace, and improve the method itself every run.",
+      "sources": ["Founder chat 2026-10-12 - Recursive CPG System Investigation.md", "Founder chat 2026-10-12 - CPG Reality Testing Research (1).md", "Founder chat 2026-10-12 - Investigate Underlying Phenomenon.md", "Founder chat 2026-10-12 - ChatGPT Recursive Consulting Methodology.md", "Founder chat 2026-10-12 - CPG Reality Testing Research.md", "Founder chat 2026-10-12 - Meta Analysis Answer.md", "Founder chat 2026-10-12 - Integrate Insights Automatically.md"]
+    },
+    {
+      "id": "workflow:method-design-a-feature",
+      "label": "Design a feature",
+      "job": "Design a new feature or capability from the request to the working result: name the change, find the constraints, look at what already exists, test the design against every case, keep the mechanism generic, list and build what it makes possible for free, name it plainly, and prove it in the running product.",
+      "runs": [
+        "workflow:method-name-question-delete",
+        "workflow:method-contact-reality",
+        "workflow:method-find-the-constraints",
+        "workflow:method-test-a-design-against-every-case",
+        "workflow:method-build-the-real-thing",
+        "workflow:method-name-things-by-what-they-do",
+        "workflow:method-plan-only-what-helps"
+      ]
+    },
+    {
+      "id": "workflow:method-change-code",
+      "label": "Change code",
+      "job": "Change or fix code: name the change, question and delete before adding, use what the code already has, keep any new mechanism generic, do it completely in one pass, and prove it on the real running path.",
+      "runs": [
+        "workflow:method-name-question-delete",
+        "workflow:method-contact-reality",
+        "workflow:method-test-a-design-against-every-case",
+        "workflow:method-do-it-completely",
+        "workflow:method-plan-only-what-helps"
+      ]
+    },
+    {
+      "id": "workflow:method-build-a-product",
+      "label": "Build a product",
+      "job": "Build a product people reach, use and pay for: research the field, name the change, find the constraints, test the design against every case, build the real running thing with its free extras, name it plainly, do it completely, and prove it with real people.",
+      "runs": [
+        "workflow:method-research-plan-build",
+        "workflow:method-name-question-delete",
+        "workflow:method-contact-reality",
+        "workflow:method-find-the-constraints",
+        "workflow:method-test-a-design-against-every-case",
+        "workflow:method-build-the-real-thing",
+        "workflow:method-name-things-by-what-they-do",
+        "workflow:method-do-it-completely",
+        "workflow:method-plan-only-what-helps"
+      ]
+    },
+    {
+      "id": "workflow:method-tell-a-story",
+      "label": "Tell a story that changes the reader",
+      "job": "Write a story, post, article, newsletter, talk or video script as one real change: before, what changed and after; the part of the person that was stuck and the distinction that dissolves; every stage of the journey in their awareness; the enhancers its length carries in priority order; and a draft that shows each of them. A step is refused until every check is answered.",
+      "method": "story",
+      "sources": ["stop-looking-start-seeing-ebook"]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "schema": "trillion.content-format-sources",
+  "about": "Where a content format takes the person's own words from (DATA, read by src/content-formats.mjs). Each kind is one row: `id` and `label` name it to a person (\"From your recording\"), `read` names the person store's reader that lists and opens it (`files`: the newest files under `folders`, each with every folder beneath it, whose name ends with one of `name_endings`, with `words_after` cutting a kept transcript's script header off; `pursuits`: the person's pursuits, `title` naming the field that titles one and `fields` the ones whose words fill a format). A new kind is a new row here; a new place a kind lives is a new folder in its row.",
+  "kinds": [
+    {
+      "id": "recording",
+      "label": "recording",
+      "read": "files",
+      "folders": [
+        "/Recordings from the web",
+        "/Recordings from iPhone"
+      ],
+      "name_endings": [
+        " transcript.txt"
+      ],
+      "title_drops": " transcript.txt",
+      "words_after": "What I said\n"
+    },
+    {
+      "id": "note",
+      "label": "note",
+      "read": "files",
+      "folders": [
+        "/Notes",
+        "/Notes from members"
+      ],
+      "name_endings": [
+        ".md",
+        ".txt"
+      ]
+    },
+    {
+      "id": "pursuit",
+      "label": "pursuit",
+      "read": "pursuits",
+      "title": "title",
+      "fields": [
+        "now",
+        "after",
+        "why_it_matters"
+      ]
+    }
+  ],
+  "before_writing": {
+    "_what": "How a finished piece is reached from shaped scripts when a format names no workflow of its own: the AI finds the account's or the Marketplace's workflow for this job with find_workflow and runs it. A saved format's own workflow_id replaces this for that format.",
+    "find_workflow": {
+      "job": "Turn the person's notes, recording or thought into a finished piece in their own format, viewpoint and copywriting laws, told as a story and checked line by line before it is kept"
+    }
+  }
+}

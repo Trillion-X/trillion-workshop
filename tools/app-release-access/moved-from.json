@@ -25,6 +25,13 @@
       "byte_copy_commit": "eca35b0f85bb047ce954cc1518953537294ba313",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "records/workshop-app-distribution-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/app-release-access/from-old-trillion/records/workshop-app-distribution-tool-records.json",
+      "source_identity": "1f:2c735dc02b5ef8394f872137a5e9f9062761c1469ced82579a66b71541502bb1",
+      "identity": "1f:2c735dc02b5ef8394f872137a5e9f9062761c1469ced82579a66b71541502bb1"
     }
   ]
 }

@@ -1,0 +1,119 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-practice-tool-records",
+  "what_this_is": "The practice tool: cards that come back on a spaced repetition schedule until they stick (src/practice.mjs, run in the person's account).",
+  "records": [
+    {
+      "id": "package::trillion::tool::practice",
+      "address": "package::trillion::tool::practice",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "id": "tool:practice",
+        "listed_on": "2026-10-05T20:00:00Z",
+        "label": "Practise until it sticks",
+        "job": "Keep something a person wants to get right every time (a word to use instead of another, a habit, a fact, a correction they keep giving) as a practice card that comes back on a spaced repetition schedule until it sticks, and remind them each day when cards are due",
+        "description": "operation add: { prompt, answer, why?, deck?, source_ref?, time_zone? } keeps a card (adding the same prompt again keeps its progress) and, with time_zone, sets one daily reminder. due: { deck?, limit? } lists the cards due now. grade: { card_id, grade: again | hard | good | easy } moves the card's next return out (1 day, 6 days, then longer) or, when missed, back to tomorrow, and says its mastery from 0 to 1000. cards: { deck? } lists every card with its mastery. remove: { card_id } stops it coming back. remind tells the person how many are due. Ask the person the prompt, let them answer in their own words, then grade it.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operation"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "add",
+                "due",
+                "grade",
+                "cards",
+                "remove",
+                "remind"
+              ]
+            },
+            "prompt": {
+              "type": "string",
+              "description": "What the person is asked"
+            },
+            "answer": {
+              "type": "string",
+              "description": "The answer to get right"
+            },
+            "why": {
+              "type": "string",
+              "description": "Why it matters, in their words"
+            },
+            "deck": {
+              "type": "string",
+              "description": "A group of cards, such as a subject"
+            },
+            "source_ref": {
+              "type": "string",
+              "description": "The message or file it came from"
+            },
+            "time_zone": {
+              "type": "string",
+              "description": "The person's time zone, for the daily reminder (like America/Los_Angeles)"
+            },
+            "card_id": {
+              "type": "string",
+              "description": "A card from due or cards"
+            },
+            "grade": {
+              "type": "string",
+              "enum": [
+                "again",
+                "hard",
+                "good",
+                "easy"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "card_id": {
+              "type": "string"
+            },
+            "cards": {
+              "type": "array"
+            },
+            "mastery": {
+              "type": "number"
+            },
+            "due_at": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "practice"
+        }
+      }
+    }
+  ]
+}

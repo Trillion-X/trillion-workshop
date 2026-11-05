@@ -1,0 +1,428 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-ambience-tool-records",
+ "what_this_is": "Ambience as Workshop tools: the web rows that read what is playing (Spotify, Last.fm) and set connected lights (LIFX, Govee) on the person's own connections. The Ambience screen itself (parts/ambience) is a screen row in workshop-screen-tool-records.json. Rows marked runs_quietly are sent by a light following the sound through POST /work/api/workshop/send-quietly/<id>, which keeps no run for each send.",
+ "records": [
+  {
+   "id": "package::trillion::tool::lifx-set-lights",
+   "address": "package::trillion::tool::lifx-set-lights",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-04T13:00:00Z",
+    "id": "tool:lifx-set-lights",
+    "label": "Set LIFX lights",
+    "job": "Turn LIFX lights on and set their colour and brightness",
+    "description": "Sets the state of the LIFX lights the selector names ('all', 'label:Desk', 'group:Living Room', 'id:d073d5...') on the person's LIFX account: colour as #rrggbb or any LIFX colour words, brightness 0 to 1, over duration seconds. LIFX allows 120 changes a minute. Runs quietly when a light follows the sound.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "selector"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "selector": {
+       "type": "string",
+       "description": "Which lights: all, label:<name>, group:<name> or id:<id>"
+      },
+      "color": {
+       "type": "string",
+       "description": "#rrggbb or LIFX colour words"
+      },
+      "brightness": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "duration": {
+       "type": "number",
+       "minimum": 0,
+       "description": "Seconds the change takes"
+      },
+      "power": {
+       "type": "string",
+       "enum": [
+        "on",
+        "off"
+       ]
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::lifx",
+     "connection_id": "service_connection:lifx",
+     "url": "https://api.lifx.com/v1/lights/{selector}/state",
+     "method": "PUT",
+     "timeout_ms": 15000,
+     "credential_injections": [
+      {
+       "field_id": "api_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer ",
+        "suffix": ""
+       }
+      }
+     ],
+     "body": {
+      "power": {
+       "from": "power",
+       "otherwise": "on"
+      },
+      "color": {
+       "from": "color",
+       "optional": true
+      },
+      "brightness": {
+       "from": "brightness",
+       "optional": true
+      },
+      "duration": {
+       "from": "duration",
+       "optional": true
+      },
+      "fast": true
+     }
+    },
+    "runs_quietly": true
+   }
+  },
+  {
+   "id": "package::trillion::tool::lifx-list-lights",
+   "address": "package::trillion::tool::lifx-list-lights",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-04T13:00:00Z",
+    "id": "tool:lifx-list-lights",
+    "label": "List LIFX lights",
+    "job": "List the person's LIFX lights with their names, groups, power and colour",
+    "description": "Every LIFX light on the person's account (or those the selector names), each with its label, group, power, colour and brightness.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 3,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "selector"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "selector": {
+       "type": "string",
+       "description": "all, label:<name>, group:<name> or id:<id>"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::lifx",
+     "connection_id": "service_connection:lifx",
+     "url": "https://api.lifx.com/v1/lights/{selector}",
+     "method": "GET",
+     "timeout_ms": 15000,
+     "credential_injections": [
+      {
+       "field_id": "api_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer ",
+        "suffix": ""
+       }
+      }
+     ]
+    },
+    "runs_quietly": true
+   }
+  },
+  {
+   "id": "package::trillion::tool::govee-list-devices",
+   "address": "package::trillion::tool::govee-list-devices",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-04T13:00:00Z",
+    "id": "tool:govee-list-devices",
+    "label": "List Govee lights",
+    "job": "List the person's Govee lights and LED strips with what each can do",
+    "description": "Every Govee device on the person's account with its sku, device id, name and capabilities (colour, brightness, scenes).",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 3,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::govee",
+     "connection_id": "service_connection:govee",
+     "url": "https://openapi.api.govee.com/router/api/v1/user/devices",
+     "method": "GET",
+     "timeout_ms": 15000,
+     "credential_injections": [
+      {
+       "field_id": "api_key",
+       "placement": {
+        "kind": "header",
+        "name": "Govee-API-Key",
+        "prefix": "",
+        "suffix": ""
+       }
+      }
+     ]
+    },
+    "runs_quietly": true
+   }
+  },
+  {
+   "id": "package::trillion::tool::govee-set-colour",
+   "address": "package::trillion::tool::govee-set-colour",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-04T13:00:00Z",
+    "id": "tool:govee-set-colour",
+    "label": "Set a Govee light's colour",
+    "job": "Set one Govee light or LED strip to a colour",
+    "description": "Sets one Govee device (its sku and device id from List Govee lights) to a colour given as a number: red times 65536 plus green times 256 plus blue. Govee allows about 10 changes a minute per device.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "sku",
+      "device",
+      "rgb"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "sku": {
+       "type": "string"
+      },
+      "device": {
+       "type": "string",
+       "x-free-text-because": "The device id Govee itself gives each light, read from the connected Govee account, not a row of a list."
+      },
+      "rgb": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 16777215
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::govee",
+     "connection_id": "service_connection:govee",
+     "url": "https://openapi.api.govee.com/router/api/v1/device/control",
+     "method": "POST",
+     "timeout_ms": 15000,
+     "credential_injections": [
+      {
+       "field_id": "api_key",
+       "placement": {
+        "kind": "header",
+        "name": "Govee-API-Key",
+        "prefix": "",
+        "suffix": ""
+       }
+      }
+     ],
+     "body": {
+      "requestId": "trillion",
+      "payload": {
+       "sku": "{sku}",
+       "device": "{device}",
+       "capability": {
+        "type": "devices.capabilities.color_setting",
+        "instance": "colorRgb",
+        "value": {
+         "from": "rgb"
+        }
+       }
+      }
+     }
+    },
+    "runs_quietly": true
+   }
+  },
+  {
+   "id": "package::trillion::tool::spotify-now-playing",
+   "address": "package::trillion::tool::spotify-now-playing",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-04T13:00:00Z",
+    "id": "tool:spotify-now-playing",
+    "label": "What is playing on Spotify",
+    "job": "Read what the person is playing on Spotify right now: the song, artist, cover, how far in and whether it is playing",
+    "description": "The person's currently playing track on their connected Spotify account (item name, artists, album images, progress_ms, is_playing). Answers nothing (204) when nothing plays.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::spotify",
+     "connection_id": "service_connection:spotify",
+     "url": "https://api.spotify.com/v1/me/player/currently-playing",
+     "method": "GET",
+     "timeout_ms": 15000,
+     "credential_injections": [
+      {
+       "field_id": "access_token",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer ",
+        "suffix": ""
+       }
+      }
+     ]
+    },
+    "runs_quietly": true
+   }
+  },
+  {
+   "id": "package::trillion::tool::lastfm-now-playing",
+   "address": "package::trillion::tool::lastfm-now-playing",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "maker": "maker:trillion",
+    "listed_on": "2026-10-04T13:00:00Z",
+    "id": "tool:lastfm-now-playing",
+    "label": "What is playing, from Last.fm",
+    "job": "Read the song a Last.fm user is playing now or played last, from any app that scrobbles",
+    "description": "The newest scrobbles of the Last.fm user named (recenttracks.track[0] carries @attr.nowplaying while it plays), with artist, title, album and cover images.",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": true
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "user"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "user": {
+       "type": "string",
+       "description": "The Last.fm user name"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "http",
+     "connection": "package::service-connections::published-record::lastfm",
+     "connection_id": "service_connection:lastfm",
+     "url": "https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&format=json&limit=1&user={user}",
+     "method": "GET",
+     "timeout_ms": 15000,
+     "credential_injections": [
+      {
+       "field_id": "api_key",
+       "placement": {
+        "kind": "query",
+        "name": "api_key",
+        "prefix": "",
+        "suffix": ""
+       }
+      }
+     ]
+    },
+    "runs_quietly": true
+   }
+  }
+ ]
+}

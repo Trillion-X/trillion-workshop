@@ -8,3 +8,14 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 | `harness/drain-owed-decisions.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `harness/drain-owed-decisions.mjs` | not wired |
 | `scripts/prove-drain-owed-decisions.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `scripts/prove-drain-owed-decisions.mjs` | not wired |
 | `test/drain-owed-decisions.test.mjs` | dc79bb0a87 (The Mac app stops carrying dead Node code: 55 tools no Workshop row na...) | `test/drain-owed-decisions.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `workshop/architecture-patterns/README.md` | `workshop/architecture-patterns/README.md` |
+| `workshop/architecture-patterns/descriptor.json` | `workshop/architecture-patterns/descriptor.json` |
+| `workshop/architecture-patterns/main.py` | `workshop/architecture-patterns/main.py` |
+| `workshop/architecture-patterns/workflow.json` | `workshop/architecture-patterns/workflow.json` |

@@ -1,0 +1,119 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "hosted-service-records",
+  "records": [
+    {
+      "id": "package::hosted-service::site::newsletter",
+      "address": "package::hosted-service::site::newsletter",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "hosted-site",
+        "id": "site:newsletter",
+        "service": "service:ghost",
+        "label": "Newsletter site",
+        "host": "newsletter.gettrillion.ai",
+        "url": "https://newsletter.gettrillion.ai"
+      }
+    },
+    {
+      "id": "package::hosted-service::service::ghost",
+      "address": "package::hosted-service::service::ghost",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "hosted-service",
+        "id": "service:ghost",
+        "label": "A Ghost publishing site",
+        "vendor": "Cloudflare Containers",
+        "billing": "per 10 ms while awake; sleeps to zero after idle_seconds",
+        "image": "docker.io/library/ghost:6",
+        "instance_type": "standard-1",
+        "max_instances": 20,
+        "port": 2368,
+        "start_argv": [
+          "docker-entrypoint.sh",
+          "node",
+          "current/index.js"
+        ],
+        "env": {
+          "NODE_ENV": "production",
+          "url": {
+            "fill": {
+              "from": "site",
+              "field": "url"
+            }
+          },
+          "database__client": "sqlite3",
+          "database__connection__filename": "/var/lib/ghost/content/data/ghost.db",
+          "database__useNullAsDefault": "true"
+        },
+        "state": {
+          "paths": [
+            "/var/lib/ghost/content"
+          ],
+          "exclude": [
+            "var/lib/ghost/content/data/ghost.db*",
+            "var/lib/ghost/content/logs"
+          ],
+          "prepare_argv": [
+            "node",
+            "-e",
+            "const D=require('/var/lib/ghost/current/node_modules/better-sqlite3');const fs=require('fs');const out='/var/lib/ghost/content/data/saved.db';fs.rmSync(out,{force:true});new D('/var/lib/ghost/content/data/ghost.db').exec(\"VACUUM INTO '\"+out+\"'\");"
+          ],
+          "after_restore_argv": [
+            "sh",
+            "-c",
+            "cd /var/lib/ghost/content/data && if [ -f saved.db ]; then mv saved.db ghost.db; fi; chown -R node:node /var/lib/ghost/content"
+          ]
+        },
+        "ready": {
+          "path": "/ghost/api/admin/site/",
+          "expect_status": 200
+        },
+        "blocked_paths": [
+          "/ghost/api/admin/authentication/setup"
+        ],
+        "setup": {
+          "argv": [
+            "node",
+            "-e",
+            "const [name, email, title] = process.argv.slice(1);\nconst url = new URL(process.env.url);\nconst password = require('crypto').randomBytes(24).toString('base64url');\nlet cookie = '';\nconst call = async (method, path, body) => {\n  const response = await fetch(`http://127.0.0.1:2368${url.pathname.replace(/\\/$/, '')}/ghost/api/admin${path}`, { method, headers: { 'content-type': 'application/json', origin: url.origin, host: url.host, 'x-forwarded-proto': 'https', ...(cookie ? { cookie } : {}) }, body: body ? JSON.stringify(body) : undefined, redirect: 'manual' });\n  const set = response.headers.get('set-cookie'); if (set) cookie = set.split(';')[0];\n  const text = await response.text();\n  if (!response.ok) throw new Error(`${method} ${path} answered ${response.status}: ${text.slice(0, 300)}`);\n  return text.startsWith('{') ? JSON.parse(text) : null;\n};\n(async () => {\n  if ((await call('GET', '/authentication/setup/')).setup[0].status) throw new Error('This site already has an owner.');\n  await call('POST', '/authentication/setup/', { setup: [{ name, email, password, blogTitle: title }] });\n  await call('POST', '/session/', { username: email, password });\n  const made = await call('POST', '/integrations/?include=api_keys', { integrations: [{ name: 'Workshop' }] });\n  const admin = made.integrations[0].api_keys.find(key => key.type === 'admin');\n  process.stdout.write(JSON.stringify({ site_url: url.origin + url.pathname.replace(/\\/$/, ''), admin_api_key: admin.secret.includes(\":\") ? admin.secret : `${admin.id}:${admin.secret}` }));\n})().catch(error => { process.stderr.write(error.message); process.exit(1); });\n",
+            {
+              "fill": {
+                "from": "input",
+                "field": "owner_name"
+              }
+            },
+            {
+              "fill": {
+                "from": "input",
+                "field": "owner_email"
+              }
+            },
+            {
+              "fill": {
+                "from": "input",
+                "field": "title"
+              }
+            }
+          ],
+          "hand_over_argv": [
+            "node",
+            "-e",
+            "const D = require('/var/lib/ghost/current/node_modules/better-sqlite3');\nconst row = new D(process.env.database__connection__filename, { readonly: true }).prepare(\"SELECT k.id, k.secret FROM api_keys k JOIN integrations i ON i.id = k.integration_id WHERE i.name = 'Workshop' AND k.type = 'admin'\").get();\nif (!row) { process.stderr.write('The site has no Workshop connection yet.'); process.exit(1); }\nconst url = new URL(process.env.url);\nprocess.stdout.write(JSON.stringify({ site_url: url.origin + url.pathname.replace(/\\/$/, ''), admin_api_key: row.secret.includes(':') ? row.secret : `${row.id}:${row.secret}` }));"
+          ],
+          "output": "json",
+          "connects": "ghost"
+        },
+        "idle_seconds": 900,
+        "save_after_write_seconds": 20
+      }
+    }
+  ]
+}

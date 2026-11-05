@@ -1,0 +1,345 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-storage-release-tool-records",
+  "what_this_is": "A person's storage and when the storage of what they deleted is given back, as Workshop tools that run inside that person's store (placement:this-account; src/namespace-release-rules.mjs through src/person-store.mjs accountActions read-storage, set-release-rules and release-deleted-files), so their own rules and schedules (src/automations.mjs) can give storage back.",
+  "records": [
+    {
+      "id": "package::trillion::tool::read-storage",
+      "address": "package::trillion::tool::read-storage",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:read-storage",
+        "listed_on": "2026-10-05T16:00:00Z",
+        "label": "Storage and what leaves when",
+        "job": "Read how much storage this person's files use, what waits in Recently Deleted and Archived and when its storage is given back, and what was given back",
+        "description": "Answers kept (bytes and files by store), waiting, leaving (bytes per day for the next days), each waiting item with when it leaves and which rule or keep-for decides it, given_back in all and per day, and the person's release rules with the facts they can name.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "waiting",
+            "leaving",
+            "rules"
+          ],
+          "properties": {
+            "kept": {
+              "type": "object"
+            },
+            "waiting": {
+              "type": "object"
+            },
+            "leaving": {
+              "type": "array"
+            },
+            "items": {
+              "type": "array"
+            },
+            "given_back": {
+              "type": "object"
+            },
+            "given_back_by_day": {
+              "type": "array"
+            },
+            "rules": {
+              "type": "array"
+            },
+            "item_facts": {
+              "type": "array"
+            },
+            "orders": {
+              "type": "array"
+            },
+            "keep_for": {
+              "type": "object"
+            },
+            "next_pass_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-storage"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.keep_for.states[0].id",
+            "contains": "deleted"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::set-release-rules",
+      "address": "package::trillion::tool::set-release-rules",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:set-release-rules",
+        "listed_on": "2026-10-05T16:00:00Z",
+        "label": "Change when deleted files give back storage",
+        "job": "Change the rules that give back the storage of deleted files sooner than keep-for: by folder, kind, size, days since deleted, or while storage is above a size",
+        "description": "rules replaces the whole list; each is { id, label, on, when, after_days, storage_above_bytes, order }. when is a formula-engine rule tree over label (text), kind (choice), where (choice), size (bytes), days_deleted (number), state (choice), by (choice), count (number), or null for everything. Left out, nothing changes. Answers what tool:read-storage answers.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "on": {
+                    "type": "boolean"
+                  },
+                  "when": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "storage_above_bytes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "oldest",
+                      "largest"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "waiting",
+            "leaving",
+            "rules"
+          ],
+          "properties": {
+            "kept": {
+              "type": "object"
+            },
+            "waiting": {
+              "type": "object"
+            },
+            "leaving": {
+              "type": "array"
+            },
+            "items": {
+              "type": "array"
+            },
+            "given_back": {
+              "type": "object"
+            },
+            "given_back_by_day": {
+              "type": "array"
+            },
+            "rules": {
+              "type": "array"
+            },
+            "item_facts": {
+              "type": "array"
+            },
+            "orders": {
+              "type": "array"
+            },
+            "keep_for": {
+              "type": "object"
+            },
+            "next_pass_at": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "set-release-rules"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.keep_for.states[0].id",
+            "contains": "deleted"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::trillion::tool::release-deleted-files",
+      "address": "package::trillion::tool::release-deleted-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "id": "tool:release-deleted-files",
+        "listed_on": "2026-10-05T16:00:00Z",
+        "label": "Give back storage of deleted files now",
+        "job": "Delete for good what this person's release rules say leaves now, or what rules sent with the run say, and give its storage back",
+        "description": "Runs the saved release rules now, or rules given in the input (not saved). dry_run true only lists what would leave. A person's schedule or rule can run it, for example every night, or when a file arrives in a folder.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "on": {
+                    "type": "boolean"
+                  },
+                  "when": {
+                    "type": [
+                      "object",
+                      "null"
+                    ]
+                  },
+                  "after_days": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "storage_above_bytes": {
+                    "type": [
+                      "integer",
+                      "null"
+                    ],
+                    "minimum": 0
+                  },
+                  "order": {
+                    "type": "string",
+                    "enum": [
+                      "oldest",
+                      "largest"
+                    ]
+                  }
+                }
+              }
+            },
+            "dry_run": {
+              "type": "boolean"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "leaving",
+            "bytes",
+            "dry_run"
+          ],
+          "properties": {
+            "leaving": {
+              "type": "array"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "dry_run": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "release-deleted-files"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "dry_run": true
+            },
+            "output_selector": "$.dry_run",
+            "contains": "true"
+          }
+        ]
+      }
+    }
+  ]
+}

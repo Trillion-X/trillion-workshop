@@ -1,0 +1,125 @@
+{
+  "about": "How src/skill-rows.mjs (used by scripts/skills-to-workflows.mjs for folders on the publisher's computer and by src/skill-sources.mjs for public repositories read from their source) turns agent skill folders (a SKILL.md with a name and a description, and the files beside it) into workflows every Trillion account's AI can find with find_workflow and run with start_workflow. One skill becomes one workflow row: its instructions are the one step's do, and its text files ride along under files. A skill ships only when every rule here lets it: its maker may share it (the publishing account wrote it, or its own folder names an open licence from the Workshop's licence classes), and none of the text that would ship matches a never_share pattern or one of the publisher's private words. Changing what is screened is a row here, never a change to the script.",
+  "id_prefix": "workflow:skill-",
+  "open_licences": {
+    "module": "trillion-workshop",
+    "file": "licence-classes.json",
+    "classes": [
+      "licence:permissive"
+    ]
+  },
+  "licence_words": [
+    {
+      "words": "MIT License",
+      "licence": "MIT"
+    },
+    {
+      "words": "Permission is hereby granted, free of charge",
+      "licence": "MIT"
+    },
+    {
+      "words": "Apache License",
+      "licence": "Apache-2.0"
+    },
+    {
+      "words": "BSD 3-Clause",
+      "licence": "BSD-3-Clause"
+    },
+    {
+      "words": "BSD 2-Clause",
+      "licence": "BSD-2-Clause"
+    },
+    {
+      "words": "ISC License",
+      "licence": "ISC"
+    },
+    {
+      "words": "Mozilla Public License",
+      "licence": "MPL-2.0"
+    },
+    {
+      "words": "This is free and unencumbered software",
+      "licence": "Unlicense"
+    },
+    {
+      "words": "CC0 1.0",
+      "licence": "CC0-1.0"
+    }
+  ],
+  "reference_only": {
+    "comment": "A skill read from its public home whose known licence does not let its text be shared (not in open_licences) becomes this: its name, description, licence, author and a link, with one step that sends the AI to the original. None of its instructions are copied.",
+    "says": "Reference only: its licence does not allow copying it or using it in a product that is sold",
+    "do": "The {skill} skill is kept here as a reference only: its licence ({licence}) does not let Trillion copy its instructions or use them inside a product that is sold. Read the skill at {url} and do the request in this run's input by following it there, within what that licence allows. If the request is for something that will be sold, say the licence does not allow it and stop."
+  },
+  "author_words": [
+    {
+      "comment": "A licence's copyright line names who holds it: 'Copyright (c) 2026 Some Name' reads 'Some Name'. A skill's own front-matter author wins over this.",
+      "pattern": "^\\s*Copyright\\s*(?:\\(c\\)|©)?\\s*(?:\\d{4}(?:\\s*[-,–]\\s*\\d{4})*\\s+)?(?:by\\s+)?(.+?)\\s*$",
+      "group": 1
+    }
+  ],
+  "budget": {
+    "comment": "describe_workflow returns a row whole, so a skill's row stays under max_row_characters. Its SKILL.md always goes in; text files beside it go in, smallest first, while they fit; the rest are named under files_left_out.",
+    "max_row_characters": 200000,
+    "max_file_characters": 80000
+  },
+  "text_files": [
+    "md",
+    "mdx",
+    "txt",
+    "json",
+    "yaml",
+    "yml",
+    "toml",
+    "csv",
+    "tsv",
+    "py",
+    "js",
+    "mjs",
+    "cjs",
+    "ts",
+    "tsx",
+    "jsx",
+    "sh",
+    "html",
+    "css",
+    "svg",
+    "sql",
+    "rb",
+    "go",
+    "rs",
+    "swift",
+    "xml"
+  ],
+  "skipped_folders": [
+    "node_modules",
+    ".git",
+    "dist",
+    "build",
+    "__pycache__",
+    ".venv"
+  ],
+  "never_share": [
+    {
+      "id": "secret-key",
+      "says": "holds what looks like a secret key or token",
+      "pattern": "(?:\\b(?:sk|pk|rk)_(?:live|test)_[A-Za-z0-9]{10,})|(?:\\bsk-[A-Za-z0-9_-]{20,})|(?:\\bAKIA[0-9A-Z]{16}\\b)|(?:\\bgh[pousr]_[A-Za-z0-9]{30,})|(?:\\bxox[abprs]-[A-Za-z0-9-]{10,})|(?:-----BEGIN [A-Z ]*PRIVATE KEY-----)|(?:\\bAIza[0-9A-Za-z_-]{30,})|(?:\\beyJ[A-Za-z0-9_-]{20,}\\.[A-Za-z0-9_-]{20,}\\.)"
+    },
+    {
+      "id": "computer-path",
+      "says": "names a folder on one person's computer",
+      "pattern": "(?:/Users/[A-Za-z])|(?:/home/[a-z])|(?:[A-Za-z]:\\\\Users\\\\)|(?:/Volumes/[A-Za-z])|(?:~/(?:dev|Desktop|Documents|Downloads|Library|Movies|Pictures)\\b)|(?:~/\\.[a-z])"
+    },
+    {
+      "id": "email-address",
+      "says": "holds an email address",
+      "pattern": "(?<=[A-Za-z0-9._%+-])(?<!git)@(?!(?:[A-Za-z0-9-]+\\.)*example\\.)(?!(?<=(?:^|[^\\w.%+-])\\w@)\\w\\.[a-z]{2,3}\\b)(?!(?:example|yourdomain|domain|company|email|test|acme|acmehq|getacme|globex|vendor|you|co|that-domain)\\.[a-z]{2,4}\\b)(?!users\\.noreply\\.github\\.com\\b)[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)*\\.(?:com|org|net|io|ai|co|dev|app|house|so|me|us|uk)\\b",
+      "comment": "An address whose domain has an example label (RFC 2606 example.com, example.org, example.net, or any sub.example.co.uk), or a one-letter name at a one-letter domain (user-80305c9b@example.com), is an illustration, never a real person's."
+    },
+    {
+      "id": "phone-number",
+      "says": "holds a phone number",
+      "pattern": "(?<![\\w.])\\+\\d{1,3}[ .-]?\\(?\\d{2,4}\\)?[ .-]\\d{3}[ .-]\\d{3,4}(?![\\w.])"
+    }
+  ]
+}

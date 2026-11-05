@@ -5,3 +5,11 @@ Files of old trillion whose job is this tool's (publish price guidance as editab
 | Old path | Here | Status |
 |---|---|---|
 | `src/service-price-rules.mjs` | `src/service-price-rules.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/service-price-rules.json (at the tag, not moved here yet), src/marketplace-content-sources.mjs (at the tag, not moved here yet) |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/service-price-rules.json` | `records/service-price-rules.json` |

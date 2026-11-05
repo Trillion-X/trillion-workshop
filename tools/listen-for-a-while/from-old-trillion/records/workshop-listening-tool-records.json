@@ -1,0 +1,868 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-listening-tool-records",
+ "what_this_is": "Listening and knowing who is who, as Workshop tools on the person's own computer (placement:your-computer, answered by computer/listen.mjs listeningTools through computer/mac-tools.json): turn listening on or off, the people this computer can name, enroll someone by their voice or face (with the consent words of who agreed), who is in a recording or a picture, and hearing a piece another device recorded (a phone, a watch, a browser), so every device listens through this computer's one hearing and its one set of enrolled voices, and hearing one recording in their files into timed words, so their recordings are heard by their own computer instead of a speech model Trillion pays for, and speaking: words said out loud in the person's chosen natural voice (their own cloned voice or a neutral one) by a speech model on the computer, and making, choosing and removing those voices (computer/speak.mjs speakTools). Voice and face numbers stay on that computer (computer/know-who.py); what is said reaches the person's Trillion as ordinary messages with their speaker.",
+ "records": [
+  {
+   "id": "package::trillion::tool::listen",
+   "address": "package::trillion::tool::listen",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": { "expected_seconds": 2, "network_egress": false },
+    "id": "tool:listen",
+    "listed_on": "2026-10-03T23:21:43Z",
+    "label": "Listen",
+    "job": "Turn listening on or off on this person's computer, or say whether it is on: while on, everything said near the computer is heard, split into moments, each part named by who said it, and sent to the person's AIs as it is said",
+    "description": "Runs on the person's computer. on true starts listening (macOS shows its microphone light the whole time), on false stops it, and no on only says how it is going: since when, pieces heard, turns sent and left out, the last one sent. Saying \"stop listening\" also turns it off. Each turn arrives as a message from its speaker in the moment's conversation (route Listening), so read_messages with speaker finds what someone said.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "on": { "type": "boolean", "description": "true to start listening, false to stop; leave out to only ask how it is going" }
+     }
+    },
+    "output_schema": { "type": "object" },
+    "invoke": { "kind": "computer-tool", "tool_id": "tool:listen" },
+    "verify": [{ "kind": "sample-run", "safety": "read-only", "input": {}, "output_selector": "$.said", "contains": "istening", "evidence": ["test/listen.test.mjs"] }],
+    "provenance": { "source": "computer/listen.mjs listeningTools.listen, run by computer/mac-tools.mjs on the agent computer-tools" }
+   }
+  },
+  {
+   "id": "package::trillion::tool::people-listening-can-name",
+   "address": "package::trillion::tool::people-listening-can-name",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": { "expected_seconds": 5, "network_egress": false },
+    "id": "tool:people-listening-can-name",
+    "listed_on": "2026-10-03T23:21:43Z",
+    "label": "People listening can name",
+    "job": "List the people this person's computer can recognise by voice or face, with how many samples of each it keeps, their picture and the consent each gave",
+    "description": "Runs on the person's computer. Returns people: [{ id, name, me, voice_samples, face_samples, picture, consent }]. The voice and face numbers themselves never leave the computer.",
+    "input_schema": { "type": "object", "additionalProperties": false, "properties": {} },
+    "output_schema": { "type": "object" },
+    "invoke": { "kind": "computer-tool", "tool_id": "tool:people-listening-can-name" },
+    "provenance": { "source": "computer/listen.mjs listeningTools.people and computer/know-who.py people" }
+   }
+  },
+  {
+   "id": "package::trillion::tool::enroll-someone",
+   "address": "package::trillion::tool::enroll-someone",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": { "expected_seconds": 60, "network_egress": false },
+    "id": "tool:enroll-someone",
+    "listed_on": "2026-10-03T23:21:43Z",
+    "label": "Teach listening someone's voice or face",
+    "job": "Teach this person's computer to recognise someone, by a recording of their voice, a picture of their face, or a voice it already heard while listening, so what they say is named as theirs",
+    "description": "Runs on the person's computer. Give name, kind (voice or face) and consent (who agreed to be known here, and how: nobody is enrolled without it), and one of: path (a file on the computer), file (a file in their Trillion), or heard_voice (a voice the computer heard while listening, like voice-2, from the listening that was running at heard_at, the time a turn of that voice was said, else the latest unless session names one); everything that voice already said in that listening is then named as theirs too. me true marks the person themselves, so their words arrive as theirs. A face enrollment keeps their picture. Several samples make it surer: enroll again to add one.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "name": { "type": "string", "description": "The person's name, as their words should be named", "x-record": {"from": {"row_types": ["person", "crm", "customer", "contact"]}, "new": {"list": "people", "label": "person", "list_label": "People", "title_field": "name"}} },
+      "kind": { "type": "string", "enum": ["voice", "face"] },
+      "consent": { "type": "string", "description": "Who agreed to be recognised here, and how, like \"Sam said yes in the 3 Oct standup\"" },
+      "path": { "type": "string", "description": "A recording or picture on the computer" },
+      "file": { "type": "string", "description": "A recording or picture in the person's Trillion, by name or identity" },
+      "heard_voice": { "type": "string", "description": "A voice heard while listening, like voice-2, as a turn named it (Someone (voice-2))" },
+      "session": { "type": "string", "description": "The listening session the voice was heard in; the latest when left out" },
+      "heard_at": { "type": "string", "format": "date-time", "description": "When a turn of that voice was said (the turn message's time), so the right listening is found" },
+      "me": { "type": "boolean", "description": "true when this is the person themselves" }
+     },
+     "required": ["name", "kind", "consent"]
+    },
+    "output_schema": { "type": "object" },
+    "invoke": { "kind": "computer-tool", "tool_id": "tool:enroll-someone" },
+    "provenance": { "source": "computer/listen.mjs listeningTools.enroll and computer/know-who.py enroll (WeSpeaker voices, SCRFD + ArcFace faces, ported from architect-societies/intake-desktop worker_identity.py)" }
+   }
+  },
+  {
+   "id": "package::trillion::tool::who-is-in-this",
+   "address": "package::trillion::tool::who-is-in-this",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": { "expected_seconds": 120, "network_egress": true },
+    "id": "tool:who-is-in-this",
+    "listed_on": "2026-10-03T23:21:43Z",
+    "label": "Who is in this recording or picture",
+    "job": "Name who speaks in a recording (each stretch of words with its speaker) or whose faces are in a picture or video, against the people this person's computer knows",
+    "description": "Runs on the person's computer. Give path (on the computer) or file (in their Trillion). A recording answers speakers: [{ start, end, who, me, text }], and for a Trillion file they are also kept as the file's speakers result; a picture (or faces true for a video) answers faces: [{ at, box, who, score }]. Anyone not enrolled is Someone (voice-N).",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "path": { "type": "string", "description": "A recording, video or picture on the computer" },
+      "file": { "type": "string", "description": "A recording, video or picture in the person's Trillion, by name or identity" },
+      "faces": { "type": "boolean", "description": "true to look for faces in a video instead of voices" }
+     }
+    },
+    "output_schema": { "type": "object" },
+    "invoke": { "kind": "computer-tool", "tool_id": "tool:who-is-in-this" },
+    "screen": {
+     "kind": "described",
+     "label": "Who is in it",
+     "icon": "UsersRound",
+     "about": "Names who speaks in a recording, and whose faces are in a picture, against the people your computer knows.",
+     "inputs": { "file": { "label": "Recording or picture", "file": { "takes": "seen-or-heard" } }, "path": { "hidden": true } }
+    },
+    "provenance": { "source": "computer/listen.mjs listeningTools.who and computer/know-who.py voices and faces" }
+   }
+  },
+  {
+   "id": "package::trillion::tool::ask-a-model",
+   "address": "package::trillion::tool::ask-a-model",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 8,
+     "network_egress": false
+    },
+    "id": "tool:ask-a-model",
+    "listed_on": "2026-10-05T05:00:00Z",
+    "label": "Ask a model",
+    "job": "Ask a model served on the person's own computer (a local model, free to run) a conversation or a yes-or-no question about some words, instead of a service billed per word",
+    "description": "Runs on the person's computer with the models it serves (computer/local-models.json: Ollama for conversations, a small classifier for yes-or-no questions). messages asks a conversation and answers in the chat-completions shape; tools optionally supplies the functions it may call, whose calls are returned for the caller to execute through its normal permissions. state and questions ask the classifier and answer its probabilities. Trillion asks it before any paid service for checking answers and for telling chatter from requests (src/model-routes.json). An explicitly chosen free always-on AI uses this same local tool. Answers error in words when no model on the computer is running.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "job": { "type": "string", "description": "A model job row from computer/local-models.json; the default row is used when absent" },
+      "messages": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "A conversation: [{ role, content }]"
+      },
+      "tools": {
+       "type": "array",
+       "items": { "type": "object" },
+       "description": "OpenAI-style function definitions the local model may request; the caller executes and checks them."
+      },
+      "max_tokens": {
+       "type": "integer",
+       "minimum": 1
+      },
+      "temperature": {
+       "type": "number"
+      },
+      "seed": {
+       "type": "integer"
+      },
+      "state": {
+       "type": "string",
+       "description": "The words a yes-or-no question is about"
+      },
+      "questions": {
+       "type": "object",
+       "description": "The classifier's questions by id: { verdict: { type: 'noul', instructions, criteria } }"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:ask-a-model"
+    },
+    "provenance": {
+     "source": "computer/local-models.mjs localModelTools.ask, run by computer/mac-tools.mjs on the agent computer-tools"
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::get-free-models",
+   "address": "package::trillion::tool::get-free-models",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": true
+    },
+    "id": "tool:get-free-models",
+    "listed_on": "2026-10-05T22:00:00Z",
+    "label": "Free AI models that fit my device",
+    "job": "See which free AI models fit the person's computer (its chip, memory and free space) and which it already has, and download them onto it, putting the model server on the computer first when it is missing",
+    "description": "Runs on the person's computer (computer/local-models.mjs modelsForThisMac). Without input it answers the computer's chip, memory and free space, whether its model server runs, and each model offered for it (computer/local-models.json offer) with whether it fits and whether the computer has it. With get \"fitting\" it downloads every model that fits and is missing; with get as a list of offer ids, those. When the server is missing it downloads and opens it first. A model got here answers tool:ask-a-model at once, so Trillion's checks run on the computer for free.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "get": {
+       "description": "\"fitting\" for every model that fits and is missing, or a list of offer ids",
+       "anyOf": [
+        { "type": "string", "enum": ["fitting"] },
+        { "type": "array", "items": { "type": "string" } }
+       ]
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:get-free-models"
+    },
+    "provenance": {
+     "source": "computer/local-models.mjs localModelTools.fit, run by computer/mac-tools.mjs on the agent computer-tools"
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::hear-for-a-device",
+   "address": "package::trillion::tool::hear-for-a-device",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:your-computer"],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 120,
+     "network_egress": true
+    },
+    "id": "tool:hear-for-a-device",
+    "listed_on": "2026-10-05T09:00:00Z",
+    "label": "Hear what a device recorded",
+    "job": "Hear a piece of sound another device recorded while listening (a phone, a watch, a browser, glasses) and send every turn in it to Trillion as its speaker's words, named against the people this person's computer knows",
+    "description": "Runs on the person's computer with the same hearing, the same enrolled voices and the same classifier as the computer's own listening. Give file (the piece, kept in their Trillion) or path (on the computer), at (when the piece started) and device (the device that recorded it, like iPhone). Each turn goes to the one door as Listening, in that device's own conversation; a voice enrolled on any device is named here, and an unnamed voice keeps its number across that device's pieces. Answers { sent, left_out, waiting, naming, error }.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["device"],
+     "properties": {
+      "file": {
+       "type": "string",
+       "description": "The recorded piece in the person's Trillion, by name or identity"
+      },
+      "path": {
+       "type": "string",
+       "description": "The recorded piece on the computer"
+      },
+      "at": {
+       "type": "string",
+       "format": "date-time",
+       "description": "When the piece started recording"
+      },
+      "device": {
+       "type": "string",
+       "description": "The device that recorded it, like iPhone or Apple Watch",
+       "x-free-text-because": "The kind of device that made the recording (iPhone, Apple Watch), as the computer that carries it reports it."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:hear-for-a-device"
+    },
+    "screen": {
+     "kind": "described",
+     "label": "Hear a recording",
+     "icon": "Ear",
+     "about": "Hears a recording made on another device and sends what each person said, as theirs.",
+     "inputs": {
+      "file": {
+       "label": "Recording",
+       "file": {
+        "takes": "heard"
+       }
+      },
+      "path": {
+       "hidden": true
+      },
+      "at": {
+       "hidden": true
+      },
+      "device": {
+       "label": "Recorded on"
+      }
+     }
+    },
+    "provenance": {
+     "source": "computer/listen.mjs listeningTools.hear (listen with a device)"
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::hear-a-recording",
+   "address": "package::trillion::tool::hear-a-recording",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 60,
+     "network_egress": true
+    },
+    "id": "tool:hear-a-recording",
+    "listed_on": "2026-10-05T21:00:00Z",
+    "label": "Hear a recording",
+    "job": "Turn one recording in the person's Trillion files into timed words on their own computer, with the speech model it runs, instead of a speech service Trillion pays for",
+    "description": "Runs on the person's computer: reads the recording from their files (file, by name or identity) or from the computer (path) and hears it with the first hearing program the computer has (computer-sources.json hearing rows, such as mlx-whisper). Answers the transcript { text, segments with word timings, language, heard_whole }. Trillion asks it first when one of the person's Macs is awake (src/placement.json), so recordings from a phone or a browser are heard for free.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "file": {
+       "type": "string",
+       "description": "The recording in the person's Trillion, by name or identity"
+      },
+      "path": {
+       "type": "string",
+       "description": "The recording on the computer"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "text",
+      "segments"
+     ],
+     "properties": {
+      "text": {
+       "type": "string"
+      },
+      "segments": {
+       "type": "array"
+      },
+      "language": {
+       "type": "string"
+      },
+      "heard_whole": {
+       "type": "boolean"
+      },
+      "produced_by": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:hear-a-recording"
+    },
+    "provenance": {
+     "source": "computer/listen.mjs listeningTools.transcribe, run by computer/mac-tools.mjs on the agent computer-tools"
+    }
+   }
+  },
+  {
+    "id": "package::trillion::tool::hear-a-link",
+    "address": "package::trillion::tool::hear-a-link",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "maker": "maker:trillion",
+      "needs": {
+        "expected_seconds": 120,
+        "network_egress": true
+      },
+      "id": "tool:hear-a-link",
+      "listed_on": "2026-10-05T21:00:00Z",
+      "label": "Transcribe a video link",
+      "job": "Transcribe a link: the speech at a web address (a YouTube video, a podcast episode, any page that plays sound), read from the page's own subtitles or heard on the person's own computer when it has none",
+      "description": "Runs on the person's computer: reads the page at url with the computer's link reader (computer/hear-a-link.json fetchers, such as yt-dlp). When the page has subtitles in the languages asked for, they are the transcript; otherwise its sound is fetched and heard on the computer with its own speech model (the same hearing as tool:hear-a-recording), and the sound is kept in the person's files under /Heard links with the transcript on it, so search finds it. Answers { url, title, duration_seconds, text, segments, language, source: captions or heard, file }. A link with no speech fails with the reason, never an empty answer.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The link to the video or recording"
+          },
+          "languages": {
+            "type": "string",
+            "description": "Caption languages to look for, such as \"en.*,en\" or \"es\"; the computer's own list when left out"
+          },
+          "keep_sound": {
+            "type": "boolean",
+            "description": "false to not keep the heard sound in the person's files"
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "text",
+          "segments",
+          "source"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "duration_seconds": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "text": {
+            "type": "string"
+          },
+          "segments": {
+            "type": "array"
+          },
+          "language": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "heard_whole": {
+            "type": "boolean"
+          },
+          "source": {
+            "type": "string"
+          },
+          "produced_by": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string"
+          },
+          "file_name": {
+            "type": "string"
+          },
+          "kept_error": {
+            "type": "string"
+          }
+        }
+      },
+      "invoke": {
+        "kind": "computer-tool",
+        "tool_id": "tool:hear-a-link"
+      },
+      "provenance": {
+        "source": "computer/hear-a-link.mjs linkTools.hear, run by computer/mac-tools.mjs on the agent computer-tools"
+      }
+    }
+  },
+  {
+    "id": "package::trillion::tool::list-every-video-on-a-channel",
+    "address": "package::trillion::tool::list-every-video-on-a-channel",
+    "path": [
+      "current-item",
+      "published-record"
+    ],
+    "payload": {
+      "kind": "ai-tool-descriptor",
+      "status": "active",
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:your-computer"
+      ],
+      "maker": "maker:trillion",
+      "needs": {
+        "expected_seconds": 60,
+        "network_egress": true
+      },
+      "id": "tool:list-every-video-on-a-channel",
+      "listed_on": "2026-10-14T12:00:00Z",
+      "label": "List every video on a channel",
+      "job": "List every video on a channel or a playlist: each upload of a YouTube channel (long videos, shorts and live streams together), a channel's tab, or any playlist, with its link, title, length, views, kind and thumbnail, read on the person's own computer",
+      "description": "Runs on the person's computer: lists the videos at url (a channel, a channel's tab or a playlist) with the computer's link reader (the hear-fetcher rows with a list command, such as yt-dlp), without reading each video. The video-list-rule rows add what a page needs beyond one read: for a YouTube channel, its uploads list (every long video and short together, with the count the channel states) and its own page (which tells which videos are shorts). Answers { url, title, channel, channel_id, count, stated_count, complete, entries: [{ id, url, title, duration_seconds, view_count, kind: video, short, live or null, thumbnail }], unread }. complete says whether count reaches the count the page states; unread names any added list that could not be read. A link that lists nothing fails with the reason, never an empty answer.",
+      "input_schema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "url"
+        ],
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The link to the channel (such as https://www.youtube.com/@name), a channel's tab or a playlist"
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "url",
+          "count",
+          "entries"
+        ],
+        "properties": {
+          "url": {
+            "type": "string"
+          },
+          "title": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "channel": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "channel_id": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "count": {
+            "type": "integer"
+          },
+          "stated_count": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "complete": {
+            "type": [
+              "boolean",
+              "null"
+            ]
+          },
+          "entries": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "url",
+                "title",
+                "duration_seconds",
+                "view_count",
+                "kind",
+                "thumbnail"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "url": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "title": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "duration_seconds": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "view_count": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "kind": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "thumbnail": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                }
+              }
+            }
+          },
+          "unread": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "invoke": {
+        "kind": "computer-tool",
+        "tool_id": "tool:list-every-video-on-a-channel"
+      },
+      "verify": [
+        {
+          "kind": "sample-run",
+          "input": {
+            "url": "https://www.youtube.com/@YouTube"
+          },
+          "output_selector": "$.channel_id",
+          "contains": "UC"
+        }
+      ],
+      "provenance": {
+        "source": "computer/list-a-channel.mjs channelTools.list, run by computer/mac-tools.mjs on the agent computer-tools"
+      }
+    }
+  },
+  {
+   "id": "package::trillion::tool::say-with-a-voice-model",
+   "address": "package::trillion::tool::say-with-a-voice-model",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false
+    },
+    "id": "tool:say-with-a-voice-model",
+    "listed_on": "2026-10-07T06:00:00Z",
+    "label": "Say it out loud with a voice model",
+    "job": "Say words out loud in a natural voice, the person's own cloned voice or a neutral one, made by a speech model on the person's own computer, and keep the sound in their files so any of their devices plays it",
+    "description": "Runs on the person's computer (computer/speak.mjs with the speech models of computer/speak.json, such as Qwen3-TTS for a cloned voice and Kokoro for a neutral one, on the computer's own chip through mlx-audio; nothing is sent to a paid service). Says text in the voice asked for, else the voice of the place it is said in, else the person's chosen voice (rows of their own Voices list and list of places Trillion speaks, read through tool:voice-for), else the shared voices in order, passing over any that cannot be made with why. The sound is kept under /Voice/Said at its natural pace and answered as { file, name, seconds, voice, engine, produced_by, speed }, `speed` being the place's speed for whoever plays it. tool:speak places this on whichever of the person's devices can run it.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": [
+      "text"
+     ],
+     "properties": {
+      "text": {
+       "type": "string",
+       "minLength": 1,
+       "maxLength": 2000,
+       "description": "The words to say"
+      },
+      "voice": {
+       "type": "string",
+       "description": "A voice id of the person's (a row of their Voices list); the place's voice, else their chosen voice, when left out"
+      },
+      "place": {
+       "type": "string",
+       "description": "Where this is said: a row id of the person's list of places Trillion speaks, whose voice and speed it uses",
+       "x-record": {"from": {"lists": ["where-trillion-speaks"]}, "new": {"list": "where-trillion-speaks", "label": "place", "list_label": "Where Trillion speaks", "title_field": "label"}, "part": "id"}
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "file",
+      "seconds",
+      "voice"
+     ],
+     "properties": {
+      "file": {
+       "type": "string"
+      },
+      "name": {
+       "type": "string"
+      },
+      "seconds": {
+       "type": "number"
+      },
+      "sample_rate": {
+       "type": "integer"
+      },
+      "took_seconds": {
+       "type": "number"
+      },
+      "voice": {
+       "type": "object"
+      },
+      "engine": {
+       "type": "string"
+      },
+      "produced_by": {
+       "type": "string"
+      },
+      "speed": {
+       "type": [
+        "number",
+        "null"
+       ],
+       "description": "How many times faster than natural to play it, with the pitch kept: the place's speed from the person's rows"
+      },
+      "passed_over": {
+       "type": "array"
+      },
+      "text": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:say-with-a-voice-model"
+    },
+    "provenance": {
+     "source": "computer/speak.mjs speakTools.say and computer/speak-with-mlx.py, run by computer/mac-tools.mjs on the agent computer-tools"
+    }
+   }
+  },
+  {
+   "id": "package::trillion::tool::voices",
+   "address": "package::trillion::tool::voices",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false
+    },
+    "id": "tool:voices",
+    "listed_on": "2026-10-07T06:00:00Z",
+    "label": "My voices for Trillion",
+    "job": "List, make, choose or remove the voices Trillion speaks to the person in, including their own voice cloned from a recording of them",
+    "description": "Runs on the person's computer (computer/speak.mjs speakTools.voices). Without input it lists every voice with the chosen one. make { recording, label?, choose? } makes the person's own voice from a recording of them in their files: the computer hears it (mlx-whisper word timings) and keeps the stretch of about 9 seconds that ends where a sentence ends with a pause after it, with its exact words, as /Voice/<id>.wav, keeps it as a row of their Voices list, and chooses it unless choose is false. choose { voice id } makes Trillion speak in that voice; remove { voice id } removes one of the person's own voices. Every voice (the shared ones kept as rows the first time voices are listed), which one is chosen and every speed are the person's own list rows, also set on the Ambience screen and by any AI with put_list_rows; the reference recordings stay in their own files.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "make": {
+       "type": "object",
+       "additionalProperties": false,
+       "required": [
+        "recording"
+       ],
+       "properties": {
+        "recording": {
+         "type": "string",
+         "description": "A recording of the person speaking: a file name or identity in their files"
+        },
+        "label": {
+         "type": "string"
+        },
+        "choose": {
+         "type": "boolean"
+        }
+       }
+      },
+      "choose": {
+       "type": "string",
+       "description": "The voice id Trillion speaks in from now on"
+      },
+      "remove": {
+       "type": "string",
+       "description": "One of the person's own voice ids to remove"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "chosen",
+      "voices"
+     ],
+     "properties": {
+      "chosen": {
+       "type": "string"
+      },
+      "voices": {
+       "type": "array"
+      },
+      "said": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "computer-tool",
+     "tool_id": "tool:voices"
+    },
+    "provenance": {
+     "source": "computer/speak.mjs speakTools.voices, run by computer/mac-tools.mjs on the agent computer-tools"
+    }
+   }
+  }
+ ]
+}
