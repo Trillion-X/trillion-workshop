@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9423e42b9c7fc40874473ea475e9d2697bd16290f35e9ea0a280ef0e8b4ae838"
+  "blake3": "1f:0f2497130125a48f9e91423e5c764e9023f4e1edbda3c5626ebeef1d47d31a49"
  },
  "fields": [
   {
@@ -2195,7 +2195,7 @@
    "values": {
     "title": "Keep principles from captioned videos, each backed by a quote checked word for word (runs on your computer)",
     "job": "Collect the principles that creators and teachers state or show in their videos, with the exact words and the second they say them, prove every quote is really in the captions, and rank each principle by how many independent channels back it and how well their videos did",
-    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, with the person's own intro and outro put in as written. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
+    "description": "Works on a folder of YouTube caption files (<id>.en.json3) with their <id>.info.json. corpus: one line per captioned video with its channel, title, views, kind (short or video), the captions as timed lines, and how many times its channel's usual views the video got (the usual is the median from a views table the person gives, or from the folder itself). candidates: the best 40-second windows of each video for what the person wants principles about, scored by their topic words, advice-giving phrases, a matching title and how well the video did, per channel, plus the first 45 seconds of each channel's best videos. find and verify: the second a quote is said at, and a check that every quote in the person's rows is an exact substring of its video's captions (ignoring case, white space and curly apostrophes), telling a wrong quote from a missing caption file and a quote at the wrong second. registry: merges the person's working rows (their own groups, lane names and stage names, passed in as files) into one registry of principles ranked by evidence strength (for each independent channel the best of log2(1 + the video's times-the-usual, capped at 64), halved when the quote only demonstrates the principle), with sources linked to the second, demonstrations, and contradictions linked both ways. extract: reads every part of every video with a chat model the person names (Ollama, MLX, llama.cpp or any OpenAI-compatible server, given as {url, model}), asking for the rows their own asks file describes, from any domain; each row's quote is put back onto the exact caption words and the seconds they start and end, rows whose quote is not in the captions are set aside with the reason, and a stopped run continues from the next unfinished video. coverage: videos, shorts and words per platform and channel, and how many videos the person's rows already cite. index: a Markdown page of the registry with its counts, strongest principles and their sources, demonstration-only principles, contradiction pairs, and principles per stage, channel and lane, written into the person's own Markdown template: their words stay as written, marked sections are filled from the registry, and principle ids, counts and evidence named in their words are filled in. Word-timed transcripts from other sites are read too. What the principles are about, how advice sounds, what rows a model is asked for, and how rows group and are named for stages come only from the person's files; the tool holds none. Only extract sends words anywhere, to the model the person names; with a local model nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:cite-principles-from-captions",
     "licence_class": "licence:maker-own",
@@ -4546,6 +4546,21 @@
    }
   },
   {
+   "id": "tool:insert-frame-holds-into-a-filmcraft-project-copy",
+   "values": {
+    "title": "Insert my rendered corrections into a copy of my FilmCraft project as editable clips (runs on your computer)",
+    "job": "Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+    "description": "Reads a FilmCraft project (.fcproj, JSON) and writes a NEW project. For each shot named, from <shots>/<shot id>.json (its plate source file and frame) and the three files in <out>/<shot id>/ (<id>-overlay-prores4444.mov, <id>-narrator.wav, <id>-sfx-music.wav), it ripple-inserts a frame-hold segment of the plate's own clip at that frame (the clip's own effects, so its grade applies), razors every clip that spans the point and moves everything after it, extends the adjustment layer over the inserted span, and places the overlay on video track 3, the voice on audio track 2 and the music and sound effects on audio track 3, with each file's facts read by ffprobe. Refuses, saying what to change: an output that is the input, a missing shot file, a missing rendered file, a plate that is not a media file of the project, a frame no clip on the first video track holds. The input project is never written. It does not open or script FilmCraft. The inserts here are the person's own corrections; a project the person protects takes picked options only through its own apply tool, so run this on a copy.",
+    "status": "active",
+    "maker": "maker:edit-a-copy-of-a-premiere-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "edit-a-copy-of-a-premiere-project"
+   }
+  },
+  {
    "id": "tool:install-an-engine-builder",
    "values": {
     "title": "Install an engine builder",
@@ -5389,6 +5404,21 @@
    }
   },
   {
+   "id": "tool:list-the-longest-still-holds-of-my-video",
+   "values": {
+    "title": "List where my video holds still longest (runs on your computer)",
+    "job": "Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it",
+    "description": "Reads a video with the same frame-difference measure as tool:check-a-videos-motion-against-a-reference (every frame as a small grey picture; a frame moves when it or a neighbour changed by more than the still level and less than a cut) and lists its longest holds, longest first, each with its length and the second it starts. The still level is the one the person gives (for example a reference's still_threshold from the check, so the list matches what the check counted) or, left out, the one read from this video. The person can measure only the first seconds of the video (up to its end card) and say how many holds to list. It names no bar and judges nothing: it says where the stills are.",
+    "status": "active",
+    "maker": "maker:check-a-videos-motion-against-a-reference",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-a-videos-motion-against-a-reference"
+   }
+  },
+  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -5610,6 +5640,21 @@
    }
   },
   {
+   "id": "tool:make-a-frame-contact-sheet-of-a-video-section",
+   "values": {
+    "title": "Make one picture of the frames of a short part of a video (runs on your computer)",
+    "job": "Take a short part of a video, from a link or a file, and lay out one frame every few seconds on a single picture so I can see what happens in it",
+    "description": "Cuts at most 300 seconds of a video and makes a contact sheet: one frame every `step` seconds (4 unless given), 320 pixels wide, `cols` frames to a row (4 unless given), as one JPEG. A link is fetched with yt-dlp, only that section, at 360p or less, into the folder's clips/ and used again on the next run; a video file on the computer is read directly from start to end. Every command and its output go to a log beside the sheet; a failure says which program failed with what exit code and shows the log's last lines. Each heavy program runs alone at the lowest priority (nice -n 20), so the computer stays usable.",
+    "status": "active",
+    "maker": "maker:make-a-frame-contact-sheet-of-a-video-section",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "make-a-frame-contact-sheet-of-a-video-section"
+   }
+  },
+  {
    "id": "tool:make-a-lut-for-log-footage",
    "values": {
     "title": "Make a colour lookup table that fixes flat log footage from any camera (runs on your computer)",
@@ -5791,6 +5836,21 @@
      "placement:deployed-container"
     ],
     "folder": "traffic-attribution"
+   }
+  },
+  {
+   "id": "tool:make-youtube-playlists-from-a-sort-plan",
+   "values": {
+    "title": "Make the planned public playlists on YouTube (runs on your Mac)",
+    "job": "Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+    "description": "Creates each playlist of a plan from tool:plan-sorting-youtube-watch-later-into-playlists as a public playlist on the same channel, with its description, and adds its videos in batches. It never removes a video and never changes Watch Later. A playlist already on the channel with the same title is reused, never duplicated. What was made is kept in applied_file and each playlist is read back before adding, so running it again adds only what is missing; a recorded playlist that reads back empty stops the run, so a lost sign-in cannot add videos twice. Then verify_sort.py checks each playlist holds the planned number of videos and anyone can see it, that each Watch Later is unchanged, and writes verification.json, INDEX.md and a table of every Watch Later video with its playlists.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
    }
   },
   {
@@ -6892,6 +6952,21 @@
    }
   },
   {
+   "id": "tool:plan-sorting-youtube-watch-later-into-playlists",
+   "values": {
+    "title": "Plan which playlist each Watch Later video goes in",
+    "job": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
+    "description": "Places each video of one or more channels' Watch Later into the playlists the person's sort settings name, and writes nothing to YouTube. A channel is sorted by rules (a channel-name expression scores 3, a strong title expression 3, a weak one 1; a video goes to every playlist scoring 3 or more, at most max_per_video, else to its best weak match marked low confidence; titles matching hold_back are kept off public playlists with hold_back_reason) or by hand-made lists kept in their order. Within a rules playlist, videos are ordered by views, highest first. The answer is the plan and a summary per channel; with out_dir it also writes sort-plan.json and SORT-PLAN.md, the page to show the person before anything is made.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
+   }
+  },
+  {
    "id": "tool:plan-the-address-a-live-camera-streams-to",
    "values": {
     "title": "Plan the address a live camera streams to",
@@ -7678,6 +7753,21 @@
    }
   },
   {
+   "id": "tool:read-a-tool-setting",
+   "values": {
+    "title": "Read the settings a person keeps for a tool, for one person, film, piece or their whole account (runs on your computer)",
+    "job": "Read the settings a person keeps for one of their tools, choosing the row for this piece, else this film, else this person, else their whole account, or make the settings row to write",
+    "description": "A tool's settings are rows of the person's list:settings (record:setting:<workshop-folder>~<scope_kind>~<scope_id>; fields name, tool, scope_kind, scope_id, settings as JSON, from, status). read: give the records records:read returned (or the path of the file holding them), the tool's folder and the scopes to try, most specific first; the answer is the settings of the first scope that has an active row, or the default given when none does. make: give the folder, scope, settings, name, tool and where the values came from; the answer is the record records:write takes, with the list:settings record when asked. The same reader is a library for Python (read-data/settings.py) and JavaScript (read-data/settings.mjs) tools.",
+    "status": "active",
+    "maker": "maker:settings",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "settings"
+   }
+  },
+  {
    "id": "tool:read-a-treg-call",
    "values": {
     "title": "Read one treg call by its id",
@@ -8215,6 +8305,21 @@
      "placement:small-container"
     ],
     "folder": "training-and-workouts"
+   }
+  },
+  {
+   "id": "tool:read-my-youtube-watch-later-and-playlists",
+   "values": {
+    "title": "Read my YouTube Watch Later, subscriptions and playlists (runs on your Mac)",
+    "job": "Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels",
+    "description": "Acts as each signed-in channel the request names (brand channels too, by page_id) through YouTube's own web API, with the browser login tool:export-browser-login-cookies-for-yt-dlp wrote, and writes <out_dir>/<slug>/watch-later.json, subscriptions.json and playlists.json. A channel naming sign_in_as (its account's email or channel handle) is found by it each run, since the account number a browser gives an account changes as accounts sign in and out. Reads only; never changes YouTube. Also tells which accounts the login holds (list_signed_in_accounts.py) and whether it is still signed in.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
    }
   },
   {
