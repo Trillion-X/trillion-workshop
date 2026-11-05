@@ -19,6 +19,8 @@ The 21 test files moved with the group. Run here, they give the same results by 
 
 `test/read-cloud-sessions.test.mjs` runs `whatItSaid` over made-up session events: the task, later asks and last messages kept apart, pull requests and pushes found in tool results, questions from the question tool, and sub-agent messages left out.
 
+From old trillion main at 5dc302be37 (the old-trillion sweep): `test/tell-a-chat-app.test.mjs` checks `harness/tell-a-chat-app.mjs` against a headless browser, and `scripts/publish-registry.mjs` lists this server in the official MCP Registry from `../server.json` (it signs in with the `gh` account's token, in memory only); `moved-from.json` names both.
+
 ## Not yet
 
 - Rows: `tool-rows.json` offers the two commands a person's AI runs here, both through `harness/setup.mjs`: setting up the hooks in an AI app (inspect, apply, remove) and its Trillion MCP entry (inspect, preview, register, unregister). The other scripts are hooks or long-running helpers that setup starts, not rows; adapting their `../src/` imports to the records door is still a later lane.

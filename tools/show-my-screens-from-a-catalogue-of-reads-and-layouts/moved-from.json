@@ -26,6 +26,13 @@
       "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/records/marketplace-screens.json",
       "source_identity": "1f:a76f73b84a7313dac2f7d6b3bca732552b33df0205dab5fa348df205e0125c01",
       "identity": "1f:a76f73b84a7313dac2f7d6b3bca732552b33df0205dab5fa348df205e0125c01"
+    },
+    {
+      "from": "scripts/publish-marketplace-screens.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/scripts/publish-marketplace-screens.mjs",
+      "source_identity": "1f:3025f2d195351e15a82ed7d79e9ca13f6c70643a1b26898fb3415b6174a94b5a",
+      "identity": "1f:3025f2d195351e15a82ed7d79e9ca13f6c70643a1b26898fb3415b6174a94b5a"
     }
   ]
 }

@@ -5,3 +5,4 @@ Files of old trillion whose job is this tool's, moved here unchanged under their
 | Old path | Here |
 |---|---|
 | `records/workshop-media-generation-tool-records.json` | `records/workshop-media-generation-tool-records.json` |
+| `test/relink-editor-projects.test.mjs` | `test/relink-editor-projects.test.mjs` (the old file whole, beside the adapted `../test/relink-editor-projects.test.mjs`, which has no case for the row and licence the old file checks; it reads `records/workshop-tool-records.json` at `tools/connect-a-service-and-seal-its-key/from-old-trillion/records/`) |
