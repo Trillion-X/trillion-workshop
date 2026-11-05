@@ -473,6 +473,694 @@
         "maker": "maker:ask-a-small-model-for-a-verdict",
         "provenance": {"source": "bitfield-packages answer-state-questions, ported onto a model server on the person's computer"}
       }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::answer-a-checks-questions-with-a-model-on-this-computer",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::answer-a-checks-questions-with-a-model-on-this-computer",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-a-checks-questions-with-a-model-on-this-computer",
+        "label": "Answer the yes or no questions my checks ask, with a small model on my computer (runs on your computer)",
+        "status": "active",
+        "job": "Answer the questions a check of my writing asks a model, one line at a time, with the small model, adapter or hosted model each of my check rows names, keeping every answer so a line is never asked twice",
+        "description": "Give settings_record (record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, the person's setting row, read through tools/settings) and asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, rows of list:checks with kind labelled-line, shown first and never the judged line) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "settings_record",
+            "asks"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:ask-a-small-model-for-a-verdict~(person|film|piece|account)~.+$"
+            },
+            "asks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "question",
+                  "options",
+                  "text"
+                ],
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "options": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 2
+                  },
+                  "text": {
+                    "type": "string"
+                  },
+                  "adapter": {
+                    "type": "object"
+                  },
+                  "model": {
+                    "type": "object"
+                  },
+                  "examples": {
+                    "type": "object"
+                  },
+                  "context": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "mode": {
+              "enum": [
+                "live",
+                "cache"
+              ]
+            },
+            "line_sets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "array",
+          "items": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/ask-a-small-model-for-a-verdict",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs",
+            "answerAsks"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:ask-a-small-model-for-a-verdict~",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:check",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "ask-a-small-model-for-a-verdict",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/ask-a-small-model-for-a-verdict"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_record": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+              "asks": [
+                {
+                  "question": "Is this line vague?",
+                  "options": [
+                    "no",
+                    "yes"
+                  ],
+                  "text": "Things happen.",
+                  "model": {
+                    "stand_in": {
+                      "answers": {
+                        "Things happen.": {
+                          "no": 0.1,
+                          "yes": 0.9
+                        },
+                        "It works somehow.": {
+                          "no": 0.2,
+                          "yes": 0.8
+                        }
+                      },
+                      "otherwise": {
+                        "no": 0.95,
+                        "yes": 0.05
+                      }
+                    }
+                  },
+                  "examples": {
+                    "items": "sample-rulings",
+                    "bad_for": "vague"
+                  }
+                },
+                {
+                  "question": "Is this line vague?",
+                  "options": [
+                    "no",
+                    "yes"
+                  ],
+                  "text": "The kettle boils in two minutes.",
+                  "model": {
+                    "stand_in": {
+                      "answers": {
+                        "Things happen.": {
+                          "no": 0.1,
+                          "yes": 0.9
+                        },
+                        "It works somehow.": {
+                          "no": 0.2,
+                          "yes": 0.8
+                        }
+                      },
+                      "otherwise": {
+                        "no": 0.95,
+                        "yes": 0.05
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "records": [
+              {
+                "id": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+                "type": "record:setting",
+                "value": {
+                  "name": "A made-up person's answering settings",
+                  "tool": "ask-a-small-model-for-a-verdict",
+                  "scope_kind": "person",
+                  "scope_id": "sample-person",
+                  "settings": {
+                    "frame": "A line of copy:\n\"{text}\"",
+                    "good_sets": [
+                      "kept"
+                    ],
+                    "example_good_sources": [
+                      "owner-ruling"
+                    ],
+                    "fit": {
+                      "fail_good_share_at_most": 0.05,
+                      "pass_bad_share_at_most": 0.1,
+                      "usable_when": {
+                        "auc_at_least": 0.75,
+                        "bad_lines_at_least": 2,
+                        "recall_at_least": 0.25,
+                        "good_failed_or_uncertain_at_most": 0.35
+                      }
+                    },
+                    "batch": 8,
+                    "consult_batch": 70,
+                    "consult_bytes": 36000
+                  },
+                  "status": "active"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-0",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 0,
+                  "text": "Things happen.",
+                  "good": false,
+                  "bad_for": [
+                    "vague"
+                  ],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-1",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 1,
+                  "text": "It works somehow.",
+                  "good": false,
+                  "bad_for": [
+                    "vague"
+                  ],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-2",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 2,
+                  "text": "Ten people came.",
+                  "good": true,
+                  "bad_for": [],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-3",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 3,
+                  "text": "The door is red.",
+                  "good": true,
+                  "bad_for": [],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              }
+            ]
+          }
+        ],
+        "provenance": {
+          "source": "Moved from the launch-video copy gate's decider layer (decider_layer.py answer), its model, cache and adapter paths made the person's settings"
+        }
+      }
+    },
+    {
+      "id": "package::ask-a-small-model-for-a-verdict::tool::calibrate-a-checks-questions-on-lines-i-ruled-on",
+      "address": "package::ask-a-small-model-for-a-verdict::tool::calibrate-a-checks-questions-on-lines-i-ruled-on",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:calibrate-a-checks-questions-on-lines-i-ruled-on",
+        "label": "Measure whether a small model can answer my check's question, on lines I already ruled on (runs on your computer)",
+        "status": "active",
+        "job": "Ask a small model my check rows' questions about every line I already ruled good or bad, and fit where each row should pass and fail a line, and whether it is usable at all",
+        "description": "Give settings_record (the person's setting row for this tool, read through tools/settings: its fit bars, good_sets, frame and models), rules (ids of the person's check rows with an ask, record:check:<id>) and lines (the set of labelled lines, rows of list:checks with kind labelled-line and that set). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding }; the person writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "settings_record",
+            "rules",
+            "lines"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:ask-a-small-model-for-a-verdict~(person|film|piece|account)~.+$"
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "minItems": 1
+            },
+            "lines": {
+              "type": "string"
+            },
+            "split": {
+              "type": "string"
+            },
+            "context_only": {
+              "type": "boolean"
+            },
+            "fpr": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "mode": {
+              "enum": [
+                "live",
+                "cache"
+              ]
+            },
+            "line_sets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "status"
+            ]
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/ask-a-small-model-for-a-verdict",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs",
+            "calibrateAsks"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:ask-a-small-model-for-a-verdict~",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:check",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "ask-a-small-model-for-a-verdict",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/ask-a-small-model-for-a-verdict"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:ask-a-small-model-for-a-verdict",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_record": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+              "rules": [
+                "sample-vague"
+              ],
+              "lines": "sample-rulings",
+              "split": "real",
+              "mode": "cache"
+            },
+            "records": [
+              {
+                "id": "record:setting:ask-a-small-model-for-a-verdict~person~sample-person",
+                "type": "record:setting",
+                "value": {
+                  "name": "A made-up person's answering settings",
+                  "tool": "ask-a-small-model-for-a-verdict",
+                  "scope_kind": "person",
+                  "scope_id": "sample-person",
+                  "settings": {
+                    "frame": "A line of copy:\n\"{text}\"",
+                    "good_sets": [
+                      "kept"
+                    ],
+                    "example_good_sources": [
+                      "owner-ruling"
+                    ],
+                    "fit": {
+                      "fail_good_share_at_most": 0.05,
+                      "pass_bad_share_at_most": 0.1,
+                      "usable_when": {
+                        "auc_at_least": 0.75,
+                        "bad_lines_at_least": 2,
+                        "recall_at_least": 0.25,
+                        "good_failed_or_uncertain_at_most": 0.35
+                      }
+                    },
+                    "batch": 8,
+                    "consult_batch": 70,
+                    "consult_bytes": 36000
+                  },
+                  "status": "active"
+                }
+              },
+              {
+                "id": "record:check:sample-vague",
+                "type": "record:check",
+                "value": {
+                  "kind": "check",
+                  "part_of": "sample-branch",
+                  "says": "Say the plain thing.",
+                  "kinds": [
+                    "title"
+                  ],
+                  "ask": {
+                    "question": "Is this line vague?",
+                    "options": [
+                      "no",
+                      "yes"
+                    ],
+                    "fail": "yes",
+                    "at_most": "uncertain",
+                    "calibration": {
+                      "bad_from": [
+                        "vague"
+                      ]
+                    },
+                    "model": {
+                      "stand_in": {
+                        "answers": {
+                          "Things happen.": {
+                            "no": 0.1,
+                            "yes": 0.9
+                          },
+                          "It works somehow.": {
+                            "no": 0.2,
+                            "yes": 0.8
+                          }
+                        },
+                        "otherwise": {
+                          "no": 0.95,
+                          "yes": 0.05
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-0",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 0,
+                  "text": "Things happen.",
+                  "good": false,
+                  "bad_for": [
+                    "vague"
+                  ],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-1",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 1,
+                  "text": "It works somehow.",
+                  "good": false,
+                  "bad_for": [
+                    "vague"
+                  ],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-2",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 2,
+                  "text": "Ten people came.",
+                  "good": true,
+                  "bad_for": [],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              },
+              {
+                "id": "record:check:labelled-line-sample-rulings-3",
+                "type": "record:check",
+                "value": {
+                  "kind": "labelled-line",
+                  "part_of": [
+                    "sample-vague"
+                  ],
+                  "set": "sample-rulings",
+                  "at": 3,
+                  "text": "The door is red.",
+                  "good": true,
+                  "bad_for": [],
+                  "split": "real",
+                  "source": "owner-ruling"
+                }
+              }
+            ]
+          }
+        ],
+        "provenance": {
+          "source": "Moved from the launch-video copy gate's decider layer (decider_layer.py calibrate), its labelled lines and bars made the person's rows and settings"
+        }
+      }
     }
   ]
 }

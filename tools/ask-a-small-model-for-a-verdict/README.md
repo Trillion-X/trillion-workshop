@@ -21,6 +21,14 @@ Each of these is in the request and a request without it is refused with a sente
 | `fail_good_share_at_most`, `pass_bad_share_at_most`, `usable_when` | `fit-lines` | The share of good lines the fail line may fail, the share of bad lines the pass line may let through, and the bars a question must clear to be usable: `auc_at_least`, `bad_lines_at_least`, `recall_at_least`, `good_failed_or_uncertain_at_most`. |
 | `passes` (optional) | `ask`, `calibrate`, `scoreboard` | How many times each calibration case is asked. The request default is 2 for `ask` and `scoreboard` and 1 for `calibrate`, stated in each row. |
 
+## Answering a check's questions with a model on this computer
+
+`tool:answer-a-checks-questions-with-a-model-on-this-computer` answers the questions `tool:check-against-a-persons-rules-and-verdicts` lists for its `ask` rows, and `tool:calibrate-a-checks-questions-on-lines-i-ruled-on` measures, on lines the person already ruled on, where each such row should pass and fail a line (this folder's `fit-lines`) and whether it is usable at all. Both read the person's setting row (`settings_record`, `record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>` in `list:settings`, through `tools/settings`), their ask rows (`record:check:<id>`) and their labelled lines (rows of `list:checks` with `kind: "labelled-line"`, a `set` and an `at` order, each `part_of` the ask rows it calibrates) through the records door. What answers an ask is the row's own data: `adapter` (`{ name, blake3 }`: decider-2b with that LoRA adapter, its folder the setting's `adapters[name]`, refused when its BLAKE3 differs), `model.mlx` (a downloaded MLX chat model at its one snapshot, or the one the setting pins), `model.consult` (a hosted model through the consult-model route, many lines per call within the setting's line and byte bounds), `model.stand_in` (fixed answers, never cached: what the samples and tests use), or the base model. `examples` (`{ items: <set>, bad_for }`) shows the person's ruled lines of that set first, never the judged line; `context` shows where the line sits in its film. Every answer is kept in the setting's `cache_file`, keyed by what answered, the question and the framed line.
+
+The setting row (`settings`) holds, all the person's: `model_cache_root` (else `HF_HUB_CACHE`, else `HF_HOME/hub`, else the Hugging Face default), `base_model` (`{ repo, snapshot }`), `adapters`, `mlx_snapshots` (optional pins), `cache_file`, `frame` (the words a line is shown in, `{text}` where it goes), `batch`, `consult_batch`, `consult_bytes`, `consult_route` (else `AI_COMMAND_CENTER`), `device` (else `DECIDER_DEVICE`, else cuda, mps, cpu), `good_sets` (for lines kept by set), `example_good_sources` and `fit` (`fail_good_share_at_most`, `pass_bad_share_at_most`, `usable_when`).
+
+Moved from the launch-video copy gate's `decider_layer.py` (its first commit here is the byte copy; `ports/answer-with-a-downloaded-model.json`), with its `decider-kinds` test (which ask rows a unit reaches, now proven against `tool:check-against-a-persons-rules-and-verdicts`) and its place test (the model found in the cache the place reports, the device it has, no route guessed). Old trillion had no such answerer: it served decider-2b over HTTP as a `local-model-classifier` record (`records/local-model-records.json:140-147`), which this folder's hosted-classifier adapter already reads, and `parts/judge-words/do-work/judge-words.mjs:10-14` judges only word, pattern, exact and grammar rows, never an `ask`. Not carried: nothing; inline yes and no `examples` (the public-copy rows' shape, read by a hosted classifier) are refused in words where the old file failed with a KeyError.
+
 ## What is fixed in code, and why
 
 These are the tool's mechanism, not anyone's preference, and they are not settings:
@@ -59,9 +67,13 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 | `do-work/tell-it-when-it-was-wrong.mjs` | Adds a wrong verdict to a rubric as a labelled case, keeping the earlier label in `label_history`; a held-out case is never turned into calibration. |
 | `do-work/judge-log-frontier.mjs` | Bounded reads of a verdict log and the rubrics file: size and time limits, and a file that changes during the read is refused. |
 | `do-work/remember-what-was-already-said.mjs` | Files a flagged text under an earlier one (word overlap, then a closed choice) and counts it. |
+| `do-work/answer_with_a_downloaded_model.py` | Answers asks with decider-2b (base or a LoRA adapter checked by BLAKE3), a downloaded MLX chat model, a hosted model through the consult-model route or a stand-in, with an answer cache; `calibrate` scores ruled lines by their worst sentence and calls `fit-lines`. One JSON request on standard input (the settings already read), `{ result }` or `{ error }` on the last line. |
+| `do-work/answer-with-a-downloaded-model.mjs` | `answerAsks` and `calibrateAsks`, the two rows: read the setting (`tools/settings`), the ask rows and the labelled-line sets through the door, and run the Python file. |
+| `ports/*.json` | The port claims for the two files above. |
 | `do-work/answer-state-questions.mjs` | Typed questions about a state in one request, every answer checked against its type. |
 | `part.json` | `do-work/ask-for-a-verdict.mjs` is public, so another tool may import the same core. |
-| `tool-rows.json` | The Workshop rows Trillion reads for this folder (nine tools). |
+| `tool-rows.json` | The Workshop rows Trillion reads for this folder (eleven tools). |
+| `test/answer-with-a-downloaded-model.test.mjs`, `test/answer_with_a_downloaded_model_probe.py` | The answerer and its rows on made-up settings, rows and lines with stand-in models and a made-up answer cache: answers, cache keys, prompts, the hosted route's bounds and parsing, the place, calibrate in both line shapes, the door reads and refusals, and which ask rows a unit reaches. |
 | `test/*.test.mjs` | The core, shapes, bands, calibration memory and adapters (synthetic cases only), plus the tool run end to end against a stand-in model server, the typed-question checks, `fit-lines` on made-up scores and the fresh connection. |
 
 ## Key Types / Functions
@@ -77,6 +89,6 @@ These are the tool's mechanism, not anyone's preference, and they are not settin
 
 ## Dependencies
 
-**Depends on:** `tools/content-identity` (the one BLAKE3 identity of bytes, through its public `read-data/identity.mjs`, which needs the checkout's `npm install`), Node, and a model server on the person's computer or a hosted classifier whose key is in a file the person names.
+**Depends on:** `tools/settings` (the person's setting row, for the two answering rows), `tools/records-door`, Python 3 (and on the person's computer torch, peft and blake3 for decider-2b, mlx and mlx_lm for an MLX model), `tools/content-identity` (the one BLAKE3 identity of bytes, through its public `read-data/identity.mjs`, which needs the checkout's `npm install`), Node, and a model server on the person's computer or a hosted classifier whose key is in a file the person names.
 
 **Depended on by:** `tool-rows.json`; any tool that needs a calibrated yes or no may import `do-work/ask-for-a-verdict.mjs`.
