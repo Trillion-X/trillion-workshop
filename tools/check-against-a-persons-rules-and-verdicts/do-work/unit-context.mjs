@@ -1,25 +1,35 @@
-#!/usr/bin/env node
-// tools/copy-gate/unit-context.mjs
+// tools/check-against-a-persons-rules-and-verdicts/do-work/unit-context.mjs
 //
 // Purpose
-//   The film context of a copy line, as DATA a decider reads with the line: for a line of narration or other prose, the
+//   The film context of a copy line, as DATA a model reads with the line: for a line of narration or other prose, the
 //   sentence before and after it in its own text; for an on-screen string, the other strings of the same option spec and
-//   the words spoken while it is on screen (from the cut's word-timed transcript).
+//   the words spoken while it is on screen (from the cut's word-timed transcript). Moved from source-repo-a
+//   tools/copy-gate/unit-context.mjs one to one; what changed is that the named files' text is handed in (`files`, a map
+//   of name to text), so this file reads no file, and its command is one JSON request in, one JSON answer out.
 //
-//   node unit-context.mjs build <sources.json> --out <context.json>
-//     sources.json: {"text_keys": "<regex>", "spoken_lead_s": N, "units": [{"text": T, "source": S}]}, where S is
+//   node do-work/unit-context.mjs < {"sources": S, "files": {"<name>": "<text>"}}   ->   {"result": {"units": [...]}}
+//     S: {"text_keys": "<regex>", "spoken_lead_s": N, "units": [{"text": T, "source": X}]}, where X is
 //       {"text_file": F}            a .txt/.md file, or a .json/.jsonl file whose string values are searched, or
 //       {"spec": F, "words": W}     an option spec; W is optional (no spoken words without it).
-//   context.json: {"units": [{"text": T, "context": {...} | null, "why": "..."}]}. check.mjs --context and
-//   verdicts.mjs items --context read it.
+//   units: [{"text": T, "context": {...} | null, "why": "..."}]: do-work/check-a-films-copy.mjs takes them as
+//   `context`, matched by exact text, and a model row's questions carry them.
 //
 // Non-negotiable invariants
 //   1. A context is read from the named files only. When the text is not found there, the unit's context is null, with
-//      the reason; it is never filled from anywhere else.
+//      the reason; it is never filled from anywhere else. A file not handed in is not found, never read from a disk.
 //   2. The judged text itself never appears in its own context.
-import { readFileSync, writeFileSync } from 'node:fs';
 import { extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { text as readAll } from 'node:stream/consumers';
+
+// The files of this build, by name: the caller's, handed in. A name not among them is not found.
+let held = {};
+/** Hold `files` ({ name: text }) for the reads that follow; returns them. */
+export const holding = (files = {}) => { held = files; return held; };
+function readFileSync(file) {
+  if (typeof held[file] !== 'string') throw Object.assign(new Error(`${file} was not handed in`), { code: 'ENOENT' });
+  return held[file];
+}
 
 const sentencesOf = text => text.match(/[^.!?]+(?:[.!?]+["'”)]*|$)/g)?.map(s => s.trim()).filter(Boolean) ?? [text];
 
@@ -99,21 +109,31 @@ export function optionUnits(file, { words = null, textKeys, leadS = 3 } = {}) {
   return [...shown, ...spoken];
 }
 
-export function build(sources) {
+/** Each unit's context from the files handed in; a file that was not handed in gives null context with the reason. */
+export function build(sources, files = held) {
+  holding(files);
   return sources.units.map(({ text, source }) => {
-    const found = source.text_file ? contextFromText(source.text_file, text)
-      : source.spec ? contextFromSpec(source.spec, text, { words: source.words ?? null, textKeys: sources.text_keys, leadS: sources.spoken_lead_s })
-        : { context: null, why: 'no source' };
+    let found;
+    try {
+      found = source.text_file ? contextFromText(source.text_file, text)
+        : source.spec ? contextFromSpec(source.spec, text, { words: source.words ?? null, textKeys: sources.text_keys, leadS: sources.spoken_lead_s })
+          : { context: null, why: 'no source' };
+    } catch (error) {
+      if (error.code !== 'ENOENT') throw error;
+      found = { context: null, why: error.message };
+    }
     return { text, ...found };
   });
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
-  const [command, input, ...args] = process.argv.slice(2);
-  const out = args.includes('--out') ? args[args.indexOf('--out') + 1] : null;
-  if (command !== 'build' || !input || !out) { console.error('usage: node unit-context.mjs build <sources.json> --out <context.json>'); process.exit(2); }
-  const units = build(JSON.parse(readFileSync(input, 'utf8')));
-  writeFileSync(out, JSON.stringify({ made: new Date().toISOString(), from: input, units }, null, 1) + '\n');
-  console.log(`${out}: ${units.filter(u => u.context).length} of ${units.length} units have context`);
-  for (const unit of units.filter(u => !u.context)) console.log(`  no context: ${JSON.stringify(unit.text)} (${unit.why})`);
+  try {
+    const input = JSON.parse((await readAll(process.stdin)) || '{}');
+    if (!input.sources || !Array.isArray(input.sources.units)) throw new Error('usage: {"sources": {"units": [{"text", "source"}], "text_keys"?, "spoken_lead_s"?}, "files": {"<name>": "<text>"}}');
+    const units = build(input.sources, input.files ?? {});
+    console.log(JSON.stringify({ result: { units, with_context: units.filter(u => u.context).length } }));
+  } catch (error) {
+    console.log(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  }
 }

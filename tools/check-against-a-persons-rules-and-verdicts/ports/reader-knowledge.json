@@ -1,7 +1,7 @@
 {
  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
  "id": "REF-CHECK-AGAINST-READER-KNOWLEDGE-FROM-LAUNCH-VIDEO-COPY-GATE",
- "status": "BASELINED",
+ "status": "ADAPTED",
  "directive": {
   "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
   "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
@@ -47,24 +47,29 @@
   }
  ],
  "preserve": [
-  "PRESERVE"
+  "unintroduced-reference, label-assigned-not-defined, section-opens-with-a-label and label-colon-command, each read with spaCy at the pinned model version, over blocks in reading order",
+  "each rule's outcome, kinds and word classes are DATA; exit 0 no finding, 1 a fail, 3 only uncertain, 2 bad input"
  ],
  "allowed_deltas": [
-  "DELTAS"
+  "the rules are handed in (--rules, or the run request's rules or settings) from the person's settings row instead of a file beside the code",
+  "a run command: one JSON request in, one JSON answer out"
  ],
  "banned_substitutions": [
-  "BANNED"
+  "a rule, word class or person's wording written in the code",
+  "a default rules file beside the code"
  ],
  "baseline": {
   "recorded_at": "2026-11-05T20:00:00Z",
   "copied_before_adaptation": true,
   "source_multihash": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
-  "target_multihash_at_baseline": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234"
+  "target_multihash_at_baseline": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
+  "commit": "e6bd8ed2ea0570a36d66adfaec17d05e9ad7dfd9"
  },
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "TESTS"
+   "tools/check-against-a-persons-rules-and-verdicts/test/test_reader_knowledge.py the five made-up tests of tools/copy-gate/tests/test_reader_knowledge.py, moved, with made-up rules; its cases on the person's book run on their computer (mac-parity)",
+   "tools/check-against-a-persons-rules-and-verdicts/test/check-a-films-copy.test.mjs a request without rules is refused"
   ]
  }
 }

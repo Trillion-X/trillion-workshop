@@ -1,7 +1,7 @@
 {
  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
  "id": "REF-CHECK-AGAINST-READ-FILM-COPY-FROM-LAUNCH-VIDEO-COPY-GATE",
- "status": "BASELINED",
+ "status": "ADAPTED",
  "directive": {
   "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
   "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
@@ -47,24 +47,31 @@
   }
  ],
  "preserve": [
-  "PRESERVE"
+  "the column map for a file name or *, matched by the start of the lower-case header cell; a table whose first header is not declared, or whose header has a skip word, is not copy",
+  "fenced post text of a named file outside skipped sections; consecutive blockquote lines joined into one description; a paragraph file read after its marker line",
+  "cut cells dropped, cells stripped and joined, a quoted cell split into its quotes (one curly quote holding nested quotes is one unit), a split cell read as the split kind",
+  "a .txt is one unit a line, a .json is strings, { text, kind } rows or a words file; curly apostrophes made straight; the same words in the same judging context are one unit with also_at"
  ],
  "allowed_deltas": [
-  "DELTAS"
+  "the person's layouts (their settings row's readers) and the file's text are arguments, so nothing is read from a file beside the code or from disk",
+  "dedupe also keys on a unit's field, the name the Workshop readers give the judging field"
  ],
  "banned_substitutions": [
-  "BANNED"
+  "a layout, column name, kind or file name written in the code",
+  "reading a file from disk",
+  "judging a split label as a sentence"
  ],
  "baseline": {
   "recorded_at": "2026-11-05T20:00:00Z",
   "copied_before_adaptation": true,
   "source_multihash": "1f:7f9e82cd3a427eb82569428c247f932dc384f20bc403aba6456466cf9f037cb7",
-  "target_multihash_at_baseline": "1f:7f9e82cd3a427eb82569428c247f932dc384f20bc403aba6456466cf9f037cb7"
+  "target_multihash_at_baseline": "1f:7f9e82cd3a427eb82569428c247f932dc384f20bc403aba6456466cf9f037cb7",
+  "commit": "e6bd8ed2ea0570a36d66adfaec17d05e9ad7dfd9"
  },
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "TESTS"
+   "tools/check-against-a-persons-rules-and-verdicts/test/check-a-films-copy.test.mjs the old SCRIPT.md and POST.md tests of tools/copy-gate/tests/check.test.mjs, moved, and the table, quote, split, blockquote, paragraph-file, plain-line, JSON-line and dedupe cases on made-up layouts"
   ]
  }
 }

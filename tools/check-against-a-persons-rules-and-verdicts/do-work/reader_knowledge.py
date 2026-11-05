@@ -1,3 +1,41 @@
+#!/usr/bin/env python3
+# tools/check-against-a-persons-rules-and-verdicts/do-work/reader_knowledge.py
+"""Reader-knowledge check: copy that gives the reader knowledge only the writer has.
+
+Purpose
+    A deterministic check over copy in reading order (a Markdown document such as a book, or the units of a film's copy
+    from do-work/check-a-films-copy.mjs). It flags two classes of writing a reader cannot follow:
+      (a) a term or referent used before the text introduces or defines it:
+          - unintroduced-reference: a specific thing from the writer's own past named with "the" before the text ever
+            mentions it ("When I was working on the popcorn" with no popcorn before it);
+          - label-assigned-not-defined: a role or category label assigned to something ("the ball is the target") that
+            the text never defines;
+          - section-opens-with-a-label: a section that opens by calling "this" a category ("This is a school of
+            thought.") before anything was said for "this" to refer to;
+      (b) label-colon-command: a named concept is credited with an abstract result ("keeps the claim honest"), then a
+          command ends in a colon ("State the domain:") instead of an explanation of how the method works.
+    Each rule's wording, outcome (fail or uncertain), the kinds of copy it reads, the word classes it uses and the parser
+    it pins are the person's DATA: the `reader_knowledge` block of their settings row for this tool (list:settings,
+    record:setting:check-against-a-persons-rules-and-verdicts~<scope>), read through tools/settings by the caller and
+    handed in. None of it is in this file. Moved from source-repo-a tools/copy-gate/reader_knowledge.py; what
+    changed is that the rules are handed in instead of read from a file beside the code, and the JSON request mode.
+
+Commands
+    check <file> --rules R [--units] [--json OUT]
+                                          <file> is Markdown (blocks are headings and paragraphs; hard-wrapped lines join),
+                                          or with --units a JSON list of {text, kind, where} in reading order. R is a JSON
+                                          file of the rules ({parser, heading_kinds, rules, word_classes}), or of the whole
+                                          settings object holding them under `reader_knowledge`. Exit 0: no finding.
+                                          Exit 1: a fail finding. Exit 3: only uncertain findings. Exit 2: bad input.
+    run                                   one JSON request on standard input, {units | markdown, rules | settings}, and
+                                          {"result": {blocks, findings, status}} or {"error"} on the last line.
+
+Limits
+    It catches a term that was never introduced, not one that was mentioned without being explained ("a term occurring
+    earlier is not evidence that its meaning was explained"); that remains a reading judgment. It parses with spaCy's
+    model at the version pinned in the DATA, so its findings repeat exactly; they are not a semantic reading. It needs
+    spaCy 3.8 and that model in the Python that runs it (pip install 'spacy==3.8.*' and the model's wheel).
+"""
 from __future__ import annotations
 
 import argparse
@@ -6,11 +44,20 @@ import re
 import sys
 from pathlib import Path
 
-RULES = Path(__file__).resolve().parent / "reader-knowledge.json"
+RULE_FIELDS = ("parser", "heading_kinds", "rules", "word_classes")
 
 
-def load_rules(path: Path = RULES) -> dict:
-    return json.loads(path.read_text())
+def rules_of(given: dict) -> dict:
+    """The reader-knowledge rules: the block itself, or a settings object holding it under `reader_knowledge`."""
+    rules = given.get("reader_knowledge", given) if isinstance(given, dict) else None
+    missing = [name for name in RULE_FIELDS if not isinstance(rules, dict) or name not in rules]
+    if missing:
+        raise ValueError(f"the reader-knowledge rules need {', '.join(missing)}: hand in the reader_knowledge block of the person's settings row")
+    return rules
+
+
+def load_rules(path: Path) -> dict:
+    return rules_of(json.loads(Path(path).read_text()))
 
 
 def blocks_from_markdown(text: str) -> list[dict]:
@@ -213,15 +260,20 @@ def main() -> int:
     run.add_argument("file")
     run.add_argument("--units", action="store_true", help="the file is a JSON list of {text, kind, where} in reading order")
     run.add_argument("--json", help="write the findings here")
+    run.add_argument("--rules", required=True, help="the reader-knowledge rules (or the settings holding them) as a JSON file")
+    sub.add_parser("run", help="one JSON request on standard input, one JSON answer on the last line")
     args = parser.parse_args()
+    if args.cmd == "run":
+        return run_request(sys.stdin.read())
     path = Path(args.file)
     try:
         text = path.read_text()
         blocks = blocks_from_units(json.loads(text)) if args.units else blocks_from_markdown(text)
+        rules = load_rules(args.rules)
     except (OSError, ValueError, KeyError, TypeError) as exc:
         print(f"reader-knowledge: cannot read {path}: {exc}", file=sys.stderr)
         return 2
-    findings = Checker(load_rules()).check(blocks)
+    findings = Checker(rules).check(blocks)
     if args.json:
         Path(args.json).write_text(json.dumps({"file": str(path), "blocks": len(blocks), "findings": findings}, indent=1, ensure_ascii=False) + "\n")
     for finding in findings:
@@ -229,6 +281,30 @@ def main() -> int:
     print(f"{len(findings)} finding(s) in {len(blocks)} block(s)")
     outcomes = {finding["outcome"] for finding in findings}
     return 1 if "fail" in outcomes else 3 if outcomes else 0
+
+
+def status_of(findings: list[dict]) -> str:
+    outcomes = {finding["outcome"] for finding in findings}
+    return "failed" if "fail" in outcomes else "uncertain" if outcomes else "passed"
+
+
+def run_request(text: str) -> int:
+    """{units | markdown, rules | settings} -> {"result": {blocks, findings, status}}; a request it cannot read -> {"error"}."""
+    try:
+        request = json.loads(text or "{}")
+        rules = rules_of(request.get("rules") if request.get("rules") is not None else request.get("settings"))
+        if isinstance(request.get("units"), list):
+            blocks = blocks_from_units(request["units"])
+        elif isinstance(request.get("markdown"), str):
+            blocks = blocks_from_markdown(request["markdown"])
+        else:
+            raise ValueError("send units ([{text, kind, where}] in reading order) or markdown")
+    except (ValueError, KeyError, TypeError, AttributeError) as exc:
+        print(json.dumps({"error": str(exc)}))
+        return 2
+    findings = Checker(rules).check(blocks)
+    print(json.dumps({"result": {"blocks": len(blocks), "findings": findings, "status": status_of(findings)}}, ensure_ascii=False))
+    return 0
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 {
  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
  "id": "REF-CHECK-AGAINST-SPANS-OF-A-PLAN-FROM-LAUNCH-VIDEO-COPY-GATE",
- "status": "BASELINED",
+ "status": "ADAPTED",
  "directive": {
   "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
   "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
@@ -32,24 +32,31 @@
   }
  ],
  "preserve": [
-  "PRESERVE"
+  "a span's text is the clip's words inside from-to, padded by pad_s, then the moment rows that overlap it; an untimed segment reads the clip's whole words and its untimed rows",
+  "a segment whose speaker matches speaker_unverified gives speaker_verified false",
+  "a segment's also spans follow its own span in order",
+  "the plan a piece cites is named by the first match of cites_plan"
  ],
  "allowed_deltas": [
-  "DELTAS"
+  "the plan, the word lists by clip and the moment table are handed in by the caller instead of read from the checkout",
+  "planNamed answers the plan name; the caller reads the plan"
  ],
  "banned_substitutions": [
-  "BANNED"
+  "a guessed or filled-in word",
+  "reading a transcript or a plan from disk inside the tool",
+  "a film folder or transcript path in the code"
  ],
  "baseline": {
   "recorded_at": "2026-11-05T20:00:00Z",
   "copied_before_adaptation": true,
   "source_multihash": "1f:37923263089dd320775aef21284974e8e1a11d2610f5ecc5a4d060a9dab771a0",
-  "target_multihash_at_baseline": "1f:37923263089dd320775aef21284974e8e1a11d2610f5ecc5a4d060a9dab771a0"
+  "target_multihash_at_baseline": "1f:37923263089dd320775aef21284974e8e1a11d2610f5ecc5a4d060a9dab771a0",
+  "commit": "e6bd8ed2ea0570a36d66adfaec17d05e9ad7dfd9"
  },
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "test_refs": [
-   "TESTS"
+   "tools/check-against-a-persons-rules-and-verdicts/test/check-a-films-copy.test.mjs the old --plan and also-span tests of tools/copy-gate/tests/check.test.mjs, moved onto made-up plans, word lists and moment rows"
   ]
  }
 }
