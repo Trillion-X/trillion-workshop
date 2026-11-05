@@ -18,6 +18,8 @@
 //                                 counted (do-work/pieces.mjs keepPieces), door on descriptor 3 (files read, rows kept)
 //   check-every-piece-is-covered  { file?, after?, most_bytes? } -> coverage of the person's piece rows, read page by page
 //                                 (do-work/piece-sweep.mjs coverageInRecords), door on descriptor 3, read only
+//   check-a-films-copy            { branch, settings_record, files, ... } -> a film's copy checked against the branch, with
+//                                 its report (do-work/check-a-films-copy.mjs checkAFilmsCopy), door on descriptor 3, read only
 import { text } from 'node:stream/consumers';
 import { check, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 
@@ -31,6 +33,10 @@ try {
     const { coverageInRecords } = await import('./piece-sweep.mjs');
     const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');
     console.log(JSON.stringify({ result: await coverageInRecords(openRecordsDoor(), { file: input.file, after: input.after, most_bytes: input.most_bytes }) }));
+  } else if (process.argv[2] === 'check-a-films-copy') {
+    const { checkAFilmsCopy } = await import('./check-a-films-copy.mjs');
+    const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');
+    console.log(JSON.stringify({ result: await checkAFilmsCopy(input, openRecordsDoor()) }));
   } else if (input.branch !== undefined) {
     const { checkABranch } = await import('./check-a-branch.mjs');
     const { openRecordsDoor } = await import('../../records-door/read-data/records-door.mjs');

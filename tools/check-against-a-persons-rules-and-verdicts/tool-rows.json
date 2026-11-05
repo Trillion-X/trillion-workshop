@@ -103,12 +103,16 @@
          },
          "context_requires_review_rules": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+           "type": "string"
+          },
           "description": "Rule ids whose findings need context review on this unit; only those findings become uncertain."
          },
          "context_requires_review_checks": {
           "type": "array",
-          "items": { "type": "string" },
+          "items": {
+           "type": "string"
+          },
           "description": "Named grammar checks whose findings need context review on this unit; other findings stay in force."
          },
          "also_found": {
@@ -908,7 +912,10 @@
   {
    "id": "package::check-against-a-persons-rules-and-verdicts::tool::check-copy",
    "address": "package::check-against-a-persons-rules-and-verdicts::tool::check-copy",
-   "path": ["current-item", "published-record"],
+   "path": [
+    "current-item",
+    "published-record"
+   ],
    "payload": {
     "kind": "ai-tool-descriptor",
     "id": "tool:check-copy",
@@ -920,106 +927,410 @@
      "type": "object",
      "additionalProperties": false,
      "properties": {
-      "rules": { "type": "array", "minItems": 1, "items": { "type": "object", "required": ["id"] }, "description": "Rule rows, as tool:judge-against-rules takes them, with an optional not_for_kinds list. Left out: mechanical grammar rows." },
-      "kind": { "type": "string", "description": "The kind of every word that names none (default copy)" },
-      "text": { "type": "string" },
-      "texts": { "type": "array", "items": { "type": "string" } },
+      "rules": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "id"
+        ]
+       },
+       "description": "Rule rows, as tool:judge-against-rules takes them, with an optional not_for_kinds list. Left out: mechanical grammar rows."
+      },
+      "kind": {
+       "type": "string",
+       "description": "The kind of every word that names none (default copy)"
+      },
+      "text": {
+       "type": "string"
+      },
+      "texts": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
       "markdown": {
        "type": "array",
        "items": {
         "type": "object",
-        "required": ["text"],
+        "required": [
+         "text"
+        ],
         "properties": {
-         "text": { "type": "string" },
-         "where": { "type": "string" },
-         "kind": { "type": "string" },
-         "heading_kind": { "type": "string" },
-         "display_kind": { "type": "string" },
-         "document_heading_level": { "type": "integer", "minimum": 1, "maximum": 6 },
-         "document_heading_is_metadata": { "type": "boolean" },
-         "quote_kind": { "type": "string" },
-         "fields": { "type": "object", "description": "Markdown block role to source field mapping, such as heading to title and paragraph to body" },
-         "context_requires_review_rules": { "type": "array", "items": { "type": "string" }, "description": "Rule ids whose findings need context review on every Markdown unit in this document" }
+         "text": {
+          "type": "string"
+         },
+         "where": {
+          "type": "string"
+         },
+         "kind": {
+          "type": "string"
+         },
+         "heading_kind": {
+          "type": "string"
+         },
+         "display_kind": {
+          "type": "string"
+         },
+         "document_heading_level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 6
+         },
+         "document_heading_is_metadata": {
+          "type": "boolean"
+         },
+         "quote_kind": {
+          "type": "string"
+         },
+         "fields": {
+          "type": "object",
+          "description": "Markdown block role to source field mapping, such as heading to title and paragraph to body"
+         },
+         "context_requires_review_rules": {
+          "type": "array",
+          "items": {
+           "type": "string"
+          },
+          "description": "Rule ids whose findings need context review on every Markdown unit in this document"
+         }
         }
        },
        "description": "Markdown documents: { text, where, kind, heading_kind, display_kind, document_heading_level, document_heading_is_metadata, quote_kind, fields, context_requires_review_rules }. Unresolved quotes and unsupported blocks are coverage problems; sentence-specific check findings on headings, list items, table cells and display text stay uncertain for context review."
       },
-      "value": { "description": "Any JSON whose strings a person reads" },
-      "fields": { "description": "Which keys of value hold words, or \"strings\"" },
-      "skip_keys": { "type": "array", "items": { "type": "string" } },
-      "paths": { "type": "array", "items": { "type": "string" } },
-      "units": { "type": "array", "items": { "type": "object", "required": ["text", "kind"] }, "description": "Ready-made units: { text, kind, where, facts }" },
-      "sources": { "type": "array", "items": { "type": "object", "required": ["where", "json"] }, "description": "JSON with its place: { where, json, skip_keys, kind }" },
-      "alt_keys": { "type": "array", "items": { "type": "string" }, "description": "Keys whose strings are picture descriptions (kind alt)" },
-      "html": { "type": "array", "items": { "type": "object", "required": ["where", "html"] }, "description": "Pages: { where, html, kind }" },
-      "sections": { "type": "array", "items": { "type": "object", "required": ["text", "profile"] }, "description": "Markdown made of declared sections: { text, where, profile: { title_kind, sections: [{ heading, kind, heading_kind?, keeps_headings? }], required?, fields? } }. Preamble and source quotes are counted and never judged; an unknown section, a missing required section, a missing title or an empty body is a problem." },
-      "cue_narration": { "type": "array", "items": { "type": "object", "required": ["text", "profile"] }, "description": "Narration split into cue headings: { text, where, profile: { kind, field?, cue_heading_level, cue_id_pattern, frontmatter?: { fields: { name: string|number }, required? } } }. Each unit keeps its cue_id; quotes, code, lists, text outside a cue, empty or repeated cues and unreadable frontmatter are problems." },
-      "json_roles": { "type": "array", "items": { "type": "object", "required": ["json", "owner"] }, "description": "JSON whose words an owner declares: { json, where, owner: { paths, kind, field?, roles?: [{ paths, kind, field, context_requires_review? }] } }. Only the owner's paths are read; a string two roles claim, or that no role claims, is a problem." },
-      "decks": { "type": "array", "items": { "type": "object", "required": ["where", "html"] }, "description": "Rendered decks: { where, html }" },
-      "pictures": { "type": "array", "items": { "type": "object", "required": ["path", "blake3"] }, "description": "Pictures that are published" },
-      "readings": { "type": "object", "description": "The words each picture shows, by the BLAKE3 of its bytes: { <blake3>: { text } }" },
-      "kind_aliases": { "type": "object", "description": "A kind a row names also covers these kinds" },
-      "not_for_kinds": { "type": "object", "description": "By row id: kinds the row does not judge" },
-      "facts": { "type": "object", "description": "Facts every unit carries for rows that read them" },
-      "required": { "type": "object", "description": "locked_lines, entries, baseline_ids, approvals" },
-      "audience": { "type": "object", "description": "{ rows: [{ id, audience }], allowed: [] }" },
-      "offers": { "type": "object", "description": "{ offers, list_field, id_field }" },
-      "counts": { "type": "array", "items": { "type": "object", "required": ["label", "document"] } },
-      "counts_schema": { "type": "string" },
-      "verdict_rules": { "type": "object" },
-      "stands": { "type": "array" },
-      "stands_as_of": { "type": "string" },
-      "stage": { "type": "string", "enum": ["review", "final"] },
-      "fields_by_kind": { "type": "object" },
-      "answers": { "type": "object" }
+      "value": {
+       "description": "Any JSON whose strings a person reads"
+      },
+      "fields": {
+       "description": "Which keys of value hold words, or \"strings\""
+      },
+      "skip_keys": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "paths": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "units": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text",
+         "kind"
+        ]
+       },
+       "description": "Ready-made units: { text, kind, where, facts }"
+      },
+      "sources": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "where",
+         "json"
+        ]
+       },
+       "description": "JSON with its place: { where, json, skip_keys, kind }"
+      },
+      "alt_keys": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "Keys whose strings are picture descriptions (kind alt)"
+      },
+      "html": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "where",
+         "html"
+        ]
+       },
+       "description": "Pages: { where, html, kind }"
+      },
+      "sections": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text",
+         "profile"
+        ]
+       },
+       "description": "Markdown made of declared sections: { text, where, profile: { title_kind, sections: [{ heading, kind, heading_kind?, keeps_headings? }], required?, fields? } }. Preamble and source quotes are counted and never judged; an unknown section, a missing required section, a missing title or an empty body is a problem."
+      },
+      "cue_narration": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "text",
+         "profile"
+        ]
+       },
+       "description": "Narration split into cue headings: { text, where, profile: { kind, field?, cue_heading_level, cue_id_pattern, frontmatter?: { fields: { name: string|number }, required? } } }. Each unit keeps its cue_id; quotes, code, lists, text outside a cue, empty or repeated cues and unreadable frontmatter are problems."
+      },
+      "json_roles": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "json",
+         "owner"
+        ]
+       },
+       "description": "JSON whose words an owner declares: { json, where, owner: { paths, kind, field?, roles?: [{ paths, kind, field, context_requires_review? }] } }. Only the owner's paths are read; a string two roles claim, or that no role claims, is a problem."
+      },
+      "decks": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "where",
+         "html"
+        ]
+       },
+       "description": "Rendered decks: { where, html }"
+      },
+      "pictures": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "path",
+         "blake3"
+        ]
+       },
+       "description": "Pictures that are published"
+      },
+      "readings": {
+       "type": "object",
+       "description": "The words each picture shows, by the BLAKE3 of its bytes: { <blake3>: { text } }"
+      },
+      "kind_aliases": {
+       "type": "object",
+       "description": "A kind a row names also covers these kinds"
+      },
+      "not_for_kinds": {
+       "type": "object",
+       "description": "By row id: kinds the row does not judge"
+      },
+      "facts": {
+       "type": "object",
+       "description": "Facts every unit carries for rows that read them"
+      },
+      "required": {
+       "type": "object",
+       "description": "locked_lines, entries, baseline_ids, approvals"
+      },
+      "audience": {
+       "type": "object",
+       "description": "{ rows: [{ id, audience }], allowed: [] }"
+      },
+      "offers": {
+       "type": "object",
+       "description": "{ offers, list_field, id_field }"
+      },
+      "counts": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "label",
+         "document"
+        ]
+       }
+      },
+      "counts_schema": {
+       "type": "string"
+      },
+      "verdict_rules": {
+       "type": "object"
+      },
+      "stands": {
+       "type": "array"
+      },
+      "stands_as_of": {
+       "type": "string"
+      },
+      "stage": {
+       "type": "string",
+       "enum": [
+        "review",
+        "final"
+       ]
+      },
+      "fields_by_kind": {
+       "type": "object"
+      },
+      "answers": {
+       "type": "object"
+      }
      }
     },
     "output_schema": {
      "type": "object",
-     "required": ["status", "passed", "exit", "results", "problems", "lines"],
+     "required": [
+      "status",
+      "passed",
+      "exit",
+      "results",
+      "problems",
+      "lines"
+     ],
      "properties": {
-      "status": { "type": "string", "enum": ["passed", "failed", "held"] },
-      "passed": { "type": "boolean" },
-      "exit": { "type": "number" },
-      "units": { "type": "number" },
-      "failing": { "type": "number" },
-      "held": { "type": "number" },
-      "advisory": { "type": "number" },
-      "problems": { "type": "array", "items": { "type": "string" } },
-      "results": { "type": "array" },
-      "questions": { "type": "array" },
-      "lines": { "type": "array", "items": { "type": "string" } }
+      "status": {
+       "type": "string",
+       "enum": [
+        "passed",
+        "failed",
+        "held"
+       ]
+      },
+      "passed": {
+       "type": "boolean"
+      },
+      "exit": {
+       "type": "number"
+      },
+      "units": {
+       "type": "number"
+      },
+      "failing": {
+       "type": "number"
+      },
+      "held": {
+       "type": "number"
+      },
+      "advisory": {
+       "type": "number"
+      },
+      "problems": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "results": {
+       "type": "array"
+      },
+      "questions": {
+       "type": "array"
+      },
+      "lines": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      }
      }
     },
     "invoke": {
      "kind": "container",
      "files": {
       "package_files": [
-       { "package": "check-against-a-persons-rules-and-verdicts", "paths": ["do-work", "read-data"], "at": "/opt/check-against-a-persons-rules-and-verdicts" },
-       { "package": "judge-words", "paths": ["do-work"], "at": "/opt/judge-words" },
-       { "package": "where-a-person-stands", "paths": ["do-work", "read-data"], "at": "/opt/where-a-person-stands" },
-       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
       ]
      },
      "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
      "internet": false,
      "stdout": "json",
-     "argv": ["node", "do-work/check-copy-words.mjs"],
-     "stdin": { "fill": { "from": "input" } }
+     "argv": [
+      "node",
+      "do-work/check-copy-words.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
     },
     "result_selector": "$.result",
-    "needs": { "expected_seconds": 5, "network_egress": false, "memory_mb": 256 },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
     "licence_class": "licence:maker-own",
-    "placements": ["placement:small-container"],
+    "placements": [
+     "placement:small-container"
+    ],
     "maker": "maker:check-against-a-persons-rules-and-verdicts",
-    "provenance": { "source": "the copy judge tool:check-copy (parts/judge-words over a rules file), made to take pages, decks and picture readings and to check the whole set; the person's rules, stands and locked lines are input, never kept here" },
+    "provenance": {
+     "source": "the copy judge tool:check-copy (parts/judge-words over a rules file), made to take pages, decks and picture readings and to check the whole set; the person's rules, stands and locked lines are input, never kept here"
+    },
     "verify": [
      {
       "kind": "sample-run",
       "input": {
-       "rules": [{ "id": "no-sparkle", "words": ["sparkle"], "says": "No sparkle." }],
-       "units": [{ "kind": "page", "text": "Our sparkle is the best." }]
+       "rules": [
+        {
+         "id": "no-sparkle",
+         "words": [
+          "sparkle"
+         ],
+         "says": "No sparkle."
+        }
+       ],
+       "units": [
+        {
+         "kind": "page",
+         "text": "Our sparkle is the best."
+        }
+       ]
       },
       "output_selector": "$.status",
       "contains": "failed"
@@ -1027,9 +1338,31 @@
      {
       "kind": "sample-run",
       "input": {
-       "rules": [{ "id": "no-sparkle", "words": ["sparkle"], "says": "No sparkle." }],
-       "units": [{ "kind": "page", "text": "Your files open in any app." }],
-       "required": { "locked_lines": [{ "id": "line", "alternatives": ["Your files open in any app."] }] }
+       "rules": [
+        {
+         "id": "no-sparkle",
+         "words": [
+          "sparkle"
+         ],
+         "says": "No sparkle."
+        }
+       ],
+       "units": [
+        {
+         "kind": "page",
+         "text": "Your files open in any app."
+        }
+       ],
+       "required": {
+        "locked_lines": [
+         {
+          "id": "line",
+          "alternatives": [
+           "Your files open in any app."
+          ]
+         }
+        ]
+       }
       },
       "output_selector": "$.status",
       "contains": "passed"
@@ -1641,6 +1974,386 @@
       ],
       "output_selector": "$.files[0].uncovered[0].id",
       "contains": "piece-dddddddddddddddddddddddd"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::check-against-a-persons-rules-and-verdicts::tool::check-a-films-copy",
+   "address": "package::check-against-a-persons-rules-and-verdicts::tool::check-a-films-copy",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:check-a-films-copy",
+    "label": "Check a film's copy against a person's rules and verdicts",
+    "status": "active",
+    "job": "Check every line of a film's copy files (a script table, titles, cards, a post, a description, prose or narration) against the person's own branch of their checks, with their film readers and settings",
+    "description": "Reads the person's settings row for this tool (list:settings, by the id given as settings_record) and the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows), both through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "branch",
+      "settings_record",
+      "files"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "branch": {
+       "type": "string",
+       "description": "The id of one of the person's branch rows of list:checks, such as content-production"
+      },
+      "settings_record": {
+       "type": "string",
+       "description": "record:setting:check-against-a-persons-rules-and-verdicts~<scope_kind>~<scope_id>: the film readers, spans, profiles, owners, fields, origin words and reader-knowledge rows"
+      },
+      "files": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "object",
+        "required": [
+         "name",
+         "text"
+        ],
+        "properties": {
+         "name": {
+          "type": "string"
+         },
+         "text": {
+          "type": "string"
+         }
+        }
+       }
+      },
+      "reader": {
+       "type": "string",
+       "enum": [
+        "film",
+        "auto",
+        "sectioned-prose",
+        "cue-narration",
+        "json-words"
+       ]
+      },
+      "owner": {
+       "type": "string"
+      },
+      "kind": {
+       "type": "string"
+      },
+      "artifact_kind": {
+       "type": "string"
+      },
+      "stage": {
+       "type": "string",
+       "enum": [
+        "review",
+        "final"
+       ]
+      },
+      "plan": {
+       "type": "string",
+       "description": "The plan the lines' cut was built from, by name in plans"
+      },
+      "plans": {
+       "type": "object",
+       "description": "Plans by name: the one named by plan or by a piece's plan line"
+      },
+      "recordings": {
+       "type": "object",
+       "properties": {
+        "words": {
+         "type": "object"
+        },
+        "tsv": {
+         "type": [
+          "string",
+          "null"
+         ]
+        }
+       },
+       "description": "The word lists by clip and the moment rows of the clips the plans cite"
+      },
+      "context": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       },
+       "description": "do-work/unit-context.mjs units: { text, context }"
+      },
+      "reader_knowledge": {
+       "type": "object",
+       "description": "{ findings } from do-work/reader_knowledge.py over the reading units, or { not_run: why }"
+      },
+      "stands": {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      "stands_as_of": {
+       "type": "string"
+      },
+      "answers": {
+       "type": "object"
+      },
+      "no_model": {
+       "type": "boolean"
+      },
+      "questions_after": {
+       "type": "string"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "schema",
+      "status",
+      "results",
+      "exit_code",
+      "lines"
+     ],
+     "properties": {
+      "schema": {
+       "type": "string"
+      },
+      "status": {
+       "type": "string",
+       "enum": [
+        "passed",
+        "failed",
+        "uncertain",
+        "unqualified",
+        "no-applicable-rule"
+       ]
+      },
+      "results": {
+       "type": "array"
+      },
+      "questions": {
+       "type": "array"
+      },
+      "coverage": {
+       "type": "object"
+      },
+      "rules": {
+       "type": "object"
+      },
+      "exit_code": {
+       "type": "integer"
+      },
+      "lines": {
+       "type": "array"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:check",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "list",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record:writing-voice",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:setting",
+        "prefix": "record:setting:check-against-a-persons-rules-and-verdicts~",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "where-a-person-stands",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/where-a-person-stands"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "pin-files-by-content",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/pin-files-by-content"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/settings"
+       }
+      ]
+     },
+     "workdir": "/opt/check-against-a-persons-rules-and-verdicts",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/check-against-their-rules-and-verdicts.mjs",
+      "check-a-films-copy"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "provenance": {
+     "source": "trillion-launch-video tools/copy-gate/check.mjs (film readers, spans, report, run), unit-context.mjs and reader_knowledge.py, moved; the rules read by branch from list:checks, the layouts from list:settings"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "branch": "made-up-base",
+       "settings_record": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up",
+       "files": [
+        {
+         "name": "SCRIPT.md",
+         "text": "| # | line |\n|---|---|\n| 1 | A sparkle line. |\n| 2 | A plain line. |\n"
+        }
+       ]
+      },
+      "records": [
+       {
+        "id": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up",
+        "type": "record:setting",
+        "value": {
+         "name": "Made-up film readers",
+         "tool": "tool:check-a-films-copy",
+         "scope_kind": "person",
+         "scope_id": "made-up",
+         "settings": {
+          "readers": {
+           "table_first_header_in": [
+            "#"
+           ],
+           "table_skip_if_header_has": [],
+           "files": {
+            "*": {
+             "line": {
+              "kind": "voiceover"
+             }
+            }
+           },
+           "fenced_blocks": {},
+           "blockquotes": "description",
+           "skip_sections": [],
+           "cell_drop_if": [
+            "^$"
+           ],
+           "cell_strip": [],
+           "cell_split": [],
+           "split_parts_kind": "label",
+           "cell_join": []
+          }
+         },
+         "status": "active"
+        }
+       },
+       {
+        "id": "record:check:made-up-base",
+        "type": "record:check",
+        "value": {
+         "id": "made-up-base",
+         "kind": "branch",
+         "name": "A made-up base"
+        }
+       },
+       {
+        "id": "record:check:no-sparkle",
+        "type": "record:check",
+        "value": {
+         "id": "no-sparkle",
+         "part_of": "made-up-base",
+         "words": [
+          "sparkle"
+         ],
+         "says": "No sparkle."
+        }
+       }
+      ],
+      "output_selector": "$.results[0].breaks[0].rule",
+      "contains": "no-sparkle"
      }
     ]
    }
