@@ -1,19 +1,31 @@
 #!/usr/bin/env python3
-"""Copy a FilmCraft project and insert narrator corrections as editable clips.
+"""Copy a FilmCraft project and insert corrections as editable clips.
 
-For each shot in shots/<id>.json, at the source frame where its freeze plate was cut:
+For each shot in <shots folder>/<id>.json, at the source frame where its freeze plate was cut:
   - ripple-insert a frame-hold segment of the same source clip (FilmCraft's Insert Frame Hold Segment:
     source_in = hold, frame_hold = hold, the clip's own effects, so its grade applies);
   - extend the adjustment layer over the inserted span;
   - place the overlay (ProRes 4444) on V3, the narrator WAV on A2 and the music + sound effects WAV on A3.
 
-Usage: filmcraft_insert.py <in.fcproj> <out.fcproj> <shot-id> [<shot-id> ...]
-"""
-import copy, json, os, subprocess, sys
+Each shot's three files are <out folder>/<id>/<id>-overlay-prores4444.mov, <id>-narrator.wav and <id>-sfx-music.wav.
 
-HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
+Usage: filmcraft_insert_frame_holds.py <in.fcproj> <out.fcproj> --shots <folder> --out <folder> <shot-id> [<shot-id> ...]
+The last line is {"result": {...}} or {"error": "what to change"}.
+"""
+import argparse
+import copy
+import json
+import os
+import subprocess
+import sys
+
 TPS = 254016000000  # FilmCraft ticks per second
+# FilmCraft's own label colours for the three inserted files
+OVERLAY_LABEL, NARRATOR_LABEL, MUSIC_LABEL = 'Rose', 'Caribbean', 'Mango'
+
+
+class Refusal(Exception):
+    """A request the tool cannot carry out; the message says what to change."""
 
 
 def probe(path):
@@ -49,11 +61,9 @@ def media_item(iid, path, label, rate):
             'metadata': {}, 'created': iid}
 
 
-def main():
-    src, dst, shots = sys.argv[1], sys.argv[2], sys.argv[3:]
-    d = json.load(open(src))
+def insert_frame_holds(d, shots, shots_folder, out_folder, sequence_suffix=' + corrections'):
+    """Insert every shot into the project d (a parsed .fcproj); returns one log line per shot."""
     p = d['project']
-    p['name'] = os.path.splitext(os.path.basename(dst))[0]
     seq_item = next(v for v in p['items'].values() if 'Sequence' in v['kind'])
     seq = seq_item['kind']['Sequence']
     rate = seq['settings']['frame_rate']
@@ -75,16 +85,30 @@ def main():
         if 'Media' in v['kind'] and 'File' in v['kind']['Media']['media']:
             media_path[v['kind']['Media']['media']['File']['path']] = int(k)
 
+    log = []
     for sid in shots:
-        shot = json.load(open(os.path.join(ROOT, 'shots', sid + '.json')))
-        out = os.path.join(ROOT, 'out', sid)
+        shot_file = os.path.join(shots_folder, sid + '.json')
+        if not os.path.isfile(shot_file):
+            raise Refusal(f'shot {sid}: {shot_file} does not exist; name a shot file in --shots')
+        with open(shot_file) as f:
+            shot = json.load(f)
+        out = os.path.join(out_folder, sid)
         overlay = os.path.join(out, f'{sid}-overlay-prores4444.mov')
+        narrator = os.path.join(out, f'{sid}-narrator.wav')
+        stem = os.path.join(out, f'{sid}-sfx-music.wav')
+        for need in (overlay, narrator, stem):
+            if not os.path.isfile(need):
+                raise Refusal(f'shot {sid}: {need} does not exist; render the shot into --out first')
+        if shot['plate']['source'] not in media_path:
+            raise Refusal(f'shot {sid}: the plate source {shot["plate"]["source"]} is not a media file of the project')
         frames = int(subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v', '-count_packets', '-show_entries', 'stream=nb_read_packets', '-of', 'csv=p=0', overlay],
                                     check=True, capture_output=True, text=True).stdout.strip())
         dur = frames * fd
         item = media_path[shot['plate']['source']]
         hold = shot['plate']['frame'] * fd
-        host = next(c for c in vt[0]['items'] if c['item'] == item and c['source_in'] <= hold < c['source_in'] + c['duration'])
+        host = next((c for c in vt[0]['items'] if c['item'] == item and c['source_in'] <= hold < c['source_in'] + c['duration']), None)
+        if host is None:
+            raise Refusal(f'shot {sid}: no clip on the first video track holds source frame {shot["plate"]["frame"]} of the plate source')
         t = host['start'] + (hold - host['source_in'])
         # ripple: razor every clip that spans t, shift everything at or after t by dur
         new_links = {}
@@ -113,8 +137,7 @@ def main():
         seg.update(id=alloc(), start=t, duration=dur, source_in=hold, frame_hold=hold, link=None, markers=[])
         vt[0]['items'] = sorted(vt[0]['items'] + [seg], key=lambda c: c['start'])
         # overlay + two audio stems
-        for path, track, label in ((overlay, vt[2], 'Rose'), (os.path.join(out, f'{sid}-narrator.wav'), at[1], 'Caribbean'),
-                                   (os.path.join(out, f'{sid}-sfx-music.wav'), at[2], 'Mango')):
+        for path, track, label in ((overlay, vt[2], OVERLAY_LABEL), (narrator, at[1], NARRATOR_LABEL), (stem, at[2], MUSIC_LABEL)):
             iid = alloc()
             p['items'][str(iid)] = media_item(iid, path, label, rate)
             p['root']['children'].append({'Item': iid})
@@ -124,4 +147,37 @@ def main():
             if track not in vt:
                 clip['effects'] = copy.deepcopy(audio_fx)
             track['items'] = sorted(track['items'] + [clip], key=lambda c: c['start'])
-        print(f'{sid}: inserted {frames} frames ({dur / TPS:.3f} s) at {t / TPS:.3f} s, hold = source frame {shot["plate"]["frame"]}')
+        line = f'{sid}: inserted {frames} frames ({dur / TPS:.3f} s) at {t / TPS:.3f} s, hold = source frame {shot["plate"]["frame"]}'
+        print(line)
+        log.append({'shot': sid, 'frames': frames, 'seconds': round(dur / TPS, 3), 'at_seconds': round(t / TPS, 3), 'hold_frame': shot['plate']['frame']})
+    seq_item['name'] = seq_item['name'] + sequence_suffix
+    return log
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
+    ap.add_argument('project_in')
+    ap.add_argument('project_out')
+    ap.add_argument('--shots', required=True, help='folder of <shot id>.json files')
+    ap.add_argument('--out', required=True, help='folder holding <shot id>/<shot id>-overlay-prores4444.mov, -narrator.wav, -sfx-music.wav')
+    ap.add_argument('--sequence-suffix', default=' + corrections', help='added to the sequence name')
+    ap.add_argument('shot_ids', nargs='+')
+    a = ap.parse_args()
+    try:
+        if os.path.abspath(a.project_in) == os.path.abspath(a.project_out):
+            raise Refusal('the output project must be a new file, not the input project')
+        with open(a.project_in) as f:
+            d = json.load(f)
+        d['project']['name'] = os.path.splitext(os.path.basename(a.project_out))[0]
+        log = insert_frame_holds(d, a.shot_ids, a.shots, a.out, a.sequence_suffix)
+        with open(a.project_out, 'w') as f:
+            json.dump(d, f, separators=(',', ':'))
+    except Refusal as e:
+        print(json.dumps({'error': str(e)}))
+        return 2
+    print(json.dumps({'result': {'output': a.project_out, 'inserts': log}}))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
