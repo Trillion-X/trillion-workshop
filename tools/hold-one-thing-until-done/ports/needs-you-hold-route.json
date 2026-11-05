@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-HOLD-ONE-THING-NEEDS-YOU-HOLD-ROUTE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, home feeds lane",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "Each route becomes a Workshop route tool per the brief's contract (input {path, method, query, body, browser}, result {status, body}), reading and writing records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the page routes GET and POST /work/api/needs-you-hold as a Workshop route tool over the hold decisions",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/hold-one-thing-until-done/do-work/needs-you-hold-route.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/hold-one-thing-until-done/",
+   "why": "This tool itself: the hold's decisions are read-data/needs-you-hold.mjs, which old trillion's src/native-waiting-account-owner.mjs imported from here; this file only reads the person's rows for them, writes the setting and the jobs back, and answers the page in the old route's shape."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the page routes GET and POST /work/api/needs-you-hold as a Workshop route tool over the hold decisions",
+    "answer the needs you hold page route as a Workshop route tool",
+    "needs you hold route tool"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerNeedsYouHoldRoute",
+    "answer-the-needs-you-hold-route"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/hold-one-thing-until-done/test/needs-you-hold-route.test.mjs"
+  ]
+ }
+}

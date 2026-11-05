@@ -10429,7 +10429,7 @@
   {
    "path": "src/tell-the-person.mjs",
    "class": "workshop-tool",
-   "destination": "trillion-workshop:tools/tell-one-person-something-through-every-way-they/from-old-trillion/src/tell-the-person.mjs.held",
+   "destination": "trillion-workshop:tools/tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs",
    "why": "a tool a person or AI runs: carried byte for byte to its tool's from-old-trillion folder, held (.held) until what it imports is here; see the folder README",
    "batch": "slice src s-z, scripts round 2 (trillion-workshop PR #143)"
   },
