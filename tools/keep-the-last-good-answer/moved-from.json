@@ -10,6 +10,21 @@
       "to": "tools/keep-the-last-good-answer/from-old-trillion/src/outside-readings.mjs",
       "source_identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
       "identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3"
+    },
+    {
+      "from": "src/outside-readings.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-the-last-good-answer/from-old-trillion/src/outside-readings.mjs",
+      "source_identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
+      "identity": "1f:cf44d7980240bdeb33070efb55f02242b6403db84766d08243751c9bd5e4a2b3",
+      "reused": true
+    },
+    {
+      "from": "test/outside-readings.test.mjs",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "to": "tools/keep-the-last-good-answer/test/outside-readings.test.mjs",
+      "source_identity": "1f:2c5bed1001d56e686ce738a34ef0c42e61b2683c83f2b7fb1249472b87ffe8e6",
+      "identity": "1f:4ad4d903f22e3ebcecfcc656bc6d02ff60445f4925f95917c8a5eceacae1d8de"
     }
   ]
 }
