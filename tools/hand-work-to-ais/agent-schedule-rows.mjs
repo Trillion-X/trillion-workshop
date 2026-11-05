@@ -1,7 +1,7 @@
 // Read only the timing fields of older handoffs for the own-AI clock. Job words and
 // results can be many kilobytes each; the clock never needs them. A fixed SQL page
 // keeps each cursor bounded while old rows still share the record-backed owner.
-import { scheduledHandoffOf } from './agents.mjs';
+import { scheduledHandoffOf } from '../shared-code/src/agents.mjs';
 
 const PAGE = 100;
 const FIELDS = {

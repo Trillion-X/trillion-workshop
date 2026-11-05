@@ -8,7 +8,7 @@
 // its own copy reading a setting renamed that day (chat_first_minutes to chat_silence_minutes), so every chat's job
 // made the whole read answer "Invalid time value": the computer helper saw only work announced to it one job at a
 // time, and the person's shares sat untaken.
-import { anyoneFrom, workAgentCards } from './agents.mjs';
+import { anyoneFrom, workAgentCards } from '../shared-code/src/agents.mjs';
 
 const PAGE_LIMIT = 50;
 // Select from the authoritative handoff owner before hydration. Its projection
