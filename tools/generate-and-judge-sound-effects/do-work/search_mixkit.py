@@ -3,10 +3,11 @@
 Query file (JSON): {"<category>": {"tags": ["click", "keyboard"], "max_s": 3}, ...}
 Writes <out>: {"<category>": [ {id, title, duration_s, tag_page, wav_url}, ... ]}. One request every 1.5 s;
 pages are parsed as text, nothing is executed. Missing tag pages (404) are reported and skipped.
-Usage: python -I mk_search.py queries.json candidates.json
+Usage: python -I search_mixkit.py queries.json candidates.json   (the last line printed is {"result": {"out", "counts"}})
 """
 import html
 import json
+import pathlib
 import re
 import sys
 import time
@@ -25,7 +26,7 @@ def fetch(url):
 
 
 def main(qpath, opath):
-    spec = json.load(open(qpath))
+    spec = json.loads(pathlib.Path(qpath).read_text())
     res = {}
     for cat, c in spec.items():
         seen, rows = set(), []
@@ -46,11 +47,13 @@ def main(qpath, opath):
                 n += 1
                 rows.append(dict(id=int(sid), title=html.unescape(title), duration_s=dur, tag_page=page,
                                  wav_url=f'https://assets.mixkit.co/active_storage/sfx/{sid}/{sid}.wav'))
-            print(f'{cat}: {tag} -> {n}', flush=True)
+            print(f'{cat}: {tag} -> {n}', file=sys.stderr, flush=True)
             time.sleep(1.5)
         res[cat] = rows
-    json.dump(res, open(opath, 'w'), indent=1)
+    with open(opath, 'w') as fh:
+        json.dump(res, fh, indent=1)
+    return {'out': opath, 'counts': {k: len(v) for k, v in res.items()}}
 
 
 if __name__ == '__main__':
-    main(*sys.argv[1:3])
+    print(json.dumps({'result': main(*sys.argv[1:3])}))

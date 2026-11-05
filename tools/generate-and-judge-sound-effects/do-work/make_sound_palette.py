@@ -1,20 +1,21 @@
-"""Render the palette described in palette.json, then verify every rendered file with earshot.
+"""Render the palette described in a palette file (palette.json), then verify every rendered file with earshot.
 
-Each sound: decode the source at 48 kHz stereo, cut the trim, 5 ms linear fade in / 20 ms linear fade out, scale to the
-target sample peak (-6 dBFS), write 24-bit WAV to sound/palette/<name>.wav. Then earshot reads the FINAL file:
-match (z for the sound's query), describe, realness, measure. Writes sound/palette/palette_readings.json.
-Usage: python -I make_palette.py
+Each sound: decode the source (its src, relative to ROOT) at the palette's rate and channels, cut the trim, fade in and out, scale to the
+target sample peak, write 24-bit WAV to OUT/<name>.wav. Then earshot reads the FINAL file:
+match (z for the sound's query), describe, realness, measure. Writes OUT/palette_readings.json; the last line printed is {"result": {...}}.
+Usage: <earshot venv python> -I make_sound_palette.py PALETTE.json ROOT OUT
 """
 import json
 import os
 import subprocess
+import sys
 
 import numpy as np
 import soundfile as sf
 
 from earshot import api
 
-ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+ROOT = OUT = None   # the folder the palette's src paths are relative to, and the folder the palette is written to (argv)
 
 
 def decode(path, rate, ch):
@@ -32,14 +33,15 @@ def render(spec, s):
     y[:fi] *= np.linspace(0.0, 1.0, fi)[:, None]
     y[-fo:] *= np.linspace(1.0, 0.0, fo)[:, None]
     y *= 10 ** (spec['peak_dbfs'] / 20) / np.max(np.abs(y))
-    out = os.path.join(ROOT, 'palette', f"{s['name']}.wav")
+    out = os.path.join(OUT, f"{s['name']}.wav")
     sf.write(out, y, rate, subtype='PCM_24')
     return out
 
 
-def main():
-    spec = json.load(open(os.path.join(ROOT, 'scripts', 'palette.json')))
-    os.makedirs(os.path.join(ROOT, 'palette'), exist_ok=True)
+def main(palette):
+    with open(palette) as fh:
+        spec = json.load(fh)
+    os.makedirs(OUT, exist_ok=True)
     readings = []
     for s in spec['sounds']:
         out = render(spec, s)
@@ -57,9 +59,12 @@ def main():
         readings.append(row)
         print(f"{s['name']:18s} {row['seconds']:6.3f}s {info.samplerate} Hz x{info.channels} z {m['z']:+.2f} "
               f"p_real {r['p_real']} {r['verdict']} LUFS {row['final_lufs']} peak {row['final_peak_dbfs']} "
-              f"atk {row['final_attack_ms']} dec {row['final_decay_ms']}", flush=True)
-    json.dump(readings, open(os.path.join(ROOT, 'palette', 'palette_readings.json'), 'w'), indent=1, default=str)
+              f"atk {row['final_attack_ms']} dec {row['final_decay_ms']}", file=sys.stderr, flush=True)
+    with open(os.path.join(OUT, 'palette_readings.json'), 'w') as fh:
+        json.dump(readings, fh, indent=1, default=str)
+    return {'out': OUT, 'sounds': len(readings), 'readings': os.path.join(OUT, 'palette_readings.json')}
 
 
 if __name__ == '__main__':
-    main()
+    ROOT, OUT = sys.argv[2], sys.argv[3]
+    print(json.dumps({'result': main(sys.argv[1])}))
