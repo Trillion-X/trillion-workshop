@@ -184,3 +184,30 @@ def audit_exposure(
         },
         "interpretation": "Matches show detectable overlap. No match does not prove independence, novelty, or authorship; semantic/fuzzy overlap is not measured. Caller-declared source hashes are not byte-verified by this helper.",
     }
+
+
+def main() -> int:
+    """The tool row: one JSON request on standard input ({ training_rows, target_rows, training_source?,
+    target_source? }), the audit as { "result": ... } (or { "error": ... }) on the last line."""
+    import json
+    import sys
+
+    try:
+        request = json.loads(sys.stdin.read() or "{}")
+        if not isinstance(request, Mapping):
+            raise ValueError("the request is one JSON object: { training_rows, target_rows, training_source?, target_source? }")
+        result = audit_exposure(
+            request.get("training_rows"),
+            request.get("target_rows"),
+            training_source=request.get("training_source"),
+            target_source=request.get("target_source"),
+        )
+    except (ValueError, json.JSONDecodeError) as error:
+        print(json.dumps({"error": f"{error}. Give training_rows and target_rows as lists of rows whose state holds target_text."}))
+        return 1
+    print(json.dumps({"result": result}))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

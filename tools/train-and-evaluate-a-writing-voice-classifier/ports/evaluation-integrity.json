@@ -23,7 +23,8 @@
   ],
   "targets": [
     {
-      "path": "tools/train-and-evaluate-a-writing-voice-classifier/read-data/evaluation-integrity.mjs"
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/read-data/evaluation-integrity.mjs",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
     }
   ],
   "preserve": [
@@ -45,7 +46,8 @@
     "recorded_at": "2026-11-05T20:30:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:200bc25563eb39175276f86f2e47890daf2244245c07dfcda1322b9eee6c6640",
-    "target_multihash_at_baseline": "1f:200bc25563eb39175276f86f2e47890daf2244245c07dfcda1322b9eee6c6640"
+    "target_multihash_at_baseline": "1f:200bc25563eb39175276f86f2e47890daf2244245c07dfcda1322b9eee6c6640",
+    "commit": "07fa0cbde4e9f8933feb39038f7a752fa0d30211"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

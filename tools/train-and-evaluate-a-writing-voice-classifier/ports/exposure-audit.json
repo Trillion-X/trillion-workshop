@@ -23,7 +23,8 @@
   ],
   "targets": [
     {
-      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/exposure_audit.py"
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/exposure_audit.py",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
     }
   ],
   "preserve": [
@@ -42,7 +43,8 @@
     "recorded_at": "2026-11-05T20:30:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:0c73ef0c4950de23c4ab7c2e750fa56a3648ddee23015eabbce060bc1504d2e2",
-    "target_multihash_at_baseline": "1f:0c73ef0c4950de23c4ab7c2e750fa56a3648ddee23015eabbce060bc1504d2e2"
+    "target_multihash_at_baseline": "1f:0c73ef0c4950de23c4ab7c2e750fa56a3648ddee23015eabbce060bc1504d2e2",
+    "commit": "07fa0cbde4e9f8933feb39038f7a752fa0d30211"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
