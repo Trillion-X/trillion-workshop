@@ -267,6 +267,83 @@
           ]
         }
       }
+    },
+    {
+      "id": "package::browse-and-publish-what-my-ai-can-use::tool::make-marketplace-tiles-with-their-icons",
+      "address": "package::browse-and-publish-what-my-ai-can-use::tool::make-marketplace-tiles-with-their-icons",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:browse-and-publish-what-my-ai-can-use",
+        "listed_on": "2026-11-05T00:00:00Z",
+        "id": "tool:make-marketplace-tiles-with-their-icons",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "label": "Make Marketplace tiles with their icons (runs on your computer)",
+        "job": "Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+        "description": "Reads the tools and workflows as the shelf's readers answer them (two JSON files of { items: [{ id, kind, title, job, steps?, icon? }] }) and the icons folder of an installed lucide-react, and answers one tile per item: id, kind, title, job (cut to 90 characters), steps, icon and svg, the icon's own shape elements (the item's icon, else its kind's icon from marketplace-kinds.json; an alias icon file is followed). Titles that read as machine names are left out. With --out it writes window.<global>=<tiles>; for a page (global TILES unless --global names another). The icon files are read as data, never run. Last line: {\"result\": {tiles, counts}} or {\"error\": ...}.",
+        "read_only": false,
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "tools",
+            "workflows",
+            "icons"
+          ],
+          "properties": {
+            "tools": {
+              "type": "string",
+              "description": "The JSON file of tool items, put where {tools} is in the command."
+            },
+            "workflows": {
+              "type": "string",
+              "description": "The JSON file of workflow items, put where {workflows} is in the command."
+            },
+            "icons": {
+              "type": "string",
+              "description": "The dist/esm/icons folder of an installed lucide-react, put where {icons} is in the command."
+            },
+            "out": {
+              "type": "string",
+              "description": "Optional: the page file to write, after --out."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {\"tiles\": [{id, kind, title, job, steps, icon, svg}], \"counts\": {items, tools, workflows, own_icons}, \"written\"?}} or {\"error\": why} with exit 1."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "npm install lucide-react in any folder (its dist/esm/icons folder is --icons)"
+          ],
+          "run": "node tools/browse-and-publish-what-my-ai-can-use/do-work/make-shelf-tiles.mjs --tools {tools} --workflows {workflows} --icons {icons} --out {out}",
+          "needs": [
+            "node",
+            "lucide-react installed (its icons folder)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Read the tools and workflows with tool:read-rows-as-marketplace-shelf-items or the shelf's own readers and save each as { items }. Tell the person how many tiles were made and how many have their own icon."
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a computer with an installed lucide-react icons folder and the person's tool and workflow items saved as files",
+            "proved_on": null
+          }
+        ],
+        "provenance": {
+          "source": "A film repository's tools/build-tiles.mjs (5a9ba39), byte-copied in its first commit here, then adapted"
+        }
+      }
     }
   ]
 }

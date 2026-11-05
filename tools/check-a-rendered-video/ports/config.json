@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-A-RENDERED-VIDEO-LIMITS-FROM-A-SETTINGS-ROW",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools, sub-lane checks: the rendered-video checker's helper scripts",
+  "message_multihash": "1f:bd5226af46e0371dc78cbb65016a2055faec34cbf0bb7c6792eea867d3f085f4",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; settings are rows in the person's lists, read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "afbe47a7da8394305382f4689e3481dbb84e8776",
+   "path": "tools/check-a-rendered-video/do-work/rendercheck/config.py",
+   "multihash": "1f:7909409947b7052a2b06e34b5f01b911818cde0c376dd24ecfa334217b510349",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-a-rendered-video/do-work/rendercheck/config.py"
+  }
+ ],
+ "preserve": [
+  "load(path) answers the limits a file holds; nothing is shipped as a default",
+  "blake3_hex and fingerprint unchanged"
+ ],
+ "allowed_deltas": [
+  "load and load_reviewed also take the person's list:settings row (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>), read by tools/settings settings_of, which refuses a retired row or one for another tool"
+ ],
+ "banned_substitutions": [
+  "a second settings reader beside tools/settings",
+  "a default limits file shipped with the tool"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:7909409947b7052a2b06e34b5f01b911818cde0c376dd24ecfa334217b510349",
+  "target_multihash_at_baseline": "1f:7909409947b7052a2b06e34b5f01b911818cde0c376dd24ecfa334217b510349",
+  "commit": "afbe47a7da8394305382f4689e3481dbb84e8776",
+  "recorded_at": "2026-11-05T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "settings_of",
+   "def load_reviewed"
+  ],
+  "test_refs": [
+   "tools/check-a-rendered-video/test/test_settings_row.py SettingsRow"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}
