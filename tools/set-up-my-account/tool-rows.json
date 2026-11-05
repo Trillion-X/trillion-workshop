@@ -243,6 +243,210 @@
           ]
         }
       }
+    },
+    {
+      "id": "package::set-up-my-account::tool::read-setup",
+      "address": "package::set-up-my-account::tool::read-setup",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-setup",
+        "label": "Read my setup",
+        "status": "active",
+        "job": "Gather what my account's setup is made of and draw the Get started screen from it",
+        "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The page's own account"
+            },
+            "user_agent": {
+              "type": "string",
+              "description": "The asking browser's user agent"
+            },
+            "origin": {
+              "type": "string",
+              "description": "The address the screen is opened at; the service's own when it is not a web address"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to decide at (ISO); now when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "title",
+            "ready",
+            "requirements"
+          ],
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "ready": {
+              "type": "boolean"
+            },
+            "requirements": {
+              "type": "array"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "set-up-my-devices-and-cameras",
+                "paths": [
+                  "src"
+                ],
+                "at": "/opt/set-up-my-devices-and-cameras"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "uqr",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "dist/index.mjs"
+                ],
+                "at": "/opt/node_modules/uqr"
+              }
+            ]
+          },
+          "workdir": "/opt/set-up-my-account",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/set-up-my-account/do-work/read-setup.mjs",
+            "readSetup"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "files": "/",
+                "operations": [
+                  "setup_facts"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "show-rules",
+                "operations": [
+                  "workspace:read"
+                ]
+              },
+              {
+                "kind": "@own-records",
+                "id": "setup-context",
+                "operations": [
+                  "workspace:read"
+                ]
+              }
+            ],
+            "runs": [
+              "tool:see-what-is-left-to-set-up"
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "read_only": true,
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:set-up-my-account",
+        "provenance": {
+          "source": "trillion src/screen-reads.mjs readSetup (the account action read-setup) over src/native-setup.mjs GET /setup/facts and src/setup-steps.mjs readSetupPolicy, tag old-trillion-before-worker-retire"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account_id": "acct-sample",
+              "user_agent": "Sample browser",
+              "origin": "https://app.example.test",
+              "now": "2026-01-01T00:00:00.000Z"
+            },
+            "file_answers": {
+              "setup_facts": {
+                "facts": {
+                  "aiConnected": false,
+                  "aiApps": []
+                }
+              }
+            },
+            "tool_runs": {
+              "tool:see-what-is-left-to-set-up": {
+                "title": "Connect your AI to start",
+                "ready": false,
+                "requirements": []
+              }
+            },
+            "output_selector": "$.result.title",
+            "contains": "Connect your AI"
+          }
+        ]
+      }
     }
   ]
 }

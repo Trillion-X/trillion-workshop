@@ -27,13 +27,25 @@
 //      input `key` names the thing), on this page's surface, `from: 'thing'`, with the moved tell owner's markRead over
 //      the person's told-the-person records, as old needsYouHold did.
 //
-// NOT HERE (each needs what a route run does not have; see README.md)
-//   - The cards are the person's Waiting on you rows, not old trillion's whole Waiting on you answer.
-//   - The walk-away nudge (prepareForHold) weighs that whole answer's sections; it is not run.
-//   - The device tools of `hold.devices` (when_held, when_free) are other Workshop tools: a run cannot start one.
+//   7. The cards are what old trillion's Waiting on you reader answered, over what the route can read: each section's
+//      cards kept once (sameOnce) and weighed by the doer gate (read-data/waiting-weigh.mjs over tools/who-does-each-step
+//      and the old DATA), so a card Trillion can do, or one with nothing to press, is left out of the person's view;
+//      then the walk-away nudge's prepareForHold (read-data/waiting-nudge.mjs) hands what it weighs to the AIs, once per
+//      card, and the hold is weighed over the rest, as old needsYouHold did.
+//   8. A new thing held, or nothing held any more, starts the person's device tools (`hold.devices` when_held /
+//      when_free) once for that change, through the run's door (`runs` on the row); one that fails is let go.
+//
+// NOT HERE (each needs what is not a record; see README.md)
+//   - Of old trillion's Waiting on you answer only the person's own rows (the asks section) are read: the other
+//     sections' sources are not the person's records (see README.md), so the route is not a whole port yet.
 //
 import ROWS from '../read-data/hold-rows.json' with { type: 'json' };
-import { askOff, chooseStake, handBack, heldInput, holdView, setAside, turnOn } from '../read-data/needs-you-hold.mjs';
+import WAITING from '../read-data/waiting-on-you.json' with { type: 'json' };
+import { askOff, chooseStake, handBack, heldInput, holdView, setAside, turnOn, withoutHanded } from '../read-data/needs-you-hold.mjs';
+import { makeWaitingNudge } from '../read-data/waiting-nudge.mjs';
+import { sameOnce, weighCards } from '../read-data/waiting-weigh.mjs';
+import { whoDoesEachStep } from '../../who-does-each-step/read-data/who-does.mjs';
+import WHO from '../../shared-code/src/who-does-it.json' with { type: 'json' };
 import { answerOfRows } from './hold.mjs';
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
 import { makeTellThePerson } from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs';
@@ -72,11 +84,34 @@ async function cardsOf(door) {
   return answerOfRows(rows);
 }
 
+// The doer gate (old src/who-does-it.mjs over src/who-does-it.json): who does each waiting thing.
+const weigh = input => whoDoesEachStep({ ...WHO, ...input });
+// The Waiting on you DATA under the person's own hold rules (old src/waiting-on-you.json, its `hold` the person's row).
+const settingsOf = rules => ({ ...WAITING, hold: { ...WAITING.hold, ...rules } });
+
+/** What old trillion's Waiting on you reader answered, over what the route can read (the person's Waiting on you rows):
+ *  each section's cards with the same thing said twice kept once (sameOnce), and every card the doer gate sends to the
+ *  AIs left out of the person's view (old reader's `sift`, src/native-waiting-account-owner.mjs reader). */
+async function waitingAnswer(door, settings) {
+  const answer = await cardsOf(door);
+  return { ...answer, sections: answer.sections.map(section => {
+    const cards = weighCards([{ section, cards: sameOnce(section.cards) }], { settings, weigh, given: {} }).rows[0].cards;
+    return cards.length === section.cards.length ? section : { ...section, total: cards.length, cards };
+  }) };
+}
+
 /** The read, as old needsYouHold answered op read: the view, what it says and the words. */
 async function read(door, now, rules) {
   const settings = rules ?? await rulesOf(door);
   const state = (await readSetting(door, ROWS.state)).value ?? {};
-  const view = holdView(await cardsOf(door), state, settings, now);
+  const waiting = settingsOf(settings);
+  const answer = await waitingAnswer(door, waiting);
+  // The walk-away nudge's prepareForHold (old src/waiting-nudge.mjs): what waited long enough and Trillion can do is
+  // handed to the AIs, once per card, and the hold is weighed over the rest.
+  const nudge = makeWaitingNudge({ read: async () => answer, tell: async () => null, weigh, handOff: job => handOff(door, job, now),
+    kept: { read: () => null, write: () => {} }, alongside: async () => null, settings: waiting, now: () => now });
+  const prepared = await nudge.prepareForHold(answer, settings.after_minutes);
+  const view = holdView(withoutHanded(answer, prepared.handed), state, settings, now);
   await keepHeld(door, view.held, settings, now);
   const said = view.held ? fill(settings.words?.held, { title: view.held.card.title ?? '' })
     : view.on ? settings.words?.free : fill(settings.words?.off, view);

@@ -2,11 +2,10 @@
 // folder: read-data/needs-you-hold.mjs over the shipped Waiting on you DATA (src/waiting-on-you.json, the same bytes
 // in tools/keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json). Their assertions are unchanged; only
 // the import paths differ. The old file's other tests have their subject elsewhere and run with it:
-//   - 'startup hold reads current ranked cards without waiting for voice clip enrichment' and 'the held fact and its
-//     devices name the person's own card, not one the AIs take': old src/native-waiting-account-owner.mjs (the whole
-//     Waiting on you read and its voice clips), which no Workshop folder holds yet;
-//   - 'AI-doable waiting cards are handed back ...' and 'walking away carries out the stake ...': old
-//     src/waiting-nudge.mjs, not moved yet;
+//   - 'startup hold reads current ranked cards without waiting for voice clip enrichment': old
+//     src/native-waiting-account-owner.mjs's whole Waiting on you read and its voice clips, which are not records;
+//   - 'the held fact and its devices name the person's own card, not one the AIs take', 'AI-doable waiting cards are
+//     handed back ...' and 'walking away carries out the stake ...': test/needs-you-hold-nudge-old.test.mjs;
 //   - 'the held thing reaches a chat by Trillion itself ...': harness/decisions-since.mjs, the AI session harness;
 //   - 'the setup gate reads Get started through readJson ...': the page (trillion-apps web);
 //   - 'the held thing seen on an open page is read there ...' and 'a tap on the phone's notice is where the held thing
