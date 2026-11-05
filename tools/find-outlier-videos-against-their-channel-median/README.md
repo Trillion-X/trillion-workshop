@@ -22,7 +22,7 @@ python3 -I tools/find-outlier-videos-against-their-channel-median/do-work/find_o
 
 The input is tab-separated with one header line. By default its columns are: 0 source, 1 kind, 3 url, 4 views, 6 channel, 7 title. Each `--source-col`, `--kind-col`, `--url-col`, `--views-col`, `--channel-col` and `--title-col` takes a column number (0 is the first) or a header name.
 
-A source's median counts every titled row of that source whose views are a whole number. The output columns are `ratio, views, kind, channel, source, median, n, url, title`, in the input's order; `n` is how many videos the median counts.
+A source's median counts every titled row of that source whose views are a whole number. The output columns are `ratio, views, kind, channel, source, median, n, url, title`, in the input's order; `n` is how many videos the median counts, and `median` keeps its half (1500.5) when the middle two views differ. Each line is one video: a quote mark is part of a title, never the start of a quoted field.
 
 ## Tests
 
