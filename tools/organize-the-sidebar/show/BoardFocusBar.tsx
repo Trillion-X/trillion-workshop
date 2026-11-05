@@ -5,13 +5,13 @@
 // one descriptor row, zero bar code.
 
 import React from 'react';
-import { Button, Container, ExpandableTabs, Icon, Input, Text } from '../../ui';
+import { Button, Container, ExpandableTabs, Icon, Input, Text } from '../../ui/index.ts';
 import { Bookmark, CheckSquare, Eye, EyeOff, GitBranch, Minimize2, Network, Replace, Search, X } from 'lucide-react';
-import { FacetChipGroup } from './FacetChipGroup';
-import { hasActiveFacets, type FacetSelection } from '../read-data/facet-filter';
-import { searchFieldKeyIntent } from '../read-data/search-field-key';
-import type { BoardFocusFacet } from './board-item-facets';
-import type { FocusView } from './focus-view';
+import { FacetChipGroup } from './FacetChipGroup.tsx';
+import { hasActiveFacets, type FacetSelection } from '../read-data/facet-filter.ts';
+import { searchFieldKeyIntent } from '../read-data/search-field-key.ts';
+import type { BoardFocusFacet } from './board-item-facets.ts';
+import type { FocusView } from './focus-view.ts';
 
 /** Imperative handle: focus the board's search field (⌘F / "/" on the canvas drive this). `focusSearch`
  *  returns whether it focused — false when the search field is not currently rendered, so the caller can

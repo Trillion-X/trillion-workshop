@@ -9,10 +9,10 @@
 // `boardOutline` returns, so a new frame appears in the list with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { boardOutline, outlineCardTotal, type OutlineEntry } from '../do-work/board-outline';
-import { stripHtml } from './note-metrics';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { boardOutline, outlineCardTotal, type OutlineEntry } from '../do-work/board-outline.ts';
+import { stripHtml } from './note-metrics.ts';
 
 /** Run the outline over the board's items. */
 export function boardOutlineEntries(items: readonly BoardItem[]): OutlineEntry[] {

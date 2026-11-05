@@ -10,7 +10,7 @@
 // lives here rather than in the generic inline `text-entities` tokenizer (which is for navigable URL/email/…
 // spans, not board-card resolution). A broken `[[Title]]` (no such card) is surfaced, not silently dropped.
 
-import type { BoardItem } from './group-board-model';
+import type { BoardItem } from './group-board-model.ts';
 
 type ReferenceItem = Pick<BoardItem, 'memberId' | 'text'>;
 

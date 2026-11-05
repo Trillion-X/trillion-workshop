@@ -16,9 +16,9 @@
 // =============================================================================
 
 import { type AddressRef, type GroupGraph } from '../../ui/show/group/group-graph';
-import { differenceIds, intersectIds } from './selection-algebra';
-import type { BoardItem } from './group-board-model';
-import { type FacetSelection, type FacetExtractors, filterByFacets, hasActiveFacets } from './facet-filter';
+import { differenceIds, intersectIds } from './selection-algebra.ts';
+import type { BoardItem } from './group-board-model.ts';
+import { type FacetSelection, type FacetExtractors, filterByFacets, hasActiveFacets } from './facet-filter.ts';
 import {
   recordIndexRef,
   readRecords,
@@ -32,7 +32,7 @@ import {
   restoreRecord,
   type RecordStoreSpec,
   type StoredRecord,
-} from './named-record-index';
+} from './named-record-index.ts';
 
 /** A saved smart set's payload — the faceted query it re-runs. Kept as its own object (not a bare
  *  FacetSelection) so the stored shape can grow (a future `logic:'all'|'any'`) without a migration. */

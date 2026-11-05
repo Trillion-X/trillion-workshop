@@ -34,7 +34,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { BoardItem } from './group-board-model';
+import type { BoardItem } from './group-board-model.ts';
 
 /** Structural shape of one graph node as published by a connection-projection
  *  owner. Checked by shape, never by package name. */

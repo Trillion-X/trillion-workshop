@@ -7,10 +7,10 @@
 // ambiguous to be hierarchy). `childEndpoint` says which end of a connector is the CHILD, so both drawing
 // conventions ("Run 5k -> Get fit" and "Get fit -> Run 5k") are supported by DATA, not code branches.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { type RelationGraph, buildRelationGraph, relationsFrom, relationsTo } from '../read-data/relationship-graph';
-import { cardCompletion } from '../read-data/card-completion';
-import { type RollupResult, rollupOf } from '../read-data/board-rollup';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { type RelationGraph, buildRelationGraph, relationsFrom, relationsTo } from '../read-data/relationship-graph.ts';
+import { cardCompletion } from '../read-data/card-completion.ts';
+import { type RollupResult, rollupOf } from '../read-data/board-rollup.ts';
 
 /** How the board declares its goal hierarchy: which relation kind + which endpoint of it is the child. */
 export interface RollupSpec {

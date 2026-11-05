@@ -11,8 +11,8 @@
 // mints fresh ids and re-anchors the connectors -- zero new placement/re-anchor logic (L030/L069). Pure,
 // deterministic; names no kind (L090).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { graphToBoardItems } from './graph-to-board';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { graphToBoardItems } from './graph-to-board.ts';
 
 export interface MermaidNode {
   readonly id: string;

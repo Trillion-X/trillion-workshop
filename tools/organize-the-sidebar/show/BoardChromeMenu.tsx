@@ -5,7 +5,7 @@
 // every capability and handler remains owned by GroupBoardPanel.
 
 import React, { useEffect, useRef, useState } from 'react';
-import { AnchoredOverlay, Button, Card, Container, Icon, Text } from '../../ui';
+import { AnchoredOverlay, Button, Card, Container, Icon, Text } from '../../ui/index.ts';
 import { ChevronDown, LayoutPanelTop, Plus } from 'lucide-react';
 
 export interface BoardChromeMenuGroup {

@@ -8,12 +8,12 @@
 // boardToSvg frames the slide automatically). Zero new geometry/serialization — a deck is the story
 // path passed through the existing exporter (L069/L100). Pure: no I/O; the caller downloads/zips.
 
-import type { BoardItem } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 import type { MediaCarouselItem } from '../../ui/show/media-carousel/MediaCarousel';
 import { svgDataUrl } from '../../ui/show/raster/svg-to-png';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { boardFrames, itemsInsideFrame } from './board-frames';
-import { boardToSvg, escapeXml, type BoardSvgOptions } from './board-svg';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { boardFrames, itemsInsideFrame } from './board-frames.ts';
+import { boardToSvg, escapeXml, type BoardSvgOptions } from './board-svg.ts';
 
 export interface DeckSlide {
   readonly order: number; // 1-based slide number in story order

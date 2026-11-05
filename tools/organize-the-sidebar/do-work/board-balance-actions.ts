@@ -7,9 +7,9 @@
 // so this stays blind to which dimensions exist (L098). A facet with fewer than 2 distinct values has no
 // distribution to balance, so it is dropped (no meaningless "100% dominated" row, L118). Deterministic.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { type FacetExtract, facetCensus } from '../read-data/board-facet-census';
-import { facetBalance, evennessBandOf } from '../read-data/board-facet-balance';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { type FacetExtract, facetCensus } from '../read-data/board-facet-census.ts';
+import { facetBalance, evennessBandOf } from '../read-data/board-facet-balance.ts';
 
 /** One facet's balance, ready to render: the human facet label, its evenness band, the numbers, and the
  *  dominant value's name + share. */

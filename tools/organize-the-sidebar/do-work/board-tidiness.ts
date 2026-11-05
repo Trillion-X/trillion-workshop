@@ -11,7 +11,7 @@
 // Pure leaf — only the `finiteCoord` clamp SSOT. Deterministic, zero I/O. The show/ readout renders the score
 // + issue list and wires "select these" to the board; this file never knows what a "board" is.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 export interface TidyRect {
   readonly memberId: string;

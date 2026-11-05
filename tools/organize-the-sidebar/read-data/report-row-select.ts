@@ -12,7 +12,7 @@
 // alike. Operates on the already-computed `ReportRow[]` (post-reduction, pre-sorted), so "highest" is a slice.
 // Pure + deterministic.
 
-import type { ReportRow } from './board-report';
+import type { ReportRow } from './board-report.ts';
 
 /** One bulk selector: a stable id, a human label, and a pure picker over the report's rows. `select` returns the
  *  KEPT rows (full-list context, so rank-based selectors like "highest" work); the caller unions their cardIds. */

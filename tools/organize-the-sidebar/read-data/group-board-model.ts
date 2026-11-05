@@ -30,7 +30,7 @@ import {
 // The SSOT deep-copy engine + its DATA descriptor type. `materializeItems` is used only
 // INSIDE `copyBoardContents`' body (never at module top-level), so the resulting
 // function-level import cycle with board-template-apply is benign under ESM/esbuild.
-import { materializeItems, type TemplateItem } from './board-template-apply';
+import { materializeItems, type TemplateItem } from './board-template-apply.ts';
 
 const BOARD_FAMILY = 'group.board';
 const ITEM_FAMILY = 'group.item';

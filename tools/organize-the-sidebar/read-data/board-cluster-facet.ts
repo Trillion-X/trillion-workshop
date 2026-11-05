@@ -12,9 +12,9 @@
 // first, deterministic), overridable via `labelOf`. The id→label map is precomputed ONCE, so the returned
 // extractor is O(1) per card. A pure composition over `boardIslands` (owns no component/edge logic, L093).
 
-import type { BoardItem } from './group-board-model';
-import type { FacetExtract } from './board-facet-census';
-import { boardIslands, type Island } from './board-islands';
+import type { BoardItem } from './group-board-model.ts';
+import type { FacetExtract } from './board-facet-census.ts';
+import { boardIslands, type Island } from './board-islands.ts';
 
 /** Options for {@link clusterFacet}. */
 export interface ClusterFacetOptions {

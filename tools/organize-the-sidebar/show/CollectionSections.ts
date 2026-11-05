@@ -23,12 +23,12 @@
 //
 // =============================================================================
 
-import type { NavItemData, NavSectionData } from './SidebarContent'
-import { mergeSidebarSettings, readSidebarSettings } from '../read-data/sidebar-settings'
-import type { SurfaceCollection } from '../read-data/read-surface-collections'
-import type { CollectionViewState } from '../do-work/collection-view-preference'
-import { isSpaceRow, SPACE_ROW_ID, SPACE_ROW_LOOK, SPACE_ROW_WORDS } from '../read-data/space-row'
-import { repeatsRows } from '../read-data/merge-surface-collections'
+import type { NavItemData, NavSectionData } from './SidebarContent.tsx'
+import { mergeSidebarSettings, readSidebarSettings } from '../read-data/sidebar-settings.ts'
+import type { SurfaceCollection } from '../read-data/read-surface-collections.ts'
+import type { CollectionViewState } from '../do-work/collection-view-preference.ts'
+import { isSpaceRow, SPACE_ROW_ID, SPACE_ROW_LOOK, SPACE_ROW_WORDS } from '../read-data/space-row.ts'
+import { repeatsRows } from '../read-data/merge-surface-collections.ts'
 
 /**
  * Build collection sections from the membership rows + the catalog items the

@@ -11,15 +11,15 @@
 // placement). The registry never names a format in the handler; the handler never names a format here.
 
 import type { BoardItemDraft } from './item-add-strategies';
-import type { BoardItem } from '../read-data/group-board-model';
-import { looksLikeMarkdown, markdownToBoardTree, type MarkdownNode } from './markdown-to-drafts';
-import { looksLikeCsv, csvToDrafts } from '../do-work/board-csv-import';
-import { looksLikeMermaid, mermaidToBoardItems } from '../do-work/board-mermaid-import';
-import { looksLikeGraphml, graphmlToBoardItems } from '../do-work/board-graphml-import';
-import { looksLikeOpml, opmlToBoardItems } from '../do-work/board-opml-import';
-import { looksLikeFreemind, freemindToBoardItems } from '../do-work/board-freemind';
-import { looksLikeDot, dotToBoardItems } from '../do-work/board-dot';
-import { looksLikeICalendar, icalendarToDrafts } from '../do-work/board-icalendar-import';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { looksLikeMarkdown, markdownToBoardTree, type MarkdownNode } from './markdown-to-drafts.ts';
+import { looksLikeCsv, csvToDrafts } from '../do-work/board-csv-import.ts';
+import { looksLikeMermaid, mermaidToBoardItems } from '../do-work/board-mermaid-import.ts';
+import { looksLikeGraphml, graphmlToBoardItems } from '../do-work/board-graphml-import.ts';
+import { looksLikeOpml, opmlToBoardItems } from '../do-work/board-opml-import.ts';
+import { looksLikeFreemind, freemindToBoardItems } from '../do-work/board-freemind.ts';
+import { looksLikeDot, dotToBoardItems } from '../do-work/board-dot.ts';
+import { looksLikeICalendar, icalendarToDrafts } from '../do-work/board-icalendar-import.ts';
 
 /** A parsed import: a hierarchy-bearing board tree, a flat draft list, or a pre-built board FRAGMENT that
  *  already carries positions AND connectors (a graph — e.g. a Mermaid flowchart). Self-describing (L090) —

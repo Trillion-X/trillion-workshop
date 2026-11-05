@@ -9,9 +9,9 @@
 // `href` defaults to the live location so a product can mount `<SharedCapsuleRoute />` bare;
 // tests and the render harness pass an explicit href for determinism.
 
-import { Container, Text } from '../../ui';
-import { decodeShareLink } from '../read-data/share-capsule';
-import { SharedCapsuleView } from './SharedCapsuleView';
+import { Container, Text } from '../../ui/index.ts';
+import { decodeShareLink } from '../read-data/share-capsule.ts';
+import { SharedCapsuleView } from './SharedCapsuleView.tsx';
 
 export interface SharedCapsuleRouteProps {
   /** The URL to read the capsule from. Defaults to the current document location. */

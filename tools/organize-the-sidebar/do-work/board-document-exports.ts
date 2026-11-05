@@ -7,48 +7,48 @@
 // dissolution). This dissolves the per-format wiring (the b67 Markdown had its own toggle/panel) into one
 // data-driven surface. The serializers themselves live in their own leaves (board-markdown, board-icalendar).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { boardToMarkdown, boardTreeToMarkdown } from './board-markdown';
-import { boardToICalendar } from './board-icalendar';
-import { boardToCsv } from './board-csv';
-import { boardToMermaid } from './board-mermaid';
-import { boardToGraphml } from './board-graphml';
-import { boardDigest, digestText } from './board-digest-actions';
-import { boardSummary, summaryText } from '../read-data/board-summary';
-import { boardAgenda, agendaText } from '../read-data/board-agenda';
-import { nextActionsText, DEFAULT_PREREQ_SPEC } from './board-readiness-actions';
-import { questionsText } from '../read-data/board-questions';
-import { duplicateTitlesText } from '../read-data/board-titles';
-import { tagHygieneText } from './board-tag-hygiene';
-import { clustersText } from '../read-data/board-islands';
-import { duplicateConnectorsText } from '../read-data/duplicate-connectors';
-import { boardToOpml } from './board-opml';
-import { boardToFreemind } from './board-freemind';
-import { boardToDot } from './board-dot';
-import { sourcesSinksText } from './board-sources-sinks';
-import { dateCoverageText } from './board-date-coverage';
-import { themesText } from '../read-data/board-themes';
-import { entityIndexText } from '../read-data/board-entity-index';
-import { splitCandidatesText } from '../read-data/board-split-candidates';
-import { tagCoverageText } from '../read-data/board-tag-coverage';
-import { connectorLegendText } from '../read-data/board-connector-legend';
-import { boardHealthText } from '../read-data/board-health';
-import { numberedOutlineText } from '../read-data/board-numbered-outline';
-import { facetCensusText } from '../read-data/board-facet-census';
-import { colorFacetOf, kindFamilyOf } from '../show/board-item-facets';
-import { readingOrderText } from '../read-data/board-reading-order';
-import { cooccurrenceText, scoredCooccurrenceText } from '../read-data/board-cooccurrence';
-import { itemTags } from '../show/item-tags';
-import { facetBalanceText } from '../read-data/board-facet-balance';
-import { facetPivotText, aggregatorById } from '../read-data/board-facet-pivot';
-import { dueMsToDateLabel } from '../read-data/board-due-date';
-import { bucketDistributionText, bucketFacet } from '../read-data/board-measure-bucket';
-import { crossTabText } from '../read-data/board-crosstab';
-import { clusterFacet } from '../read-data/board-cluster-facet';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { boardToMarkdown, boardTreeToMarkdown } from './board-markdown.ts';
+import { boardToICalendar } from './board-icalendar.ts';
+import { boardToCsv } from './board-csv.ts';
+import { boardToMermaid } from './board-mermaid.ts';
+import { boardToGraphml } from './board-graphml.ts';
+import { boardDigest, digestText } from './board-digest-actions.ts';
+import { boardSummary, summaryText } from '../read-data/board-summary.ts';
+import { boardAgenda, agendaText } from '../read-data/board-agenda.ts';
+import { nextActionsText, DEFAULT_PREREQ_SPEC } from './board-readiness-actions.ts';
+import { questionsText } from '../read-data/board-questions.ts';
+import { duplicateTitlesText } from '../read-data/board-titles.ts';
+import { tagHygieneText } from './board-tag-hygiene.ts';
+import { clustersText } from '../read-data/board-islands.ts';
+import { duplicateConnectorsText } from '../read-data/duplicate-connectors.ts';
+import { boardToOpml } from './board-opml.ts';
+import { boardToFreemind } from './board-freemind.ts';
+import { boardToDot } from './board-dot.ts';
+import { sourcesSinksText } from './board-sources-sinks.ts';
+import { dateCoverageText } from './board-date-coverage.ts';
+import { themesText } from '../read-data/board-themes.ts';
+import { entityIndexText } from '../read-data/board-entity-index.ts';
+import { splitCandidatesText } from '../read-data/board-split-candidates.ts';
+import { tagCoverageText } from '../read-data/board-tag-coverage.ts';
+import { connectorLegendText } from '../read-data/board-connector-legend.ts';
+import { boardHealthText } from '../read-data/board-health.ts';
+import { numberedOutlineText } from '../read-data/board-numbered-outline.ts';
+import { facetCensusText } from '../read-data/board-facet-census.ts';
+import { colorFacetOf, kindFamilyOf } from '../show/board-item-facets.ts';
+import { readingOrderText } from '../read-data/board-reading-order.ts';
+import { cooccurrenceText, scoredCooccurrenceText } from '../read-data/board-cooccurrence.ts';
+import { itemTags } from '../show/item-tags.ts';
+import { facetBalanceText } from '../read-data/board-facet-balance.ts';
+import { facetPivotText, aggregatorById } from '../read-data/board-facet-pivot.ts';
+import { dueMsToDateLabel } from '../read-data/board-due-date.ts';
+import { bucketDistributionText, bucketFacet } from '../read-data/board-measure-bucket.ts';
+import { crossTabText } from '../read-data/board-crosstab.ts';
+import { clusterFacet } from '../read-data/board-cluster-facet.ts';
 // The board's canonical measures/buckets live in board-report (the reducer-family SSOT) — imported, not
 // redefined, so "a card's progress / deadline / word count" has ONE definition (b179).
-import { PROGRESS_MEASURE, DEADLINE_MEASURE, WORDS_MEASURE, formatPercent, PROGRESS_BUCKETS, SIZE_BUCKETS } from '../read-data/board-report';
-import type { RollupSpec } from './board-rollup-actions';
+import { PROGRESS_MEASURE, DEADLINE_MEASURE, WORDS_MEASURE, formatPercent, PROGRESS_BUCKETS, SIZE_BUCKETS } from '../read-data/board-report.ts';
+import type { RollupSpec } from './board-rollup-actions.ts';
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
 
 /** Options threaded to every serializer (each reads what it needs; extras are ignored). */

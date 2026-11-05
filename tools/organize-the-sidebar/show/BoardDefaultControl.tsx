@@ -11,9 +11,9 @@
 // molecules (Dropdown / ColorDot + ColorPickerPopover / Button / Text / Container) — zero raw HTML (L065).
 
 import React, { useRef, useState } from 'react';
-import { Button, ColorDot, ColorPickerPopover, Container, Dropdown, Input, Text } from '../../ui';
-import { type BoardDefaultControlDescriptor, coerceBoardDefaultValue } from './item-appearance';
-import { SettingInfoOverlay, type SettingInfoDescriptor } from './SettingInfoOverlay';
+import { Button, ColorDot, ColorPickerPopover, Container, Dropdown, Input, Text } from '../../ui/index.ts';
+import { type BoardDefaultControlDescriptor, coerceBoardDefaultValue } from './item-appearance.ts';
+import { SettingInfoOverlay, type SettingInfoDescriptor } from './SettingInfoOverlay.tsx';
 
 /** The swatch shown when a color control has NO override — a neutral slate mirroring the global IDLE
  *  line (`rgba(100,116,139)`); the global default is a CSS var the `ColorDot` can't render as a swatch. */

@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { LiveSurfacePeopleOverlay, type LiveSurfaceBounds, type LiveSurfacePersonView } from '../../ui/show/live-surface-people';
-import { colorForParticipant, type Participant } from '../read-data/presence';
+import { colorForParticipant, type Participant } from '../read-data/presence.ts';
 
 export interface ItemRect {
   readonly x: number;

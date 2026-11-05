@@ -19,12 +19,12 @@
 // =============================================================================
 
 import React from 'react';
-import { ErrorBoundary, mountReactSurface } from '../../ui';
+import { ErrorBoundary, mountReactSurface } from '../../ui/index.ts';
 import { useBrowsingSurfacePresentationValue } from '../../ui/show/browsing-surface-presentation-value/browsing-surface-presentation-value';
 import { ViewerAccessRefsProvider } from '../../ui/show/placeable-surface-intent';
-import { AppSidebar, type AppSidebarProps } from './AppSidebar';
-import { CONTENT_HOST_ATTRIBUTE } from './content-host';
-import { readSidebarSettings, type SidebarSettings } from '../read-data/sidebar-settings';
+import { AppSidebar, type AppSidebarProps } from './AppSidebar.tsx';
+import { CONTENT_HOST_ATTRIBUTE } from './content-host.ts';
+import { readSidebarSettings, type SidebarSettings } from '../read-data/sidebar-settings.ts';
 
 type MountArgs = {
   el: HTMLElement;

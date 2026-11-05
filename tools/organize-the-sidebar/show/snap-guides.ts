@@ -20,7 +20,7 @@
 // non-finite or Number.MAX_VALUE coordinate must never poison a guide span or a grid
 // correction into NaN/Infinity (the blind renderer would then draw a degenerate line).
 // Every value that reaches the drawn output passes through the finiteCoord SSOT.
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 export interface SnapRect {
   x: number;

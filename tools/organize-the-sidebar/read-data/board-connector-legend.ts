@@ -10,8 +10,8 @@
 // phantom edge). This leaf owns no graph construction (L069/L093). Document-style counts: one per real edge.
 // Pure, deterministic (tally, tie-break by kind).
 
-import type { BoardItem } from './group-board-model';
-import { buildRelationGraph, type RelationGraph } from './relationship-graph';
+import type { BoardItem } from './group-board-model.ts';
+import { buildRelationGraph, type RelationGraph } from './relationship-graph.ts';
 
 /** One relationship type in play + how many connectors carry it. */
 export interface LegendEntry {

@@ -7,9 +7,9 @@
 // gives the urgency + countdown label) — owns no time logic of its own (L069/L093, no god package). Pure +
 // deterministic: `now` is INJECTED.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { dueDateFromRaw, relativeDue, type DueUrgency } from './board-due-date';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { dueDateFromRaw, relativeDue, type DueUrgency } from './board-due-date.ts';
 
 export interface AgendaEntry {
   readonly memberId: string;

@@ -11,10 +11,10 @@
 // GENERIC: speaks only CollectionPick DATA + the merge primitive. No "vision board" vocabulary,
 // no I/O, no React state — the panel reads it on demand and bumps its own render on change.
 
-import type { CollectionPick, CollectionSourceItem } from '../read-data/selection-to-template';
-import { mergeSelectionsToCollection } from '../read-data/selection-to-template';
-import type { BoardTemplate } from '../read-data/board-template-apply';
-import { buildShareCapsule, type ShareCapsule } from '../read-data/share-capsule';
+import type { CollectionPick, CollectionSourceItem } from '../read-data/selection-to-template.ts';
+import { mergeSelectionsToCollection } from '../read-data/selection-to-template.ts';
+import type { BoardTemplate } from '../read-data/board-template-apply.ts';
+import { buildShareCapsule, type ShareCapsule } from '../read-data/share-capsule.ts';
 
 // The live basket — one entry per "add selection" action (a board may contribute more than once).
 let BASKET: CollectionPick[] = [];

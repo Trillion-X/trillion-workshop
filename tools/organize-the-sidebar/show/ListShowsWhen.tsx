@@ -19,12 +19,12 @@
 'use client';
 
 import * as React from 'react';
-import { Button, Container, NamedIcon, Text } from '../../ui';
+import { Button, Container, NamedIcon, Text } from '../../ui/index.ts';
 import { countRules, readRuleTree, RuleFilterChips, RuleFilterMenu, type RuleFieldView, type RuleGroup, type RuleOperatorData } from '../../ui/show/rule-filter';
 import operatorData from '../../formula-engine/rules/rule-operators.json';
 import { listRules } from '#workspace-list-rules';
-import type { SurfaceCollection } from '../read-data/read-surface-collections';
-import { setSurfaceCollectionRules } from '../do-work/edit-surface-collections';
+import type { SurfaceCollection } from '../read-data/read-surface-collections.ts';
+import { setSurfaceCollectionRules } from '../do-work/edit-surface-collections.ts';
 
 const operators = operatorData as unknown as RuleOperatorData;
 const fields: RuleFieldView[] = listRules.facts

@@ -11,13 +11,13 @@
 // double quotes with internal quotes doubled. Progress is a bare NUMBER (80, not "80%") so a spreadsheet
 // can compute on it. Connectors, furniture, and sections are not goal rows and are skipped.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { cardCompletion } from '../read-data/card-completion';
-import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date';
-import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist';
-import { itemTags } from '../show/item-tags';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { cardCompletion } from '../read-data/card-completion.ts';
+import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date.ts';
+import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist.ts';
+import { itemTags } from '../show/item-tags.ts';
 
 const HEADERS = ['Title', 'Due', 'Progress %', 'Checklist Done', 'Checklist Total', 'Tags'] as const;
 

@@ -17,14 +17,14 @@
 // expressed as TWO rows (no wraparound special-case) — enum-dissolution over a continuum.
 // =============================================================================
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { matchesFacets, type FacetExtractors, type FacetSelection } from '../read-data/facet-filter';
-import { matchesSearch } from './board-search';
-import { itemTags } from './item-tags';
-import { itemFillColor, hueOf } from './item-fill';
-import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist';
-import { dueDateFromRaw } from '../read-data/board-due-date';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { matchesFacets, type FacetExtractors, type FacetSelection } from '../read-data/facet-filter.ts';
+import { matchesSearch } from './board-search.ts';
+import { itemTags } from './item-tags.ts';
+import { itemFillColor, hueOf } from './item-fill.ts';
+import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist.ts';
+import { dueDateFromRaw } from '../read-data/board-due-date.ts';
 
 /** A hue range → human colour name. Society DATA: a new named band is ONE row. `[start,end)`
  *  in degrees [0,360). Red is two rows (it wraps 360) so the finder needs no wrap special-case. */

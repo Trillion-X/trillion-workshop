@@ -7,7 +7,7 @@
 // `keyOf = i => itemTags(i)`; a future criterion (fill, size) is one more call-site
 // `keyOf` with ZERO engine change. Pure (no graph/React/I/O).
 
-import type { BoardItem } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 
 /** Normalize a keyOf result (one key or many) to a flat string[] (empties dropped). */
 function toKeys(k: string | readonly string[]): string[] {

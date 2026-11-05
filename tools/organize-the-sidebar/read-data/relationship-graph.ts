@@ -12,8 +12,8 @@
 // on the edge and grouped/filtered generically. A new relationship kind is a new DATA value
 // on a connector, never a code change. Pure, deterministic, no I/O.
 
-import type { BoardItem } from './group-board-model';
-import { connectorEndpoints } from '../show/connector-models';
+import type { BoardItem } from './group-board-model.ts';
+import { connectorEndpoints } from '../show/connector-models.ts';
 
 /** The default relation kind when a connector carries none — a bare, untyped link. */
 export const DEFAULT_RELATION_KIND = 'relates-to';

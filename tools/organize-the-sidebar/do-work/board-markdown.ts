@@ -11,12 +11,12 @@
 // each entry reads ONE shipped leaf and returns a token or null. Adding an annotation is ONE row, ZERO
 // change to the serializer (L069/L090/enum-dissolution) — the serializer never names metric/due/etc.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector, readItems } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { metricFromRaw, progressPct } from '../read-data/board-metric';
-import { dueDateFromRaw, relativeDue } from '../read-data/board-due-date';
-import { checklistFromRaw } from '../read-data/board-checklist';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector, readItems } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { metricFromRaw, progressPct } from '../read-data/board-metric.ts';
+import { dueDateFromRaw, relativeDue } from '../read-data/board-due-date.ts';
+import { checklistFromRaw } from '../read-data/board-checklist.ts';
 import { groupKey, type GroupGraph, type AddressRef } from '../../ui/show/group/group-graph';
 
 /** A card annotation: reads one leaf and returns an inline token (e.g. "80%", "due in 3 days") or null. */

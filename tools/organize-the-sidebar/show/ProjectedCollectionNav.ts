@@ -4,7 +4,7 @@
 // sidebar already owns. It lets a live owner join its SSOT rows to the sidebar
 // without forking a second sidebar shell or copying rows into this package.
 
-import type { NavItemActionData, NavItemData } from './SidebarContent';
+import type { NavItemActionData, NavItemData } from './SidebarContent.tsx';
 
 export interface ProjectedNavItem {
   id: string;

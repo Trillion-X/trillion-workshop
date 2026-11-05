@@ -9,10 +9,10 @@
 // returns, so a new centrality measure or a new card appears with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { rankHubs, centralityById, CENTRALITY_MEASURES, type HubNode, type CentralityMeasureDef } from '../do-work/board-hubs';
-import { cardLabel } from './BoardOutlineReadout';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { rankHubs, centralityById, CENTRALITY_MEASURES, type HubNode, type CentralityMeasureDef } from '../do-work/board-hubs.ts';
+import { cardLabel } from './BoardOutlineReadout.tsx';
 
 /** Rank the board's hub cards. */
 export function boardHubs(items: readonly BoardItem[], measure?: string, measures: readonly CentralityMeasureDef[] = CENTRALITY_MEASURES): HubNode[] {

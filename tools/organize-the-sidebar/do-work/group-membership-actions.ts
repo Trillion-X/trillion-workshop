@@ -34,8 +34,8 @@ import { emptyGraph } from '../../ui/show/group/group-graph';
 import {
   loadGroupGraphFromRoots,
   type BoardRequestSender,
-} from '../read-data/read-group-board';
-import { buildGroupWriteBatch, type WriteBatchRequest } from './group-mutation-writes';
+} from '../read-data/read-group-board.ts';
+import { buildGroupWriteBatch, type WriteBatchRequest } from './group-mutation-writes.ts';
 import { readTrustedRuntimePartitionIfPresent, sendRequestToBitfieldTarget } from '#workspace-records';
 
 /**
@@ -65,8 +65,8 @@ function resolveHostPartition(context: unknown, callerSupplied: unknown): string
   );
 }
 
-export { OP_TRANSITIONS, applyGroupOp, opRoots, type GroupMutationOp, type GroupOpTransition } from './group-op-transitions';
-import { applyGroupOp, opRoots, type GroupMutationOp } from './group-op-transitions';
+export { OP_TRANSITIONS, applyGroupOp, opRoots, type GroupMutationOp, type GroupOpTransition } from './group-op-transitions.ts';
+import { applyGroupOp, opRoots, type GroupMutationOp } from './group-op-transitions.ts';
 
 export interface GroupMutationResult {
   readonly before: GroupGraph;

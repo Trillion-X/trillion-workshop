@@ -11,7 +11,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Container, } from '../../ui';
+import { Container, } from '../../ui/index.ts';
 import { MediaFrame } from '../../ui/show/media-frame/MediaFrame';
 
 export interface LinkGalleryProps {

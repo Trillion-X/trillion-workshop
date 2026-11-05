@@ -11,8 +11,8 @@
 // drag rectangle in screen space converts to a world box via `worldRectFromScreen`. Pure, deterministic; owns
 // no board vocabulary (cards enter as their world boxes).
 
-import type { BoardItem } from './group-board-model';
-import type { Camera, Viewport, WorldBox } from './viewport-visibility';
+import type { BoardItem } from './group-board-model.ts';
+import type { Camera, Viewport, WorldBox } from './viewport-visibility.ts';
 
 /** How a card qualifies for a marquee: any overlap (`intersect`) or fully enclosed (`contain`). */
 export type SelectMode = 'intersect' | 'contain';

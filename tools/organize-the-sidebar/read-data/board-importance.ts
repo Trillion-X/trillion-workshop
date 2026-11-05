@@ -17,9 +17,9 @@
 // adjacency + drops dangling connectors) — owns no graph construction (L069/L093). Connectors and sections are
 // not ranked (a connector is a line, a section is a container). Zero I/O.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { buildRelationGraph } from './relationship-graph';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { buildRelationGraph } from './relationship-graph.ts';
 
 const DAMPING = 0.85;
 const ITERATIONS = 60; // ample for board-sized graphs to converge; fixed → deterministic

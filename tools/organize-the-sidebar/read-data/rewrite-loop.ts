@@ -14,7 +14,7 @@ import {
   judgeText,
   type Rubric,
   type TextScorer,
-} from './writing-judge';
+} from './writing-judge.ts';
 
 const sentences = (text: string): string[] =>
   text

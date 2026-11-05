@@ -13,7 +13,7 @@
 // =============================================================================
 
 import { groupKey, type AddressRef, type GroupGraph } from '../../ui/show/group/group-graph';
-import { readItems, type BoardItem } from './group-board-model';
+import { readItems, type BoardItem } from './group-board-model.ts';
 
 /**
  * The ONE cycle-safe pre-order walk of the board tree — the SSOT every board-tree read

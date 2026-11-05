@@ -15,9 +15,9 @@
 // Composes the tag SSOT (`itemTags` extraction + `normTag` normalization, L069/L093 — owns no tag logic).
 // Pure, deterministic (alphabetical), per-card de-duped. It only SUGGESTS — the user decides what to merge.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemTags } from '../show/item-tags';
-import { normTag } from './tag-cooccurrence';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemTags } from '../show/item-tags.ts';
+import { normTag } from './tag-cooccurrence.ts';
 
 /** Per-tag usage, keyed by the normalized tag. `tag` is the first-seen DISPLAY spelling (stable label). */
 export interface TagUsage {

@@ -2,7 +2,7 @@
 // The drilled-into-a-section breadcrumb row: board root + one crumb per nav level.
 
 import React from 'react';
-import { Button, Container, Icon, Text } from '../../ui';
+import { Button, Container, Icon, Text } from '../../ui/index.ts';
 import { ChevronRight, Home } from 'lucide-react';
 
 export interface BoardBreadcrumbProps {

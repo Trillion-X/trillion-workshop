@@ -24,8 +24,8 @@
 //      again) shows rows that also sit in their own lists: it keeps every row
 //      it holds and takes none from any other list, nor moves one.
 
-import type { SurfaceCollection, SurfaceCollectionMember } from './read-surface-collections'
-import { isSpaceRow } from './space-row'
+import type { SurfaceCollection, SurfaceCollectionMember } from './read-surface-collections.ts'
+import { isSpaceRow } from './space-row.ts'
 
 /** Whether a list shows rows that also sit in their own lists (invariant 7). */
 export const repeatsRows = (collection: SurfaceCollection) =>

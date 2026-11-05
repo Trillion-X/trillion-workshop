@@ -9,7 +9,7 @@
 // palette). Blind to which scheme (L090). The board's designer picks a sticky colour and gets a
 // whole harmonised theme — the colour-theory move a manual swatch grid can't do.
 
-import { parseRgb } from './item-fill';
+import { parseRgb } from './item-fill.ts';
 
 /** One scheme stop: a hue rotation off the seed (degrees) plus optional lightness/saturation shift
  *  (−1..1, added then clamped). Monochromatic uses hueRotate 0 with varying `lightDelta`. */

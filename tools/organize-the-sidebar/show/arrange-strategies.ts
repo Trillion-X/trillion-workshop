@@ -2,9 +2,9 @@
 // functions dispatched through an injected capability map. Adding a new layout is
 // one map entry -- arrangeWith never enumerates strategy ids (L090).
 
-import { circleLayoutRadius } from '../do-work/circle-layout';
-import { ownValue } from '../read-data/facet-filter';
-import { finiteCoord } from '../read-data/finite-coord';
+import { circleLayoutRadius } from '../do-work/circle-layout.ts';
+import { ownValue } from '../read-data/facet-filter.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 export interface StrategyItem {
   readonly memberId: string;

@@ -7,9 +7,9 @@
 // targets — you break down CONTENT, not the board's own scaffolding.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 import {
   type Checklist,
   type ChecklistItem,
@@ -21,7 +21,7 @@ import {
   removeChecklistItem,
   renameChecklistItem,
   toggleChecklistItem,
-} from '../read-data/board-checklist';
+} from '../read-data/board-checklist.ts';
 
 /** An item is a checklist TARGET iff it is real content, not a connector or furniture. */
 export function itemIsChecklistTarget(item: BoardItem): boolean {

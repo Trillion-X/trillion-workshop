@@ -7,10 +7,10 @@
 // auto furniture are never due-date targets — you schedule CONTENT, not the board's own scaffolding.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { type DueItem, type RelativeDue, dueDateFromRaw, relativeDue, sortByDue } from '../read-data/board-due-date';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { type DueItem, type RelativeDue, dueDateFromRaw, relativeDue, sortByDue } from '../read-data/board-due-date.ts';
 
 /** An item is a due-date TARGET iff it is real content, not a connector or furniture. */
 export function itemIsDueTarget(item: BoardItem): boolean {

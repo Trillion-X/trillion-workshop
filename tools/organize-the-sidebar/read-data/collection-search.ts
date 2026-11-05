@@ -18,7 +18,7 @@
 //
 // No I/O, no domain knowledge beyond the minimal self-describing shapes below.
 
-import { filterByFacets, type FacetExtractors, type FacetSelection } from './facet-filter';
+import { filterByFacets, type FacetExtractors, type FacetSelection } from './facet-filter.ts';
 
 /** A catalog entry that can be searched. All matchable text is optional except id/name. */
 export interface SearchableCollection {

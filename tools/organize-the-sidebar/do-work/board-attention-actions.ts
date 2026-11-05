@@ -8,16 +8,16 @@
 // voted (distinct from `scores`/`votes`): every magnitude is computed from the objective state of the
 // other primitives. Connectors + furniture are never attention targets — you triage CONTENT.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { type WeightedSignal, type SignalScore, weightedSignalScore, rankByWeightedSignals } from '../read-data/board-weighted-signals';
-import { dueDateFromRaw, relativeDue, isDueSoon } from '../read-data/board-due-date';
-import { metricFromRaw, completion, isComplete as metricIsComplete } from '../read-data/board-metric';
-import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist';
-import { timeLogFromRaw, timeInWindowMs } from '../read-data/board-time-log';
-import { habitLogFromRaw } from '../read-data/board-habit';
-import { cadenceFromRaw, habitPulse } from '../read-data/board-habit-cadence';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { type WeightedSignal, type SignalScore, weightedSignalScore, rankByWeightedSignals } from '../read-data/board-weighted-signals.ts';
+import { dueDateFromRaw, relativeDue, isDueSoon } from '../read-data/board-due-date.ts';
+import { metricFromRaw, completion, isComplete as metricIsComplete } from '../read-data/board-metric.ts';
+import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist.ts';
+import { timeLogFromRaw, timeInWindowMs } from '../read-data/board-time-log.ts';
+import { habitLogFromRaw } from '../read-data/board-habit.ts';
+import { cadenceFromRaw, habitPulse } from '../read-data/board-habit-cadence.ts';
 
 /** Trailing window (ms) that "recent effort" is measured over, for the stalled signal. */
 const RECENT_WINDOW_MS = 7 * 24 * 3_600_000;

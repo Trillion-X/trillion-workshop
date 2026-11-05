@@ -12,10 +12,10 @@
 // deterministic; names no kind (L090). (Quoted ids that themselves contain an arrow operator are out of scope —
 // the same pragmatic bound Mermaid's regex parser accepts.)
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
-import { graphToBoardItems, type GraphNode, type GraphEdge } from './graph-to-board';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
+import { graphToBoardItems, type GraphNode, type GraphEdge } from './graph-to-board.ts';
 
 /** True when the text is a DOT/Graphviz document (a `graph`/`digraph` header with a `{`). Conservative. */
 export function looksLikeDot(text: string): boolean {

@@ -15,7 +15,7 @@
 // Adding a new kind of marker (cycle, greek, weekday, …) is ONE producer entry + DATA
 // rows, zero change to the resolver. The old closed `kind` union is gone.
 
-import { mergeCatalog } from '../read-data/catalog-merge';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 // ---- untrusted-DATA caps (a marker is a bullet — a char/emoji/short ordinal, never a paragraph) ----
 // A marker's strings/arrays come from a persisted item (`extra.markerGlyph`/`markerMediaUrl`) or a

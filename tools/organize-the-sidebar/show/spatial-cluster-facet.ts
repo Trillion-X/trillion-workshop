@@ -8,15 +8,15 @@
 // exclusion) is inherited unchanged — the only new thing is WHERE the grouping comes from (geometry, not a
 // tag). This is the discovery-dual of the tag/kind/colour facets in `CLUSTER_FACETS`.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
 import {
   spatialClusters,
   clusterCount,
   type ClusterMetric,
   type ClusterRect,
-} from '../do-work/spatial-clusters';
-import type { ClusterFacet } from './ClusterHullOverlay';
+} from '../do-work/spatial-clusters.ts';
+import type { ClusterFacet } from './ClusterHullOverlay.tsx';
 
 export interface SpatialClusterFacetOptions {
   readonly epsilon?: number;

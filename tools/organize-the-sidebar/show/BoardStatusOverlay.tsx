@@ -2,7 +2,7 @@
 // The canvas status overlay: error + retry, loading line, or the empty-board hint. Null when idle.
 
 import React from 'react';
-import { Button, Container, Icon, Text } from '../../ui';
+import { Button, Container, Icon, Text } from '../../ui/index.ts';
 import { Sparkles } from 'lucide-react';
 
 export interface BoardStatusOverlayProps {

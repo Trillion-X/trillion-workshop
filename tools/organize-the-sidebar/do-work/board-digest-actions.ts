@@ -14,13 +14,13 @@
 // pays off most: unblock what is slipping first, then close out what is nearly done (highest ROI), then
 // ride momentum, then — if nothing is tracked — prompt the user to start tracking.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import type { RollupSpec } from './board-rollup-actions';
-import { boardCompletion } from '../read-data/board-completion';
-import { attentionRows } from './board-attention-actions';
-import { momentumRows } from './board-momentum-actions';
-import { finishLineRows } from './board-finish-line-actions';
-import { nextFocus, type FocusPick } from './board-next-focus-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import type { RollupSpec } from './board-rollup-actions.ts';
+import { boardCompletion } from '../read-data/board-completion.ts';
+import { attentionRows } from './board-attention-actions.ts';
+import { momentumRows } from './board-momentum-actions.ts';
+import { finishLineRows } from './board-finish-line-actions.ts';
+import { nextFocus, type FocusPick } from './board-next-focus-actions.ts';
 
 /** The reduced board state the digest headline + stat line are computed from (all counts are of content cards). */
 export interface BoardDigest {

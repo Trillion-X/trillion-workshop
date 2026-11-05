@@ -12,8 +12,8 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { ImportanceRow, ImportanceSummary } from '../do-work/board-importance-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { ImportanceRow, ImportanceSummary } from '../do-work/board-importance-actions.ts';
 
 export interface ImportancePanelProps {
   readonly rows: readonly ImportanceRow[];

@@ -11,9 +11,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { BoardItem } from './group-board-model';
-import { type ReportDescriptor, reportRows, dimensionDefById, reductionDefByKey } from './board-report';
-import { csvField } from '../do-work/board-csv';
+import type { BoardItem } from './group-board-model.ts';
+import { type ReportDescriptor, reportRows, dimensionDefById, reductionDefByKey } from './board-report.ts';
+import { csvField } from '../do-work/board-csv.ts';
 
 /**
  * Serialise a report's rows to CSV. The header is `<dimension label>,<reduction label>` (falling back to
@@ -29,4 +29,4 @@ export function reportToCsv(items: readonly BoardItem[], desc: ReportDescriptor)
 }
 
 /** Markdown form of a report — an alias for `runReport` so callers have a symmetric `reportTo*` export surface. */
-export { runReport as reportToMarkdown } from './board-report';
+export { runReport as reportToMarkdown } from './board-report.ts';

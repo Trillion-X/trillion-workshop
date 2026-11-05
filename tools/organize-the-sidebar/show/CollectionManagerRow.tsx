@@ -24,21 +24,21 @@
 
 import { lazyPart } from '../../ui/show/load-later/later';
 import * as React from 'react';
-import { Button, Container, Input, NamedIcon, Text } from '../../ui';
+import { Button, Container, Input, NamedIcon, Text } from '../../ui/index.ts';
 import { ActionMenu, type ActionMenuItem } from '../../ui/show/action-menu';
 import { Popover, PopoverPopup, PopoverTrigger } from '../../ui/show/coss/ui/popover';
-import type { SurfaceCollection } from '../read-data/read-surface-collections';
+import type { SurfaceCollection } from '../read-data/read-surface-collections.ts';
 import {
   addSurfaceToCollection,
   createSurfaceCollection,
   deleteSurfaceCollection,
   removeSurfaceFromCollection,
   renameSurfaceCollection,
-} from '../do-work/edit-surface-collections';
-import type { CollectionViewState } from '../do-work/collection-view-preference';
+} from '../do-work/edit-surface-collections.ts';
+import type { CollectionViewState } from '../do-work/collection-view-preference.ts';
 // A list's "When it shows" rule editor is fetched the first time someone opens it.
-const ListShowsWhen = lazyPart(() => import('./ListShowsWhen'), module => module.ListShowsWhen);
-import type { NavItemData } from './SidebarContent';
+const ListShowsWhen = lazyPart(() => import('./ListShowsWhen.tsx'), module => module.ListShowsWhen);
+import type { NavItemData } from './SidebarContent.tsx';
 
 export interface CollectionManagerRowProps {
   scope?: string;

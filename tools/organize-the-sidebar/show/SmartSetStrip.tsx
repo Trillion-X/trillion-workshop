@@ -15,11 +15,11 @@
 // =============================================================================
 
 import { useRef, useState } from 'react';
-import { Button, Container, Text } from '../../ui';
-import { SavedItemsStrip, type SavedItem } from './SavedItemsStrip';
-import type { BoardItem } from '../read-data/group-board-model';
-import { explainFacetMatch, ownValue, type FacetExtractors } from '../read-data/facet-filter';
-import { type StoredSmartSet, type SmartQuery, resolveSmartSet, compareSmartSet, sameSmartQuery } from '../read-data/saved-smart-set';
+import { Button, Container, Text } from '../../ui/index.ts';
+import { SavedItemsStrip, type SavedItem } from './SavedItemsStrip.tsx';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { explainFacetMatch, ownValue, type FacetExtractors } from '../read-data/facet-filter.ts';
+import { type StoredSmartSet, type SmartQuery, resolveSmartSet, compareSmartSet, sameSmartQuery } from '../read-data/saved-smart-set.ts';
 
 export interface SmartSetStripProps {
   readonly sets: readonly StoredSmartSet[];

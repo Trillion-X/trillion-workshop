@@ -12,9 +12,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Button, Card, Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { numberedOutline } from '../read-data/board-numbered-outline';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { numberedOutline } from '../read-data/board-numbered-outline.ts';
 
 export interface NumberedOutlinePanelProps {
   readonly items: readonly BoardItem[];

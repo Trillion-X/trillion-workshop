@@ -2,9 +2,9 @@
 // bytes are supplied by the projection owner; this entry performs no live reads
 // and intentionally reuses the same read-only capsule surface as Group sharing.
 
-import { mountReactSurface } from '../../ui';
-import { SharedCapsuleView } from './SharedCapsuleView';
-import type { ShareCapsule } from '../read-data/share-capsule';
+import { mountReactSurface } from '../../ui/index.ts';
+import { SharedCapsuleView } from './SharedCapsuleView.tsx';
+import type { ShareCapsule } from '../read-data/share-capsule.ts';
 
 export interface SelectedCapsuleMountInput {
   readonly el: HTMLElement;

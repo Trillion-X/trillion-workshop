@@ -20,7 +20,7 @@
 // is a card only inside a doc that already looks like Markdown.
 
 import type { BoardItemDraft } from './item-add-strategies';
-import type { TemplateItem } from '../read-data/board-template-apply';
+import type { TemplateItem } from '../read-data/board-template-apply.ts';
 
 /** Max nodes (sections + cards) one Markdown paste can mint — a runaway paste is capped, never freezes. */
 export const MAX_MARKDOWN_CARDS = 200;

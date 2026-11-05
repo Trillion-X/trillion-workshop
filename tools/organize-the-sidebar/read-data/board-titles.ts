@@ -14,8 +14,8 @@
 // the same empty-title guard as `buildTitleIndex`), so `shadowedTitleIds` is provably the set of cards that
 // lose the live resolution race — never a parallel notion of "title". Pure, deterministic (board order), no I/O.
 
-import type { BoardItem } from './group-board-model';
-import { cardTitle, normalizeTitle } from './card-references';
+import type { BoardItem } from './group-board-model.ts';
+import { cardTitle, normalizeTitle } from './card-references.ts';
 
 /** A set of cards that share one normalized title — the collision. `memberIds` are in BOARD ORDER, so
  *  `memberIds[0]` is the card `buildTitleIndex` resolves `[[Title]]` to (the "reachable" one) and the rest

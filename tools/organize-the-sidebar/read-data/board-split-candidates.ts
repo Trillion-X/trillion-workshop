@@ -10,11 +10,11 @@
 // (`splitSegments` — owns no segmentation logic of its own) + the title SSOT (`cardTitle` for a readable label)
 // + the furniture guard (L069/L093, no god package). Ranked most-splittable first. Pure, deterministic.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import { splitSegments } from '../do-work/board-card-split';
-import { cardTitle } from './card-references';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import { splitSegments } from '../do-work/board-card-split.ts';
+import { cardTitle } from './card-references.ts';
 
 /** A card worth splitting: its id, how many segments it would split into, and a readable title. */
 export interface SplitCandidate {

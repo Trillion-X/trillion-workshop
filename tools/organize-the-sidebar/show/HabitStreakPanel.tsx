@@ -5,8 +5,8 @@
 // {label, badge} row (habit label + "🔥 N" streak) and hands them to the blind list; a row click jumps
 // to that habit. The FOURTH caller of RankedJumpList — the primitive holds across four surfaces.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { StreakRankRow } from '../do-work/board-habit-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { StreakRankRow } from '../do-work/board-habit-actions.ts';
 
 export interface HabitStreakPanelProps {
   readonly rows: readonly StreakRankRow[];

@@ -14,7 +14,7 @@
 // Pure leaf — only the `finiteCoord` clamp SSOT. Deterministic (value DESC, stable index tie-break), zero I/O.
 // The show/ overlay injects `valueOf` + renders the tiles; the value-source catalog lives there as DATA.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 export interface TreemapBounds {
   readonly x: number;

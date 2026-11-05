@@ -10,9 +10,9 @@
 // each card gets a stable safe id (mermaid ids must be alphanumeric, but a memberId can be anything), and labels
 // are escaped so a card's text can't break the diagram syntax. Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { buildRelationGraph, DEFAULT_RELATION_KIND } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { buildRelationGraph, DEFAULT_RELATION_KIND } from '../read-data/relationship-graph.ts';
 
 export interface MermaidOptions {
   /** Flow direction: 'TD' top-down (default) or 'LR' left-right. */

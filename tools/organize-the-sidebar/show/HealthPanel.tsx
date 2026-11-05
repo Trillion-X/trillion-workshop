@@ -12,8 +12,8 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Badge, Button, Card, Container, Text } from '../../ui';
-import type { BoardHealth, HealthSignalDetail } from '../read-data/board-health';
+import { Badge, Button, Card, Container, Text } from '../../ui/index.ts';
+import type { BoardHealth, HealthSignalDetail } from '../read-data/board-health.ts';
 
 export interface HealthPanelProps {
   /** The board's 0–100 score + grade (from `boardHealth`). */

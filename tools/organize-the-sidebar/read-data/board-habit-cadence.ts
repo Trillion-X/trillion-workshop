@@ -11,7 +11,7 @@
 // UTC month) so buckets are timezone-independent. Fixes the moralizing bug: a met "3x/week" reads healthy,
 // and a non-daily habit no longer looks "broken" for skipping a day.
 
-import { currentStreak, dayStart, type HabitLog } from './board-habit';
+import { currentStreak, dayStart, type HabitLog } from './board-habit.ts';
 
 const DAY_MS = 86_400_000;
 const WEEK_MS = 7 * DAY_MS;

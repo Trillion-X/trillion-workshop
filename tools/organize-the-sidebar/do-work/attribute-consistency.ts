@@ -9,7 +9,7 @@
 // `SIZE_MEASURES` is an injected-capability catalog (L069/L090) — a new attribute is one row, zero engine code.
 // Pure leaf: deterministic, `finiteCoord`-guarded, zero I/O.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** A card's footprint. */
 export interface SizeRect {

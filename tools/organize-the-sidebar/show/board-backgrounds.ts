@@ -13,8 +13,8 @@
 // zoom 1 (it pans/scales with the camera). Token colors for theme-aware looks;
 // explicit colors for fixed paper/ink moods that must read the same in any theme.
 
-import type { CanvasSurfaceTile } from '../../ui';
-import { mergeCatalog } from '../read-data/catalog-merge';
+import type { CanvasSurfaceTile } from '../../ui/index.ts';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 /** One selectable board surface. `color` is the solid backdrop (absent →
  *  transparent); `tile` is the repeating pattern (absent → a plain surface). */

@@ -16,14 +16,14 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemTags } from './item-tags';
-import { itemFillColor } from './item-fill';
-import { descendantsViaConnectors, ancestorsViaConnectors } from '../do-work/batch-actions';
-import { presentationFrameOf } from '../do-work/board-frames';
-import { BOARD_ITEM_FACETS } from './board-item-facets';
-import { facetValues } from '../read-data/facet-filter';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemTags } from './item-tags.ts';
+import { itemFillColor } from './item-fill.ts';
+import { descendantsViaConnectors, ancestorsViaConnectors } from '../do-work/batch-actions.ts';
+import { presentationFrameOf } from '../do-work/board-frames.ts';
+import { BOARD_ITEM_FACETS } from './board-item-facets.ts';
+import { facetValues } from '../read-data/facet-filter.ts';
 
 /** The context-sensitive capability flags a selection exposes. Each gates a row so
  *  the surface never shows an action that would be a no-op on the current target. */

@@ -6,8 +6,8 @@
 // never names an item; the mount resolves each item to a screen rect + computes the relative readout.
 // L065: ui only; the badge is a positioned Container because its coordinate is dynamic.
 
-import { Button, Container, Text } from '../../ui';
-import type { DueUrgency } from '../read-data/board-due-date';
+import { Button, Container, Text } from '../../ui/index.ts';
+import type { DueUrgency } from '../read-data/board-due-date.ts';
 
 export interface DueBadgeRect {
   readonly x: number;

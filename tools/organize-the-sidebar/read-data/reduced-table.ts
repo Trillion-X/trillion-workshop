@@ -14,8 +14,8 @@
 //
 // Pure + deterministic (no clock, no randomness): the same items + facets always reduce to the same table.
 
-import type { BoardItem } from './group-board-model';
-import { facetCensus, type FacetExtract } from './board-facet-census';
+import type { BoardItem } from './group-board-model.ts';
+import { facetCensus, type FacetExtract } from './board-facet-census.ts';
 
 /** One group within a section: a human label, the aggregate rendered as text (a count, an average, …), and
  *  the exact cards the group holds. `cardIds` is the click-to-select payload — the panel never recomputes it. */

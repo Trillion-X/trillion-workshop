@@ -2,10 +2,10 @@
 // The BulkSelectBar's inline picker rows: saved style presets and frame aspects.
 
 import React from 'react';
-import { Button, Container, Text } from '../../ui';
-import type { SavedBundle } from '../do-work/attribute-bundle-palette';
+import { Button, Container, Text } from '../../ui/index.ts';
+import type { SavedBundle } from '../do-work/attribute-bundle-palette.ts';
 import type { VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
-import { FRAME_ASPECTS, type FrameAspect } from './frame-aspects';
+import { FRAME_ASPECTS, type FrameAspect } from './frame-aspects.ts';
 
 export interface SavedPresetsRowProps {
   presets: readonly SavedBundle<VisualLayerStackRecord>[];

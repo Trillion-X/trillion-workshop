@@ -13,7 +13,7 @@
 // from ONE search). Fail-open: a fully boxed-in target falls back to the naive L-elbow — a connector never
 // throws and never vanishes. Pure leaf (zero I/O, only the Pt/ConnectorRect geometry types).
 
-import type { Pt, ConnectorRect } from './connector-geometry';
+import type { Pt, ConnectorRect } from './connector-geometry.ts';
 
 export interface OrthoRouteOptions {
   /** Clearance kept around every obstacle (px). Obstacles are inflated by this before routing. */

@@ -11,13 +11,13 @@
 // `labelColor` (b101) keyed on each tile's label so categories read apart. Connectors are excluded.
 
 import React from 'react';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { cardProgressView } from '../read-data/card-progress-view';
-import { labelColor } from '../do-work/label-color';
-import { squarifiedTreemap, type TreemapBounds } from '../do-work/treemap';
-import { numericFieldWeight } from './DensityHeatmapOverlay';
-import { contentWords } from './TagCloud';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { cardProgressView } from '../read-data/card-progress-view.ts';
+import { labelColor } from '../do-work/label-color.ts';
+import { squarifiedTreemap, type TreemapBounds } from '../do-work/treemap.ts';
+import { numericFieldWeight } from './DensityHeatmapOverlay.tsx';
+import { contentWords } from './TagCloud.tsx';
 
 export interface TreemapCell {
   readonly item: BoardItem;

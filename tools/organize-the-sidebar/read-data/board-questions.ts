@@ -14,7 +14,7 @@
 // language / vocabulary is a data swap, never a code change (L090/enum-dissolution). Pure, deterministic
 // (board order, de-duped per card), no I/O.
 
-import type { BoardItem } from './group-board-model';
+import type { BoardItem } from './group-board-model.ts';
 
 /** The WH-interrogative sentence openers — Society DATA (overridable). A line starting with one of these reads
  *  as a question even without a '?'. Bare auxiliaries (is/do/can/…) are intentionally excluded (imperative

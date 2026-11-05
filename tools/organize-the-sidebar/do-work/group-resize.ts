@@ -10,7 +10,7 @@
 // the set-level transform. Single-item resize keeps its own 8-dir strips; this
 // is ONLY engaged when ≥2 items are selected.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** An axis-aligned rectangle in world space. */
 export interface Rect {

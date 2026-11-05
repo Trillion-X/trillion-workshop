@@ -33,7 +33,7 @@
 // =============================================================================
 
 import * as React from 'react';
-import { dockablePanelSurfaceStyle } from '../../screen-look/show/dockable-panel-style';
+import { dockablePanelSurfaceStyle } from '../../screen-look/show/dockable-panel-style.ts';
 import { createPortal } from 'react-dom';
 import {
   ChevronLeft,
@@ -46,10 +46,10 @@ import {
   Pin,
   PinOff,
 } from 'lucide-react';
-import { NavItem, SidebarContent, type NavSectionData, type NavItemData, type NavRowEvents } from './SidebarContent';
+import { NavItem, SidebarContent, type NavSectionData, type NavItemData, type NavRowEvents } from './SidebarContent.tsx';
 import { controlShown, useShowChange } from '../../ui/show/show-rules/show-of';
-import { Button, buttonVariants, Icon, Text, Tooltip, Container, PositionCompass, edgeTransform, ControlRailButton, LAYER_ORDER, SplitDividers } from '../../ui';
-import type { DockEdge } from '../../ui';
+import { Button, buttonVariants, Icon, Text, Tooltip, Container, PositionCompass, edgeTransform, ControlRailButton, LAYER_ORDER, SplitDividers } from '../../ui/index.ts';
+import type { DockEdge } from '../../ui/index.ts';
 import { fitDockFloatRect } from '../../ui/show/dockable-placement';
 import { minUsableContainerWidthPx } from '../../screen-arrangement/show/split-tree-constraints';
 import { registerStageInset, unregisterStageInset, updateStageInset } from '../../ui/show/stage-inset';
@@ -61,14 +61,14 @@ import {
   type SidebarPosition,
   type FloatRect,
   type SidebarPlacementController,
-} from './useSidebarPlacement';
+} from './useSidebarPlacement.ts';
 import byWidth from '../read-data/sidebar-settings-by-width.json';
-import { readSidebarWidthRows, sidebarAllows, sidebarSettingsAtWidth, SIDEBAR_SWITCHES } from '../read-data/sidebar-settings';
-import { dockedListFit } from '../read-data/docked-list-fit';
-import { DEFAULT_SIDEBAR_PLACEMENT_STATE } from '../read-data/read-sidebar-placement';
+import { readSidebarWidthRows, sidebarAllows, sidebarSettingsAtWidth, SIDEBAR_SWITCHES } from '../read-data/sidebar-settings.ts';
+import { dockedListFit } from '../read-data/docked-list-fit.ts';
+import { DEFAULT_SIDEBAR_PLACEMENT_STATE } from '../read-data/read-sidebar-placement.ts';
 import bar from '../read-data/sidebar-bar.json';
-import { SidebarBar, SidebarMoveGrip } from './SidebarBar';
-import { usePlaceDrag, type PlaceTarget } from './place-drag';
+import { SidebarBar, SidebarMoveGrip } from './SidebarBar.tsx';
+import { usePlaceDrag, type PlaceTarget } from './place-drag.tsx';
 import { claimSeam, useSeamSlot } from '../../ui/show/seam-slots';
 
 // ============================================================================

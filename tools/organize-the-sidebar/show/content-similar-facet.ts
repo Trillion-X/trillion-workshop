@@ -7,14 +7,14 @@
 // content sibling of the board's exact-match select-similar). `textOf` is injected (default: the item's plain
 // text projection), so the leaf never assumes a note shape.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
 import {
   duplicateGroups,
   rankSimilar,
   type ShingleMode,
-} from '../do-work/text-similarity';
-import type { ClusterFacet } from './ClusterHullOverlay';
+} from '../do-work/text-similarity.ts';
+import type { ClusterFacet } from './ClusterHullOverlay.tsx';
 
 export interface ContentSimilarOptions {
   /** Extract the comparable text of an item (default: its plain `text`). */

@@ -6,9 +6,9 @@
 // and hands them to the blind list; a row click jumps to that item. The SIXTH caller of RankedJumpList
 // — the primitive holds across six surfaces.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import { formatDuration } from '../read-data/board-time-log';
-import type { TimeRankRow } from '../do-work/board-time-log-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import { formatDuration } from '../read-data/board-time-log.ts';
+import type { TimeRankRow } from '../do-work/board-time-log-actions.ts';
 
 export interface TimeRankPanelProps {
   readonly rows: readonly TimeRankRow[];

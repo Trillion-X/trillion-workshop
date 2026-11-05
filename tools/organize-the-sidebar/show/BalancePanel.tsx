@@ -12,8 +12,8 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Badge, Button, Card, Container, Text } from '../../ui';
-import type { BalanceRow } from '../do-work/board-balance-actions';
+import { Badge, Button, Card, Container, Text } from '../../ui/index.ts';
+import type { BalanceRow } from '../do-work/board-balance-actions.ts';
 
 export interface BalancePanelProps {
   readonly rows: readonly BalanceRow[];

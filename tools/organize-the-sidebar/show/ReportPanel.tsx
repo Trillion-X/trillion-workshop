@@ -14,16 +14,16 @@
 // =============================================================================
 
 import { useState, type ReactNode } from 'react';
-import { Button, Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { reportRows } from '../read-data/board-report';
-import { reportToCsv } from '../read-data/report-export';
-import { ReportRowSelectControl } from './ReportRowSelectControl';
+import { Button, Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { reportRows } from '../read-data/board-report.ts';
+import { reportToCsv } from '../read-data/report-export.ts';
+import { ReportRowSelectControl } from './ReportRowSelectControl.tsx';
 import {
   REDUCTION_OPTIONS, DIMENSION_OPTIONS, MEASURE_OPTIONS, type ReportOption,
   reportControlRelevance, buildReportDescriptor, formatReportValue,
   type ReportControls, DEFAULT_REPORT_CONTROLS,
-} from './report-controls';
+} from './report-controls.ts';
 
 export interface ReportPanelProps {
   readonly items: readonly BoardItem[];

@@ -7,8 +7,8 @@
 // selection + draft state (same contract as WalkthroughOverlay). L065: ui components only; the pin is a
 // positioned Container because its coordinate is dynamic (like the walkthrough spotlight ring).
 
-import { Button, Card, Container, Input, Text } from '../../ui';
-import type { CommentThread, ThreadSummary } from '../read-data/board-comments';
+import { Button, Card, Container, Input, Text } from '../../ui/index.ts';
+import type { CommentThread, ThreadSummary } from '../read-data/board-comments.ts';
 import { controlShown, useShowChange } from '../../ui/show/show-rules/show-of';
 
 export interface CommentAnchorRect {

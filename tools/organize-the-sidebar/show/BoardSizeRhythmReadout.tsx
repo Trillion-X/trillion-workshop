@@ -8,16 +8,16 @@
 // are not cards). BLIND to what a measure means (L090) — a new size attribute row appears with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
 import {
   analyzeRhythm,
   rhythmBand,
   SIZE_MEASURES,
   type RhythmReport,
   type SizeMeasureDef,
-} from '../do-work/attribute-consistency';
+} from '../do-work/attribute-consistency.ts';
 
 /** Run the rhythm analysis over the board's cards (connectors + section frames excluded). */
 export function boardRhythm(items: readonly BoardItem[], measures: readonly SizeMeasureDef[] = SIZE_MEASURES): RhythmReport {

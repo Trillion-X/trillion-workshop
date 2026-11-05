@@ -10,7 +10,7 @@
 // it composes with every orthogonal routing mode (elbow, waypoints, and b85's obstacle-`avoid`); a curved
 // path (a `Q` in its `d`) yields no points → no jumps (returned `d` is the input unchanged upstream).
 
-import type { Pt } from './connector-geometry';
+import type { Pt } from './connector-geometry.ts';
 
 /** A straight segment between two points (a crossing candidate from another connector). */
 export interface Seg {

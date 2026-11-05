@@ -21,9 +21,9 @@
 // Pure COMPOSITION of the `relationship-graph` leaf (`buildRelationGraph`) — owns no graph construction
 // (L069/L093). Connectors + sections are not clustered. Zero I/O.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { buildRelationGraph } from './relationship-graph';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { buildRelationGraph } from './relationship-graph.ts';
 
 const MAX_SWEEPS = 30; // ample for board-sized graphs; the cap guarantees deterministic termination
 

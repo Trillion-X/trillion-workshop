@@ -13,7 +13,7 @@
 // tag NAMES it reads (og:image, twitter:image, …) are the Society conventions the web agreed on
 // — kept as a DATA list, not scattered as string literals in a renderer.
 
-import type { LinkPreview } from './link-preview';
+import type { LinkPreview } from './link-preview.ts';
 
 /** Char cap on the fetched HTML this pure parser will scan. The input is ATTACKER-CONTROLLED (an
  *  arbitrary fetched page), and parseOpenGraph runs ~30 independent full-document regex scans + JSON-LD

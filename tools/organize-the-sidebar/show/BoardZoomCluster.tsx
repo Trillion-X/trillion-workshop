@@ -4,7 +4,7 @@
 // its name when pointed at.
 
 import React from 'react';
-import { Container, ExpandableTabs } from '../../ui';
+import { Container, ExpandableTabs } from '../../ui/index.ts';
 import { RangeInput } from '../../ui/show/range-input';
 
 export interface BoardZoomClusterProps {

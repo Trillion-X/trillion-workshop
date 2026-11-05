@@ -3,24 +3,24 @@
 // Text size, Arrange, Edit card, Open as a document, Tag, Move out, Rename, Ungroup.
 
 import React from 'react';
-import { Button, Dropdown, Icon } from '../../ui';
+import { Button, Dropdown, Icon } from '../../ui/index.ts';
 import { DatePicker } from '../../ui/show/date-picker/DatePicker';
 import { AppWindow, FileText, FolderOutput, Flame, Layers, Link2, ListChecks, Maximize2, MessageSquare, Pencil, Tag, Target, Timer, Ungroup } from 'lucide-react';
-import type { BoardItem, BoardEntry } from '../read-data/group-board-model';
-import { threadFromRaw } from '../read-data/board-comments';
-import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist';
-import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date';
-import { habitBadgeOf } from '../do-work/board-habit-actions';
-import { metricFromRaw, progressPct } from '../read-data/board-metric';
-import { formatDuration, timeLogFromRaw, totalDurationMs } from '../read-data/board-time-log';
-import { itemHref } from './item-link';
-import { itemBoardLink } from './item-board-link';
-import { itemTags } from './item-tags';
-import { ItemStylePicker } from './ItemStylePicker';
-import type { AppearanceProfile } from './item-appearance';
-import { ArrangeMenu } from './ArrangeMenu';
-import { MarkerPicker } from './MarkerPicker';
-import { type BoardMarker } from './board-marker-catalog';
+import type { BoardItem, BoardEntry } from '../read-data/group-board-model.ts';
+import { threadFromRaw } from '../read-data/board-comments.ts';
+import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist.ts';
+import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date.ts';
+import { habitBadgeOf } from '../do-work/board-habit-actions.ts';
+import { metricFromRaw, progressPct } from '../read-data/board-metric.ts';
+import { formatDuration, timeLogFromRaw, totalDurationMs } from '../read-data/board-time-log.ts';
+import { itemHref } from './item-link.ts';
+import { itemBoardLink } from './item-board-link.ts';
+import { itemTags } from './item-tags.ts';
+import { ItemStylePicker } from './ItemStylePicker.tsx';
+import type { AppearanceProfile } from './item-appearance.ts';
+import { ArrangeMenu } from './ArrangeMenu.tsx';
+import { MarkerPicker } from './MarkerPicker.tsx';
+import { type BoardMarker } from './board-marker-catalog.ts';
 
 /** Item board-link picker sentinel: clear the item's `extra.boardLink` (#218 Unlink). */
 const UNLINK_BOARD_VALUE = '__unlink-board__';

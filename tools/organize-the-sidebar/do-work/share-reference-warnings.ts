@@ -1,5 +1,5 @@
-import { brokenReferences, cardTitle } from '../read-data/card-references';
-import type { ShareCapsule } from '../read-data/share-capsule';
+import { brokenReferences, cardTitle } from '../read-data/card-references.ts';
+import type { ShareCapsule } from '../read-data/share-capsule.ts';
 
 /** Report only the exact shared snapshot. Never read excluded cards or add them
  * to resolve a link: a reference does not expand the person's chosen scope. */

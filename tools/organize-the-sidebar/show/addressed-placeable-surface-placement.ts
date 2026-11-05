@@ -8,11 +8,11 @@ import {
   surfaceIntentMatchesCatalogPayload,
   type PlaceableSurfacePayload,
 } from '../../ui/show/placeable-surface-intent';
-import { deliveryPlacementMemberId, graphContainsDeliveryPlacement } from '../read-data/delivery-placement';
-import { itemRef, placeItem } from '../read-data/group-board-model';
-import { boardDefaultItemSize } from './item-appearance';
+import { deliveryPlacementMemberId, graphContainsDeliveryPlacement } from '../read-data/delivery-placement.ts';
+import { itemRef, placeItem } from '../read-data/group-board-model.ts';
+import { boardDefaultItemSize } from './item-appearance.ts';
 import type { BoardItemDraft } from './item-add-strategies';
-import { placeableSurfaceDraft } from './placeable-surface-shelf';
+import { placeableSurfaceDraft } from './placeable-surface-shelf.ts';
 
 export type AddressedPlaceableSurfaceDisposition =
   | 'catalog-denied'

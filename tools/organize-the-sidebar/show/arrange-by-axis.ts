@@ -11,9 +11,9 @@
 // degenerate value never yields a NaN coordinate — such items park in a visible no-value pile below
 // the plot (onAxis:false), so the geometry is TOTAL and every input keeps exactly one placement.
 
-import type { ArrangedPosition } from './arrange-by-field';
-import { orderedClusterKeys } from './arrange-by-field';
-import { finiteCoord } from '../read-data/finite-coord';
+import type { ArrangedPosition } from './arrange-by-field.ts';
+import { orderedClusterKeys } from './arrange-by-field.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** Sanitize an untrusted item dimension (persisted w/h): a `Number.MAX_VALUE`/`Infinity`/`NaN` would
  *  otherwise make `cx - it.w/2` a NaN/huge coordinate or overflow the pile accumulation to Infinity.

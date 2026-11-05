@@ -16,7 +16,7 @@
 //      not shown, and a list that holds by one holds nothing: nothing past its time flashes up first.
 //   3. A list holding by a rule shows rows that also sit in their own lists; it takes none from any of them.
 
-import type { SurfaceCollection, SurfaceCollectionMember } from './read-surface-collections'
+import type { SurfaceCollection, SurfaceCollectionMember } from './read-surface-collections.ts'
 
 /** What the decider answers: the rows each rule list holds, lists hidden, rows hidden in each list, next turn. */
 export type DecidedListRules = {

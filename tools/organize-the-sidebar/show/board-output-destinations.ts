@@ -13,10 +13,10 @@
 // everywhere: a destination resolves true only on a CONFIRMED delivery.
 
 import type { OutputDestination } from '../../ui/show/output-destination';
-import { copyTextToClipboard } from '../../ui/show/clipboard/copy-text';
-import { downloadText } from '../do-work/download-text';
-import { readBoardOutputTargets, type BoardOutputTargetDescriptor } from '../read-data/board-output-targets';
-import { requestBoardOutputDelivery } from '../do-work/request-board-output';
+import { copyTextToClipboard } from '../../ui/show/clipboard/copy-text.ts';
+import { downloadText } from '../do-work/download-text.ts';
+import { readBoardOutputTargets, type BoardOutputTargetDescriptor } from '../read-data/board-output-targets.ts';
+import { requestBoardOutputDelivery } from '../do-work/request-board-output.ts';
 
 /**
  * "Copy to clipboard" destination — uses the fail-closed copyTextToClipboard

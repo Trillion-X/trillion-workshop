@@ -17,10 +17,10 @@
 // origin is authoritative for position; `extra` carries only the non-geometric
 // presentation (html, locked, visualLayerStack, border, …).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import type { CapsuleBoard } from '../read-data/share-capsule';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import type { CapsuleBoard } from '../read-data/share-capsule.ts';
 import type { VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** The most items a single paste/import will materialize. A crafted clipboard/capsule payload can carry
  *  an arbitrary count; without a budget, clipboardToDrafts + planPaste allocate + mint unboundedly and

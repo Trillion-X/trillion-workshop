@@ -9,10 +9,10 @@
 
 import * as React from 'react';
 import { controlShown, showListed, useShowChange } from '../../ui/show/show-rules/show-of';
-import { CONTENT_HOST_ATTRIBUTE } from './content-host';
+import { CONTENT_HOST_ATTRIBUTE } from './content-host.ts';
 import { useBitfieldData } from '#workspace-records';
 
-import { readPlaceableSurfaces } from '../read-data/read-published-records';
+import { readPlaceableSurfaces } from '../read-data/read-published-records.ts';
 import {
   offerableSurfaces,
   ViewerAccessRefsContext,
@@ -21,30 +21,30 @@ import {
   filterByVisiblePlaceableSurfaceIds,
   readVisiblePlaceableSurfaceIds,
 } from '../../ui/show/browsing-surface-presentation-value/browsing-surface-presentation-value';
-import { DEFAULT_SIDEBAR_SCOPE, listMadeByPerson, readSurfaceCollections, type SurfaceCollection } from '../read-data/read-surface-collections';
+import { DEFAULT_SIDEBAR_SCOPE, listMadeByPerson, readSurfaceCollections, type SurfaceCollection } from '../read-data/read-surface-collections.ts';
 import {
   readCollectionView,
   writeCollectionView,
   DEFAULT_COLLECTION_VIEW,
   type CollectionViewState,
-} from '../do-work/collection-view-preference';
-import { partitionLabelForSurfaceList, useSurfaceCollections } from './use-surface-collections';
-import { callerCollectionSections } from '../read-data/caller-collection-sections';
+} from '../do-work/collection-view-preference.ts';
+import { partitionLabelForSurfaceList, useSurfaceCollections } from './use-surface-collections.ts';
+import { callerCollectionSections } from '../read-data/caller-collection-sections.ts';
 import {
   buildCollectionSections,
   collectSurfaceIds,
   nextViewMode,
   shouldShowFullCatalog,
-} from './CollectionSections';
-import { CollectionManagerRow } from './CollectionManagerRow';
-import { DesktopSidebar } from './DesktopSidebar';
-import { Text } from '../../ui';
-import { SidebarContent, type NavItemData, type NavSectionData } from './SidebarContent';
-import { mergeSidebarSettings, type SidebarSettings } from '../read-data/sidebar-settings';
+} from './CollectionSections.ts';
+import { CollectionManagerRow } from './CollectionManagerRow.tsx';
+import { DesktopSidebar } from './DesktopSidebar.tsx';
+import { Text } from '../../ui/index.ts';
+import { SidebarContent, type NavItemData, type NavSectionData } from './SidebarContent.tsx';
+import { mergeSidebarSettings, type SidebarSettings } from '../read-data/sidebar-settings.ts';
 import type { SurfacePreview } from '../../ui/show/surface-preview/SurfacePreviewCard';
-import { ShowRepliesSidebarCanUse } from './ShowRepliesSidebarCanUse';
-import { ContainedSidebar } from './ContainedSidebar';
-import type { DesktopSidebarProps } from './DesktopSidebar';
+import { ShowRepliesSidebarCanUse } from './ShowRepliesSidebarCanUse.tsx';
+import { ContainedSidebar } from './ContainedSidebar.tsx';
+import type { DesktopSidebarProps } from './DesktopSidebar.tsx';
 
 export interface AppSidebarProps {
   /** Identifies a portal as part of the exact scene mount that created this rail. */

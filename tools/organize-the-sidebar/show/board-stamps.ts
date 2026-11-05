@@ -10,7 +10,7 @@
 // Stamps are the FigJam/Miro "reaction" primitive: drop 🔥 on the idea you love, ⭐ on
 // the priority, ✅ on what's done — expressive markers a vision/brainstorm board needs.
 
-import { mergeCatalog } from '../read-data/catalog-merge';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 /** One named stamp: a stable id + human label the picker shows, and the emoji glyph
  *  the item carries in its `text` and the renderer draws. */
