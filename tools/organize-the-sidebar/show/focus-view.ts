@@ -25,8 +25,8 @@
 //     knows before applying (an unknown selected facet fails closed and would hide every item).
 // =============================================================================
 
-import type { FacetSelection } from '../read-data/facet-filter';
-import { mergeCatalog } from '../read-data/catalog-merge';
+import type { FacetSelection } from '../read-data/facet-filter.ts';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 /** The `payload.kind` a published-record uses to carry saved focus views. */
 export const FOCUS_VIEW_CATALOG_KIND = 'focus-view-catalog';

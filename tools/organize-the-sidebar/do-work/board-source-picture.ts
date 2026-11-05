@@ -12,9 +12,9 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { emptyGraph } from '../../ui/show/group/group-graph';
-import { boardRootRef, placeItems, readItems } from '../read-data/group-board-model';
-import { planBoardSource, type BoardSource } from './board-source';
-import { boardToSvg, exportFillOf } from './board-svg';
+import { boardRootRef, placeItems, readItems } from '../read-data/group-board-model.ts';
+import { planBoardSource, type BoardSource } from './board-source.ts';
+import { boardToSvg, exportFillOf } from './board-svg.ts';
 import boardSettings from '../show/board-screen.json';
 
 /** The picture (an SVG document) of `source` laid out as the board lays it out. */

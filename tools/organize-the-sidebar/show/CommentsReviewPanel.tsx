@@ -5,8 +5,8 @@
 // resolved) and hands them to the blind list. A row click jumps to that anchor. Zero list/layout code
 // of its own — the list primitive owns rendering; this owns only the comments→row mapping.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { CommentReviewRow } from '../do-work/board-comments-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { CommentReviewRow } from '../do-work/board-comments-actions.ts';
 
 export interface CommentsReviewPanelProps {
   readonly rows: readonly CommentReviewRow[];

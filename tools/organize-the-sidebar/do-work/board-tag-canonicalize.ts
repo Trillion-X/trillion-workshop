@@ -11,9 +11,9 @@
 // normalization SSOT (`normTag`, L069/L093 — owns no tag logic). Pure, deterministic; the per-card rewrite
 // de-dupes so a card tagged BOTH `to-do` and `todo` collapses to one canonical tag.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { nearDuplicateTagGroups, tagUsage } from './board-tag-hygiene';
-import { normTag } from './tag-cooccurrence';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { nearDuplicateTagGroups, tagUsage } from './board-tag-hygiene.ts';
+import { normTag } from './tag-cooccurrence.ts';
 
 /** normalized-variant-tag → canonical DISPLAY spelling. Every spelling in a near-duplicate group maps to the
  *  group's most-used spelling. A tag with no near-duplicate is absent from the map (left untouched). */

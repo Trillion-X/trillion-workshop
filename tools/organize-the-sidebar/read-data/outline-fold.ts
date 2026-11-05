@@ -6,7 +6,7 @@
 // I/O; deterministic. The editor/renderer keeps the set of collapsed ids and asks this leaf what
 // to draw, so fold behaves identically in the edit surface and any read render (SSOT).
 
-import type { ListItem } from './list-block-model';
+import type { ListItem } from './list-block-model.ts';
 
 /** Does the row at `index` have at least one child (a following row one level deeper)? Only a
  *  parent can be collapsed, so this gates the fold affordance. */

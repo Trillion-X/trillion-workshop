@@ -1,7 +1,7 @@
 // Dropdown that arranges the current selection by a layout strategy id.
 import React from 'react';
-import { Button, Dropdown } from '../../ui';
-import { ARRANGE_STRATEGIES } from './arrange-strategies';
+import { Button, Dropdown } from '../../ui/index.ts';
+import { ARRANGE_STRATEGIES } from './arrange-strategies.ts';
 
 function titleCase(id: string): string {
   if (id.length === 0) return id;

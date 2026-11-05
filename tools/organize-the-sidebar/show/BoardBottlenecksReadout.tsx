@@ -10,10 +10,10 @@
 // `articulationCards` returns, so a new bottleneck appears with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { articulationCards, type ArticulationCard } from '../do-work/board-bottlenecks';
-import { cardLabel } from './BoardOutlineReadout';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { articulationCards, type ArticulationCard } from '../do-work/board-bottlenecks.ts';
+import { cardLabel } from './BoardOutlineReadout.tsx';
 
 /** The board's load-bearing cards. */
 export function boardBottlenecks(items: readonly BoardItem[]): ArticulationCard[] {

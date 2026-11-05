@@ -14,9 +14,9 @@
 //   (the clean leaf); membership/edges = the committed knowledge-graph-feed.
 //   This file owns ZERO rendering and ZERO record truth — only the shape map.
 
-import { connectionGraphToFeedModel } from './knowledge-graph-adapter';
-import { foldKnowledgeGraphFeed } from './knowledge-graph-feed';
-import { forceDirectedLayout, type GraphNode, type GraphEdge } from '../show/graph-layout';
+import { connectionGraphToFeedModel } from './knowledge-graph-adapter.ts';
+import { foldKnowledgeGraphFeed } from './knowledge-graph-feed.ts';
+import { forceDirectedLayout, type GraphNode, type GraphEdge } from '../show/graph-layout.ts';
 // Type-only imports (erased at runtime — no graph-canvas coupling in this leaf).
 import type { CanvasNodeFrame, EdgeRoute } from '../../graph-canvas/show/types';
 

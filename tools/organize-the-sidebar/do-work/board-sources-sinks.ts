@@ -12,8 +12,8 @@
 // pure composition of the degree SSOT (`nodeDegrees` from board-hubs, which builds the relation graph once and
 // excludes connectors + dangling edges, L069/L093 — owns no graph logic). Pure, deterministic (sorted).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { nodeDegrees } from './board-hubs';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { nodeDegrees } from './board-hubs.ts';
 
 /** The SOURCE (root) cards — in-degree 0 AND out-degree ≥1: nothing depends on them, they start the graph. An
  *  isolated card (no edges either way) is an ORPHAN, not a source, so it is excluded. Sorted. */

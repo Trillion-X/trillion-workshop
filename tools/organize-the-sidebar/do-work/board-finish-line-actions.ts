@@ -16,12 +16,12 @@
 // sibling graph + the board's relation spec, which this per-card contract does not carry. Adding graph
 // context is a separate primitive extension, not a fake per-card signal.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { type WeightedSignal, type SignalScore, weightedSignalScore, rankByWeightedSignals } from '../read-data/board-weighted-signals';
-import { metricFromRaw, completion, isComplete as metricIsComplete } from '../read-data/board-metric';
-import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { type WeightedSignal, type SignalScore, weightedSignalScore, rankByWeightedSignals } from '../read-data/board-weighted-signals.ts';
+import { metricFromRaw, completion, isComplete as metricIsComplete } from '../read-data/board-metric.ts';
+import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist.ts';
 
 /** A goal/checklist counts as "nearly complete" at/above this fraction — shared with the momentum lens. */
 const NEAR_COMPLETE_FRACTION = 0.75;

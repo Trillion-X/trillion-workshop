@@ -16,8 +16,8 @@
 // bottleneck it reports `splitInto` — how many disconnected pieces its removal would create. Deterministic
 // (nodes + adjacency in sorted id order; bottlenecks sorted by splitInto desc then id). Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
 
 /** A load-bearing card: removing it disconnects the board. */
 export interface ArticulationCard {

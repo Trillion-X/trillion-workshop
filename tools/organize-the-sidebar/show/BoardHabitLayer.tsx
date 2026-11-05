@@ -6,7 +6,7 @@
 // never names an item; the mount resolves each item to a screen rect + computes the streak. L065: ui
 // only; the badge is a positioned Container because its coordinate is dynamic.
 
-import { Button, Container, Text } from '../../ui';
+import { Button, Container, Text } from '../../ui/index.ts';
 
 export interface HabitPillRect {
   readonly x: number;

@@ -7,7 +7,7 @@
 // deterministic per-person hash (colorForParticipant), consistent with their cursor colour.
 
 import { LiveSurfacePeopleRoster } from '../../ui/show/live-surface-people';
-import { colorForParticipant, type Participant } from '../read-data/presence';
+import { colorForParticipant, type Participant } from '../read-data/presence.ts';
 
 export interface PresenceRosterProps {
   readonly participants: readonly Participant[];

@@ -10,11 +10,11 @@
 // DTSTART;VALUE=DATE, a stable UID per card (so re-import updates rather than duplicates), and content
 // lines folded at 75 octets. A card with no due date is skipped; connectors + furniture are never events.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date';
-import { metricFromRaw, progressPct } from '../read-data/board-metric';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date.ts';
+import { metricFromRaw, progressPct } from '../read-data/board-metric.ts';
 
 /** Escape a value for an iCalendar TEXT property (RFC 5545 §3.3.11): backslash, semicolon, comma, newline. */
 function escapeText(value: string): string {

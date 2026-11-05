@@ -34,8 +34,8 @@ import {
   type Group,
   type GroupGraph,
 } from '../../ui/show/group/group-graph';
-import { foldGroupRecords, groupRecordAddress, type GroupRecord } from './group-eeaf';
-import { buildGroupWriteBatch } from '../do-work/group-mutation-writes';
+import { foldGroupRecords, groupRecordAddress, type GroupRecord } from './group-eeaf.ts';
+import { buildGroupWriteBatch } from '../do-work/group-mutation-writes.ts';
 
 const textEncoder = new TextEncoder();
 const textDecoder = new TextDecoder();

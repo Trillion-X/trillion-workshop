@@ -21,7 +21,7 @@
 // otherwise amplify into a non-finite SVG `d` ("M Infinity …" / "M NaN …") that the blind
 // renderer emits verbatim. Two bounds close it: amplitudes are capped to MAX_AMPLITUDE, and
 // every emitted coordinate passes through the finiteCoord SSOT (non-finite → 0, huge → ±limit).
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** Ceiling for the jitter/bow amplitude. Real styles are < 5px; this only defuses a hostile
  *  MAX_VALUE (which would otherwise place a knot at ~1e308). A non-finite/negative amplitude

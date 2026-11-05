@@ -16,11 +16,11 @@
 // in the `board-document-exports` registry — the blind export panel auto-surfaces it (L069/L090), zero panel
 // change. Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
-import { importanceRanks } from '../read-data/board-importance';
-import { detectCommunities } from '../read-data/board-communities';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
+import { importanceRanks } from '../read-data/board-importance.ts';
+import { detectCommunities } from '../read-data/board-communities.ts';
 
 /** XML-escape the five predefined entities so card text / relation kinds can never break the document. */
 function xml(s: string): string {

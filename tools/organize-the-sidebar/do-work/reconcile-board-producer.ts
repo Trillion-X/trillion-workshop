@@ -27,9 +27,9 @@
 // =============================================================================
 
 import { membersOf, type GroupGraph } from '../../ui/show/group/group-graph';
-import { removeItems } from '../read-data/group-board-model';
-import { applyProducerOutput } from './apply-producer-output';
-import type { ProducerOutput } from '../read-data/producer-output';
+import { removeItems } from '../read-data/group-board-model.ts';
+import { applyProducerOutput } from './apply-producer-output.ts';
+import type { ProducerOutput } from '../read-data/producer-output.ts';
 
 /**
  * The memberIds currently in the target group that are NOT in `keepMemberIds` —

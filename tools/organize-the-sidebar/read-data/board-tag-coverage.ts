@@ -10,10 +10,10 @@
 // furniture guard (so a generated region-heading is never flagged "needs a tag"). Pure, deterministic;
 // distinctness is case-insensitive (matching how the tag system dedupes on write).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import { itemTags } from '../show/item-tags';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import { itemTags } from '../show/item-tags.ts';
 
 /** Content card = not a connector and not generated furniture (only these can meaningfully carry — or lack — a tag). */
 function contentCards(items: readonly BoardItem[]): BoardItem[] {

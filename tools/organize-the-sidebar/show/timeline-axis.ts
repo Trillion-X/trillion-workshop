@@ -9,10 +9,10 @@
 // the labels line up with the placed cards. WHICH date field is the caller's injected `dateOf` — the
 // `TIMELINE_DATE_FIELDS` catalog carries the common ones as DATA (a new field is one row, L090).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import type { AxisItem, AxisExtent } from './arrange-by-axis';
-import { parseFlexibleDate, niceDateTicks, formatDateTick } from '../do-work/date-scale';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import type { AxisItem, AxisExtent } from './arrange-by-axis.ts';
+import { parseFlexibleDate, niceDateTicks, formatDateTick } from '../do-work/date-scale.ts';
 
 /** A selectable date field — DATA (the reader is injected; the bridge never names "dueDate"). */
 export interface TimelineDateField {

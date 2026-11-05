@@ -13,7 +13,7 @@
 // Pure leaf (only the `Pt` geometry type). The bow is a quadratic (matching the `curved` routing), so a
 // fanned edge — like any curved path — yields no polyline and simply sits out the crossing-jump pass.
 
-import type { Pt } from './connector-geometry';
+import type { Pt } from './connector-geometry.ts';
 
 /** One connector reduced to its identity + endpoints (all the fan needs; the layer maps its models to these). */
 export interface FanEdge {

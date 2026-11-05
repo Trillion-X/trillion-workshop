@@ -18,7 +18,7 @@ import {
   decodeGraphReply,
   surfaceCollectionIndexRef,
   type SurfaceCollection,
-} from '../read-data/read-surface-collections'
+} from '../read-data/read-surface-collections.ts'
 import {
   addRowOps,
   collectionRef,
@@ -28,7 +28,7 @@ import {
   removeRowOps,
   reorderRowOps,
   type RowPlacement,
-} from './surface-collection-ops'
+} from './surface-collection-ops.ts'
 
 export const GROUP_APPLY_MUTATION_TARGET = 'group.apply-mutation'
 export const GROUP_LOAD_GRAPH_TARGET = 'group.load-graph'

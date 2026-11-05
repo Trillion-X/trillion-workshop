@@ -9,8 +9,8 @@
 // Composes the shipped colour primitives: `hueOf` (cont.18) drives nearest-hue harmonising, and the
 // recoloured notes auto-get legible text via `readableInkFor` (cont.21) with ZERO extra work here.
 
-import { hueOf } from './item-fill';
-import { HARMONY_SCHEMES, harmonize } from '../do-work/color-harmony';
+import { hueOf } from './item-fill.ts';
+import { HARMONY_SCHEMES, harmonize } from '../do-work/color-harmony.ts';
 
 /** One named palette — an ordered list of hex colours. Ordered so `cycleAssign` flows predictably. */
 export interface BoardPalette {

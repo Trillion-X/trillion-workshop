@@ -11,9 +11,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Button, Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { enabledSelectionActions } from './selection-actions';
+import { Button, Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { enabledSelectionActions } from './selection-actions.ts';
 
 export interface SelectionMenuProps {
   readonly items: readonly BoardItem[];

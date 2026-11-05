@@ -16,9 +16,9 @@
 // to each DISTINCT value it carries, never twice to the same value. Pure, deterministic (sorted by
 // cardCount desc, then value asc), connector/furniture excluded (only content cards carry a facet).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
 
 /** One value of a facet and the content cards that carry it. `cardCount === cardIds.length` always. */
 export interface FacetTally {

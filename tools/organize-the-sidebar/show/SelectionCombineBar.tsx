@@ -11,8 +11,8 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Button, Container, Text } from '../../ui';
-import { COMBINE_ACTIONS, combineWithPinned } from './selection-combine';
+import { Button, Container, Text } from '../../ui/index.ts';
+import { COMBINE_ACTIONS, combineWithPinned } from './selection-combine.ts';
 
 export interface SelectionCombineBarProps {
   readonly selectedIds: readonly string[];

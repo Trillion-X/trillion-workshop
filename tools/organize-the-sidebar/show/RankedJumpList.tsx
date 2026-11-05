@@ -6,7 +6,7 @@
 // what the metric MEANS (L069/L090). Extracted the moment the second caller arrived (L076) — both
 // panels are now DATA configs of this, so the list code lives once (L100). ui components only (L065).
 
-import { Button, Card, Container, Text } from '../../ui';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
 
 /** One row: an id to jump to, a bold label, an optional muted note line, and an optional trailing badge. */
 export interface RankedRow {

@@ -10,8 +10,8 @@
 // checklist — answering the plainest board question: "what fraction of my cards are done?" Only cards that
 // track completion at all are counted (a plain note has no bearing on the total).
 
-import type { BoardItem } from './group-board-model';
-import { cardCompletion } from './card-completion';
+import type { BoardItem } from './group-board-model.ts';
+import { cardCompletion } from './card-completion.ts';
 
 export interface BoardCompletion {
   /** Cards that track completion (have a metric OR a non-empty checklist). Plain notes are excluded. */

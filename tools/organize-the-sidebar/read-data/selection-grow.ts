@@ -11,8 +11,8 @@
 // and erosion (`shrinkSelection`) is the set-inverse (drop the boundary, keep the interior). A relation `kind`
 // may scope the walk. Pure, deterministic, cycle-safe; consumes the RelationGraph, owns no board vocabulary.
 
-import type { RelationGraph } from './relationship-graph';
-import { neighbors, relationsFrom, relationsTo } from './relationship-graph';
+import type { RelationGraph } from './relationship-graph.ts';
+import { neighbors, relationsFrom, relationsTo } from './relationship-graph.ts';
 
 /** The undirected 1-hop neighbours of `id`, restricted to one relation `kind` when given. Reuses the graph's
  *  own `neighbors` for the all-kinds case (SSOT); filters both directions when a kind is named. */

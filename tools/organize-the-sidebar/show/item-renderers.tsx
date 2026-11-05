@@ -10,7 +10,7 @@
 
 import React from 'react';
 import { isRelationAddress } from '../../content-media-evidence/read-data/content-media-evidence';
-import { Button, Card, Container, Icon, Spinner, Text, AnchoredOverlay, Input } from '../../ui';
+import { Button, Card, Container, Icon, Spinner, Text, AnchoredOverlay, Input } from '../../ui/index.ts';
 import { CanvasFrame } from '../../ui/show/canvas-frame/CanvasFrame';
 import { CanvasShape } from '../../ui/show/canvas-shape';
 import { DisplayMark } from '../../ui/show/display-mark';
@@ -26,29 +26,29 @@ import type { VisualLayerDescriptor, CapabilityInvocation } from '../../ui/show/
 import type { FormatCommand } from '../../ui/show/rich-text-toolbar';
 import { StickyNote, Image as ImageIcon, Film, Sparkles, HelpCircle, ListPlus, FolderOpen, Link as LinkIcon, ExternalLink, Shapes, ChevronDown, Sticker } from 'lucide-react';
 import { NamedIcon } from '../../ui/show/icon/NamedIcon';
-import { ColorDot } from '../../ui';
-import { boardItemContentType, readPlaceableSurface, type BoardItem } from '../read-data/group-board-model';
+import { ColorDot } from '../../ui/index.ts';
+import { boardItemContentType, readPlaceableSurface, type BoardItem } from '../read-data/group-board-model.ts';
 import { PlaceableSurfaceHost } from '../../ui/show/placeable-surface-host';
-import { hostFromHref, faviconUrl, readLinkPreview, linkPreviewImages } from '../do-work/link-preview';
-import { LinkGallery } from './LinkGallery';
-import { readFrameBorder } from '../do-work/frame-border';
-import { openExternalHref } from '../do-work/open-external';
-import { isCrop } from './crop-rect';
-import { BOARD_SHAPES, shapeSvgPathById, shapeGeometryById } from './board-shapes';
-import { shapeOutlinePoints } from '../do-work/shape-geometry';
-import { BOARD_STAMPS, stampEmojiById, STAMP_CATALOG_KIND, type BoardStamp } from './board-stamps';
-import { markerById, markerCellForIndex, resolveLevelMarkers, type BoardMarker } from './board-marker-catalog';
-import { OutlineDisplay } from './OutlineDisplay';
-import { BOARD_FILL_SWATCHES, seededFillStack, BOARD_ITEM_LAYER_REGISTRY, itemFillColor, FILL_SWATCH_CATALOG_KIND } from './item-fill';
-import { readableInkFor } from './item-ink';
-import { ownValue } from '../read-data/facet-filter';
-import { cardProgressView } from '../read-data/card-progress-view';
-import { highlightHtml } from '../read-data/highlight-html';
-import { linkifyHtml } from '../read-data/linkify-html';
-import { noteDisplayTags } from './item-tags';
-import { TagChipStrip } from './TagChipStrip';
-import { MediaPaletteStrip } from './MediaPaletteStrip';
-import { CardProgressStrip } from './CardProgressStrip';
+import { hostFromHref, faviconUrl, readLinkPreview, linkPreviewImages } from '../do-work/link-preview.ts';
+import { LinkGallery } from './LinkGallery.tsx';
+import { readFrameBorder } from '../do-work/frame-border.ts';
+import { openExternalHref } from '../do-work/open-external.ts';
+import { isCrop } from './crop-rect.ts';
+import { BOARD_SHAPES, shapeSvgPathById, shapeGeometryById } from './board-shapes.ts';
+import { shapeOutlinePoints } from '../do-work/shape-geometry.ts';
+import { BOARD_STAMPS, stampEmojiById, STAMP_CATALOG_KIND, type BoardStamp } from './board-stamps.ts';
+import { markerById, markerCellForIndex, resolveLevelMarkers, type BoardMarker } from './board-marker-catalog.ts';
+import { OutlineDisplay } from './OutlineDisplay.tsx';
+import { BOARD_FILL_SWATCHES, seededFillStack, BOARD_ITEM_LAYER_REGISTRY, itemFillColor, FILL_SWATCH_CATALOG_KIND } from './item-fill.ts';
+import { readableInkFor } from './item-ink.ts';
+import { ownValue } from '../read-data/facet-filter.ts';
+import { cardProgressView } from '../read-data/card-progress-view.ts';
+import { highlightHtml } from '../read-data/highlight-html.ts';
+import { linkifyHtml } from '../read-data/linkify-html.ts';
+import { noteDisplayTags } from './item-tags.ts';
+import { TagChipStrip } from './TagChipStrip.tsx';
+import { MediaPaletteStrip } from './MediaPaletteStrip.tsx';
+import { CardProgressStrip } from './CardProgressStrip.tsx';
 import type { AddShelfEntry } from './item-add-strategies';
 import type {
   ActionAffordance,
@@ -56,14 +56,14 @@ import type {
   AskField,
 } from '../../ui/show/action-affordance';
 import { useRevealedLength } from '../../ui/show/text-reveal';
-import { fitNoteHeight, noteHeightChanged } from './note-autofit';
-import { resolveAppearanceKey, sizeModeStyle, sizeModeIsAutoHeight } from './item-appearance';
-import { useElapsedSeconds, formatElapsed } from './use-elapsed';
-import { contentPlacement, contentAnchorFrom } from '../do-work/content-placement';
-import { elevationShadow } from '../do-work/elevation-shadow';
+import { fitNoteHeight, noteHeightChanged } from './note-autofit.ts';
+import { resolveAppearanceKey, sizeModeStyle, sizeModeIsAutoHeight } from './item-appearance.ts';
+import { useElapsedSeconds, formatElapsed } from './use-elapsed.ts';
+import { contentPlacement, contentAnchorFrom } from '../do-work/content-placement.ts';
+import { elevationShadow } from '../do-work/elevation-shadow.ts';
 import { shadowCss, type TuningShadow } from '../../ui/show/tuning-panel';
-import { filterCssById } from './filter-presets';
-import { strokePathD, hashSeed, resolveStroke, type Point } from './stroke-style';
+import { filterCssById } from './filter-presets.ts';
+import { strokePathD, hashSeed, resolveStroke, type Point } from './stroke-style.ts';
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 import {
   readGuardedArtifactObjectUrl,

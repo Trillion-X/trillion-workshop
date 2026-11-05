@@ -5,8 +5,8 @@
 // row (item label + relative-time badge like "in 3 days" / "Yesterday") and hands them to the blind
 // list; a row click jumps to that item. The third caller of RankedJumpList — the primitive holds.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { DueRow } from '../do-work/board-due-date-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { DueRow } from '../do-work/board-due-date-actions.ts';
 
 export interface DueSoonPanelProps {
   readonly rows: readonly DueRow[];

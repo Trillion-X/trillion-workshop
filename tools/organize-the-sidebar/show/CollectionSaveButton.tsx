@@ -1,7 +1,7 @@
 // A blind button that turns the current selection into a saved collection.
 
 import React from 'react';
-import { Button } from '../../ui';
+import { Button } from '../../ui/index.ts';
 
 export function collectionSaveLabel(count: number): string {
   if (count <= 0) return 'Save as collection';

@@ -10,9 +10,9 @@
 // the WHOLE board's content cards; the numbering is a stateful counter over the depth sequence. Pure,
 // deterministic.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture, mindMapOutline } from '../do-work/batch-actions';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture, mindMapOutline } from '../do-work/batch-actions.ts';
 
 /** One numbered outline row: its legal number, its depth, its text, and (when walked from real board members)
  *  the card's memberId — so an interactive outline can jump to the card without a fragile text match. */

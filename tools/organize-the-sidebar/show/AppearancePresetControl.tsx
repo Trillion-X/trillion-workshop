@@ -1,9 +1,9 @@
 // Dropdown that applies a built-in appearance preset to the current board.
 
-import { Button, Dropdown, Icon } from '../../ui';
+import { Button, Dropdown, Icon } from '../../ui/index.ts';
 import { Palette } from 'lucide-react';
-import { BUILT_IN_APPEARANCE_PRESETS } from './appearance-preset-catalog';
-import type { AppearancePreset } from './appearance-presets';
+import { BUILT_IN_APPEARANCE_PRESETS } from './appearance-preset-catalog.ts';
+import type { AppearancePreset } from './appearance-presets.ts';
 
 export function appearancePresetItems(
   presets: readonly AppearancePreset[] = BUILT_IN_APPEARANCE_PRESETS,

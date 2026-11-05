@@ -6,12 +6,12 @@
 // (writing-judge.ts); no engine. Generic: it ranks whatever drafts + rubric it is given and
 // never names a criterion. Chrome is ui components (L065); the score bar is data-driven.
 
-import { Badge, Button, Container, Text } from '../../ui';
+import { Badge, Button, Container, Text } from '../../ui/index.ts';
 import {
   DEFAULT_WRITING_RUBRIC,
   rankDrafts,
   type Rubric,
-} from '../read-data/writing-judge';
+} from '../read-data/writing-judge.ts';
 
 export interface SparringDraft {
   readonly id: string;

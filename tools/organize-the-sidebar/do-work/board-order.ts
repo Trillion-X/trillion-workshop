@@ -17,8 +17,8 @@
 // (nodes visited in sorted id order within each wave; parallel edges de-duped so a double connector never makes
 // a card wait twice). Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
 
 /** One wave of the plan — cards with no remaining prerequisites, so they can all be done together. */
 export interface OrderWave {

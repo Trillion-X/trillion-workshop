@@ -14,11 +14,11 @@
 // ordered by marginal total desc then name; the cell grid is DENSE (every row×col, zeros included, so a
 // heatmap has no holes). Owns no dimension/measure/aggregation (L069/L090/L093).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import type { FacetExtract } from './board-facet-census';
-import type { BoardMeasure, Aggregator } from './board-facet-pivot';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import type { FacetExtract } from './board-facet-census.ts';
+import type { BoardMeasure, Aggregator } from './board-facet-pivot.ts';
 
 /** One cell of the matrix: the (row, col) pair, its cards, how many carried the measure, and the cell value. */
 export interface CrossCell {

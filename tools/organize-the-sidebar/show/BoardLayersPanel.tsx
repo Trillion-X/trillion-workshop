@@ -22,9 +22,9 @@
 // click without a drag stays a click).
 
 import React from 'react';
-import { Container, Button, ExpandableTabs, Text, Icon, DragReorderList } from '../../ui';
+import { Container, Button, ExpandableTabs, Text, Icon, DragReorderList } from '../../ui/index.ts';
 import { Layers, X, ChevronRight, ChevronDown } from 'lucide-react';
-import type { BoardLayerNode } from './board-layer-rows';
+import type { BoardLayerNode } from './board-layer-rows.ts';
 
 export interface BoardLayersPanelProps {
   nodes: readonly BoardLayerNode[];

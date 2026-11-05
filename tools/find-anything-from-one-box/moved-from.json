@@ -93,6 +93,13 @@
       "source_identity": "1f:294e99d0df071814e1346815e18518aeb83decd65dbf37577c1255a6cc4b2b9b",
       "identity": "1f:294e99d0df071814e1346815e18518aeb83decd65dbf37577c1255a6cc4b2b9b",
       "found_by": "same bytes"
+    },
+    {
+      "from": "parts/command-palette/do-work/ask-palette-bulk-action-descriptors.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/find-anything-from-one-box/parts/command-palette/do-work/ask-palette-bulk-action-descriptors.test.ts",
+      "source_identity": "1f:81b8e856df4ffb0cebaa2d6447665b760384ced2bfb87d2528a8a5f2d5a40bb2",
+      "identity": "1f:188802ad7d0ee67c88d887f1ec8e9507a57d7ffe995fcdccd250e70ed16a8dc4"
     }
   ]
 }

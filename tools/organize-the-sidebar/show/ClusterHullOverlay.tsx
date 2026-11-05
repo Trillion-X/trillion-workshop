@@ -13,12 +13,12 @@
 // tag-chip colours a note already shows. Connectors are excluded (they are edges, not cluster members).
 
 import React from 'react';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { convexHull, hullPath, rectCorners, type HullRect } from '../do-work/cluster-hull';
-import { labelColor } from '../do-work/label-color';
-import { itemTags } from './item-tags';
-import { itemFillColor } from './item-fill';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { convexHull, hullPath, rectCorners, type HullRect } from '../do-work/cluster-hull.ts';
+import { labelColor } from '../do-work/label-color.ts';
+import { itemTags } from './item-tags.ts';
+import { itemFillColor } from './item-fill.ts';
 
 /** One computed cluster region — DATA the overlay renders blindly. */
 export interface ClusterHull {

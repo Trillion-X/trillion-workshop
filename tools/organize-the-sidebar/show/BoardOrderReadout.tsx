@@ -11,10 +11,10 @@
 // `executionOrder` returns, so a new wave appears with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { executionOrder, type ExecutionOrder } from '../do-work/board-order';
-import { cardLabel } from './BoardOutlineReadout';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { executionOrder, type ExecutionOrder } from '../do-work/board-order.ts';
+import { cardLabel } from './BoardOutlineReadout.tsx';
 
 /** The board's execution plan (waves + blocked). */
 export function boardOrder(items: readonly BoardItem[]): ExecutionOrder {

@@ -14,10 +14,10 @@
 // mention. A pure composition of the entity SSOT (`entitiesOfKind` + `TEXT_ENTITY_PATTERNS`, L093 — owns no
 // pattern of its own) + the furniture guard. Pure, deterministic (tally, tie-break by value).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import { entitiesOfKind, TEXT_ENTITY_PATTERNS, type EntityPattern } from '../do-work/text-entities';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import { entitiesOfKind, TEXT_ENTITY_PATTERNS, type EntityPattern } from '../do-work/text-entities.ts';
 
 /** One distinct entity value + how many cards carry it and which (sorted). */
 export interface EntityRef {

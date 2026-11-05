@@ -10,9 +10,9 @@
 // owns no new geometry. Each card is assigned to the FIRST frame (earliest in the story) that contains it, so a
 // card is never listed twice even when frames overlap. Deterministic (reading-order within a section), zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { boardFrames, itemsInsideFrame, presentationCaptionOf, presentationFrameOf } from './board-frames';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { boardFrames, itemsInsideFrame, presentationCaptionOf, presentationFrameOf } from './board-frames.ts';
 
 /** One section of the outline — a frame (or the loose bucket) plus the cards under it. */
 export interface OutlineEntry {

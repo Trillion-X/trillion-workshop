@@ -13,9 +13,9 @@
 
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 import { buildEngineWriteBatchRequestFromLabels } from '#workspace-records';
-import type { AppearancePreset } from './appearance-presets';
-import { APPEARANCE_PRESET_CATALOG_KIND } from './appearance-preset-catalog';
-import { writeCountOf } from '../read-data/write-count';
+import type { AppearancePreset } from './appearance-presets.ts';
+import { APPEARANCE_PRESET_CATALOG_KIND } from './appearance-preset-catalog.ts';
+import { writeCountOf } from '../read-data/write-count.ts';
 
 const textEncoder = new TextEncoder();
 

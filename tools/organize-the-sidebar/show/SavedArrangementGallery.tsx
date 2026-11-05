@@ -7,16 +7,16 @@
 // does (apply/rename/archive/restore/duplicate). Composed from ui primitives (L065).
 
 import React, { useState, useMemo } from 'react';
-import { Container, Card, Text, Button, Input, Badge } from '../../ui';
+import { Container, Card, Text, Button, Input, Badge } from '../../ui/index.ts';
 import { svgDataUrl } from '../../ui/show/raster/svg-to-png';
 import { MediaFrame } from '../../ui/show/media-frame/MediaFrame';
-import { boardToSvg, type BoardSvgStyle } from '../do-work/board-svg';
-import type { BoardItem } from '../read-data/group-board-model';
-import type { TemplateItem } from '../read-data/board-template-apply';
-import type { SavedArrangement } from '../read-data/saved-arrangement';
-import { searchArrangements, arrangementFacetValues, arrangementFacetCounts } from '../read-data/saved-arrangement';
-import { toggleFacetValue, hasActiveFacets, type FacetSelection } from '../read-data/facet-filter';
-import { FacetChipGroup } from './FacetChipGroup';
+import { boardToSvg, type BoardSvgStyle } from '../do-work/board-svg.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import type { TemplateItem } from '../read-data/board-template-apply.ts';
+import type { SavedArrangement } from '../read-data/saved-arrangement.ts';
+import { searchArrangements, arrangementFacetValues, arrangementFacetCounts } from '../read-data/saved-arrangement.ts';
+import { toggleFacetValue, hasActiveFacets, type FacetSelection } from '../read-data/facet-filter.ts';
+import { FacetChipGroup } from './FacetChipGroup.tsx';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 
 export { FacetChipGroup }; // re-export (moved to its own file at the 2nd consumer, L088)

@@ -9,7 +9,7 @@
 // DATA row, ZERO code change here.
 
 import React, { useRef } from 'react';
-import { AnchoredOverlay, Button, Container, Text, Icon } from '../../ui';
+import { AnchoredOverlay, Button, Container, Text, Icon } from '../../ui/index.ts';
 import { HelpCircle, X } from 'lucide-react';
 
 export interface SettingInfoDescriptor {

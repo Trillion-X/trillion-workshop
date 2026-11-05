@@ -7,9 +7,9 @@
 // boardSummary verbatim; SSOT) and NO hardcoded stat list: the chips come from a self-describing spec table
 // (L090), so adding a chip is one descriptor row, never a new branch. Pure + deterministic.
 
-import type { BoardItem } from './group-board-model';
-import type { BoardSummary } from './board-summary';
-import { boardSummary } from './board-summary';
+import type { BoardItem } from './group-board-model.ts';
+import type { BoardSummary } from './board-summary.ts';
+import { boardSummary } from './board-summary.ts';
 
 /** One compact fact in the selection bar — `key` is stable (for React keys / testing), `label` is human. */
 export interface SummaryChip {

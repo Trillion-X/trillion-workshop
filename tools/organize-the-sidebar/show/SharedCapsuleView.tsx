@@ -9,22 +9,22 @@
 // Engine-independent: the capsule carries all content, so this renders from a link alone
 // with no network and no studio. Raw-HTML-free (L065) — Container/Text only.
 
-import { Container, Text } from '../../ui';
-import { sanitizeCapsuleHtml } from '../do-work/sanitize-capsule-html';
-import { rendererForKind } from './item-renderers';
-import { buildConnectorModels, connectorEndpoints } from './connector-models';
-import { ConnectorLayer, type ConnectorRect } from './ConnectorLayer';
-import { BoardMetricLayer, type MetricPill } from './BoardMetricLayer';
-import { BoardDueDateLayer, type DueBadge } from './BoardDueDateLayer';
-import { formatValue, isComplete, metricFromRaw, progressPct } from '../read-data/board-metric';
-import { dueDateFromRaw, relativeDue } from '../read-data/board-due-date';
-import { backgroundById } from './board-backgrounds';
-import type { BoardItem } from '../read-data/group-board-model';
+import { Container, Text } from '../../ui/index.ts';
+import { sanitizeCapsuleHtml } from '../do-work/sanitize-capsule-html.ts';
+import { rendererForKind } from './item-renderers.tsx';
+import { buildConnectorModels, connectorEndpoints } from './connector-models.ts';
+import { ConnectorLayer, type ConnectorRect } from './ConnectorLayer.tsx';
+import { BoardMetricLayer, type MetricPill } from './BoardMetricLayer.tsx';
+import { BoardDueDateLayer, type DueBadge } from './BoardDueDateLayer.tsx';
+import { formatValue, isComplete, metricFromRaw, progressPct } from '../read-data/board-metric.ts';
+import { dueDateFromRaw, relativeDue } from '../read-data/board-due-date.ts';
+import { backgroundById } from './board-backgrounds.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 import type {
   CapsuleBoard,
   PortableItem,
   ShareCapsule,
-} from '../read-data/share-capsule';
+} from '../read-data/share-capsule.ts';
 
 /** Reconstruct a full BoardItem from the portable projection (opener-only, read-only).
  *  A capsule arrives inside an untrusted share LINK, and the read-only note renderer feeds

@@ -25,10 +25,10 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { Container, LAYER_ORDER } from '../../ui';
+import { Container, LAYER_ORDER } from '../../ui/index.ts';
 import { readShownSeams } from '../../ui/show/seam-slots';
 import type { DockPoint, DockPosition, DockSeam } from '../../ui/show/dockable-placement/dockable-placement';
-import { suppressGestureTextSelection } from './DesktopSidebar';
+import { suppressGestureTextSelection } from './DesktopSidebar.tsx';
 
 type Rect = { x: number; y: number; w: number; h: number };
 

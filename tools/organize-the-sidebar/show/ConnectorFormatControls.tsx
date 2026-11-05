@@ -9,16 +9,16 @@
 // zero raw HTML / className (L065).
 
 import React, { useRef, useState } from 'react';
-import { Button, ColorDot, ColorPickerPopover, ExpandableTabs, Tooltip, Container } from '../../ui';
-import { CONNECTOR_COLOR_PRESETS, CONNECTOR_WIDTH_OPTIONS } from './item-appearance';
+import { Button, ColorDot, ColorPickerPopover, ExpandableTabs, Tooltip, Container } from '../../ui/index.ts';
+import { CONNECTOR_COLOR_PRESETS, CONNECTOR_WIDTH_OPTIONS } from './item-appearance.ts';
 
 export type ConnectorArrow = 'end' | 'both' | 'none';
 // `ConnectorRouting` is owned by the pure geometry leaf that also owns the routing
 // algorithm map (ROUTING_ALGORITHMS) — the SSOT for what routing names exist. Import +
 // re-export it here so this UI (and its consumers, e.g. GroupBoardPanel) share the ONE
 // definition instead of a drift-prone copy (auditor advisory, #199).
-export type { ConnectorRouting } from '../do-work/connector-geometry';
-import type { ConnectorRouting } from '../do-work/connector-geometry';
+export type { ConnectorRouting } from '../do-work/connector-geometry.ts';
+import type { ConnectorRouting } from '../do-work/connector-geometry.ts';
 
 export interface ConnectorStyle {
   color?: string;

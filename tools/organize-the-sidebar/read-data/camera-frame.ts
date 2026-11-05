@@ -10,9 +10,9 @@
 // zoom = the tighter of (avail width / content width, avail height / content height), clamped; pan centers the
 // content's world midpoint on the viewport midpoint. Pure, deterministic (no DOM, no clock).
 
-import type { BoardItem } from './group-board-model';
-import { islandOf } from './board-islands';
-import type { Camera, Viewport, WorldBox } from './viewport-visibility';
+import type { BoardItem } from './group-board-model.ts';
+import { islandOf } from './board-islands.ts';
+import type { Camera, Viewport, WorldBox } from './viewport-visibility.ts';
 
 /** The tightest world box containing every box (the union bounding box), or null when the list is empty. */
 export function unionBox(boxes: readonly WorldBox[]): WorldBox | null {

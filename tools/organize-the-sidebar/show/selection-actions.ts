@@ -13,13 +13,13 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { invertSelection } from '../read-data/box-select';
-import { buildRelationGraph } from '../read-data/relationship-graph';
-import { growSelection, shrinkSelection, relationComponentOf } from '../read-data/selection-grow';
-import { selectMatchingByDimension } from '../read-data/select-matching';
-import { BOARD_DIMENSIONS } from '../read-data/board-report';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { invertSelection } from '../read-data/box-select.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
+import { growSelection, shrinkSelection, relationComponentOf } from '../read-data/selection-grow.ts';
+import { selectMatchingByDimension } from '../read-data/select-matching.ts';
+import { BOARD_DIMENSIONS } from '../read-data/board-report.ts';
 
 /** One selection operation as DATA: run it on the current items+selection to get the NEW selection. `enabled`
  *  gates a dead no-op row out of the menu (L118) — a row only shows when it would actually change something. */

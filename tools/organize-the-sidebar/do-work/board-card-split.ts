@@ -11,7 +11,7 @@
 // (`applyCardSplit`, for tests/proof) + a live graph action (`splitCardInGraph`). The planner names no kind and
 // reads only the item's own text (L090); deterministic given an injected id mint.
 
-import type { BoardItem } from '../read-data/group-board-model';
+import type { BoardItem } from '../read-data/group-board-model.ts';
 import {
   readItems,
   placeItems,
@@ -19,7 +19,7 @@ import {
   removeItem,
   itemIsConnector,
   itemRef,
-} from '../read-data/group-board-model';
+} from '../read-data/group-board-model.ts';
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
 
 /** One child card produced by a split -- a minted id + its stacked position + the segment text. */

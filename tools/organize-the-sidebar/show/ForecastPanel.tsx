@@ -7,10 +7,10 @@
 // label reuses the due-date leaf's relativeDue reader, so there is no new date formatter. `now` is injected
 // by the shell (no clock here). A row jumps to that goal. ui only.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import { relativeDue } from '../read-data/board-due-date';
-import type { PaceVerdict } from '../read-data/board-forecast';
-import type { ForecastRow, ForecastSummary } from '../do-work/board-forecast-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import { relativeDue } from '../read-data/board-due-date.ts';
+import type { PaceVerdict } from '../read-data/board-forecast.ts';
+import type { ForecastRow, ForecastSummary } from '../do-work/board-forecast-actions.ts';
 
 export interface ForecastPanelProps {
   readonly rows: readonly ForecastRow[];

@@ -11,9 +11,9 @@
 // is `bucketDistribution` — still a pure composition over the census, it just re-projects the tallies onto the
 // spec's label order. Pure, deterministic; the engine names no measure or band (all DATA).
 
-import type { BoardItem } from './group-board-model';
-import { facetCensus, type FacetExtract } from './board-facet-census';
-import type { BoardMeasure } from './board-facet-pivot';
+import type { BoardItem } from './group-board-model.ts';
+import { facetCensus, type FacetExtract } from './board-facet-census.ts';
+import type { BoardMeasure } from './board-facet-pivot.ts';
 
 /** A bucket spec: `edges` are ascending INTERIOR boundaries; `labels` names the `edges.length + 1` bands. A
  *  value falls in band i where `edges[i-1] <= v < edges[i]` (half-open): `v < edges[0]` → band 0; `v >= ` the

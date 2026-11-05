@@ -13,8 +13,8 @@ import {
   shapeSvgPathOf,
   shapeOutlinePoints,
   type ShapeGeometry,
-} from '../do-work/shape-geometry';
-import { mergeCatalog } from '../read-data/catalog-merge';
+} from '../do-work/shape-geometry.ts';
+import { mergeCatalog } from '../read-data/catalog-merge.ts';
 
 /** One named shape: a label + lucide icon the user picks, plus its GEOMETRY (the
  *  self-describing descriptor — the SSOT). `clipPath` is DERIVED from `geometry`

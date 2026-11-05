@@ -5,8 +5,8 @@
 // badge} row (idea label + its vote count) and hands them to the blind list; a row click jumps to that
 // idea. Zero list/layout code of its own — the two-caller proof that RankedJumpList is the primitive.
 
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { VoteRankingRow } from '../do-work/board-votes-actions';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { VoteRankingRow } from '../do-work/board-votes-actions.ts';
 
 export interface VoteRankingPanelProps {
   readonly rows: readonly VoteRankingRow[];

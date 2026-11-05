@@ -11,10 +11,10 @@
 // the furniture guard (so a generated region-heading is never flagged "needs a deadline"). Pure, deterministic;
 // reads only the cards' own due dates (no clock — the span is a property of the data, not of "now").
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { dueDateFromRaw, dueMsToDateLabel } from '../read-data/board-due-date.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 
 /** A content card = not a connector (an edge) and not generated furniture (a heading/axis-tick). Only content
  *  cards can meaningfully carry — or lack — a due date. */

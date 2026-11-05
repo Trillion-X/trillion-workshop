@@ -11,7 +11,7 @@
 // as ConnectorLayer / the addressed-marks ink layer) — there is no `ui` vector line.
 
 import React from 'react';
-import type { SnapGuide } from './snap-guides';
+import type { SnapGuide } from './snap-guides.ts';
 
 const SNAP_COLOR = '#f24822';
 

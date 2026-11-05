@@ -6,8 +6,8 @@
 // emits toggle/add/remove; the mount owns the draft + commits the mutations. L065: ui components only
 // (the done toggle is a Button with a box glyph — there is no plain Checkbox in the ui barrel).
 
-import { Button, Card, Container, Input, ProgressBar, Text } from '../../ui';
-import { type Checklist, checklistProgress } from '../read-data/board-checklist';
+import { Button, Card, Container, Input, ProgressBar, Text } from '../../ui/index.ts';
+import { type Checklist, checklistProgress } from '../read-data/board-checklist.ts';
 
 export interface ChecklistPanelProps {
   readonly checklist: Checklist;

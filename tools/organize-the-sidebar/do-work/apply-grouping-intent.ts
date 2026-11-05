@@ -35,7 +35,7 @@
 // identities come from a caller-supplied minter, so identity policy stays with
 // whoever owns identity.
 
-import type { ContainmentRecord } from './group-from-containment-projection';
+import type { ContainmentRecord } from './group-from-containment-projection.ts';
 
 /** One nesting instruction, written in human words (A1). */
 export interface NestIntent {

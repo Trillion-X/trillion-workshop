@@ -1,0 +1,10 @@
+{
+  "name": "find-anything-from-one-box",
+  "private": true,
+  "type": "module",
+  "imports": {
+    "#workspace-records": {
+      "node": "./read-data/records-in-node.mjs"
+    }
+  }
+}

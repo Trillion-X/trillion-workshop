@@ -8,7 +8,7 @@
 // searching. Order-stable, deterministic, engine-free — composes with the fold reducer
 // (`outline-fold`) the same way: the editor picks one reducer per render.
 
-import type { ListItem } from './list-block-model';
+import type { ListItem } from './list-block-model.ts';
 
 const norm = (s: string): string => s.trim().toLowerCase();
 

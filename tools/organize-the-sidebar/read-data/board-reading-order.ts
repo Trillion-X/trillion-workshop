@@ -14,10 +14,10 @@
 // generic over an injected `(t) => number` accessor (the exact injected-capability shape of b166's facetCensus).
 // Pure, deterministic (stable tie-break by value then memberId); connectors/furniture excluded.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import { cardTitle } from './card-references';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import { cardTitle } from './card-references.ts';
 
 /** 1D gap clustering — the generative kernel. Orders `items` by `valueOf` ascending, then splits into bands
  *  wherever consecutive values differ by MORE than `tolerance`. Each band is itself value-ascending; the bands

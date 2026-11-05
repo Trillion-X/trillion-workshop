@@ -10,10 +10,10 @@
 // A card whose only reference is BROKEN (`[[Nonexistent]]`) still counts as an orphan — a dangling link
 // connects it to nothing real (cardReferences only yields RESOLVED edges). Deterministic (sorted).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { buildRelationGraph } from './relationship-graph';
-import { cardReferences } from './card-references';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { buildRelationGraph } from './relationship-graph.ts';
+import { cardReferences } from './card-references.ts';
 
 /** The member ids of every card touched by a drawn connector OR a resolved `[[reference]]` (either direction). */
 function connectedIds(items: readonly BoardItem[]): Set<string> {

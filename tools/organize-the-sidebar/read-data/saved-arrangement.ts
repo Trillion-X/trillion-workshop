@@ -9,16 +9,16 @@
 
 import type { AddressRef } from '../../ui/show/group/group-graph';
 import type { GroupGraph } from '../../ui/show/group/group-graph';
-import type { BoardTemplate, TemplateItem } from './board-template-apply';
-import { boardToTemplate } from './group-board-model';
-import { parseRows } from './catalog-merge';
-import { BOARD_TEMPLATES } from '../show/board-templates';
+import type { BoardTemplate, TemplateItem } from './board-template-apply.ts';
+import { boardToTemplate } from './group-board-model.ts';
+import { parseRows } from './catalog-merge.ts';
+import { BOARD_TEMPLATES } from '../show/board-templates.ts';
 import {
   readActiveCollections,
   readArchivedCollections,
   saveCollection,
   type StoredCollection,
-} from './collection-store';
+} from './collection-store.ts';
 import {
   type ArrangementArtifact,
   type ArrangementProducer,
@@ -36,12 +36,12 @@ import {
   FACET_LENS_CAPABILITY,
   AXIS_LENS_CAPABILITY,
   TIMELINE_LENS_CAPABILITY,
-} from './arrangement-artifact';
-import { itemTags } from '../show/item-tags';
-import { itemFillColor } from '../show/item-fill';
-import { searchCollections, COLLECTION_FACETS, type SearchQuery, type SearchableCollection } from './collection-search';
-import { facetValues, facetValueCounts, ownValue, type FacetSelection } from './facet-filter';
-import { finiteCoord } from './finite-coord';
+} from './arrangement-artifact.ts';
+import { itemTags } from '../show/item-tags.ts';
+import { itemFillColor } from '../show/item-fill.ts';
+import { searchCollections, COLLECTION_FACETS, type SearchQuery, type SearchableCollection } from './collection-search.ts';
+import { facetValues, facetValueCounts, ownValue, type FacetSelection } from './facet-filter.ts';
+import { finiteCoord } from './finite-coord.ts';
 
 // ---- untrusted-DATA bounds (a lens catalog + collection index are persisted records) ----------
 // GUARDS, not feature caps: no real library approaches them, but a corrupted/hostile persisted record

@@ -18,8 +18,8 @@
 // deep chain cannot overflow the stack). Deterministic: nodes and adjacency are visited in sorted id order, and
 // tangles are sorted by size (desc) then first member id. Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
 
 /** One circular-dependency tangle — a ring of cards that all wait on each other. */
 export interface CardCycle {

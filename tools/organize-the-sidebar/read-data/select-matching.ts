@@ -12,9 +12,9 @@
 // come for free: `cluster` (select the same graph cluster) and `progress-band` (select the same progress band)
 // work with zero new code. Pure, deterministic; owns no facet vocabulary (the extractor is supplied).
 
-import type { BoardItem } from './group-board-model';
-import type { FacetExtract } from './board-facet-census';
-import { dimensionDefById } from './board-report';
+import type { BoardItem } from './group-board-model.ts';
+import type { FacetExtract } from './board-facet-census.ts';
+import { dimensionDefById } from './board-report.ts';
 
 /** The set of facet values carried by the seed items (the values we will match against). */
 function seedFacetValues(items: readonly BoardItem[], seedIds: readonly string[], facet: FacetExtract): Set<string> {

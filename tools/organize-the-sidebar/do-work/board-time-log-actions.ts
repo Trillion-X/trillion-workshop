@@ -8,9 +8,9 @@
 // It also COMPOSES with the metric primitive into velocity (progress-per-hour) without a new engine.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 import {
   type TimeLog,
   type TimeSession,
@@ -20,8 +20,8 @@ import {
   timeInWindowMs,
   timeLogFromRaw,
   totalDurationMs,
-} from '../read-data/board-time-log';
-import { fraction, metricFromRaw, startOf } from '../read-data/board-metric';
+} from '../read-data/board-time-log.ts';
+import { fraction, metricFromRaw, startOf } from '../read-data/board-metric.ts';
 
 /** An item is an effort TARGET iff it is real content, not a connector or furniture. */
 export function itemIsTimeTarget(item: BoardItem): boolean {

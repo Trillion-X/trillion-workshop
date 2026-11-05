@@ -10,12 +10,12 @@
 // Chips render the HUMAN relationship LABEL from the relation catalog (never the raw id) —
 // mirroring how `kindFamilyOf` prevents raw-kind leakage (L114).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { hasActiveFacets, matchesFacets, type FacetExtractors, type FacetSelection } from '../read-data/facet-filter';
-import { relationKindSpec, DEFAULT_RELATION_KINDS, type RelationKindSpec } from '../read-data/relation-kind-catalog';
-import { DEFAULT_RELATION_KIND } from '../read-data/relationship-graph';
-import type { BoardFocusFacet } from './board-item-facets';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { hasActiveFacets, matchesFacets, type FacetExtractors, type FacetSelection } from '../read-data/facet-filter.ts';
+import { relationKindSpec, DEFAULT_RELATION_KINDS, type RelationKindSpec } from '../read-data/relation-kind-catalog.ts';
+import { DEFAULT_RELATION_KIND } from '../read-data/relationship-graph.ts';
+import type { BoardFocusFacet } from './board-item-facets.ts';
 
 /**
  * The human relationship LABEL a connector carries, via the relation catalog (e.g. "depends on").

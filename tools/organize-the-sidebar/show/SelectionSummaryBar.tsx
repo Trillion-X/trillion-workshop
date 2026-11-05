@@ -11,9 +11,9 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Badge, Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { selectionSummary } from '../read-data/selection-summary';
+import { Badge, Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { selectionSummary } from '../read-data/selection-summary.ts';
 
 export interface SelectionSummaryBarProps {
   readonly items: readonly BoardItem[];
