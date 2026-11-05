@@ -1002,6 +1002,22 @@
       "source_identity": "1f:552a03cbefce539a2cd95ee451d139bad48a05b9f60c1aa2614749c10b513f62",
       "identity": "1f:d9e1bdf22ad169cca094e57034ed7bb2d81416aa5e6ac0737ebbe3b34b4de222",
       "adapted": "the first test is the old one with the store host's import path named; the second, over a whole old person store (personStoreOver), is left out: that store went with the Worker."
+    },
+    {
+      "from": "test/moments.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/moments.test.mjs",
+      "source_identity": "1f:4676ecca7d1bd96de63093abb58db7c777f91cc20dbc4c04229f35ce6ef35cdd",
+      "identity": "1f:b572392e334f94e31c6d54a12dc91a02f487420cf56851fde37114c2cadc75d9",
+      "adapted": "the four tests of the pure moment parts are the old ones; the fifteen that made arrivals through old src/inbound.mjs and the starting rules (src/automations.mjs) are left out: neither runs anywhere."
+    },
+    {
+      "from": "test/automation-health.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/automation-health.test.mjs",
+      "source_identity": "1f:ef9cf2d9140b64f5982a4ca2ee3e0fcce15f53d2c45a95be891d233871e53445",
+      "identity": "1f:81a98a91e487c3433b499baaa1a4a4c78a83e2016be48f78b2a5b1fc6fe3199f",
+      "adapted": "the six health tests run makeSourceHealth with the formula engine's filter, not the Workshop tool wrapper; the shipped-sample check (kept tool row) and the four readHealth tests (old automations and inbound run nowhere) are left out."
     }
   ]
 }
