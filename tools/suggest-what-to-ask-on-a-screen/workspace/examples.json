@@ -383,6 +383,14 @@
         { "id": "simplify-workspace", "title": "Make my workspace easier to use", "detail": "Keep the things you need visible and adjust the rest for your work.", "do_this": "Read my current Trillion workspace settings and the controls available to my account. Use my stated preferences and current work to simplify what I see, preserving access to my work, then read back the settings you changed and explain how to find anything you hid." }
       ]
     },
+    "show-rules-admin": {
+      "label": "Account visibility",
+      "examples": [
+        { "id": "what-shows-now", "title": "See what shows, and why", "detail": "Which preset is in use and which rules decide what you see.", "do_this": "Read my show rules with tool:see-when-things-show and tell me, in plain words, which preset is in use, which rules are in force, and what each one shows or hides." },
+        { "id": "share-a-preset", "title": "Share a preset with someone", "detail": "Let a person you work with see things the way you set them up.", "do_this": "List my kept show presets with tool:see-when-things-show, ask me which one to share and with whom, then share it with tool:share-a-kept-show-type and read back who it is shared with." },
+        { "id": "switch-when-it-happens", "title": "Switch a preset when something happens", "detail": "Change what you see when a moment you name arrives.", "do_this": "Ask me which preset I want on and when, then set a wake for tool:switch-a-kept-show-type that switches it on at that moment, and read back the wake so I can check it." }
+      ]
+    },
     "spend": {
       "label": "Spend",
       "examples": [

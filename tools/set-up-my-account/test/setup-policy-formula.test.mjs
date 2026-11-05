@@ -8,7 +8,7 @@ import { makeRowFilter } from '../../formula-engine/rules/filter-rows-by-rules.m
 import { setupStepsWithRules, readSetupPolicy } from '../read-data/setup-steps.mjs';
 import { provenSetup, pendingSetup } from './setup-fixtures.mjs';
 import { observerBucket } from '../../funnels-screen/read-data/score-candidates.ts';
-import computerRows from '../../run-on-a-persons-computer/computer-sources.json' with { type: 'json' };
+import computerRows from '../read-data/computer-sources.json' with { type: 'json' };
 
 const filter = makeRowFilter({ operators, wasm: () => readFileSync(new URL('../../formula-engine/built-stored-bytes/evaluate-over-rows/evaluate-over-rows_bg.wasm', import.meta.url)) });
 await filter.load();

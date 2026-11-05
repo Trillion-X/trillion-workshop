@@ -45,7 +45,7 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
 import { bucketsThatDiffer, storeSums } from './record-digest.mjs';
-import { envelopeStamp } from './record-log-store.mjs';
+import { envelopeStamp } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
 import { stateFrom, merge, keptFrom, envelopeOfKept, sameKept } from './record-stamps.mjs';
 
 const PAGE = 200;

@@ -3,8 +3,8 @@
 // store), and a record ID always hides the corresponding older table row, even when
 // the newer record no longer matches a list's filter. The reconciler's due work (dueReviews) is read from both sides,
 // each side's dependencies resolved through this bridge; where its slice of open work ended is kept by `current`.
-import { handoffProjection, projectHandoff, taskMapHandoff } from './handoff-projection.mjs';
-import { MAX_PULLED, reviewOf } from './agents.mjs';
+import { handoffProjection, projectHandoff, taskMapHandoff } from '../shared-code/src/handoff-projection.mjs';
+import { MAX_PULLED, reviewOf } from '../shared-code/src/agents.mjs';
 import { ownWorkFromTable, scheduledHandoffsPageFromTable } from './agent-schedule-rows.mjs';
 import { AGENT_RECORD_TABLES, NotificationIndexBuilding } from './agent-records.mjs';
 
