@@ -1,0 +1,99 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-GENERATE-AND-JUDGE-SOUND-EFFECTS-JUDGE-SOUND-EFFECTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, lane audio-sound (sound effects), 2026-11-05",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e3692e6657b3bd82826717483e84c4a5f1a51d3fe88f9ff0cee6f73dbf3d2d33",
+   "lines": [
+    30,
+    88
+   ],
+   "multihash": "1f:1c8595ae6277a9a1098da1e5ed9ac7d829d2bb7c43cfefb3c2ee60f89021a942",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e3692e6657b3bd82826717483e84c4a5f1a51d3fe88f9ff0cee6f73dbf3d2d33",
+   "lines": [
+    3,
+    28
+   ],
+   "multihash": "1f:8062094e4a4c89c8580208a79da68d06471902804ed9a5b5c4c19663a5a1913b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e3692e6657b3bd82826717483e84c4a5f1a51d3fe88f9ff0cee6f73dbf3d2d33",
+   "lines": [
+    90,
+    141
+   ],
+   "multihash": "1f:53e99b11294456e1580bcfe799d243e0890b74a3def9b068f57ecda1ff29e571",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/generate-and-judge-sound-effects/do-work/judge_sound_effects.py",
+   "baseline_commit_message": "generate-and-judge-sound-effects: byte copies of the sound-effect sourcing, palette and judging scripts"
+  }
+ ],
+ "preserve": [
+  "a one-shot candidate is trimmed by earshot find plus refine, a swell or long tail whole",
+  "a lead-in is cut so its peak sits where the real one peaks, keeping its length; one that builds for too short a time is not eligible",
+  "the pick is the highest match z among candidates at or under the saturation share",
+  "the pick is scaled to the real sound's active-part RMS, never above -1 dBFS peak, and A/B-compared with it",
+  "naming sounds judges only those again and keeps the other picks"
+ ],
+ "allowed_deltas": [
+  "which sounds, their queries, the generators and their globs, group_of, lead_in, whole, not_from_pick_of, max_saturated and least_build are the request's or the settings record's",
+  "a sound with no clean eligible candidate is a named refusal instead of a crash",
+  "paths, the person's words and tuned values come from argv or a request file instead of the source repository's folders and constants",
+  "the last line printed is {\"result\": ...} or {\"error\": ...}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another Workshop tool",
+  "the person's words or thresholds written into the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:1c8595ae6277a9a1098da1e5ed9ac7d829d2bb7c43cfefb3c2ee60f89021a942",
+  "target_multihash_at_baseline": "1f:1c8595ae6277a9a1098da1e5ed9ac7d829d2bb7c43cfefb3c2ee60f89021a942",
+  "commit": "8316c1e2fdd95941f1a5ba406a03034195cf2ad9",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def lead_in(x, ref, rate)",
+   "def active_rms(y)",
+   "api.ab("
+  ],
+  "test_refs": [
+   "tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py",
+   "tools/generate-and-judge-sound-effects/test/generate-and-judge-sound-effects.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

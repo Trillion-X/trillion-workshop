@@ -1,0 +1,68 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-GENERATE-AND-JUDGE-SOUND-EFFECTS-SCORE-SOUNDTRACK-VARIANTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, lane audio-sound (sound effects), 2026-11-05",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:0c003e5ab09aa5e2a9804a3d39c30c49631ffd15433a0e01d36a655ea209e9dc",
+   "lines": [
+    2,
+    47
+   ],
+   "multihash": "1f:b03cc75442516d7b2899a1f574202d33229dad2047dced4bf1cf464d9b80d1a1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/generate-and-judge-sound-effects/do-work/score_soundtrack_variants.py",
+   "baseline_commit_message": "generate-and-judge-sound-effects: byte copies of the sound-effect sourcing, palette and judging scripts"
+  }
+ ],
+ "preserve": [
+  "critique with the picture, timeline sync to the cue frames, realness",
+  "match z at every cue for the effect's length (0.25 to 2 s) on the layer and in the mix",
+  "medians per variant and per sound; variants merge into the scores file"
+ ],
+ "allowed_deltas": [
+  "the picture, cue plan, sound queries, palette and scores file are the request's",
+  "paths, the person's words and tuned values come from argv or a request file instead of the source repository's folders and constants",
+  "the last line printed is {\"result\": ...} or {\"error\": ...}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another Workshop tool",
+  "the person's words or thresholds written into the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b03cc75442516d7b2899a1f574202d33229dad2047dced4bf1cf464d9b80d1a1",
+  "target_multihash_at_baseline": "1f:b03cc75442516d7b2899a1f574202d33229dad2047dced4bf1cf464d9b80d1a1",
+  "commit": "8316c1e2fdd95941f1a5ba406a03034195cf2ad9",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "api.critique(",
+   "api.timeline(",
+   "critique_text(crit)"
+  ],
+  "test_refs": [
+   "tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py",
+   "tools/generate-and-judge-sound-effects/test/generate-and-judge-sound-effects.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}
