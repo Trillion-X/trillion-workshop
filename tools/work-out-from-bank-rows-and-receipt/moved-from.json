@@ -17,6 +17,14 @@
       "to": "tools/work-out-from-bank-rows-and-receipt/test/money-out.test.mjs",
       "source_identity": "1f:e2ab01634d656320cdd2ea85bb9c9f997155957393a602b93d343c4735c7da16",
       "identity": "1f:e2ab01634d656320cdd2ea85bb9c9f997155957393a602b93d343c4735c7da16"
+    },
+    {
+      "from": "test/spend-merchants.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/work-out-from-bank-rows-and-receipt/test/spend-merchants.test.mjs",
+      "source_identity": "1f:415d574d520a30250c33c2c2908784d2dac64bdd32d516e07cb573d41425f7cf",
+      "identity": "1f:d5a78e79b1f7bc946b36c3f7ff951440491653cf3c1632fee9ac364dafb41def",
+      "adapted": "the merchant checks are made on src/money-out.mjs merchantsFrom, which old spendMeter made its merchant rows with (trend.change and flag_duplicate for the screen's words); the Spend screen's items, Cloudflare lines and usage, totals and connect cards are left out: spendMeter runs nowhere."
     }
   ]
 }
