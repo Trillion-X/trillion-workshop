@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:fd1e0af731332bad4cdf45a32559516202af8676d0a032686d1f025701c8375c"
+  "blake3": "1f:85344ee71a6a98911b6e4677adcc989b8c2affe8fd688484abac159d576e9b9a"
  },
  "fields": [
   {
@@ -7645,6 +7645,21 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:rank-library-formats-against-concepts",
+   "values": {
+    "title": "Match every video format I have collected to every idea I could film, and keep the best fits",
+    "job": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+    "description": "Two steps. catalog lists every candidate format (each analysed item in the library's index, the title templates in a bank that name a form, and the person's own formats) and every concept (each concept heading with its beats and how many of its moments were found, and how many of those are on this computer or in cloud storage) as tab-separated lines for judges to read; the concept lines never name a format. apply reads judged files ({concept id: [{format, fit, material?}] best first}), refuses a format key the catalog does not hold and a concept nobody judged, and writes format_options (each judged option with its type, medium, library path, fit and the concept's moment counts), format_palette (every format some concept's options use, plus each plan's pick) and format_ranking_about into the titles file. The ranking is a reading of the whole catalog per concept by judges, not a model score: a cross-encoder scores topic, not form. Everything that belongs to the person (their form templates, stable format keys, their own formats, the package ids, which concepts to skip, the material wording and the about text) is their settings: a row of their list:settings (record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, named by settings_record) read through tools/settings, with the run's own settings laid over it. Paths are inside the folder the person let this tool change (apply rewrites the titles file there). Run catalog, read every candidate against every concept (yourself or with judges), write each concept's best three to five formats with why to a judged file, then run apply; never pick a format by a model score, and never change the person's titles file without their say.",
+    "status": "active",
+    "maker": "maker:rank-library-formats-against-concepts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "rank-library-formats-against-concepts"
    }
   },
   {
