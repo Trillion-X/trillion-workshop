@@ -3033,6 +3033,20 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/tell-a-chat-app.mjs",
       "source_identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569",
       "identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569"
+    },
+    {
+      "from": "test/tell-a-chat-app.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/tell-a-chat-app.test.mjs",
+      "source_identity": "1f:33a64b88b5c236b2fd564b9a97beaf523ce3cd76095118742599656ba6d3316b",
+      "identity": "1f:33a64b88b5c236b2fd564b9a97beaf523ce3cd76095118742599656ba6d3316b"
+    },
+    {
+      "from": "scripts/publish-registry.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/scripts/publish-registry.mjs",
+      "source_identity": "1f:eea6b54423bc497e2779f3ecdb071a10ecf1593187b23fc45241faeb63c85948",
+      "identity": "1f:eea6b54423bc497e2779f3ecdb071a10ecf1593187b23fc45241faeb63c85948"
     }
   ]
 }
