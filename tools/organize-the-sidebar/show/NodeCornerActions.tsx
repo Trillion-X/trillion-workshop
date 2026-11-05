@@ -3,10 +3,10 @@
 // offers to do to its record.
 
 import React from 'react';
-import { Button, Icon } from '../../ui';
+import { Button, Icon } from '../../ui/index.ts';
 import { AppWindow, ArrowUpRight, ChevronDown, ChevronRight } from 'lucide-react';
-import { linkHost } from './item-link';
-import { boardLinkLabel } from './item-board-link';
+import { linkHost } from './item-link.ts';
+import { boardLinkLabel } from './item-board-link.ts';
 
 export interface NodeCornerActionsProps {
   /** #163 — present when the node roots a connector subtree; drives the caret. */

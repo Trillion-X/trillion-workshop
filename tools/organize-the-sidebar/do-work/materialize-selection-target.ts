@@ -12,14 +12,14 @@ import {
   makeHashCodeHexFromBytes,
 } from '#workspace-records';
 import type { AddressRef } from '../../ui/show/group/group-graph';
-import { groupRecordAddress } from '../read-data/group-eeaf';
+import { groupRecordAddress } from '../read-data/group-eeaf.ts';
 import {
   loadGroupGraphFromRoots,
   type BoardRequestSender,
   type GroupSourceObservation,
-} from '../read-data/read-group-board';
-import { boardToCapsuleSource } from '../read-data/board-to-capsule-source';
-import { buildShareCapsule } from '../read-data/share-capsule';
+} from '../read-data/read-group-board.ts';
+import { boardToCapsuleSource } from '../read-data/board-to-capsule-source.ts';
+import { buildShareCapsule } from '../read-data/share-capsule.ts';
 
 type Plain = Record<string, unknown>;
 type ExactRef = { address: string; revision: string; object_hash: string };

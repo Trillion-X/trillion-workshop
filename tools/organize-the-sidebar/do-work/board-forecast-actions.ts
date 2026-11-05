@@ -8,13 +8,13 @@
 // connectors + auto furniture are never targets. Composes three primitives with no new engine (L063/L069).
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { metricFromRaw, remaining } from '../read-data/board-metric';
-import { dueDateFromRaw } from '../read-data/board-due-date';
-import { velocityPerHourOfItem } from './board-time-log-actions';
-import { forecast, compareForecasts, type Forecast } from '../read-data/board-forecast';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { metricFromRaw, remaining } from '../read-data/board-metric.ts';
+import { dueDateFromRaw } from '../read-data/board-due-date.ts';
+import { velocityPerHourOfItem } from './board-time-log-actions.ts';
+import { forecast, compareForecasts, type Forecast } from '../read-data/board-forecast.ts';
 
 /** An item is a forecast TARGET iff it carries a metric and is real content (not a connector/furniture). */
 export function itemIsForecastTarget(item: BoardItem): boolean {

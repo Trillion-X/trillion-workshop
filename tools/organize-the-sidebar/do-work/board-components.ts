@@ -10,8 +10,8 @@
 // with at least one connector belong to a component (an isolated card is not an island). Deterministic
 // (components sorted by size desc then first member id; members sorted within a component). Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
 
 /** One connected sub-graph of the board's connectors. */
 export interface ConnectorComponent {

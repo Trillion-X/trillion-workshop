@@ -7,7 +7,7 @@
 // (L090). Built on the `ui` Container primitive; the track sits on the card's lower border radius.
 
 import * as React from 'react';
-import { Container } from '../../ui';
+import { Container } from '../../ui/index.ts';
 
 export interface CardProgressStripProps {
   /** Whole-percent completion 0..100. */

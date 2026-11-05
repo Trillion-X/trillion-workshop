@@ -9,10 +9,10 @@
 // action set moves in here.
 
 import React, { useMemo, useRef, useState } from 'react';
-import { AnchoredOverlay, Button, Icon, Input, Container, Text } from '../../ui';
+import { AnchoredOverlay, Button, Icon, Input, Container, Text } from '../../ui/index.ts';
 import { Sparkles, Plus, Search, X, Pencil } from 'lucide-react';
-import { ShelfToolButton, type ShelfEntry } from './item-renderers';
-import { foldRowGroups, namedGroupCount } from '../read-data/grouped-rows';
+import { ShelfToolButton, type ShelfEntry } from './item-renderers.tsx';
+import { foldRowGroups, namedGroupCount } from '../read-data/grouped-rows.ts';
 
 export interface BoardActionsButtonProps {
   /** The custom / producer-backed action tools (the flood we pull out of the header row). */

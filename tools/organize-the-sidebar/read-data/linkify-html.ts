@@ -8,7 +8,7 @@
 // text here (they need a board action, not a URL); the underlying `detectEntities` still surfaces them for
 // extractor callers. Anchors get target=_blank + rel="noopener noreferrer" so an opened link can't reach back.
 
-import { detectEntities, entityHref, type EntityPattern, TEXT_ENTITY_PATTERNS } from '../do-work/text-entities';
+import { detectEntities, entityHref, type EntityPattern, TEXT_ENTITY_PATTERNS } from '../do-work/text-entities.ts';
 
 // Never linkify inside these subtrees: an existing <a> (no nested links), <mark> (search hit), or verbatim
 // code/pre, or non-content script/style.

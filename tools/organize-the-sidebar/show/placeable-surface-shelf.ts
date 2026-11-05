@@ -11,7 +11,7 @@ import {
   findPlaceableSurfaces,
   type PublishedRecord,
 } from '../../ui/show/placeable-surface-intent/placeable-surface-record';
-import type { ShelfVariant } from './item-renderers';
+import type { ShelfVariant } from './item-renderers.tsx';
 import type { BoardItemDraft } from './item-add-strategies';
 import type { PlaceableSurfacePayload } from '../../ui/show/placeable-surface-intent/placeable-surface-intent';
 

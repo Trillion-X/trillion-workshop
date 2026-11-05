@@ -6,7 +6,7 @@
 // item to a screen rect and owns which panel is open. L065: ui only; the pill is a positioned Container
 // because its coordinate is dynamic (like the comments pin / vote chip).
 
-import { Button, Container, Text } from '../../ui';
+import { Button, Container, Text } from '../../ui/index.ts';
 
 export interface ChecklistPillRect {
   readonly x: number;

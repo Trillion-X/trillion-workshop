@@ -11,10 +11,10 @@
 // opacity; this edits the appearance-CASCADE overrides (glass/card chrome, text fit, density).
 
 import React, { useRef, useState } from 'react';
-import { AnchoredOverlay, Button, Container, Icon, Text } from '../../ui';
+import { AnchoredOverlay, Button, Container, Icon, Text } from '../../ui/index.ts';
 import { Palette, RotateCcw } from 'lucide-react';
-import { BoardDefaultControl } from './BoardDefaultControl';
-import { ITEM_APPEARANCE_CONTROLS, boardDefaultControlValue, type AppearanceProfile } from './item-appearance';
+import { BoardDefaultControl } from './BoardDefaultControl.tsx';
+import { ITEM_APPEARANCE_CONTROLS, boardDefaultControlValue, type AppearanceProfile } from './item-appearance.ts';
 
 export interface ItemStylePickerProps {
   /** The note's own appearance overrides (its `extra` bag). Per key: '' when unset → "Default" (inherit).

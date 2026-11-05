@@ -8,7 +8,7 @@
 // (the facet SSOT); toggling flows through `toggleFacetValue`.
 
 import React from 'react';
-import { AnchoredOverlay, Card, Container, Text, Button, Icon } from '../../ui';
+import { AnchoredOverlay, Card, Container, Text, Button, Icon } from '../../ui/index.ts';
 import { ChevronDown } from 'lucide-react';
 
 export function FacetChipGroup({

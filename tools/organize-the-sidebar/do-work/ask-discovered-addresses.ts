@@ -5,7 +5,7 @@
 
 import { sendRequestToBitfieldTarget } from '#workspace-records';
 
-import type { DiscoveredAddress } from '../read-data/read-published-records';
+import type { DiscoveredAddress } from '../read-data/read-published-records.ts';
 
 export interface DiscoveredAddressReply {
   target: string;

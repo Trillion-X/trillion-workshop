@@ -5,16 +5,16 @@
 // BoardDefaultControl primitive — adding a control for another cascade key is one descriptor row.
 
 import React, { useRef } from 'react';
-import { AnchoredOverlay, Button, Container, DisclosureSection, Icon, Text, Switch } from '../../ui';
+import { AnchoredOverlay, Button, Container, DisclosureSection, Icon, Text, Switch } from '../../ui/index.ts';
 import { SurfaceSwatch } from '../../ui/show/surface-swatch';
 import { Image as ImageIcon, Bookmark } from 'lucide-react';
-import { BOARD_BACKGROUNDS, type BoardBackground } from './board-backgrounds';
-import { BOARD_SETTING_INFO } from './board-setting-info';
-import { AppearancePresetControl } from './AppearancePresetControl';
-import type { AppearancePreset } from './appearance-presets';
-import { BoardDefaultControl } from './BoardDefaultControl';
-import { BOARD_DEFAULT_CONTROLS, boardDefaultControlValue, type AppearanceProfile } from './item-appearance';
-import type { SettingInfoDescriptor } from './SettingInfoOverlay';
+import { BOARD_BACKGROUNDS, type BoardBackground } from './board-backgrounds.ts';
+import { BOARD_SETTING_INFO } from './board-setting-info.ts';
+import { AppearancePresetControl } from './AppearancePresetControl.tsx';
+import type { AppearancePreset } from './appearance-presets.ts';
+import { BoardDefaultControl } from './BoardDefaultControl.tsx';
+import { BOARD_DEFAULT_CONTROLS, boardDefaultControlValue, type AppearanceProfile } from './item-appearance.ts';
+import type { SettingInfoDescriptor } from './SettingInfoOverlay.tsx';
 
 export interface BoardBackgroundPickerProps {
   open: boolean;

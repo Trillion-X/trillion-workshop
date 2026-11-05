@@ -7,9 +7,9 @@
 // Connectors + auto furniture are never metric targets — you measure CONTENT, not the board's scaffolding.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 import {
   type Metric,
   addToCurrent,
@@ -18,7 +18,7 @@ import {
   metricFromRaw,
   progressPct,
   rankByProgress,
-} from '../read-data/board-metric';
+} from '../read-data/board-metric.ts';
 
 /** An item is a metric TARGET iff it is real content, not a connector or furniture. */
 export function itemIsMetricTarget(item: BoardItem): boolean {

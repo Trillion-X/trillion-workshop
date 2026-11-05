@@ -7,7 +7,7 @@
 // to the list-block-model leaf (indent/outdent/normalize). Deterministic, no React, no DOM, no
 // I/O — the id of a new row is INJECTED (`newId`) so the transform stays pure and testable.
 
-import { indentItem, normalizeIndents, outdentItem, type ListItem } from './list-block-model';
+import { indentItem, normalizeIndents, outdentItem, type ListItem } from './list-block-model.ts';
 
 export interface OutlineKeyResult {
   readonly items: ListItem[];

@@ -8,9 +8,9 @@
 // ColorPickerPopover + Button + Tooltip) — zero new primitive, zero raw HTML (L065).
 
 import React, { useRef, useState } from 'react';
-import { Button, ColorDot, ColorPickerPopover, Tooltip, Container } from '../../ui';
+import { Button, ColorDot, ColorPickerPopover, Tooltip, Container } from '../../ui/index.ts';
 import { NamedIcon } from '../../ui/show/icon/NamedIcon';
-import { BOARD_FILL_SWATCHES } from './item-fill';
+import { BOARD_FILL_SWATCHES } from './item-fill.ts';
 
 const DEFAULT_COLOR = '#fde68a';
 /** The quick swatch hexes (the wheel still gives full freedom); None is its own button. */

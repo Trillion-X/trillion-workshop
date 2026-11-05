@@ -8,7 +8,7 @@
 // This module never names a concrete action — every row is opaque DATA.
 
 import { Sparkles } from 'lucide-react';
-import type { CommandPaletteItem } from '../../ui';
+import type { CommandPaletteItem } from '../../ui/index.ts';
 import type { NodeActionCapability } from '../../ui/show/node-actions';
 import { resolveNamedIcon } from '../../ui/show/icon/NamedIcon';
 import {
@@ -19,8 +19,8 @@ import {
   type ActionAffordance,
   type ActionAffordanceTrigger,
 } from '../../ui/show/action-affordance';
-import type { ProducerSubmitDescriptor } from '../do-work/submit-producer-request';
-import type { ShelfEntry } from './item-renderers';
+import type { ProducerSubmitDescriptor } from '../do-work/submit-producer-request.ts';
+import type { ShelfEntry } from './item-renderers.tsx';
 import type { AddressRef } from '../../ui/show/group/group-graph';
 
 /** The board's render-context addresses (this surface's own vocabulary — DATA

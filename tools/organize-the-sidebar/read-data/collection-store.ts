@@ -25,7 +25,7 @@
 // so it composes with the same immutable commit/undo machinery.
 
 import { type AddressRef, type GroupGraph } from '../../ui/show/group/group-graph';
-import { type BoardTemplate, type TemplateItem } from './board-template-apply';
+import { type BoardTemplate, type TemplateItem } from './board-template-apply.ts';
 import {
   recordIndexRef,
   readRecords,
@@ -38,7 +38,7 @@ import {
   restoreRecord,
   type RecordStoreSpec,
   type StoredRecord,
-} from './named-record-index';
+} from './named-record-index.ts';
 
 // One saved collection decoded from an index member. record is the portable payload.
 export interface StoredCollection {

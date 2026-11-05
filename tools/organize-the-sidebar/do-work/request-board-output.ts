@@ -25,7 +25,7 @@ import {
   decodeProcessResultWireShape,
   processExitedCode,
 } from '../../../src/workspace/process-result';
-import type { BoardOutputRoute } from '../read-data/board-output-targets';
+import type { BoardOutputRoute } from '../read-data/board-output-targets.ts';
 import { decodeWorkflowRunReply } from '#workspace-records';
 import { saveLocalFileCopy } from '../../local-files/do-work/save-local-file-copy';
 import { invokeLocalFilesTarget } from '../../local-files/read-data/invoke-local-files-target';

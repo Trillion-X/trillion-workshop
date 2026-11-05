@@ -14,9 +14,9 @@
 // read-data (the bedrock, L088) — NOT in a heavy do-work module — so both the arrange comparators and the
 // rollup accessor reuse the SAME reading with zero import cycle.
 
-import type { BoardItem } from './group-board-model';
-import { metricFromRaw, completion } from './board-metric';
-import { checklistFromRaw, checklistProgress } from './board-checklist';
+import type { BoardItem } from './group-board-model.ts';
+import { metricFromRaw, completion } from './board-metric.ts';
+import { checklistFromRaw, checklistProgress } from './board-checklist.ts';
 
 /** A card's unified completion in [0,1]: its metric completion if it has a metric (clamped, target-beat
  *  caps at 1), else its checklist fraction, else undefined (no metric and no checklist → unmeasurable). */

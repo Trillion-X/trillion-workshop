@@ -25,26 +25,26 @@ import type { BatchActionCapability, BatchRunContext, NodeRef, NodeActionCapabil
 import type { VisualLayerStackRecord } from '../../ui/show/visual-layer-stack/visual-layer-types';
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
 import { reorderMember } from '../../ui/show/group/group-graph';
-import { readItems, patchItem, patchItems, setMemberOrder, itemIsConnector, itemIsLocked, placeItem, removeItem, itemRef, assignGroupId, groupIdOf, releaseGroupId } from '../read-data/group-board-model';
-import type { BoardItem } from '../read-data/group-board-model';
-import { presentationFrameOf, resizeToAspect, toggleFrameFold } from './board-frames';
+import { readItems, patchItem, patchItems, setMemberOrder, itemIsConnector, itemIsLocked, placeItem, removeItem, itemRef, assignGroupId, groupIdOf, releaseGroupId } from '../read-data/group-board-model.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { presentationFrameOf, resizeToAspect, toggleFrameFold } from './board-frames.ts';
 /** A folded frame's height: room for its name alone. */
 const FOLDED_FRAME_HEIGHT = 56;
-import { circleLayoutRadius } from './circle-layout';
-import { arrangeByField, arrangeByFieldWithRegions, arrangeColumns, regionHeadingSpecs, regionLabelFor } from '../show/arrange-by-field';
-import type { ArrangeItem, ArrangeByFieldOptions, ClusterLayout } from '../show/arrange-by-field';
-import { arrangeMatrix } from '../show/arrange-matrix';
-import { axisPlot, axisTicks, axisTickLabels, arrangeTimelineLanes } from '../show/arrange-by-axis';
-import { dueDateOfItem } from './board-due-date-actions';
-import { dueMsToDateLabel, dueDateFromRaw } from '../read-data/board-due-date';
-import { voteCount, tallyFromRaw } from '../read-data/board-votes';
-import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist';
-import { cardCompletion } from '../read-data/card-completion';
-export { cardCompletion } from '../read-data/card-completion';
-import { importanceRanks, importanceValue } from '../read-data/board-importance';
-import { numberedCommunities } from '../read-data/board-communities';
-import type { AxisItem, ArrangeByAxisOptions } from '../show/arrange-by-axis';
-import { resolveOverlaps } from '../show/resolve-overlaps';
+import { circleLayoutRadius } from './circle-layout.ts';
+import { arrangeByField, arrangeByFieldWithRegions, arrangeColumns, regionHeadingSpecs, regionLabelFor } from '../show/arrange-by-field.ts';
+import type { ArrangeItem, ArrangeByFieldOptions, ClusterLayout } from '../show/arrange-by-field.ts';
+import { arrangeMatrix } from '../show/arrange-matrix.ts';
+import { axisPlot, axisTicks, axisTickLabels, arrangeTimelineLanes } from '../show/arrange-by-axis.ts';
+import { dueDateOfItem } from './board-due-date-actions.ts';
+import { dueMsToDateLabel, dueDateFromRaw } from '../read-data/board-due-date.ts';
+import { voteCount, tallyFromRaw } from '../read-data/board-votes.ts';
+import { checklistFromRaw, checklistProgress } from '../read-data/board-checklist.ts';
+import { cardCompletion } from '../read-data/card-completion.ts';
+export { cardCompletion } from '../read-data/card-completion.ts';
+import { importanceRanks, importanceValue } from '../read-data/board-importance.ts';
+import { numberedCommunities } from '../read-data/board-communities.ts';
+import type { AxisItem, ArrangeByAxisOptions } from '../show/arrange-by-axis.ts';
+import { resolveOverlaps } from '../show/resolve-overlaps.ts';
 import {
   tidyTreeLayout,
   GRAPH_LAYOUTS,
@@ -52,21 +52,21 @@ import {
   type GraphEdge,
   type GraphLayoutStrategy,
   type GraphLayoutOptions,
-} from '../show/graph-layout';
-import { buildRelationGraph } from '../read-data/relationship-graph';
-import { finiteCoord } from '../read-data/finite-coord';
-import { itemTags } from '../show/item-tags';
-import { itemFillColor, hueOf, setStackFill, emptyStack, BOARD_ITEM_LAYER_REGISTRY } from '../show/item-fill';
-import { BOARD_PALETTES, cycleAssign, recolorToPalette, fixedColorAssign } from '../show/board-palettes';
-import type { BoardPalette, PaletteAssign } from '../show/board-palettes';
-import { BOARD_ITEM_FACETS } from '../show/board-item-facets';
-import { facetColorAssignment } from '../read-data/facet-filter';
-import type { FacetExtractor } from '../read-data/facet-filter';
-import { BOARD_HARMONY_SCHEMES, harmonize } from '../show/color-harmony';
-import type { HarmonyScheme } from '../show/color-harmony';
-import { MARKER_FACET_LABELS } from '../show/board-marker-catalog';
-import { SHAPE_FACET_LABELS } from '../show/board-shapes';
-import { finiteCoord } from '../read-data/finite-coord';
+} from '../show/graph-layout.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
+import { itemTags } from '../show/item-tags.ts';
+import { itemFillColor, hueOf, setStackFill, emptyStack, BOARD_ITEM_LAYER_REGISTRY } from '../show/item-fill.ts';
+import { BOARD_PALETTES, cycleAssign, recolorToPalette, fixedColorAssign } from '../show/board-palettes.ts';
+import type { BoardPalette, PaletteAssign } from '../show/board-palettes.ts';
+import { BOARD_ITEM_FACETS } from '../show/board-item-facets.ts';
+import { facetColorAssignment } from '../read-data/facet-filter.ts';
+import type { FacetExtractor } from '../read-data/facet-filter.ts';
+import { BOARD_HARMONY_SCHEMES, harmonize } from '../show/color-harmony.ts';
+import type { HarmonyScheme } from '../show/color-harmony.ts';
+import { MARKER_FACET_LABELS } from '../show/board-marker-catalog.ts';
+import { SHAPE_FACET_LABELS } from '../show/board-shapes.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 // Reduce-based bounds over the SELECTED items — NEVER `minOf(items.map(...))`: a large untrusted
 // selection (select-all on an imported/hostile board) RangeErrors past the JS spread argument limit

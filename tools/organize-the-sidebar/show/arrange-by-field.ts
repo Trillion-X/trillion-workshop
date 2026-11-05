@@ -7,8 +7,8 @@
 // (L090 — self-describing data, generic handler). Kept pure so the geometry is unit-tested;
 // the panel holds only the React state and applies the returned positions.
 
-import { finiteCoord } from '../read-data/finite-coord';
-import { ownValue } from '../read-data/facet-filter';
+import { finiteCoord } from '../read-data/finite-coord.ts';
+import { ownValue } from '../read-data/facet-filter.ts';
 
 /** Sanitize an untrusted item dimension (persisted w/h): a `Number.MAX_VALUE`/`Infinity`/`NaN` would
  *  otherwise accumulate into `colX += item.w` → an Infinity/NaN coordinate. `finiteCoord` bounds both

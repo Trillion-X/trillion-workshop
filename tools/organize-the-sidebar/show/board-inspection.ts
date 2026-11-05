@@ -9,7 +9,7 @@ import {
   createBlindRegistry,
   type BlindRegistry,
 } from '../../ui/show/blind-registry/blind-registry';
-import { parseRows } from '../read-data/catalog-merge';
+import { parseRows } from '../read-data/catalog-merge.ts';
 import BOARD_FIELDS from '../read-data/board-inspection-fields.json' with { type: 'json' };
 
 /** The board's write kind for item edits — routed by the panel through its

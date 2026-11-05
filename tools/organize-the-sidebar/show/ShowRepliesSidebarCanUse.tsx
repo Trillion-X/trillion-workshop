@@ -9,12 +9,12 @@ import { useBitfieldData } from '#workspace-records';
 import {
   askDiscoveredAddresses,
   type DiscoveredAddressReply,
-} from '../do-work/ask-discovered-addresses';
+} from '../do-work/ask-discovered-addresses.ts';
 import {
   findDiscoveredAddresses,
   normalizeFeedRows,
   readPublishedRecords,
-} from '../read-data/read-published-records';
+} from '../read-data/read-published-records.ts';
 
 export type ReplyActionHandler = (event: React.SyntheticEvent<HTMLElement>) => void;
 export type ReplyActionHandlers = Record<string, ReplyActionHandler | undefined>;

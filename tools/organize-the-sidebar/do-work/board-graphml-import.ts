@@ -15,8 +15,8 @@
 // attribute order + self-closing tags, un-escaping the five XML entities the export writes. Pure, deterministic;
 // names no kind (L090).
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { graphToBoardItems } from './graph-to-board';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { graphToBoardItems } from './graph-to-board.ts';
 
 export interface GraphmlNode {
   readonly id: string;

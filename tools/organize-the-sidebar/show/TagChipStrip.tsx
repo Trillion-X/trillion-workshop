@@ -6,8 +6,8 @@
 // hue derived from the tag text (never an index/order), so the colours are stable across notes and boards.
 // Display-only, pure (no state, no I/O); renders null for an empty list so a tag-less note is byte-identical.
 import React from 'react';
-import { Container, Text } from '../../ui';
-import { labelColor } from '../do-work/label-color';
+import { Container, Text } from '../../ui/index.ts';
+import { labelColor } from '../do-work/label-color.ts';
 
 export interface TagChipStripProps {
   readonly tags: readonly string[];

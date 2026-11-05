@@ -9,7 +9,7 @@
 // for the envelope grammars). Adding a destination — a project folder, a workflow-owner
 // delivery — is ONE published-record DATA row, zero panel code (L069/L090/mergeCatalog).
 
-import { mergeCatalog } from './catalog-merge';
+import { mergeCatalog } from './catalog-merge.ts';
 
 // ---- untrusted-DATA caps (a target row is a label + an address, never a document) ----
 const MAX_ID = 200;

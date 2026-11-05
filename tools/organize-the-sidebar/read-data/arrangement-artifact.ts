@@ -15,9 +15,9 @@
 // correct; snapshot = the constant producer, live-recipe = the arrange producer, one
 // `resolve(artifact, targetItems) -> BoardTemplate` before the existing applyTemplate).
 
-import type { BoardTemplate, TemplateItem } from './board-template-apply';
-import { arrangeByField } from '../show/arrange-by-field';
-import { arrangeByAxis, arrangeTimelineLanes } from '../show/arrange-by-axis';
+import type { BoardTemplate, TemplateItem } from './board-template-apply.ts';
+import { arrangeByField } from '../show/arrange-by-field.ts';
+import { arrangeByAxis, arrangeTimelineLanes } from '../show/arrange-by-axis.ts';
 
 /** The context a producer resolves against: the target board's CURRENT items as portable
  *  TemplateItems, so a live lens can re-cluster them. A snapshot producer ignores this. */

@@ -6,8 +6,8 @@
 // goal rollup all speak the SAME completion. A card with no metric and no checklist → null → no strip
 // (plain notes render byte-identically, zero regression).
 
-import type { BoardItem } from './group-board-model';
-import { cardCompletion } from './card-completion';
+import type { BoardItem } from './group-board-model.ts';
+import { cardCompletion } from './card-completion.ts';
 
 export interface CardProgressView {
   /** Whole-percent completion 0..100 (for the strip width + an aria label). */

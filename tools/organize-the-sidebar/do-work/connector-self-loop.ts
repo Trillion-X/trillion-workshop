@@ -12,8 +12,8 @@
 // Pure leaf (only the geometry types). A self-loop is a cubic (`C`), so — like every curved connector — it
 // yields no polyline and simply sits out the crossing-jump pass (b87) and the parallel fan (b88).
 
-import type { ConnectorRect, ConnectorGeometry } from './connector-geometry';
-import type { FanEdge } from './connector-fan';
+import type { ConnectorRect, ConnectorGeometry } from './connector-geometry.ts';
+import type { FanEdge } from './connector-fan.ts';
 
 const BASE_REACH = 30; // how far the first loop bulges off the box edge
 const REACH_STEP = 16; // extra reach per additional self-loop on the same node (nested, distinct)

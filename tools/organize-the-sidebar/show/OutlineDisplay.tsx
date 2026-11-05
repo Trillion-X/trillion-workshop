@@ -10,11 +10,11 @@
 //
 // Purely presentational: no editing, no I/O. The ListBlockEditor owns editing; this owns look.
 
-import { Text } from '../../ui';
+import { Text } from '../../ui/index.ts';
 import { MediaFrame } from '../../ui/show/media-frame/MediaFrame';
-import { Container } from '../../ui';
-import { markerCellForIndex, type BoardMarker } from './board-marker-catalog';
-import { outlineOrdinals, parseOutline } from '../read-data/outline-text';
+import { Container } from '../../ui/index.ts';
+import { markerCellForIndex, type BoardMarker } from './board-marker-catalog.ts';
+import { outlineOrdinals, parseOutline } from '../read-data/outline-text.ts';
 
 export interface OutlineDisplayProps {
   readonly text: string;

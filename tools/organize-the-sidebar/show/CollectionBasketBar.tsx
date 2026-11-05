@@ -7,7 +7,7 @@
 // (L118 — no filler when there's nothing to collect). Composed from ui primitives (L065).
 
 import React from 'react';
-import { Container, Text, Button } from '../../ui';
+import { Container, Text, Button } from '../../ui/index.ts';
 
 /** "N items from M boards" — the basket's plain-language summary. Pure, singular-aware. */
 export function basketSummaryLabel(itemCount: number, boardCount: number): string {

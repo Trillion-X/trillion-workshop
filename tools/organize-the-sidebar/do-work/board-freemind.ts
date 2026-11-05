@@ -12,11 +12,11 @@
 // The board builder is the SHARED `outlineLinesToBoardItems`. So this file is pure wiring: a sniff + the spec +
 // the two thin round-trip functions. Pure, deterministic; the `.mm` `<map>` wrapper is ignored on import.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { mindMapOutline, type OutlineLine } from './batch-actions';
-import { parseNestedTree, outlineToNestedXml, type NestedTreeSpec } from './nested-tree-xml';
-import { outlineLinesToBoardItems } from './board-opml-import';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { mindMapOutline, type OutlineLine } from './batch-actions.ts';
+import { parseNestedTree, outlineToNestedXml, type NestedTreeSpec } from './nested-tree-xml.ts';
+import { outlineLinesToBoardItems } from './board-opml-import.ts';
 
 /** FreeMind's nested-tree dialect: `<node TEXT="…">`. One DATA row over the generic nested-XML primitive. */
 export const FREEMIND_SPEC: NestedTreeSpec = { tag: 'node', textAttrs: ['TEXT'] };

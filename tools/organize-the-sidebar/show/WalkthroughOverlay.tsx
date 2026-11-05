@@ -9,7 +9,7 @@
 // The spotlight ring is dynamic (position of an arbitrary target), so it uses positioned
 // Containers; chrome uses the Card popover variant and ui Buttons (L065).
 
-import { Button, Card, Container, Text } from '../../ui';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
 import { NODE_REF_ATTR } from '../../ui/show/node-actions';
 import { STAGE_CHROME_ATTR } from '../../ui/show/canvas-viewport/stage-chrome';
 import {
@@ -18,7 +18,7 @@ import {
   stepAt,
   tourProgressLabel,
   type Tour,
-} from '../read-data/walkthrough';
+} from '../read-data/walkthrough.ts';
 
 export interface TargetRect {
   readonly x: number;

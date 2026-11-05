@@ -22,9 +22,9 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import type { BoardItem, PlaceItemArgs } from '../read-data/group-board-model';
-import { itemRef } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
+import type { BoardItem, PlaceItemArgs } from '../read-data/group-board-model.ts';
+import { itemRef } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
 
 /** A record's live state as a card shows it: its words and a tone (good, attention, bad, info, quiet or a badge variant). */
 export type SourceState = { readonly label: string; readonly tone?: string; readonly pulse?: boolean };

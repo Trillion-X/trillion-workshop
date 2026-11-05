@@ -17,9 +17,9 @@
 // plain-text note and a rich note match identically. DOMParser is present in the browser and jsdom.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import { readItems, patchItems, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
-import { buildMatcher, replaceString, replacementFor, type TextReplaceOptions } from '../read-data/text-replace';
+import { readItems, patchItems, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
+import { buildMatcher, replaceString, replacementFor, type TextReplaceOptions } from '../read-data/text-replace.ts';
 
 export interface BoardReplaceResult {
   readonly graph: GroupGraph;

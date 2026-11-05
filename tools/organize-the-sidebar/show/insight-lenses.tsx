@@ -13,16 +13,16 @@
 // bodies are pure SVG.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import type { TreemapBounds } from '../do-work/treemap';
-import { ClusterHullOverlay, clusterFacetById } from './ClusterHullOverlay';
-import { spatialClusterFacet } from './spatial-cluster-facet';
-import { contentSimilarFacet } from './content-similar-facet';
-import { DensityHeatmapOverlay, densityWeightById, densityRampById } from './DensityHeatmapOverlay';
-import { TreemapOverlay, treemapValueById } from './TreemapOverlay';
-import { labelColor } from '../do-work/label-color';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import type { TreemapBounds } from '../do-work/treemap.ts';
+import { ClusterHullOverlay, clusterFacetById } from './ClusterHullOverlay.tsx';
+import { spatialClusterFacet } from './spatial-cluster-facet.ts';
+import { contentSimilarFacet } from './content-similar-facet.ts';
+import { DensityHeatmapOverlay, densityWeightById, densityRampById } from './DensityHeatmapOverlay.tsx';
+import { TreemapOverlay, treemapValueById } from './TreemapOverlay.tsx';
+import { labelColor } from '../do-work/label-color.ts';
 
 export interface InsightLensContext {
   readonly items: readonly BoardItem[];

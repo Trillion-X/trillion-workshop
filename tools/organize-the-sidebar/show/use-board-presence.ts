@@ -24,8 +24,8 @@ import {
   upsertPresence,
   type Participant,
   type PresenceState,
-} from '../read-data/presence';
-import { openPresenceChannel } from './presence-channel';
+} from '../read-data/presence.ts';
+import { openPresenceChannel } from './presence-channel.ts';
 
 const TTL_MS = 10_000; // a peer quiet for 10s drops off (heartbeat is 3s)
 const HEARTBEAT_MS = 3_000;

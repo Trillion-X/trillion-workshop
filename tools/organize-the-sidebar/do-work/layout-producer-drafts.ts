@@ -7,8 +7,8 @@
 // crypto here), so it is deterministic + unit-testable; the caller supplies id-gens.
 
 import type { AddressRef } from '../../ui/show/group/group-graph';
-import type { ProducerItem, ProducerOutput } from '../read-data/producer-output';
-import type { ProducerResultItem } from '../read-data/read-producer-status';
+import type { ProducerItem, ProducerOutput } from '../read-data/producer-output.ts';
+import type { ProducerResultItem } from '../read-data/read-producer-status.ts';
 
 /** A produced item's content, before layout. The board writes these fields verbatim
  *  into the item's opaque presentation (L090 — no kind branch). */

@@ -8,13 +8,13 @@
 // No record truth, no layout math, no rendering engine owned here.
 
 import React from 'react';
-import { Container, Text, ErrorBoundary, CanvasNode, mountReactSurface } from '../../ui';
+import { Container, Text, ErrorBoundary, CanvasNode, mountReactSurface } from '../../ui/index.ts';
 import { useBitfieldData } from '#workspace-records';
 import { CanvasView } from '../../graph-canvas/show/CanvasView';
 import { useGraphCanvas } from '../../graph-canvas/show/use-graph-canvas';
 import type { CanvasNodeFrame } from '../../graph-canvas/show/types';
-import { buildKnowledgeGraphView } from '../read-data/knowledge-graph-view';
-import { projectKnowledgeGraph } from '../read-data/read-knowledge-graph';
+import { buildKnowledgeGraphView } from '../read-data/knowledge-graph-view.ts';
+import { projectKnowledgeGraph } from '../read-data/read-knowledge-graph.ts';
 
 /** Never-empty input names so `useBitfieldData('')` can never throw (funnel precedent). */
 const RECORDS_FALLBACK_INPUT = 'knowledge-graph-records';

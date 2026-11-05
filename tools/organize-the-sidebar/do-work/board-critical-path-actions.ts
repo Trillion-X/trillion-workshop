@@ -8,11 +8,11 @@
 // 0 when done). So the whole schedule is a composition of two shipped primitives with no new engine and no
 // new storage (SSOT stays the metric + time-log + connectors). Owns NO Society vocabulary beyond the spec.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
-import { childrenAccessor, type RollupSpec } from './board-rollup-actions';
-import { forecastOfItem } from './board-forecast-actions';
-import { criticalPathOf, type CriticalPathResult } from '../read-data/board-critical-path';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
+import { childrenAccessor, type RollupSpec } from './board-rollup-actions.ts';
+import { forecastOfItem } from './board-forecast-actions.ts';
+import { criticalPathOf, type CriticalPathResult } from '../read-data/board-critical-path.ts';
 
 /** A goal's remaining effort-hours (forecast.hoursRemaining), or null when it is unmeasured/stalled. */
 function durationAccessor(items: readonly BoardItem[], now: number): (id: string) => number | null {

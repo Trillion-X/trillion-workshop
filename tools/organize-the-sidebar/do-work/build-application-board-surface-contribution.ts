@@ -1,4 +1,4 @@
-import { buildGroupBoardSurfaceContribution } from '../read-data/application-board-surface-contribution';
+import { buildGroupBoardSurfaceContribution } from '../read-data/application-board-surface-contribution.ts';
 
 type Plain = Record<string, unknown>;
 function plain(value: unknown): value is Plain { return value !== null && typeof value === 'object' && !Array.isArray(value); }

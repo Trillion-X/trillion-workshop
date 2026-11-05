@@ -11,8 +11,8 @@
 // them into its blind facet loop. Reusing `crop-rect.ts` (`isCrop`/`isFullCrop`) keeps the
 // full-crop epsilon a single source of truth with the live crop.
 
-import { isCrop, isFullCrop, type Crop } from './crop-rect';
-import { finiteCoord } from '../read-data/finite-coord';
+import { isCrop, isFullCrop, type Crop } from './crop-rect.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** An item viewed for export: its world-space rect + self-describing `extra` bag. */
 interface ItemBox {

@@ -20,17 +20,17 @@
 // =============================================================================
 
 import { getGroup, type AddressRef, type GroupGraph } from '../../ui/show/group/group-graph';
-import type { GroupBoardStore } from '../read-data/read-group-board';
+import type { GroupBoardStore } from '../read-data/read-group-board.ts';
 import {
   recordFeedToProducerOutput,
   type FeedRecord,
   type FeedBoardProjectionConfig,
-} from '../read-data/feed-board-projection';
-import type { ProducerOutput } from '../read-data/producer-output';
-import { reconcileBoardGraphAuthoritative, reconcileBoardGraph, absentMemberIds } from './reconcile-board-producer';
-import { buildGroupWriteBatch } from './group-mutation-writes';
+} from '../read-data/feed-board-projection.ts';
+import type { ProducerOutput } from '../read-data/producer-output.ts';
+import { reconcileBoardGraphAuthoritative, reconcileBoardGraph, absentMemberIds } from './reconcile-board-producer.ts';
+import { buildGroupWriteBatch } from './group-mutation-writes.ts';
 // Pure geometry leaf (zero I/O — do-work/batch-actions.ts already composes it).
-import { arrangeByField } from '../show/arrange-by-field';
+import { arrangeByField } from '../show/arrange-by-field.ts';
 
 /** What a reconcile pass did — for the caller's log/telemetry (no throw on no-op). */
 export interface ReconcileFeedResult {

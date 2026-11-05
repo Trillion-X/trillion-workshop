@@ -12,9 +12,9 @@
 // are excluded (edges have no meaningful footprint weight).
 
 import React from 'react';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { cardProgressView } from '../read-data/card-progress-view';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { cardProgressView } from '../read-data/card-progress-view.ts';
 import {
   densityField,
   normalizedCells,
@@ -23,7 +23,7 @@ import {
   type DensityRect,
   type DensityRamp,
   type DensityBounds,
-} from '../do-work/density-field';
+} from '../do-work/density-field.ts';
 
 /** One rendered heatmap cell — DATA the overlay draws blindly. */
 export interface HeatmapCell {

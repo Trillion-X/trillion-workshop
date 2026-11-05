@@ -7,9 +7,9 @@
 // itself, L098). Owns NO ranking math (importanceRanks) and NO graph construction (buildRelationGraph) — pure
 // composition (L069/L093). Deterministic: score desc, memberId tie-break. Zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { importanceRanks } from '../read-data/board-importance';
-import { buildRelationGraph, relationsTo } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { importanceRanks } from '../read-data/board-importance.ts';
+import { buildRelationGraph, relationsTo } from '../read-data/relationship-graph.ts';
 
 export interface ImportanceRow {
   readonly memberId: string;

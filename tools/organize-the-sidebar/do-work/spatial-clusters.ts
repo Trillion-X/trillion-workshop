@@ -15,7 +15,7 @@
 // feed each discovered cluster's rects to `convexHull`/`hullPath` and the board outlines piles it was never
 // told about.
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 export interface ClusterRect {
   readonly x: number;

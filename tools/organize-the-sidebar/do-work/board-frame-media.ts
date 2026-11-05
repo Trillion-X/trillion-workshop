@@ -1,6 +1,6 @@
 // The board's ordered presentation frames are the source for every output.
 // This adapter names their rendered images for the workspace media publisher.
-import type { BoardDeck } from './board-deck';
+import type { BoardDeck } from './board-deck.ts';
 
 export interface BoardFrameMedia {
   readonly frameId: string;

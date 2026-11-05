@@ -8,8 +8,8 @@
 // local state to keep the mount lean. L065: ui components only.
 
 import React from 'react';
-import { Button, Container, Input, ProgressBar, Text } from '../../ui';
-import { type Metric, formatValue, isComplete, overBy, progressPct, remaining } from '../read-data/board-metric';
+import { Button, Container, Input, ProgressBar, Text } from '../../ui/index.ts';
+import { type Metric, formatValue, isComplete, overBy, progressPct, remaining } from '../read-data/board-metric.ts';
 
 export interface MetricPanelProps {
   readonly metric: Metric;

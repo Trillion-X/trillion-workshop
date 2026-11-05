@@ -12,18 +12,18 @@
 // `A --depends-on--> B` (arrow end = B) makes B a prerequisite (child) of A, i.e. B gates A. A board that
 // configures its own rollup/dependency spec passes it in; absent, this canonical one is used.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { buildRelationGraph } from '../read-data/relationship-graph';
-import { childrenAccessor, type RollupSpec } from './board-rollup-actions';
-import { cardCompletion } from '../read-data/card-completion';
-import { labelForGoal } from './board-critical-path-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { buildRelationGraph } from '../read-data/relationship-graph.ts';
+import { childrenAccessor, type RollupSpec } from './board-rollup-actions.ts';
+import { cardCompletion } from '../read-data/card-completion.ts';
+import { labelForGoal } from './board-critical-path-actions.ts';
 import {
   classifyReadiness,
   readyIds,
   blockedReadiness,
   type CardReadiness,
-} from '../read-data/board-readiness';
+} from '../read-data/board-readiness.ts';
 
 /** The canonical dependency relation when a board hasn't configured its own: "A depends-on B" => B gates A. */
 export const DEFAULT_PREREQ_SPEC: RollupSpec = { relationKind: 'depends-on', childEndpoint: 'to' };

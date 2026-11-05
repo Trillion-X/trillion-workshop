@@ -10,10 +10,10 @@
 // `connectorCycles` returns, so a new tangle appears with zero readout code.
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { connectorCycles, type CardCycle } from '../do-work/board-cycles';
-import { cardLabel } from './BoardOutlineReadout';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { connectorCycles, type CardCycle } from '../do-work/board-cycles.ts';
+import { cardLabel } from './BoardOutlineReadout.tsx';
 
 /** The board's circular-dependency tangles. */
 export function boardCycles(items: readonly BoardItem[]): CardCycle[] {

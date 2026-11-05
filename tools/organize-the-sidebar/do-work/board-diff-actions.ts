@@ -11,9 +11,9 @@
 // field→human map (position/size/text/style/…) is a DATA label table here, the display twin of the raw
 // `changedFields` keys the engine reports. A new tracked field is one label row, zero engine change (L090).
 
-import type { TemplateItem } from '../read-data/board-template-apply';
-import type { BoardState, MemberState } from '../read-data/board-merge';
-import { diffBoardStates, hasBoardChanges, type BoardStateDiff } from '../read-data/board-diff';
+import type { TemplateItem } from '../read-data/board-template-apply.ts';
+import type { BoardState, MemberState } from '../read-data/board-merge.ts';
+import { diffBoardStates, hasBoardChanges, type BoardStateDiff } from '../read-data/board-diff.ts';
 
 /** Flatten a TemplateItem tree into a BoardState — each descriptor's diffable fields keyed by id. Nested
  *  section children are flattened with a `parent` field, so moving a card in/out of a section reads as a

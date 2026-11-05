@@ -11,7 +11,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { applySetOp } from '../read-data/selection-algebra';
+import { applySetOp } from '../read-data/selection-algebra.ts';
 
 /** One combine operation as DATA: `op` is the set-algebra key; `label` is the human phrasing shown on the row. */
 export interface CombineAction {

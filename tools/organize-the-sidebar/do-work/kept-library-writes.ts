@@ -6,10 +6,10 @@
 // (src/tours.mjs, src/layouts.mjs). Pure.
 
 import type { GroupGraph } from '../../ui/show/group/group-graph';
-import { foldGroupRecords } from '../read-data/group-eeaf';
+import { foldGroupRecords } from '../read-data/group-eeaf.ts';
 import type { LibraryOp } from '../read-data/kept-library';
-import { buildGroupWriteBatch } from './group-mutation-writes';
-import { applyGroupOp } from './group-op-transitions';
+import { buildGroupWriteBatch } from './group-mutation-writes.ts';
+import { applyGroupOp } from './group-op-transitions.ts';
 
 const GROUP_RECORD = 'package::group::group::';
 

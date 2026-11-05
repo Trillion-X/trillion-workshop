@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { createDockablePlacementStore, useDockablePlacement } from '../../ui/show/dockable-placement';
-import { readInstancePlacement, writeInstancePlacement } from '../do-work/instance-placement';
-import { SidebarFrame, type DesktopSidebarProps } from './DesktopSidebar';
+import { readInstancePlacement, writeInstancePlacement } from '../do-work/instance-placement.ts';
+import { SidebarFrame, type DesktopSidebarProps } from './DesktopSidebar.tsx';
 
 /** The same sidebar frame bound to one container and one durable identity. */
 export function ContainedSidebar({ instanceId, containerRef, persistPlacement = true, ...props }: DesktopSidebarProps & {

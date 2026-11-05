@@ -6,7 +6,7 @@
 // boundary: the panel writes parsed tags, the filter bar reads the distinct set and a
 // predicate decides which items the current filter focuses. Zero item-kind awareness.
 
-import { entitiesOfKind } from '../do-work/text-entities';
+import { entitiesOfKind } from '../do-work/text-entities.ts';
 
 /** A board item, viewed only for its presentation `extra` bag (kinds are never named). */
 interface ItemLike {

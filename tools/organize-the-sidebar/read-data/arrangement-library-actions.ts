@@ -8,9 +8,9 @@
 // is dispatched separately (Codex: apply belongs in GroupBoardPanel).
 
 import type { AddressRef, GroupGraph } from '../../ui/show/group/group-graph';
-import type { SavedArrangement } from './saved-arrangement';
-import { duplicateSavedArrangement } from './saved-arrangement';
-import { renameCollection, archiveCollection, restoreCollection } from './collection-store';
+import type { SavedArrangement } from './saved-arrangement.ts';
+import { duplicateSavedArrangement } from './saved-arrangement.ts';
+import { renameCollection, archiveCollection, restoreCollection } from './collection-store.ts';
 
 /** The inputs a manage action may need beyond the row (a new name, minted ids for a
  *  duplicate). Opaque bag — each handler reads only what it needs. */

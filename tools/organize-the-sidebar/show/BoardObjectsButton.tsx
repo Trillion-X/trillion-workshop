@@ -3,9 +3,9 @@
 // Renamed from "Objects" (R30) — the panel is the board's card list, said in the user's words.
 
 import React, { useRef } from 'react';
-import { AnchoredOverlay, Button, Icon } from '../../ui';
+import { AnchoredOverlay, Button, Icon } from '../../ui/index.ts';
 import { Layers } from 'lucide-react';
-import { BoardLayersPanel, type BoardLayersPanelProps } from './BoardLayersPanel';
+import { BoardLayersPanel, type BoardLayersPanelProps } from './BoardLayersPanel.tsx';
 
 export interface BoardObjectsButtonProps extends Omit<BoardLayersPanelProps, 'onClose'> {
   open: boolean;

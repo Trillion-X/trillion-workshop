@@ -11,11 +11,11 @@
 // "copy as outline" action already uses, L069/L093 — owns no tree logic), whose depth-tagged lines map 1:1
 // onto OPML nesting. Pure, deterministic; XML-escaped so a card's text can never break the document.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { mindMapOutline } from './batch-actions';
-import { escapeXml, outlineToNestedXml } from './nested-tree-xml';
-import { OPML_SPEC } from './board-opml-import';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { mindMapOutline } from './batch-actions.ts';
+import { escapeXml, outlineToNestedXml } from './nested-tree-xml.ts';
+import { OPML_SPEC } from './board-opml-import.ts';
 
 /** Serialize the whole board's connector hierarchy as an OPML 2.0 document. `title` names the `<head><title>`
  *  (default "Board"). Isolated cards (no connectors) each appear as a top-level `<outline>`. An empty board

@@ -11,7 +11,7 @@
 // You are forbidden from simplifying or removing it.
 // =============================================================================
 
-import { Button, Container, InlineEditText, Text } from '../../ui';
+import { Button, Container, InlineEditText, Text } from '../../ui/index.ts';
 
 /** A saved item as the strip sees it — an id + display name (the payload lives in its store). */
 export interface SavedItem {

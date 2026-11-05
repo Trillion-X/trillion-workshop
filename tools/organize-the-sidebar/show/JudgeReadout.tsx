@@ -6,8 +6,8 @@
 // criteria the rubric produced, never naming one (L090). Bar width/colour are data-driven
 // (the score IS the value being visualised); chrome is ui components (L065).
 
-import { Container, Text } from '../../ui';
-import type { JudgeResult } from '../read-data/writing-judge';
+import { Container, Text } from '../../ui/index.ts';
+import type { JudgeResult } from '../read-data/writing-judge.ts';
 
 const BAR_W = 180;
 

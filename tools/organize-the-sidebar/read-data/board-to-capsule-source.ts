@@ -21,8 +21,8 @@
 // =============================================================================
 
 import type { AddressRef, GroupGraph } from '../../ui/show/group/group-graph';
-import { walkTree } from './board-tree';
-import type { CapsuleSourceItem } from './share-capsule';
+import { walkTree } from './board-tree.ts';
+import type { CapsuleSourceItem } from './share-capsule.ts';
 
 /**
  * Flatten the board tree under `rootRef` into the world-space source the share codec consumes.

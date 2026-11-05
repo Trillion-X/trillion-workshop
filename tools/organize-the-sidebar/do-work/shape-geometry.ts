@@ -30,7 +30,7 @@
 //    structurally impossible because the geometry always spans the whole box.
 // =============================================================================
 
-import { finiteCoord } from '../read-data/finite-coord';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 // The shape descriptor is UNTRUSTED persisted DATA. `sides`/`points`/`polygon.points` are capped so
 // a hostile `{kind:'ngon',sides:1e9}` (or a million-point polygon) can't `Array.from({length:huge})`

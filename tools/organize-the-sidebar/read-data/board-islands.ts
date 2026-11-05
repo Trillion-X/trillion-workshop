@@ -13,9 +13,9 @@
 // the COARSE undirected partition: the true separate pieces. A pure composition of the relationship-graph
 // (`buildRelationGraph` + `neighbors`, L069/L093 — owns no edge logic). Pure, deterministic (board order).
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { buildRelationGraph, neighbors, type RelationGraph } from './relationship-graph';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { buildRelationGraph, neighbors, type RelationGraph } from './relationship-graph.ts';
 
 /** One connected component — a maximal set of cards linked to each other through connectors. */
 export interface Island {

@@ -10,7 +10,7 @@
 // Chrome is ui components (L065); the score bar is data-driven.
 
 import { useState } from 'react';
-import { Badge, Button, Container, Text, Textarea } from '../../ui';
+import { Badge, Button, Container, Text, Textarea } from '../../ui/index.ts';
 import {
   appendRewrite,
   bestVersion,
@@ -18,8 +18,8 @@ import {
   startLoop,
   type LoopStage,
   type RewriteLoop,
-} from '../read-data/rewrite-loop';
-import { DEFAULT_WRITING_RUBRIC, type Rubric } from '../read-data/writing-judge';
+} from '../read-data/rewrite-loop.ts';
+import { DEFAULT_WRITING_RUBRIC, type Rubric } from '../read-data/writing-judge.ts';
 
 export interface RewriteLoopViewProps {
   readonly draft: string;

@@ -6,8 +6,8 @@
 // renders the {complete, tracked, avgPct} the `boardCompletion` leaf computes (L090).
 
 import * as React from 'react';
-import { Text } from '../../ui';
-import type { BoardCompletion } from '../read-data/board-completion';
+import { Text } from '../../ui/index.ts';
+import type { BoardCompletion } from '../read-data/board-completion.ts';
 
 /** Renders the card-completion chip. The caller only mounts it when `tracked > 0` (else no readout). */
 export function BoardCompletionChip({ complete, tracked, avgPct }: BoardCompletion): React.ReactElement {

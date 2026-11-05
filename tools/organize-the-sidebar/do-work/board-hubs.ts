@@ -10,9 +10,9 @@
 // `CENTRALITY_MEASURES` is an injected-capability catalog (L069/L090) — a new measure is one row, zero engine
 // code. Deterministic, zero I/O.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
-import { buildRelationGraph, type RelationGraph } from '../read-data/relationship-graph';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
+import { buildRelationGraph, type RelationGraph } from '../read-data/relationship-graph.ts';
 
 /** A card's connectivity in the connector graph. */
 export interface HubNode {

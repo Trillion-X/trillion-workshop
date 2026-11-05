@@ -11,17 +11,17 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, ChevronRight, GripVertical, Search, X } from 'lucide-react';
-import { Button, Container, ExpandableTabs, Icon, Input, Text } from '../../ui';
+import { Button, Container, ExpandableTabs, Icon, Input, Text } from '../../ui/index.ts';
 import {
   indentItem,
   normalizeIndents,
   outdentItem,
   type ListItem,
-} from '../read-data/list-block-model';
-import { handleOutlineKey } from '../read-data/outline-keys';
-import { hasChildren, visibleRows } from '../read-data/outline-fold';
-import { moveSubtree, moveSubtreeDir } from '../read-data/outline-move';
-import { visibleUnderFilter } from '../read-data/outline-filter';
+} from '../read-data/list-block-model.ts';
+import { handleOutlineKey } from '../read-data/outline-keys.ts';
+import { hasChildren, visibleRows } from '../read-data/outline-fold.ts';
+import { moveSubtree, moveSubtreeDir } from '../read-data/outline-move.ts';
+import { visibleUnderFilter } from '../read-data/outline-filter.ts';
 
 export interface ListBlockEditorProps {
   readonly items: readonly ListItem[];

@@ -6,7 +6,7 @@
 // L065: ui only; the pill is a positioned Container because its coordinate is dynamic (like the metric
 // / checklist / due badges).
 
-import { Button, Container, Text } from '../../ui';
+import { Button, Container, Text } from '../../ui/index.ts';
 
 export interface TimePillRect {
   readonly x: number;

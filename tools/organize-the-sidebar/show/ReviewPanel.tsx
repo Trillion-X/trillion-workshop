@@ -10,12 +10,12 @@
 // the single next action) sits above the sections — you read what to do before scanning the lists. ui
 // only (L065).
 
-import { Button, Card, Container, Text } from '../../ui';
-import { RankedJumpList, type RankedRow } from './RankedJumpList';
-import type { AttentionRankRow } from '../do-work/board-attention-actions';
-import type { MomentumRankRow } from '../do-work/board-momentum-actions';
-import type { FinishLineRankRow } from '../do-work/board-finish-line-actions';
-import type { BoardDigest } from '../do-work/board-digest-actions';
+import { Button, Card, Container, Text } from '../../ui/index.ts';
+import { RankedJumpList, type RankedRow } from './RankedJumpList.tsx';
+import type { AttentionRankRow } from '../do-work/board-attention-actions.ts';
+import type { MomentumRankRow } from '../do-work/board-momentum-actions.ts';
+import type { FinishLineRankRow } from '../do-work/board-finish-line-actions.ts';
+import type { BoardDigest } from '../do-work/board-digest-actions.ts';
 
 export interface ReviewPanelProps {
   readonly attention: readonly AttentionRankRow[];

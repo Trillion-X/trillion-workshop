@@ -13,14 +13,14 @@
 // =============================================================================
 
 import { useRef, useState } from 'react';
-import { AnchoredOverlay, Button, Card, Container, Icon, Text } from '../../ui';
+import { AnchoredOverlay, Button, Card, Container, Icon, Text } from '../../ui/index.ts';
 import { Sparkles } from 'lucide-react';
 // namedGroupCount must be IMPORTED here, not only re-exported below: an
 // `export { x } from '…'` clause is a pure re-export that creates NO local
 // binding, so using x in this module is a runtime ReferenceError the moment
 // the component renders (live studio crash, 2026-07-10 — "This screen hit a
 // problem: namedGroupCount is not defined" on the whole Vision Board pane).
-import { foldRowGroups, namedGroupCount } from '../read-data/grouped-rows';
+import { foldRowGroups, namedGroupCount } from '../read-data/grouped-rows.ts';
 
 /** One insight lens as the menu sees it: a label, whether it applies to the current board, and how to render its
  *  panel (the descriptor returns its OWN positioned panel + wires its own actions; `onClose` collapses it).
@@ -55,7 +55,7 @@ export function groupLenses(available: readonly InsightLens[]): Array<{ readonly
 /** The shared L118 header gate (ONE implementation in read-data/grouped-rows): section
  *  headers earn their pixels only when more than one NAMED group is present. Re-exported so
  *  existing consumers/tests keep their import site. */
-export { namedGroupCount } from '../read-data/grouped-rows';
+export { namedGroupCount } from '../read-data/grouped-rows.ts';
 
 /** The "Insights" button → a picker of available lenses → the chosen lens's panel. */
 export function InsightsMenu({ lenses, activeKey, onActiveKeyChange }: InsightsMenuProps): JSX.Element | null {

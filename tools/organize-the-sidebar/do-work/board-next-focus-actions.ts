@@ -8,10 +8,10 @@
 //   2. Otherwise the most AT-RISK goal by forecast: behind its deadline first, then stalled. (board-forecast)
 // Returns null when nothing is actionable (no bottleneck, nothing behind/stalled) — no fake urgency.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import type { RollupSpec } from './board-rollup-actions';
-import { criticalPathOfGoal, criticalRoots, labelForGoal } from './board-critical-path-actions';
-import { forecastRows } from './board-forecast-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import type { RollupSpec } from './board-rollup-actions.ts';
+import { criticalPathOfGoal, criticalRoots, labelForGoal } from './board-critical-path-actions.ts';
+import { forecastRows } from './board-forecast-actions.ts';
 
 /** The single goal to work on next, with a plain-language reason and which signal surfaced it. */
 export interface FocusPick {

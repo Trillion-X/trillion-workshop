@@ -13,8 +13,8 @@
 // DATA, zero new code per matrix (L069). Pure so the geometry is unit-tested; the panel holds the
 // React state and applies the returned positions + drops the header labels.
 
-import type { ArrangedPosition } from './arrange-by-field';
-import { finiteCoord } from '../read-data/finite-coord';
+import type { ArrangedPosition } from './arrange-by-field.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 // A cross-tab over UNTRUSTED explicit axis lists (`opts.colKeys`/`rowKeys` from a saved matrix lens)
 // would otherwise run Pass-1/Pass-3 at O(cols x rows) — a hostile 100k x 100k lens hangs the render

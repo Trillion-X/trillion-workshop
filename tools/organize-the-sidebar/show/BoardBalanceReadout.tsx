@@ -10,16 +10,16 @@
 // excluded (edges have no footprint; a section is a container, not a composition unit).
 
 import React from 'react';
-import { Container, Text } from '../../ui';
-import type { BoardItem } from '../read-data/group-board-model';
-import { itemIsConnector } from '../read-data/group-board-model';
+import { Container, Text } from '../../ui/index.ts';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { itemIsConnector } from '../read-data/group-board-model.ts';
 import {
   analyzeBalance,
   balanceBand,
   BALANCE_METRICS,
   type BalanceResult,
   type BalanceMetricDef,
-} from '../do-work/board-balance';
+} from '../do-work/board-balance.ts';
 
 /** Run the composition analysis over the board's cards (connectors + section frames excluded). */
 export function boardBalance(items: readonly BoardItem[], metrics: readonly BalanceMetricDef[] = BALANCE_METRICS): BalanceResult {

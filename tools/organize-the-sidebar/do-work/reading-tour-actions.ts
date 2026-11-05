@@ -9,9 +9,9 @@
 // NO ordering logic (readingOrder SSOT) and NO navigation (walkthrough's stepAt/nextIndex) — pure composition
 // (L069/L093). `label` injected so it stays blind to how a card titles itself (L098). Pure, deterministic.
 
-import type { BoardItem } from '../read-data/group-board-model';
-import type { Tour, TourStep } from '../read-data/walkthrough';
-import { readingOrder, type ReadingOrderOptions } from '../read-data/board-reading-order';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import type { Tour, TourStep } from '../read-data/walkthrough.ts';
+import { readingOrder, type ReadingOrderOptions } from '../read-data/board-reading-order.ts';
 
 /**
  * A Tour that walks the board in spatial reading order — one step per content card, each targeting that card so

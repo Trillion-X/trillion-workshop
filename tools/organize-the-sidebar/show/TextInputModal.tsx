@@ -11,7 +11,7 @@
 // the promise; this component is the blind presenter of one pending request.
 
 import React, { useEffect, useState } from 'react';
-import { Button, Container, Textarea } from '../../ui';
+import { Button, Container, Textarea } from '../../ui/index.ts';
 import { FloatingPanel } from '../../screen-arrangement/show/FloatingPanel';
 
 export interface TextInputRequest {

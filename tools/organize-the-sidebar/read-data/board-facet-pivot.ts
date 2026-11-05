@@ -21,10 +21,10 @@
 // `avgProgressPerTag(items)` would be clay for exactly one triple). Pure, deterministic (sorted by result
 // desc with unmeasured groups last, then value A→Z), connector/furniture excluded.
 
-import type { BoardItem } from './group-board-model';
-import { itemIsConnector } from './group-board-model';
-import { itemIsBoardFurniture } from '../do-work/batch-actions';
-import type { FacetExtract } from './board-facet-census';
+import type { BoardItem } from './group-board-model.ts';
+import { itemIsConnector } from './group-board-model.ts';
+import { itemIsBoardFurniture } from '../do-work/batch-actions.ts';
+import type { FacetExtract } from './board-facet-census.ts';
 
 /** A numeric measure read off a card, or null when the card doesn't carry it (excluded from the aggregate —
  *  a card with no due date does not drag a MAX-deadline pivot, it simply isn't measured). */

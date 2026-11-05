@@ -8,8 +8,8 @@
 // the SSOT; a completed session is appended on Stop), so it lives in local state. L065: ui only.
 
 import React from 'react';
-import { Button, Container, Text } from '../../ui';
-import { useElapsedSeconds, formatElapsed } from './use-elapsed';
+import { Button, Container, Text } from '../../ui/index.ts';
+import { useElapsedSeconds, formatElapsed } from './use-elapsed.ts';
 
 /** The quick-add increments (minutes) — DATA, not hardcoded per-button branches. */
 const QUICK_ADD_MINUTES: readonly number[] = [15, 25, 60];

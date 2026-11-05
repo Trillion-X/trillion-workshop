@@ -9,7 +9,7 @@
 // surfaces. No I/O, no React, no Date/random — the caller supplies `savedAt`.
 
 import { type AddressRef, type GroupGraph } from '../../ui/show/group/group-graph';
-import { type ReportDescriptor } from './board-report';
+import { type ReportDescriptor } from './board-report.ts';
 import {
   recordIndexRef,
   readRecords,
@@ -22,7 +22,7 @@ import {
   restoreRecord,
   type RecordStoreSpec,
   type StoredRecord,
-} from './named-record-index';
+} from './named-record-index.ts';
 
 const OPTIONAL_STRING_FIELDS = ['dimension', 'colDimension', 'measure', 'aggregator', 'title'] as const;
 

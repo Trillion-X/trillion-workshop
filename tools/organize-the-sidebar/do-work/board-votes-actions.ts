@@ -8,9 +8,9 @@
 // (one rule, one place): a cast that would exceed the actor's per-board budget is a no-op.
 
 import type { GroupGraph, AddressRef } from '../../ui/show/group/group-graph';
-import type { BoardItem } from '../read-data/group-board-model';
-import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model';
-import { itemIsBoardFurniture } from './batch-actions';
+import type { BoardItem } from '../read-data/group-board-model.ts';
+import { readItems, patchItem, itemIsConnector } from '../read-data/group-board-model.ts';
+import { itemIsBoardFurniture } from './batch-actions.ts';
 import {
   type TalliedItem,
   type VoteTally,
@@ -21,7 +21,7 @@ import {
   rankByVotes,
   tallyFromRaw,
   voteCount,
-} from '../read-data/board-votes';
+} from '../read-data/board-votes.ts';
 
 /** An item is a vote TARGET iff it is real content (a note/frame/image/…), not a connector or furniture. */
 export function itemIsVoteTarget(item: BoardItem): boolean {

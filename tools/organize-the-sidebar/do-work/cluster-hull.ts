@@ -23,8 +23,8 @@
 // Framework-agnostic, deterministic, zero I/O — the show/ overlay groups items + injects `keyOf`; this file
 // never knows what a "tag" or a "board" is.
 
-import type { Pt } from './connector-geometry';
-import { finiteCoord } from '../read-data/finite-coord';
+import type { Pt } from './connector-geometry.ts';
+import { finiteCoord } from '../read-data/finite-coord.ts';
 
 /** A rectangle (an item's world-space box). */
 export interface HullRect {

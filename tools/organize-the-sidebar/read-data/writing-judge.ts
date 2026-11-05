@@ -12,7 +12,7 @@
 // model-selection owners — owner-gated, no god package — but the rubric mechanism is complete without
 // it. This mirrors the progression-evaluator judge pattern, kept self-contained for the board.
 
-import { ownValue } from './facet-filter';
+import { ownValue } from './facet-filter.ts';
 
 /** A rubric's `keywords` config is UNTRUSTED DATA — cap the count so a hostile rubric can't run
  *  unbounded case-folding substring searches over the text (DoS). No real rubric needs this many. */
