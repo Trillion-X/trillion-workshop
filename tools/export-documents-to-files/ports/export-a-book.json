@@ -1,0 +1,82 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-EXPORT-A-BOOK-THROUGH-THE-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane, launch-video port 2026-11-04 (part export)",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "The writing gate it calls must call the Workshop tools instead (the book's checks from list:checks in branch mode); manuscript paths, book ids and output folders become arguments or a settings row read through tools/settings."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "export a book to word through its settings row and its checks branch, with the person's records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/export-documents-to-files/do-work/export-a-book.mjs"
+  },
+  {
+   "path": "tools/export-documents-to-files/test/export-a-book.test.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "capability": "export a document tree to Word, PDF or other file formats",
+   "why": "tools/export-documents-to-files/do-work/render-structured-file-export.py writes a tree of text blocks by projection rules; it reads no settings row, runs no checks and has no template, contents or writing gate."
+  },
+  {
+   "repository": "source-repo-a",
+   "path": "tools/private-book-reader/",
+   "why": "The exporter, gate and verifier moved here one to one (ports/export-markdown-book-to-word.json, writing-gate.json, verify-book-against-its-source.json); launch-video had no door entry: its gate found a .writing-policy.json beside the manuscript and ran no checks branch."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
+   "why": "The branch mode this entry calls (checkABranch); it judges units and knows no manuscript bytes, receipt or export."
+  },
+  {
+   "repository": "trillion",
+   "path": "parts/group/do-work/request-board-output.ts",
+   "why": "Old Trillion saved an already-exported artifact through the process file-save envelope (line 13); it neither read a settings row nor checked a book."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "export a book to word through its settings row and its checks branch, with the person's records door",
+    "export a book to word",
+    "checks branch of a book before export",
+    "book settings row"
+   ],
+   "capability_rows": [
+    "export a document tree to Word, PDF or other file formats",
+    "export a markdown manuscript to word and verify it against its source"
+   ],
+   "code_patterns": [
+    "exportABook",
+    "bookChecks",
+    "export-a-book"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "f2b404df7e05c2930314226478e9d509830c139b"
+    },
+    {
+     "repository": "trillion",
+     "commit": "e402c27799d8c007b425674d0a53642dd7cdcb6d"
+    },
+    {
+     "repository": "source-repo-a",
+     "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/export-documents-to-files/test/export-a-book.test.mjs"
+  ]
+ }
+}

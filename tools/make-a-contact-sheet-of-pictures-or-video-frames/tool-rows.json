@@ -1,0 +1,87 @@
+{
+ "kind": "tool-rows",
+ "record_set": "make-a-contact-sheet-of-pictures-or-video-frames-tool-rows",
+ "what_this_is": "The Workshop row for the make-a-contact-sheet-of-pictures-or-video-frames folder: a script the person's AI runs on the person's own computer to lay pictures, or frames of a video, out as labelled contact sheets.",
+ "records": [
+  {
+   "id": "package::make-a-contact-sheet-of-pictures-or-video-frames::tool::make-a-contact-sheet-of-pictures-or-video-frames",
+   "address": "package::make-a-contact-sheet-of-pictures-or-video-frames::tool::make-a-contact-sheet-of-pictures-or-video-frames",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:make-a-contact-sheet-of-pictures-or-video-frames",
+    "label": "Make a contact sheet of pictures or video frames (runs on your computer)",
+    "status": "active",
+    "job": "Lay my pictures, or frames of my video at chosen times or at a steady rate, out as one labelled sheet so I can choose or check them by eye",
+    "description": "Three kinds of sheet, each from one JSON request. pictures: the given pictures in a grid, each cell the same width and shape (16:9, any w:h, or the first picture's), each picture cut to the cell's middle or stretched into it, labelled below or above with its own words or its file name. frames-at-times: one frame of a video at each given time, or every 1/fps second between two times, stamped with its time, a set number to a row, split over several sheets when asked. frames-at-a-rate: ffmpeg's tile filter over a stretch of a video, frames at a steady rate stamped with their time or frame number, columns x rows a sheet, every sheet or only the first. Every size, colour, font and JPEG quality is a field of the request; nothing is kept between runs.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "request": {
+       "type": "string",
+       "description": "A JSON file on the person's computer holding the request, put where {request} is in the command. Its fields: kind (pictures | frames-at-times | frames-at-a-rate) and out (the sheet's file; for several sheets a pattern with {k} for frames-at-times or %02d for frames-at-a-rate); for pictures: pictures [{path, label}], columns, cell_width, cell_aspect, fit, pad, background, label {where, text, font_file, size, strip_px, offset, colour}, quality; for frames-at-times: video, times or every {from, to, fps}, width, columns, per_sheet, label {font_file, size, colour, box, x, y}, background, quality; for frames-at-a-rate: video, fps, start, end, width, height, grid [columns, rows], sheets, jpeg_qscale, nostdin, label {stamp: time | frame, font_file, size, colour, box, x, y}. The README lists every default."
+      }
+     },
+     "required": [
+      "request"
+     ]
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line the script prints: {\"result\": {\"sheets\": [the files written], \"tiles\": the pictures or frames laid out}} (frames-at-a-rate gives tiles_per_sheet), or {\"error\": what to change in the request}.",
+     "properties": {
+      "result": {
+       "type": "object",
+       "properties": {
+        "sheets": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "tiles": {
+         "type": "integer"
+        },
+        "tiles_per_sheet": {
+         "type": "integer"
+        }
+       },
+       "required": [
+        "sheets"
+       ]
+      },
+      "error": {
+       "type": "string"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": [
+      "clone the Workshop repository (package.json repository.url)",
+      "python3 -m pip install -U pillow",
+      "brew install ffmpeg   # only for the two video kinds"
+     ],
+     "run": "python3 tools/make-a-contact-sheet-of-pictures-or-video-frames/do-work/make_contact_sheet.py {request}",
+     "needs": [
+      "python",
+      "ffmpeg"
+     ],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request as a JSON file (the person's pictures or video, where the sheet goes, and any size, colour or font they asked for; leave the rest to the defaults) and pass its path as {request}. Then read the last line: name the sheets written, or say what the error asks to change. If you cannot run commands, give them these steps."
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:trillion",
+    "provenance": {
+     "source": "Ported from a film's contact-sheet scripts (picture grids for thumbnail and preview checks, frames of a preview at chosen times or at a steady rate); every value they fixed is a field of the request"
+    }
+   }
+  }
+ ]
+}
