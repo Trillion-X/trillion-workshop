@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/marketplace-camera/camera.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/marketplace-camera/camera.mjs",
+      "source_identity": "1f:470708a86df603f30e4bf5a0d1698bb4f456a40a1109bd86564ed74f688f8e0b",
+      "identity": "1f:470708a86df603f30e4bf5a0d1698bb4f456a40a1109bd86564ed74f688f8e0b"
+    },
+    {
+      "from": "test/marketplace-camera/package.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/marketplace-camera/package.json",
+      "source_identity": "1f:0a24857da644288f68021675c55b42de8402826a4031cff2cd7beb72245ae0ff",
+      "identity": "1f:0a24857da644288f68021675c55b42de8402826a4031cff2cd7beb72245ae0ff"
+    }
+  ]
+}

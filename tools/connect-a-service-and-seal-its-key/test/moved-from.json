@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/apple-mobile-import-guides.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/connect-a-service-and-seal-its-key/test/apple-mobile-import-guides.test.mjs",
+      "source_identity": "1f:d9205b36fc10b7ace7b8d79374df14b62d64fa6a4c0954880af2c82b5a73d30e",
+      "identity": "1f:cbbf9735fa67f01e248d7e5a9f9c4bda27de5eee47478d5c8a63010e35a4a245"
+    },
+    {
+      "from": "test/service-connection-grant-requirements.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/connect-a-service-and-seal-its-key/test/service-connection-grant-requirements.test.mjs",
+      "source_identity": "1f:5903e27a8a97e86f652e5838f21975a0abbc0c67940b7e49a1e267046875ca37",
+      "identity": "1f:fa562245065b82ac8f17f4f1d2ae3239d56a520a46a95ca768da5dc686e2bd65"
+    }
+  ]
+}

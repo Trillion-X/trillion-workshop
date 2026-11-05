@@ -1,0 +1,22 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/availability-link-owner.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/booking-slots-and-invitations/test/availability-link-owner.test.mjs",
+      "source_identity": "1f:0c95a41d69651147b90b84047ab20d57a1652c0b098006f70a94e850481fce62",
+      "identity": "1f:719cf4fe3344231d37a6a40b59a2f8d13c41c336fc38a828cc49b13a596b51fb"
+    },
+    {
+      "from": "test/derive-open-slots.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/booking-slots-and-invitations/test/derive-open-slots.test.mjs",
+      "source_identity": "1f:a5369e4e6bd492f839482d85da49d26e37ca1a61331aeff8ba8e386ea9861bdb",
+      "identity": "1f:797a6a8f5803c7c5a35c66fcb926acca0e66b15980b803f2b3833b8b47fd2f9f"
+    }
+  ]
+}

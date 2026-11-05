@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/fixtures/vendor-tables-golden.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/shared-code/test/fixtures/vendor-tables-golden.json",
+      "source_identity": "1f:20b64c6a01978542387a8b21e3c271cef0edd67b1359cbb2e004ef37fa03012c",
+      "identity": "1f:20b64c6a01978542387a8b21e3c271cef0edd67b1359cbb2e004ef37fa03012c"
+    }
+  ]
+}

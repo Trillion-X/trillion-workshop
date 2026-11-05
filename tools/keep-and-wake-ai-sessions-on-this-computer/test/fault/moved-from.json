@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/fault/record-oracle.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/fault/record-oracle.mjs",
+      "source_identity": "1f:b4558ff72e87dde6f16ffb843c6b12413458ae789ce636e80316e7da4d9e09c5",
+      "identity": "1f:b4558ff72e87dde6f16ffb843c6b12413458ae789ce636e80316e7da4d9e09c5"
+    }
+  ]
+}
