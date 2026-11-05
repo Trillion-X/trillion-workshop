@@ -1,0 +1,10 @@
+{
+  "_what": "How long a conversation's messages are kept, as DATA read by src/message-retention.mjs. A policy is one conversation and a number of days; messages older than that are erased through the account's one erasure owner (eraseRecord), never deleted another way. `older_than_days` may be set from `min_days` to `max_days`; at most `max_policies` conversations carry one. A sweep erases at most `page` messages per policy per run and runs again at once while more are due, else after `every_minutes`. `app` is the app name the erasure is recorded under.",
+  "min_days": 1,
+  "max_days": 3650,
+  "max_policies": 200,
+  "page": 20,
+  "every_minutes": 60,
+  "app": "Message retention",
+  "key_prefix": "message-retention:"
+}

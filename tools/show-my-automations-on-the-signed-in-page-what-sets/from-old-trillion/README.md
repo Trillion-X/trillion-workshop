@@ -6,3 +6,5 @@ Files of old trillion whose job is this tool's (show my automations on the signe
 |---|---|---|
 | `src/work-workflows.mjs` | `src/work-workflows.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/graph-board-source.mjs (at the tag, not moved here yet), src/workflow-looks.json (at the tag, not moved here yet), src/record-kind-words.mjs (at the tag, not moved here yet), src/automation-open-id.mjs (at the tag, not moved here yet) |
 | `test/work-workflows-edits.test.mjs` | `test/work-workflows-edits.test.mjs.held` | held: ERR_MODULE_NOT_FOUND |
+| `src/record-kind-words.json` | `src/record-kind-words.json` | data, read by its module (from 5dc302be) |
+| `src/record-kind-words.mjs` | `src/record-kind-words.mjs` | loads here (from 5dc302be) |

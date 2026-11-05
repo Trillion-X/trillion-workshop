@@ -1,0 +1,22 @@
+{
+  "about": "Files of old trillion (commit 5dc302be, Trillion-X/trillion main) whose job is this tool's, moved here byte for byte by the old-trillion sweep, under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes). Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "src/api-spend.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/guard-ai-spending/from-old-trillion/src/api-spend.json",
+      "source_identity": "1f:cf2860e6c7af9c3e5b8caf97395a2061cd73a6f25960f3ed4c8a8fa6e397fea5",
+      "identity": "1f:cf2860e6c7af9c3e5b8caf97395a2061cd73a6f25960f3ed4c8a8fa6e397fea5"
+    },
+    {
+      "from": "src/api-spend.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/guard-ai-spending/from-old-trillion/src/api-spend.mjs",
+      "source_identity": "1f:15f4ea3da4c8f5301a67cb5abcdf9810031c7f1f82c95c5247804bc26bd0747b",
+      "identity": "1f:15f4ea3da4c8f5301a67cb5abcdf9810031c7f1f82c95c5247804bc26bd0747b"
+    }
+  ]
+}

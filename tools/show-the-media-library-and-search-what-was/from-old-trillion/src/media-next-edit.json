@@ -1,0 +1,30 @@
+{
+  "_what": "What the Media section's one suggestion is made of, as DATA (src/media-next-edit.mjs reads it). A destination qualifies when its capabilities include one of `destination_capabilities`; `format_rules` are tried in order and the first whose capability the destination has names the format. With no destination connected, `default_format` is used. Each format names the recording lengths that fit it. `clips_per_pick` recordings make one suggestion; `sets` suggestions are ranked ahead so Another is instant. The suggestion draws on the newest `candidate_window` playable, unused recordings, read at most `candidate_pages` library pages deep, never the whole library. `score_candidates` recordings (best by words, length and recency) are scored against the pursuit the format serves; `candidate_characters` bounds each one's text. `weights` blend the four measures; the pursuit weight is shared out among the others when no pursuit is recorded or scoring fails. `recency_half_life_days` halves a recording's recency every that many days. `words_for_full_score` words said count as fully speaking. `said` is the result kind and path whose text a recording is scored by.",
+  "destination_capabilities": ["video"],
+  "format_rules": [
+    { "capability": "reel", "format_id": "short_video" },
+    { "capability": "thumbnail", "format_id": "youtube_video" },
+    { "capability": "video", "format_id": "short_video" }
+  ],
+  "default_format": "youtube_video",
+  "formats": [
+    { "id": "youtube_video", "label": "YouTube video", "length_seconds": { "min": 60, "max": 1800 } },
+    { "id": "short_video", "label": "Short video", "length_seconds": { "min": 8, "max": 180 } }
+  ],
+  "clips_per_pick": 3,
+  "sets": 8,
+  "score_candidates": 150,
+  "candidate_window": 300,
+  "candidate_pages": 10,
+  "candidate_characters": 500,
+  "words_for_full_score": 120,
+  "recency_half_life_days": 45,
+  "weights": { "pursuit": 0.45, "words": 0.25, "length": 0.15, "recency": 0.15 },
+  "pursuit_statuses": ["active", "unclear"],
+  "said": { "kind": "transcript", "path": "$.text" },
+  "questions": {
+    "pursuit": "Which pursuit does publishing this move forward?",
+    "clip": "Which recording moves this pursuit forward most?"
+  },
+  "tool_said": { "_what": "What tool:suggest-next-edit says about the suggestion in one sentence, by its state (person-store accountActions).", "ready": "Your next edit is ready: three clips and why.", "not-now": "You set the next edit aside for today.", "nothing-unused": "Every recording you have is already in an edit." }
+}

@@ -17,6 +17,20 @@
       "to": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/placed-lists.mjs",
       "source_identity": "1f:32a4012202f3afdf46827d023490c8fae5b55cff8306bdfc689692c9a04197a3",
       "identity": "1f:e5a0141d8d1bd23543b39f3b35db24270714ef87da20b158a0f62566a45f9304"
+    },
+    {
+      "from": "src/place-lists.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/place-lists.json",
+      "source_identity": "1f:ec3e5defba7f473b81e55f051f0f33ae9f07e0bfb5dd447a4022d54d513e163c",
+      "identity": "1f:ec3e5defba7f473b81e55f051f0f33ae9f07e0bfb5dd447a4022d54d513e163c"
+    },
+    {
+      "from": "src/place-lists.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-lists-rows-in-one-of-the-accounts-databases-while/src/place-lists.mjs",
+      "source_identity": "1f:a158fd5a82b4d6a7470795d217fb46a3af68075d9965b11f53967516d25e63a1",
+      "identity": "1f:a158fd5a82b4d6a7470795d217fb46a3af68075d9965b11f53967516d25e63a1"
     }
   ]
 }

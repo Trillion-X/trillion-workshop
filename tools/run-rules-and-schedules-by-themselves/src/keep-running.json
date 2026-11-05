@@ -1,0 +1,110 @@
+{
+  "what_this_is": "How Trillion keeps started things moving by itself, read by src/keep-running.mjs (the scheduler source `keep-running` and tool:keep-things-running). Every `every_minutes` it reads what this account keeps running: timed work the scheduler set aside after its last automatic try, schedules whose last run failed or never started, schedules whose time passed without a run, workflow runs that stopped moving or are stuck (Trillion could not reach a step again and again; a stuck run's restart resumes it, src/workflows.mjs), capabilities whose check (src/capability-checks.mjs) failed `failures_before_handing_off` times in a row (handed with what the check saw), decisions whose next action nobody said was done `decision_owed_after_minutes` after they were decided (handed to one AI, never told to the person: the AIs' own work). A stopped workflow run is first read, which admits what its waiting step's job or tool already handed back. A run whose waiting step handed its own job to an AI that is still open is then left to that job (finishing it carries the run on, at most `runs_carried_on_per_finished_job` runs per job), never handed a second job. A stopped thing is started again up to `restarts_before_handing_off` times; after that, or when it cannot be started again by itself, one job is handed to whichever of the person's AIs takes it first, once per stop, and the person is told once with the notice kind `notice_kind`. Every working or stuck run is watched however long ago it last moved, `workflow_runs_read_most` read a sweep, the ones that stopped longest ago first; a run whose card shows it waits for a time to come, moved within `workflow_stalled_after_hours`, has its own open job, or was handed for that same card with its job still on is not read again. A handed job that ends while its thing is still stopped at the same stop ended without its outcome: the thing is handed again as a new job (words.handed_again), told to the person only the first time. A thing that is moving again is let go, so a later stop is a new stop. A service one of the person's own AIs works through that refuses work (src/own-ais-routing.mjs refusals: out of credit, a refused key) is a stop only the person can clear: it is handed to an AI that tells them what to do, once per refusal. The person's own work (priority at or above the line their own words carry, src/inbound-words.json priority.from_person) that no AI has taken own_work_waiting_after_minutes after it was handed is told to the person once with notice kind words.own_work_waiting.notice_kind, and handed to no AI (hand_off false): whatever kept the first job from being taken would keep a second one too. The person's own messages whose decision (method message-intake) was opened by a road that handed them to no AI (a later admit, a re-check, an AI deciding about words first kept as context) are read `unowned_words_page` decisions a sweep, in the order they were opened from where the last sweep stopped (kept, so a restart of the store does not walk them again), staying on the first one still waiting for its job or its wait, and only those opened no more than `unowned_words_horizon_hours` ago (an older message keeps its decision and never becomes a new job), and each one opened at least `unowned_words_after_minutes` ago with no job is handed as that message's own job (once per message, its decision named, priority words.words_unowned.priority, the line the person's own words carry), never told to the person: the job itself shows on their AI work. An account with nothing else to watch looks through up to `unowned_words_idle_pages` pages of them to know when the next one comes due. The person's own words the classifier on their computer was asked about and never answered (src/person-store.mjs keepToAskAgain) are asked again `ask_again_after_minutes` after they were kept, at most `ask_again_most` a sweep, as their restart: words it then says ask for something, or that it still cannot answer for, go the arrival road (their decision opened and handed to the person's AIs, which may still keep them as context); words it says ask for nothing stay context. A restart that fails hands them to an AI as their message's own job (words.words_unclassified).",
+  "every_minutes": 60,
+  "restarts_before_handing_off": 1,
+  "restarts_remembered_hours": 24,
+  "late_schedule_grace_minutes": 90,
+  "idle_late_check_steps_minutes": [90, 270, 630, 1350],
+  "active_within_minutes": 60,
+  "workflow_stalled_after_hours": 6,
+  "runs_carried_on_per_finished_job": 200,
+  "workflow_runs_read_most": 50,
+  "workflow_run_cards_page": 200,
+  "workflow_run_cards_read_most": 20000,
+  "decision_owed_after_minutes": 120,
+  "own_work_waiting_after_minutes": 30,
+  "own_work_read_most": 20,
+  "unowned_words_page": 50,
+  "unowned_words_after_minutes": 30,
+  "unowned_words_idle_pages": 10,
+  "unowned_words_horizon_hours": 48,
+  "ask_again_after_minutes": 60,
+  "ask_again_most": 10,
+  "most_handed_off_per_sweep": 5,
+  "notice_kind": "stopped",
+  "hand_off_priority": 4,
+  "words": {
+    "handed_again": "This was handed before as job {ended_job}, which ended while this was still stopped at the same place: carry it to the outcome below, or say exactly what is in the way with say_what_is_in_the_way.",
+    "held": {
+      "title": "{label} stopped after it failed {failures} times",
+      "said": "Get {label} running again",
+      "job": "Trillion runs {label} by itself, and it stopped: it failed {failures} times in a row and the last error was \"{error}\". It was started again {restarts} time(s) and stopped again. Read timed_work, find why it fails, fix the cause (a connection, an input, the tool), then run try_timed_work_again with key {key} and check it runs. If the cause is a wall you cannot pass, say exactly what it is with say_what_is_in_the_way.",
+      "outcome": "{label} runs again at its time without failing."
+    },
+    "schedule_failed": {
+      "title": "{label} did not run",
+      "said": "Get {label} running again",
+      "job": "The schedule \"{label}\" ({schedule_id}) did not run: \"{error}\". It was started again {restarts} time(s). Read list_schedules and the run it last started, fix why it fails, then run_now with schedule_id {schedule_id} and read the run back. If it needs something only the person can give, say exactly what with say_what_is_in_the_way.",
+      "outcome": "The schedule \"{label}\" runs at its next time and that run finishes."
+    },
+    "schedule_late": {
+      "title": "{label} missed its time",
+      "said": "Get {label} running on time again",
+      "job": "The schedule \"{label}\" ({schedule_id}) was due at {due_at} and has not run. It was started again {restarts} time(s). Read list_schedules and timed_work, find why it did not fire, then run_now with schedule_id {schedule_id} and read the run back.",
+      "outcome": "The schedule \"{label}\" runs at its next time."
+    },
+    "workflow_stalled": {
+      "title": "A workflow stopped at {step}",
+      "said": "Carry on the {workflow} workflow",
+      "job": "The workflow run {run_id} ({workflow}) has waited at step {step} since {since}. Read it with read_workflow_run, do that step and hand it back with submit_workflow_step, and carry the run to its end. If the step cannot be done, say exactly what stops it with say_what_is_in_the_way.",
+      "outcome": "The workflow run {run_id} is finished, or names the exact wall it hit."
+    },
+    "workflow_failed": {
+      "title": "A workflow failed",
+      "said": "Carry on the {workflow} workflow",
+      "job": "The workflow run {run_id} ({workflow}) failed: \"{error}\". It was resumed {restarts} time(s) and still has not reached its outcome. Read the original run with read_workflow_run, find and fix the cause, then resume that same run with resume: true and carry it to its end. Its original input, recipe and admitted answers are kept. Never restart withdrawn work or replace this run with a duplicate. If the cause is a wall you cannot pass, say exactly what it is with say_what_is_in_the_way.",
+      "outcome": "The workflow run {run_id} finishes, or names the exact wall it hit."
+    },
+    "workflow_stuck": {
+      "title": "A workflow could not reach {step}",
+      "said": "Carry on the {workflow} workflow",
+      "job": "The workflow run {run_id} ({workflow}) could not reach step {step} {tries} times in a row; the last error was \"{error}\". It was resumed and could still not reach it. Find why (read_activity with failed true, timed_work, the step's tool or agent), fix the cause, then read it with read_workflow_run and resume: true and carry the run to its end. Every step done so far is kept. If the cause is a wall you cannot pass, say exactly what it is with say_what_is_in_the_way.",
+      "outcome": "The workflow run {run_id} carries on past {step}, or names the exact wall it hit."
+    },
+    "decision_owed": {
+      "title": "A decision's next step was not done",
+      "said": "Do what was decided: {goal}",
+      "job": "The decision {case_id} ({goal}) was decided at {decided_at}, and nobody has said its next action was done: {next_action}. First check whether it was done after all: read it with export_decision, and read_activity with for {case_id}. If it was done, or another AI is doing it now, call say_what_was_done for {case_id} with what you found and finish. Otherwise do it until this holds: {success_measure}. Then call say_what_was_done with case_id {case_id} (done, or the exact wall).",
+      "outcome": "say_what_was_done is recorded for {case_id}.",
+      "tell_the_person": false
+    },
+    "service_refused": {
+      "title": "Your {label} account is turning your AI's work away",
+      "said": "Get {label} taking work again",
+      "job": "One of the person's own AIs works through their {label} account, and since {since} {label} has refused its work: \"{why}\". Other picked services take the work meanwhile. Find exactly what the person must do (add credit, replace the key, connect it again) and the page where they do it, then tell them in one plain sentence with that page, using say_what_is_in_the_way on this job. When {label} answers again this clears by itself.",
+      "outcome": "{label} takes work again, or the person has been told exactly what to do and where.",
+      "notice_body": "{label} stopped taking your AI's work. One of your AIs is finding exactly what fixes it, and until then your other picked AIs take the work."
+    },
+    "check_failed": {
+      "title": "{label} stopped working",
+      "said": "Get \"{label}\" working again",
+      "job": "Trillion checks by itself that \"{label}\" still works (check {check} in the list everything-still-working), and it has failed {failures} times in a row since {since}. It last worked: {last_worked}. What the check saw: {problem}. It asks {probe}, reads {read}, and working looks like {expect}. Who fixes it: {owner}. Find why it stopped from what really arrives and what really comes out (read_messages, source_health, timed_work, read_activity with failed true, the owner's code and logs), fix the cause, then run tool:check-everything-still-works with check_id {check} and read it back as Working. If the cause is a wall you cannot pass, say exactly what it is with say_what_is_in_the_way.",
+      "outcome": "The check {check} (\"{label}\") reads Working again.",
+      "notice_body": "Trillion's own check saw it stop, so one of your AIs has it now. Everything Trillion checks is on Everything still working."
+    },
+    "notice_body": "Trillion started it again and it stopped again, so one of your AIs has it now.",
+    "notice_body_handed_at_once": "It cannot start again by itself, so one of your AIs has it now.",
+    "own_work_waiting": {
+      "title": "\"{said}\" is still waiting for an AI",
+      "body": "None of your AIs has taken it in {minutes} minutes. One of them takes it as soon as it answers; to add another, connect it on Connections.",
+      "hand_off": false,
+      "notice_kind": "waiting-for-an-ai"
+    },
+    "words_unowned": {
+      "title": "Something you said was never handed to an AI",
+      "said": "Work through what you said: {goal}",
+      "job": "The person said or wrote message {message_id} ({goal}), and its decision {case_id} was opened at {opened_at}, but it was never handed to any AI, so nobody has worked it. Without asking them, work it through that decision: read it with next_question, read the message's words with read_messages (and a recording's transcript beside it with read_file_results), answer its questions from what you know of the person, and decide whether it calls for action. If it does, do what it calls for with your tools, check the result, and finish this job saying what you did and what you checked. If it calls for no action, decide that with the message as evidence and finish saying so in one line. Work you could not finish now goes in your result as next: [\"...\"], one line each.",
+      "outcome": "The decision {case_id} is decided, and what it called for is done or names its exact wall.",
+      "priority": 5,
+      "tell_the_person": false
+    },
+    "words_unclassified": {
+      "title": "Words of yours were never judged",
+      "said": "Look at what you said: {words}",
+      "job": "The person said \"{words}\" ({route}, message {message_id}). The classifier on their computer never answered whether it asks for something, and asked again it still gave no answer. Without asking them, read the message with read_messages and decide whether it asks for anything: if it does, do it, check the result and finish saying what you did; if it does not, finish saying so in one line.",
+      "outcome": "What message {message_id} asks for is done, or it is found to ask for nothing.",
+      "priority": 5,
+      "tell_the_person": false
+    }
+  }
+}

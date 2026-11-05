@@ -1,0 +1,496 @@
+{
+  "_what": "What each arriving item gets (src/attention.mjs): `act` opens its decision and hands it to the person's AIs; `context` keeps its words (read_messages, search and the awareness reading all find them) and opens nothing, so no AI, judge or model is asked about it; `classify` asks a small classifier on the person's own computer (the `classify` routes of src/model-routes.json) whether the words call for action, then acts or keeps them as context by its answer, and keeps them as context when no such classifier answers. Each rule is { id, says, when, attention }: `when` is the formula engine's rule tree over the facts below (null: always), the first rule that holds decides, and `otherwise` decides when none does. Facts: route (the carrier's name, like Listening or Email), speaker (person, or someone for words from anyone else), words (how many), text, verdict (act or context, when the carrier already asked a classifier of its own, such as computer/listen.mjs), heard (the carrier heard the words in a room rather than had them written to an AI), voice_me (the carrier's own voice check named the voice as the person's), voice_named (it named an enrolled person, the person or anyone else) and voice_score (how alike that voice is to the person's enrolled voice, 0 to 1; unknown when the carrier sent none). An attention that `opens` nothing keeps the words only; one with `from` keeps them as said by someone else (the carrier's own name for the voice, like \\\"Someone (voice-3)\\\" or \\\"Sam\\\", else `maybe_from` with the name the carrier was unsure of, else `from`), so words nobody is sure the person said are never read as theirs; one with `words_as` hands the request on in those words of src/inbound-words.json (another person's request, or one whose speaker the person is asked to name). A request belongs to whoever said it: only the person's own sure voice acts as the person. A person changes their own rules (fact attention_rules, MCP attention_rules); these are where everyone starts. Why it exists: on 2026-10-05 every sentence the Mac heard (a TV match, 'where did you put the coconut oil spray') became a decision and a job for an AI, 4,342 of them waiting, and the model judging them ran up a $103 bill on the person's Gemini key in a few hours. The voice rule exists because heard words were taken as the person's whenever the Mac's voice check named them at its own lowest bar (0.5 alike) or a short stretch borrowed its neighbour's name, with no confidence reaching Trillion at all. Fact voice_new: a voice the carrier keeps apart under its own label (voice-3) that nobody has named; its request is that voice's own (`theirs`), and an attention with `person_record` keeps the speaker as a person record (src/inbound.mjs speakerRecord) owning their requests until they are named, `new_voice` naming one the carrier sent no label for.",
+  "facts": [
+    {
+      "id": "route",
+      "label": "Where it came from",
+      "kind": "choice"
+    },
+    {
+      "id": "speaker",
+      "label": "Who said it",
+      "kind": "choice"
+    },
+    {
+      "id": "words",
+      "label": "Words",
+      "kind": "number"
+    },
+    {
+      "id": "text",
+      "label": "What was said",
+      "kind": "text"
+    },
+    {
+      "id": "verdict",
+      "label": "What the carrier's own classifier said",
+      "kind": "choice"
+    },
+    {
+      "id": "heard",
+      "label": "Heard in the room",
+      "kind": "boolean"
+    },
+    {
+      "id": "voice_me",
+      "label": "The computer named the voice as the person's own",
+      "kind": "boolean"
+    },
+    {
+      "id": "voice_score",
+      "label": "How alike the voice is to the person's enrolled voice (0 to 1)",
+      "kind": "number"
+    },
+    {
+      "id": "voice_named",
+      "label": "The computer named the voice as an enrolled person",
+      "kind": "boolean"
+    },
+    {
+      "id": "voice_new",
+      "label": "A voice the computer keeps apart that nobody has named",
+      "kind": "boolean"
+    },
+    {
+      "id": "words_age_minutes",
+      "label": "How long before it reached Trillion the words were said, in minutes",
+      "kind": "number"
+    },
+    {
+      "id": "brought_in",
+      "label": "Brought-in history: said a day or more before it reached Trillion (an import or a catch-up)",
+      "kind": "boolean"
+    }
+  ],
+  "attentions": {
+    "act": {
+      "label": "Open a decision and hand it to your AIs",
+      "opens": true
+    },
+    "context": {
+      "label": "Keep the words as context",
+      "opens": false
+    },
+    "unconfirmed": {
+      "label": "Keep the words as context, not as yours",
+      "opens": false,
+      "from": "An unknown voice",
+      "maybe_from": "Unsure ({name}?)"
+    },
+    "theirs": {
+      "label": "Hand your AIs a request from the person who said it",
+      "opens": true,
+      "words_as": "heard_from_someone",
+      "new_voice": "Someone ({voice})",
+      "person_record": true
+    },
+    "unsure": {
+      "label": "Hand your AIs a request, asking you who said it",
+      "opens": true,
+      "words_as": "heard_unsure",
+      "from": "An unknown voice",
+      "maybe_from": "Unsure ({name}?)"
+    },
+    "classify": {
+      "label": "Ask the classifier on your computer",
+      "opens": true
+    }
+  },
+"classify": {"state": "A sentence heard by a microphone in someone's home, where they talk to their personal assistant app: \"{text}\"", "question": "Is the speaker asking for something to be done? Yes for a task for their assistant (send or text a message, tell someone something, call, email, book, remind, buy, order, pay, schedule, find, ask someone for something, note or remember something), and yes for anything they want the assistant app itself to do, have, change, fix or be able to do (a wish like 'I want to be able to', 'can we', 'what if you', 'how could we do that', 'there needs to be'). No for chatter, cheering, fragments, instructions to an audience from a video, commentary, or advice about what someone else's business should do.", "means": {"true": "something to do", "false": "nothing to do"}, "act_at": 0.45,
+  "defer_margin": 0,
+  "defer_to": "act", "_measured": "2026-10-06, scripts/measure-attention.mjs over src/attention-calibration.json with the Mac's first classify row (qwen2.5:14b asked yes or no): 15 of 16 requests caught, 0 of 20 room lines acted on; every line marked `lost` caught. The question before this one (personal-assistant tasks only) caught 0 of the 6 requests about how Trillion itself should work, so a 2026-10-04 ask for Trillion to talk back aloud was kept as context and never became work."},
+  "starting_rules": [
+    {
+      "id": "watched-source-moves-a-pursuit",
+      "says": "Something from a place the person follows that was weighed to move one of their pursuits (Watch my sources, trillion-workshop tools/watch-my-sources) is acted on, however long ago it was published: it is handed to their AIs as a job (records/starting-rules.json starting:arrivals), as information from outside, never as the person's instruction; a decision record opens only for the person's own words (src/message-decision.mjs thePersonsWords)",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "route", "operator": "is_any_of", "params": { "values": ["watch-sources"] } }] },
+      "attention": "act"
+    },
+    {
+      "id": "brought-in-history",
+      "says": "Words said a day or more before they reached Trillion (brought-in history, an import or a catch-up) are kept as context",
+      "when": { "kind": "group", "combinator": "and", "negate": false, "rules": [{ "kind": "rule", "field": "brought_in", "operator": "is_true", "params": {} }] },
+      "attention": "context"
+    },
+    {
+      "id": "carrier-said-context",
+      "says": "The carrier's own classifier said it is passing talk",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "verdict",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "context"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "context"
+    },
+    {
+      "id": "heard-the-person-ask",
+      "says": "The person surely said it (their computer named their voice, more than 0.7 alike) and it asks for something: it is theirs to act on",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "group",
+            "combinator": "or",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "heard",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "route",
+                "operator": "is_any_of",
+                "params": {
+                  "values": [
+                    "Listening"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "kind": "group",
+            "combinator": "and",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "voice_me",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "voice_score",
+                "operator": "is_known",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "voice_score",
+                "operator": "greater_than",
+                "params": {
+                  "value": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "kind": "rule",
+            "field": "verdict",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "act"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "act"
+    },
+    {
+      "id": "heard-the-person",
+      "says": "The person surely said it: the classifier on their computer is asked whether it asks for something",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "group",
+            "combinator": "or",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "heard",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "route",
+                "operator": "is_any_of",
+                "params": {
+                  "values": [
+                    "Listening"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "kind": "group",
+            "combinator": "and",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "voice_me",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "voice_score",
+                "operator": "is_known",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "voice_score",
+                "operator": "greater_than",
+                "params": {
+                  "value": 0.7
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "attention": "classify"
+    },
+    {
+      "id": "heard-someone-named-ask",
+      "says": "Someone enrolled surely said it (more than 0.7 alike) and it asks for something: it is their request, handed to the person's AIs as theirs",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "group",
+            "combinator": "or",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "heard",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "route",
+                "operator": "is_any_of",
+                "params": {
+                  "values": [
+                    "Listening"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "kind": "group",
+            "combinator": "and",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "voice_named",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "voice_score",
+                "operator": "is_known",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "voice_score",
+                "operator": "greater_than",
+                "params": {
+                  "value": 0.7
+                }
+              }
+            ]
+          },
+          {
+            "kind": "rule",
+            "field": "verdict",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "act"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "theirs"
+    },
+    {
+      "id": "heard-a-new-voice-ask",
+      "says": "A voice nobody has named yet asked for something: it is a person of its own (\"Someone (voice-3)\") and the request is theirs until someone names them",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "group",
+            "combinator": "or",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "heard",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "route",
+                "operator": "is_any_of",
+                "params": {
+                  "values": [
+                    "Listening"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "kind": "rule",
+            "field": "voice_new",
+            "operator": "is_true",
+            "params": {}
+          },
+          {
+            "kind": "rule",
+            "field": "verdict",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "act"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "theirs"
+    },
+    {
+      "id": "heard-someone-ask",
+      "says": "Someone asked for something but whose voice it is is not sure (a new voice, or not alike enough): it is handed on as that voice's request, and the person is asked who said it; never as the person's own",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "group",
+            "combinator": "or",
+            "negate": false,
+            "rules": [
+              {
+                "kind": "rule",
+                "field": "heard",
+                "operator": "is_true",
+                "params": {}
+              },
+              {
+                "kind": "rule",
+                "field": "route",
+                "operator": "is_any_of",
+                "params": {
+                  "values": [
+                    "Listening"
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "kind": "rule",
+            "field": "verdict",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "act"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "unsure"
+    },
+    {
+      "id": "heard-not-surely-the-person",
+      "says": "Anything else heard in the room is kept as context said by whoever said it, never as the person's words",
+      "when": {
+        "kind": "group",
+        "combinator": "or",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "heard",
+            "operator": "is_true",
+            "params": {}
+          },
+          {
+            "kind": "rule",
+            "field": "route",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "Listening"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "unconfirmed"
+    },
+    {
+      "id": "carrier-said-act",
+      "says": "The carrier's own classifier said it calls for action",
+      "when": {
+        "kind": "group",
+        "combinator": "and",
+        "negate": false,
+        "rules": [
+          {
+            "kind": "rule",
+            "field": "verdict",
+            "operator": "is_any_of",
+            "params": {
+              "values": [
+                "act"
+              ]
+            }
+          }
+        ]
+      },
+      "attention": "act"
+    }
+  ],
+  "words": {
+    "classified_context": "Heard in the room; the classifier on your computer found no request in it, or none answered, so the words are kept as context",
+    "kept_as_context": "Kept as context"
+  },
+  "otherwise": "act",
+  "most_rules": 50
+}

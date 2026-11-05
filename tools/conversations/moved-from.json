@@ -84,6 +84,20 @@
       "source_identity": "1f:7a741a5824e07472e0b2fbbd89466f0e0c2e961a9165a4cbf4100fc56822ad69",
       "identity": "1f:bced585c2d47918064eb5be54c357ade86aba7eb79d48146eef1e7ca367303a3",
       "note": "Its made-up chat and assertions moved onto the Workshop tool (the namespace finder and the import over the records door) instead of the Worker's PersonStore, Network and Namespace routes; the space tests stay behind with the Worker's space owner."
+    },
+    {
+      "from": "src/message-retention.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/conversations/from-old-trillion/src/message-retention.json",
+      "source_identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb",
+      "identity": "1f:e8596d6e876332d0b64d431d3d03dd6d98f98c554459a04eebe8e6186253abbb"
+    },
+    {
+      "from": "src/message-retention.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/conversations/from-old-trillion/src/message-retention.mjs",
+      "source_identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562",
+      "identity": "1f:4e5826c50b986f5680914510245e594e0ed429c4a76318ace625f6ded8f78562"
     }
   ]
 }

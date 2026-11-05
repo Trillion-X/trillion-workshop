@@ -10,6 +10,27 @@
       "to": "tools/practice-and-review/from-old-trillion/records/workshop-practice-tool-records.json",
       "source_identity": "1f:4ab7d3fc3058d15afc8e7e8e96a768a11f41cee386b0408e22ced5bd3e7503f5",
       "identity": "1f:4ab7d3fc3058d15afc8e7e8e96a768a11f41cee386b0408e22ced5bd3e7503f5"
+    },
+    {
+      "from": "src/practice.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/practice-and-review/from-old-trillion/src/practice.json",
+      "source_identity": "1f:9cab9720ff357b0576cf3594f9602b6b9e8cefeb085373d9401db06e213ae3d7",
+      "identity": "1f:9cab9720ff357b0576cf3594f9602b6b9e8cefeb085373d9401db06e213ae3d7"
+    },
+    {
+      "from": "src/practice.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/practice-and-review/from-old-trillion/src/practice.mjs",
+      "source_identity": "1f:591c3219c9476c5104d432fbd832e10fe16b9e37ffd4ea9b28e0ecb16248e885",
+      "identity": "1f:591c3219c9476c5104d432fbd832e10fe16b9e37ffd4ea9b28e0ecb16248e885"
+    },
+    {
+      "from": "test/practice.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/practice-and-review/from-old-trillion/test/practice.test.mjs",
+      "source_identity": "1f:f677177cbb8d170e8154b08f0587732c601366cea54cc461472a43ab10472e5e",
+      "identity": "1f:f677177cbb8d170e8154b08f0587732c601366cea54cc461472a43ab10472e5e"
     }
   ]
 }

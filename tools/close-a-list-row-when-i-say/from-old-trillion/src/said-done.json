@@ -1,0 +1,32 @@
+{
+  "_what": "DATA for src/said-done.mjs: what Trillion does when the person's own message names one of their open list rows (a Waiting on you step, a chore, any row of a list whose field `settles`). The small classifier on the person's own computer (src/model-routes.json classify routes, free to them and to Trillion) is asked whether the person says that thing is already done; at `close_at` or above the row is settled through the lists road (src/lists.mjs putRows), its settling field set to the value it settles on and each `also` field the list has filled in (a field the list does not have is left out, and a choice field only takes one of its choices); between `unsure_from` and `close_at`, or when no classifier answers, the judgement is handed to the person's AIs (`hand`), once per message and row, never dropped. Below `unsure_from` nothing happens: the person only mentioned it. Why it exists: on 2026-10-09 the person told an AI 'i did this... last week' about a Waiting on you row the message was already linked to (src/entity-mentions.mjs), and the row stayed Waiting while AIs in other chats kept telling them to do it.",
+  "close_at": 0.7,
+  "unsure_from": 0.35,
+  "_thresholds_why": "A wrong close hides something that still waits on the person, so a close needs a clear yes; anything between a clear no and a clear yes is judged by the person's AIs, who can read the conversation around the message.",
+  "text_chars": 1200,
+  "_text_chars_why": "What the classifier reads of a long message: the stretch around the words that name the row (or its opening when no stretch is known), so a long transcript is never sent whole.",
+  "classify": {
+    "state": "The person wrote this in {app}: \"{text}\"\n\nIt names this thing on their own list \"{list}\", which is still open: \"{title}\"{detail}",
+    "question": "Does the person say this thing is already done? Yes when they say they did it, it already happened, it is finished, or it no longer needs doing. No when they ask how or when to do it, ask to be reminded, say they will do it later, say it failed or is not done, or only mention it.",
+    "means": { "true": "the person says it is done", "false": "the person does not say it is done" },
+    "detail": "\nIt is done when: {done_when}",
+    "detail_field": "done_when",
+    "priority": 4,
+    "_priority_why": "Where the question waits on the person's computer (0-9, highest first): ahead of the weigher of what AIs leave the person (3), because a row the person already finished keeps every AI telling them to do it again until it closes."
+  },
+  "also": {
+    "closed_because": "You said it was done: \"{words}\" ({app}, {message_id})",
+    "finish": "Tell Trillion"
+  },
+  "hand": {
+    "from_agent": "trillion-said-done",
+    "priority": 8,
+    "once_per": "said-done:{message_id}:{record_id}",
+    "said": "Check whether you already did: {title}",
+    "job": "The person wrote this in {app} (message {message_id}): \"{text}\"\n\nIt names a row of their list {list_id} that is still open: \"{title}\" (row {row_id}).{detail} The classifier on their computer {why}. Read the message and the conversation around it (read_messages with conversation_id {conversation_id}). If the person says this is already done, settle the row now: put_list_rows on list {list_id} with rows [{ \"id\": \"{row_id}\", \"values\": {values} }]. If they do not, leave the row as it is and finish this job saying why."
+  },
+  "why": {
+    "unsure": "was unsure ({probability} that they say it is done)",
+    "silent": "did not answer"
+  }
+}

@@ -10,6 +10,27 @@
       "to": "tools/keep-a-space-board/src/board-record-values.mjs",
       "source_identity": "1f:4790dda3bcc23cf3ffcff97faf38fed4c7f292b485e36e090cd33a061f0d7ecf",
       "identity": "1f:4790dda3bcc23cf3ffcff97faf38fed4c7f292b485e36e090cd33a061f0d7ecf"
+    },
+    {
+      "from": "src/subject-boards.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-space-board/src/subject-boards.json",
+      "source_identity": "1f:43a7622004b60661f3fe86c1440d7a6c27d576320bac8349e38e30d0d5623b8a",
+      "identity": "1f:43a7622004b60661f3fe86c1440d7a6c27d576320bac8349e38e30d0d5623b8a"
+    },
+    {
+      "from": "src/subject-boards.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-space-board/src/subject-boards.mjs",
+      "source_identity": "1f:e03ea6b6a43a81e2e31cb9f0bd4a839dac1ea09f587645376d3dcd26c71da8e1",
+      "identity": "1f:abb15af216f4a3f3c18b4daa97b4361e8a33dc0c493d12a8019630c5329caf88"
+    },
+    {
+      "from": "test/subject-boards.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-a-space-board/test/subject-boards.test.mjs",
+      "source_identity": "1f:a12b324fca8719999a40c4247478a2a8249f1dcf906f06ed2fad38afbb638a9b",
+      "identity": "1f:1724e61f7724da3cc8e39939f8b2ce1f8c7ca39c742dc4e66d0d29e9da0d5902"
     }
   ]
 }

@@ -5,3 +5,13 @@ Files of old trillion whose job is this tool's, moved here unchanged under their
 | Old path | Here |
 |---|---|
 | `records/workshop-practice-tool-records.json` | `records/workshop-practice-tool-records.json` |
+
+## Feature files
+
+These are old trillion's src/ and test/ files at main 5dc302be. Only import paths differ, where a file they import is already in this repository. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes).
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/practice.json` | `src/practice.json` | data, read by its module (from 5dc302be) |
+| `src/practice.mjs` | `src/practice.mjs` | loads here (from 5dc302be) |
+| `test/practice.test.mjs` | `test/practice.test.mjs` | runs here: 2/2 pass (from 5dc302be) |

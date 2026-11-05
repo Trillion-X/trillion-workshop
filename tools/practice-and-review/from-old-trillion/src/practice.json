@@ -1,0 +1,38 @@
+{
+  "what_this_is": "How practice cards come back (src/practice.mjs): the spaced repetition schedule, what each grade is worth, how mastery is counted and the words the person hears.",
+  "schedule": {
+    "first_interval_days": 1,
+    "second_interval_days": 6,
+    "starting_ease": 2.5,
+    "lowest_ease": 1.3,
+    "missed_below": 0.6,
+    "full_mastery_days": 60,
+    "mastery_max": 1000
+  },
+  "grades": {
+    "again": 0,
+    "hard": 0.6,
+    "good": 0.8,
+    "easy": 1
+  },
+  "reminder": {
+    "schedule_id": "practice-reminder",
+    "at": "09:00",
+    "label": "Practise what is due"
+  },
+  "limits": {
+    "due_per_read": 20,
+    "cards": 2000
+  },
+  "words": {
+    "added": "Kept to practise, first time {due}: {prompt}",
+    "due": "{count} to practise. First: {prompt}",
+    "none": "Nothing to practise right now.",
+    "none_next": "Nothing to practise right now. The next one comes back {next}.",
+    "graded": "{grade}. It comes back {due}, mastery {mastery} of {max}: {prompt}",
+    "missed": "Missed, so it comes back tomorrow: {prompt} The answer: {answer}",
+    "removed": "Stopped practising: {prompt}",
+    "remind_title": "Practise now"
+  },
+  "open": "/use/tool:practice"
+}
