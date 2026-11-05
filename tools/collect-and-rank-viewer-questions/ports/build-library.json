@@ -1,0 +1,125 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VIEWER-QUESTION-LIBRARY",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: models-research lane, slice viewer-questions",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:53189976ba679aebfb6c19a19b8b6f5e18f6d8353ab9a43888cb9004ef81cdb8",
+   "lines": [
+    1,
+    55
+   ],
+   "multihash": "1f:3bbb469baecb6c39e08f84ea38cb8efbcb2788f229391740b99038788c1a65b3",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:53189976ba679aebfb6c19a19b8b6f5e18f6d8353ab9a43888cb9004ef81cdb8",
+   "lines": [
+    79,
+    119
+   ],
+   "multihash": "1f:6e401f75c2e013ac74acbd2554dda766b75e5a6f5f267981082847f26cda6f02",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:53189976ba679aebfb6c19a19b8b6f5e18f6d8353ab9a43888cb9004ef81cdb8",
+   "lines": [
+    57,
+    77
+   ],
+   "multihash": "1f:8c8e120f5e557019390607d890dbe847690791a05275a40c92e35e6571fa9122",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:53189976ba679aebfb6c19a19b8b6f5e18f6d8353ab9a43888cb9004ef81cdb8",
+   "lines": [
+    127,
+    131
+   ],
+   "multihash": "1f:ad0347d9e6d66ea0b7c4b5d288c6e13a4318007f512e2de98665767042549d68",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:53189976ba679aebfb6c19a19b8b6f5e18f6d8353ab9a43888cb9004ef81cdb8",
+   "lines": [
+    121,
+    124
+   ],
+   "multihash": "1f:4101eb5746492bcdd5004e3977eb1c98f828f944c89119b63ca5002297681132",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/collect-and-rank-viewer-questions/do-work/build_library.py",
+   "baseline_commit_message": "collect-and-rank-viewer-questions: the old viewer-questions scripts, byte copies (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "a question is the asker's verbatim sentence; the asker line removes marks and a leading filler word",
+  "frequency is measured: other candidates at similarity 0.82 or more, labelled recurs (4+), seen-elsewhere (1+), single-sighting",
+  "answer moments: nearest 40 by bge-small, re-ranked by bge-reranker-v2-m3, kept at 0.25, 3 a question, none within 15 s of a kept one of the same clip; strong at 0.5 and similarity 0.72",
+  "ids vq-001 on, asker_line_gate null until the gate runs"
+ ],
+ "allowed_deltas": [
+  "bucket codes, kinds, asker overrides, inferred questions and their file and segment, the comment segment, the basis, note and bucket words and the moment buckets are the person's settings row",
+  "picks.txt is an argument",
+  "a forum-posts.jsonl of the forum harvest is read for comment counts as well as reddit.jsonl",
+  "picks naming unknown codes are refused; the last line is {result}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another folder",
+  "a person's bucket, code, segment, path or name written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:3bbb469baecb6c39e08f84ea38cb8efbcb2788f229391740b99038788c1a65b3",
+  "target_multihash_at_baseline": "1f:3bbb469baecb6c39e08f84ea38cb8efbcb2788f229391740b99038788c1a65b3",
+  "commit": "14725d9d1d0c612a49da56c73a4f966dc2fc2546",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def asker_line",
+   "RERANK_POOL"
+  ],
+  "test_refs": [
+   "tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of trillion-launch-video beside this one finds it."
+}

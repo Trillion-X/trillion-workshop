@@ -2,6 +2,9 @@
   "public": [
     "do-work/where-a-person-stands.mjs",
     "do-work/artifact-ref.mjs",
-    "do-work/rulings.mjs"
+    "do-work/rulings.mjs",
+    "do-work/ruling-records.mjs",
+    "do-work/picks.mjs",
+    "do-work/ruling-status.mjs"
   ]
 }

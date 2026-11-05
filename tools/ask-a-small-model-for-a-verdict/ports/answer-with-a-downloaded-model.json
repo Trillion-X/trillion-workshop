@@ -1,0 +1,87 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-ANSWER-WITH-A-DOWNLOADED-MODEL-FROM-THE-COPY-GATE-DECIDER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane 2026-11-04: finish the launch-video port so the repository can be retired",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "Port every behaviour and every test; port the correct parts one to one and never rebuild what worked. Model ids, snapshot paths, adapter paths and hashes, the model cache root and thresholds become settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d1d9136a621c2febdcc9b85a7f03904c645ae7dd4ab38bcecc8e0556cb1efeb3",
+   "multihash": "1f:192169c3e966210a6eb265d5883ae852bfebd2fdefa9f0908cc662d1b28c6114",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T07:00:00Z",
+    "deleted_with": "the launch-video removal branch the lane lead pushes, in a commit that names this folder as the new home"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/ask-a-small-model-for-a-verdict/do-work/answer_with_a_downloaded_model.py",
+   "baseline_commit_message": "ask-a-small-model-for-a-verdict: decider_layer.py moved byte for byte (a name redacted) as answer_with_a_downloaded_model.py"
+  }
+ ],
+ "preserve": [
+  "answers are cached by what answers (an adapter's BLAKE3, an MLX model at its one snapshot, a hosted model's name, or the base model), the question and the framed line with its context, so base and adapter answers never mix",
+  "an adapter's BLAKE3 is checked before it is loaded and a mismatch is refused; it is attached once to the one loaded base model with peft",
+  "an MLX model is read at its one downloaded snapshot and an ambiguous or missing snapshot is refused; its answer is the next-token softmax mass on each option word as written and capitalised, renormalised",
+  "hosted calls go through the consult-model route, one question many lines per call, bounded by line count and bytes; a line it does not answer stays None, never a guess",
+  "examples show the person's ruled lines of a set first, never the judged line nor a line that contains it or that it contains",
+  "a line's film context is shown right before it in a fixed order and is part of the cache key",
+  "calibrate scores each line by its worst sentence, counts only the split asked for and, when asked, only lines with context, and passes the scores to this folder's fit-lines with the person's bars",
+  "the device is what the place reports, else cuda, then mps, then cpu; no home folder is guessed for the hosted route"
+ ],
+ "allowed_deltas": [
+  "every model id, snapshot, adapter folder, the model cache root, the answer cache, the frame, the batch sizes, the good sets, the example sources and the fit bars come from the person's setting row (list:settings, read through tools/settings) instead of constants and environment variables; the environment variables stay as the place's fallback",
+  "an adapter may be named by name, its folder the setting's adapters[name], beside the old {path, blake3}",
+  "a stand-in model (ask.model.stand_in) answers from the ask itself and is never cached, so a sample run and a test answer without a model",
+  "the labelled lines an ask's examples name, and the lines calibrate reads, are given in the request (read from the person's Checks list) instead of files under the copy gate; an old path names its set by the file's stem",
+  "one JSON request in and { result } or { error } on the last line, instead of argv flags, a bare JSON answer and SystemExit",
+  "fit-lines is called beside this file instead of through TRILLION_WORKSHOP",
+  "the hosted prompt, its reply table, the MLX prompt and the adapter folder are their own functions so tests reach them"
+ ],
+ "banned_substitutions": [
+  "a model id, snapshot, adapter folder or threshold written into the code",
+  "a second copy of the fit (t_fail, t_pass, AUC, recall, held-out shares)",
+  "a guess in place of a missing model answer"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:192169c3e966210a6eb265d5883ae852bfebd2fdefa9f0908cc662d1b28c6114",
+  "target_multihash_at_baseline": "1f:8fa040f4f96f8c6a936ceed2694689372caa09a1949617674ecf785b30554640",
+  "commit": "27a177564686b3b024ad7c2e42d74bb0ab90ff0f",
+  "redactions": [
+   { "from": "Bri", "to": "@@" },
+   { "from": "bri", "to": "%%" },
+   { "from": "@@an", "to": "the person" },
+   { "from": "%%an", "to": "person" }
+  ]
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "class Answers",
+   "def engine_of",
+   "def consulted",
+   "def mlx_snapshot",
+   "def context_of",
+   "def placed",
+   "def sentences",
+   "def fit_lines",
+   "def calibrate"
+  ],
+  "test_refs": [
+   "tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. The redactions replace a person's name in two steps so no literal here holds it."
+}

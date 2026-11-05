@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""build.py <discovery.json> [--registry dimensions.json] [--only TEXT] [--force]
+"""build.py [<discovery.json>] [--registry dimensions.json | --settings-record S [--scope KIND:ID]] [--only TEXT] [--force]
 
 Rebuilds every template, every fill drift and every film drift that the discovery file describes, but
 only where an input changed (sources, spec, fill, registry or this tool's code): each output's inputs are
@@ -18,9 +18,13 @@ The discovery file (JSON, paths relative to its "root"):
   film_drifts  folder for film drift reports (default: drift/films beside the manifest)
   renders      folder for render measurements (default: renders beside the manifest)
   registry     the person's dimensions registry (default: the shipped read-data/dimensions.json); --registry overrides it
+
+With --settings-record (the person's list:settings row for this tool), its settings.registry is the registry and its
+settings.discovery is the discovery when no discovery file is given; there "films" may be the films object itself.
 """
 import argparse
 import glob
+import hashlib
 import json
 import re
 import sys
@@ -30,7 +34,7 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 READ_DATA = HERE.parent / "read-data"
 sys.path.insert(0, str(READ_DATA))
-from wt_core import Registry, WTError, expand, load_json, stamp, write_json  # noqa: E402
+from wt_core import WTError, expand, load_json, parse_scopes, registry_for, stamp, tool_settings, write_json  # noqa: E402
 from wt_ops import drift, fill, tokenize  # noqa: E402
 from wt_render import render_drift_text, render_fill_md, render_template_md  # noqa: E402
 
@@ -38,7 +42,7 @@ CODE = [READ_DATA / n for n in ("wt_core.py", "wt_ops.py", "wt_render.py")] + [H
 
 
 def key_of(paths):
-    return json.dumps([stamp(p) for p in paths], sort_keys=True)
+    return json.dumps([p if isinstance(p, dict) else stamp(p) for p in paths], sort_keys=True)
 
 
 def fmt(s, **kw):
@@ -87,20 +91,36 @@ def drift_summary(rep):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("discovery")
+    ap.add_argument("discovery", nargs="?", help="the discovery file (default: the settings row's discovery)")
     ap.add_argument("--registry", help="the dimensions registry to measure with (default: the discovery file's registry, else the shipped one)")
+    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns)")
+    ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     ap.add_argument("--only")
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args(argv)
-    disc = load_json(a.discovery, "discovery file")
-    disc["_path"] = Path(a.discovery).name
-    root = expand(disc.get("root", "."))
-    reg = Registry.load(a.registry or (str(expand(disc["registry"], root)) if disc.get("registry") else None))
+    try:
+        settings = tool_settings(a.settings_record, parse_scopes(a.scope)) if a.settings_record else None
+        if a.discovery:
+            disc = load_json(a.discovery, "discovery file")
+            disc["_path"] = Path(a.discovery).name
+            disc_stamp = expand(a.discovery)
+        elif settings and isinstance(settings[0].get("discovery"), dict):
+            disc = dict(settings[0]["discovery"])
+            disc["_path"] = f"--settings-record ({settings[1]})"
+            disc_stamp = {"discovery": settings[1], "sha256": hashlib.sha256(json.dumps(disc, sort_keys=True).encode("utf-8")).hexdigest()}
+        else:
+            raise WTError("no discovery was given", "give a discovery file, or a --settings-record whose settings hold discovery")
+        root = expand(disc.get("root", "."))
+        registry_file = a.registry or (str(expand(disc["registry"], root)) if disc.get("registry") and not (settings and "registry" in settings[0]) else None)
+        reg = registry_for(None, registry_file, settings)
+    except WTError as e:
+        print(f"build: {e}", file=sys.stderr)
+        return 2
     man_path = expand(disc["manifest"], root)
     man = load_json(man_path, "manifest") if man_path.exists() else {}
     film_drifts = expand(disc["film_drifts"], root) if disc.get("film_drifts") else man_path.parent / "drift" / "films"
     renders = expand(disc["renders"], root) if disc.get("renders") else man_path.parent / "renders"
-    base = [Path(reg.path), expand(a.discovery)] + CODE
+    base = [reg.fingerprint(), disc_stamp] + CODE
     counts = {"templates_built": 0, "templates_unchanged": 0, "templates_failed": 0, "drifts_built": 0,
               "drifts_unchanged": 0, "drifts_failed": 0}
     t0 = time.time()
@@ -227,8 +247,12 @@ def main(argv=None):
                   root, "line", target_label=str(fp.relative_to(root)))
 
     # 3. every film against its reference
-    films_path = expand(disc["films"], root)
-    films = load_json(films_path, "films file")
+    if isinstance(disc["films"], dict):
+        films = disc["films"]
+        films_path = {"films": hashlib.sha256(json.dumps(films, sort_keys=True).encode("utf-8")).hexdigest()}
+    else:
+        films_path = expand(disc["films"], root)
+        films = load_json(films_path, "films file")
     for fl in films["films"]:
         if a.only and a.only not in fl["film"]:
             continue
