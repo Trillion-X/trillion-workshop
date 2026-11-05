@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c2884c3c51da38c4462ecb3d08a2f73ade538cad08352141c569b71278946484"
+  "blake3": "1f:d7cf63e8460b008f62e30ccf0d9033c8d092d7a6520d979f5d029dcadfff39c2"
  },
  "fields": [
   {
@@ -1775,6 +1775,21 @@
    }
   },
   {
+   "id": "tool:check-every-claim-against-its-facts-and-sources",
+   "values": {
+    "title": "Check every claim my narrator makes, spoken or on screen, against my facts and sources before it is voiced (runs on your computer)",
+    "job": "Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
+    "description": "Reads a run's shots (shots/<id>.json: the voice script and the on-screen events), their claims files (claims/<id>.json: one entry per spoken sentence and per on-screen text, each citing world facts, source wordings, transcript quotes or saved frames), the person's world rows (lists.json, rows/<list>.json, relations.json: entities, facts and relations) and their sources file with its plain-text extracts. The world's own check runs first (row shapes, links, roles, every fact's words at its transcript second or file line); then each shot fails a claim that: is not covered (script or screen text without an entry, or an entry for nothing); is about the subject but has no support said by someone other than the narrator; ignores a world fact on one of its topics; quotes a source or transcript that does not hold the words; is stronger than its source on a strength scale; says a number not derived from its cited numbers or outside its qualifier; breaks a bound a world fact sets; makes a comparison the numbers do not hold; counts a number in another container than its source; says something is visible without a saved frame; uses a private, believed, past or planned fact without saying so, a claim not recorded as its speaker's statement, or a conflicting fact it has not weighed; or carries a hedge or attribution phrase. Every rule word (strength scales, qualifiers, subject words, labels, tense markers, quantity units) is the person's settings, and the hedge phrases are their no-hedge check row's words. Prints each shot's report lines to standard error and one JSON answer.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:check-every-piece-is-covered",
    "values": {
     "title": "Check every piece of a person's files has a check or a reason",
@@ -2309,6 +2324,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:compose-thumbnails-from-layout-templates",
+   "values": {
+    "title": "Build thumbnail candidates from my frames with layout templates (runs on your computer)",
+    "job": "Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
+    "description": "Six layout templates read off strong reference thumbnails (a claim box across a split, a big face beside stacked words, a magnifier on a flaw, price tags on a flat backdrop, a held object with quoted words, a corner face with stroked words) compose 1280x720 candidates from the person's full-size frames and cut-outs: crops, punch-up, white sticker outlines with shadow, boxed or stroked words, curved arrows, price tags, a magnifier. Each candidate is one row of values in the person's settings row (which frame, face box, words, sizes, arrow ends); the font is the person's.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compose-thumbnails-from-layout-templates"
    }
   },
   {
@@ -3192,7 +3222,7 @@
    "values": {
     "title": "Find my files in my index",
     "job": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
-    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. names (instead of or beside query) looks up where named files are kept: a name matches a file whose name without its extension equals it, or starts with it, ignoring case, when the name ends in *; type and root narrow the rows; the answer's by_name gives each name's display paths and not_in_index lists the names no file matched. index_dir is required unless the person's settings (settings_record, a row of their list:settings, or settings) hold it; their settings fill every key the request leaves out (index_dir, index_file, types_file, type, root, limit, fields, weights, lane_weights). It never builds or changes an index, and it reads nothing outside index_dir.",
+    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. It never builds or changes an index, and it reads nothing outside index_dir.",
     "status": "active",
     "maker": "maker:find-files-in-an-index",
     "licence_class": "licence:maker-own",
@@ -5927,6 +5957,21 @@
     ],
     "listed_on": "2026-11-05T00:00:00Z",
     "folder": "browse-and-publish-what-my-ai-can-use"
+   }
+  },
+  {
+   "id": "tool:make-plain-text-extracts-of-claim-sources",
+   "values": {
+    "title": "Make the plain-text copy of every source my claims cite, from the files I saved (runs on your computer)",
+    "job": "Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
+    "description": "Reads a sources file ({\"sources\": {id: {raw, extract, text}}}) and writes each source's plain-text extract beside it: html (scripts and styles dropped, tags removed, entities decoded, spaces joined), fdc-json (a FoodData Central food as one line per nutrient amount per 100 g), new-order (an edit plan's new_order rows as one line each) or copy. A kind made by its own tool (a word-timed transcript, a text) keeps its extract and is refused when it is missing. Run it after adding or re-fetching a source; tool:check-every-claim-against-its-facts-and-sources checks quotes against these extracts.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
    }
   },
   {
