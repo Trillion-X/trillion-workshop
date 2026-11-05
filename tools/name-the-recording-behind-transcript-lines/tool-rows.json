@@ -1,0 +1,266 @@
+{
+  "kind": "package-set-records",
+  "record_set": "name-the-recording-behind-transcript-lines-tool-rows",
+  "what_this_is": "The Workshop row for the name-the-recording-behind-transcript-lines folder: a program run on the person's own computer, over a folder they let it read, to say which recording sits behind a range of lines in a transcript archive.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:name-the-recording-behind-transcript-lines",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:name-the-recording-behind-transcript-lines",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Find which recording a cited passage of my transcript archive comes from",
+        "job": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+        "description": "Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words. A range that no window overlaps is listed in not_found. A range is written first-last, for example 120-180; a malformed or reversed range is refused with what to write. archive is a path inside the granted folder (or the archive setting a film's settings row holds, named by settings_record); preview_chars (a setting, default 120) sets how many first characters are shown. It changes nothing and reads only the index file.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "archive": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The archive index JSON file, a path inside the folder the person let this tool read. Leave it out when the settings row names it."
+            },
+            "ranges": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "string",
+                    "minLength": 3
+                  }
+                },
+                {
+                  "type": "string",
+                  "minLength": 3
+                }
+              ],
+              "description": "Line ranges, first-last: a list, or one string with spaces between them."
+            },
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:name-the-recording-behind-transcript-lines~",
+              "description": "The person's list:settings row for this tool (for one film: its archive and preview length)."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings for this run, laid over the row's: archive, preview_chars."
+            }
+          },
+          "required": [
+            "ranges"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "archive",
+            "matches",
+            "not_found"
+          ],
+          "properties": {
+            "archive": {
+              "type": "string"
+            },
+            "matches": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "range",
+                  "id",
+                  "recording",
+                  "start_line",
+                  "end_line",
+                  "first_words"
+                ],
+                "properties": {
+                  "range": {
+                    "type": "string"
+                  },
+                  "id": {},
+                  "recording": {
+                    "type": "string"
+                  },
+                  "start_line": {
+                    "type": "integer"
+                  },
+                  "end_line": {
+                    "type": "integer"
+                  },
+                  "first_words": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "not_found": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "settings_from": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/name-the-recording-behind-transcript-lines",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/settings/do-work/run-with-settings.mjs",
+            "--folder",
+            "name-the-recording-behind-transcript-lines",
+            "--",
+            "python3",
+            "-I",
+            "/opt/name-the-recording-behind-transcript-lines/do-work/name_recording.py",
+            "--base",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            }
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:name-the-recording-behind-transcript-lines~",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "name-the-recording-behind-transcript-lines",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/name-the-recording-behind-transcript-lines"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Moved from a film folder's tools/package_lines.py (film-making repository, commit 5a9ba39); the archive path and the ranges became the request, a film's archive a setting"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "archive": "archive.json",
+              "ranges": [
+                "150-160",
+                "999-1000"
+              ]
+            },
+            "files": [
+              {
+                "grant": "read-a-folder",
+                "path": "archive.json",
+                "text": "[{\"id\": \"w-001\", \"recording\": \"Sample interview one\", \"start_line\": 1, \"end_line\": 100, \"text\": \"The first words of window one.\"}, {\"id\": \"w-002\", \"recording\": \"Sample interview two\", \"start_line\": 101, \"end_line\": 200, \"text\": \"Second window opens here.\"}]"
+              }
+            ]
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "ranges": "10-20",
+              "settings_record": "record:setting:name-the-recording-behind-transcript-lines~film~sample-film"
+            },
+            "files": [
+              {
+                "grant": "read-a-folder",
+                "path": "film/archive.json",
+                "text": "[{\"id\": \"w-001\", \"recording\": \"Sample interview one\", \"start_line\": 1, \"end_line\": 100, \"text\": \"The first words of window one.\"}, {\"id\": \"w-002\", \"recording\": \"Sample interview two\", \"start_line\": 101, \"end_line\": 200, \"text\": \"Second window opens here.\"}]"
+              }
+            ],
+            "records": [
+              {
+                "id": "record:setting:name-the-recording-behind-transcript-lines~film~sample-film",
+                "type": "record:setting",
+                "value": {
+                  "name": "Transcript archive of a sample film",
+                  "tool": "tool:name-the-recording-behind-transcript-lines",
+                  "scope_kind": "film",
+                  "scope_id": "sample-film",
+                  "settings": {
+                    "archive": "film/archive.json",
+                    "preview_chars": 40
+                  },
+                  "from": "made up for this sample",
+                  "status": "active"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

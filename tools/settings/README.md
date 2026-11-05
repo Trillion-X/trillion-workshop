@@ -22,6 +22,7 @@ A tool takes `settings_record` in its request: the record as `records:read` give
 |---|---|
 | `read-data/settings.py` | `setting_id`, `parse_id`, `make_record`, `list_record`, `chosen`, `settings_of`, `setting`; `SettingError` says how to fix a request. |
 | `read-data/settings.mjs` | The same for JavaScript tools: `settingId`, `parseId`, `makeRecord`, `chosen`, `settingsOf`, `setting`. |
+| `read-data/settings.mjs` `readSetting`, `readSettingRow` | `tool:read-a-tool-setting-through-my-door`: the same choice read through the person's records door at run time (records:read of each scope's row, most specific first). The run's right is `settings_prefix` (`record:setting:<folder>~`), so it reads only that tool's rows. A container tool calls `readSetting(door, { folder, scopes, fallback, tool })` directly. |
 | `do-work/read_setting.py` | `tool:read-a-tool-setting`: one JSON request in (read or make), one JSON line out. |
 | `tool-rows.json` | The row. |
 | `test/test_settings.py`, `test/settings.test.mjs` | Ids, scope choice, the default, every refusal, the command, and the two readers agreeing. Made-up rows only. |

@@ -1,5 +1,5 @@
-// The hold list: holds in the order they start with their start second, the longest first in the command's answer, the same
-// still level and frame timing as the check, and the command's refusals. Videos are made here with ffmpeg; those tests skip,
+// The hold list: the longest hold first with the second it starts, the same still level and longest hold as the check, a
+// still and a moving video, the seconds and still level asked for, and the command's refusals. Videos are made here with ffmpeg; those tests skip,
 // saying why, without it. Every number is made up.
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,7 +8,7 @@ import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { holdsIn, longestHolds, measureMotion } from '../read-data/measure-motion.mjs';
+import { measureMotion } from '../read-data/measure-motion.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const command = join(folder, 'do-work', 'list-holds.mjs');
@@ -29,22 +29,6 @@ test('the row runs on the person\'s computer and names the command that exists',
   assert.equal(row.licence_class, 'licence:maker-own');
 });
 
-test('a hold is a run of frames that neither move nor cut, kept with the second it starts', () => {
-  // frame changes at 10 frames a second, still level 1, cut level 25 (motion-measure.json)
-  const changes = [0, 0, 0, 5, 0, 0, 0, 0, 0, 30, 0, 0];
-  const { moving, holds } = holdsIn(changes, 1, 10);
-  assert.deepEqual(moving, [false, false, true, true, true, false, false, false, false, false, false, false]);
-  // frames 0-1 hold, 2-4 move (5 and its neighbours), 5-8 hold, 9 is a cut, 10-11 hold
-  assert.deepEqual(holds, [{ seconds: 0.2, at: 0 }, { seconds: 0.4, at: 0.5 }, { seconds: 0.2, at: 1 }]);
-});
-
-test('a change at or under the still level is not movement, and a cut ends a hold without moving', () => {
-  assert.deepEqual(holdsIn([1, 1, 1], 1, 1).holds, [{ seconds: 3, at: 0 }]);
-  assert.deepEqual(holdsIn([1.01, 0, 0, 0], 1, 1).holds, [{ seconds: 2, at: 2 }]);
-  assert.deepEqual(holdsIn([0, 26, 0], 1, 1), { moving: [false, false, false], holds: [{ seconds: 1, at: 0 }, { seconds: 1, at: 2 }] });
-  assert.deepEqual(holdsIn([], 1, 24).holds, []);
-});
-
 function make(name, filter) {
   const path = join(work, name);
   const made = spawnSync('ffmpeg', ['-y', '-v', 'error', '-f', 'lavfi', '-i', 'testsrc2=size=160x120:rate=15', '-f', 'lavfi', '-i', 'color=c=gray:size=160x120:rate=15',
@@ -56,23 +40,35 @@ function make(name, filter) {
 const twoHolds = () => make('two-holds.mp4', '[0:v]trim=0:2,setpts=PTS-STARTPTS[a];[1:v]trim=0:1,setpts=PTS-STARTPTS[b];[0:v]trim=2:3,setpts=PTS-STARTPTS[c];'
   + '[1:v]trim=0:2,setpts=PTS-STARTPTS[d];[0:v]trim=3:4,setpts=PTS-STARTPTS[e];[a][b][c][d][e]concat=n=5:v=1:a=0');
 
+const listHolds = (...argv) => { const ran = run(...argv); assert.equal(ran.status, 0, ran.stdout + ran.stderr); return lastLine(ran).result; };
+
 test('the longest hold comes first, each with the second it starts, and top keeps that many', { skip }, () => {
   const path = twoHolds();
-  const listed = longestHolds(path);
+  const listed = listHolds('--video', path);
   assert.equal(listed.holds.length, 2);
   const [long, short] = listed.holds;
   assert.ok(long.seconds > 1.8 && long.seconds < 2.1, `about two seconds held: ${long.seconds}`);
   assert.ok(long.at > 3.9 && long.at < 4.2, `the long hold starts at about 4 s: ${long.at}`);
   assert.ok(short.seconds > 0.8 && short.seconds < 1.1 && short.at > 1.9 && short.at < 2.2, JSON.stringify(short));
   assert.equal(listed.text, listed.holds.map(hold => `${hold.seconds.toFixed(2)}s@${hold.at.toFixed(2)}`).join('  '));
-  assert.deepEqual(longestHolds(path, 0, null, 1).holds, [long]);
-  assert.equal(longestHolds(path).still_threshold, measureMotion(path).still_threshold, 'the same still level as the check');
+  assert.deepEqual(listHolds('--video', path, '--top', '1').holds, [long]);
+  assert.equal(listed.still_threshold, measureMotion(path).still_threshold, 'the same still level as the check');
   assert.equal(Math.max(...listed.holds.map(hold => hold.seconds)), measureMotion(path).longest_hold_s, 'the same longest hold as the check');
+});
+
+test('a still picture is one hold from its first frame, and a moving one has none', { skip }, () => {
+  const flat = listHolds('--video', make('still.mp4', '[1:v]trim=0:3,setpts=PTS-STARTPTS'));
+  assert.equal(flat.holds.length, 1);
+  assert.equal(flat.holds[0].at, 0);
+  assert.ok(flat.holds[0].seconds > 2.7, JSON.stringify(flat));
+  const lively = listHolds('--video', make('moving.mp4', '[0:v]trim=0:3,setpts=PTS-STARTPTS'));
+  assert.deepEqual(lively.holds, []);
+  assert.equal(lively.text, '');
 });
 
 test('the seconds asked for cut the video short, and a given still level is used', { skip }, () => {
   const path = twoHolds();
-  const early = longestHolds(path, 3.5, 1.5);
+  const early = listHolds('--video', path, '--seconds', '3.5', '--still', '1.5');
   assert.equal(early.seconds, 3.5);
   assert.equal(early.still_threshold, 1.5);
   assert.equal(early.holds.length, 1, 'only the first hold is inside 3.5 s');

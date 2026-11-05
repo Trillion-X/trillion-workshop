@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:05fa53ec9ca90bab3d9326ddfb6fa3642a608fd1d29be0a3680f54a326091335"
+  "blake3": "1f:460eed5fa3c44dce2d345aee62174fbef7c26b91c85c1f256fd356e3c69084a1"
  },
  "fields": [
   {
@@ -998,6 +998,21 @@
    }
   },
   {
+   "id": "tool:build-training-rows-from-a-persons-rules",
+   "values": {
+    "title": "Build the train rows and held-out test lines for teaching a small model my rules (runs on your computer)",
+    "job": "Make the training set to teach a small model my writing rules, with the test lines held out before any training",
+    "description": "Reads the person's laws, their writing rules (one yes-or-no question per law, which answer fails, and which ruled-bad sets count as bad for it), the lines they ruled on, an optional transcript of them speaking, an optional folder of other people's caption files, made-up training lines and their held-out lines. Splits real lines by source before any training (ruled lines by the heading they sit under in a folder of guides, the transcript by halves, captions by video), keeps never-train and held-out lines out of training, and writes items.json (every real line with its side, sets and the laws it breaks) and train.jsonl (one row per law and line: question, options, gold answer). The same request always makes the same rows.",
+    "status": "active",
+    "maker": "maker:fine-tune-a-small-model-on-a-persons-rules",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fine-tune-a-small-model-on-a-persons-rules"
+   }
+  },
+  {
    "id": "tool:calibrate-a-camera-frame",
    "values": {
     "title": "Calibrate a camera frame",
@@ -1760,6 +1775,21 @@
    }
   },
   {
+   "id": "tool:check-every-claim-against-its-facts-and-sources",
+   "values": {
+    "title": "Check every claim my narrator makes, spoken or on screen, against my facts and sources before it is voiced (runs on your computer)",
+    "job": "Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
+    "description": "Reads a run's shots (shots/<id>.json: the voice script and the on-screen events), their claims files (claims/<id>.json: one entry per spoken sentence and per on-screen text, each citing world facts, source wordings, transcript quotes or saved frames), the person's world rows (lists.json, rows/<list>.json, relations.json: entities, facts and relations) and their sources file with its plain-text extracts. The world's own check runs first (row shapes, links, roles, every fact's words at its transcript second or file line); then each shot fails a claim that: is not covered (script or screen text without an entry, or an entry for nothing); is about the subject but has no support said by someone other than the narrator; ignores a world fact on one of its topics; quotes a source or transcript that does not hold the words; is stronger than its source on a strength scale; says a number not derived from its cited numbers or outside its qualifier; breaks a bound a world fact sets; makes a comparison the numbers do not hold; counts a number in another container than its source; says something is visible without a saved frame; uses a private, believed, past or planned fact without saying so, a claim not recorded as its speaker's statement, or a conflicting fact it has not weighed; or carries a hedge or attribution phrase. Every rule word (strength scales, qualifiers, subject words, labels, tense markers, quantity units) is the person's settings, and the hedge phrases are their no-hedge check row's words. Prints each shot's report lines to standard error and one JSON answer.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:check-every-piece-is-covered",
    "values": {
     "title": "Check every piece of a person's files has a check or a reason",
@@ -2236,6 +2266,21 @@
    }
   },
   {
+   "id": "tool:collect-and-rank-viewer-questions",
+   "values": {
+    "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
+    "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+    "status": "active",
+    "maker": "maker:collect-and-rank-viewer-questions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "collect-and-rank-viewer-questions"
+   }
+  },
+  {
    "id": "tool:commit-changes",
    "values": {
     "title": "Commit the chosen changes",
@@ -2294,6 +2339,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:compose-thumbnails-from-layout-templates",
+   "values": {
+    "title": "Build thumbnail candidates from my frames with layout templates (runs on your computer)",
+    "job": "Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
+    "description": "Six layout templates read off strong reference thumbnails (a claim box across a split, a big face beside stacked words, a magnifier on a flaw, price tags on a flat backdrop, a held object with quoted words, a corner face with stroked words) compose 1280x720 candidates from the person's full-size frames and cut-outs: crops, punch-up, white sticker outlines with shadow, boxed or stroked words, curved arrows, price tags, a magnifier. Each candidate is one row of values in the person's settings row (which frame, face box, words, sizes, arrow ends); the font is the person's.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compose-thumbnails-from-layout-templates"
    }
   },
   {
@@ -2382,6 +2442,36 @@
      "placement:your-computer"
     ],
     "folder": "conversations"
+   }
+  },
+  {
+   "id": "tool:count-real-rulings",
+   "values": {
+    "title": "Count the real bad rulings on lines",
+    "job": "Count how many lines a person ruled bad, whether that is enough to let a model row fail lines, and how many of them each model row catches",
+    "description": "Give rulings (the person's ruling rows of list:checks, records:list type record:check prefix record:check:ruling-, as records or values) and settings_record (the person's setting for this tool: real, who counts; needs, fields a ruling must carry to count; needed, how many real bad rulings a model row needs before it may fail lines; and optionally verdict, the bad word, and default_kind), or those fields themselves. Returns real_bad_film (the real bad rulings), needed, promotion_allowed, counts (every \"<by> <verdict>\" of the log) and bad_lines (one per text: text, kind, where), the lines to check. Send again with rules (the model rows, [{ id, ask: { calibration: { t_fail } } }]) and results (the check's results on the bad lines: [{ text, uncertain: [{ rule, p_fail }] }]) to add escalated_by_any, per_rule (lines each row catches at its own t_fail) and unanswered. It runs no check and writes nothing.",
+    "status": "active",
+    "maker": "maker:where-a-person-stands",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "where-a-person-stands"
+   }
+  },
+  {
+   "id": "tool:count-where-a-person-stands",
+   "values": {
+    "title": "Count where a person stands",
+    "job": "Count the stands a person has taken, by kind of thing and by stand, with how many changed their mind and how many took a stand back",
+    "description": "Give stands: the stands read back (each the answer of tool:read-where-you-stand, or a stance record's value: kind, stance, and earlier when its history was read). Returns read (how many), by_kind ({ kind: { stance: count } }), with_history (stands with earlier stands) and taken_back (read with no stand now). It reads and writes nothing.",
+    "status": "active",
+    "maker": "maker:where-a-person-stands",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "where-a-person-stands"
    }
   },
   {
@@ -2867,6 +2957,21 @@
    }
   },
   {
+   "id": "tool:export-a-markdown-book-to-word",
+   "values": {
+    "title": "Export a Markdown book to Word through its writing checks, and verify the Word file and its PDF against the source (runs on your computer)",
+    "job": "export a markdown manuscript to word and verify it against its source",
+    "description": "Reads the book's settings row (record:setting:export-documents-to-files~piece~<book_id>, list:settings): its manuscript, role (current_prose, comparison or historical_reference), the BLAKE3 its bytes must have, a retained Word template and output folder, and for current prose the checks branch, writing profile, reviews and captured book-voice runs in its evidence folder. For current prose it first runs the book's checks branch of list:checks (tools/check-against-a-persons-rules-and-verdicts, branch mode) on the exact bytes and stops when they do not pass; then the writing gate checks the writing profile and review evidence (tools/pin-files-by-content), and the captured voice-classifier run and its qualification benchmark (tools/train-and-evaluate-a-writing-voice-classifier). Only then is the Word file built from the template (title, a clickable contents list with page fields, heading bookmarks, native tables, lists, quotes, footer page numbers), read back and compared to the source. verify_book_against_its_source.py checks the Word file and a rendered PDF against the source (outline, contents links, page map, body text with two PDF readers) and can repair confirmed ligature mappings. Passing proves coverage and regression checks only, never author approval.",
+    "status": "active",
+    "maker": "maker:export-documents-to-files",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "export-documents-to-files"
+   }
+  },
+  {
    "id": "tool:export-browser-login-cookies-for-yt-dlp",
    "values": {
     "title": "Give yt-dlp my browser's YouTube login (runs on your Mac)",
@@ -2965,7 +3070,7 @@
    "values": {
     "title": "Sort what I said in my recordings into topics and rate how usable each moment is (runs on your computer)",
     "job": "Go through my transcribed recordings, cut them into moments, file each moment under topics, and tell me which moments stand alone as a usable idea, story or lesson",
-    "description": "Cuts each transcript (a <name>.words.json with segments) into moments (a new one starts after a silence of 4 seconds or past 120 words), then asks a model that runs on the person's own computer (Ollama) which topic buckets each moment belongs to (0 to 3) and how much it stands alone as a usable spoken idea, claim, story or lesson (0 to 1: camera setup, filler and half sentences score near 0, a complete quotable idea 0.6 to 1). The model judges each moment only from its own words. The buckets come from a vocabulary file that starts from a short seed and grows as the model proposes new buckets, so the person can edit it. A moment the model leaves out of its answer is asked about again alone. The tool writes the moments, their buckets and relevance back into each transcript (or to a separate file with --dry-out), can tag a long file of moments one batch at a time and continue after a stop, and reports how many moments each bucket holds and how many are usable. Nothing leaves the computer, nothing is paid for and no key is needed.",
+    "description": "Cuts each transcript (a <name>.words.json with segments) into moments (a new one starts after a silence of 4 seconds or past 120 words), then asks a model that runs on the person's own computer (Ollama) which topic buckets each moment belongs to (0 to 3) and how much it stands alone as a usable spoken idea, claim, story or lesson (0 to 1: camera setup, filler and half sentences score near 0, a complete quotable idea 0.6 to 1). The model judges each moment only from its own words. The buckets come from a vocabulary file that starts from a short seed and grows as the model proposes new buckets, so the person can edit it. A moment the model leaves out of its answer is asked about again alone. The tool writes the moments, their buckets and relevance back into each transcript (or to a separate file with --dry-out), can tag a long file of moments one batch at a time and continue after a stop, and reports how many moments each bucket holds and how many are usable. Transcripts with no times at all (a cloud-results copy's text) are cut by do-work/cut_text_into_moments.py into moments of whole sentences up to 120 words, each placed by its share of the text (and by seconds when the recording's length is known), with each transcript's source in the person's file store and identical copies kept once and named; it answers how many moments and transcripts each source holds and how many hours of media they cover. tag-moments then files those moments. Nothing leaves the computer, nothing is paid for and no key is needed.",
     "status": "active",
     "maker": "maker:file-spoken-moments-into-topic-buckets",
     "licence_class": "licence:maker-own",
@@ -3052,6 +3157,21 @@
    }
   },
   {
+   "id": "tool:find-a-spoken-passage-in-word-times",
+   "values": {
+    "title": "Find where a spoken passage starts and ends in a recording's word times",
+    "job": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+    "description": "Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change. step span: given the passage's first words and last words (and after, a second to search from), answers the start of the first word, the end of the last word and the words between, so a cut lands on word edges; words match ignoring case and punctuation. step sentences: every sentence (ended by . ? or !) whose words start inside from and to, with its start and end. step words-file: writes {source, timing, words} to out, adding offset seconds to every time (a window heard alone). Instead of words, clip names <words_folder>/<clip>.words.json, where words_folder is the person's setting (their list:settings row, named by settings_record); timing and round_to are settings too. It reads only the word-time file and writes only out.",
+    "status": "active",
+    "maker": "maker:find-a-spoken-passage-in-word-times",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "find-a-spoken-passage-in-word-times"
+   }
+  },
+  {
    "id": "tool:find-action-moments",
    "values": {
     "title": "Find action moments in a video",
@@ -3079,6 +3199,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-closest-across-my-indexes",
+   "values": {
+    "title": "Find what is closest to a vector across several of my indexes",
+    "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
+    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "meaning-search"
    }
   },
   {
@@ -3132,7 +3267,7 @@
    "values": {
     "title": "Find my files in my index",
     "job": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
-    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. It never builds or changes an index, and it reads nothing outside index_dir.",
+    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. names (instead of or beside query) looks up where named files are kept: a name matches a file whose name without its extension equals it, or starts with it, ignoring case, when the name ends in *; type and root narrow the rows; the answer's by_name gives each name's display paths and not_in_index lists the names no file matched. index_dir is required unless the person's settings (settings_record, a row of their list:settings, or settings) hold it; their settings fill every key the request leaves out (index_dir, index_file, types_file, type, root, limit, fields, weights, lane_weights). It never builds or changes an index, and it reads nothing outside index_dir.",
     "status": "active",
     "maker": "maker:find-files-in-an-index",
     "licence_class": "licence:maker-own",
@@ -3461,6 +3596,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:find-words-said-in-my-recordings",
+   "values": {
+    "title": "Find the lines my recordings say, by their words",
+    "job": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
+    "description": "Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked). Needs no model: it matches the words themselves, where tool:find-similar-by-meaning matches what they mean. Returns index_ids and lines: each line's address, file, start, end, text and any field the descriptor's points_to.carry names.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "meaning-search"
    }
   },
   {
@@ -4877,6 +5027,21 @@
    }
   },
   {
+   "id": "tool:keep-rulings-on-lines",
+   "values": {
+    "title": "Keep rulings on lines",
+    "job": "Write down rulings on single lines of copy, such as a line a checker flagged for the person or a reviewer's good or bad, as rows of the person's Checks list",
+    "description": "Give rows (each ruling: text, verdict, by, and optionally rule, kind, at, where and any other field kept), existing (the rulings already in list:checks, as records:list type record:check prefix record:check:ruling- pages them, so a ruling is written once) and settings_record (the person's row of list:settings for this tool as records:read gives it: unruled_part_of, the check branch a ruling with no rule goes under; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use; escalated_verdicts), or those fields themselves. by_hand true checks hand_rulings. Returns write, the records:write input to send at @own-records: one record:check per text, verdict, by and rule (id record:check:ruling-<BLAKE3 hex>, kind labelled-line, or escalated-line for an escalated line, part_of its rule or unruled_part_of, its copy kind as line_kind), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
+    "status": "active",
+    "maker": "maker:where-a-person-stands",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "where-a-person-stands"
+   }
+  },
+  {
    "id": "tool:keep-trillion-in-your-instructions",
    "values": {
     "title": "Keep Trillion's standing instructions in my AI's own instruction file (runs on your computer)",
@@ -5640,6 +5805,21 @@
    }
   },
   {
+   "id": "tool:make-a-contact-sheet-of-pictures-or-video-frames",
+   "values": {
+    "title": "Make a contact sheet of pictures or video frames (runs on your computer)",
+    "job": "Lay my pictures, or frames of my video at chosen times or at a steady rate, out as one labelled sheet so I can choose or check them by eye",
+    "description": "Three kinds of sheet, each from one JSON request. pictures: the given pictures in a grid, each cell the same width and shape (16:9, any w:h, or the first picture's), each picture cut to the cell's middle or stretched into it, labelled below or above with its own words or its file name. frames-at-times: one frame of a video at each given time, or every 1/fps second between two times, stamped with its time, a set number to a row, split over several sheets when asked. frames-at-a-rate: ffmpeg's tile filter over a stretch of a video, frames at a steady rate stamped with their time or frame number, columns x rows a sheet, every sheet or only the first. Every size, colour, font and JPEG quality is a field of the request; nothing is kept between runs.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "make-a-contact-sheet-of-pictures-or-video-frames"
+   }
+  },
+  {
    "id": "tool:make-a-frame-contact-sheet-of-a-video-section",
    "values": {
     "title": "Make one picture of the frames of a short part of a video (runs on your computer)",
@@ -5745,6 +5925,21 @@
    }
   },
   {
+   "id": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+   "values": {
+    "title": "Make a searchable set from picture vectors another program kept (runs on your computer)",
+    "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
+    "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float16, normalised) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "meaning-search"
+   }
+  },
+  {
    "id": "tool:make-a-view-patch",
    "values": {
     "title": "Send only what changed in an answer",
@@ -5779,6 +5974,36 @@
    }
   },
   {
+   "id": "tool:make-examples-from-picks",
+   "values": {
+    "title": "Make examples from the options a person picked",
+    "job": "Make labelled examples for calibrating a small model from which options of a piece a person picked or rejected, and the lines they named",
+    "description": "Give films (each piece: name, gate (its pick settings: picked_verdicts and pick_labels with spec_globs using {option}, and optionally words, exclude, rejected_lines, text_keys, spoken_lead_s), decisions (its pick rows: option_id, verdict, lines, reason_verbatim; the last row of an option governs), files (the piece's file paths) and units ({ <spec path>: [{ text, kind, context }] }, the lines of each spec read so far)), and optionally rulings with real and needs (a text ruled directly is left out: the ruling wins), bad_label and rejected (the pattern a rejecting verdict matches, default ^rejected). Units of a picked option are good except the lines its row names; a rejection labels bad only the lines it names. Returns items, left_out (excluded, ruled_directly, both_labels, no_spec, several_specs) and units_needed: the specs whose lines to read and send again. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "status": "active",
+    "maker": "maker:where-a-person-stands",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "where-a-person-stands"
+   }
+  },
+  {
+   "id": "tool:make-examples-from-rulings",
+   "values": {
+    "title": "Make examples from rulings on lines",
+    "job": "Make labelled examples for calibrating a small model from the rulings a person gave on lines of copy, and from lines they said themselves",
+    "description": "Give rulings (the person's ruling rows of list:checks, records:list type record:check prefix record:check:ruling-, as records or values), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "status": "active",
+    "maker": "maker:where-a-person-stands",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "where-a-person-stands"
+   }
+  },
+  {
    "id": "tool:make-examples-from-where-a-person-stands",
    "values": {
     "title": "Make labelled examples from where a person stands",
@@ -5794,6 +6019,37 @@
    }
   },
   {
+   "id": "tool:make-marketplace-tiles-with-their-icons",
+   "values": {
+    "title": "Make Marketplace tiles with their icons (runs on your computer)",
+    "job": "Make tiles of my Marketplace tools and workflows, each with its own icon drawn, for a page or a film to show",
+    "description": "Reads the tools and workflows as the shelf's readers answer them (two JSON files of { items: [{ id, kind, title, job, steps?, icon? }] }) and the icons folder of an installed lucide-react, and answers one tile per item: id, kind, title, job (cut to 90 characters), steps, icon and svg, the icon's own shape elements (the item's icon, else its kind's icon from marketplace-kinds.json; an alias icon file is followed). Titles that read as machine names are left out. With --out it writes window.<global>=<tiles>; for a page (global TILES unless --global names another). The icon files are read as data, never run. Last line: {\"result\": {tiles, counts}} or {\"error\": ...}.",
+    "status": "active",
+    "maker": "maker:browse-and-publish-what-my-ai-can-use",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "browse-and-publish-what-my-ai-can-use"
+   }
+  },
+  {
+   "id": "tool:make-plain-text-extracts-of-claim-sources",
+   "values": {
+    "title": "Make the plain-text copy of every source my claims cite, from the files I saved (runs on your computer)",
+    "job": "Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
+    "description": "Reads a sources file ({\"sources\": {id: {raw, extract, text}}}) and writes each source's plain-text extract beside it: html (scripts and styles dropped, tags removed, entities decoded, spaces joined), fdc-json (a FoodData Central food as one line per nutrient amount per 100 g), new-order (an edit plan's new_order rows as one line each) or copy. A kind made by its own tool (a word-timed transcript, a text) keeps its extract and is refused when it is missing. Run it after adding or re-fetching a source; tool:check-every-claim-against-its-facts-and-sources checks quotes against these extracts.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:make-quiz-questions",
    "values": {
     "title": "Make quiz questions from text",
@@ -5806,6 +6062,21 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+   "values": {
+    "title": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer)",
+    "job": "Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+    "description": "From a request of slots (each with a base pick and candidates, each candidate with the words it adds and the claim it makes) and sentence templates ({SLOT} where a slot's words go), writes the base variant, then every other candidate of each slot with all other slots at their base pick. Each variant gets a script line, a shot file naming that script and a claims file with one entry per sentence taken from the candidate that formed the sentence (a sentence whose filled words are empty is left out with its claim), plus a manifest of the variants and a list of their lines. A picked candidate that has words but no claim is refused. The words, claims, ids and file shapes are the person's own and come in the request (one file, or several laid over each other key by key); the tool names no film, speaker or claim.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {
@@ -5836,6 +6107,21 @@
      "placement:deployed-container"
     ],
     "folder": "traffic-attribution"
+   }
+  },
+  {
+   "id": "tool:make-youtube-playlists-from-a-sort-plan",
+   "values": {
+    "title": "Make the planned public playlists on YouTube (runs on your Mac)",
+    "job": "Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+    "description": "Creates each playlist of a plan from tool:plan-sorting-youtube-watch-later-into-playlists as a public playlist on the same channel, with its description, and adds its videos in batches. It never removes a video and never changes Watch Later. A playlist already on the channel with the same title is reused, never duplicated. What was made is kept in applied_file and each playlist is read back before adding, so running it again adds only what is missing; a recorded playlist that reads back empty stops the run, so a lost sign-in cannot add videos twice. Then verify_sort.py checks each playlist holds the planned number of videos and anyone can see it, that each Watch Later is unchanged, and writes verification.json, INDEX.md and a table of every Watch Later video with its playlists.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
    }
   },
   {
@@ -6121,6 +6407,21 @@
    }
   },
   {
+   "id": "tool:move-word-starts-to-where-the-voice-starts",
+   "values": {
+    "title": "Time each word of a voice take from where the voice really starts, for graphics on the word (runs on your computer)",
+    "job": "Make the word times of my voice take start where each word is actually heard, so on-screen graphics land on the word and not early in the pause before it",
+    "description": "Reads a voice take and its word times (a Whisper word list) and moves each word's start to the first 10 ms window inside the word whose level is above a silence line (default -45 dBFS); each end stays. Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Given the take's line file (its script), each word takes the script's spelling when the script and Whisper give the same number of words, and a word Whisper split at a hyphen is joined into one; otherwise Whisper's spelling stays and the answer says why. Writes {source, timing, words: [{text, start, end}]} and answers how many words moved.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
+   }
+  },
+  {
    "id": "tool:my-browser-push-application-key",
    "values": {
     "title": "My browser push application key",
@@ -6284,6 +6585,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:name-the-recording-behind-transcript-lines",
+   "values": {
+    "title": "Find which recording a cited passage of my transcript archive comes from",
+    "job": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+    "description": "Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words. A range that no window overlaps is listed in not_found. A range is written first-last, for example 120-180; a malformed or reversed range is refused with what to write. archive is a path inside the granted folder (or the archive setting a film's settings row holds, named by settings_record); preview_chars (a setting, default 120) sets how many first characters are shown. It changes nothing and reads only the index file.",
+    "status": "active",
+    "maker": "maker:name-the-recording-behind-transcript-lines",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "name-the-recording-behind-transcript-lines"
    }
   },
   {
@@ -6843,7 +7159,7 @@
    "values": {
     "title": "Plan moving kept stands into stance records",
     "job": "Turn stands a person took that were kept somewhere else into their stance records, with every earlier stand as an earlier version, and show what would change before anything is written",
-    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) collisions (records two or more rows became under the fold, with each row's text and time), already (versions in kept, not written again) and unverified (rows whose words are not in their source, never written). A row may name a rule (a waiver stand) and a source with after_line, checked against sources. summary_only true leaves the writes out. It writes nothing.",
+    "description": "Give stances (rows: kind, text, contains or view, stance, why, by, at, earlier as [{stance, why, at}], and the old ref if there was one) and fold, how the owner of the rules says two texts are the same. Returns writes, the record versions to send one at a time in order (each record's earlier stands first, oldest first), and summary: rows, records and versions by kind, refs_changed (rows whose identity differs from their old ref) collisions (records two or more rows became under the fold, with each row's text and time), already (versions in kept, not written again) and unverified (rows whose words are not in their source, never written). A row may name a rule (a waiver stand) and a source with after_line, and so may each of its earlier stands; every stand naming a source is checked against sources, and a row any of whose words are not there is listed in unverified by the id of the record it would have been. summary_only true leaves the writes out. It writes nothing.",
     "status": "active",
     "maker": "maker:where-a-person-stands",
     "licence_class": "licence:maker-own",
@@ -6934,6 +7250,21 @@
      "placement:small-container"
     ],
     "folder": "plan-my-time"
+   }
+  },
+  {
+   "id": "tool:plan-sorting-youtube-watch-later-into-playlists",
+   "values": {
+    "title": "Plan which playlist each Watch Later video goes in",
+    "job": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
+    "description": "Places each video of one or more channels' Watch Later into the playlists the person's sort settings name, and writes nothing to YouTube. A channel is sorted by rules (a channel-name expression scores 3, a strong title expression 3, a weak one 1; a video goes to every playlist scoring 3 or more, at most max_per_video, else to its best weak match marked low confidence; titles matching hold_back are kept off public playlists with hold_back_reason) or by hand-made lists kept in their order. Within a rules playlist, videos are ordered by views, highest first. The answer is the plan and a summary per channel; with out_dir it also writes sort-plan.json and SORT-PLAN.md, the page to show the person before anything is made.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
    }
   },
   {
@@ -7283,6 +7614,21 @@
    }
   },
   {
+   "id": "tool:pull-a-time-window-from-a-stored-camera-file",
+   "values": {
+    "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it",
+    "job": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+    "description": "Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg. Camera files run about 13 MB per second of footage, so this takes seconds where a whole-file pull takes hours and costs a few megabytes of storage reads instead of the file. The wav starts with silence up to the window's start, so second N of the wav is second N of the camera file. The request names the stored file's identity, the mode (window with from and to, or frame with at) and out (a file in the folder the person let this tool change). The person's own storage, kept in their list:settings row for this tool (settings_record) or given as settings: store (the store the reader is pointed at), account (the storage account id), reader {argv, cwd, env, ok_marker, retries, retry_seconds} (argv is a template filled with {store} {account} {identity} {out} {offset} {length}), credentials (names of environment variables the reader needs, set from the person's vault), gap (bytes; audio reads closer than this are joined). A key at the top of the request wins over the same setting. The tool never reads, prints or keeps a key; the reader program reads the storage itself.",
+    "status": "active",
+    "maker": "maker:pull-a-time-window-from-a-stored-camera-file",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-a-time-window-from-a-stored-camera-file"
+   }
+  },
+  {
    "id": "tool:pull-my-discord-messages",
    "values": {
     "title": "Pull the messages from the Discord text channels my bot can read into my own records",
@@ -7418,21 +7764,6 @@
    }
   },
   {
-   "id": "tool:put-a-picked-option-into-a-filmcraft-project",
-   "values": {
-    "title": "Put the option I picked into my FilmCraft project (runs on your computer)",
-    "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
-    "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
-    "status": "active",
-    "maker": "maker:put-picked-options-into-a-filmcraft-project",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "put-picked-options-into-a-filmcraft-project"
-   }
-  },
-  {
    "id": "tool:put-records-into-my-account",
    "values": {
     "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
@@ -7479,6 +7810,21 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:rank-library-formats-against-concepts",
+   "values": {
+    "title": "Match every video format I have collected to every idea I could film, and keep the best fits",
+    "job": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+    "description": "Two steps. catalog lists every candidate format (each analysed item in the library's index, the title templates in a bank that name a form, and the person's own formats) and every concept (each concept heading with its beats and how many of its moments were found, and how many of those are on this computer or in cloud storage) as tab-separated lines for judges to read; the concept lines never name a format. apply reads judged files ({concept id: [{format, fit, material?}] best first}), refuses a format key the catalog does not hold and a concept nobody judged, and writes format_options (each judged option with its type, medium, library path, fit and the concept's moment counts), format_palette (every format some concept's options use, plus each plan's pick) and format_ranking_about into the titles file. The ranking is a reading of the whole catalog per concept by judges, not a model score: a cross-encoder scores topic, not form. Everything that belongs to the person (their form templates, stable format keys, their own formats, the package ids, which concepts to skip, the material wording and the about text) is their settings: a row of their list:settings (record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, named by settings_record) read through tools/settings, with the run's own settings laid over it. Paths are inside the folder the person let this tool change (apply rewrites the titles file there). Run catalog, read every candidate against every concept (yourself or with judges), write each concept's best three to five formats with why to a judged file, then run apply; never pick a format by a model score, and never change the person's titles file without their say.",
+    "status": "active",
+    "maker": "maker:rank-library-formats-against-concepts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "rank-library-formats-against-concepts"
    }
   },
   {
@@ -7748,6 +8094,21 @@
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
+    ],
+    "folder": "settings"
+   }
+  },
+  {
+   "id": "tool:read-a-tool-setting-through-my-door",
+   "values": {
+    "title": "Read the settings I keep for one of my tools, from my own lists",
+    "job": "Read the settings I keep for one of my tools from my list:settings, trying the most specific scope first",
+    "description": "Reads the person's list:settings rows for one Workshop tool through their records door at run time (records:read of record:setting:<folder>~<scope_kind>~<scope_id> for each scope given, most specific first) and answers the settings of the first row found, or found false when none is there. The run may read only that tool's rows (its right is the settings_prefix). A retired row, or a row for another tool than the one named, is refused. The same choice as tool:read-a-tool-setting, without first writing the rows to a file.",
+    "status": "active",
+    "maker": "maker:settings",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
     ],
     "folder": "settings"
    }
@@ -8293,6 +8654,21 @@
    }
   },
   {
+   "id": "tool:read-my-youtube-watch-later-and-playlists",
+   "values": {
+    "title": "Read my YouTube Watch Later, subscriptions and playlists (runs on your Mac)",
+    "job": "Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels",
+    "description": "Acts as each signed-in channel the request names (brand channels too, by page_id) through YouTube's own web API, with the browser login tool:export-browser-login-cookies-for-yt-dlp wrote, and writes <out_dir>/<slug>/watch-later.json, subscriptions.json and playlists.json. A channel naming sign_in_as (its account's email or channel handle) is found by it each run, since the account number a browser gives an account changes as accounts sign in and out. Reads only; never changes YouTube. Also tells which accounts the login holds (list_signed_in_accounts.py) and whether it is still signed in.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
+   }
+  },
+  {
    "id": "tool:read-namespace-documents-as-list-rows",
    "values": {
     "title": "Show a folder of my account's documents as the rows of a list",
@@ -8496,6 +8872,21 @@
      "placement:deployed-container"
     ],
     "folder": "calendar"
+   }
+  },
+  {
+   "id": "tool:read-transcript-files-and-captions-into-timed-words",
+   "values": {
+    "title": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer)",
+    "job": "Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
+    "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the files door's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
    }
   },
   {
@@ -9774,6 +10165,21 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:score-held-out-lines-with-a-small-model",
+   "values": {
+    "title": "Measure how well a small model judges my rules on lines it never trained on (runs on your computer)",
+    "job": "Check how well my trained model catches lines that break each of my rules",
+    "description": "Scores the held-out test lines, the never-trained lines and the held-out set with a decider model, with or without a LoRA adapter, and reports per law: AUC of the probability of the failing answer on bad vs good lines, recall at the thresholds that fail 1%, 2% and 5% of good lines, the same with only written good lines, the share of other laws' bad lines it also fails, the held-out set's good lines failed (by kind) and bad lines caught, and each never-trained line's verdict. A line is scored per sentence and takes its highest probability. Given scores_from, it reports again from an earlier run's kept scores without a model. Fit the lines a gate uses with tool:fit-pass-and-fail-lines.",
+    "status": "active",
+    "maker": "maker:fine-tune-a-small-model-on-a-persons-rules",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fine-tune-a-small-model-on-a-persons-rules"
    }
   },
   {
@@ -11474,11 +11880,26 @@
    }
   },
   {
+   "id": "tool:train-a-small-model-on-a-persons-rules",
+   "values": {
+    "title": "Teach a small decider model my rules by training a LoRA adapter (runs on your Mac or GPU)",
+    "job": "Train a small local model to judge lines by my rules",
+    "description": "LoRA-trains a decider-style multiple-choice model (a model folder that carries its own decider package and decider_config.json, such as decider-2b) on train.jsonl from tool:build-training-rows-from-a-persons-rules, with cross-entropy on the option letter, each line put in the person's frame. It runs at low priority with few CPU threads beside the person's work, projects the whole run after 20 steps and stops when the projection passes the time budget. It saves the adapter and train-info.json (settings, rows, minutes, final loss).",
+    "status": "active",
+    "maker": "maker:fine-tune-a-small-model-on-a-persons-rules",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fine-tune-a-small-model-on-a-persons-rules"
+   }
+  },
+  {
    "id": "tool:transcribe-audio-and-repair-whisper-loops",
    "values": {
     "title": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer)",
     "job": "Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
-    "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long, refusing one judge rejects. Nothing leaves the computer and no key is needed.",
+    "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long (with the title and header lines the person gives), refusing one judge rejects. When a transcript does not carry its recording's length, judge and text take it as --duration, or judge takes each recording's length from a tab-separated list (--durations). Nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:audio-transcription",
     "licence_class": "licence:maker-own",
@@ -12175,6 +12596,21 @@
      "placement:your-computer"
     ],
     "folder": "export-documents-to-files"
+   }
+  },
+  {
+   "id": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
+   "values": {
+    "title": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer)",
+    "job": "Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+    "description": "Writes word-template@1 token tables from a request: for each template a name, a time span, where its words came from, parts (kept words, and slot words each naming a slot) and the slots (type and note). Each word becomes a token marked KEEP or SLOT in order, with its slot, slot type and note; only the slots a word uses are listed; every dimension other than the spoken words is left pending with the reason. The words, slots, sources and notes are the person's own and come in the request (one file, or several laid over each other key by key, so their settings can be a row of their records and the output folder stays with the run); the tool names no piece, speaker or film. The templates are the same shape make_template.py writes, so tool:fill-a-word-template and tool:check-words-against-a-word-template take them.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {
