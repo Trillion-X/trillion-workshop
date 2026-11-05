@@ -1,0 +1,6 @@
+{
+  "public": [
+    "read-data/settings.py",
+    "read-data/settings.mjs"
+  ]
+}

@@ -142,7 +142,11 @@ def build_registry(rows, corpus, stages=None, lane_names=None, groups=None, cont
     return final, id_map
 
 
-ID_REF = re.compile(r"\{ids:([^}]*)\}")
+PLACEHOLDER = re.compile(r"\{(ids|count|evidence):([^}]*)\}")
+MARKER = re.compile(r"^<!-- cite-principles:(\S+)(.*?) -->\s*$")
+END_MARKER = re.compile(r"^<!-- /cite-principles:(\S+) -->\s*$")
+TABLE_RULE = re.compile(r"^\|(\s*:?-+:?\s*\|)+\s*$")
+MARKER_ARG = re.compile(r'(\w[\w-]*)="([^"]*)"|(\d+)')
 
 
 def principle_number(principle_id):
@@ -155,98 +159,214 @@ def short(text, most=150):
     return text if len(text) <= most else text[:most].rsplit(" ", 1)[0] + " ..."
 
 
-def fill_id_refs(text, id_map):
-    """The person's own prose with every {ids:A-1,B-2} replaced by the principle ids those working ids became, lowest first."""
-    def one(match):
-        working = [w.strip() for w in match.group(1).split(",") if w.strip()]
-        return ", ".join(sorted({id_map.get(w, w) for w in working}, key=principle_number))
-    return ID_REF.sub(one, text)
-
-
 def stage_order(stage):
     found = re.match(r"\D*(\d+)", stage)
     return (0, int(found.group(1)), stage) if found else (1, 0, stage)
 
 
-def index_markdown(principles, corpus_channels, catalog=None, title="Principles registry: index", intro="", outro="",
-                   top=30, demonstrated_top=15, lanes_top=60):
-    """A Markdown index of a registry: counts, the strongest principles with their sources, demonstration-only ones, contradiction pairs,
-    principles per stage, per channel (videos read, videos in the person's catalog, principles stated and demonstrated), channels in the
-    catalog with nothing read, and lanes. corpus_channels = {channel: videos read}; catalog = {channel: videos listed} or None.
-    intro and outro are the person's own Markdown, put in as they are."""
-    by_id = {p["id"]: p for p in principles}
-    kinds = Counter(p["kind"] for p in principles)
-    quotes = sum(p["evidence"]["quotes"] for p in principles)
-    demos = sum(p["evidence"]["demonstrations"] for p in principles)
-    merged = sum(1 for p in principles if p.get("merged_from"))
-    multi = sum(1 for p in principles if p["evidence"]["independent_channels"] > 1)
-    stated, shown = Counter(), Counter()
-    for p in principles:
-        for channel in {s.get("channel") for s in p["sources"] if s.get("channel")}:
-            stated[channel] += 1
-        for channel in {d.get("channel") for d in p.get("demonstrated_in", []) if d.get("channel")}:
-            shown[channel] += 1
-    lanes = Counter(lane for p in principles for lane in p["lanes"])
-    stages = Counter(stage for p in principles for stage in p.get("stages", []))
-    pairs = OrderedDict()
-    for p in principles:
-        for item in p.get("contradicts", []):
-            for other in item.get("with_ids", []):
-                a, b = sorted((p["id"], other), key=principle_number)
-                pairs.setdefault((a, b), item.get("how"))
-    pairs = OrderedDict(sorted(pairs.items(), key=lambda kv: (principle_number(kv[0][0]), principle_number(kv[0][1]))))
-    one_sided = sum(1 for p in principles for item in p.get("contradicts", []) if not item.get("with_ids"))
-    lines = [f"# {title}", ""]
-    if intro.strip():
-        lines += [intro.strip(), ""]
-    lines += ["## Counts", "",
-              f"- **{len(principles)} principles**: {kinds['stated']} stated, {kinds['demonstrated']} demonstrated only, {kinds['stated+demonstrated']} both.",
-              f"- **{quotes} verbatim quotes** and **{demos} demonstrations**.",
-              f"- {merged} principles merge statements from several rows; {multi} have more than one independent channel.",
-              f"- **{len(pairs)} contradiction pairs** between principles, plus {one_sided} one-sided disagreement notes inside rows.",
-              f"- Corpus read: {sum(corpus_channels.values())} videos from {len(corpus_channels)} channels.", "",
-              f"## Top {top} principles by evidence strength", "",
-              "| # | id | principle | channels | strength | sources (channel video@second, xmed) |", "|---|---|---|---|---|---|"]
-    for n, p in enumerate(principles[:top], 1):
-        seen, cited = set(), []
-        for s in p["sources"]:
-            if s.get("channel") in seen:
-                continue
-            seen.add(s.get("channel"))
-            cited.append(f"{s.get('channel')} [{s['video']}@{s.get('t')}]({s.get('url')}) {s.get('xmed', '?')}x")
-        for d in p.get("demonstrated_in", []):
-            if d.get("channel") in seen or not d.get("video"):
-                continue
-            seen.add(d.get("channel"))
-            cited.append(f"{d.get('channel')} demo [{d['video']}@{d.get('t')}]({d.get('url')}) {d.get('xmed', '?')}x")
-        more = len(seen) - 5
-        lines.append(f"| {n} | {p['id']} | {short(p['principle'])} | {p['evidence']['independent_channels']} | {p['evidence']['strength']} | "
-                     + "; ".join(cited[:5]) + (f"; +{more} more" if more > 0 else "") + " |")
-    lines += ["", "## Demonstrated, not only stated", "",
-              f"{kinds['demonstrated'] + kinds['stated+demonstrated']} principles carry demonstrations. Demonstration-only principles (top {demonstrated_top} by strength):", ""]
-    for p in [p for p in principles if p["kind"] == "demonstrated"][:demonstrated_top]:
-        d = (p.get("demonstrated_in") or [{}])[0]
-        lines.append(f"- {p['id']} {short(p['principle'], 120)} ({', '.join(p['channels'][:4])}; e.g. {d.get('video', '')}@{d.get('t', '')})")
-    lines += ["", "## Contradictions (flagged, not resolved)", "", "| a | b | how they disagree |", "|---|---|---|"]
-    for (a, b), how in pairs.items():
-        lines.append(f"| {a} {short(by_id[a]['principle'], 70) if a in by_id else ''} | {b} {short(by_id[b]['principle'], 70) if b in by_id else ''} | {short(how or '', 160)} |")
-    if stages:
-        lines += ["", "## Principles per stage", "", "| stage | principles |", "|---|---|"]
-        lines += [f"| {stage} | {n} |" for stage, n in sorted(stages.items(), key=lambda kv: stage_order(kv[0]))]
-    lines += ["", "## Counts per channel", ""]
-    if catalog is None:
-        lines += ["| channel | videos read | principles stated | principles demonstrated |", "|---|---|---|---|"]
-    else:
-        lines += ["| channel | videos read | catalog | principles stated | principles demonstrated |", "|---|---|---|---|---|"]
-    for channel in sorted(set(corpus_channels) | set(stated) | set(shown), key=lambda ch: (-(stated[ch] + shown[ch]), ch.lower())):
-        listed = "" if catalog is None else f" {catalog.get(channel, 'n.a.')} |"
-        lines.append(f"| {channel} | {corpus_channels.get(channel, 0)} |{listed} {stated[channel]} | {shown[channel]} |")
-    if catalog is not None:
-        unread = [(ch, n) for ch, n in Counter(catalog).most_common() if ch and not corpus_channels.get(ch)]
-        lines += ["", "### Channels in the catalog with no videos read", "",
-                  (", ".join(f"{ch} ({n} videos)" for ch, n in unread) or "None") + "."]
-    lines += ["", "## Counts per lane", "", f"{len(lanes)} distinct lanes; the {lanes_top} most used:", "",
-              ", ".join(f"{lane} {n}" for lane, n in lanes.most_common(lanes_top)) + "."]
-    if outro.strip():
-        lines += ["", outro.strip()]
-    return "\n".join(lines) + "\n"
+class TemplateError(ValueError):
+    """A template the index cannot fill: the message names the line and what to write instead."""
+
+
+def default_template(catalog_given):
+    """The index a person gets without a template of their own: every section, with plain headings."""
+    channels = ("| channel | videos read | catalog | principles stated | principles demonstrated |\n|---|---|---|---|---|" if catalog_given
+                else "| channel | videos read | principles stated | principles demonstrated |\n|---|---|---|---|")
+    silent = ("\n### Channels in the catalog with no videos read\n\n<!-- cite-principles:silent-channels -->\n"
+              "<!-- /cite-principles:silent-channels -->\n" if catalog_given else "")
+    return f"""# Principles registry: index
+
+## Counts
+
+- **{{count:principles}} principles**: {{count:stated}} stated, {{count:demonstrated}} demonstrated only, {{count:both}} both.
+- **{{count:quotes}} verbatim quotes** and **{{count:demonstrations}} demonstrations**.
+- {{count:merged}} principles merge statements from several rows; {{count:multi-channel}} have more than one independent channel.
+- **{{count:contradiction-pairs}} contradiction pairs** between principles, plus {{count:one-sided}} one-sided disagreement notes inside rows.
+- Corpus read: {{count:videos-read}} videos from {{count:channels-read}} channels.
+
+## Top 30 principles by evidence strength
+
+<!-- cite-principles:top 30 -->
+| # | id | principle | channels | strength | sources (channel video@second, xmed) |
+|---|---|---|---|---|---|
+<!-- /cite-principles:top -->
+
+## Demonstrated, not only stated
+
+{{count:with-demonstrations}} principles carry demonstrations. Demonstration-only principles (top 15 by strength):
+
+<!-- cite-principles:demonstrated 15 -->
+<!-- /cite-principles:demonstrated -->
+
+## Contradictions (flagged, not resolved)
+
+<!-- cite-principles:contradictions -->
+| a | b | how they disagree |
+|---|---|---|
+<!-- /cite-principles:contradictions -->
+
+## Principles per stage
+
+<!-- cite-principles:stages -->
+| stage | principles |
+|---|---|
+<!-- /cite-principles:stages -->
+
+## Counts per channel
+
+<!-- cite-principles:channels -->
+{channels}
+<!-- /cite-principles:channels -->
+{silent}
+## Counts per lane
+
+{{count:lanes}} distinct lanes; the 60 most used:
+
+<!-- cite-principles:lanes 60 -->
+<!-- /cite-principles:lanes -->
+"""
+
+
+class Index:
+    """What an index says about one registry: its counts and the rows of each section a template can ask for.
+    corpus_channels = {channel: videos read}; catalog = {channel: videos listed} or None; id_map = {working id: principle id}."""
+
+    SECTIONS = ("top", "demonstrated", "contradictions", "stages", "channels", "silent-channels", "lanes")
+
+    def __init__(self, principles, corpus_channels, catalog=None, id_map=None):
+        self.principles, self.corpus_channels, self.catalog, self.id_map = principles, corpus_channels, catalog, id_map or {}
+        self.by_id = {p["id"]: p for p in principles}
+        kinds = Counter(p["kind"] for p in principles)
+        self.stated, self.shown = Counter(), Counter()
+        for p in principles:
+            for channel in {s.get("channel") for s in p["sources"] if s.get("channel")}:
+                self.stated[channel] += 1
+            for channel in {d.get("channel") for d in p.get("demonstrated_in", []) if d.get("channel")}:
+                self.shown[channel] += 1
+        self.lanes = Counter(lane for p in principles for lane in p["lanes"])
+        self.stages = Counter(stage for p in principles for stage in p.get("stages", []))
+        pairs = OrderedDict()
+        for p in principles:
+            for item in p.get("contradicts", []):
+                for other in item.get("with_ids", []):
+                    a, b = sorted((p["id"], other), key=principle_number)
+                    pairs.setdefault((a, b), item.get("how"))
+        self.pairs = OrderedDict(sorted(pairs.items(), key=lambda kv: (principle_number(kv[0][0]), principle_number(kv[0][1]))))
+        self.counts = {
+            "principles": len(principles), "stated": kinds["stated"], "demonstrated": kinds["demonstrated"], "both": kinds["stated+demonstrated"],
+            "with-demonstrations": kinds["demonstrated"] + kinds["stated+demonstrated"],
+            "quotes": sum(p["evidence"]["quotes"] for p in principles),
+            "demonstrations": sum(p["evidence"]["demonstrations"] for p in principles),
+            "merged": sum(1 for p in principles if p.get("merged_from")),
+            "multi-channel": sum(1 for p in principles if p["evidence"]["independent_channels"] > 1),
+            "contradiction-pairs": len(self.pairs),
+            "one-sided": sum(1 for p in principles for item in p.get("contradicts", []) if not item.get("with_ids")),
+            "videos-read": sum(corpus_channels.values()), "channels-read": len(corpus_channels), "lanes": len(self.lanes),
+        }
+
+    def value(self, kind, name, where):
+        """The text one {ids:...}, {count:...} or {evidence:...} stands for."""
+        if kind == "ids":
+            working = [w.strip() for w in name.split(",") if w.strip()]
+            return ", ".join(sorted({self.id_map.get(w, w) for w in working}, key=principle_number))
+        if kind == "count":
+            if name not in self.counts:
+                raise TemplateError(f"{where}: {{count:{name}}} is no count; use one of {', '.join(sorted(self.counts))}.")
+            return str(self.counts[name])
+        working, _, field = name.partition(".")
+        principle = self.by_id.get(self.id_map.get(working, working))
+        if principle is None or field not in principle["evidence"]:
+            fields = ", ".join(sorted(self.principles[0]["evidence"])) if self.principles else "quotes"
+            raise TemplateError(f"{where}: {{evidence:{name}}} names no principle's evidence; write "
+                                f"{{evidence:<working or principle id>.<one of {fields}>}}.")
+        return str(principle["evidence"][field])
+
+    def fill(self, text, where):
+        return PLACEHOLDER.sub(lambda m: self.value(m.group(1), m.group(2), where), text)
+
+    def rows(self, name, most, options):
+        """The generated lines of one section; the template keeps its own heading and table header around them."""
+        if name == "top":
+            out = []
+            for n, p in enumerate(self.principles[:most or 30], 1):
+                seen, cited = set(), []
+                for s in p["sources"]:
+                    if s.get("channel") in seen:
+                        continue
+                    seen.add(s.get("channel"))
+                    cited.append(f"{s.get('channel')} [{s['video']}@{s.get('t')}]({s.get('url')}) {s.get('xmed', '?')}x")
+                for d in p.get("demonstrated_in", []):
+                    if d.get("channel") in seen or not d.get("video"):
+                        continue
+                    seen.add(d.get("channel"))
+                    cited.append(f"{d.get('channel')} demo [{d['video']}@{d.get('t')}]({d.get('url')}) {d.get('xmed', '?')}x")
+                more = len(seen) - 5
+                out.append(f"| {n} | {p['id']} | {short(p['principle'])} | {p['evidence']['independent_channels']} | {p['evidence']['strength']} | "
+                           + "; ".join(cited[:5]) + (f"; +{more} more" if more > 0 else "") + " |")
+            return out
+        if name == "demonstrated":
+            out = []
+            for p in [p for p in self.principles if p["kind"] == "demonstrated"][:most or 15]:
+                d = (p.get("demonstrated_in") or [{}])[0]
+                out.append(f"- {p['id']} {short(p['principle'], 120)} ({', '.join(p['channels'][:4])}; e.g. {d.get('video', '')}@{d.get('t', '')})")
+            return out
+        if name == "contradictions":
+            return [f"| {a} {short(self.by_id[a]['principle'], 70) if a in self.by_id else ''} | {b} {short(self.by_id[b]['principle'], 70) if b in self.by_id else ''} | {short(how or '', 160)} |"
+                    for (a, b), how in self.pairs.items()]
+        if name == "stages":
+            return [f"| {stage} | {n} |" for stage, n in sorted(self.stages.items(), key=lambda kv: stage_order(kv[0]))]
+        if name == "channels":
+            missing = options.get("missing", "n.a.")
+            out = []
+            for channel in sorted(set(self.corpus_channels) | set(self.stated) | set(self.shown),
+                                  key=lambda ch: (-(self.stated[ch] + self.shown[ch]), ch.lower())):
+                listed = "" if self.catalog is None else f" {self.catalog.get(channel, missing)} |"
+                out.append(f"| {channel} | {self.corpus_channels.get(channel, 0)} |{listed} {self.stated[channel]} | {self.shown[channel]} |")
+            return out
+        if name == "silent-channels":
+            unread = [(ch, n) for ch, n in Counter(self.catalog or {}).most_common() if ch and not self.corpus_channels.get(ch)]
+            return [(", ".join(f"{ch} ({n} videos)" for ch, n in unread) or "None") + "."]
+        return [", ".join(f"{lane} {n}" for lane, n in self.lanes.most_common(most or 60)) + "."]
+
+
+def index_markdown(principles, corpus_channels, catalog=None, template=None, id_map=None):
+    """A Markdown index of a registry, written into the person's template (default_template when they have none).
+
+    Outside the sections, {ids:A-1,B-2} becomes the principle ids those working ids went into (lowest first), {count:NAME} one of the
+    registry's counts and {evidence:ID.FIELD} one principle's evidence (ID a working or principle id). A section is the lines from
+    <!-- cite-principles:NAME [N] [missing="..."] --> to <!-- /cite-principles:NAME -->; its table header (the lines up to its |---| rule)
+    is kept as the person wrote it and every line after is written anew, so the result is a template again. NAME is one of
+    Index.SECTIONS; N is how many rows top, demonstrated and lanes show."""
+    index = Index(principles, corpus_channels, catalog, id_map)
+    lines = (default_template(catalog is not None) if template is None else template).split("\n")
+    out, n = [], 0
+    while n < len(lines):
+        line = lines[n]
+        start = MARKER.match(line)
+        if not start:
+            if END_MARKER.match(line):
+                raise TemplateError(f"template line {n + 1}: {line.strip()} closes a section that was not opened.")
+            out.append(index.fill(line, f"template line {n + 1}"))
+            n += 1
+            continue
+        name, args = start.group(1), start.group(2)
+        if name not in Index.SECTIONS:
+            raise TemplateError(f"template line {n + 1}: cite-principles:{name} is no section; use one of {', '.join(Index.SECTIONS)}.")
+        most, options = None, {}
+        for key, value, number in MARKER_ARG.findall(args):
+            if number:
+                most = int(number)
+            else:
+                options[key] = value
+        end = next((k for k in range(n + 1, len(lines)) if END_MARKER.match(lines[k])), None)
+        if end is None or END_MARKER.match(lines[end]).group(1) != name:
+            raise TemplateError(f"template line {n + 1}: cite-principles:{name} needs its closing line <!-- /cite-principles:{name} --> before the next section.")
+        body = lines[n + 1:end]
+        rule = next((k for k, text in enumerate(body) if TABLE_RULE.match(text)), None)
+        header = body[:rule + 1] if rule is not None else []
+        out.append(line)
+        out += [index.fill(text, f"template line {n + 2 + k}") for k, text in enumerate(header)]
+        out += index.rows(name, most, options)
+        out.append(lines[end])
+        n = end + 1
+    return "\n".join(out)
