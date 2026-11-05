@@ -1,0 +1,884 @@
+{
+  "_what": "Golden Get started descriptions over made-up facts (test/setup-fixtures.mjs): what tool:read-setup draws through tool:see-what-is-left-to-set-up, recorded from the moved setupStepsWithRules and getStartedFacts (byte copies of trillion's; the tag's own src/setup-steps.mjs does not load at the tag). Each case: { name, facts: 'pending' | 'proven', description }.",
+  "cases": [
+    {
+      "name": "a pending setup, before any AI is connected",
+      "facts": "pending",
+      "description": {
+        "title": "Connect your AI to start",
+        "lead": "Your AI connects what you already use and checks that each part works. Only something that needs your own hand asks you.",
+        "ready": false,
+        "workspace_ready": false,
+        "setup_complete": false,
+        "requirements": [
+          {
+            "id": "identity",
+            "title": "Add your name",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "person_only",
+            "result": "Your name is saved.",
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "pursuits",
+            "title": "Tell Trillion what you are pursuing",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "person_only",
+            "result": "Trillion knows what you are pursuing.",
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "connections",
+            "title": "Connect your existing accounts",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "person_only",
+            "result": "Your accounts are connected.",
+            "awaiting_discovery": true,
+            "owner": "setup-capability",
+            "required": false
+          },
+          {
+            "id": "devices",
+            "title": "Put Trillion on your phone and computer",
+            "done": false,
+            "body": "Your AI is setting this up.",
+            "audience": "optional",
+            "result": "Trillion is installed on your devices.",
+            "notes": [
+              {
+                "label": "Trillion apps installed",
+                "text": "None installed yet."
+              }
+            ],
+            "observed": false,
+            "place": "/devices",
+            "action": {
+              "label": "Add a device",
+              "tone": "quiet",
+              "open": "/devices"
+            },
+            "awaiting_discovery": true,
+            "owner": "setup-capability",
+            "required": false
+          },
+          {
+            "id": "ai-connection",
+            "title": "Connect your AIs to Trillion",
+            "done": false,
+            "body": "Your AI is setting this up.",
+            "audience": "person_only",
+            "result": "Your AI is connected to Trillion.",
+            "notes": [
+              {
+                "label": "AIs connected",
+                "text": "No AI has connected to Trillion yet."
+              }
+            ],
+            "observed": false,
+            "place": "/ai",
+            "action": {
+              "label": "Connect an AI",
+              "tone": "quiet",
+              "open": "/ai"
+            },
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "notifications",
+            "title": "Allow Trillion to notify you",
+            "done": false,
+            "body": "Your AI is setting this up.",
+            "audience": "optional",
+            "result": "Trillion can notify you.",
+            "notes": [
+              {
+                "label": "Devices that can notify you",
+                "text": "No device is allowed to show notifications yet."
+              }
+            ],
+            "observed": false,
+            "place": "/notification-settings",
+            "action": {
+              "label": "Allow notifications",
+              "tone": "quiet",
+              "open": "/notification-settings"
+            },
+            "awaiting_discovery": true,
+            "owner": "setup-capability",
+            "required": false
+          },
+          {
+            "id": "capture-shortcuts",
+            "title": "Add shortcuts for capturing things",
+            "done": false,
+            "body": "Your AI is setting this up.",
+            "audience": "optional",
+            "result": "Capture shortcuts are added.",
+            "notes": [
+              {
+                "label": "Trillion apps to capture from",
+                "text": "No Trillion app is installed to capture from yet."
+              }
+            ],
+            "observed": false,
+            "awaiting_discovery": true,
+            "owner": "setup-capability",
+            "required": false
+          },
+          {
+            "id": "automation",
+            "title": "Turn on scheduled work and reacting to events",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "ai",
+            "result": "Timed work and listening for events are running.",
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "agent-delivery",
+            "title": "Let your AI pick up work from Trillion",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "ai",
+            "result": "Your AI can receive work from Trillion.",
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "harness",
+            "title": "Install Trillion on the computer your AI runs on",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "ai",
+            "result": "Trillion is set up on the computer your AI runs on.",
+            "awaiting_discovery": true,
+            "owner": "setup-capability",
+            "required": false
+          },
+          {
+            "id": "source-intake",
+            "title": "Bring your information into Trillion",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "ai",
+            "result": "Your information is coming into Trillion.",
+            "awaiting_discovery": true,
+            "owner": "setup-capability",
+            "required": false
+          },
+          {
+            "id": "first-result",
+            "title": "Run one test of the whole flow",
+            "done": null,
+            "body": "Trillion is checking this. It updates by itself.",
+            "audience": "ai",
+            "result": "A test through the whole loop passed.",
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "computer-switches",
+            "title": "Your computers",
+            "body": "Trillion is checking this. It updates by itself.",
+            "done": null,
+            "required": false,
+            "audience": "person_only",
+            "owner": "computer-switches"
+          }
+        ],
+        "policy": {
+          "version": 1,
+          "source_version": "1f:1898b46ed6d56172676da49908ae2c3a1b131571327efab5ff84e74a493d0080",
+          "requirements_resolved": true,
+          "required_count": 6,
+          "discovery": {
+            "run_id": null,
+            "withdrawn": false,
+            "inventory_identity": null,
+            "known": true,
+            "ids": []
+          },
+          "sources": {
+            "rules_record": "show-rules",
+            "context_record": "setup-context",
+            "shared_known": true,
+            "personal_known": true,
+            "context_known": true,
+            "personal_context_known": true
+          },
+          "applied": [],
+          "excluded": [
+            {
+              "step": "iphone",
+              "required": false,
+              "rules": []
+            },
+            {
+              "step": "desktop",
+              "required": false,
+              "rules": []
+            },
+            {
+              "step": "extension",
+              "required": false,
+              "rules": []
+            },
+            {
+              "step": "watch",
+              "required": false,
+              "rules": []
+            }
+          ],
+          "problems": [],
+          "next_change_at": null
+        },
+        "refresh_at": 1793868596079,
+        "workspace_mode": "setup",
+        "workflow": {
+          "state": "not_started",
+          "exists": false,
+          "verified": false,
+          "withdrawn": false
+        },
+        "sections": [
+          {
+            "id": "setup-with-ai",
+            "heading": "Connect your AI",
+            "body": "Pick the AI you use. Once it is connected, it does the rest of the setup itself.",
+            "tabs_require_choice": true,
+            "tabs": [
+              {
+                "id": "grok",
+                "label": "Grok",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "https://grok.com/?q=Set%20up%20Trillion%20in%20the%20AI%20app%20where%20we%20are%20having%20this%20conversation.%20Use%20https%3A%2F%2Fapp.example%2Fmcp.%20Identify%20this%20app%20and%20configure%20its%20MCP%20connection%20yourself%20with%20OAuth%20where%20supported%3B%20otherwise%20guide%20only%20the%20necessary%20settings%20actions.%20Keep%20sign-in%20running%20while%20I%20authorize.%20If%20it%20times%20out%2C%20start%20a%20fresh%20login%20and%20use%20its%20new%20Trillion%20sign-in%20link.%20Never%20ask%20for%20my%20password%2C%20API%20key%20or%20callback%20URL.%20Once%20connected%2C%20call%20start_setup%20immediately%20and%20follow%20its%20saved%20workflow.%20Do%20every%20authorized%20setup%20action%2C%20including%20applicable%20hooks%2C%20ongoing%20work%2C%20devices%2C%20accounts%20and%20initial%20data.%20Reuse%20what%20you%20know%20about%20me%3B%20ask%20only%20for%20an%20unknown%20fact%20or%20device%20action%20you%20cannot%20perform.%20Verify%20the%20useful%20result%20with%20read_setup.%20Do%20not%20stop%20at%20listing%20tools%20or%20giving%20me%20a%20manual."
+                },
+                "actions": [
+                  {
+                    "label": "Open Grok",
+                    "href": "https://grok.com/?q=Set%20up%20Trillion%20in%20the%20AI%20app%20where%20we%20are%20having%20this%20conversation.%20Use%20https%3A%2F%2Fapp.example%2Fmcp.%20Identify%20this%20app%20and%20configure%20its%20MCP%20connection%20yourself%20with%20OAuth%20where%20supported%3B%20otherwise%20guide%20only%20the%20necessary%20settings%20actions.%20Keep%20sign-in%20running%20while%20I%20authorize.%20If%20it%20times%20out%2C%20start%20a%20fresh%20login%20and%20use%20its%20new%20Trillion%20sign-in%20link.%20Never%20ask%20for%20my%20password%2C%20API%20key%20or%20callback%20URL.%20Once%20connected%2C%20call%20start_setup%20immediately%20and%20follow%20its%20saved%20workflow.%20Do%20every%20authorized%20setup%20action%2C%20including%20applicable%20hooks%2C%20ongoing%20work%2C%20devices%2C%20accounts%20and%20initial%20data.%20Reuse%20what%20you%20know%20about%20me%3B%20ask%20only%20for%20an%20unknown%20fact%20or%20device%20action%20you%20cannot%20perform.%20Verify%20the%20useful%20result%20with%20read_setup.%20Do%20not%20stop%20at%20listing%20tools%20or%20giving%20me%20a%20manual.",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=grok.com&sz=128",
+                "steps": []
+              },
+              {
+                "id": "claude",
+                "label": "Claude",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "https://claude.ai/new?q=Set%20up%20Trillion%20in%20the%20AI%20app%20where%20we%20are%20having%20this%20conversation.%20Use%20https%3A%2F%2Fapp.example%2Fmcp.%20Identify%20this%20app%20and%20configure%20its%20MCP%20connection%20yourself%20with%20OAuth%20where%20supported%3B%20otherwise%20guide%20only%20the%20necessary%20settings%20actions.%20Keep%20sign-in%20running%20while%20I%20authorize.%20If%20it%20times%20out%2C%20start%20a%20fresh%20login%20and%20use%20its%20new%20Trillion%20sign-in%20link.%20Never%20ask%20for%20my%20password%2C%20API%20key%20or%20callback%20URL.%20Once%20connected%2C%20call%20start_setup%20immediately%20and%20follow%20its%20saved%20workflow.%20Do%20every%20authorized%20setup%20action%2C%20including%20applicable%20hooks%2C%20ongoing%20work%2C%20devices%2C%20accounts%20and%20initial%20data.%20Reuse%20what%20you%20know%20about%20me%3B%20ask%20only%20for%20an%20unknown%20fact%20or%20device%20action%20you%20cannot%20perform.%20Verify%20the%20useful%20result%20with%20read_setup.%20Do%20not%20stop%20at%20listing%20tools%20or%20giving%20me%20a%20manual."
+                },
+                "actions": [
+                  {
+                    "label": "Open Claude",
+                    "href": "https://claude.ai/new?q=Set%20up%20Trillion%20in%20the%20AI%20app%20where%20we%20are%20having%20this%20conversation.%20Use%20https%3A%2F%2Fapp.example%2Fmcp.%20Identify%20this%20app%20and%20configure%20its%20MCP%20connection%20yourself%20with%20OAuth%20where%20supported%3B%20otherwise%20guide%20only%20the%20necessary%20settings%20actions.%20Keep%20sign-in%20running%20while%20I%20authorize.%20If%20it%20times%20out%2C%20start%20a%20fresh%20login%20and%20use%20its%20new%20Trillion%20sign-in%20link.%20Never%20ask%20for%20my%20password%2C%20API%20key%20or%20callback%20URL.%20Once%20connected%2C%20call%20start_setup%20immediately%20and%20follow%20its%20saved%20workflow.%20Do%20every%20authorized%20setup%20action%2C%20including%20applicable%20hooks%2C%20ongoing%20work%2C%20devices%2C%20accounts%20and%20initial%20data.%20Reuse%20what%20you%20know%20about%20me%3B%20ask%20only%20for%20an%20unknown%20fact%20or%20device%20action%20you%20cannot%20perform.%20Verify%20the%20useful%20result%20with%20read_setup.%20Do%20not%20stop%20at%20listing%20tools%20or%20giving%20me%20a%20manual.",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=claude.ai&sz=128",
+                "steps": []
+              },
+              {
+                "id": "chatgpt",
+                "label": "ChatGPT",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "https://chatgpt.com/?q=Set%20up%20Trillion%20in%20the%20AI%20app%20where%20we%20are%20having%20this%20conversation.%20Use%20https%3A%2F%2Fapp.example%2Fmcp.%20Identify%20this%20app%20and%20configure%20its%20MCP%20connection%20yourself%20with%20OAuth%20where%20supported%3B%20otherwise%20guide%20only%20the%20necessary%20settings%20actions.%20Keep%20sign-in%20running%20while%20I%20authorize.%20If%20it%20times%20out%2C%20start%20a%20fresh%20login%20and%20use%20its%20new%20Trillion%20sign-in%20link.%20Never%20ask%20for%20my%20password%2C%20API%20key%20or%20callback%20URL.%20Once%20connected%2C%20call%20start_setup%20immediately%20and%20follow%20its%20saved%20workflow.%20Do%20every%20authorized%20setup%20action%2C%20including%20applicable%20hooks%2C%20ongoing%20work%2C%20devices%2C%20accounts%20and%20initial%20data.%20Reuse%20what%20you%20know%20about%20me%3B%20ask%20only%20for%20an%20unknown%20fact%20or%20device%20action%20you%20cannot%20perform.%20Verify%20the%20useful%20result%20with%20read_setup.%20Do%20not%20stop%20at%20listing%20tools%20or%20giving%20me%20a%20manual."
+                },
+                "actions": [
+                  {
+                    "label": "Open ChatGPT",
+                    "href": "https://chatgpt.com/?q=Set%20up%20Trillion%20in%20the%20AI%20app%20where%20we%20are%20having%20this%20conversation.%20Use%20https%3A%2F%2Fapp.example%2Fmcp.%20Identify%20this%20app%20and%20configure%20its%20MCP%20connection%20yourself%20with%20OAuth%20where%20supported%3B%20otherwise%20guide%20only%20the%20necessary%20settings%20actions.%20Keep%20sign-in%20running%20while%20I%20authorize.%20If%20it%20times%20out%2C%20start%20a%20fresh%20login%20and%20use%20its%20new%20Trillion%20sign-in%20link.%20Never%20ask%20for%20my%20password%2C%20API%20key%20or%20callback%20URL.%20Once%20connected%2C%20call%20start_setup%20immediately%20and%20follow%20its%20saved%20workflow.%20Do%20every%20authorized%20setup%20action%2C%20including%20applicable%20hooks%2C%20ongoing%20work%2C%20devices%2C%20accounts%20and%20initial%20data.%20Reuse%20what%20you%20know%20about%20me%3B%20ask%20only%20for%20an%20unknown%20fact%20or%20device%20action%20you%20cannot%20perform.%20Verify%20the%20useful%20result%20with%20read_setup.%20Do%20not%20stop%20at%20listing%20tools%20or%20giving%20me%20a%20manual.",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=chatgpt.com&sz=128",
+                "steps": []
+              },
+              {
+                "id": "chat",
+                "label": "Muse and other AIs you connect in chat",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "picture": "https://www.google.com/s2/favicons?domain=meta.ai&sz=128",
+                "steps": []
+              },
+              {
+                "id": "claude-code",
+                "label": "Claude Code",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Connect Trillion to Claude Code on this computer. Run this line yourself: claude mcp add --transport http --scope user trillion https://app.example/mcp && claude mcp login trillion. Keep it running while I sign in on the Trillion page it opens, then run claude mcp list to check it says Connected and verify the MCP connection. After the connection works, call start_setup immediately and continue its saved workflow. Do not stop at confirming the MCP connection. Complete the machine-doable work now, show only necessary human actions, and read_setup again to check the actual result.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "claude-cli://open?q=Connect%20Trillion%20to%20Claude%20Code%20on%20this%20computer.%20Run%20this%20line%20yourself%3A%20claude%20mcp%20add%20--transport%20http%20--scope%20user%20trillion%20https%3A%2F%2Fapp.example%2Fmcp%20%26%26%20claude%20mcp%20login%20trillion.%20Keep%20it%20running%20while%20I%20sign%20in%20on%20the%20Trillion%20page%20it%20opens%2C%20then%20run%20claude%20mcp%20list%20to%20check%20it%20says%20Connected%20and%20verify%20the%20MCP%20connection.%20After%20the%20connection%20works%2C%20call%20start_setup%20immediately%20and%20continue%20its%20saved%20workflow.%20Do%20not%20stop%20at%20confirming%20the%20MCP%20connection.%20Complete%20the%20machine-doable%20work%20now%2C%20show%20only%20necessary%20human%20actions%2C%20and%20read_setup%20again%20to%20check%20the%20actual%20result."
+                },
+                "actions": [
+                  {
+                    "label": "Open Claude Code",
+                    "href": "claude-cli://open?q=Connect%20Trillion%20to%20Claude%20Code%20on%20this%20computer.%20Run%20this%20line%20yourself%3A%20claude%20mcp%20add%20--transport%20http%20--scope%20user%20trillion%20https%3A%2F%2Fapp.example%2Fmcp%20%26%26%20claude%20mcp%20login%20trillion.%20Keep%20it%20running%20while%20I%20sign%20in%20on%20the%20Trillion%20page%20it%20opens%2C%20then%20run%20claude%20mcp%20list%20to%20check%20it%20says%20Connected%20and%20verify%20the%20MCP%20connection.%20After%20the%20connection%20works%2C%20call%20start_setup%20immediately%20and%20continue%20its%20saved%20workflow.%20Do%20not%20stop%20at%20confirming%20the%20MCP%20connection.%20Complete%20the%20machine-doable%20work%20now%2C%20show%20only%20necessary%20human%20actions%2C%20and%20read_setup%20again%20to%20check%20the%20actual%20result.",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=claude.ai&sz=128",
+                "steps": []
+              },
+              {
+                "id": "codex",
+                "label": "Codex",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Connect Trillion to Codex on this computer. Run this line yourself: codex mcp add trillion --url https://app.example/mcp. Keep it running while I sign in on the Trillion page it opens, then run codex mcp list to check it shows trillion and verify the MCP connection. After the connection works, call start_setup immediately and continue its saved workflow. Do not stop at confirming the MCP connection. Complete the machine-doable work now, show only necessary human actions, and read_setup again to check the actual result.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "codex://new?prompt=Connect%20Trillion%20to%20Codex%20on%20this%20computer.%20Run%20this%20line%20yourself%3A%20codex%20mcp%20add%20trillion%20--url%20https%3A%2F%2Fapp.example%2Fmcp.%20Keep%20it%20running%20while%20I%20sign%20in%20on%20the%20Trillion%20page%20it%20opens%2C%20then%20run%20codex%20mcp%20list%20to%20check%20it%20shows%20trillion%20and%20verify%20the%20MCP%20connection.%20After%20the%20connection%20works%2C%20call%20start_setup%20immediately%20and%20continue%20its%20saved%20workflow.%20Do%20not%20stop%20at%20confirming%20the%20MCP%20connection.%20Complete%20the%20machine-doable%20work%20now%2C%20show%20only%20necessary%20human%20actions%2C%20and%20read_setup%20again%20to%20check%20the%20actual%20result."
+                },
+                "actions": [
+                  {
+                    "label": "Open Codex",
+                    "href": "codex://new?prompt=Connect%20Trillion%20to%20Codex%20on%20this%20computer.%20Run%20this%20line%20yourself%3A%20codex%20mcp%20add%20trillion%20--url%20https%3A%2F%2Fapp.example%2Fmcp.%20Keep%20it%20running%20while%20I%20sign%20in%20on%20the%20Trillion%20page%20it%20opens%2C%20then%20run%20codex%20mcp%20list%20to%20check%20it%20shows%20trillion%20and%20verify%20the%20MCP%20connection.%20After%20the%20connection%20works%2C%20call%20start_setup%20immediately%20and%20continue%20its%20saved%20workflow.%20Do%20not%20stop%20at%20confirming%20the%20MCP%20connection.%20Complete%20the%20machine-doable%20work%20now%2C%20show%20only%20necessary%20human%20actions%2C%20and%20read_setup%20again%20to%20check%20the%20actual%20result.",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=openai.com&sz=128",
+                "steps": []
+              },
+              {
+                "id": "gemini",
+                "label": "Gemini",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "https://gemini.google.com/app",
+                  "paste": true
+                },
+                "actions": [
+                  {
+                    "label": "Open Gemini",
+                    "href": "https://gemini.google.com/app",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=gemini.google.com&sz=128",
+                "steps": []
+              },
+              {
+                "id": "gemini-cli",
+                "label": "Gemini CLI",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "picture": "https://www.google.com/s2/favicons?domain=google.com&sz=128",
+                "steps": []
+              },
+              {
+                "id": "cursor",
+                "label": "Cursor",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Connect Trillion to Cursor on this computer: add an MCP server called trillion with the address https://app.example/mcp to my Cursor MCP settings (mcp.json), then tell me to press Connect next to trillion in Cursor Settings, MCP, and verify the MCP connection. After the connection works, call start_setup immediately and continue its saved workflow. Do not stop at confirming the MCP connection. Complete the machine-doable work now, show only necessary human actions, and read_setup again to check the actual result.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "open": {
+                  "href": "cursor://anysphere.cursor-deeplink/mcp/install?name=trillion&config=eyJ1cmwiOiJodHRwczovL2FwcC5leGFtcGxlL21jcCJ9"
+                },
+                "actions": [
+                  {
+                    "label": "Add Trillion to Cursor",
+                    "href": "cursor://anysphere.cursor-deeplink/mcp/install?name=trillion&config=eyJ1cmwiOiJodHRwczovL2FwcC5leGFtcGxlL21jcCJ9",
+                    "tone": "primary"
+                  }
+                ],
+                "picture": "https://www.google.com/s2/favicons?domain=cursor.com&sz=128",
+                "steps": []
+              },
+              {
+                "id": "any",
+                "label": "Any other AI app",
+                "lead": "Open your AI chat and paste the prepared connection message there. This connects Trillion to that AI.",
+                "copy": {
+                  "text": "Set up Trillion in the AI app where we are having this conversation. Use https://app.example/mcp. Identify this app and configure its MCP connection yourself with OAuth where supported; otherwise guide only the necessary settings actions. Keep sign-in running while I authorize. If it times out, start a fresh login and use its new Trillion sign-in link. Never ask for my password, API key or callback URL. Once connected, call start_setup immediately and follow its saved workflow. Do every authorized setup action, including applicable hooks, ongoing work, devices, accounts and initial data. Reuse what you know about me; ask only for an unknown fact or device action you cannot perform. Verify the useful result with read_setup. Do not stop at listing tools or giving me a manual.",
+                  "copied_label": "Copied"
+                },
+                "remember": "ai",
+                "icon": "Plug",
+                "steps": []
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "a proven setup with every source read",
+      "facts": "proven",
+      "description": {
+        "title": "You are all set",
+        "lead": "Your setup has been checked. Ask your AI for what you want next.",
+        "ready": true,
+        "workspace_ready": true,
+        "setup_complete": true,
+        "requirements": [
+          {
+            "id": "identity",
+            "title": "Add your name",
+            "done": true,
+            "audience": "person_only",
+            "result": "Your name is saved.",
+            "evidence_refs": [],
+            "complete_here": {
+              "action": "setup/complete",
+              "label": "Save your name",
+              "fields": [
+                {
+                  "name": "given_name",
+                  "label": "First name",
+                  "required": true,
+                  "free_text_because": "The person's own first name for their account, given as they write it; it is what their own row is named by, never a pick of someone else."
+                },
+                {
+                  "name": "family_name",
+                  "label": "Last name",
+                  "required": true,
+                  "free_text_because": "The person's own last name for their account, given as they write it; it is what their own row is named by, never a pick of someone else."
+                },
+                {
+                  "name": "offering",
+                  "label": "What you can offer people",
+                  "required": false,
+                  "free_text_because": "What the person can give others, in their own words; their first matches are the people who seek it (src/network-first-matches.mjs)."
+                },
+                {
+                  "name": "seeking",
+                  "label": "Who you want to meet",
+                  "required": false,
+                  "free_text_because": "Who and what the person wants to meet, in their own words; their first matches are the people who offer it (src/network-first-matches.mjs)."
+                }
+              ],
+              "step": "identity"
+            },
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "pursuits",
+            "title": "Tell Trillion what you are pursuing",
+            "done": true,
+            "audience": "person_only",
+            "result": "Trillion knows what you are pursuing.",
+            "evidence_refs": [],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "connections",
+            "title": "Connect your existing accounts",
+            "done": true,
+            "audience": "person_only",
+            "result": "Your accounts are connected.",
+            "evidence_refs": [],
+            "place": "/connections",
+            "action": {
+              "label": "Your accounts",
+              "tone": "quiet",
+              "open": "/connections"
+            },
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "devices",
+            "title": "Put Trillion on your phone and computer",
+            "done": true,
+            "audience": "optional",
+            "result": "Trillion is installed on your devices.",
+            "items": [
+              {
+                "name": "desktop"
+              }
+            ],
+            "add": {
+              "label": "Add a device",
+              "tone": "quiet",
+              "open": "/devices"
+            },
+            "evidence_refs": [
+              "Trillion apps installed: 1 installed."
+            ],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "ai-connection",
+            "title": "Connect your AIs to Trillion",
+            "done": true,
+            "audience": "person_only",
+            "result": "Your AI is connected to Trillion.",
+            "evidence_refs": [],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "notifications",
+            "title": "Allow Trillion to notify you",
+            "done": true,
+            "audience": "optional",
+            "result": "Trillion can notify you.",
+            "notes": [
+              {
+                "label": "Devices that can notify you",
+                "text": "Allowed on your devices."
+              }
+            ],
+            "observed": true,
+            "evidence_refs": [
+              "Devices that can notify you: Allowed on your devices."
+            ],
+            "place": "/notification-settings",
+            "action": {
+              "label": "Your notification settings",
+              "tone": "quiet",
+              "open": "/notification-settings"
+            },
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "capture-shortcuts",
+            "title": "Add shortcuts for capturing things",
+            "done": true,
+            "audience": "optional",
+            "result": "Capture shortcuts are added.",
+            "items": [
+              {
+                "name": "desktop"
+              }
+            ],
+            "evidence_refs": [
+              "Trillion apps to capture from: 1 to capture from."
+            ],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "automation",
+            "title": "Turn on scheduled work and reacting to events",
+            "done": true,
+            "audience": "ai",
+            "result": "Timed work and listening for events are running.",
+            "notes": [
+              {
+                "label": "Standard automations",
+                "text": "In place."
+              },
+              {
+                "label": "Timed work",
+                "text": "The clock is running."
+              }
+            ],
+            "observed": null,
+            "evidence_refs": [
+              "Standard automations: In place.",
+              "Timed work: The clock is running."
+            ],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "agent-delivery",
+            "title": "Let your AI pick up work from Trillion",
+            "done": true,
+            "audience": "ai",
+            "result": "Your AI can receive work from Trillion.",
+            "evidence_refs": [],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "harness",
+            "title": "Install Trillion on the computer your AI runs on",
+            "done": true,
+            "audience": "ai",
+            "result": "Trillion is set up on the computer your AI runs on.",
+            "evidence_refs": [],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "source-intake",
+            "title": "Bring your information into Trillion",
+            "done": true,
+            "audience": "ai",
+            "result": "Your information is coming into Trillion.",
+            "evidence_refs": [],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "first-result",
+            "title": "Run one test of the whole flow",
+            "done": true,
+            "audience": "ai",
+            "result": "A test through the whole loop passed.",
+            "evidence_refs": [],
+            "owner": "setup-capability",
+            "required": true
+          },
+          {
+            "id": "desktop",
+            "title": "desktop",
+            "done": true,
+            "available": null,
+            "state": "unknown",
+            "prerequisites": [],
+            "audience": "optional",
+            "result": "Trillion is installed on your computer.",
+            "next_change_at": null,
+            "source_id": null,
+            "owner": "device",
+            "required": true
+          }
+        ],
+        "policy": {
+          "version": 1,
+          "source_version": "1f:b96a035fd6780cced9d3ab6a9d0c6560df814fe7bb9fc7e991311c694dc2b867",
+          "requirements_resolved": true,
+          "required_count": 13,
+          "discovery": {
+            "run_id": "run:setup-fixture",
+            "withdrawn": false,
+            "inventory_identity": "1f:31e69c5d8eb4d4e4d6de9403e1ec339eda1561cab58981eab8e8965e49aef70a",
+            "known": true,
+            "ids": [
+              "desktop"
+            ]
+          },
+          "sources": {
+            "rules_record": "show-rules",
+            "context_record": "setup-context",
+            "shared_known": true,
+            "personal_known": true,
+            "context_known": true,
+            "personal_context_known": true
+          },
+          "applied": [],
+          "excluded": [
+            {
+              "step": "iphone",
+              "required": false,
+              "rules": []
+            },
+            {
+              "step": "extension",
+              "required": false,
+              "rules": []
+            },
+            {
+              "step": "watch",
+              "required": false,
+              "rules": []
+            }
+          ],
+          "problems": [],
+          "next_change_at": null
+        },
+        "workspace_mode": "full",
+        "workflow": {
+          "run_id": "run:setup-fixture",
+          "state": "finished",
+          "exists": true,
+          "verified": true,
+          "withdrawn": false
+        },
+        "sections": [
+          {
+            "id": "setup-steps",
+            "heading": "Setup",
+            "steps": [
+              {
+                "id": "identity",
+                "title": "Add your name",
+                "done": true,
+                "complete_here": {
+                  "action": "setup/complete",
+                  "label": "Save your name",
+                  "fields": [
+                    {
+                      "name": "given_name",
+                      "label": "First name",
+                      "required": true,
+                      "free_text_because": "The person's own first name for their account, given as they write it; it is what their own row is named by, never a pick of someone else."
+                    },
+                    {
+                      "name": "family_name",
+                      "label": "Last name",
+                      "required": true,
+                      "free_text_because": "The person's own last name for their account, given as they write it; it is what their own row is named by, never a pick of someone else."
+                    },
+                    {
+                      "name": "offering",
+                      "label": "What you can offer people",
+                      "required": false,
+                      "free_text_because": "What the person can give others, in their own words; their first matches are the people who seek it (src/network-first-matches.mjs)."
+                    },
+                    {
+                      "name": "seeking",
+                      "label": "Who you want to meet",
+                      "required": false,
+                      "free_text_because": "Who and what the person wants to meet, in their own words; their first matches are the people who offer it (src/network-first-matches.mjs)."
+                    }
+                  ],
+                  "step": "identity"
+                }
+              },
+              {
+                "id": "pursuits",
+                "title": "Tell Trillion what you are pursuing",
+                "done": true
+              },
+              {
+                "id": "connections",
+                "title": "Connect your existing accounts",
+                "done": true,
+                "action": {
+                  "label": "Your accounts",
+                  "tone": "quiet",
+                  "open": "/connections"
+                },
+                "place": "/connections"
+              },
+              {
+                "id": "devices",
+                "title": "Put Trillion on your phone and computer",
+                "done": true,
+                "items": [
+                  {
+                    "name": "desktop"
+                  }
+                ],
+                "add": {
+                  "label": "Add a device",
+                  "tone": "quiet",
+                  "open": "/devices"
+                }
+              },
+              {
+                "id": "ai-connection",
+                "title": "Connect your AIs to Trillion",
+                "done": true
+              },
+              {
+                "id": "notifications",
+                "title": "Allow Trillion to notify you",
+                "done": true,
+                "notes": [
+                  {
+                    "label": "Devices that can notify you",
+                    "text": "Allowed on your devices."
+                  }
+                ],
+                "action": {
+                  "label": "Your notification settings",
+                  "tone": "quiet",
+                  "open": "/notification-settings"
+                },
+                "place": "/notification-settings"
+              },
+              {
+                "id": "capture-shortcuts",
+                "title": "Add shortcuts for capturing things",
+                "done": true,
+                "items": [
+                  {
+                    "name": "desktop"
+                  }
+                ]
+              },
+              {
+                "id": "automation",
+                "title": "Turn on scheduled work and reacting to events",
+                "done": true,
+                "notes": [
+                  {
+                    "label": "Standard automations",
+                    "text": "In place."
+                  },
+                  {
+                    "label": "Timed work",
+                    "text": "The clock is running."
+                  }
+                ]
+              },
+              {
+                "id": "agent-delivery",
+                "title": "Let your AI pick up work from Trillion",
+                "done": true
+              },
+              {
+                "id": "harness",
+                "title": "Install Trillion on the computer your AI runs on",
+                "done": true
+              },
+              {
+                "id": "source-intake",
+                "title": "Bring your information into Trillion",
+                "done": true
+              },
+              {
+                "id": "first-result",
+                "title": "Run one test of the whole flow",
+                "done": true
+              },
+              {
+                "id": "desktop",
+                "title": "desktop",
+                "done": true
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
