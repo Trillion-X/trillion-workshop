@@ -1,0 +1,83 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VARY-SLOTS-ONE-AT-A-TIME-FROM-A-FILMS-ASSEMBLE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools: the narrator tools of a film",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:2e297f9823c608debb760c0e59b433322367498b7fd440d04b5d20732bc517de",
+   "lines": [
+    114,
+    123
+   ],
+   "multihash": "1f:20949de5b77aad9bad69fdb361408182af1e3d16bfd4f9515ae933b81c89f576",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:2e297f9823c608debb760c0e59b433322367498b7fd440d04b5d20732bc517de",
+   "lines": [
+    99,
+    105
+   ],
+   "multihash": "1f:b325b53964f8adc058ed5c37cbd503e1a9c366947224e6f784580c0c9ab84637",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/fill-a-template-without-changing-its-words/do-work/vary_slots_one_at_a_time.py",
+   "baseline_commit_message": "fill-a-template-without-changing-its-words: a film's hand-written token table and slot-variant writer, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "one variant per candidate with every other slot at its base pick, the base first",
+  "each variant writes lines/<id>.txt, shots/<id>.json and claims/<id>.json with one claim entry per sentence",
+  "lines.txt and manifest.json in the order of the variants"
+ ],
+ "allowed_deltas": [
+  "the folders it wrote from where it sat are out.here (lines, lines.txt, manifest) and out.narrator (shots, claims)",
+  "the slots, candidates, sentences, ids and about texts are the person's settings row; its sentences() and claim_for() rules for one line (lines 62-96) are sentence templates with claim_from in that row, and variants() is picks_of() over the row's slots",
+  "one JSON answer as the last line after the old count line; refusals say what to change"
+ ],
+ "banned_substitutions": [
+  "a person's words or slot tables written into the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:20949de5b77aad9bad69fdb361408182af1e3d16bfd4f9515ae933b81c89f576",
+  "target_multihash_at_baseline": "1f:20949de5b77aad9bad69fdb361408182af1e3d16bfd4f9515ae933b81c89f576",
+  "commit": "c78ab6230293bb0b1c52538d63ec8164ff6f5e39",
+  "recorded_at": "2026-11-05T22:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def main_of",
+   "lines_dir = os.path.join(HERE, 'lines')",
+   "def picks_of"
+  ],
+  "test_refs": [
+   "tools/fill-a-template-without-changing-its-words/test/test_token_table_from_parts.py",
+   "tools/fill-a-template-without-changing-its-words/test/test_vary_slots.py",
+   "tools/fill-a-template-without-changing-its-words/test/fill-a-template.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines holding a person's name or a private path are left out of the sources (each source names its lines), so they never reach this public repository; the first source is the byte copy. The source is the write loop of main() (lines 99-123, without the lines holding a private name); lines 62-96 encoded one film's sentence and candidate tables, which are now the person's settings row."
+}
