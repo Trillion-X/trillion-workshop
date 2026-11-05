@@ -5,9 +5,12 @@
  * PURPOSE: The one runner behind every "make" tool (tool:make-<style>): it reads one style row from
  * make-pictures-and-sounds.json and turns it into new files: a thumbnail about the video, a striking picture of the
  * person from frames of their recording, a frame enhanced, a pencil portrait, a cut-out, a cut-out placed on a new
- * background, a sound effect, music. It knows three kinds of input (a recording and a moment, a line of text, another
- * style's result) and two kinds of maker (an http request that answers with base64 bytes, a program run here); every
- * model, prompt, count, key location and command is a row.
+ * background, a sound effect, music, a sound effect made on the person's own computer by a local model or by physical
+ * synthesis. It knows four kinds of input (a recording and a moment, a line of text, a number or a list of them, another
+ * style's result) and two kinds of maker (an http request that answers with base64 bytes, a program run here, once per
+ * result or, when the maker says `makes_all`, once for every result into one folder); every model, prompt, count, key
+ * location and command is a row. What differs per computer (a program's path, a weights folder) is the person's
+ * settings, given at run time with --settings, over the maker's and the style's own.
  *
  * NON-NEGOTIABLE INVARIANTS:
  * 1. A key is read from the file its maker's connection is placed at (the tool row's credential_mounts), sent only in
@@ -21,8 +24,9 @@
  *    its own results; a style may not depend on itself, directly or through others.
  * 4. Nothing here names a style, a maker, a service or a model.
  *
- * Usage: node do-work/make-pictures-and-sounds.mjs --style <style id> [--out <folder>] [--work <folder>] [--relay <file>] < input.json
- *   input.json is the tool's input: { video?, at?, <text fields>..., count? } (the style's input_schema).
+ * Usage: node do-work/make-pictures-and-sounds.mjs --style <style id> [--out <folder>] [--work <folder>] [--relay <file>] [--settings <file>] < input.json
+ *   input.json is the tool's input: { video?, at?, <text, number and list fields>..., count? } (the style's input_schema).
+ *   --settings is a JSON object of the person's settings for this computer, laid over the maker's and the style's.
  * Output (stdout, last line, JSON): { style, makes, count, made: [{ name, media_type, bytes }], failed: [{ error }] }
  */
 import { execFileSync, spawn } from 'node:child_process';
@@ -76,13 +80,22 @@ export function fill(template, values) {
 }
 const joined = (parts, values) => (parts ?? []).map(part => (typeof part === 'string' ? part : String(fill(part, values) ?? ''))).join('');
 
-/** The input field that names the recording (format namespace-file) and the text fields, from the style's schema. */
+/** The input field that names the recording (format namespace-file), the text fields, and the number and list fields, from the style's schema. */
 function fieldsOf(style) {
   const properties = style.input_schema?.properties ?? {};
   const recording = Object.keys(properties).find(name => properties[name]?.format === 'namespace-file') ?? null;
   const texts = Object.keys(properties).filter(name => properties[name]?.type === 'string' && name !== recording);
-  return { recording, texts };
+  const numbers = Object.keys(properties).filter(name => ['number', 'integer'].includes(properties[name]?.type) && name !== 'count' && name !== 'at');
+  const lists = Object.keys(properties).filter(name => properties[name]?.type === 'array');
+  return { recording, texts, numbers, lists };
 }
+
+// A list field keeps its texts and numbers only, each text as plain words, at most MAX_LIST of them.
+const MAX_LIST = 64;
+const listOf = value => (Array.isArray(value) ? value : [])
+  .filter(item => (typeof item === 'string' && item.trim()) || Number.isFinite(item))
+  .slice(0, MAX_LIST)
+  .map(item => (typeof item === 'string' ? plain(item, 2000) : item));
 
 export function runProgram(program, args, { cwd, timeoutMs }) {
   return new Promise((resolve, reject) => {
@@ -115,9 +128,10 @@ const defaults = {
  * Makes one style `count` times into `outDir`. `deps` may replace fetchImpl, readKey(path), readRelay(path) and
  * relayPath (the file the run's relay is placed at), runProcess(program, args,
  * { cwd, timeoutMs }) → { code, stderr }, grabFrame(video, seconds, output), bestTime(video) and cwd (where a
- * maker's program runs). Returns { made: [{ file, media_type, bytes }], failed: [{ error }] }.
+ * maker's program runs). `personSettings` are the person's settings for this computer, laid over the maker's and the
+ * style's. Returns { made: [{ file, media_type, bytes }], failed: [{ error }] }.
  */
-export async function makeStyle({ rows, styleId, input, outDir: out, workDir: work, count, seen = [], deps: given = {} }) {
+export async function makeStyle({ rows, styleId, input, outDir: out, workDir: work, count, seen = [], personSettings = {}, deps: given = {} }) {
   const deps = { ...defaults, ...given };
   // A maker's program runs in its own folder, so every path handed to it is absolute.
   const outDir = absolute(out);
@@ -130,12 +144,19 @@ export async function makeStyle({ rows, styleId, input, outDir: out, workDir: wo
   mkdirSync(outDir, { recursive: true });
   mkdirSync(workDir, { recursive: true });
 
-  const { recording, texts } = fieldsOf(style);
+  const { recording, texts, numbers, lists } = fieldsOf(style);
   const named = {};
   const images = [];
   for (const field of texts) if (typeof input[field] === 'string' && input[field].trim()) named[field] = plain(input[field], 2000);
+  for (const field of numbers) if (Number.isFinite(input[field])) named[field] = input[field];
+  for (const field of lists) if (listOf(input[field]).length) named[field] = listOf(input[field]);
   for (const field of style.input_schema?.required ?? []) {
     if (field !== recording && named[field] === undefined) throw new Error(`Say what the ${field} is.`);
+  }
+  // A style that does not look at frames hands its maker the recording itself (a program that hears or watches all of it).
+  if (recording && !style.frames && typeof input[recording] === 'string' && input[recording]) named[recording] = input[recording];
+  if (recording && !style.frames && (style.input_schema?.required ?? []).includes(recording) && named[recording] === undefined) {
+    throw new Error(`Choose the ${recording} to make it from.`);
   }
   // Only a style that looks at frames (frames) takes them; a style made from others hands them the recording.
   if (recording && style.frames) {
@@ -155,14 +176,45 @@ export async function makeStyle({ rows, styleId, input, outDir: out, workDir: wo
     named[recording] = images[0].path;
   }
   for (const from of style.made_from ?? []) {
-    const sub = await makeStyle({ rows, styleId: from.style, input, outDir: join(workDir, from.style), workDir: join(workDir, `${from.style}-work`), count: 1, seen: [...seen, styleId], deps: given });
+    const sub = await makeStyle({ rows, styleId: from.style, input, outDir: join(workDir, from.style), workDir: join(workDir, `${from.style}-work`), count: 1, seen: [...seen, styleId], personSettings, deps: given });
     if (!sub.made.length) throw new Error(`The ${rows.styles.get(from.style).label} step failed: ${sub.failed[0]?.error ?? 'it made nothing'}`);
     images.push({ path: sub.made[0].file, media_type: sub.made[0].media_type });
     named[from.name] = sub.made[0].file;
   }
   for (const image of images) image.base64 = readFileSync(image.path).toString('base64');
-  const settings = { ...(maker.settings ?? {}), ...(style.settings ?? {}) };
+  // The person's settings may also come in the input (`settings`, the tool's settings record as one object), over a file's.
+  const inInput = input.settings && typeof input.settings === 'object' && !Array.isArray(input.settings) ? input.settings : {};
+  const settings = { ...(maker.settings ?? {}), ...(style.settings ?? {}), ...personSettings, ...inInput };
   const prompt = style.prompt ? joined(style.prompt, { inputs: named, settings }) : '';
+
+  // A maker that makes every result in one run (a local model loaded once, a search that keeps its best few) is given one
+  // folder and the count; each file of the style's kind it leaves there, in name order, is one result.
+  if (maker.makes_all) {
+    const folder = join(workDir, `${styleId}-all.partial`);
+    rmSync(folder, { recursive: true, force: true });
+    mkdirSync(folder, { recursive: true });
+    try {
+      const values = { prompt, settings, images, inputs: named, output: { folder, count: wanted } };
+      await callProcess(maker, values, deps, { allInto: folder });
+      const written = readdirSync(folder).filter(name => name.endsWith(style.extension) && statSync(join(folder, name)).size > 0).sort().slice(0, wanted);
+      if (!written.length) throw new Error(`${maker.label} finished without writing a ${style.extension} file.`);
+      // A result may come with `<its name>.json` beside it (the seed, the prompt, how long it took): it is kept as the
+      // result's `about`, never as a result of its own.
+      const made = written.map((name, index) => {
+        const file = join(outDir, `${styleId}-${index + 1}${style.extension}`);
+        renameSync(join(folder, name), file);
+        const beside = join(folder, `${name}.json`);
+        const about = existsSync(beside) ? JSON.parse(readFileSync(beside, 'utf8')) : undefined;
+        return { file, media_type: style.media_type, bytes: statSync(file).size, ...(about ? { about } : {}) };
+      });
+      const failed = made.length < wanted ? [{ error: `${maker.label} made ${made.length} of the ${wanted} asked for.` }] : [];
+      return { made, failed };
+    } catch (error) {
+      return { made: [], failed: [{ error: plain(error.message, 400) }] };
+    } finally {
+      rmSync(folder, { recursive: true, force: true });
+    }
+  }
 
   const one = async index => {
     // Named with the kind it will be, so a program that picks its format from the name writes the right one.
@@ -246,10 +298,15 @@ async function callRelay(maker, values, deps, relay) {
   return keepAnswer(maker, json, values);
 }
 
-async function callProcess(maker, values, deps) {
-  const [program, ...args] = maker.command.map(part => (typeof part === 'string' ? part : String(fill(part, values) ?? '')));
+// The command is filled whole, so an { each, item } part becomes one argument per element of a list (a flag's values).
+// A value that is absent stops the run by name: an empty argument would reach the program as a real one.
+async function callProcess(maker, values, deps, { allInto } = {}) {
+  const missing = maker.command.find(part => part && typeof part === 'object' && Array.isArray(part.value) && [undefined, null, ''].includes(lookup(values, part.value)));
+  if (missing) throw new Error(`${maker.label} needs ${missing.value.join('.')}, and this run has none: give it in the input or in --settings.`);
+  const [program, ...args] = fill(maker.command, values).map(part => String(part ?? ''));
   const done = await deps.runProcess(program, args, { cwd: deps.cwd, timeoutMs: maker.timeout_ms ?? 300000 });
   if (done.code !== 0) throw new Error(`${maker.label} stopped: ${tail(done.stderr || `exit ${done.code}`, 240)}`);
+  if (allInto) return null;
   // Some programs append their own suffix; take the file they wrote when the exact name is absent.
   if (!existsSync(values.output.path)) {
     const folder = dirname(values.output.path);
@@ -265,15 +322,17 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
   try {
     const styleId = args.get('style');
-    if (!styleId) throw new Error('usage: make-pictures-and-sounds.mjs --style <style id> [--out <folder>] [--work <folder>] < input.json');
+    if (!styleId) throw new Error('usage: make-pictures-and-sounds.mjs --style <style id> [--out <folder>] [--work <folder>] [--settings <file>] < input.json');
     const raw = readFileSync(0, 'utf8').trim();
     const input = raw ? JSON.parse(raw) : {};
     const rows = readMakeRows();
     const outDir = args.get('out') ?? 'made';
-    const result = await makeStyle({ rows, styleId, input, outDir, workDir: args.get('work') ?? 'making', deps: { relayPath: args.get('relay') ?? null } });
+    const personSettings = args.get('settings') ? JSON.parse(readFileSync(args.get('settings'), 'utf8')) : {};
+    if (!personSettings || typeof personSettings !== 'object' || Array.isArray(personSettings)) throw new Error('--settings must name a file holding one JSON object.');
+    const result = await makeStyle({ rows, styleId, input, outDir, workDir: args.get('work') ?? 'making', personSettings, deps: { relayPath: args.get('relay') ?? null } });
     if (!result.made.length) throw new Error(result.failed[0]?.error ?? 'Nothing was made.');
     const style = rows.styles.get(styleId);
-    process.stdout.write(`${JSON.stringify({ style: styleId, makes: style.makes, count: result.made.length, made: result.made.map(item => ({ name: basename(item.file), media_type: item.media_type, bytes: item.bytes })), failed: result.failed })}\n`);
+    process.stdout.write(`${JSON.stringify({ style: styleId, makes: style.makes, count: result.made.length, made: result.made.map(item => ({ name: basename(item.file), media_type: item.media_type, bytes: item.bytes, ...(item.about ? { about: item.about } : {}) })), failed: result.failed })}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exit(1);
