@@ -17,12 +17,21 @@
     },
     "label": "Find my files in my index",
     "job": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
-    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. It never builds or changes an index, and it reads nothing outside index_dir.",
+    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. names (instead of or beside query) looks up where named files are kept: a name matches a file whose name without its extension equals it, or starts with it, ignoring case, when the name ends in *; type and root narrow the rows; the answer's by_name gives each name's display paths and not_in_index lists the names no file matched. index_dir is required unless the person's settings (settings_record, a row of their list:settings, or settings) hold it; their settings fill every key the request leaves out (index_dir, index_file, types_file, type, root, limit, fields, weights, lane_weights). It never builds or changes an index, and it reads nothing outside index_dir.",
     "input_schema": {
      "type": "object",
-     "required": [
-      "index_dir",
-      "query"
+     "required": [],
+     "anyOf": [
+      {
+       "required": [
+        "query"
+       ]
+      },
+      {
+       "required": [
+        "names"
+       ]
+      }
      ],
      "additionalProperties": false,
      "properties": {
@@ -33,6 +42,14 @@
       "query": {
        "type": "string",
        "minLength": 1
+      },
+      "names": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "type": "string",
+        "minLength": 1
+       }
       },
       "index_file": {
        "type": "string"
@@ -79,6 +96,15 @@
        "additionalProperties": {
         "type": "number"
        }
+      },
+      "settings_record": {
+       "type": "string",
+       "pattern": "^record:setting:find-files-in-an-index~",
+       "description": "The person's list:settings row for this tool: where their index is and which type and root they look in (any of index_dir, index_file, types_file, type, root, limit, fields, weights, lane_weights). The request's own keys win."
+      },
+      "settings": {
+       "type": "object",
+       "description": "Settings for this run, laid over the row's; the same keys."
       }
      }
     },
@@ -110,6 +136,21 @@
       "candidates_per_root": {
        "type": "object"
       },
+      "by_name": {
+       "type": "object",
+       "additionalProperties": {
+        "type": "array",
+        "items": {
+         "type": "string"
+        }
+       }
+      },
+      "not_in_index": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
       "matched": {
        "type": "integer"
       },
@@ -124,6 +165,9 @@
          "found_by"
         ]
        }
+      },
+      "settings_from": {
+       "type": "object"
       }
      }
     },
@@ -138,7 +182,7 @@
       "node",
       "/opt/records-door/do-work/run-an-export.mjs",
       "/opt/find-files-in-an-index/read-data/find-files-in-an-index.mjs",
-      "findFilesInAnIndex"
+      "findFilesInAnIndexForARun"
      ],
      "stdin": {
       "fill": {
@@ -155,6 +199,14 @@
         "at": "/opt/find-files-in-an-index"
        },
        {
+        "package": "settings",
+        "paths": [
+         "read-data",
+         "do-work"
+        ],
+        "at": "/opt/settings"
+       },
+       {
         "package": "records-door",
         "paths": [
          "do-work",
@@ -162,8 +214,39 @@
         ],
         "at": "/opt/records-door"
        },
-       {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-       {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:setting",
+        "prefix": "record:setting:find-files-in-an-index~",
+        "operations": [
+         "records:read"
+        ]
+       }
       ]
      }
     },
@@ -171,7 +254,46 @@
     "provenance": {
      "source": "bitfield-packages packages/find-files-in-an-index"
     },
-    "verify": [{"kind": "sample-run", "input": {"index_dir": "/dev", "index_file": "null", "query": "beach day"}}]
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "index_dir": "/dev",
+       "index_file": "null",
+       "query": "beach day"
+      }
+     },
+     {
+      "kind": "sample-run",
+      "input": {
+       "names": [
+        "C001",
+        "C00*"
+       ],
+       "settings_record": "record:setting:find-files-in-an-index~person~all"
+      },
+      "records": [
+       {
+        "id": "record:setting:find-files-in-an-index~person~all",
+        "type": "record:setting",
+        "value": {
+         "name": "Where my clips are indexed",
+         "tool": "tool:find-files-in-an-index",
+         "scope_kind": "person",
+         "scope_id": "all",
+         "settings": {
+          "index_dir": "/dev",
+          "index_file": "null",
+          "type": "video",
+          "root": "drive-one"
+         },
+         "from": "made up for this sample",
+         "status": "active"
+        }
+       }
+      ]
+     }
+    ]
    }
   }
  ]
