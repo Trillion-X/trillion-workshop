@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-AUDIO-TRANSCRIPTION-FIND-WHISPER-QUOTES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, models-research lane, transcripts slice, 2026-11-05",
+  "message_multihash": "1f:145ab044d00742ea9a62f44eb3eef393a1d705deacf23b106830f0ebc8f7b4ea",
+  "quote": "Case source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ: finish the trillion-launch-video port so the repo can be retired; port every behaviour and every test one to one, the first commit of each target is the byte copy of its source."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:a9a7a11fddbf56bf7547e07c0864d8bf793945c8cefcde2c97d04a806a7efe8c",
+   "multihash": "1f:871c6ab9e87d676432f8820a7578ebf0fd1b158c4198430e1c9b89803e1f0ef8",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:20:37Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/audio-transcription/do-work/find_whisper_quotes.py",
+   "baseline_commit_message": "audio-transcription: five launch-video transcript readers, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "only quotes of videos whose caption source starts with whisper are checked, each unique (video, stamp, quote) once",
+  "a quote is found as the exact run of its lower-case letter-and-digit words in the word-timed transcript",
+  "each hit says its word times and whether its first word starts inside the cited window",
+  "a quote not found, or a hit outside its window, is a problem"
+ ],
+ "allowed_deltas": [
+  "the window's length is an argument (45 seconds by default)",
+  "the last line is {\"result\": {quotes, problems, hits}}"
+ ],
+ "banned_substitutions": [
+  "a fuzzy quote match"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:871c6ab9e87d676432f8820a7578ebf0fd1b158c4198430e1c9b89803e1f0ef8",
+  "target_multihash_at_baseline": "1f:871c6ab9e87d676432f8820a7578ebf0fd1b158c4198430e1c9b89803e1f0ef8",
+  "commit": "f1baedfa0fdff3fb6ba06dfd8a378e7846ff4acb",
+  "recorded_at": "2026-11-05T20:20:37Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def secs",
+   "norm=lambda t"
+  ],
+  "test_refs": [
+   "tools/audio-transcription/test/test_transcript_files.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

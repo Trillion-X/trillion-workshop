@@ -1,0 +1,51 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SETTINGS-READ-THROUGH-THE-DOOR",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film-tools lane, case source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ",
+  "message_multihash": "1f:e0e36c565697ec654c41546442049ecc2c3450343b398cdd48804b1788dfccf1",
+  "quote": "a tool reads its list:settings row at run time through one shared Workshop reader; add to tools/settings, never beside it"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "6a8d69dafb08b51516af5b9dd748ce845540d35c",
+   "path": "tools/settings/read-data/settings.mjs",
+   "multihash": "1f:48090d15776028694bc2b222e22bfe02dfbfd361bd2dbd8ede7261ec3e0b6497",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/settings/read-data/settings.mjs"
+  }
+ ],
+ "preserve": [
+  "settingId, parseId, makeRecord, chosen, settingsOf and setting keep their signatures, answers and refusals",
+  "a settings_record given as a record, its value, a list or a file path is read as before"
+ ],
+ "allowed_deltas": [
+  "layOver, isSettingId, readSettingRecord and settingsFor are added: a settings_record that is a row id is read through the run's records door, and the defaults, the row and the input's own settings are laid in that order"
+ ],
+ "banned_substitutions": [
+  "a second settings reader beside tools/settings",
+  "a person's settings written into the code"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T21:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:48090d15776028694bc2b222e22bfe02dfbfd361bd2dbd8ede7261ec3e0b6497",
+  "target_multihash_at_baseline": "1f:48090d15776028694bc2b222e22bfe02dfbfd361bd2dbd8ede7261ec3e0b6497",
+  "commit": "6a8d69dafb08b51516af5b9dd748ce845540d35c"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/settings/test/settings.test.mjs (unchanged, passes)",
+   "tools/settings/test/run-with-settings.test.mjs settingsFor lays the defaults, then the named row, then the input's own settings"
+  ]
+ }
+}
