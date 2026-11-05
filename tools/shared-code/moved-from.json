@@ -1018,6 +1018,22 @@
       "source_identity": "1f:ef9cf2d9140b64f5982a4ca2ee3e0fcce15f53d2c45a95be891d233871e53445",
       "identity": "1f:81a98a91e487c3433b499baaa1a4a4c78a83e2016be48f78b2a5b1fc6fe3199f",
       "adapted": "the six health tests run makeSourceHealth with the formula engine's filter, not the Workshop tool wrapper; the shipped-sample check (kept tool row) and the four readHealth tests (old automations and inbound run nowhere) are left out."
+    },
+    {
+      "from": "test/new-work-seen-worker.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/new-work-seen-worker.test.mjs",
+      "source_identity": "1f:2f17b331ecba3b9c0c86a6f0a42f2f277b0d1993bb032fdfa6d27b396bc6a824",
+      "identity": "1f:20be104eaf03de83ec07e3e061f4fb91dca7b95c2a1236a1846511e0d58e3741",
+      "adapted": "the retired Worker's new-work routes are replaced by the src/new-work.mjs calls they made (markScreenSeen, readNewWork); the route's owner, statuses and other-site refusal are left out: no running code serves those routes."
+    },
+    {
+      "from": "test/reconcile-due-only.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/reconcile-due-only.test.mjs",
+      "source_identity": "1f:ab01b27f7fe66446b985eb8dd8eb58c82acbe40ba7844ff8e67be61abb5c6546",
+      "identity": "1f:5f1384eb88b2c1c51bdabe24b45957caf834ea7b80f0645f77a89b2b54068505",
+      "adapted": "the five store-level tests are the old ones with import paths named; the whole-person-store wake count (bootPerson) is left out: that store went with the Worker."
     }
   ]
 }
