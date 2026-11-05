@@ -27,7 +27,9 @@ const FILE_SPAN = 65_536;
 // for one of them, and refuses any other, as the engine does. Every nested run is kept in `runsStarted`.
 const TOOLS_RESOURCE = '@workshop-tools';
 
-export async function startFakeDoor({ runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+// `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
+// for a run whose files right names it at '/'.
+export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -233,12 +235,13 @@ export async function startFakeDoor({ runs = [], toolRuns = {}, rights = [], mos
     runsStarted.push({ tool, input, key });
     const answer = toolRuns[tool];
     if (answer instanceof Error) return refuse(answer.message);
-    return { structuredContent: typeof answer === 'function' ? answer(input, key) : answer ?? { started: true } };
+    if (typeof answer !== 'function') return { structuredContent: answer ?? { started: true } };
+    return Promise.resolve(answer(input, key)).then(structuredContent => ({ structuredContent }), error => refuse(error.message));
   };
   const server = createServer((request, reply) => {
     const chunks = [];
     request.on('data', chunk => chunks.push(chunk));
-    request.on('end', () => {
+    request.on('end', async () => {
       const sent = Buffer.concat(chunks);
       if (mostRequestBytes && sent.length > mostRequestBytes) { calls.push({ refused_bytes: sent.length }); reply.writeHead(413).end(); return; }
       const body = JSON.parse(sent.toString('utf8'));
@@ -246,11 +249,16 @@ export async function startFakeDoor({ runs = [], toolRuns = {}, rights = [], mos
       calls.push({ method: args.method, input: args.input, key: args.request_key, authorization: request.headers.authorization, protocol: request.headers['mcp-protocol-version'] });
       if (busy > 0) { busy -= 1; reply.writeHead(503).end(); return; }
       if (request.headers.authorization !== `Bearer ${capability}`) { reply.writeHead(401).end(); return; }
-      const operation = args.address === TOOLS_RESOURCE ? (args.method === 'tools:run' && runs.length ? runOperation : null)
+      const answered = args.address === FILES_RESOURCE && Object.hasOwn(fileAnswers, args.method) ? input => {
+        if (!fileRights.some(item => item.files === '/' && item.operations.includes(args.method))) return refuse(OUTSIDE);
+        const answer = typeof fileAnswers[args.method] === 'function' ? fileAnswers[args.method](input) : fileAnswers[args.method];
+        return answer instanceof Error ? refuse(answer.message) : { structuredContent: answer };
+      } : null;
+      const operation = answered ?? (args.address === TOOLS_RESOURCE ? (args.method === 'tools:run' && runs.length ? runOperation : null)
         : args.method === 'tools:run' ? null
-        : args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method];
+        : args.address === FILES_RESOURCE && fileRights.length ? fileOperations[args.method] : operations[args.method]);
       const { after_byte: afterByte, ...input } = args.input ?? {};
-      let result = operation ? operation(input, args.request_key) : refuse('not_runnable_here');
+      let result = operation ? await operation(input, args.request_key) : refuse('not_runnable_here');
       // An answer bigger than `bytePage` comes as pages of its own bytes, the way the engine's door answers a record too
       // big for one message: a list's first row alone, then the same call with after_byte reads on.
       if (bytePage && !result.isError && (afterByte !== undefined || JSON.stringify(result.structuredContent).length > bytePage)) {

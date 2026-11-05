@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SET-UP-MY-ACCOUNT-READ-SETUP",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, workshop round 2 lane",
+  "message_multihash": "1f:d79164f8d200b359564c8e3cce4cd2e5da8e0c5a82f4bacac180607812d1088d",
+  "quote": "Then it runs tool:see-what-is-left-to-set-up, and its layout draws what old trillion drew."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "gather the Get started screen's setup facts from the account files door and the account's own records, and draw the screen with tool:see-what-is-left-to-set-up",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/set-up-my-account/do-work/read-setup.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/set-up-my-account/",
+   "why": "This tool itself: the steps and the screen are read-data/ (moved byte for byte from trillion) run by tool:see-what-is-left-to-set-up; this file only gathers what old src/screen-reads.mjs readSetup and src/native-setup.mjs facts gathered, from today's owners, and runs that row."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "gather the Get started screen's setup facts and draw the screen",
+    "read setup facts for the get started screen",
+    "readSetup"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "readSetup",
+    "setup_facts"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "5dd04ec08695b7d88371e7980c468a7c2e86839d"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/set-up-my-account/test/read-setup.test.mjs",
+   "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/test/catalogue-screen-get-started.test.mjs"
+  ]
+ }
+}
