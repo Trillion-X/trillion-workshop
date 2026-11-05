@@ -1,0 +1,13 @@
+{
+ "id": "record:setting:compare-voice-and-music-models~film~made-up-film",
+ "type": "record:setting",
+ "value": {
+  "name": "Voice A/B for a made-up film",
+  "tool": "tool:measure-narration-takes",
+  "scope_kind": "film",
+  "scope_id": "made-up-film",
+  "settings": "{\"clone_takes\":5,\"master_command\":\"\",\"takes\":[{\"engine\":\"pocket\",\"maker\":\"clone\",\"name\":\"B pocket\",\"work\":\"pocket\"},{\"maker\":\"kokoro\",\"name\":\"A kokoro\",\"voice\":\"af_heart\",\"work\":\"kokoro-af_heart\"}]}",
+  "from": "made-up@0000000",
+  "status": "active"
+ }
+}

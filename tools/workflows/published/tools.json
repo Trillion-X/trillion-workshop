@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:7fe89976cd9acfd559e8428bdf17dd8cdac2b8466e5c7b008f30235097260839"
+  "blake3": "1f:5d311b315335a50009f5eed37911ea55466c74037d2854ec8d35214935c838c8"
  },
  "fields": [
   {
@@ -331,6 +331,21 @@
      "placement:your-computer"
     ],
     "folder": "follow-my-ai-command-line-runs"
+   }
+  },
+  {
+   "id": "tool:answer-a-checks-questions-with-a-model-on-this-computer",
+   "values": {
+    "title": "Answer the yes or no questions my checks ask, with a small model on my computer (runs on your computer)",
+    "job": "Answer the questions a check of my writing asks a model, one line at a time, with the small model, adapter or hosted model each of my check rows names, keeping every answer so a line is never asked twice",
+    "description": "Give settings_record (record:setting:ask-a-small-model-for-a-verdict~<scope_kind>~<scope_id>, the person's setting row, read through tools/settings) and asks, the questions tool:check-against-a-persons-rules-and-verdicts lists: each { question, options, text } with the row's adapter ({ name, blake3 }: decider-2b with that LoRA adapter, its folder the setting's adapters[name], checked by BLAKE3 before loading), model ({ mlx: repo id } a downloaded MLX chat model at its one snapshot, { consult: name } a hosted model through the consult-model route, or { stand_in } fixed answers), examples ({ items: <set>, bad_for }: the person's ruled lines of that set, rows of list:checks with kind labelled-line, shown first and never the judged line) and context (where the line sits in its film). mode live asks a model for what the answer cache lacks; cache answers only from it. Answers one { option: probability } or null per ask, in order.",
+    "status": "active",
+    "maker": "maker:ask-a-small-model-for-a-verdict",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "ask-a-small-model-for-a-verdict"
    }
   },
   {
@@ -1026,6 +1041,21 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "calibrate-a-camera-frame"
+   }
+  },
+  {
+   "id": "tool:calibrate-a-checks-questions-on-lines-i-ruled-on",
+   "values": {
+    "title": "Measure whether a small model can answer my check's question, on lines I already ruled on (runs on your computer)",
+    "job": "Ask a small model my check rows' questions about every line I already ruled good or bad, and fit where each row should pass and fail a line, and whether it is usable at all",
+    "description": "Give settings_record (the person's setting row for this tool, read through tools/settings: its fit bars, good_sets, frame and models), rules (ids of the person's check rows with an ask, record:check:<id>) and lines (the set of labelled lines, rows of list:checks with kind labelled-line and that set). Ruled lines (each with good) count by their own ruling, optionally only one split and only those with context (context_only); lines kept by set count as good when a set the setting's good_sets names holds them. Each line is asked one question a sentence and scored by its worst sentence, then tool:fit-pass-and-fail-lines fits t_fail, t_pass, AUC, recall and the held-out shares with the setting's bars (fpr overrides fail_good_share_at_most). Answers { <rule id>: finding }; the person writes a finding into that row's ask.calibration. Lines a model was trained on must never calibrate it.",
+    "status": "active",
+    "maker": "maker:ask-a-small-model-for-a-verdict",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "ask-a-small-model-for-a-verdict"
    }
   },
   {
@@ -6019,6 +6049,21 @@
    }
   },
   {
+   "id": "tool:make-and-measure-every-voice-take-of-a-line",
+   "values": {
+    "title": "Make every A/B take of one narration line, master them the same way and measure them (runs on your Mac)",
+    "job": "Make my narration line in every voice model I am comparing, mastered the same way, and measure them all",
+    "description": "Runs the takes the settings list (Kokoro voices and clone engines) one heavy job at a time, puts each through the same clean and master commands, moves a take already there into work/replaced/ before making it again, runs the ticks command, and measures every take into <out dir>/work/measure-final.jsonl.",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
+   }
+  },
+  {
    "id": "tool:make-examples-from-picks",
    "values": {
     "title": "Make examples from the options a person picked",
@@ -6322,6 +6367,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:measure-narration-takes",
+   "values": {
+    "title": "Measure narration takes: pace, pauses, pitch, words heard, same voice and accent (runs on your computer)",
+    "job": "Measure my narration takes side by side so I can compare voice models with numbers as well as my ear",
+    "description": "For each take of one line: every pause of 120 ms or more (10 ms RMS below -45 dBFS) with the words on each side, words per second over the speech and over voiced time only, F0 5th-95th percentile and span in semitones, onset F2 and length of one vowel_check word, the words whisper heard and the word errors against the script, the cosine of a WeSpeaker speaker embedding to the line's voice_reference take, and the mean accent probability from a wav2vec2 accent classifier. Writes each take's word times to <words dir>/<take>.words.json. Every level, model and length is a setting.",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
    }
   },
   {
@@ -10147,6 +10207,36 @@
      "placement:small-container"
     ],
     "folder": "how-someone-does-their-thing"
+   }
+  },
+  {
+   "id": "tool:say-a-narration-line-in-a-cloned-voice-model",
+   "values": {
+    "title": "Say one narration line in a voice-cloning model, best of N per sentence (runs on your Mac)",
+    "job": "Try a voice-cloning model on my narration line: keep the best of a few takes of each sentence",
+    "description": "Evaluation take of one narration line in a voice-cloning model mlx-audio loads (Qwen3-TTS, Chatterbox Turbo, Pocket TTS, or another the settings name), cloned from a reference recording. Same units, pauses and inner-pause cap as the Kokoro take. Each unit is made N times and heard by whisper; the one kept has the fewest word errors against the unit's words, then the length nearest the median of the N. Writes the take and <take>.units.json (what each kept unit was heard as).",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
+   }
+  },
+  {
+   "id": "tool:say-a-narration-line-in-a-kokoro-voice",
+   "values": {
+    "title": "Say one narration line in a Kokoro voice, the natural way (runs on your Mac)",
+    "job": "Say my narration line in a Kokoro voice with natural pauses, so I can compare voices",
+    "description": "Evaluation take of one narration line in Kokoro-82M through mlx-audio: one generation per unit (a unit never splits a sentence), pronunciation fixed in the text as misaki [word](/IPA/) markup with the G2P language of the voice's accent, a silence the model makes inside a unit (an ellipsis) kept but capped at inner_most seconds, each unit's own edge silence trimmed, and units joined by the line's set pause_after silences. Speech is never slowed or stretched. Writes a 24-bit WAV.",
+    "status": "active",
+    "maker": "maker:compare-voice-and-music-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compare-voice-and-music-models"
    }
   },
   {
