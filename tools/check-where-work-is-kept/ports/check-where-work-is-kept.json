@@ -1,0 +1,45 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-WHERE-WORK-IS-KEPT",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "work is kept in Trillion, not on disk, 2026-11-05",
+  "quote": "everything an AI keeps goes into his Trillion lists, never onto disk; build a judge (rules plus a classifier model) behind a hook that refuses a disk write and says which list and records:write call keeps it instead"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "refuse a tool call that writes an AI's work onto disk outside a declared repository's source, its scratch or a list copy, naming the list and the records:write call that keeps it instead",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-where-work-is-kept/do-work/check-where-work-is-kept.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "proof": {
+  "search": {
+   "phrasings": [
+    "refuse a tool call that writes an AI's work onto disk outside a declared repository's source",
+    "find the paths a shell command writes",
+    "say which list keeps a file instead of disk"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "writtenPaths",
+    "keepInstead"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "70be026ffa7aede39468a674698d5b8a597fac8a"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-where-work-is-kept/test/check-where-work-is-kept.test.mjs",
+   "tools/check-where-work-is-kept/test/run-by-the-check-list.test.mjs"
+  ]
+ }
+}
