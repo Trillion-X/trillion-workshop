@@ -493,3 +493,31 @@ test('a kept file with a home in a package the destination depends on holds noth
     assert.throws(() => moveCode({ step: 'plan', row: { ...homed, homes_in_packages: [{ ...homed.homes_in_packages[0], source_identity: '1f:00' }] }, source_folder: source, destination_folder: destination }), /homes_in_packages says lock-box\/src\/lock\.mjs holds src\/lock\.mjs as 1f:00/);
   } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
 });
+
+test('a data file with calls (a made-up name in place of a real one) is its source once those calls are swapped; any other change is caught', async () => {
+  const { checkMove } = await import('../read-data/check-move.mjs');
+  const { openTreeAt } = await import('../read-data/code-tree.mjs');
+  const said = json({ _what: 'Why it exists: Pat 2026-01-02, after a step was missed.', every: 5 });
+  const source = repository({ 'src/notes.json': said });
+  const destination = repository(destinationFiles());
+  try {
+    const commit = git(source, 'rev-parse', 'HEAD').trim();
+    const identity = text => makeHashCodeHexFromBytes(new Uint8Array(Buffer.from(text)));
+    const here = said.replace('Pat', 'Sam Example');
+    const call = { id: 'made-up-quoted-person', find: '\\b[A-Z][a-z]+(?=,? 2026-\\d\\d-\\d\\d[:,]? )', replace: 'Sam Example', means: 'a quoted first name becomes a made-up one' };
+    const file = { from: 'src/notes.json', commit, to: 'tools/notes/src/notes.json', source_identity: identity(said), identity: identity(here), calls: [call.id] };
+    mkdirSync(join(destination, 'tools/notes/src'), { recursive: true });
+    writeFileSync(join(destination, 'tools/notes/src/notes.json'), here);
+    writeFileSync(join(destination, 'tools/notes/moved-from.json'), json({ source: 'old-app', calls: [call], files: [file] }));
+    const sources = () => openTreeAt(source, commit);
+    const proved = checkMove({ sources, destinationFolder: destination, folders: ['tools/notes'], run: false });
+    assert.equal(proved.ok, true, JSON.stringify(proved, null, 2));
+
+    const changed = here.replace('5', '6');
+    writeFileSync(join(destination, 'tools/notes/src/notes.json'), changed);
+    writeFileSync(join(destination, 'tools/notes/moved-from.json'), json({ source: 'old-app', calls: [call], files: [{ ...file, identity: identity(changed) }] }));
+    const caught = checkMove({ sources, destinationFolder: destination, folders: ['tools/notes'], run: false });
+    assert.equal(caught.ok, false);
+    assert.ok(caught.folders[0].problems.some(problem => /differs from src\/notes\.json beyond its swapped calls/.test(problem)), JSON.stringify(caught.folders[0].problems));
+  } finally { rmSync(source, { recursive: true, force: true }); rmSync(destination, { recursive: true, force: true }); }
+});
