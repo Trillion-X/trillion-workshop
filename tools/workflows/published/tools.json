@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0e5ce296b1786fcebb2f715f4c221715af58ec1eb174ebf2c4d06f2698550db2"
+  "blake3": "1f:ad2b3871bda0673a1e458c293cb5093259135114dddd1baba86758045be8900c"
  },
  "fields": [
   {
@@ -5959,6 +5959,21 @@
    }
   },
   {
+   "id": "tool:make-youtube-playlists-from-a-sort-plan",
+   "values": {
+    "title": "Make the planned public playlists on YouTube (runs on your Mac)",
+    "job": "Make the YouTube playlists my Watch Later sort plan names, adding videos and removing none",
+    "description": "Creates each playlist of a plan from tool:plan-sorting-youtube-watch-later-into-playlists as a public playlist on the same channel, with its description, and adds its videos in batches. It never removes a video and never changes Watch Later. A playlist already on the channel with the same title is reused, never duplicated. What was made is kept in applied_file and each playlist is read back before adding, so running it again adds only what is missing; a recorded playlist that reads back empty stops the run, so a lost sign-in cannot add videos twice. Then verify_sort.py checks each playlist holds the planned number of videos and anyone can see it, that each Watch Later is unchanged, and writes verification.json, INDEX.md and a table of every Watch Later video with its playlists.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
+   }
+  },
+  {
    "id": "tool:manage-usage-pricing",
    "values": {
     "title": "Manage usage pricing",
@@ -6238,6 +6253,21 @@
      "placement:your-computer"
     ],
     "folder": "move-code-between-trees"
+   }
+  },
+  {
+   "id": "tool:move-word-starts-to-where-the-voice-starts",
+   "values": {
+    "title": "Time each word of a voice take from where the voice really starts, for graphics on the word (runs on your computer)",
+    "job": "Make the word times of my voice take start where each word is actually heard, so on-screen graphics land on the word and not early in the pause before it",
+    "description": "Reads a voice take and its word times (a Whisper word list) and moves each word's start to the first 10 ms window inside the word whose level is above a silence line (default -45 dBFS); each end stays. Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Given the take's line file (its script), each word takes the script's spelling when the script and Whisper give the same number of words, and a word Whisper split at a hyphen is joined into one; otherwise Whisper's spelling stays and the answer says why. Writes {source, timing, words: [{text, start, end}]} and answers how many words moved.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
    }
   },
   {
@@ -7054,6 +7084,21 @@
      "placement:small-container"
     ],
     "folder": "plan-my-time"
+   }
+  },
+  {
+   "id": "tool:plan-sorting-youtube-watch-later-into-playlists",
+   "values": {
+    "title": "Plan which playlist each Watch Later video goes in",
+    "job": "Sort my YouTube Watch Later into playlists: plan which playlist each video goes in",
+    "description": "Places each video of one or more channels' Watch Later into the playlists the person's sort settings name, and writes nothing to YouTube. A channel is sorted by rules (a channel-name expression scores 3, a strong title expression 3, a weak one 1; a video goes to every playlist scoring 3 or more, at most max_per_video, else to its best weak match marked low confidence; titles matching hold_back are kept off public playlists with hold_back_reason) or by hand-made lists kept in their order. Within a rules playlist, videos are ordered by views, highest first. The answer is the plan and a summary per channel; with out_dir it also writes sort-plan.json and SORT-PLAN.md, the page to show the person before anything is made.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
    }
   },
   {
@@ -8410,6 +8455,21 @@
      "placement:small-container"
     ],
     "folder": "training-and-workouts"
+   }
+  },
+  {
+   "id": "tool:read-my-youtube-watch-later-and-playlists",
+   "values": {
+    "title": "Read my YouTube Watch Later, subscriptions and playlists (runs on your Mac)",
+    "job": "Read my YouTube Watch Later, subscriptions and playlists from my signed-in channels",
+    "description": "Acts as each signed-in channel the request names (brand channels too, by page_id) through YouTube's own web API, with the browser login tool:export-browser-login-cookies-for-yt-dlp wrote, and writes <out_dir>/<slug>/watch-later.json, subscriptions.json and playlists.json. A channel naming sign_in_as (its account's email or channel handle) is found by it each run, since the account number a browser gives an account changes as accounts sign in and out. Reads only; never changes YouTube. Also tells which accounts the login holds (list_signed_in_accounts.py) and whether it is still signed in.",
+    "status": "active",
+    "maker": "maker:sort-youtube-watch-later-into-playlists",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sort-youtube-watch-later-into-playlists"
    }
   },
   {
