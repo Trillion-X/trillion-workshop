@@ -10,6 +10,30 @@
       "to": "tools/hand-work-to-ais/test/agent-record-read-all.test.mjs",
       "source_identity": "1f:d97831801f482f23d0f87455e3c9e6510026667b9ce427aa5a9083d0d09770f3",
       "identity": "1f:1e426317f82d156ddb93319ceb27ccb2009d57e9ad26476576eeef8a010a4d75"
+    },
+    {
+      "from": "test/agent-legacy-rows.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/agent-legacy-rows.test.mjs",
+      "source_identity": "1f:586ecc2a95082d9085ced20d14c20b4df26ac039504685018d6a5570fc949125",
+      "identity": "1f:67d4573de9e2c01ae893038e17046987660ba79769bf0d1a8f942b182b97526a",
+      "adapted": "imports name the bridge's and its owners' homes; the four tests over a whole old person store (personStoreOver, ownerGrantEffect) are left out: that store went with the Worker."
+    },
+    {
+      "from": "test/notification-legacy-upgrade.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/notification-legacy-upgrade.test.mjs",
+      "source_identity": "1f:bc976fb2d35836126d1c33e19f69509855020f96e0330cfd2bfde63db8573b71",
+      "identity": "1f:917e46929f2a7a96e27247de9d1faa2d780310f9d22c7502e468ec28eb006a0a",
+      "adapted": "the first test is the old one with import paths named; the two that ran methods cut out of old src/person-store.mjs are left out: that file went with the Worker."
+    },
+    {
+      "from": "test/held-work-reads-walk-an-index.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-work-to-ais/test/held-work-reads-walk-an-index.test.mjs",
+      "source_identity": "1f:0a79b76ee6ffd28ce2c6441bbfd4d133a49ff16f527c5c65b92b70e89c3bcc40",
+      "identity": "1f:19bda39f8eebe00067b6ffe55fe8f2db347d761d3622737b8025b33848fe6232",
+      "adapted": "the three index tests run over the record engine with agentRecordStore where the old built the whole person store; the fourteen activity and payment tests through that store are left out: old src/payment.mjs and the person store run nowhere."
     }
   ]
 }

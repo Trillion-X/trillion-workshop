@@ -17,6 +17,14 @@
       "to": "tools/run-the-connections-and-automations-my-computers-carry-keeping/src/send-from.mjs",
       "source_identity": "1f:357474b775bc3affcc892ec440ee20557bec0a782999efe89131dd56ba5a4156",
       "identity": "1f:357474b775bc3affcc892ec440ee20557bec0a782999efe89131dd56ba5a4156"
+    },
+    {
+      "from": "test/native-carried-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-the-connections-and-automations-my-computers-carry-keeping/test/native-carried-recovery.test.mjs",
+      "source_identity": "1f:f73bc16b54d987adacb6b85bde408e16c989e05282d7923b5fa0c3ef6d8f1e85",
+      "identity": "1f:3aae9357061fa573f32b0afd472569ea587886217767805efeced7885ebde2b3",
+      "adapted": "imports name the owners' homes and a stand-in for the input identity old src/database-resource-composition.mjs made; the cold native journal test is left out: no running code keeps old src/resource-behavior-commands.mjs's journal."
     }
   ]
 }

@@ -922,6 +922,158 @@
       "source_identity": "1f:d9b13906bc56e3eaab3be283cc2c3feb6bd3cbea8ea70ad63b28c9ed7db09256",
       "identity": "1f:a4548fcf75cb3bea9aa1503959b72ef9e77d59bb93ed61df92316dd9645d8675",
       "adapted": "identityOf is this tool's record-identity.mjs and the compiled build is browse-and-upload-my-files loadChunking's Identity, without the retired restartable wrapper; every assertion is the old one"
+    },
+    {
+      "from": "test/server-instruction-paragraphs.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/server-instruction-paragraphs.test.mjs",
+      "source_identity": "1f:04effdcc2884ebcc02b75cc83e0d1e4a019b25a91e3c9ef210dc639360fe1052",
+      "identity": "1f:248cf35f2bb77f6f788c8bad0c6e93e47229395db6af04037d0e58a07ce2e55e",
+      "adapted": "the module and its data are imported from here; setupPlan (old src/setup-plan.mjs) is held, not run, so its plan-equality checks are left out and the mission words are checked on the named paragraph setupPlan copied."
+    },
+    {
+      "from": "test/request-refusal.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/request-refusal.test.mjs",
+      "source_identity": "1f:87465ec1a511a8ed6144a3a4f403f3e86ef83cfd19e4a114c512343b20d1b366",
+      "identity": "1f:4c4e98cdc72508b1ab8c0f5ee3e0e383ead909bc68eafc9041a026811dbae395",
+      "adapted": "imports name src/agents.mjs and src/failure.mjs here; the third test, an AgentsError through the held old src/tools.mjs handleMcpMessage, is left out: no running code turns a JS tool's refusal into an MCP result."
+    },
+    {
+      "from": "test/agents.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/agents.test.mjs",
+      "source_identity": "1f:6b75ce4186bf0d0e5c88ae213d40c6a95762a90c7bc127afcc60295d85c15810",
+      "identity": "1f:4cb0743d14e5579c9613e105473aa161ac821438e6698d219c617d1f0befe82d",
+      "adapted": "the MCP initialize test checks agents.pendingForReader, what handleMcpMessage answered as pending_handoffs, and leaves out its two checks on the held old src/tools.mjs greeting words; starters are read from test/fixtures/saved-instruction-starters.json, the old records/ bytes."
+    },
+    {
+      "from": "test/effect-unknown-lock.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/effect-unknown-lock.test.mjs",
+      "source_identity": "1f:7ad99ef534540ab1853cda7e66a91259ee96a05ba4c8b055e4d9901757f2755d",
+      "identity": "1f:87e48ca1fb90cf1a8b4668bad297b3fe58247c8bfb8b1312c19c31756bb63c2f",
+      "adapted": "the four effect tests are the old ones over src/agents.mjs and src/failure.mjs here; the fifth, a failed run through src/tool-run-owner.mjs, is left out: no repository keeps a tool run owner."
+    },
+    {
+      "from": "test/carried-connections.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/carried-connections.test.mjs",
+      "source_identity": "1f:686ab15ec24c17e75be2364add9cd211deea86e49d4eb3e61b431b621da01eb7",
+      "identity": "1f:c637ed50a5b30454b93deb7d8eb2542373ccae98a69b0ac6b4822bf86d4598f9",
+      "adapted": "the computer helper and service descriptors are read from their homes (run-on-a-persons-computer, connect-a-service-and-seal-its-key/records.json); the Connections screen test is left out: no running code exports old src/account-screens.mjs connectionsFacts."
+    },
+    {
+      "from": "test/own-ais.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/own-ais.test.mjs",
+      "source_identity": "1f:a9836ffc9ead706f77c8bd48646f8b3e20deed935457e4b42e7e96f5adbf85a8",
+      "identity": "1f:eb25a578c15c9b9fca8827bb0425640b3fb5f7cda2cdcd9f91d9ecb8e897007e",
+      "adapted": "makeAis is read from tools/see-and-limit-what-each-ai-can-reach; the four tests of old src/own-ais-routing.mjs and one limitSync check are left out: no repository keeps that routing."
+    },
+    {
+      "from": "test/vendor-table-rows.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/vendor-table-rows.test.mjs",
+      "source_identity": "1f:94c190cd23ab2f87e26a0fc123b06e4806bacac7f7203561e9d2c98d70e7d734",
+      "identity": "1f:1778c45db026606838ff69feea8819996f3758df6170b7ad54db8c68811f57cf",
+      "adapted": "the programs' tables are read from their tools' running readers, held to the old golden values (two tests fail: those tables changed); tests over records files only kept under from-old-trillion, firstChoiceFor and origin settings are left out, and the oauth records are a file of the golden rows."
+    },
+    {
+      "from": "test/workflow-step-versions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/workflow-step-versions.test.mjs",
+      "source_identity": "1f:7a0b795daf9993df9b8e0f50e31c7c979205da5b4916923e5db09f3493557611",
+      "identity": "1f:067958987a1b74d4ad96d4edaf2a1c97f342dfb48ad3b052bbe8c1a9e447996b",
+      "adapted": "the MCP-server harness is replaced by the modules that do each part (step versions, recipe-problems, authoring guidance, workflow-tools' schema); the engine-only run checks are left out: no repository runs the workflow routes."
+    },
+    {
+      "from": "test/workshop-facts-sequence-page.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/workshop-facts-sequence-page.test.mjs",
+      "source_identity": "1f:bb17a41b6a103e37e4eb871196f75ce3729418a4de2a6722a2c7afff4fd6ac71",
+      "identity": "1f:951d6568820083b51105661eda91da49b4d059e9cde38ed508190f6133e4e996",
+      "adapted": "imports name the store host and table generations in keep-and-wake-ai-sessions-on-this-computer; the physical-carry test is left out: no repository keeps old src/resource-state-carry.mjs."
+    },
+    {
+      "from": "test/workshop-empty-prefix-admission.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/workshop-empty-prefix-admission.test.mjs",
+      "source_identity": "1f:552a03cbefce539a2cd95ee451d139bad48a05b9f60c1aa2614749c10b513f62",
+      "identity": "1f:d9e1bdf22ad169cca094e57034ed7bb2d81416aa5e6ac0737ebbe3b34b4de222",
+      "adapted": "the first test is the old one with the store host's import path named; the second, over a whole old person store (personStoreOver), is left out: that store went with the Worker."
+    },
+    {
+      "from": "test/moments.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/moments.test.mjs",
+      "source_identity": "1f:4676ecca7d1bd96de63093abb58db7c777f91cc20dbc4c04229f35ce6ef35cdd",
+      "identity": "1f:b572392e334f94e31c6d54a12dc91a02f487420cf56851fde37114c2cadc75d9",
+      "adapted": "the four tests of the pure moment parts are the old ones; the fifteen that made arrivals through old src/inbound.mjs and the starting rules (src/automations.mjs) are left out: neither runs anywhere."
+    },
+    {
+      "from": "test/automation-health.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/automation-health.test.mjs",
+      "source_identity": "1f:ef9cf2d9140b64f5982a4ca2ee3e0fcce15f53d2c45a95be891d233871e53445",
+      "identity": "1f:81a98a91e487c3433b499baaa1a4a4c78a83e2016be48f78b2a5b1fc6fe3199f",
+      "adapted": "the six health tests run makeSourceHealth with the formula engine's filter, not the Workshop tool wrapper; the shipped-sample check (kept tool row) and the four readHealth tests (old automations and inbound run nowhere) are left out."
+    },
+    {
+      "from": "test/new-work-seen-worker.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/new-work-seen-worker.test.mjs",
+      "source_identity": "1f:2f17b331ecba3b9c0c86a6f0a42f2f277b0d1993bb032fdfa6d27b396bc6a824",
+      "identity": "1f:20be104eaf03de83ec07e3e061f4fb91dca7b95c2a1236a1846511e0d58e3741",
+      "adapted": "the retired Worker's new-work routes are replaced by the src/new-work.mjs calls they made (markScreenSeen, readNewWork); the route's owner, statuses and other-site refusal are left out: no running code serves those routes."
+    },
+    {
+      "from": "test/reconcile-due-only.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/reconcile-due-only.test.mjs",
+      "source_identity": "1f:ab01b27f7fe66446b985eb8dd8eb58c82acbe40ba7844ff8e67be61abb5c6546",
+      "identity": "1f:5f1384eb88b2c1c51bdabe24b45957caf834ea7b80f0645f77a89b2b54068505",
+      "adapted": "the five store-level tests are the old ones with import paths named; the whole-person-store wake count (bootPerson) is left out: that store went with the Worker."
+    },
+    {
+      "from": "test/team-review.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/team-review.test.mjs",
+      "source_identity": "1f:314f3192db95b94a2e5c2141c69dc8daa1ef4a206251ed74aeff4d6f96c72553",
+      "identity": "1f:e5c8579756596d67e4441dcfe50a6826c82b59edebd12299f70ff1c3f9d5a306",
+      "adapted": "the eight tests over the plain agent store are the old ones; the routing-owner test (old src/own-ais-routing.mjs) and the Workshop-tool run through the whole old person store are left out: neither runs anywhere."
+    },
+    {
+      "from": "test/own-ais-migrate-retire.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/own-ais-migrate-retire.test.mjs",
+      "source_identity": "1f:fa015b79f2824f5cbbcc9270bacfaacae15644237eedf97bb658e9d657995521",
+      "identity": "1f:daa20348c3565b917c12691a2f7817bfa395344b03cd789d30a641b1394b4ba6",
+      "adapted": "the old person store is replaced by what it composed (agents with its putCard and listed hooks, makeAis, own-ais retiring) and its migrateOwnAis lines applied in the test; every assertion is kept."
+    },
+    {
+      "from": "test/spend-plan-unavailable.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/spend-plan-unavailable.test.mjs",
+      "source_identity": "1f:8e7e6293e65342cfa7024c6194a173405f4578527c5d4a0fb6958913b1e7dd8e",
+      "identity": "1f:c33193685ade45e7b7f104a2d3c7be1af8316a737e5623a1866baf6d48731301",
+      "adapted": "the data test over src/spend-meter.json is the old one; the four tests of old NativeResourceSpend spendList's plan row are left out: nothing makes the Spend list now."
+    },
+    {
+      "from": "test/agents-before-the-record-move.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/agents-before-the-record-move.test.mjs",
+      "source_identity": "1f:aa233a84112754bddb69942421e6c2d724aae6a24c8843238c4b7bd12e12991b",
+      "identity": "1f:8a1a21e54c3d13ce917aaa0a9e6fffa03971243d6a1e1b14d880d72db04f4480",
+      "adapted": "the booted old person store is replaced by what it composed (record engine and move, agent records, legacy rows, table mover, makeAgents) put together as its agentRecordStore did; every assertion is kept."
+    },
+    {
+      "from": "test/own-ais-local.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/own-ais-local.test.mjs",
+      "source_identity": "1f:445c25e3699fe5585f46426d0facde7677886231dca48ddde3ca11ac05d1a189",
+      "identity": "1f:a7d3e13b9368e85c9a489291325416bf0bcff03937f31283e5d8b38d2ae39770",
+      "adapted": "only deviceRowConnected's test is kept, the local tool's descriptor read from models-on-this-computer/tool-rows.json (it fails: that row's invoke.kind is computer, the module asks computer-tool); the seventeen ownAisRouting tests are left out: no repository keeps that routing."
     }
   ]
 }

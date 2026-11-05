@@ -10,6 +10,14 @@
       "to": "tools/group-my-ais-by-the-app-they-connected-claude/src/own-ais-apps.mjs",
       "source_identity": "1f:c238099a45823b3a32da991b82175ad1f02383e23fbfb848a76fc8507bcce84f",
       "identity": "1f:8ce61e00754c6d70f9659d13e43e73eb3a50f4bf9fa8811765f1ae324474e661"
+    },
+    {
+      "from": "test/own-ais-apps.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/group-my-ais-by-the-app-they-connected-claude/test/own-ais-apps.test.mjs",
+      "source_identity": "1f:8b4f3fef0554ec3b62c49ee3dd492cca984b35fb9c6a8e0d8cc93e62be7c99c7",
+      "identity": "1f:557f85693dc6619ed1ac309a41a19a5eea88fffe07fb7f8619c181c14670d8d8",
+      "adapted": "the four grouping tests are the old ones; the Your AIs screen card test is left out: no repository draws old src/screen-reads.mjs aiSetupFacts."
     }
   ]
 }
