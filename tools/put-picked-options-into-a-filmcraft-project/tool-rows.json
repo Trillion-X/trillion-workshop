@@ -1,0 +1,139 @@
+{
+  "kind": "tool-rows",
+  "record_set": "put-picked-options-into-a-filmcraft-project-tool-rows",
+  "what_this_is": "The Workshop row for tools/put-picked-options-into-a-filmcraft-project: a script the person's AI runs on the person's own computer that puts an option the person picked into a protected FilmCraft project, only when the person's own stand on it is a pick.",
+  "records": [
+    {
+      "id": "package::put-picked-options-into-a-filmcraft-project::tool::put-a-picked-option-into-a-filmcraft-project",
+      "address": "package::put-picked-options-into-a-filmcraft-project::tool::put-a-picked-option-into-a-filmcraft-project",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:put-a-picked-option-into-a-filmcraft-project",
+        "label": "Put the option I picked into my FilmCraft project (runs on your computer)",
+        "status": "active",
+        "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
+        "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "film": {
+              "type": "string",
+              "description": "The film's folder on the person's computer, put where {film} is in the command. Its folder name picks the settings row."
+            },
+            "option": {
+              "type": "string",
+              "description": "The option's id, put where {option} is in the command."
+            },
+            "project": {
+              "type": "string",
+              "description": "The FilmCraft project file to change, put where {project} is in the command."
+            },
+            "ops": {
+              "type": "string",
+              "description": "The FilmCraft ops file (JSON lines) inside the film's folder, put where {ops} is in the command."
+            },
+            "settings_record": {
+              "type": "string",
+              "description": "Optional: the id of the film's list:settings row when it is not record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>; put after --settings-record in the command."
+            }
+          },
+          "required": [
+            "film",
+            "option",
+            "project",
+            "ops"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "check prints the picked decision; rows prints a JSON list of decisions {decision_id, option_id, verdict (the stand), reason_verbatim, source, at}; apply prints filmcraft-cli's own output and appends {at, option_id, verdict_decision_id, verdict, project, protected, ops_file, ops_hash, exit, stdout_tail, stderr_tail} to the apply log; --print prints the command. A refusal exits 1."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "npm ci (tools/where-a-person-stands hashes with @noble/hashes)",
+            "python3 -m pip install -U blake3",
+            "install trillion (the person's command line) and sign in once with `trillion setup`"
+          ],
+          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/pick_gate.py --film {film} apply {option} --project {project} --ops {ops}",
+          "needs": [
+            "python3 with blake3",
+            "node",
+            "trillion",
+            "filmcraft-cli"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Never write the stand yourself and never hand it a file of stands: use tool:keep-where-you-stand with the person's own words and their source, and only after the person said them. Run check first (`--film {film} check {option}`); say what it printed. Run apply only for an option check passed. If apply refuses, tell the person the option is not picked and that only their own agree puts it in the project; do not edit the project another way.",
+          "files": {
+            "package_files": [
+              {
+                "package": "put-picked-options-into-a-filmcraft-project",
+                "paths": [
+                  "do-work/pick_gate.py",
+                  "do-work/stance-id-from-stdin.mjs"
+                ],
+                "at": "/opt/put-picked-options-into-a-filmcraft-project"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/where-a-person-stands"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:put-picked-options-into-a-filmcraft-project",
+        "provenance": {
+          "source": "A film repository's tools/pick-gate/pick_gate.py (5a9ba39), byte-copied in its first commit here, then adapted: its decisions are the person's stance records and its settings a list:settings row"
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the person's computer with filmcraft-cli installed, the film's folder with its FilmCraft project and ops file, and the trillion command signed in to the person's own records",
+            "proved_on": null
+          }
+        ]
+      }
+    }
+  ]
+}

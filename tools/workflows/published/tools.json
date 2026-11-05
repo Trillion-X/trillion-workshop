@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:3d938574aacf731a79551f686dc6edb6062b44e8abdfb876418ba268bd2304d5"
+  "blake3": "1f:7fe89976cd9acfd559e8428bdf17dd8cdac2b8466e5c7b008f30235097260839"
  },
  "fields": [
   {
@@ -1775,6 +1775,21 @@
    }
   },
   {
+   "id": "tool:check-every-claim-against-its-facts-and-sources",
+   "values": {
+    "title": "Check every claim my narrator makes, spoken or on screen, against my facts and sources before it is voiced (runs on your computer)",
+    "job": "Check every sentence my narrator says and every text on screen against the facts I keep and the sources I cite, and tell me which claims fail and why",
+    "description": "Reads a run's shots (shots/<id>.json: the voice script and the on-screen events), their claims files (claims/<id>.json: one entry per spoken sentence and per on-screen text, each citing world facts, source wordings, transcript quotes or saved frames), the person's world rows (lists.json, rows/<list>.json, relations.json: entities, facts and relations) and their sources file with its plain-text extracts. The world's own check runs first (row shapes, links, roles, every fact's words at its transcript second or file line); then each shot fails a claim that: is not covered (script or screen text without an entry, or an entry for nothing); is about the subject but has no support said by someone other than the narrator; ignores a world fact on one of its topics; quotes a source or transcript that does not hold the words; is stronger than its source on a strength scale; says a number not derived from its cited numbers or outside its qualifier; breaks a bound a world fact sets; makes a comparison the numbers do not hold; counts a number in another container than its source; says something is visible without a saved frame; uses a private, believed, past or planned fact without saying so, a claim not recorded as its speaker's statement, or a conflicting fact it has not weighed; or carries a hedge or attribution phrase. Every rule word (strength scales, qualifiers, subject words, labels, tense markers, quantity units) is the person's settings, and the hedge phrases are their no-hedge check row's words. Prints each shot's report lines to standard error and one JSON answer.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:check-every-piece-is-covered",
    "values": {
     "title": "Check every piece of a person's files has a check or a reason",
@@ -1990,6 +2005,21 @@
      "placement:your-computer"
     ],
     "folder": "pin-files-by-content"
+   }
+  },
+  {
+   "id": "tool:check-takes-are-complete-with-a-small-local-model",
+   "values": {
+    "title": "Check whether my spoken takes are complete with a small model (runs on your computer)",
+    "job": "Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts",
+    "description": "Give transcripts (a folder of word-timed transcript JSON) and model (a decider snapshot). Takes are built from real sentences: as said (usable) or with one controlled fault (not usable), so the labels are true by construction. Returns accuracy, accuracy per fault, and how many it answers and gets right at confidence 0.7, 0.8 and 0.9.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -2251,6 +2281,21 @@
    }
   },
   {
+   "id": "tool:collect-and-rank-viewer-questions",
+   "values": {
+    "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
+    "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
+    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+    "status": "active",
+    "maker": "maker:collect-and-rank-viewer-questions",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "collect-and-rank-viewer-questions"
+   }
+  },
+  {
    "id": "tool:commit-changes",
    "values": {
     "title": "Commit the chosen changes",
@@ -2309,6 +2354,21 @@
      "placement:small-container"
     ],
     "folder": "write-from-a-recipe"
+   }
+  },
+  {
+   "id": "tool:compose-thumbnails-from-layout-templates",
+   "values": {
+    "title": "Build thumbnail candidates from my frames with layout templates (runs on your computer)",
+    "job": "Make thumbnail candidates for my video from real frames of my footage, laid out like proven thumbnails: my face, the thing, big words, arrows and tags",
+    "description": "Six layout templates read off strong reference thumbnails (a claim box across a split, a big face beside stacked words, a magnifier on a flaw, price tags on a flat backdrop, a held object with quoted words, a corner face with stroked words) compose 1280x720 candidates from the person's full-size frames and cut-outs: crops, punch-up, white sticker outlines with shadow, boxed or stroked words, curved arrows, price tags, a magnifier. Each candidate is one row of values in the person's settings row (which frame, face box, words, sizes, arrow ends); the font is the person's.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "compose-thumbnails-from-layout-templates"
    }
   },
   {
@@ -3036,6 +3096,21 @@
    }
   },
   {
+   "id": "tool:fill-a-scripts-blanks-with-small-local-models",
+   "values": {
+    "title": "Fill a script template's blanks from sourced phrases with small models on my computer (runs on your computer)",
+    "job": "Fill the blanks of my script template with true, sourced phrases chosen by small models on my computer: gather the phrases, rank them per blank, add the typed candidates, let a model choose, and render the fills with their drift",
+    "description": "make_candidate_pool gathers short phrases with a checkable source (a listing, a site's JSON, git histories, a product name, ages); template_blanks (read-data) reads the template's lines and blanks; rank_pool_for_blanks keeps a cross-encoder's 12 best per blank; make_typed_options adds every candidate of the blank's type; choose_fills_with_decider, judge_filled_lines_with_decider and choose_fills_with_language_model choose; render_choices_as_fills writes the fills (abstaining below a line) through tool:fill-a-template-without-changing-its-words and measures the drift. A blank of type PERSON-LINE is never filled from a pool. Steps: make_candidate_pool, rank_pool_for_blanks, make_typed_options, choose_fills_with_decider, judge_filled_lines_with_decider, choose_fills_with_language_model, render_choices_as_fills.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:fill-a-word-template",
    "values": {
     "title": "Fill a template's slots with sourced values and nothing else (runs on your computer)",
@@ -3112,6 +3187,21 @@
    }
   },
   {
+   "id": "tool:find-a-spoken-passage-in-word-times",
+   "values": {
+    "title": "Find where a spoken passage starts and ends in a recording's word times",
+    "job": "Tell me the exact seconds a passage I quote starts and ends in a recording, read a recording's words back as timed sentences, or keep its word times in the one file shape my plans cut from",
+    "description": "Works on a recording's word-time file (a words list of {text, start, end}, the {t, start, end} words the transcription tool writes, or Whisper's segments with words), in the folder the person let this tool change. step span: given the passage's first words and last words (and after, a second to search from), answers the start of the first word, the end of the last word and the words between, so a cut lands on word edges; words match ignoring case and punctuation. step sentences: every sentence (ended by . ? or !) whose words start inside from and to, with its start and end. step words-file: writes {source, timing, words} to out, adding offset seconds to every time (a window heard alone). Instead of words, clip names <words_folder>/<clip>.words.json, where words_folder is the person's setting (their list:settings row, named by settings_record); timing and round_to are settings too. It reads only the word-time file and writes only out.",
+    "status": "active",
+    "maker": "maker:find-a-spoken-passage-in-word-times",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "find-a-spoken-passage-in-word-times"
+   }
+  },
+  {
    "id": "tool:find-action-moments",
    "values": {
     "title": "Find action moments in a video",
@@ -3139,6 +3229,21 @@
      "placement:deployed-container"
     ],
     "folder": "media-composition"
+   }
+  },
+  {
+   "id": "tool:find-closest-across-my-indexes",
+   "values": {
+    "title": "Find what is closest to a vector across several of my indexes",
+    "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
+    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "meaning-search"
    }
   },
   {
@@ -3192,7 +3297,7 @@
    "values": {
     "title": "Find my files in my index",
     "job": "Find a person's files by words, name, place, kind or spoken words, in a file index that already exists on their computer",
-    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. It never builds or changes an index, and it reads nothing outside index_dir.",
+    "description": "Give index_dir (the full path of the folder that holds the index, one the person has let this tool read) and query (the words to look for). The index is a JSON-lines file with one row per file (index_file, default assets.jsonl) and an optional types file (types_file, default content-types.json) whose type_keywords turn a word such as a kind of file into a type and whose stop_words are ignored. A search matches file names, folder paths, tags and the words spoken in or written in the file, ranks name above tag above folder above text, boosts adjacent words and files that hold every word, and never returns another type than the one asked for (type, or a type word in the query). Returns each hit's path, display_path, root, type, identity and size with its score, and how many candidates each root held, so an absence can be told from a thin index. fields names the row field for each of path, display_path, name, root, type, tags, text, identity and size when the index uses other names; weights changes the ranking weights; other_lanes holds hits a caller already has from a meaning or picture search (rows with scores) to be merged with the word hits. names (instead of or beside query) looks up where named files are kept: a name matches a file whose name without its extension equals it, or starts with it, ignoring case, when the name ends in *; type and root narrow the rows; the answer's by_name gives each name's display paths and not_in_index lists the names no file matched. index_dir is required unless the person's settings (settings_record, a row of their list:settings, or settings) hold it; their settings fill every key the request leaves out (index_dir, index_file, types_file, type, root, limit, fields, weights, lane_weights). It never builds or changes an index, and it reads nothing outside index_dir.",
     "status": "active",
     "maker": "maker:find-files-in-an-index",
     "licence_class": "licence:maker-own",
@@ -3521,6 +3626,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:find-words-said-in-my-recordings",
+   "values": {
+    "title": "Find the lines my recordings say, by their words",
+    "job": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
+    "description": "Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked). Needs no model: it matches the words themselves, where tool:find-similar-by-meaning matches what they mean. Returns index_ids and lines: each line's address, file, start, end, text and any field the descriptor's points_to.carry names.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "meaning-search"
    }
   },
   {
@@ -5004,6 +5124,21 @@
    }
   },
   {
+   "id": "tool:label-video-frames-with-small-local-models",
+   "values": {
+    "title": "Label frames of my videos with a small model on my computer (runs on your computer)",
+    "job": "Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places",
+    "description": "Give shots (with frames), vocabulary ({field: {value: plain definition}}) and the model. label_frames_with_image_text_model asks each value two ways (bare word, plain definition) of an open_clip model; label_frames_with_vision_decider asks a decider-vision snapshot one lettered question per field (questions, context, mode bare | defined), as a two-round tournament past ten values; label_frames_with_vision_language_model asks an mlx-vlm model for one JSON answer per frame (instruction, phrases for free text); rank_free_text_places ranks every distinct reference phrase per frame two ways. Each answer has meta (load seconds, time per frame, memory) and one row per frame. Steps: label_frames_with_image_text_model, label_frames_with_vision_decider, label_frames_with_vision_language_model, rank_free_text_places.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:lay-out-a-calendar-view",
    "values": {
     "title": "Lay out a calendar view",
@@ -5835,6 +5970,21 @@
    }
   },
   {
+   "id": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
+   "values": {
+    "title": "Make a searchable set from picture vectors another program kept (runs on your computer)",
+    "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
+    "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float16, normalised) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
+    "status": "active",
+    "maker": "maker:meaning-search",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "meaning-search"
+   }
+  },
+  {
    "id": "tool:make-a-view-patch",
    "values": {
     "title": "Send only what changed in an answer",
@@ -5930,6 +6080,21 @@
    }
   },
   {
+   "id": "tool:make-plain-text-extracts-of-claim-sources",
+   "values": {
+    "title": "Make the plain-text copy of every source my claims cite, from the files I saved (runs on your computer)",
+    "job": "Turn every source I saved for fact checking (a web page, a FoodData Central food, an edit plan, a text) into the plain text my claims are checked against",
+    "description": "Reads a sources file ({\"sources\": {id: {raw, extract, text}}}) and writes each source's plain-text extract beside it: html (scripts and styles dropped, tags removed, entities decoded, spaces joined), fdc-json (a FoodData Central food as one line per nutrient amount per 100 g), new-order (an edit plan's new_order rows as one line each) or copy. A kind made by its own tool (a word-timed transcript, a text) keeps its extract and is refused when it is missing. Run it after adding or re-fetching a source; tool:check-every-claim-against-its-facts-and-sources checks quotes against these extracts.",
+    "status": "active",
+    "maker": "maker:check-every-claim-against-its-facts-and-sources",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-every-claim-against-its-facts-and-sources"
+   }
+  },
+  {
    "id": "tool:make-quiz-questions",
    "values": {
     "title": "Make quiz questions from text",
@@ -5942,6 +6107,21 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+   "values": {
+    "title": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer)",
+    "job": "Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+    "description": "From a request of slots (each with a base pick and candidates, each candidate with the words it adds and the claim it makes) and sentence templates ({SLOT} where a slot's words go), writes the base variant, then every other candidate of each slot with all other slots at their base pick. Each variant gets a script line, a shot file naming that script and a claims file with one entry per sentence taken from the candidate that formed the sentence (a sentence whose filled words are empty is left out with its claim), plus a manifest of the variants and a list of their lines. A picked candidate that has words but no claim is refused. The words, claims, ids and file shapes are the person's own and come in the request (one file, or several laid over each other key by key); the tool names no film, speaker or claim.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {
@@ -6450,6 +6630,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:name-the-recording-behind-transcript-lines",
+   "values": {
+    "title": "Find which recording a cited passage of my transcript archive comes from",
+    "job": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+    "description": "Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words. A range that no window overlaps is listed in not_found. A range is written first-last, for example 120-180; a malformed or reversed range is refused with what to write. archive is a path inside the granted folder (or the archive setting a film's settings row holds, named by settings_record); preview_chars (a setting, default 120) sets how many first characters are shown. It changes nothing and reads only the index file.",
+    "status": "active",
+    "maker": "maker:name-the-recording-behind-transcript-lines",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "name-the-recording-behind-transcript-lines"
    }
   },
   {
@@ -6990,6 +7185,22 @@
    }
   },
   {
+   "id": "tool:plan-a-motion-films-soundtrack-premix",
+   "values": {
+    "title": "Work out the ffmpeg commands that premix a motion film's soundtrack",
+    "job": "Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered",
+    "description": "Reads a motion film's cue sheet (its length, voice line offsets, the stretches where a voice is heard, and every sound effect as [time, palette sound, gain in dB]) and the film's settings, and answers the ffmpeg commands that premix its soundtrack: the music bed trimmed from its start and shaped over time (ducked while a voice is heard, set or lifted in named windows, faded out), each voice line delayed to its offset, each effect delayed to its time at its gain, all summed, then the film's loudness pass (in the graph, a measured gain and a limiter, or a linear two-pass loudnorm). Nothing is read or written: it is the plan tool:premix-a-motion-films-soundtrack runs where the recordings are. The film's choices are its settings row; the tool holds only the format's file layout.",
+    "status": "active",
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container",
+     "placement:your-computer"
+    ],
+    "folder": "motion-film-template"
+   }
+  },
+  {
    "id": "tool:plan-a-side-by-side-movement-comparison",
    "values": {
     "title": "Plan a side-by-side video of two movements, each framed on its person (runs on your computer)",
@@ -7236,6 +7447,21 @@
    }
   },
   {
+   "id": "tool:premix-a-motion-films-soundtrack",
+   "values": {
+    "title": "Premix a motion film's soundtrack from its cue sheet (runs on your computer)",
+    "job": "Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose",
+    "description": "The same premix as tool:plan-a-motion-films-soundtrack-premix, run with ffmpeg where the film's recordings are: writes the film's soundtrack wav (by default <film>/assets/soundtrack.wav), measuring the premix first when the film's loudness method is two-pass, and removes its work file. Answers where it wrote, the counts and the loudness it measured and reached. The film's choices (music, start, gain windows, fades, filter chains, loudness) are its settings row in list:settings.",
+    "status": "active",
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "motion-film-template"
+   }
+  },
+  {
    "id": "tool:prepare-a-match-plan",
    "values": {
     "title": "Prepare the notes a match plan is made from, and record the plan",
@@ -7464,6 +7690,21 @@
    }
   },
   {
+   "id": "tool:pull-a-time-window-from-a-stored-camera-file",
+   "values": {
+    "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it",
+    "job": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+    "description": "Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg. Camera files run about 13 MB per second of footage, so this takes seconds where a whole-file pull takes hours and costs a few megabytes of storage reads instead of the file. The wav starts with silence up to the window's start, so second N of the wav is second N of the camera file. The request names the stored file's identity, the mode (window with from and to, or frame with at) and out (a file in the folder the person let this tool change). The person's own storage, kept in their list:settings row for this tool (settings_record) or given as settings: store (the store the reader is pointed at), account (the storage account id), reader {argv, cwd, env, ok_marker, retries, retry_seconds} (argv is a template filled with {store} {account} {identity} {out} {offset} {length}), credentials (names of environment variables the reader needs, set from the person's vault), gap (bytes; audio reads closer than this are joined). A key at the top of the request wins over the same setting. The tool never reads, prints or keeps a key; the reader program reads the storage itself.",
+    "status": "active",
+    "maker": "maker:pull-a-time-window-from-a-stored-camera-file",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-a-time-window-from-a-stored-camera-file"
+   }
+  },
+  {
    "id": "tool:pull-my-discord-messages",
    "values": {
     "title": "Pull the messages from the Discord text channels my bot can read into my own records",
@@ -7599,6 +7840,21 @@
    }
   },
   {
+   "id": "tool:put-a-picked-option-into-a-filmcraft-project",
+   "values": {
+    "title": "Put the option I picked into my FilmCraft project (runs on your computer)",
+    "job": "Put an option I picked for my film into my protected FilmCraft project, and refuse any option I have not picked myself",
+    "description": "Reads, through the person's own records (the trillion command), the film's settings row (list:settings, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>, or the id --settings-record names: the protected project patterns, the option folders agents may edit freely, which stands count as a pick, the option kind and its text fold, the filmcraft-cli command and the apply log), laid over the script's defaults by tools/settings, and the person's stand on each option (the stance records tool:keep-where-you-stand keeps, named by tools/where-a-person-stands' own code). check says whether the option is picked: only the person's own stand that is one of picked_stances counts, the newest stand wins, and a recommended flag, a brief or a review note never counts. rows lists where the person stands on every option of the kind. apply checks, then runs `filmcraft-cli --project P --save run OPS` headless on the project (never the live app's control port; --print shows the command and runs nothing) and appends what it did to the film's apply log. The ops file must be inside the film's folder. It reads the records itself, so a file handed to it cannot stand in for the person. A refusal says why on standard error and exits 1.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:put-records-into-my-account",
    "values": {
     "title": "Put prepared records into my account through my door, writing only what it lacks (runs on your computer)",
@@ -7645,6 +7901,51 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:rank-candidate-clips-for-a-slot-with-small-local-models",
+   "values": {
+    "title": "Rank candidate clips for each slot of my video with a small model (runs on your computer)",
+    "job": "Rank the candidate clips for each slot of my video with a small model on my computer, and see how often its best is the one I would pick",
+    "description": "Give slots (each with its candidates' frames and library text), method (siglip, decider-vision, decider-text, bge-text or qwen3vl) and model; optional reference ({slot: [candidate, best first]}) and reference_name give top1 and top1 within the reference's first three.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
+   "id": "tool:rank-library-formats-against-concepts",
+   "values": {
+    "title": "Match every video format I have collected to every idea I could film, and keep the best fits",
+    "job": "For every idea I could make a video of, find which of the formats in my library suit it best, and record the best few per idea with why",
+    "description": "Two steps. catalog lists every candidate format (each analysed item in the library's index, the title templates in a bank that name a form, and the person's own formats) and every concept (each concept heading with its beats and how many of its moments were found, and how many of those are on this computer or in cloud storage) as tab-separated lines for judges to read; the concept lines never name a format. apply reads judged files ({concept id: [{format, fit, material?}] best first}), refuses a format key the catalog does not hold and a concept nobody judged, and writes format_options (each judged option with its type, medium, library path, fit and the concept's moment counts), format_palette (every format some concept's options use, plus each plan's pick) and format_ranking_about into the titles file. The ranking is a reading of the whole catalog per concept by judges, not a model score: a cross-encoder scores topic, not form. Everything that belongs to the person (their form templates, stable format keys, their own formats, the package ids, which concepts to skip, the material wording and the about text) is their settings: a row of their list:settings (record:setting:rank-library-formats-against-concepts~<scope_kind>~<scope_id>, named by settings_record) read through tools/settings, with the run's own settings laid over it. Paths are inside the folder the person let this tool change (apply rewrites the titles file there). Run catalog, read every candidate against every concept (yourself or with judges), write each concept's best three to five formats with why to a judged file, then run apply; never pick a format by a model score, and never change the person's titles file without their say.",
+    "status": "active",
+    "maker": "maker:rank-library-formats-against-concepts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "rank-library-formats-against-concepts"
+   }
+  },
+  {
+   "id": "tool:rank-my-titles-with-a-small-local-model",
+   "values": {
+    "title": "Rank my title ideas with a small model on my computer (runs on your computer)",
+    "job": "Rank my video title ideas by how strongly a small decider model on my computer answers yes to my question about each",
+    "description": "Give titles ({ref: title}), question (your yes/no question) and model (a decider snapshot). P(yes) is used only as a ranking.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -9334,6 +9635,21 @@
    }
   },
   {
+   "id": "tool:render-a-motion-graphics-overlay",
+   "values": {
+    "title": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks",
+    "job": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
+    "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec, or a piece's settings row named by spec_record. Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
+    "status": "active",
+    "maker": "maker:render-a-motion-graphics-overlay",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "render-a-motion-graphics-overlay"
+   }
+  },
+  {
    "id": "tool:render-a-pointillist-frame",
    "values": {
     "title": "Render one frame of a square-grid pointillist film (runs on your computer)",
@@ -9744,6 +10060,21 @@
    }
   },
   {
+   "id": "tool:sample-shots-and-frames-from-my-format-library",
+   "values": {
+    "title": "Sample shots and their frames from my format library (runs on your computer)",
+    "job": "Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use",
+    "description": "sample_shots_across_groups takes up to N videos round-robin over creators and evenly spaced shots of each (seeded); sample_candidates_for_slots takes, per described slot, candidates of the right kind from different videos; cut_sample_frames and cut_candidate_frames cut each frame at its middle second with frame_tool (an `evidence frames` command) and copy it beside the others. The library is formats/<creator>/<video>/shots.tsv with videos/<video>.mp4. Steps: sample_shots_across_groups, sample_candidates_for_slots, cut_sample_frames, cut_candidate_frames.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:save-a-form",
    "values": {
     "title": "Save a form",
@@ -10030,6 +10361,21 @@
      "placement:small-container"
     ],
     "folder": "evaluate-progress"
+   }
+  },
+  {
+   "id": "tool:score-small-model-labels-against-my-labels",
+   "values": {
+    "title": "Score small models' frame labels against the labels I already have (runs on your computer)",
+    "job": "Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline",
+    "description": "Give shots (the sample, each with reference labels, width and height), vocabulary, labels (the files the label steps wrote), reference_name, unknown, list_separator, thresholds, and optionally shape_field with shape_ratios (the field whose reference is the named ratio nearest the frame's own). Standard library only.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
    }
   },
   {
@@ -11669,6 +12015,21 @@
    }
   },
   {
+   "id": "tool:time-a-small-local-decider",
+   "values": {
+    "title": "Time how fast a small decider model loads and answers on my computer (runs on your computer)",
+    "job": "Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds",
+    "description": "Give model (a decider snapshot in the Hugging Face cache) and optionally revision and device. Runs a made-up two-question case four times.",
+    "status": "active",
+    "maker": "maker:benchmark-small-local-models",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "benchmark-small-local-models"
+   }
+  },
+  {
    "id": "tool:total-quote-lines",
    "values": {
     "title": "Total the lines of a quote or invoice",
@@ -11860,6 +12221,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:turn-caption-quotes-into-analysis-device-rows",
+   "values": {
+    "title": "Check the video quotes behind my device rows and write the rows as tables (runs on your computer)",
+    "job": "Check that every quote my device rows cite is really said in the videos' captions, stamp each with the minute and second, and write the rows as tables grouped my way",
+    "description": "A device row says what a creative technique (a device) does for a viewer, how it is built, and where it is seen, as exact quotes from videos ([video id, words]) or as unmeasured evidence (null, text). The script reads the person's settings row for this tool (list:settings, record:setting:turn-caption-quotes-into-analysis-device-rows~<scope_kind>~<scope_id>, one row per batch of rows, scope piece:<family>) through tools/settings: the family name, title and introduction, the channel and title of each video, the group order, the rows, the table columns as templates ({field} and {field|one|many}, a part kept only `when` its field is set), the head lines of the family file, the index marker, how a checked quote is written, and the fields kept in the checked-rows file. It finds each quote in the video's json3 caption file as exact words (ignoring case, white space and curly apostrophes), tells a wrong quote from a missing caption file, and counts the creators (channels) and items (videos) each row's checked quotes come from. Only when every quote holds does it write: the family file (head lines, then one table per group), the family's tables added once under its marker at the end of an index file, and the checked rows with [video, second, quote] for each quote. The tool holds no columns, wording or groups of its own.",
+    "status": "active",
+    "maker": "maker:turn-caption-quotes-into-analysis-device-rows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "turn-caption-quotes-into-analysis-device-rows"
    }
   },
   {
@@ -12435,6 +12811,21 @@
    }
   },
   {
+   "id": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
+   "values": {
+    "title": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer)",
+    "job": "Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+    "description": "Writes word-template@1 token tables from a request: for each template a name, a time span, where its words came from, parts (kept words, and slot words each naming a slot) and the slots (type and note). Each word becomes a token marked KEEP or SLOT in order, with its slot, slot type and note; only the slots a word uses are listed; every dimension other than the spoken words is left pending with the reason. The words, slots, sources and notes are the person's own and come in the request (one file, or several laid over each other key by key, so their settings can be a row of their records and the output folder stays with the run); the tool names no piece, speaker or film. The templates are the same shape make_template.py writes, so tool:fill-a-word-template and tool:check-words-against-a-word-template take them.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
    "id": "tool:write-legal-documents",
    "values": {
     "title": "Write legal documents",
@@ -12477,6 +12868,21 @@
      "placement:your-computer"
     ],
     "folder": "write-public-share-files"
+   }
+  },
+  {
+   "id": "tool:write-the-icon-shapes-a-motion-film-uses",
+   "values": {
+    "title": "Write the icon shapes my motion film uses, from the real lucide icons (runs on your computer)",
+    "job": "Put the real icons my film shows into the film, as shapes its page can draw",
+    "description": "Reads each named icon from the lucide-react package on the person's computer (its dist/esm/icons folder) and writes the film's icons file: window.ICONS[name] = [[tag, attrs], ...] for a 24x24 viewBox, the React key dropped, with a first line naming where the shapes came from. Without out it answers the file's text instead of writing it. The icon names a film uses are its settings row.",
+    "status": "active",
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "motion-film-template"
    }
   }
  ]
