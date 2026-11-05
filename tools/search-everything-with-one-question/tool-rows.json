@@ -320,6 +320,202 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:search-everything-from-the-page",
+        "label": "Answer the search box on my page (runs in a small container)",
+        "status": "active",
+        "job": "Answer my page's search box: GET /work/api/search?q= as one ranked list of every list, record and file name I keep",
+        "description": "The signed-in page's GET /work/api/search, answered as a route the engine runs this tool for (its @workshop-routes family): input {path, method, query, body, browser}; q is the question (empty when absent) and limit a whole number above 0, at most 200, as old trillion's route read them (src/worker.mjs:865, src/namespace.mjs:2117, src/search.mjs:2221 searchOptions); the answer is {status: 200, body} with body what tool:search-everything-in-a-small-container answers for that question, and {status: 404} for any other path or method. places, sources and matches are read and left out (no owner of those lanes). It holds the same two read-only rights: records:search over every kind and the files' name search.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The page's route after /work/api: /search"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST"
+              ]
+            },
+            "query": {
+              "type": "object",
+              "description": "{ q?, limit?, places?, sources?, matches? } as the page sent them"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "search-everything-with-one-question",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/search-everything-with-one-question"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/search-everything-with-one-question",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/search-everything-with-one-question/do-work/search-page-route.mjs",
+            "answerSearchPage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "*",
+                "operations": [
+                  "records:search"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "search"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion tag old-trillion-before-worker-retire src/worker.mjs:865-866 (GET /work/api/search to the account's /namespace/search), src/namespace.mjs:2117 and src/search.mjs:2221 searchOptions, through this folder's searchEverything"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/search",
+              "method": "GET",
+              "query": {
+                "q": "merlinfalcon",
+                "limit": "5"
+              },
+              "body": {},
+              "browser": {}
+            },
+            "records": [
+              {
+                "id": "c1",
+                "type": "sample-contacts",
+                "value": {
+                  "title": "Sample contact",
+                  "notes": "met the merlinfalcon keeper"
+                }
+              },
+              {
+                "id": "i1",
+                "type": "sample-invoices",
+                "value": {
+                  "title": "Sample invoice",
+                  "notes": "merlinfalcon feed, 3 bags"
+                }
+              },
+              {
+                "id": "p1",
+                "type": "sample-places",
+                "value": {
+                  "title": "Sample place",
+                  "notes": "merlinfalcon aviary"
+                }
+              },
+              {
+                "id": "p2",
+                "type": "sample-places",
+                "value": {
+                  "title": "Other place",
+                  "notes": "nothing here"
+                }
+              }
+            ],
+            "door_files": {
+              "/Notes/merlinfalcon care.txt": "made-up care notes",
+              "/Notes/other.txt": "made up"
+            },
+            "output_selector": "$.body.results[0].found_in[0]",
+            "contains": "written"
+          }
+        ]
+      }
     }
   ]
 }
