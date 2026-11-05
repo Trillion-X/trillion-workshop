@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-ANSWER-WITH-A-DOWNLOADED-MODEL-ROWS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane 2026-11-04: finish the launch-video move so the repository can be retired",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "Settings, words, methods and checks are rows in the person's lists, read through the door at run time; a tool takes settings_record and reads it with the one shared settings reader."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer a check's model questions and calibrate a person's ask rows, reading their setting row, ask rows and labelled lines through the records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/do-work/answer_with_a_downloaded_model.py",
+   "why": "The answering and calibrating themselves, moved from the copy gate; this file only reads the person's rows through the door and hands them to it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/settings/read-data/settings.mjs",
+   "why": "The one settings reader, imported here, not copied."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
+   "why": "Reads a branch's check rows to judge a unit; it lists the questions and never answers them. This reads ask rows by id and labelled-line rows by set to answer and calibrate."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer a check's model questions and calibrate a person's ask rows, reading their setting row, ask rows and labelled lines through the records door",
+    "labelled lines through the records door",
+    "calibrate ask rows"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "readAskRow",
+    "calibrateAsks",
+    "answerAsks"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "ad0581c23b915b3ed6a59d8c27b8f8c6d6f2b681"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs"
+  ]
+ }
+}
