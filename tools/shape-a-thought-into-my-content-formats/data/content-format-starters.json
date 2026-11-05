@@ -1,0 +1,601 @@
+{
+  "_what": "Content formats every Trillion account starts with, and the writing library of frameworks and templates. Each format says its input (what it is made from), its process (the steps, in order), its output (what comes out and where it goes), its spec (how to write it) and its slots (the parts said or written in order, each with a hint); category_id names one of writing_library.categories (a tab on the Formats screen, with its icon), icon is the format's own icon and logo the place it goes as a provider-icon slug (parts/ui things-to-store-and-run.json), drawn instead of the icon. example_kinds are where every piece takes its real examples from. src/content-formats.mjs lists them through the content_formats tool, and the workflow that turns notes into finished content fills them in. Adding a format is one row here.",
+  "example_kinds": [
+    {
+      "id": "own",
+      "label": "Your own work",
+      "hint": "Something you actually did, said or built, taken from your notes, recordings, files or messages, with the real names and dates you gave."
+    },
+    {
+      "id": "customer",
+      "label": "A customer",
+      "hint": "Something a real customer or student did or said, with their permission or kept anonymous. Never invent one."
+    },
+    {
+      "id": "famous",
+      "label": "Someone well known",
+      "hint": "A well-known person pursuing an exceptional aim (Albert Einstein, Elon Musk, Serena Williams), told only as far as the story is common knowledge, with no invented quotes, numbers or dates."
+    }
+  ],
+  "formats": [
+    {
+      "id": "blog",
+      "label": "Blog post",
+      "category_id": "writing",
+      "icon": "FileText",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Pick the one idea and the strongest exact quotes for it.",
+        "Fill each slot in order, in the speaker's own words.",
+        "Add at least one real example from example_kinds for every main point.",
+        "Cut anything the speaker did not mean or cannot stand behind."
+      ],
+      "output": "One finished blog post in markdown, published on the person's own site or blog.",
+      "spec": "Write a complete blog post in markdown from the transcript. Keep the speaker's exact voice, vocabulary, and claims. Do not professionalize or pad. Structure: a plain title line, short intro that states the core idea, 3-6 sections with simple headers drawn from the actual content, and a closing line. 800-1400 words. Full sentences only. No emojis, no hashtags, no em dashes.",
+      "slots": [
+        {
+          "id": "title",
+          "label": "Title",
+          "hint": "A plain title that names the idea."
+        },
+        {
+          "id": "core_idea",
+          "label": "Core idea",
+          "hint": "Say the one idea this post is about."
+        },
+        {
+          "id": "sections",
+          "label": "Sections",
+          "hint": "Walk through three to six points, one at a time."
+        },
+        {
+          "id": "closing",
+          "label": "Closing",
+          "hint": "End on one line worth remembering."
+        }
+      ]
+    },
+    {
+      "id": "article",
+      "label": "Article",
+      "category_id": "writing",
+      "icon": "Newspaper",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Name the question a reader would type that this idea answers, and answer it in the first two sentences.",
+        "Write 4 to 7 sections with ## headings, then a last section titled \"## The short version\" with 3 to 5 bullets.",
+        "Include one numbered list of steps the reader can follow today.",
+        "Give every main point one real example from example_kinds, and quote the speaker where their words are strongest.",
+        "Add 3 to 5 questions people ask about it, each answered in 2 to 4 sentences.",
+        "Never invent a statistic, study, quote, date or person."
+      ],
+      "output": "One article in markdown (title under 70 characters, a 110 to 160 character description, body of 1100 to 2200 words, questions and answers, keywords), published on the person's site and read back at its live address.",
+      "spec": "Write a complete article in markdown from the source in the speaker's own voice. Plain, direct, short sentences. Answer the question in the first two sentences, then go deeper with sections, one numbered list of steps, real examples, and a closing \"## The short version\" section. 1100 to 2200 words. No em dashes, no hashtags, no emojis, no invented facts.",
+      "slots": [
+        {
+          "id": "title",
+          "label": "Title",
+          "hint": "The question or idea, in the words a reader would search."
+        },
+        {
+          "id": "answer",
+          "label": "Answer",
+          "hint": "Answer it in the first two sentences."
+        },
+        {
+          "id": "sections",
+          "label": "Sections",
+          "hint": "Four to seven sections, each with a real example."
+        },
+        {
+          "id": "steps",
+          "label": "Steps",
+          "hint": "One numbered list the reader can follow today."
+        },
+        {
+          "id": "short_version",
+          "label": "The short version",
+          "hint": "Three to five bullets that restate the method."
+        },
+        {
+          "id": "questions",
+          "label": "Questions",
+          "hint": "Three to five questions people ask, answered plainly."
+        }
+      ]
+    },
+    {
+      "id": "substack",
+      "label": "Substack post",
+      "category_id": "writing",
+      "logo": "substack",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Open with the moment or the belief that changed, in first person.",
+        "Tell what happened and what it taught, with the speaker's strongest exact words.",
+        "Bring in one example from someone else (a customer or someone well known) that shows the same thing.",
+        "End with one line to remember and one question for the reader."
+      ],
+      "output": "One Substack post (title, subtitle, body in markdown), published on the person's Substack.",
+      "spec": "Write a Substack post as a personal essay in the speaker's own first-person voice. A plain title and a one-line subtitle, then 600 to 1500 words: the moment, what happened, what it taught, one outside example, one line to remember, one question for the reader. Full sentences, no em dashes, no hashtags, no emojis.",
+      "slots": [
+        {
+          "id": "title",
+          "label": "Title",
+          "hint": "The idea, plainly."
+        },
+        {
+          "id": "subtitle",
+          "label": "Subtitle",
+          "hint": "One line on why it matters."
+        },
+        {
+          "id": "moment",
+          "label": "The moment",
+          "hint": "Where it started, in first person."
+        },
+        {
+          "id": "lesson",
+          "label": "What it taught",
+          "hint": "What happened and what it taught."
+        },
+        {
+          "id": "outside_example",
+          "label": "Someone else",
+          "hint": "One example from a customer or someone well known."
+        },
+        {
+          "id": "close",
+          "label": "Close",
+          "hint": "One line to remember and one question for the reader."
+        }
+      ]
+    },
+    {
+      "id": "newsletter",
+      "label": "Newsletter issue",
+      "category_id": "writing",
+      "icon": "Mail",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Pick the single most interesting idea as the hook.",
+        "Develop it with one real example from example_kinds.",
+        "End on one takeaway line."
+      ],
+      "output": "One newsletter issue in markdown, sent to the person's list or posted on their newsletter.",
+      "spec": "Write a newsletter issue from the transcript in the speaker's exact voice. Open with the single most interesting idea as a hook (1-2 sentences), then 400-700 words developing it, then one clear takeaway line. Conversational but full sentences. No subject-line options, no preamble, just the issue body in markdown.",
+      "slots": [
+        {
+          "id": "hook",
+          "label": "Hook",
+          "hint": "Open with the single most interesting part, in one or two sentences."
+        },
+        {
+          "id": "develop",
+          "label": "The idea",
+          "hint": "Develop it: why it is true, an example, what it changes."
+        },
+        {
+          "id": "takeaway",
+          "label": "Takeaway",
+          "hint": "Finish with one clear line to take away."
+        }
+      ]
+    },
+    {
+      "id": "x_thread",
+      "label": "X thread",
+      "category_id": "social",
+      "logo": "x",
+      "content_type": "text/plain",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "State the point plainly as the first post.",
+        "One supporting point per post, each under 280 characters, with a real example where it fits.",
+        "Close with what to do or remember."
+      ],
+      "output": "One X thread, posted from the person's connected X account.",
+      "spec": "Write an X thread from the transcript in the speaker's exact voice. 5-9 posts. Each post on its own line, separated by a blank line, numbered like 1/ 2/ 3/. First post is the hook stated plainly (no clickbait). Each post under 280 characters. No hashtags, no emojis.",
+      "slots": [
+        {
+          "id": "hook",
+          "label": "First post",
+          "hint": "State the point plainly, no clickbait."
+        },
+        {
+          "id": "posts",
+          "label": "Posts",
+          "hint": "Say each supporting point on its own, short enough for one post."
+        },
+        {
+          "id": "last",
+          "label": "Last post",
+          "hint": "Close the thread with what to do or remember."
+        }
+      ]
+    },
+    {
+      "id": "ig_caption",
+      "label": "Instagram caption",
+      "category_id": "social",
+      "logo": "instagram",
+      "content_type": "text/plain",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Say the core idea in one line.",
+        "Two to four short paragraphs on why it matters, with one real example.",
+        "End with one question people will want to answer."
+      ],
+      "output": "One Instagram caption, posted with the video or picture it belongs to.",
+      "spec": "Write one Instagram caption from the transcript's core idea in the speaker's exact voice. 2-5 short paragraphs, under 2200 characters total. Plain language, full sentences. End with one line inviting a comment. No hashtags, no emojis.",
+      "slots": [
+        {
+          "id": "opening",
+          "label": "Opening",
+          "hint": "Say the core idea in one line."
+        },
+        {
+          "id": "body",
+          "label": "Body",
+          "hint": "Two to four short paragraphs on why it matters."
+        },
+        {
+          "id": "invite",
+          "label": "Invitation",
+          "hint": "Ask one question people will want to answer."
+        }
+      ]
+    },
+    {
+      "id": "short_video_script",
+      "label": "Short video",
+      "category_id": "video",
+      "icon": "Smartphone",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "When the speaker tried several titles or openings out loud, pick the best one, cut the rejected takes, and use it as the hook.",
+        "Say the content in three to six short beats, one idea each, in the speaker's words.",
+        "End with one natural call to action (for example: comment a word, follow for more).",
+        "Note where B-roll, captions or on-screen text make the idea clearer."
+      ],
+      "output": "One short-video script in markdown (hook, beats, call to action), saved to the person's files under /Content/ for recording or for their voice and B-roll.",
+      "spec": "Write a 20-60 second vertical-video script in the speaker's exact voice. Start with one spoken hook, then 3-6 short beats, then one natural call to action. Include optional on-screen text and visual notes only when they make the idea clearer. No preamble, hashtags, or generic creator advice.",
+      "slots": [
+        {
+          "id": "hook",
+          "label": "Hook",
+          "hint": "One spoken line that makes the right person stop."
+        },
+        {
+          "id": "beats",
+          "label": "Beats",
+          "hint": "Three to six short beats, one idea each."
+        },
+        {
+          "id": "call_to_action",
+          "label": "Call to action",
+          "hint": "One natural next step."
+        }
+      ]
+    },
+    {
+      "id": "youtube_video",
+      "label": "YouTube video",
+      "category_id": "video",
+      "logo": "youtube",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Name what the video promises.",
+        "Write the opening 30 seconds.",
+        "Order the talking points, each with a real example.",
+        "End directly."
+      ],
+      "output": "One YouTube video plan in markdown, saved to the person's files under /Content/.",
+      "spec": "Write a complete YouTube video plan in the speaker's exact voice. Include one title, one thumbnail idea, the opening 30 seconds, ordered talking points, useful visual or B-roll synthetic-46ee21bed239, and a direct ending. Preserve the source claims and avoid padding.",
+      "slots": [
+        {
+          "id": "title",
+          "label": "Title",
+          "hint": "What the video promises, in plain words."
+        },
+        {
+          "id": "opening",
+          "label": "Opening 30 seconds",
+          "hint": "Why this matters to the viewer, and what they will get."
+        },
+        {
+          "id": "talking_points",
+          "label": "Talking points",
+          "hint": "The points in order, each with an example."
+        },
+        {
+          "id": "ending",
+          "label": "Ending",
+          "hint": "Finish directly: the one thing to remember or do."
+        }
+      ]
+    },
+    {
+      "id": "carousel",
+      "label": "Carousel",
+      "category_id": "social",
+      "icon": "GalleryHorizontal",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "Make slide one a clear hook.",
+        "One headline per slide with one or two lines under it.",
+        "End with one natural next action."
+      ],
+      "output": "One carousel script in markdown, posted as a set of slides.",
+      "spec": "Write a 6-10 slide social carousel from the source. Give every slide one short headline and no more than two concise supporting lines. Slide one is a clear hook; the final slide has one natural next action. Keep the speaker's exact voice.",
+      "slots": [
+        {
+          "id": "hook_slide",
+          "label": "First slide",
+          "hint": "A clear hook in a few words."
+        },
+        {
+          "id": "slides",
+          "label": "Slides",
+          "hint": "One short headline per slide, one or two lines under it."
+        },
+        {
+          "id": "last_slide",
+          "label": "Last slide",
+          "hint": "One natural next action."
+        }
+      ]
+    },
+    {
+      "id": "content_series",
+      "label": "Content series",
+      "category_id": "writing",
+      "icon": "Layers",
+      "content_type": "text/markdown",
+      "input": "Notes, a transcript or a recording of the person talking, and the one idea this piece is about with the exact words they used.",
+      "process": [
+        "State the repeatable format once.",
+        "Write ten distinct episodes, each with a hook, a core point and a call to action.",
+        "Keep each episode tied to the idea it came from."
+      ],
+      "output": "One series plan in markdown, saved to the person's files under /Content/, each episode ready to be written in its own format.",
+      "spec": "Turn the source into a repeatable content series. State the reusable format once, then provide 10 distinct episode ideas with a hook, core point, and destination-aware call to action for each. Preserve lineage to the source idea and do not repeat the same point with cosmetic wording changes.",
+      "slots": [
+        {
+          "id": "format",
+          "label": "The repeatable format",
+          "hint": "Say the shape every episode follows."
+        },
+        {
+          "id": "episodes",
+          "label": "Episodes",
+          "hint": "Ten distinct ideas, each with a hook and a core point."
+        }
+      ]
+    }
+  ],
+  "writing_library": {
+    "categories": [
+      {
+        "id": "writing",
+        "label": "Writing",
+        "icon": "PenLine"
+      },
+      {
+        "id": "social",
+        "label": "Social",
+        "icon": "AtSign"
+      },
+      {
+        "id": "video",
+        "label": "Video",
+        "icon": "Clapperboard"
+      },
+      {
+        "id": "persuasion",
+        "label": "Persuasion",
+        "icon": "Megaphone"
+      },
+      {
+        "id": "storytelling",
+        "label": "Storytelling",
+        "icon": "BookOpen"
+      },
+      {
+        "id": "education",
+        "label": "Education",
+        "icon": "GraduationCap"
+      }
+    ],
+    "frameworks": [
+      {
+        "id": "aida",
+        "label": "AIDA",
+        "category_id": "persuasion",
+        "tags": [
+          "attention",
+          "benefits",
+          "call to action",
+          "caption"
+        ],
+        "description": "Lead with attention, build interest and desire, then invite one action.",
+        "slots": [
+          {
+            "id": "attention",
+            "label": "Attention",
+            "hint": "What makes the right person stop?"
+          },
+          {
+            "id": "interest",
+            "label": "Interest",
+            "hint": "What useful detail keeps them with you?"
+          },
+          {
+            "id": "desire",
+            "label": "Desire",
+            "hint": "What changes when they use this?"
+          },
+          {
+            "id": "action",
+            "label": "Action",
+            "hint": "What is one clear next step?"
+          }
+        ]
+      },
+      {
+        "id": "pas",
+        "label": "Problem · Agitate · Solve",
+        "category_id": "persuasion",
+        "tags": [
+          "problem",
+          "solution",
+          "education",
+          "caption"
+        ],
+        "description": "Name a real problem, explain its cost without exaggerating, then offer a useful next step.",
+        "slots": [
+          {
+            "id": "problem",
+            "label": "Problem",
+            "hint": "What specific problem does the video address?"
+          },
+          {
+            "id": "agitate",
+            "label": "Why it matters",
+            "hint": "What does this problem make harder? Keep it factual."
+          },
+          {
+            "id": "solve",
+            "label": "Helpful next step",
+            "hint": "What does the video offer or explain?"
+          }
+        ]
+      },
+      {
+        "id": "before_after_bridge",
+        "label": "Before · After · Bridge",
+        "category_id": "storytelling",
+        "tags": [
+          "transformation",
+          "story",
+          "outcome",
+          "caption"
+        ],
+        "description": "Show the starting point, a credible better outcome, and the bridge between them.",
+        "slots": [
+          {
+            "id": "before",
+            "label": "Before",
+            "hint": "What was the starting point?"
+          },
+          {
+            "id": "after",
+            "label": "After",
+            "hint": "What changed?"
+          },
+          {
+            "id": "bridge",
+            "label": "Bridge",
+            "hint": "What action or lesson connected the two?"
+          }
+        ]
+      },
+      {
+        "id": "lesson_recap",
+        "label": "Lesson recap",
+        "category_id": "education",
+        "tags": [
+          "lesson",
+          "takeaway",
+          "example",
+          "caption"
+        ],
+        "description": "Give one takeaway, a concrete example, and a small action to try.",
+        "slots": [
+          {
+            "id": "takeaway",
+            "label": "Takeaway",
+            "hint": "What is the one useful lesson?"
+          },
+          {
+            "id": "example",
+            "label": "Example",
+            "hint": "What moment from the video makes it concrete?"
+          },
+          {
+            "id": "try",
+            "label": "Try this",
+            "hint": "What can the viewer do next?"
+          }
+        ]
+      }
+    ],
+    "templates": [
+      {
+        "id": "video_launch",
+        "label": "Video launch caption",
+        "category_id": "storytelling",
+        "tags": [
+          "video",
+          "launch",
+          "story",
+          "caption"
+        ],
+        "description": "A plain-language setup for a finished video.",
+        "slots": [
+          {
+            "id": "hook",
+            "label": "Opening",
+            "hint": "State the useful or surprising point."
+          },
+          {
+            "id": "context",
+            "label": "Context",
+            "hint": "What will the viewer see or learn?"
+          },
+          {
+            "id": "invitation",
+            "label": "Invitation",
+            "hint": "Add an optional, natural invitation."
+          }
+        ]
+      },
+      {
+        "id": "quick_tip",
+        "label": "Quick tip",
+        "category_id": "education",
+        "tags": [
+          "tip",
+          "practical",
+          "education",
+          "caption"
+        ],
+        "description": "One focused tip with a reason and a next step.",
+        "slots": [
+          {
+            "id": "tip",
+            "label": "Tip",
+            "hint": "Give one practical tip."
+          },
+          {
+            "id": "reason",
+            "label": "Why it helps",
+            "hint": "Explain the benefit plainly."
+          },
+          {
+            "id": "next_step",
+            "label": "Next step",
+            "hint": "Suggest one small action."
+          }
+        ]
+      }
+    ]
+  }
+}
