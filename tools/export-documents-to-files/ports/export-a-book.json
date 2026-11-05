@@ -41,6 +41,11 @@
    "repository": "trillion",
    "path": "parts/group/do-work/request-board-output.ts",
    "why": "Old Trillion saved an already-exported artifact through the process file-save envelope (line 13); it neither read a settings row nor checked a book."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "The tool's own capability row (\"export a markdown manuscript to word and verify it against its source\", owner tools/export-documents-to-files/), whose evidence cites do-work/export-a-book.mjs; an index row pointing here, not a second owner of the job."
   }
  ],
  "proof": {

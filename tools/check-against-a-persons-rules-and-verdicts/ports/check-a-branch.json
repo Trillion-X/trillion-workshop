@@ -29,6 +29,16 @@
    "repository": "trillion-workshop",
    "path": "tools/decide-with-a-method/read-data/decisions.mjs",
    "why": "Reads one decision step's check rows (questions asked of a step) by where; this file reads the rows judged on an artifact and leaves step rows out."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/export-documents-to-files/do-work/export-a-book.mjs",
+   "why": "A caller: it imports checkABranch to run a book's checks branch before export; it reads no branch rows itself and judges nothing, so it is a user of this job, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-films-copy.mjs",
+   "why": "A caller: tool:check-a-films-copy imports rulesOfBranch to get a film's checks branch, then reads the film's copy into units and hands both to the judge; it reads no branch rows itself."
   }
  ],
  "proof": {
