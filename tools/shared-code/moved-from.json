@@ -986,6 +986,22 @@
       "source_identity": "1f:7a0b795daf9993df9b8e0f50e31c7c979205da5b4916923e5db09f3493557611",
       "identity": "1f:067958987a1b74d4ad96d4edaf2a1c97f342dfb48ad3b052bbe8c1a9e447996b",
       "adapted": "the MCP-server harness is replaced by the modules that do each part (step versions, recipe-problems, authoring guidance, workflow-tools' schema); the engine-only run checks are left out: no repository runs the workflow routes."
+    },
+    {
+      "from": "test/workshop-facts-sequence-page.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/workshop-facts-sequence-page.test.mjs",
+      "source_identity": "1f:bb17a41b6a103e37e4eb871196f75ce3729418a4de2a6722a2c7afff4fd6ac71",
+      "identity": "1f:951d6568820083b51105661eda91da49b4d059e9cde38ed508190f6133e4e996",
+      "adapted": "imports name the store host and table generations in keep-and-wake-ai-sessions-on-this-computer; the physical-carry test is left out: no repository keeps old src/resource-state-carry.mjs."
+    },
+    {
+      "from": "test/workshop-empty-prefix-admission.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/workshop-empty-prefix-admission.test.mjs",
+      "source_identity": "1f:552a03cbefce539a2cd95ee451d139bad48a05b9f60c1aa2614749c10b513f62",
+      "identity": "1f:d9e1bdf22ad169cca094e57034ed7bb2d81416aa5e6ac0737ebbe3b34b4de222",
+      "adapted": "the first test is the old one with the store host's import path named; the second, over a whole old person store (personStoreOver), is left out: that store went with the Worker."
     }
   ]
 }
