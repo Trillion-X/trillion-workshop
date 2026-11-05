@@ -1,0 +1,15 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/agent-record-read-all.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-work-to-ais/test/agent-record-read-all.test.mjs",
+      "source_identity": "1f:d97831801f482f23d0f87455e3c9e6510026667b9ce427aa5a9083d0d09770f3",
+      "identity": "1f:1e426317f82d156ddb93319ceb27ccb2009d57e9ad26476576eeef8a010a4d75"
+    }
+  ]
+}

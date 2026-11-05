@@ -1,0 +1,1096 @@
+{
+ "_what": "The tasks scripts/run-agent-tool-evals.mjs gives AI agents, with the settings every run shares. A task is plain DATA: area; job (what the person asks, in their words, never naming a tool); values (extra {names} the job and records use, beside {run}, a name unique to one run so two runs in one account never touch each other's records); seed (MCP calls that make the starting state, run before the agent starts); on_path (the tools a good attempt may use, beside settings.always_fine); open_world_tools (tools that reach outside the account which this task needs); capture (values the agent's own calls made, { name, tool, path }, for a grader that reads what the agent made by its id); ready_when (a read that must show the seed before the agent starts, since the service keeps some lists a moment behind a write); grader (checks, each a read of the real records after the run and what must be true in it). A grader path is dot keys, [*] for every item, [field=text] and [field~pattern] to keep items. Adding a task is one row.",
+ "settings": {
+  "account_attempts": 8,
+  "paid_plan_credential": "trillion-agent-work-key",
+  "ready_wait_ms": 600000,
+  "ready_probes": [
+   {
+    "tool": "list_lists",
+    "arguments": {}
+   },
+   {
+    "tool": "list_files",
+    "arguments": {
+     "folder": "/"
+    }
+   }
+  ],
+  "tool_timeout_ms": 120000,
+  "run_timeout_ms": 420000,
+  "platform_error_patterns": [
+   "carry is continuing",
+   "Resource quota",
+   "still being imported",
+   "Install the actual Namespace",
+   "Waits until a place can keep it",
+   "internal error; reference"
+  ],
+  "always_fine": [
+   "find_tool_for_job",
+   "describe_tool",
+   "find_workflow",
+   "describe_workflow",
+   "search",
+   "tool_sources",
+   "list_connections",
+   "whats_new"
+  ],
+  "agent_preamble": "You are the AI of a person who keeps their work in a Trillion account, which is connected to you as MCP tools. Do the job they ask using those tools, check that the result is really there, and then answer in one or two sentences saying what you did.",
+  "seed_visible_wait_ms": 150000,
+  "seed_recheck_ms": 20000,
+  "sign_up_tries": 3
+ },
+ "tasks": [
+  {
+   "id": "mail-tasks-from-message",
+   "area": "mail",
+   "job": "Dana wrote to me in my messages (conversation {run}). Find what she asked me to do and put each thing on my list of tasks waiting for my approval, with its due date. Do not make the tasks yourself.",
+   "seed": [
+    {
+     "tool": "record_messages",
+     "arguments": {
+      "messages": [
+       {
+        "conversation_id": "{run}",
+        "app": "Mail",
+        "speaker": "Dana",
+        "text": "Hi, can you send the invoice to Acme by Friday 2026-11-06, and please book the venue for the offsite by 2026-11-13? Thanks, Dana"
+       }
+      ]
+     }
+    }
+   ],
+   "on_path": [
+    "read_messages",
+    "propose_tasks",
+    "list_proposed_tasks"
+   ],
+   "grader": [
+    {
+     "id": "invoice-proposed",
+     "read": {
+      "tool": "list_proposed_tasks",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "proposals[title~invoice].due",
+       "op": "equals",
+       "value": "2026-11-06"
+      }
+     ]
+    },
+    {
+     "id": "venue-proposed",
+     "read": {
+      "tool": "list_proposed_tasks",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "proposals[title~venue].due",
+       "op": "equals",
+       "value": "2026-11-13"
+      }
+     ]
+    },
+    {
+     "id": "only-proposed-not-made",
+     "read": {
+      "tool": "list_proposed_tasks",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "proposals[*].state",
+       "op": "only",
+       "value": [
+        "proposed"
+       ]
+      }
+     ]
+    }
+   ],
+   "ready_when": {
+    "id": "seed-message",
+    "read": {
+     "tool": "read_messages",
+     "arguments": {
+      "conversation_id": "{run}"
+     }
+    },
+    "expect": [
+     {
+      "path": "messages[*]",
+      "op": "count",
+      "value": 1
+     }
+    ]
+   }
+  },
+  {
+   "id": "calendar-weekly-run",
+   "area": "calendar",
+   "job": "Every Monday at 8:30 in the morning, Los Angeles time, start my workflow called \"Weekly digest {run}\". Make it repeat by itself.",
+   "seed": [
+    {
+     "tool": "save_workflow",
+     "arguments": {
+      "workflow": {
+       "id": "workflow:digest-{run}",
+       "job": "Weekly digest {run}",
+       "label": "Weekly digest {run}",
+       "input_schema": {
+        "type": "object",
+        "properties": {
+         "topic": {
+          "type": "string"
+         }
+        }
+       },
+       "steps": [
+        {
+         "id": "one",
+         "title": "Write it",
+         "do": "Write one sentence about the topic",
+         "submit": {
+          "type": "object",
+          "properties": {
+           "sentence": {
+            "type": "string"
+           }
+          }
+         },
+         "checks": []
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "on_path": [
+    "find_workflow",
+    "describe_workflow",
+    "set_schedule",
+    "list_schedules"
+   ],
+   "grader": [
+    {
+     "id": "one-schedule",
+     "read": {
+      "tool": "list_schedules",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}]",
+       "op": "count",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": "monday-0830-la",
+     "read": {
+      "tool": "list_schedules",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.at",
+       "op": "equals",
+       "value": "08:30"
+      },
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.time_zone",
+       "op": "equals",
+       "value": "America/Los_Angeles"
+      },
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.on",
+       "op": "has",
+       "value": [
+        "monday"
+       ]
+      }
+     ]
+    }
+   ],
+   "open_world_tools": [
+    "set_schedule"
+   ]
+  },
+  {
+   "id": "lists-update-leads",
+   "area": "lists",
+   "job": "I keep my sales leads in the list called \"Leads {run}\". Add Acme (open, 9000), Birch (open, 1200) and Cedar (won, 4500). Then Birch fell through: mark it lost.",
+   "seed": [
+    {
+     "tool": "save_list",
+     "arguments": {
+      "id": "leads-{run}",
+      "label": "Leads {run}",
+      "fields": [
+       {
+        "id": "name",
+        "label": "Name",
+        "kind": "text"
+       },
+       {
+        "id": "status",
+        "label": "Status",
+        "kind": "choice",
+        "choices": [
+         "open",
+         "won",
+         "lost"
+        ]
+       },
+       {
+        "id": "amount",
+        "label": "Amount",
+        "kind": "number"
+       }
+      ]
+     }
+    }
+   ],
+   "on_path": [
+    "list_lists",
+    "read_list",
+    "put_list_rows"
+   ],
+   "grader": [
+    {
+     "id": "three-rows",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[*]",
+       "op": "count",
+       "value": 3
+      }
+     ]
+    },
+    {
+     "id": "birch-lost",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[values.name=Birch].values.status",
+       "op": "equals",
+       "value": "lost"
+      }
+     ]
+    },
+    {
+     "id": "others-kept",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[values.name=Acme].values.amount",
+       "op": "equals",
+       "value": 9000
+      },
+      {
+       "path": "rows[values.name=Cedar].values.status",
+       "op": "equals",
+       "value": "won"
+      }
+     ]
+    }
+   ],
+   "ready_when": {
+    "id": "seed-list",
+    "read": {
+     "tool": "read_list",
+     "arguments": {
+      "list_id": "leads-{run}"
+     }
+    },
+    "expect": [
+     {
+      "path": "list.id",
+      "op": "equals",
+      "value": "leads-{run}"
+     }
+    ]
+   }
+  },
+  {
+   "id": "files-replace-draft",
+   "area": "files",
+   "job": "In my folder /plans/{run} the file q4-plan-old.md is out of date. Take it out of my files in a way I can still get it back later, and save a new text file /plans/{run}/decisions.md that says: Ship the mobile app in Q4.",
+   "seed": [
+    {
+     "tool": "write_file",
+     "arguments": {
+      "name": "/plans/{run}/q4-plan-old.md",
+      "text": "Old Q4 plan draft."
+     }
+    },
+    {
+     "tool": "write_file",
+     "arguments": {
+      "name": "/plans/{run}/q4-plan.md",
+      "text": "Q4 plan: ship the mobile app."
+     }
+    }
+   ],
+   "on_path": [
+    "list_files",
+    "find_file",
+    "write_file",
+    "delete_file",
+    "archive_file",
+    "read_file",
+    "list_recently_deleted"
+   ],
+   "grader": [
+    {
+     "id": "new-file-saved",
+     "read": {
+      "tool": "read_file",
+      "arguments": {
+       "name_or_identity": "/plans/{run}/decisions.md"
+      }
+     },
+     "expect": [
+      {
+       "path": "text",
+       "op": "has_match",
+       "value": "mobile app in Q4"
+      }
+     ]
+    },
+    {
+     "id": "old-file-out-of-files",
+     "read": {
+      "tool": "list_files",
+      "arguments": {
+       "folder": "/plans/{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "files[*].name",
+       "op": "none_match",
+       "value": "q4-plan-old"
+      }
+     ]
+    },
+    {
+     "id": "current-plan-kept",
+     "read": {
+      "tool": "list_files",
+      "arguments": {
+       "folder": "/plans/{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "files[*].name",
+       "op": "has_match",
+       "value": "q4-plan\\.md"
+      }
+     ]
+    }
+   ],
+   "ready_when": {
+    "id": "seed-file",
+    "read": {
+     "tool": "list_files",
+     "arguments": {
+      "folder": "/plans/{run}"
+     }
+    },
+    "expect": [
+     {
+      "path": "files[*].name",
+      "op": "has_match",
+      "value": "q4-plan-old"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sharing-list-link",
+   "area": "sharing",
+   "job": "Make a link that anyone can open to read my list \"Contacts {run}\", and tell me the address.",
+   "seed": [
+    {
+     "tool": "save_list",
+     "arguments": {
+      "id": "contacts-{run}",
+      "label": "Contacts {run}",
+      "fields": [
+       {
+        "id": "name",
+        "label": "Name",
+        "kind": "text"
+       }
+      ]
+     }
+    }
+   ],
+   "open_world_tools": [
+    "share_record_by_link"
+   ],
+   "on_path": [
+    "list_lists",
+    "share_record_by_link",
+    "sharing_links_of"
+   ],
+   "grader": [
+    {
+     "id": "public-link-exists",
+     "read": {
+      "tool": "sharing_links_of",
+      "arguments": {
+       "record": "list:contacts-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "links[*]",
+       "op": "count_at_least",
+       "value": 1
+      },
+      {
+       "path": "links[*].scope.kind",
+       "op": "has",
+       "value": "public"
+      }
+     ]
+    }
+   ],
+   "ready_when": {
+    "id": "seed-list",
+    "read": {
+     "tool": "read_list",
+     "arguments": {
+      "list_id": "contacts-{run}"
+     }
+    },
+    "expect": [
+     {
+      "path": "list.id",
+      "op": "equals",
+      "value": "contacts-{run}"
+     }
+    ]
+   }
+  },
+  {
+   "id": "workflows-run-to-the-end",
+   "area": "workflows",
+   "job": "Run my workflow \"Weekly digest {run}\" on the topic tea, and take it all the way to the end.",
+   "seed": [
+    {
+     "tool": "save_workflow",
+     "arguments": {
+      "workflow": {
+       "id": "workflow:digest-{run}",
+       "job": "Weekly digest {run}",
+       "label": "Weekly digest {run}",
+       "input_schema": {
+        "type": "object",
+        "properties": {
+         "topic": {
+          "type": "string"
+         }
+        }
+       },
+       "steps": [
+        {
+         "id": "one",
+         "title": "Write it",
+         "do": "Write one sentence about the topic",
+         "submit": {
+          "type": "object",
+          "properties": {
+           "sentence": {
+            "type": "string"
+           }
+          }
+         },
+         "checks": []
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "on_path": [
+    "find_workflow",
+    "describe_workflow",
+    "start_workflow",
+    "submit_workflow_step",
+    "read_workflow_run"
+   ],
+   "grader": [
+    {
+     "id": "run-finished",
+     "read": {
+      "tool": "read_workflow_run",
+      "arguments": {
+       "run_id": "{run_id}"
+      }
+     },
+     "expect": [
+      {
+       "path": "state",
+       "op": "equals",
+       "value": "finished"
+      }
+     ]
+    },
+    {
+     "id": "topic-was-tea",
+     "read": {
+      "tool": "read_workflow_run",
+      "arguments": {
+       "run_id": "{run_id}"
+      }
+     },
+     "expect": [
+      {
+       "path": "input.topic",
+       "op": "has_match",
+       "value": "tea"
+      }
+     ]
+    }
+   ],
+   "capture": [
+    {
+     "name": "run_id",
+     "tool": "start_workflow",
+     "path": "run_id"
+    }
+   ]
+  },
+  {
+   "id": "publishing-link-page",
+   "area": "publishing",
+   "job": "Turn on my link-in-bio page with the public name eval-{short}, the title \"Hello {short}\" and one link labelled Docs that goes to https://example.com/docs/{short}.",
+   "open_world_tools": [
+    "set_link_page"
+   ],
+   "on_path": [
+    "read_link_page",
+    "set_link_page"
+   ],
+   "grader": [
+    {
+     "id": "page-on-with-name",
+     "read": {
+      "tool": "read_link_page",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "on",
+       "op": "equals",
+       "value": true
+      },
+      {
+       "path": "name",
+       "op": "equals",
+       "value": "eval-{short}"
+      },
+      {
+       "path": "title",
+       "op": "equals",
+       "value": "Hello {short}"
+      }
+     ]
+    },
+    {
+     "id": "docs-link",
+     "read": {
+      "tool": "read_link_page",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "links[*]",
+       "op": "count",
+       "value": 1
+      },
+      {
+       "path": "links[label=Docs].url",
+       "op": "equals",
+       "value": "https://example.com/docs/{short}"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lists-add-field",
+   "area": "lists",
+   "job": "In my list \"Leads {run}\", add a text field called Owner and set the Owner of Acme to Sam. Keep everything else in the list as it is.",
+   "seed": [
+    {
+     "tool": "save_list",
+     "arguments": {
+      "id": "leads-{run}",
+      "label": "Leads {run}",
+      "fields": [
+       {
+        "id": "name",
+        "label": "Name",
+        "kind": "text"
+       },
+       {
+        "id": "status",
+        "label": "Status",
+        "kind": "choice",
+        "choices": [
+         "open",
+         "won",
+         "lost"
+        ]
+       },
+       {
+        "id": "amount",
+        "label": "Amount",
+        "kind": "number"
+       }
+      ]
+     }
+    },
+    {
+     "tool": "put_list_rows",
+     "arguments": {
+      "list_id": "leads-{run}",
+      "rows": [
+       {
+        "id": "acme",
+        "values": {
+         "name": "Acme",
+         "status": "open",
+         "amount": 9000
+        }
+       },
+       {
+        "id": "birch",
+        "values": {
+         "name": "Birch",
+         "status": "lost",
+         "amount": 1200
+        }
+       },
+       {
+        "id": "cedar",
+        "values": {
+         "name": "Cedar",
+         "status": "won",
+         "amount": 4500
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "ready_when": {
+    "id": "seed-rows",
+    "read": {
+     "tool": "read_list",
+     "arguments": {
+      "list_id": "leads-{run}"
+     }
+    },
+    "expect": [
+     {
+      "path": "rows[*]",
+      "op": "count",
+      "value": 3
+     }
+    ]
+   },
+   "on_path": [
+    "list_lists",
+    "read_list",
+    "save_list",
+    "put_list_rows"
+   ],
+   "grader": [
+    {
+     "id": "owner-field-added-fields-kept",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "list.fields[*]",
+       "op": "count",
+       "value": 4
+      },
+      {
+       "path": "list.fields[*].label",
+       "op": "has_all",
+       "value": [
+        "Name",
+        "Status",
+        "Amount",
+        "Owner"
+       ]
+      }
+     ]
+    },
+    {
+     "id": "acme-owned-by-sam",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[values.name=Acme].values.owner",
+       "op": "equals",
+       "value": "Sam"
+      }
+     ]
+    },
+    {
+     "id": "rows-and-values-kept",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[*]",
+       "op": "count",
+       "value": 3
+      },
+      {
+       "path": "rows[values.name=Birch].values.status",
+       "op": "equals",
+       "value": "lost"
+      },
+      {
+       "path": "rows[values.name=Cedar].values.amount",
+       "op": "equals",
+       "value": 4500
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "lists-remove-lost",
+   "area": "lists",
+   "job": "Take every lost lead out of my list \"Leads {run}\" and leave the others.",
+   "seed": [
+    {
+     "tool": "save_list",
+     "arguments": {
+      "id": "leads-{run}",
+      "label": "Leads {run}",
+      "fields": [
+       {
+        "id": "name",
+        "label": "Name",
+        "kind": "text"
+       },
+       {
+        "id": "status",
+        "label": "Status",
+        "kind": "choice",
+        "choices": [
+         "open",
+         "won",
+         "lost"
+        ]
+       },
+       {
+        "id": "amount",
+        "label": "Amount",
+        "kind": "number"
+       }
+      ]
+     }
+    },
+    {
+     "tool": "put_list_rows",
+     "arguments": {
+      "list_id": "leads-{run}",
+      "rows": [
+       {
+        "id": "acme",
+        "values": {
+         "name": "Acme",
+         "status": "open",
+         "amount": 9000
+        }
+       },
+       {
+        "id": "birch",
+        "values": {
+         "name": "Birch",
+         "status": "lost",
+         "amount": 1200
+        }
+       },
+       {
+        "id": "cedar",
+        "values": {
+         "name": "Cedar",
+         "status": "won",
+         "amount": 4500
+        }
+       }
+      ]
+     }
+    }
+   ],
+   "ready_when": {
+    "id": "seed-rows",
+    "read": {
+     "tool": "read_list",
+     "arguments": {
+      "list_id": "leads-{run}"
+     }
+    },
+    "expect": [
+     {
+      "path": "rows[*]",
+      "op": "count",
+      "value": 3
+     }
+    ]
+   },
+   "on_path": [
+    "list_lists",
+    "read_list",
+    "put_list_rows"
+   ],
+   "grader": [
+    {
+     "id": "lost-gone",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[*]",
+       "op": "count",
+       "value": 2
+      },
+      {
+       "path": "rows[*].values.name",
+       "op": "none_match",
+       "value": "^Birch$"
+      }
+     ]
+    },
+    {
+     "id": "others-untouched",
+     "read": {
+      "tool": "read_list",
+      "arguments": {
+       "list_id": "leads-{run}"
+      }
+     },
+     "expect": [
+      {
+       "path": "rows[values.name=Acme].values.amount",
+       "op": "equals",
+       "value": 9000
+      },
+      {
+       "path": "rows[values.name=Cedar].values.status",
+       "op": "equals",
+       "value": "won"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "workflows-save-checklist",
+   "area": "workflows",
+   "job": "Save my release checklist as a workflow I can run later, called \"Release {short}\". One step for each: 1. Run the tests. 2. Tag the build. 3. Announce it to the team.",
+   "on_path": [
+    "find_workflow",
+    "describe_workflow",
+    "save_workflow"
+   ],
+   "grader": [
+    {
+     "id": "saved-with-three-steps",
+     "read": {
+      "tool": "find_workflow",
+      "arguments": {
+       "job": "Release {short}"
+      }
+     },
+     "expect": [
+      {
+       "path": "workflows[label~Release {short}].steps[*]",
+       "op": "count",
+       "value": 3
+      }
+     ]
+    },
+    {
+     "id": "steps-in-the-persons-words",
+     "read": {
+      "tool": "find_workflow",
+      "arguments": {
+       "job": "Release {short}"
+      }
+     },
+     "expect": [
+      {
+       "path": "workflows[label~Release {short}].steps[*]",
+       "op": "has_match",
+       "value": "test"
+      },
+      {
+       "path": "workflows[label~Release {short}].steps[*]",
+       "op": "has_match",
+       "value": "tag"
+      },
+      {
+       "path": "workflows[label~Release {short}].steps[*]",
+       "op": "has_match",
+       "value": "announce"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "calendar-every-other-friday",
+   "area": "calendar",
+   "job": "Start my workflow \"Weekly digest {run}\" every other Friday at 5 in the afternoon, New York time.",
+   "open_world_tools": [
+    "set_schedule"
+   ],
+   "seed": [
+    {
+     "tool": "save_workflow",
+     "arguments": {
+      "workflow": {
+       "id": "workflow:digest-{run}",
+       "job": "Weekly digest {run}",
+       "label": "Weekly digest {run}",
+       "input_schema": {
+        "type": "object",
+        "properties": {
+         "topic": {
+          "type": "string"
+         }
+        }
+       },
+       "steps": [
+        {
+         "id": "one",
+         "title": "Write it",
+         "do": "Write one sentence about the topic",
+         "submit": {
+          "type": "object",
+          "properties": {
+           "sentence": {
+            "type": "string"
+           }
+          }
+         },
+         "checks": []
+        }
+       ]
+      }
+     }
+    }
+   ],
+   "on_path": [
+    "find_workflow",
+    "describe_workflow",
+    "set_schedule",
+    "list_schedules"
+   ],
+   "grader": [
+    {
+     "id": "one-schedule",
+     "read": {
+      "tool": "list_schedules",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}]",
+       "op": "count",
+       "value": 1
+      }
+     ]
+    },
+    {
+     "id": "friday-1700-ny-every-2-weeks",
+     "read": {
+      "tool": "list_schedules",
+      "arguments": {}
+     },
+     "expect": [
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.unit",
+       "op": "equals",
+       "value": "week"
+      },
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.interval",
+       "op": "equals",
+       "value": 2
+      },
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.at",
+       "op": "equals",
+       "value": "17:00"
+      },
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.time_zone",
+       "op": "equals",
+       "value": "America/New_York"
+      },
+      {
+       "path": "schedules[then.workflow_id=workflow:digest-{run}].every.on",
+       "op": "has",
+       "value": [
+        "friday"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,779 @@
+{
+ "_what": "What the vendor tables returned before they became data rows (the old code tables: src/fixed-oauth-clients.json clients, computer/hear-a-link.json fetchers, computer/speak.json programs and engines, computer/local-models.json chat, jobs, classify and offer, records/post-place-records.json payloads, records/cloud-files-origins.json and cloud-files-origin-settings.json records), frozen on 2026-10-08 from Trillion origin/main 985ff157e. test/vendor-table-rows.test.mjs holds the new reader to these values, so a change to a vendor table is a deliberate edit of this file too. Edited 2026-10-14: the link readers' list command and today's label, and the site-articles job.",
+ "oauth_clients": [
+  {
+   "clientId": "muse",
+   "clientName": "Muse",
+   "redirectUris": [
+    "https://agent.meta.ai/api/hatch/oauth/callback"
+   ],
+   "grantTypes": [
+    "authorization_code",
+    "refresh_token"
+   ],
+   "responseTypes": [
+    "code"
+   ],
+   "tokenEndpointAuthMethod": "none",
+   "authMethodExplicit": true,
+   "registrationDate": 1790553600
+  }
+ ],
+ "hear_fetchers": [
+  {
+   "id": "yt-dlp",
+   "label": "yt-dlp on this computer",
+   "search_path": [
+    "/opt/homebrew/bin",
+    "/usr/local/bin",
+    "/opt/homebrew/anaconda3/bin",
+    "~/anaconda3/bin",
+    "~/miniconda3/bin",
+    "~/miniforge3/bin",
+    "~/.local/bin"
+   ],
+   "check": [
+    "yt-dlp",
+    "--version"
+   ],
+   "info": [
+    "yt-dlp",
+    "--no-update",
+    "--no-warnings",
+    "--js-runtimes",
+    "node:{node}",
+    "--skip-download",
+    "--dump-single-json",
+    "--no-playlist",
+    "{url}"
+   ],
+   "list": [
+    "yt-dlp",
+    "--no-update",
+    "--no-warnings",
+    "--js-runtimes",
+    "node:{node}",
+    "--flat-playlist",
+    "--dump-single-json",
+    "{url}"
+   ],
+   "captions": [
+    "yt-dlp",
+    "--no-update",
+    "--no-warnings",
+    "--js-runtimes",
+    "node:{node}",
+    "--skip-download",
+    "--no-playlist",
+    "--write-subs",
+    "--write-auto-subs",
+    "--sub-format",
+    "vtt/best",
+    "--convert-subs",
+    "vtt",
+    "--sub-langs",
+    "{languages}",
+    "-o",
+    "{folder}/captions.%(ext)s",
+    "{url}"
+   ],
+   "sound": [
+    "yt-dlp",
+    "--no-update",
+    "--no-warnings",
+    "--js-runtimes",
+    "node:{node}",
+    "--no-playlist",
+    "-f",
+    "bestaudio/best",
+    "-x",
+    "-o",
+    "{folder}/sound.%(ext)s",
+    "{url}"
+   ],
+   "update_hint": "python3 -m pip install -U yt-dlp"
+  }
+ ],
+ "speech_programs": [
+  {
+   "id": "mlx-audio",
+   "label": "mlx-audio on this computer",
+   "search_path": [
+    "/opt/homebrew/anaconda3/bin",
+    "~/anaconda3/bin",
+    "~/miniconda3/bin",
+    "~/miniforge3/bin",
+    "/opt/homebrew/Caskroom/miniconda/base/bin",
+    "/opt/homebrew/bin",
+    "/usr/local/bin"
+   ],
+   "check": [
+    "python3",
+    "-c",
+    "import mlx_audio, soundfile"
+   ],
+   "run": [
+    "python3",
+    "{here}/speak-with-mlx.py"
+   ]
+  }
+ ],
+ "speech_engines": [
+  {
+   "id": "qwen3-tts",
+   "label": "Qwen3-TTS",
+   "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16",
+   "takes": "reference",
+   "produced_by": "Qwen3-TTS 1.7B on this computer",
+   "_measured": "2026-10-07 on an M5 Max at load average about 36: a 7.5 s sentence in a cloned voice took 9.6-12.7 s with the model loaded (26 s the first time); streamed, its first sound came after 0.54 s at a real-time factor of 0.95. Cloned from a reference that ends on a sentence end, every take transcribed word for word."
+  },
+  {
+   "id": "kokoro",
+   "label": "Kokoro",
+   "model": "mlx-community/Kokoro-82M-bf16",
+   "takes": "speaker",
+   "lang_code": "a",
+   "produced_by": "Kokoro 82M on this computer",
+   "_measured": "2026-10-07 on the same Mac: an 8.2 s sentence took 0.63-1.6 s with the model loaded (real-time factor 0.08-0.2, about 16-20 s the first time), word for word, no clipping."
+  }
+ ],
+ "local_chat": [
+  {
+   "id": "ollama-qwen2.5-14b",
+   "url": "http://127.0.0.1:11434/v1/chat/completions",
+   "model": "qwen2.5:14b-instruct",
+   "keep_alive": "30m",
+   "timeout_seconds": 45
+  },
+  {
+   "id": "ollama-gemma3-4b",
+   "url": "http://127.0.0.1:11434/v1/chat/completions",
+   "model": "gemma3:4b",
+   "keep_alive": "30m",
+   "timeout_seconds": 40
+  },
+  {
+   "id": "ollama-judge-qwen2.5-14b",
+   "url": "http://127.0.0.1:11435/v1/chat/completions",
+   "model": "qwen2.5:14b-instruct",
+   "keep_alive": "30m",
+   "timeout_seconds": 45,
+   "num_ctx": 16384
+  },
+  {
+   "id": "ollama-awareness-4b",
+   "url": "http://127.0.0.1:11435/v1/chat/completions",
+   "model": "gemma3:4b",
+   "keep_alive": -1,
+   "timeout_seconds": 120,
+   "num_ctx": 16384
+  }
+ ],
+ "local_jobs": {
+  "default": {
+   "models": [
+    "ollama-gemma3-4b",
+    "ollama-qwen2.5-14b"
+   ],
+   "most_tokens": 1024
+  },
+  "explicit-selection": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 300,
+   "timeout_seconds": 25
+  },
+  "file-organization": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 300,
+   "timeout_seconds": 25
+  },
+  "awareness": {
+   "models": [
+    "ollama-awareness-4b"
+   ],
+   "most_tokens": 2400,
+   "timeout_seconds": 120,
+   "response_format": {
+    "type": "json_object"
+   }
+  },
+  "check-judge": {
+   "models": [
+    "ollama-judge-qwen2.5-14b"
+   ],
+   "most_tokens": 512
+  },
+  "outcome-judge": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 512
+  },
+  "site-articles": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 6000,
+   "timeout_seconds": 1500
+  }
+ },
+ "local_classify": [
+  {
+   "id": "ollama-qwen2.5-14b-yes-no",
+   "ask": "chat",
+   "url": "http://127.0.0.1:11434/v1/chat/completions",
+   "model": "qwen2.5:14b-instruct",
+   "keep_alive": "30m",
+   "prompt": "Answer with one word: yes or no.",
+   "timeout_seconds": 20,
+   "_measured": "2026-10-05 on 24 spoken requests (send, text, tell, call, book, remind, buy, order, pay, schedule, find, note, ask someone to) and 40 lines heard in a room (TV, chatter, cheering, fragments): 24 of 24 and 0 of 40, about 1.8 s a line while the Mac was busy; decider-2b on the same lines could not separate them (requests from 0.30, room lines up to 0.39, moving between repeats)."
+  },
+  {
+   "id": "decider-2b",
+   "url": "http://127.0.0.1:8099/v1/systemone",
+   "timeout_seconds": 15
+  }
+ ],
+ "local_offer": [
+  {
+   "id": "small-chat",
+   "model": "gemma3:4b",
+   "job": "Quick answers and checks on any Mac",
+   "min_memory_gb": 8,
+   "size_gb": 3.3
+  },
+  {
+   "id": "strong-chat",
+   "model": "qwen2.5:14b-instruct",
+   "job": "Careful answers, and telling requests from room chatter",
+   "min_memory_gb": 16,
+   "size_gb": 9.0
+  }
+ ],
+ "post_places": [
+  {
+   "kind": "post-place",
+   "id": "post-place:youtube",
+   "platform": "youtube",
+   "label": "YouTube",
+   "adapter": "youtube",
+   "connection_vendor": "youtube",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "access_token"
+     },
+     "channelId": {
+      "plain": "youtube_channel_id"
+     }
+    }
+   },
+   "account": {
+    "plain": "youtube_channel_id"
+   },
+   "hosts": [
+    "www.googleapis.com",
+    "youtube.googleapis.com"
+   ],
+   "media_from": "bytes",
+   "default_settings": {
+    "visibility": "public",
+    "madeForKids": false
+   },
+   "format": {
+    "caption_max_characters": 5000,
+    "media_needed": true,
+    "media_kinds": {
+     "video": {}
+    },
+    "settings": [
+     {
+      "setting": "title",
+      "name": "title",
+      "needed": true,
+      "max_characters": 100,
+      "refuses_characters": "<>"
+     }
+    ],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/youtube.js publish checks",
+     "read_on": "2026-09-29"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:tiktok",
+   "platform": "tiktok",
+   "label": "TikTok",
+   "adapter": "tiktok",
+   "connection_vendor": "tiktok",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "access_token"
+     },
+     "openId": {
+      "plain": "open_id"
+     }
+    },
+    "verifiedMediaOrigins": [
+     {
+      "service_origin": true
+     }
+    ]
+   },
+   "account": {
+    "plain": "open_id"
+   },
+   "hosts": [
+    "open.tiktokapis.com"
+   ],
+   "media_from": "address",
+   "default_settings": {
+    "privacy": "PUBLIC_TO_EVERYONE",
+    "consentGiven": true
+   },
+   "format": {
+    "media_needed": true,
+    "media_kinds": {
+     "video": {
+      "caption_max_characters": 2200
+     },
+     "image": {
+      "caption_max_characters": 4000
+     }
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/tiktok.js publish checks",
+     "read_on": "2026-09-29"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:instagram",
+   "platform": "instagram",
+   "label": "Instagram",
+   "adapter": "instagram",
+   "connection_vendor": "instagram",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "access_token"
+     },
+     "accountId": {
+      "plain": "ig_user_id"
+     }
+    }
+   },
+   "account": {
+    "plain": "ig_user_id"
+   },
+   "hosts": [
+    "graph.instagram.com",
+    "graph.facebook.com"
+   ],
+   "media_from": "address",
+   "default_settings": {},
+   "format": {
+    "caption_max_characters": 2200,
+    "media_needed": true,
+    "media_kinds": {
+     "video": {
+      "media_types": [
+       "video/mp4",
+       "video/quicktime"
+      ],
+      "min_seconds": 3,
+      "max_seconds": 900,
+      "max_bytes": 314572800
+     },
+     "image": {
+      "media_types": [
+       "image/jpeg"
+      ],
+      "max_bytes": 8388608
+     }
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/instagram.js publish checks, and Meta's Content Publishing limits (developers.facebook.com/docs/instagram-platform/content-publishing)",
+     "read_on": "2026-09-29"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:facebook",
+   "platform": "facebook",
+   "label": "Facebook Page",
+   "adapter": "facebook-page",
+   "connection_vendor": "facebook-messenger",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "page_access_token"
+     }
+    },
+    "pageId": {
+     "plain": "page_id"
+    }
+   },
+   "account": {
+    "plain": "page_id"
+   },
+   "hosts": [
+    "graph.facebook.com"
+   ],
+   "media_from": "address",
+   "default_settings": {},
+   "format": {
+    "caption_max_characters": 63206,
+    "media_needed": false,
+    "media_kinds": {
+     "video": {},
+     "image": {}
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "developers.facebook.com/docs/pages-api/posts (/{page-id}/feed, /photos, /videos)",
+     "read_on": "2026-10-05"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:instagram-facebook",
+   "platform": "instagram",
+   "label": "Instagram through Facebook",
+   "adapter": "instagram",
+   "connection_vendor": "instagram-facebook",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "page_access_token"
+     },
+     "accountId": {
+      "plain": "ig_user_id"
+     },
+     "flavor": {
+      "value": "facebook-login"
+     }
+    }
+   },
+   "account": {
+    "plain": "ig_user_id"
+   },
+   "hosts": [
+    "graph.facebook.com"
+   ],
+   "media_from": "address",
+   "default_settings": {},
+   "format": {
+    "caption_max_characters": 2200,
+    "media_needed": true,
+    "media_kinds": {
+     "video": {
+      "media_types": [
+       "video/mp4",
+       "video/quicktime"
+      ],
+      "min_seconds": 3,
+      "max_seconds": 900,
+      "max_bytes": 314572800
+     },
+     "image": {
+      "media_types": [
+       "image/jpeg"
+      ],
+      "max_bytes": 8388608
+     }
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/instagram.js (auth.flavor facebook-login) and developers.facebook.com/documentation/instagram-platform/content-publishing",
+     "read_on": "2026-10-05"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:threads",
+   "platform": "threads",
+   "label": "Threads",
+   "adapter": "threads",
+   "connection_vendor": "threads",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "access_token"
+     },
+     "userId": {
+      "plain": "threads_user_id"
+     }
+    }
+   },
+   "account": {
+    "plain": "threads_user_id"
+   },
+   "hosts": [
+    "graph.threads.net"
+   ],
+   "media_from": "address",
+   "default_settings": {},
+   "format": {
+    "caption_max_characters": 500,
+    "media_needed": false,
+    "media_kinds": {
+     "video": {},
+     "image": {}
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/threads.js publish checks",
+     "read_on": "2026-09-29"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:linkedin",
+   "platform": "linkedin",
+   "label": "LinkedIn",
+   "adapter": "linkedin",
+   "connection_vendor": "linkedin",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "access_token"
+     },
+     "author": {
+      "plain": "author_urn"
+     }
+    },
+    "apiVersion": {
+     "value": "202609"
+    }
+   },
+   "account": {
+    "plain": "author_urn"
+   },
+   "hosts": [
+    "api.linkedin.com"
+   ],
+   "media_from": "bytes",
+   "default_settings": {
+    "visibility": "public"
+   },
+   "format": {
+    "caption_max_characters": 3000,
+    "media_needed": false,
+    "media_kinds": {
+     "video": {},
+     "image": {}
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/linkedin.js publish checks",
+     "read_on": "2026-09-29"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:substack",
+   "platform": "substack",
+   "label": "Substack",
+   "adapter": "substack",
+   "connection_vendor": "substack",
+   "options": {
+    "auth": {
+     "session": {
+      "held": "session_cookie"
+     }
+    },
+    "publication": {
+     "plain": "publication_url"
+    }
+   },
+   "account": {
+    "plain": "publication_url"
+   },
+   "hosts": [
+    "substack.com",
+    {
+     "plain": "publication_url"
+    }
+   ],
+   "media_from": "address",
+   "default_settings": {
+    "audience": "everyone",
+    "send": true
+   },
+   "format": {
+    "caption_max_characters": null,
+    "media_needed": false,
+    "media_kinds": {},
+    "settings": [
+     {
+      "setting": "title",
+      "name": "title",
+      "needed": true
+     },
+     {
+      "setting": "subtitle",
+      "name": "subtitle",
+      "needed": false
+     }
+    ],
+    "source": {
+     "kind": "hand-typed",
+     "from": "Substack's own editor requests (POST /api/v1/drafts, POST /api/v1/drafts/<id>/publish), read from a signed-in browser",
+     "read_on": "2026-10-02"
+    }
+   }
+  },
+  {
+   "kind": "post-place",
+   "id": "post-place:x",
+   "platform": "x",
+   "label": "X",
+   "adapter": "x",
+   "connection_vendor": "x",
+   "options": {
+    "auth": {
+     "accessToken": {
+      "held": "access_token"
+     },
+     "userId": {
+      "plain": "user_id"
+     }
+    }
+   },
+   "account": {
+    "plain": "user_id"
+   },
+   "hosts": [
+    "api.x.com"
+   ],
+   "media_from": "bytes",
+   "default_settings": {},
+   "format": {
+    "caption_max_characters": 280,
+    "media_needed": false,
+    "media_kinds": {
+     "video": {
+      "media_types": [
+       "video/mp4"
+      ],
+      "max_bytes": 536870912
+     },
+     "image": {
+      "media_types": [
+       "image/jpeg",
+       "image/png"
+      ],
+      "max_bytes": 5242880
+     }
+    },
+    "settings": [],
+    "source": {
+     "kind": "hand-typed",
+     "from": "@opencoredev/social-sdk dist/platforms/x.js publish checks",
+     "read_on": "2026-09-29"
+    }
+   }
+  }
+ ],
+ "storage_origins": [
+  {
+   "kind": "cloud-files.origin",
+   "id": "backblaze-b2",
+   "interface": "s3-compatible",
+   "vendor": "Backblaze B2",
+   "price": {
+    "usd_per_gb_month": 0.00695,
+    "egress": "free to Cloudflare; otherwise free up to 3x stored",
+    "requests": "class A/B/C free"
+   },
+   "credential": {
+    "key_id_secret_name": "backblaze-b2-key-id",
+    "key_secret_name": "backblaze-b2-application-key"
+   },
+   "key_describes_itself": {
+    "comment": "Backblaze answers which bucket an application key opens when the key signs in to its own API; a key limited to one bucket may not list buckets over S3, so the bucket is read here.",
+    "request": {
+     "url": "https://api.backblazeb2.com/b2api/v2/b2_authorize_account",
+     "method": "GET",
+     "authorization": "basic-key-id-and-key"
+    },
+    "bucket_name_pointer": [
+     "allowed",
+     "bucketName"
+    ]
+   }
+  },
+  {
+   "kind": "cloud-files.origin",
+   "id": "cloudflare-r2",
+   "interface": "object-bucket",
+   "vendor": "Cloudflare R2",
+   "price": {
+    "usd_per_gb_month": 0.015,
+    "egress": "none",
+    "requests": "class A $4.50 and class B $0.36 per million"
+   }
+  }
+ ],
+ "storage_origin_settings": [
+  {
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "id": "cloud-files-origin-settings:backblaze-b2",
+   "kind": "cloud-files.origin-settings",
+   "origin_id": "backblaze-b2",
+   "label": "bulk originals",
+   "rank": 2,
+   "role": "archive for everyone's full-size files; files move here from the landing",
+   "settings": {
+    "endpoint": "https://s3.us-east-005.backblazeb2.com",
+    "region": "us-east-005"
+   }
+  },
+  {
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "id": "cloud-files-origin-settings:cloudflare-r2",
+   "kind": "cloud-files.origin-settings",
+   "origin_id": "cloudflare-r2",
+   "label": "landing and hot files",
+   "rank": 1,
+   "role": "landing: every new upload lands here first, then moves to the archive; up to 500 GB",
+   "settings": {
+    "bucket": "trillion-namespace-files"
+   },
+   "max_bytes": 500000000000,
+   "max_bytes_reason": "The landing place is kept to 500 GB so its monthly cost stays bounded; the originals archive holds the rest.",
+   "moves_to": "backblaze-b2",
+   "moves_above_bytes": 450000000000,
+   "moves_reason": "Past 450 GB the oldest files move on to the originals archive, so the landing place keeps room under its 500 GB ceiling for new uploads."
+  }
+ ]
+}

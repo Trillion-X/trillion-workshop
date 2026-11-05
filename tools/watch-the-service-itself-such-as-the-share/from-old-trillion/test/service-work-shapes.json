@@ -1,0 +1,54 @@
+{
+  "_what": "The shapes by which source sends Trillion-wide work (work no signed-in person owns: everyone's rules and setup records, payment and event signatures, service secrets and OAuth clients, the service relay, client health) into one person's store: a call that reaches the operator account's PersonStore. Read by test/service-work-counts.mjs for test/no-service-work-in-person-store.test.mjs. A pattern is matched across line breaks within one statement; comments are not read. A new way to reach an account's store for service work is one more pattern here. Indirect forms count too: an account id list or a constant that names the OPERATOR_ACCOUNT_ID setting, and a DATA row whose setting names it (generic code resolves the account the row names, so the row is the choice). A pattern with its own `extensions` reads only those files. Patterns are only added, never narrowed (test/no-service-work-in-person-store.test.mjs).",
+  "folders": [
+    "src",
+    "parts",
+    "harness",
+    "records"
+  ],
+  "extensions": [
+    ".mjs",
+    ".js",
+    ".ts",
+    ".tsx"
+  ],
+  "patterns": [
+    {
+      "id": "operator-store",
+      "pattern": "\\boperatorStore\\(",
+      "except_line": "export const operatorStore\\s*="
+    },
+    {
+      "id": "operator-person-get",
+      "pattern": "PERSON\\.get\\([^;]{0,240}?OPERATOR_ACCOUNT_ID",
+      "except_line": "export const operatorStore\\s*="
+    },
+    {
+      "id": "operator-person-for",
+      "pattern": "personFor\\([^,;)]{1,60},\\s*(?:this\\.)?env\\.OPERATOR_ACCOUNT_ID"
+    },
+    {
+      "id": "operator-in-id-list",
+      "pattern": "\\[[^\\]\\n;]{0,160}\\bOPERATOR_ACCOUNT_ID\\b[^\\]\\n;]{0,40}\\]"
+    },
+    {
+      "id": "operator-setting-constant",
+      "pattern": "=\\s*['\"]OPERATOR_ACCOUNT_ID['\"]"
+    },
+    {
+      "id": "data-names-operator",
+      "pattern": "\"[a-z_]*(?:setting|key)\"\\s*:\\s*\"OPERATOR_ACCOUNT_ID\"",
+      "extensions": [
+        ".json"
+      ]
+    },
+    {
+      "id": "operator-id-held",
+      "pattern": "(?<![=!<>])=\\s*(?:[\\w.]+\\.)?env\\??\\.OPERATOR_ACCOUNT_ID\\s*[,;)]"
+    },
+    {
+      "id": "operator-owner-id",
+      "pattern": "idFromName\\((?:[\\w.]+\\.)?env\\.OPERATOR_ACCOUNT_ID\\)\\??\\.toString\\(\\)(?!\\s*[=!]==?)"
+    }
+  ]
+}

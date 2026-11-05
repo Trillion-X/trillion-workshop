@@ -1,0 +1,51 @@
+{
+  "schema": "trillion.marketplace-module-package/v1",
+  "id": "module:network-cameras",
+  "version": 1,
+  "entry": "camera.mjs",
+  "capabilities": {
+    "stream": { "purpose": "Cloudflare Stream HTTP API and provider-issued recording download URLs" },
+    "state": { "purpose": "Account-scoped camera metadata, private ingest keys, intents and filing checkpoints" },
+    "files": { "purpose": "Namespace text files and upload lease/part operations" },
+    "current": { "purpose": "Current principal, operation rights and fresh pre/post-dispatch checks" },
+    "continuation": { "purpose": "Create and reconcile a fresh admitted file command from a verified provider event" }
+  },
+  "tools": [
+    {
+      "id": "tool:connect-camera", "name": "connect_camera", "job": "Connect a network camera to this account's recording Files",
+      "input_schema": { "type": "object", "required": ["name"], "properties": { "name": { "type": "string", "minLength": 1, "maxLength": 60 } }, "additionalProperties": false },
+      "output_schema": { "type": "object" }, "invoke": { "kind": "worker-module", "module": "camera.mjs", "export": "connectCamera", "capabilities": ["stream", "state", "current"] },
+      "placements": ["placement:this-worker"], "licence_class": "licence:maker-own", "verify": [{ "kind": "sample-run", "input": { "name": "Sample camera" }, "output_selector": "$.camera_id", "contains": "sample-camera" }]
+    },
+    {
+      "id": "tool:list-cameras", "name": "list_cameras", "job": "List this account's network cameras",
+      "input_schema": { "type": "object", "properties": { "after": { "type": ["string", "null"] }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 } }, "additionalProperties": false },
+      "output_schema": { "type": "object", "required": ["cameras"], "properties": { "cameras": { "type": "array" } } }, "invoke": { "kind": "worker-module", "module": "camera.mjs", "export": "listCameras", "capabilities": ["state", "current"] },
+      "placements": ["placement:this-worker"], "licence_class": "licence:maker-own", "verify": [{ "kind": "sample-run", "input": {}, "output_selector": "$.cameras", "contains": "[" }]
+    },
+    {
+      "id": "tool:file-camera-recordings", "name": "file_camera_recordings", "job": "File one or all finished network camera recordings into account Files",
+      "input_schema": { "type": "object", "properties": { "uid": { "type": "string", "pattern": "^[a-f0-9]{32}$" }, "after": { "type": ["string", "null"] }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 } }, "additionalProperties": false },
+      "output_schema": { "type": "object" }, "invoke": { "kind": "worker-module", "module": "camera.mjs", "export": "fileCameraRecordings", "capabilities": ["stream", "state", "files", "current"] },
+      "placements": ["placement:this-worker"], "licence_class": "licence:maker-own", "verify": [{ "kind": "sample-run", "input": {}, "output_selector": "$.filed", "contains": "0" }]
+    },
+    {
+      "id": "tool:remove-camera", "name": "remove_camera", "job": "Remove a network camera while keeping filed recordings",
+      "input_schema": { "type": "object", "required": ["camera_id"], "properties": { "camera_id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,39}$" } }, "additionalProperties": false },
+      "output_schema": { "type": "object", "required": ["removed", "kept"], "properties": { "removed": { "type": "string" }, "kept": { "type": "string" } } }, "invoke": { "kind": "worker-module", "module": "camera.mjs", "export": "removeCamera", "capabilities": ["stream", "state", "current"] },
+      "placements": ["placement:this-worker"], "licence_class": "licence:maker-own", "verify": [{ "kind": "sample-run", "input": { "camera_id": "sample-camera" }, "output_selector": "$.removed", "contains": "sample-camera" }]
+    }
+  ],
+  "browser_screen_operations": [
+    { "id": "camera:reveal-key", "module": "camera.mjs", "export": "revealKey", "capabilities": ["state", "current"], "browser_only": true, "result": "never pass to a tool or AI result" }
+  ],
+  "continuations": [
+    {
+      "id": "camera-stream-video-ready", "trigger": "stream.webhook", "module": "camera.mjs", "export": "onStreamWebhook",
+      "capabilities": ["stream", "state", "current", "continuation"],
+      "verify": { "algorithm": "HMAC-SHA256", "signature_header": "webhook-signature", "secret_key": "camera-marketplace:v1:webhook-secret", "max_age_seconds": 600 },
+      "dispatch": { "operation": "file", "resource": "camera-recording:{uid}", "request_key": "stream-webhook:{uid}", "must_read_video_again": true, "fresh_admission": true, "unknown_effect": "reconcile-original-command-do-not-redispatch" }
+    }
+  ],
+  "sample_listing": { "operation": "list", "expected": { "cameras": [] } }
+}

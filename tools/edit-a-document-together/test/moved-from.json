@@ -1,0 +1,61 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/composition-interaction-data.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/edit-a-document-together/test/composition-interaction-data.test.mjs",
+      "source_identity": "1f:1adb7e868b3a43d22343bdf355d67b179b81c2aec880c0f019125b810f9726e4",
+      "identity": "1f:1f5a5d822c6d87b192a3eac8555c8e9a3b21c5f53c5a2d8062ec8a598e2ee75e"
+    },
+    {
+      "from": "test/documents/composer-key-action.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/edit-a-document-together/test/composer-key-action.test.ts",
+      "source_identity": "1f:f8cfbefd770d5d89022e8448ec8ebf88ee1a69538c39abbfb2520f897ccf4fa3",
+      "identity": "1f:52a6b9b931e7d88f2b241f1ad52f6ccdb38298d3b27edaa7a8f1235f04dea515"
+    },
+    {
+      "from": "test/documents/scene-node-reference-options.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/edit-a-document-together/test/scene-node-reference-options.test.ts",
+      "source_identity": "1f:1a99935f9bef165b7b7110049b7cc18a7729d1b755de9e17099f253031ac0332",
+      "identity": "1f:e707511ca48b3fcfa6d912726e159329a2015f687e49f158e7891caa99527f69"
+    },
+    {
+      "from": "test/documents/scene-serializers-inline-links.test.ts",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/edit-a-document-together/test/scene-serializers-inline-links.test.ts",
+      "source_identity": "1f:5cd331504c0093c19a2080e116844f4a5475c971bf009b4ed58859e6fc1cc4b9",
+      "identity": "1f:47514dd067dd85bf4bd5d1407f2c746e8a475ef44205ea799286b9747c6bd02e"
+    },
+    {
+      "from": "test/vitest-shim.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/edit-a-document-together/test/vitest-shim.mjs",
+      "source_identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1",
+      "identity": "1f:e933ecab66b125e347584f7c5c6a35c0cb3a892337e393ecac26b41ff842b7a1",
+      "reused": true
+    },
+    {
+      "from": "test/company-write-input.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/edit-a-document-together/test/company-write-input.test.mjs",
+      "source_identity": "1f:3f5d789a402ca2f81bdacea00ae6abbaeab3bcd46dd09ea067c71f1cd0fc4720",
+      "identity": "1f:dd3f48182dd6cb0fee4391dc96c70167005c5613aa751cc7677c08c090c09902",
+      "redactions": [
+        {
+          "from_identity": "1f:55851ffdb772e988c5937a27da3b440382a0919b8ad0529adf0646068fb6e863",
+          "to": "avery"
+        },
+        {
+          "from_identity": "1f:9d30fcd399ee9b26edd3d658b8080035d00c08874da39d92a523c071997ae9a9",
+          "to": "rowan"
+        }
+      ]
+    }
+  ]
+}

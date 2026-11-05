@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/service-work-allowance.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-work-allowance.json",
+      "source_identity": "1f:464e462209f21079590b35e38ea5624f7745774424936fc4f281c04f0b3f4a8d",
+      "identity": "1f:464e462209f21079590b35e38ea5624f7745774424936fc4f281c04f0b3f4a8d"
+    },
+    {
+      "from": "test/service-work-counts.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-work-counts.mjs",
+      "source_identity": "1f:0f60a0996e767ad96806af10cf52ba587c0c3506d541ca0391507211497f2f30",
+      "identity": "1f:0f60a0996e767ad96806af10cf52ba587c0c3506d541ca0391507211497f2f30"
+    },
+    {
+      "from": "test/service-work-shapes.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/service-work-shapes.json",
+      "source_identity": "1f:0373e18052c86197907d7cb0281ff0fa3cbb2ee8e6afb895400cbe518c028e28",
+      "identity": "1f:0373e18052c86197907d7cb0281ff0fa3cbb2ee8e6afb895400cbe518c028e28"
+    },
+    {
+      "from": "test/no-service-work-in-person-store.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/watch-the-service-itself-such-as-the-share/from-old-trillion/test/no-service-work-in-person-store.test.mjs",
+      "source_identity": "1f:6c8b3bfdbc3244a32aac938c0fea3f2e261563bea9304245d11c2776cc2f8db3",
+      "identity": "1f:6c8b3bfdbc3244a32aac938c0fea3f2e261563bea9304245d11c2776cc2f8db3"
+    }
+  ]
+}

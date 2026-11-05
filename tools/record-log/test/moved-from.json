@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/erasable-byte-allocation.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/record-log/test/erasable-byte-allocation.test.mjs",
+      "source_identity": "1f:c627086cf00629c82989bde3ed2ef839d21e6b7ef78168b18bf8bb0773f7635c",
+      "identity": "1f:af88bfda0791431cab71ef41a8e4cd4bb3d43435753c0a284360ac414d956c80"
+    },
+    {
+      "from": "test/kept-runs-cursor-memory.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/record-log/test/kept-runs-cursor-memory.test.mjs",
+      "source_identity": "1f:7fbf553ebae12467bf745e3308b71048a16235aed78f6d66f8b4f9a50553b8f5",
+      "identity": "1f:684ec8a81e9e0bd395561fba5cf16a1a5a35d810e8cdf1d445269f3c6d128d84"
+    },
+    {
+      "from": "test/kept-runs-walk-lifetime.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/record-log/test/kept-runs-walk-lifetime.test.mjs",
+      "source_identity": "1f:134983e2ddf9a0c9f131063ad1ba2a2884518335822cb244f3b5c3f10f7e6e7a",
+      "identity": "1f:9360b44c75b05c032873539e81bb62124f08aa5cfc8cd7e90d9e3104ea035ee9"
+    },
+    {
+      "from": "test/kept-runs-walk-memory.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/record-log/test/kept-runs-walk-memory.test.mjs",
+      "source_identity": "1f:b9b3f9712fdaed94aa1a06d001df1833b3b4ebbabdfac81b90b6708118c0cb7a",
+      "identity": "1f:27ea141821ea78152799b9ffcb2af061448bcced7f21193149f865cf06eb9fb3"
+    }
+  ]
+}

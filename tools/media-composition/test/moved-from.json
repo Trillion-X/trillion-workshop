@@ -1,0 +1,36 @@
+{
+  "about": "Files moved here byte for byte from another code tree by tools/move-code-between-trees: each names its source path and commit, the identity of its source bytes and of its bytes here. Only import paths and the listed calls differ.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/cut-the-action.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/test/cut-the-action.test.mjs",
+      "source_identity": "1f:1e7519afcd1bb8c51612d3cdbf5cca13a2aa3a39651205b27b2f0953a87ccac7",
+      "identity": "1f:220d6ca7be64fbcf850ae59656bdc2347e721155d7864536419b4dcf4dcbbfd1"
+    },
+    {
+      "from": "test/media-versions.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/test/media-versions.test.mjs",
+      "source_identity": "1f:ee1b1ef96e7e96679bcc76bdefac5a4d75049a8b52fc97c543e7c44ebfd4e07f",
+      "identity": "1f:3ffd1657b721111fbe0013e067e735fa416f26e9a7d541513819ecd34f16bd4c"
+    },
+    {
+      "from": "test/narration-caption-binding.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/test/narration-caption-binding.test.mjs",
+      "source_identity": "1f:66e1e716952fd137c81f8a6df8087232f1e4fa65aa29210bebbaeb63b851bde6",
+      "identity": "1f:0e7b2c3f6bd79ec1874de3f988efd6a147b848855d70128ebe2479e78c60fa23"
+    },
+    {
+      "from": "test/track-alignment-measure.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/media-composition/test/track-alignment-measure.test.mjs",
+      "source_identity": "1f:f78fc4fb969816c54c60886ca5d2b0f64f77235b89f9112268d5739bc9057cf7",
+      "identity": "1f:43f89c27598111dda56a0b28eaf3d43fc9df2ab9b84dc7e2f82b8a0e8b742a55"
+    }
+  ]
+}
