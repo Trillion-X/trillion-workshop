@@ -1,0 +1,153 @@
+{
+ "kind": "tool-rows",
+ "record_set": "lock-out-stale-pages-tool-rows",
+ "what_this_is": "The Workshop row for tools/lock-out-stale-pages: the page route GET /work/api/client-version, which page builds may keep working.",
+ "records": [
+  {
+   "id": "package::lock-out-stale-pages::tool::answer-which-page-builds-may-keep-working",
+   "address": "package::lock-out-stale-pages::tool::answer-which-page-builds-may-keep-working",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:answer-which-page-builds-may-keep-working",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "Answer which page builds may keep working",
+    "job": "Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen",
+    "description": "The page route GET /client-version: answers { minimum_generation, lock_out_before } from the minimum-version DATA this tool carries (src/client-version.json), as old trillion's Worker answered it. A tab whose build is below minimum_generation, or that was opened before lock_out_before, covers itself with a reload screen. Any other route or method answers 404 { error: 'Not found' }. It reads and changes nothing.",
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The page route after /work/api: /client-version"
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "GET",
+        "POST"
+       ]
+      },
+      "query": {
+       "type": "object",
+       "description": "The route's query parameters, by name"
+      },
+      "body": {
+       "description": "The JSON body the page sent ({} when none)"
+      },
+      "browser": {
+       "type": "object",
+       "description": "The asking browser's own facts: user_agent, origin, visitor"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "lock-out-stale-pages",
+        "paths": [
+         "do-work",
+         "src"
+        ],
+        "at": "/opt/lock-out-stale-pages"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/lock-out-stale-pages",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/lock-out-stale-pages/do-work/answer-client-version.mjs",
+      "answerClientVersion"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion src/worker.mjs lines 1002-1003 and src/client-version.mjs clientVersionAnswer (tag old-trillion-before-worker-retire)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/client-version",
+       "method": "GET",
+       "query": {},
+       "body": {}
+      },
+      "output_selector": "$.status",
+      "contains": "200"
+     }
+    ]
+   }
+  }
+ ]
+}

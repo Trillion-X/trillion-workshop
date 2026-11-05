@@ -3480,6 +3480,178 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::decide-with-a-method::tool::answer-the-pursuits-page",
+   "address": "package::decide-with-a-method::tool::answer-the-pursuits-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method",
+    "id": "tool:answer-the-pursuits-page",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "Answer the page's pursuits",
+    "job": "List what I am pursuing now, and keep a goal I add or change from the page",
+    "description": "The page route /pursuits: GET answers { pursuits } (every pursuit that is not ended or archived); PUT { pursuits: [{ title, now, after, ... }], replace_all? } adds or updates each pursuit by its id (made from its id or title), and with replace_all ends every current pursuit left out except one with a room, then answers every current pursuit. Each pursuit is one pursuit record. A pursuit missing its title, now or after is refused 400 with { error }, as old trillion's DecisionEngine refused it; any other route answers 404.",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The page route after /work/api: /pursuits"
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "GET",
+        "PUT",
+        "POST"
+       ]
+      },
+      "query": {
+       "type": "object",
+       "description": "The route's query parameters, by name"
+      },
+      "body": {
+       "description": "The JSON body the page sent ({} when none)"
+      },
+      "browser": {
+       "type": "object",
+       "description": "The asking browser's own facts: user_agent, origin, visitor"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/decide-with-a-method",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/do-work/answer-the-pursuits-page.mjs",
+      "answerThePursuitsPage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:list",
+         "records:write"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion src/own-resource-compatibility.mjs lines 243-247, src/native-record-consumers.mjs lines 193-194 and src/engine.mjs lines 410-444 (tag old-trillion-before-worker-retire), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/pursuits",
+       "method": "GET",
+       "query": {},
+       "body": {}
+      },
+      "records": [
+       {
+        "id": "pursuit:grow-a-sample-newsletter",
+        "type": "pursuit",
+        "value": {
+         "id": "pursuit:grow-a-sample-newsletter",
+         "kind": "pursuit",
+         "title": "Grow a sample newsletter",
+         "now": "100 readers",
+         "after": "1,000 readers",
+         "status": "active"
+        }
+       }
+      ],
+      "output_selector": "$.body.pursuits[0].title",
+      "contains": "Grow a sample newsletter"
+     }
+    ]
+   }
   }
  ]
 }
