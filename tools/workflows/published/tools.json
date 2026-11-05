@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:147dd251cf93cf7121fd847b10e073b69db724c8ea7770d92ac5fb61ecf74212"
+  "blake3": "1f:835146a3da54629a40978dc3703ba1d86b6aaab87bf8e339cdd3a9d4959e96f9"
  },
  "fields": [
   {
@@ -376,6 +376,210 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:answer-the-calendar-page-route",
+   "values": {
+    "title": "Answer the calendar page routes",
+    "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from my own records",
+    "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request, moved here unchanged) over the person's calendar task lists, read and written only through the records door, every write conditional on what was read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. /calendar/actions and /calendar/availability are not answered here (404).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files"
+   }
+  },
+  {
+   "id": "tool:answer-the-catch-up-here-route",
+   "values": {
+    "title": "Answer the page that says how this device stands",
+    "job": "Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. POST /catch-up/here with { device_id, state, waiting?, at?, title?, kind?, copy_id? } keeps that device's row in setting:catch_up_devices (written only when what the person sees changed, or its last catch-up moved by more than an hour; newest 40 kept) and answers 200 { device, written }. A refused report answers 400 { error }; any other path or method answers 404 { error: \"Not found\" }. The write stands on the rows it read; rows another device changed meanwhile are read again.",
+    "status": "active",
+    "maker": "maker:keep-copies-in-step",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "keep-copies-in-step"
+   }
+  },
+  {
+   "id": "tool:answer-the-configurations-page",
+   "values": {
+    "title": "Answer the saved configurations routes",
+    "job": "Answer the saved configurations routes: list, read, save, remove and copy my saved configurations",
+    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which no records-door run reaches. Answers { status, body }.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "read-and-edit-the-saved-configurations-others-shared"
+   }
+  },
+  {
+   "id": "tool:answer-the-content-formats-page",
+   "values": {
+    "title": "Answer the Formats page",
+    "job": "Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script",
+    "description": "The Formats page's routes, as the old account owner answered them: GET /content-formats (the person's saved formats first, then the starters, with removed_starters and example_kinds); POST /content-formats { formats } replaces their own list, checked whole first (a refused save is 400 and keeps the list as it was); GET /content-formats/sources (their recordings and notes from their files and their pursuits, newest first); POST /content-formats/shape { thought?, source?, format_ids? } (each format's script, with before_writing); POST /content-formats/follow { format_id | script, heard, said? }. Answers { status, body }.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "shape-a-thought-into-my-content-formats"
+   }
+  },
+  {
+   "id": "tool:answer-the-decisions-route",
+   "values": {
+    "title": "Answer the Decisions page",
+    "job": "Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /decisions answers 200 with the Decisions screen's rows, the same read as tool:see-my-decisions with no input: { free, summaries, pursuits, space_pursuits, plans, access, allowance, pursuits_words, helped }. Any other path or method answers 404 { error: \"Not found\" }. It changes nothing.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:answer-the-media-page",
+   "values": {
+    "title": "Answer the Media page's saved edits",
+    "job": "Answer the Media page: read and save an edit of my recordings",
+    "description": "The Media page's routes, answered by old trillion's src/work-media.mjs handleWorkMedia unchanged: GET /media/edit?id= answers { edit } (null when none is saved); POST /media/edit { id, title, clips, ratio?, captions?, textOverlays?, edl?, panels?, file? } checks the edit as the old route did (400 with words when a clip has no source or valid times), keeps it as one media-edit record and keeps each clip as edited on Recent. An edit in a shared project (space_id), and the page's library, next-edit, render, transcribe and editor routes, need what a records-door run cannot reach, and answer 503 with words naming it. Answers { status, body }.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "show-the-media-library-and-search-what-was"
+   }
+  },
+  {
+   "id": "tool:answer-the-needs-you-hold-route",
+   "values": {
+    "title": "Answer the page that shows the one thing that holds me",
+    "job": "Answer the Trillion page routes GET and POST /work/api/needs-you-hold: the one thing held for me now, and setting it aside, handing it back, choosing a stake, asking off or turning it on",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /needs-you-hold answers 200 with the hold over the person's Waiting on you rows (record:waiting-on-you), their hold setting (setting:needs_you_hold) and their hold rules (setting:needs_you_hold_rules): { on, held, ranked, ..., said, words }; a read that fails answers 503 { error, busy: true }. POST /needs-you-hold with { op, key?, title?, reason?, way?, stake?, values? } (op: read, seen, aside, hand_back, stake, off or on) changes the hold setting on condition of what was read (409 when it changed meanwhile), keeps each job the change hands to the person's AIs as an ai-job record once, and answers the change with the read after it; seen marks read the notices the held thing's own device runs told, on this page's surface. Every read keeps the held thing as setting:needs_you_held when it changed; a refused change answers 400 { error }. Any other path or method answers 404.",
+    "status": "active",
+    "maker": "maker:hold-one-thing-until-done",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hold-one-thing-until-done"
+   }
+  },
+  {
+   "id": "tool:answer-the-pursuits-page",
+   "values": {
+    "title": "Answer the page's pursuits",
+    "job": "List what I am pursuing now, and keep a goal I add or change from the page",
+    "description": "The page route /pursuits: GET answers { pursuits } (every pursuit that is not ended or archived); PUT { pursuits: [{ title, now, after, ... }], replace_all? } adds or updates each pursuit by its id (made from its id or title), and with replace_all ends every current pursuit left out except one with a room, then answers every current pursuit. Each pursuit is one pursuit record. A pursuit missing its title, now or after is refused 400 with { error }, as old trillion's DecisionEngine refused it; any other route answers 404.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:answer-the-react-privately-route",
+   "values": {
+    "title": "Answer the page that reacts privately to something",
+    "job": "Answer the Trillion page route POST /work/api/responses/react: add or take away the person's own private reaction to anything in their Trillion, as old Trillion did",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. POST /responses/react with { record, part?, symbol, glyph?, on? } adds the reaction (or takes it away; on says which, else it toggles) in the person's own private-response record for that anchor, which no space or other account reads, and answers 200 with the anchor's reactions as the person sees them. A vote, an unknown reaction or a bad anchor answers 400 { error }. Any other path or method answers 404 { error: \"Not found.\" }. The write stands on the record it read; a reaction changed meanwhile is decided again.",
+    "status": "active",
+    "maker": "maker:react-privately-to-anything-in-a-persons-own-trillion-so-no",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "react-privately-to-anything-in-a-persons-own-trillion-so-no"
+   }
+  },
+  {
+   "id": "tool:answer-the-saved-examples-page",
+   "values": {
+    "title": "Answer the Saved examples page",
+    "job": "Answer the Saved examples page: list my saved examples, save one from its link, remove one",
+    "description": "The Saved examples page's routes (GET /saved-examples lists every example newest first with its count; POST /saved-examples saves one from { url, title?, words?, pictures?, why_it_worked?, collection?, added_from? }, filling what was not given from the public link itself the first time; POST /saved-examples/remove { id } removes one). Each example is one saved-example record. Answers { status, body } as the old account route did: a refused save is 400 with { error }, and the example stays as it was.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "saved-examples"
+   }
+  },
+  {
+   "id": "tool:answer-the-search-page-route",
+   "values": {
+    "title": "Answer the search page route",
+    "job": "Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
+    "description": "The page's GET /work/api/search, run by the engine for the page's account (workshop-routes): the request's { path, method, query } in, { status, body } out, where body is the one search's answer (searchEverything) for query q, with places, sources and matches as comma lists and limit (1..200) as old src/search.mjs searchOptions read them. Any other request answers 404. It holds the same two read-only rights as tool:search-everything-in-a-small-container and writes nothing.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "search-everything-with-one-question"
+   }
+  },
+  {
+   "id": "tool:answer-the-tell-notices-route",
+   "values": {
+    "title": "Answer the page that lists what Trillion told me",
+    "job": "Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /tell/notices answers 200 { notices }: the newest notices the open Trillion page carried (its own channel), newest first, each with its read mark, the surface it was read on, how far each way got, its state, chips and buttons. With query channel (and after, a notice number) it answers what that channel's devices read after it, oldest first; a channel that does not exist answers 400 { error }. Any other path or method answers 404. It reads the person's told-the-person records and writes nothing.",
+    "status": "active",
+    "maker": "maker:tell-one-person-something-through-every-way-they",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "tell-one-person-something-through-every-way-they",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:answer-which-page-builds-may-keep-working",
+   "values": {
+    "title": "Answer which page builds may keep working",
+    "job": "Say which builds of the Trillion page may keep working, so an open tab the store moved past shows a reload screen",
+    "description": "The page route GET /client-version: answers { minimum_generation, lock_out_before } from the minimum-version DATA this tool carries (src/client-version.json), as old trillion's Worker answered it. A tab whose build is below minimum_generation, or that was opened before lock_out_before, covers itself with a reload screen. Any other route or method answers 404 { error: 'Not found' }. It reads and changes nothing.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "lock-out-stale-pages"
    }
   },
   {
@@ -1837,6 +2041,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:check-where-work-is-kept",
+   "values": {
+    "title": "Check that an AI keeps its work in Trillion, not on disk",
+    "job": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
+    "description": "Give rules ({ source_repositories: [owner/name], scratch?: '.git/scratch', new_files_refused?: [{ why, pattern, except?, list? }], list_copies?: [{ folder, list }], list_copy_sync?: regular expression, refused_places: [{ place, why, list? }] (place: a path, ~ the home folder, * one folder, ** any), lists: { <list id>: { type, id_prefix?, value } }, default_list, classifier?: { rubric, providers, timeout_seconds, pass_answers, lists_by_answer? }, says? }) and call: the tool call ({ tool_name, tool_input }: a Write or Edit's file_path, or a Bash command). Every path the call writes is found (redirects, tee, cp, mv, install, ln, mkdir, touch, dd, curl -o/-O, wget, mktemp, tar -x, unzip, git archive -o; a cd earlier in the command moves relative paths) and placed: in a checkout whose origin is a declared source repository it passes when tracked, when it is the scratch, or when new, not ignored and matching no new_files_refused row; a list_copies folder or a refused place (the longest match wins) refuses it naming its list. A path no rule places is asked of the classifier (tools/ask-a-small-model-for-a-verdict ask) with a timeout; a model that fails passes it with a warning. Returns valid, judged, passed [{ path, how, why }], refused [{ path, how, why, list, write: the records:write { records: [{ id, type, value }] } that keeps it instead }] and warnings.",
+    "status": "active",
+    "maker": "maker:check-where-work-is-kept",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "check-where-work-is-kept"
    }
   },
   {
@@ -3468,6 +3687,21 @@
    }
   },
   {
+   "id": "tool:get-started",
+   "values": {
+    "title": "Get started",
+    "job": "Show the setup steps this account still has to finish",
+    "description": "A screen: the required setup steps with their live checked progress, the way to connect an AI, and what is left before the rest of Trillion opens. Its one read, tool:read-setup, gathers this account's setup facts for the asking browser (the account files door's setup_facts, its own show rules and setup context, and its account id) and draws the steps with tool:see-what-is-left-to-set-up; the screen host answers what that read drew (GET /work/api/screens/get-started).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "folder": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
+    "flags": [
+     "has-a-screen"
+    ]
+   }
+  },
+  {
    "id": "tool:get-the-judges-ready",
    "values": {
     "title": "Test my models on my questions ahead of time and keep who passed (runs on your computer)",
@@ -4760,6 +4994,21 @@
    }
   },
   {
+   "id": "tool:link-signal-on-this-computer",
+   "values": {
+    "title": "Link Signal on this computer",
+    "job": "Link my Signal account to this computer so my messages can be read here",
+    "description": "Links this computer to your Signal account as one of its devices, once, so tool:read-my-signal-messages-on-this-computer can read your messages here. The computer fetches signal-cli and the Java it needs itself. It runs as a session: as soon as Signal gives the link it prints { state: \"scan\", link, qr_text, qr_svg }, the code to scan, and keeps waiting; on your phone open Signal, Settings, Linked devices, Link new device, and scan it. It then answers { state: \"linked\", self_id }, or not_linked with why (a code is good for about a minute: run it again for a new one). Signal's keys for this device stay in a folder on this computer that only this tool's runs are given. Already linked, it answers linked and asks nothing.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
    "id": "tool:list-a-channels-latest-videos",
    "values": {
     "title": "List a channel's latest videos (runs on your computer)",
@@ -5125,6 +5374,22 @@
    }
   },
   {
+   "id": "tool:list-the-videos-a-site-plays",
+   "values": {
+    "title": "List the videos a site plays",
+    "job": "List every video a website plays across its pages, streams and other sites' players included, with the pages each is on and the link and words around it",
+    "description": "Opens the site's start page, and each same-site page it links to or that paths names, in a headless browser; scrolls each page through so late players load, plays its videos muted, and lists every video address the pages ask for (files such as mp4 and webm, streams such as m3u8, and hosted players: which addresses are videos is do-work/video-addresses.json) every video, video source and player frame the pages show, and every link to a video file, each once with the pages it is on and, when it sits inside a link, that link and its words. A stream address signed anew on each play is listed without its one-time query. Visits at most max_pages pages (default 25) and says which linked pages it left (remaining_paths). Keeps nothing and does not sign in. Works on public web sites: the engine lets it reach nothing else.",
+    "status": "active",
+    "maker": "maker:browse-public-page",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "listed_on": "2026-11-05T00:00:00Z",
+    "folder": "browse-public-page"
+   }
+  },
+  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -5222,6 +5487,21 @@
      "placement:your-computer"
     ],
     "folder": "listen-for-a-while"
+   }
+  },
+  {
+   "id": "tool:look",
+   "values": {
+    "title": "Look",
+    "job": "Show how Trillion looks and feels on every screen this account opens it on: the look it wears, how panes size and snap, and how each moment feels",
+    "description": "A screen with no facts to read: three sections that lend the shared parts that keep their own choice in the account’s records (Screen look, Panes, Feel). It runs nothing: the screen host draws its layout as it is (GET /work/api/screens/look).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "folder": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -7858,6 +8138,21 @@
    }
   },
   {
+   "id": "tool:read-my-signal-messages-on-this-computer",
+   "values": {
+    "title": "Read my Signal messages on this computer into my own records",
+    "job": "Read my Signal messages into my own records",
+    "description": "Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and keeps them in your records the way tool:pull-my-signal-messages does: a message read twice is kept once, an edit replaces the older copy, calls are kept as calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is kept and handed in again if keeping it failed. Give account (a name for this account, default \"default\"), timeout_seconds (how long to wait for messages, default 5), most_messages and most_threads, all optional. Read what was kept with tool:read-what-i-pulled-from-an-account (source signal).",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
    "id": "tool:read-my-training-plan",
    "values": {
     "title": "Read my training plan",
@@ -8061,6 +8356,24 @@
     ],
     "listed_on": "2026-11-04T00:00:00Z",
     "folder": "browse-and-publish-what-my-ai-can-use",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:read-setup",
+   "values": {
+    "title": "Read my setup",
+    "job": "Gather what my account's setup is made of and draw the Get started screen from it",
+    "description": "The one read of the Get started screen (tool:get-started). It asks the account files door for this account's setup facts (setup_facts: sign-ins and their app grants, notification devices, the AI connection, computers, the setup runtime, device releases, the last setup snapshot) for the asking browser, reads the account's own show rules (show-rules) and setup context (setup-context), and runs tool:see-what-is-left-to-set-up with them and the page's account id, answering the screen it draws. A source it could not read is left unknown, so the screen is not ready rather than opened on a guess. It writes nothing.",
+    "status": "active",
+    "maker": "maker:set-up-my-account",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "set-up-my-account",
     "flags": [
      "read-only"
     ]
