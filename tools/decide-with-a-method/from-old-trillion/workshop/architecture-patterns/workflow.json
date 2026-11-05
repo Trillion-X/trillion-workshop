@@ -1,0 +1,59 @@
+{
+  "id": "workflow:1000x-pattern-guided-coding",
+  "label": "Build with proven architecture patterns",
+  "job": "Solve an architecture-sensitive coding task involving security, concurrency, state, persistence, or performance by adapting proven patterns, then verify the real result",
+  "input_schema": {
+    "type": "object",
+    "required": ["task"],
+    "additionalProperties": false,
+    "properties": {
+      "task": { "type": "string", "minLength": 3, "description": "The coding problem to solve" },
+      "codebase": { "type": "string", "description": "Optional codebase or product the change belongs to" }
+    }
+  },
+  "steps": [
+    {
+      "id": "patterns",
+      "do": "Find candidate patterns from the decomposed 1000x reference for this exact task. These are candidates, not instructions to copy blindly.",
+      "run_tool": { "tool_id": "tool:1000x-architecture-patterns", "input": { "query": { "from": ["input", "task"] } } },
+      "submit": {
+        "type": "object",
+        "required": ["query", "total", "patterns", "usage"],
+        "properties": {
+          "query": { "type": "string" },
+          "total": { "type": "integer" },
+          "patterns": { "type": "array" },
+          "usage": { "type": "string" }
+        }
+      }
+    },
+    {
+      "id": "implement",
+      "do": "Inspect the current code, owner, tests and live behavior. Decide which retrieved patterns actually fit; for each chosen pattern read its complete original with tool:1000x-architecture-patterns query '#N'. Translate its invariant into this codebase's language and constraints; do not copy historical Rust code, numbers, hashes or publication rules automatically. Reuse an existing owner or primitive when it already solves the job. Make the smallest real change now, then report the exact changed paths and evidence. Reject irrelevant patterns explicitly.",
+      "submit": {
+        "type": "object",
+        "required": ["selected_patterns", "rejected_patterns", "changed", "evidence"],
+        "properties": {
+          "selected_patterns": { "type": "array", "items": { "type": "integer" } },
+          "rejected_patterns": { "type": "array", "items": { "type": "integer" } },
+          "changed": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    {
+      "id": "verify",
+      "do": "Run the smallest meaningful test and read the current live result where the task needs it. Compare with an authentic baseline when available. State what works, what remains unverified and the exact blocker, if any. Do not claim a speedup from a source edit or a local microbenchmark alone.",
+      "submit": {
+        "type": "object",
+        "required": ["result", "checks", "live_readback", "limits"],
+        "properties": {
+          "result": { "type": "string", "minLength": 1 },
+          "checks": { "type": "array", "items": { "type": "string" } },
+          "live_readback": { "type": "string" },
+          "limits": { "type": "string" }
+        }
+      }
+    }
+  ]
+}

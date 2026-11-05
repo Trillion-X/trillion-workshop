@@ -12,6 +12,13 @@
       "source_identity": "1f:e9fb74cd50aa78e03c019d50901a467ab80e6f26d459d15c70d5112249f4fbca",
       "identity": "1f:e9fb74cd50aa78e03c019d50901a467ab80e6f26d459d15c70d5112249f4fbca",
       "found_by": "same bytes"
+    },
+    {
+      "from": "records/workshop-site-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/copy-a-site/from-old-trillion/records/workshop-site-tool-records.json",
+      "source_identity": "1f:7b45efb3fe3bd3075d9bae1347c1f0199fba71ca1a09b7888a657137c81a9410",
+      "identity": "1f:7b45efb3fe3bd3075d9bae1347c1f0199fba71ca1a09b7888a657137c81a9410"
     }
   ]
 }

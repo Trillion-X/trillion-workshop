@@ -1,0 +1,388 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-money-tool-records",
+  "what_this_is": "Money as Workshop tools any account runs on its own business, and Trillion runs on its own: price experiments (src/price-experiments.mjs; Trillion's plan prices are its own experiments, kept in the service's book and reached when the operator account runs the tool) the funnel graph read (src/funnel-read.mjs, the same read the Funnels screen draws), the plans this person is offered with their checkout links (src/payment.mjs offersFor) and their referral link (src/shares.mjs referralSummary). All are account actions in the person's own store; prices, offers and funnels are the person's own DATA, none fixed here.",
+  "records": [
+    {
+      "id": "package::trillion::tool::run-price-experiments",
+      "address": "package::trillion::tool::run-price-experiments",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:run-price-experiments",
+        "listed_on": "2026-10-03T17:30:00Z",
+        "label": "Run price experiments",
+        "job": "Test two or more prices of an offer: start a price experiment on the person's own offers and prices (their Stripe prices; on Trillion's own account, Trillion's plans), show each visitor or customer the same price every time, record payments and refunds, read which price brings in the most money per person shown it, settle the winner so everyone sees it, or stop it; also answers which offers one visitor is shown. Prices can also move by geometric price rules (ladder, controller, bracket): a ladder of prices a fixed ratio apart to test, a price that doubles with sales and eases with people who do not buy, or a bracketed search that closes on the highest price people accept",
+        "description": "Every price shown, payment and refund is kept as a commercial event, so a funnel graph that names the experiment's funnel_id counts it at its stages and a settled experiment's winner becomes the price its node shows. An arm's price is read from the offer it names, never typed over it. Trillion's own plan prices are this tool run on the account that runs Trillion. A price rule says what the price should be; changing what customers are charged for an offer with a payment link goes through whoever sets that offer.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "operation"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "list",
+                "read",
+                "save",
+                "settle",
+                "stop",
+                "assign",
+                "record",
+                "results",
+                "shown_offers",
+                "ladder",
+                "price_now",
+                "next_round"
+              ],
+              "description": "save starts or changes an experiment; assign shows one observer their price and keeps that they saw it; record keeps a payment or refund; results reads money per person shown each price; settle shows everyone the winner (the leading price when none is named); shown_offers lists the offers one observer sees. ladder previews a geometric price rule (its prices and what it says) without keeping anything; price_now says what a rule's price is now, from an experiment's results or from sales and reached handed in; next_round moves a running experiment to the prices its rule now says to test."
+            },
+            "experiment_id": {
+              "type": "string",
+              "description": "The experiment's id (save returns it)."
+            },
+            "label": {
+              "type": "string",
+              "description": "save: what is being tested, in plain words."
+            },
+            "surface": {
+              "type": "string",
+              "description": "save: where the price is shown. On Trillion's own account, the place its pages quote it (paid-plan for the upgrade line, hosted-site for the publishing site)."
+            },
+            "optimizing_for": {
+              "type": "string",
+              "description": "save: what the experiment should bring about, in words."
+            },
+            "arms": {
+              "type": "array",
+              "minItems": 2,
+              "description": "save: the prices tested. Each names an offer of this account (offer_id, or price_id for a price on its payment service), whose own price is used; or gives id with amount_cents, currency and interval for a price sold elsewhere. weight (default 1) sets how many observers see it.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "offer_id": {
+                    "type": "string"
+                  },
+                  "price_id": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  },
+                  "weight": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "amount_cents": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "interval": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "rule": {
+              "type": "object",
+              "description": "save, ladder, price_now: a geometric price rule, the price moving by multiplication from what people did instead of by opinion. mode ladder: prices a factor `ratio` apart around start_cents (down_steps below, up_steps above), each next_round zooming in on the price that earned most per person. mode controller: the price starts at start_cents, doubles over sales_to_double sales, and each person who reached it and did not buy takes a little off, holding still at target_win_rate (a number between 0 and 1). mode bracket: the highest price someone accepted and the lowest price above it that was refused, the next price being the geometric middle between them. With a rule and no arms, save opens with the rule's prices.",
+              "required": [
+                "mode",
+                "start_cents"
+              ],
+              "properties": {
+                "mode": {
+                  "type": "string",
+                  "description": "ladder, controller or bracket."
+                },
+                "start_cents": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "floor_cents": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The price never goes below this."
+                },
+                "ceiling_cents": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "ladder: the price never goes above this."
+                },
+                "unit_cents": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Prices are rounded to this many cents (default 100)."
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "interval": {
+                  "type": "string"
+                },
+                "ratio": {
+                  "type": "number",
+                  "description": "ladder: the factor between neighbouring prices (default 2)."
+                },
+                "down_steps": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "up_steps": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "sales_to_double": {
+                  "type": "number",
+                  "description": "controller: sales that double the price."
+                },
+                "target_win_rate": {
+                  "type": "number",
+                  "description": "controller: the share of people who reach the price that should buy, between 0 and 1."
+                },
+                "reference_sales": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "reference_nonbuyer_views": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "price_markdown_cents": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "suggested_multiples": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "controller: price multiples to offer around the current price."
+                },
+                "growth": {
+                  "type": "number",
+                  "description": "bracket: the factor to climb by while nothing above the best accepted price has been refused (default 2)."
+                },
+                "accept_min_paid": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "reject_min_shown": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "tolerance": {
+                  "type": "number",
+                  "description": "bracket: the price is settled once the refused price is within this share of the accepted one."
+                }
+              }
+            },
+            "funnel_id": {
+              "type": "string",
+              "description": "save: the id of a funnel graph in the person's Funnels folder this experiment feeds."
+            },
+            "node_ref": {
+              "type": "string",
+              "description": "save: the node of that funnel whose price is tested."
+            },
+            "observer": {
+              "type": "string",
+              "description": "assign, record, shown_offers: who is shown the price (a visitor id, customer id or email)."
+            },
+            "moment": {
+              "type": "string",
+              "enum": [
+                "paid",
+                "refunded"
+              ],
+              "description": "record: what happened."
+            },
+            "amount_cents": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "record: the amount paid or refunded."
+            },
+            "currency": {
+              "type": "string"
+            },
+            "event_id": {
+              "type": "string",
+              "description": "record: the payment's own id, so a payment sent twice counts once."
+            },
+            "arm": {
+              "type": "string",
+              "description": "record: the arm paid for, when it is not the observer's own."
+            },
+            "winner": {
+              "type": "string",
+              "description": "settle: the arm everyone is shown from now on."
+            },
+            "why": {
+              "type": "string",
+              "description": "settle: why it won, in words."
+            },
+            "sales": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "price_now: people who bought, when a rule is given without an experiment."
+            },
+            "reached": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "price_now: people who reached the price, when a rule is given without an experiment."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "price-experiments"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::read-a-funnel",
+      "address": "package::trillion::tool::read-a-funnel",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-funnel",
+        "listed_on": "2026-10-03T17:30:00Z",
+        "label": "Read a funnel",
+        "job": "Read a funnel graph from the person's Funnels folder as its stages with live numbers: how many entered each stage, converted and paid, the money each stage brought in and the share that reached it from the stage before, counted from the facts the funnel names, the person's own commercial events (payments, accepted deals, prices shown) and their price experiments on it; without a name, every funnel with how many entered and reached the end",
+        "description": "The same read the Funnels screen draws. A funnel is a JSON file in /Funnels (a graph with its offer nodes and measures); events count at the stage the funnel's own measures.event_stage_map names.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The funnel's file name in Funnels (or its whole path). Leave out to list every funnel.",
+              "x-free-text-because": "The file name of a funnel in the Funnels folder, a file and not a row of a list."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-a-funnel"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::see-my-plan-offers",
+      "address": "package::trillion::tool::see-my-plan-offers",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-my-plan-offers",
+        "listed_on": "2026-10-03T19:30:00Z",
+        "label": "See my Trillion plans and checkout links",
+        "job": "See the Trillion plans and offers this person is offered right now, each with its price, whether they already hold it, and the checkout link that buys it (their friend code applied when they joined through someone's link, their own price in any price test)",
+        "description": "The same offers and links the account page shows them. Buying goes through the link; nothing is charged by reading.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "plan-offers"
+        },
+        "status": "active",
+        "output_schema": {
+          "type": "object"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::see-my-referral-link",
+      "address": "package::trillion::tool::see-my-referral-link",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:see-my-referral-link",
+        "listed_on": "2026-10-03T19:30:00Z",
+        "label": "See my referral link",
+        "job": "Read this person's own Trillion referral link, what someone who joins with it gets, the credit this person gets when they pay, and who joined with it and what each earned",
+        "description": "The same answer the Account screen shows. It changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "referral-link"
+        },
+        "status": "active",
+        "output_schema": {
+          "type": "object"
+        },
+        "placements": [
+          "placement:this-account"
+        ],
+        "licence_class": "licence:maker-own",
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        }
+      }
+    }
+  ]
+}

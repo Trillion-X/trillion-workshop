@@ -18,6 +18,34 @@
       "to": "tools/decide-with-a-method/test/decision-progress.test.mjs",
       "source_identity": "1f:bd06fa81d3774af4009b334797ddfce70a6073b698d60f62aca0577a38a4f1ca",
       "identity": "1f:85f23dbc0e368fbedc494931067e7aae3f5b7fcd9d177ce33425dcf01e400aa3"
+    },
+    {
+      "from": "workshop/architecture-patterns/README.md",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/decide-with-a-method/from-old-trillion/workshop/architecture-patterns/README.md",
+      "source_identity": "1f:6917fed00fb4c8049e9efb2aca7c6bb75de2036b601e0e8fee223f9d26d43733",
+      "identity": "1f:6917fed00fb4c8049e9efb2aca7c6bb75de2036b601e0e8fee223f9d26d43733"
+    },
+    {
+      "from": "workshop/architecture-patterns/descriptor.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/decide-with-a-method/from-old-trillion/workshop/architecture-patterns/descriptor.json",
+      "source_identity": "1f:8a75768cf7a470eb0829837453c6256dfd700cdd7396ba5c2a9f7601f0c50201",
+      "identity": "1f:8a75768cf7a470eb0829837453c6256dfd700cdd7396ba5c2a9f7601f0c50201"
+    },
+    {
+      "from": "workshop/architecture-patterns/main.py",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/decide-with-a-method/from-old-trillion/workshop/architecture-patterns/main.py",
+      "source_identity": "1f:ae4cf59aa96be7dca847b8a2f554afabfb78632a170bc5779d5a765c34ed66a1",
+      "identity": "1f:ae4cf59aa96be7dca847b8a2f554afabfb78632a170bc5779d5a765c34ed66a1"
+    },
+    {
+      "from": "workshop/architecture-patterns/workflow.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/decide-with-a-method/from-old-trillion/workshop/architecture-patterns/workflow.json",
+      "source_identity": "1f:aac892dc31849629be8bd32a7c83161e4c9e9e640253d139883df584fa659745",
+      "identity": "1f:aac892dc31849629be8bd32a7c83161e4c9e9e640253d139883df584fa659745"
     }
   ]
 }

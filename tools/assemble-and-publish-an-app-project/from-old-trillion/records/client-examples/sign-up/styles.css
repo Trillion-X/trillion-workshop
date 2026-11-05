@@ -1,0 +1,5 @@
+body{margin:0;font-family:system-ui,-apple-system,sans-serif;background:#f6f4ef;color:#17312b}
+main{max-width:34rem;margin:0 auto;padding:4rem 1.25rem;text-align:center}
+h1{margin:0 0 .75rem;font-size:clamp(2rem,6vw,3rem);line-height:1.15}
+main>p{margin:0 0 2rem;font-size:1.1rem;line-height:1.5}
+.trillion-capability-slot{text-align:left;margin:0 auto}

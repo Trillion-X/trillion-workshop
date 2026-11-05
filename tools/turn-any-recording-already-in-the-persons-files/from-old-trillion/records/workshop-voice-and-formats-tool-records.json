@@ -1,0 +1,560 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-voice-and-formats-tool-records",
+  "what_this_is": "The Record and Formats screens' jobs as Workshop tools any AI calls, each run in the person's own store (placement:this-account, whose executor looks the row's invoke.action up in the store's map): a thought shaped into every content format (the Formats screen), a script followed as it is read aloud (the Record screen's teleprompter), and a recording kept as a voice memo and handed to the person's AIs (the Record screen's Done). Each row's screen names the app screen that does the same job.",
+  "records": [
+    {
+      "id": "package::trillion::tool::shape-a-thought-into-formats",
+      "address": "package::trillion::tool::shape-a-thought-into-formats",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:shape-a-thought-into-formats",
+        "listed_on": "2026-09-30T04:52:04Z",
+        "label": "Shape a thought into every content format",
+        "job": "Turn one thought into a script for each of this person's content formats (a post, an article, a thread, a short video and the rest), so they can see how the idea reads in each and pick one to record or write",
+        "description": "Give thought, what the person wants to talk about, and optionally format_ids to use only those formats (ids from content_formats), in that order. Each format comes back as a script: its parts in order, the first carrying the thought and every later part what to say next in the format's own words, the whole script as text, and what the format is made from, its steps and what comes out. The same scripts the Formats screen shows. Changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "thought"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "thought": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "What they want to talk about, in their words"
+            },
+            "format_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Only these formats, in this order; every format when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "scripts"
+          ],
+          "properties": {
+            "scripts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "format_id",
+                  "format_label",
+                  "about",
+                  "lines",
+                  "text"
+                ],
+                "properties": {
+                  "format_id": {
+                    "type": "string"
+                  },
+                  "format_label": {
+                    "type": "string"
+                  },
+                  "about": {
+                    "type": "string"
+                  },
+                  "lines": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "label",
+                        "words",
+                        "theirs"
+                      ],
+                      "properties": {
+                        "id": {
+                          "type": "string"
+                        },
+                        "label": {
+                          "type": "string",
+                          "description": "The part's name in the format"
+                        },
+                        "words": {
+                          "type": "string",
+                          "description": "What to say or write here"
+                        },
+                        "theirs": {
+                          "type": "boolean",
+                          "description": "True for the part that carries the thought itself"
+                        }
+                      }
+                    }
+                  },
+                  "text": {
+                    "type": "string",
+                    "description": "The whole script as plain text"
+                  },
+                  "input": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "process": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "output": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "shape-into-formats"
+        },
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "verify": [
+          {
+            "kind": "output-contains-input",
+            "output_selector": "$.scripts[0].about",
+            "input_field": "thought"
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "thought": "My serve finally clicked",
+              "format_ids": [
+                "x_thread"
+              ]
+            },
+            "output_selector": "$.scripts[0].lines[0].words",
+            "contains": "My serve finally clicked"
+          }
+        ],
+        "screen": {
+          "group": "content-plan",
+          "kind": "app-entry",
+          "entry": "formats",
+          "replaces": "trillion.formats",
+          "icon": "LayoutTemplate",
+          "label": "Formats",
+          "about": "Turns one thought into every kind of post.",
+          "inputs": {
+            "thought": {
+              "label": "Your thought",
+              "placeholder": "What you want to talk about"
+            },
+            "format_ids": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::follow-a-script",
+      "address": "package::trillion::tool::follow-a-script",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:follow-a-script",
+        "listed_on": "2026-09-30T04:52:04Z",
+        "label": "Follow a script as it is read aloud",
+        "job": "Find how far someone has read through a script made from one of their content formats, from the words heard while they read it, the way a teleprompter follows a voice",
+        "description": "Give format_id and about (the thought the script was made with, as shape-a-thought-into-formats took them), heard (a live or finished transcript) and optionally said, the place reached by an earlier call, to go on from it. Each word heard is looked for a few words ahead of the place reached, so an aside or a misheard word never loses the place and it never moves back. Returns said (script words read), total, progress from 0 to 1, done, and next_words: what comes next. Changes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "format_id",
+            "heard"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "format_id": {
+              "type": "string"
+            },
+            "about": {
+              "type": "string",
+              "description": "The thought in the script's first part"
+            },
+            "heard": {
+              "type": "string",
+              "description": "The words heard since said"
+            },
+            "said": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "The place already reached; 0 when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said",
+            "total",
+            "progress",
+            "done",
+            "next_words"
+          ],
+          "properties": {
+            "said": {
+              "type": "integer"
+            },
+            "total": {
+              "type": "integer"
+            },
+            "progress": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "next_words": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "follow-a-script"
+        },
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
+        "verify": [
+          {
+            "kind": "output-number-within",
+            "output_selector": "$.said",
+            "at_least": 0,
+            "at_most": {
+              "output_selector": "$.total"
+            }
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "format_id": "x_thread",
+              "about": "My serve finally clicked",
+              "heard": "um my serve finally clicked"
+            },
+            "output_selector": "$.said",
+            "contains": "4"
+          }
+        ],
+        "screen": {
+          "group": "content-make",
+          "kind": "app-entry",
+          "entry": "record",
+          "icon": "ScrollText",
+          "label": "Teleprompter",
+          "about": "Shows your script and follows along as you read.",
+          "inputs": {
+            "format_id": {
+              "label": "Format",
+              "placeholder": "The format, from Formats"
+            },
+            "about": {
+              "label": "Thought",
+              "placeholder": "What the script is about"
+            },
+            "heard": {
+              "hidden": true
+            },
+            "said": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::keep-a-voice-memo",
+      "address": "package::trillion::tool::keep-a-voice-memo",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:keep-a-voice-memo",
+        "listed_on": "2026-09-30T04:52:04Z",
+        "label": "Keep a recording as a voice memo and hand it to your AIs",
+        "job": "Make a recording already in this person's files into a voice memo: keep its words beside it as a transcript file and hand it to their AIs to act on, the way the Record screen does",
+        "description": "Give identity, the recording's identity in the person's files (audio or video). Give words and seconds when the words were already heard (a live transcript); without words its own transcript is made (transcribe-file) and its length read from it. Give format_id and about when it was read from a format's script, so the transcript starts with the script and the AI turns it into that format. Keeps \"<name> transcript.txt\" beside the recording and asks the person's AIs to do something useful with it; the same recording again is handed on once. Returns audio_file, transcript_file, transcript_identity, words, asked_id, repeated and said; a recording in which nothing was said keeps its empty transcript and answers nothing_said true, handing nothing on.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "identity"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "identity": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$",
+              "description": "The recording, from find_file or list_files"
+            },
+            "words": {
+              "type": "string",
+              "description": "What was said, when it was already heard"
+            },
+            "seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "How long the recording runs; needed with words"
+            },
+            "format_id": {
+              "type": "string",
+              "description": "The format whose script was read, from content_formats"
+            },
+            "about": {
+              "type": "string",
+              "description": "The thought the script was made with"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "audio_file",
+            "transcript_file",
+            "transcript_identity",
+            "words"
+          ],
+          "properties": {
+            "audio_file": {
+              "type": "string"
+            },
+            "transcript_file": {
+              "type": "string"
+            },
+            "transcript_identity": {
+              "type": "string"
+            },
+            "words": {
+              "type": "string"
+            },
+            "asked_id": {
+              "type": "string"
+            },
+            "repeated": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            },
+            "nothing_said": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "keep-a-voice-memo"
+        },
+        "needs": {
+          "max_input_bytes": 25000000,
+          "expected_seconds": 30,
+          "gpu": true,
+          "network_egress": false
+        },
+        "retry": {
+          "max_attempts": 30,
+          "first_after_seconds": 90,
+          "factor": 2,
+          "longest_after_seconds": 3600
+        },
+        "verify": [
+          {
+            "kind": "output-contains",
+            "output_selector": "$.transcript_file",
+            "text": " transcript.txt"
+          }
+        ],
+        "screen": {
+          "group": "content-make",
+          "kind": "app-entry",
+          "entry": "record",
+          "icon": "Mic",
+          "label": "Voice memo",
+          "about": "Records you and hands the words to your AIs.",
+          "inputs": {
+            "identity": {
+              "label": "Recording",
+              "file": { "takes": "recording" }
+            },
+            "words": {
+              "label": "What you said",
+              "placeholder": "Only when it is already written down"
+            },
+            "seconds": {
+              "label": "Length in seconds",
+              "placeholder": "Needed with what you said"
+            },
+            "format_id": {
+              "label": "Format",
+              "placeholder": "The format whose script you read"
+            },
+            "about": {
+              "label": "Thought",
+              "placeholder": "What the script was about"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::inspiration",
+      "address": "package::trillion::tool::inspiration",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "id": "tool:inspiration",
+        "listed_on": "2026-10-02T10:16:35Z",
+        "label": "Inspiration",
+        "job": "Show everything worth making from, in named rows: the next thing to make, recordings with this person's voice no edit has used, files used lately, their content formats, saved examples that worked, posts ready to go out, finished videos and fresh recordings",
+        "description": "Returns sections (each { id, title, subtitle, cards }, a card being { id, source, title, detail, summary, file, bytes, media_type, media_kind, duration, at, picture, opens, edit }), the ways to see them (layouts), the actions a card and the pick offer, and said, the rows in words. Read it before suggesting what this person should make next. Rows and where each reads its cards are DATA in src/inspiration.json.",
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sections",
+            "said"
+          ],
+          "properties": {
+            "sections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "title",
+                  "cards"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "subtitle": {
+                    "type": "string"
+                  },
+                  "cards": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "source"
+                      ]
+                    }
+                  },
+                  "failed": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "layouts": {
+              "type": "array"
+            },
+            "card_actions": {
+              "type": "array"
+            },
+            "pick_actions": {
+              "type": "array"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "inspiration"
+        },
+        "screen": {
+          "group": "content-plan",
+          "kind": "app-entry",
+          "entry": "inspiration",
+          "icon": "Images",
+          "label": "Inspiration",
+          "about": "Everything worth making from, in rows, a wall or a grid."
+        },
+        "provenance": {
+          "source": "src/inspiration.mjs",
+          "ported_from": "an earlier media workspace tool: inspiration-ui.js and inspiration-layouts.json"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "make from"
+          }
+        ]
+      }
+    }
+  ]
+}

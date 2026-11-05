@@ -1,0 +1,34 @@
+{
+  "examples": [
+    {
+      "directory": "bakery",
+      "id": "example-pop-shop",
+      "files": ["index.html", "styles.css"],
+      "actions": []
+    },
+    {
+      "directory": "longevity",
+      "id": "the-long-view",
+      "files": ["index.html", "styles.css", "landscape.svg"],
+      "actions": []
+    },
+    {
+      "directory": "sports-club",
+      "id": "kiln-studio-demo",
+      "files": ["index.html", "styles.css", "submit.js"],
+      "actions": [
+        {
+          "id": "send-intake",
+          "record_kind": "sports-club-inquiry",
+          "fields": [
+            { "id": "name", "type": "text", "required": true },
+            { "id": "email", "type": "email", "required": true },
+            { "id": "experience", "type": "text" },
+            { "id": "focus", "type": "text" },
+            { "id": "note", "type": "text" }
+          ]
+        }
+      ]
+    }
+  ]
+}

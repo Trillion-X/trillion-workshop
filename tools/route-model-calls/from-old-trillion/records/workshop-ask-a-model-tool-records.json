@@ -1,0 +1,293 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-ask-a-model-tool-records",
+  "what_this_is": "Asking a model on the person's own AI account (Anthropic, OpenAI, Google) in the one chat-completions shape all three serve, with tools it may call. Each row sends through the locked box with the person's own key for that service, so it never runs on a Trillion-hosted model. A row of the person's own AIs that runs by model (src/own-ais-work.mjs) asks the row of its service; any AI can run them too. A new service that serves the same shape is one row here and the person's own AI row of kind account naming its tool (tool_id, src/own-ais.json kinds).",
+  "records": [
+    {
+      "id": "package::trillion::tool::ask-anthropic-chat",
+      "address": "package::trillion::tool::ask-anthropic-chat",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "id": "tool:ask-anthropic-chat",
+        "listed_on": "2026-10-01T21:25:47Z",
+        "label": "Ask Claude with your Anthropic account",
+        "job": "Send a conversation (with the tools it may call) to a Claude model on the person's own Anthropic account and get its next message back",
+        "description": "Uses the person's connected Anthropic account (connect it with tool:connect-service-anthropic). The conversation is in the chat-completions shape: messages [{ role, content, tool_calls?, tool_call_id? }] and optional tools [{ type: \"function\", function: { name, description, parameters } }]. Returns the model's reply as the service gives it (choices[0].message).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "messages"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "The Claude model to ask, as Anthropic names it"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The conversation so far"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Tools the model may call, as functions"
+            },
+            "max_tokens": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The longest reply, in tokens"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "connection": "package::service-connections::published-record::anthropic",
+          "connection_id": "service_connection:anthropic",
+          "url": "https://api.anthropic.com/v1/chat/completions",
+          "method": "POST",
+          "timeout_ms": 180000,
+          "body": {
+            "model": "{model}",
+            "messages": {
+              "from": "messages"
+            },
+            "tools": {
+              "from": "tools",
+              "optional": true
+            },
+            "max_tokens": {
+              "from": "max_tokens",
+              "optional": true
+            }
+          },
+          "credential_injections": [
+            {
+              "field_id": "api_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::ask-openai-chat",
+      "address": "package::trillion::tool::ask-openai-chat",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "id": "tool:ask-openai-chat",
+        "listed_on": "2026-10-01T21:25:47Z",
+        "label": "Ask ChatGPT with your OpenAI account",
+        "job": "Send a conversation (with the tools it may call) to a ChatGPT model on the person's own OpenAI account and get its next message back",
+        "description": "Uses the person's connected OpenAI account (connect it with tool:connect-service-openai). The conversation is in the chat-completions shape: messages [{ role, content, tool_calls?, tool_call_id? }] and optional tools [{ type: \"function\", function: { name, description, parameters } }]. Returns the model's reply as the service gives it (choices[0].message).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "messages"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "The ChatGPT model to ask, as OpenAI names it"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The conversation so far"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Tools the model may call, as functions"
+            },
+            "max_tokens": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The longest reply, in tokens"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "connection": "package::service-connections::published-record::openai",
+          "connection_id": "service_connection:openai",
+          "url": "https://api.openai.com/v1/chat/completions",
+          "method": "POST",
+          "timeout_ms": 180000,
+          "body": {
+            "model": "{model}",
+            "messages": {
+              "from": "messages"
+            },
+            "tools": {
+              "from": "tools",
+              "optional": true
+            },
+            "max_completion_tokens": {
+              "from": "max_tokens",
+              "optional": true
+            }
+          },
+          "credential_injections": [
+            {
+              "field_id": "api_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::ask-google-chat",
+      "address": "package::trillion::tool::ask-google-chat",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:public-web-address"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "id": "tool:ask-google-chat",
+        "listed_on": "2026-10-01T21:25:47Z",
+        "label": "Ask Gemini with your Google account",
+        "job": "Send a conversation (with the tools it may call) to a Gemini model on the person's own Google account and get its next message back",
+        "description": "Uses the person's connected Google account (connect it with tool:connect-service-google). The conversation is in the chat-completions shape: messages [{ role, content, tool_calls?, tool_call_id? }] and optional tools [{ type: \"function\", function: { name, description, parameters } }]. Returns the model's reply as the service gives it (choices[0].message).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "messages"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "model": {
+              "type": "string",
+              "description": "The Gemini model to ask, as Google names it"
+            },
+            "messages": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "The conversation so far"
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "description": "Tools the model may call, as functions"
+            },
+            "max_tokens": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "The longest reply, in tokens"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "http",
+          "connection": "package::service-connections::published-record::google",
+          "connection_id": "service_connection:google",
+          "url": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+          "method": "POST",
+          "timeout_ms": 180000,
+          "body": {
+            "model": "{model}",
+            "messages": {
+              "from": "messages"
+            },
+            "tools": {
+              "from": "tools",
+              "optional": true
+            },
+            "max_tokens": {
+              "from": "max_tokens",
+              "optional": true
+            }
+          },
+          "credential_injections": [
+            {
+              "field_id": "api_key",
+              "placement": {
+                "kind": "header",
+                "name": "Authorization",
+                "prefix": "Bearer ",
+                "suffix": ""
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -9,3 +9,12 @@ Files of old trillion whose job is this tool's (read public repositories of agen
 | `src/skill-sources.mjs` | `src/skill-sources.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/database-resource-composition.mjs (at the tag, not moved here yet) |
 | `test/skill-sources-root.test.mjs` | `test/skill-sources-root.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/skill-sources.json (at the tag, not moved here yet), records/skill-import-rules.json (at the tag, not moved here yet) |
 | `test/skill-sources.test.mjs` | `test/skill-sources.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/in-process-mcp.mjs (at the tag, not moved here yet), records/skill-sources.json (at the tag, not moved here yet), records/skill-import-rules.json (at the tag, not moved here yet) |
+
+## Still on old trillion main at 5dc302be37
+
+Files old trillion main still held at 5dc302be37 with no copy in any new repository, moved here unchanged under their old paths by the old-trillion sweep. Nothing imports or runs them yet; adapting one into this tool is a later commit that names this receipt.
+
+| Old path | Here |
+|---|---|
+| `records/skill-import-rules.json` | `records/skill-import-rules.json` |
+| `records/skill-sources.json` | `records/skill-sources.json` |

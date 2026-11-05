@@ -1,0 +1,28 @@
+{
+  "_what": "What Trillion HQ (the operator account, OPERATOR_ACCOUNT_ID) sees about each customer, and the plain words that say so (src/hq-sharing.mjs keeps and reads it, src/journey.mjs records only what it allows). Two choices per account, kept in APP_KV under `key_prefix` + the account id as { activity, content, set_at, via }. `activity` is what a person did (which screen group, which tool ran, a step of signing up, an error, a report, a notice Trillion sent them: only its kind and title) and is ON until the person turns it off. `content` is what a person wrote or a notice said (a report's quoted words, a notice's body) and is OFF until the person turns it on. An account with no key yet (made before this existed) reads as `default`, so it is counted until it chooses. `via` says how the choice was last set: `sign_up` (the default, written when the account was made), `settings` (the person), or `default` (no key was ever written, so it is only the default being read).",
+  "key_prefix": "hq-sharing:",
+  "default": {
+    "activity": true,
+    "content": false
+  },
+  "words": {
+    "sign_up": "Trillion HQ sees what you do here, like which screens you open, which tools run and any errors, so we can fix things for you. We never see what you write unless you allow it. You can change this any time in Settings, under Privacy.",
+    "privacy_heading": "What Trillion HQ sees",
+    "privacy_lead": "The people who make Trillion look at how each account is used so they can fix what is hard or broken for you. You choose how much they see.",
+    "activity_title": "What you do",
+    "activity_on": "On: HQ sees which screens you open, which tools your AI runs, any errors, and the reports your AI sends. Never the words in them.",
+    "activity_off": "Off: HQ keeps no record of what you do here.",
+    "content_title": "What you write",
+    "content_on": "On: HQ can also read the words in your reports and notices from Trillion, to understand a problem.",
+    "content_off": "Off: HQ never sees the words you wrote or a notice's body. This is the default.",
+    "turn_off_activity": "Stop sharing what I do",
+    "turn_on_activity": "Share what I do",
+    "turn_off_content": "Stop sharing what I write",
+    "turn_on_content": "Share what I write",
+    "said_activity_off": "HQ no longer sees what you do, and what it kept about your activity is removed.",
+    "said_activity_on": "HQ sees what you do again.",
+    "said_content_off": "HQ no longer sees what you write.",
+    "said_content_on": "HQ can read the words in your reports.",
+    "privacy_page": "The people who make Trillion (Trillion HQ) can see, for each account, what the person did here: which screens they opened, which tools their AI ran, errors, the steps of signing up, the notices Trillion sent them (the kind and title) and the reports they or their AI sent us. This is on unless you turn it off in Settings, under Privacy, and turning it off removes what we kept. We never see what you write, such as the words of a report or the body of a notice, unless you allow it there; that is off until you turn it on. What HQ keeps about what you do is removed after 90 days. The overall counts of visits and tool use that Trillion keeps are separate from this choice. Page visits and clicks are not counted at all, in either place, if your browser asks not to be tracked (Do Not Track or Global Privacy Control)."
+  }
+}

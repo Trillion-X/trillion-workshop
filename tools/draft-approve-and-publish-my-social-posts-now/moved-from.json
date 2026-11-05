@@ -43,6 +43,20 @@
       "source_identity": "1f:b407d6adbcbe66560c02952bb8398633e8d3225fc3ea1fba99b0fb2818e5a10a",
       "identity": "1f:b407d6adbcbe66560c02952bb8398633e8d3225fc3ea1fba99b0fb2818e5a10a",
       "held": true
+    },
+    {
+      "from": "records/post-place-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/records/post-place-records.json",
+      "source_identity": "1f:4033b47cd050b3becd70ef75bf590fcc1d78ab9a7d84d9ac4fe0aeda1a18c167",
+      "identity": "1f:4033b47cd050b3becd70ef75bf590fcc1d78ab9a7d84d9ac4fe0aeda1a18c167"
+    },
+    {
+      "from": "records/workshop-publishing-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/draft-approve-and-publish-my-social-posts-now/from-old-trillion/records/workshop-publishing-tool-records.json",
+      "source_identity": "1f:61505436cd61faaa0c5883d5910a860bf9121f2e2e593ba7c45dc7df6b501702",
+      "identity": "1f:61505436cd61faaa0c5883d5910a860bf9121f2e2e593ba7c45dc7df6b501702"
     }
   ]
 }

@@ -1,0 +1,212 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-hold-to-it-tool-records",
+  "what_this_is": "Tools that hold people to what they agreed and keep their surroundings set for focused work: tool:hold-to-it runs in the person's account (src/hold-to-it.mjs); the computer tools that keep a computer quiet (tool:hold-a-device-quiet, tool:release-a-device, tool:device-holds, tool:focus) are rows of the Workshop's tools/hold-a-computer-quiet, run on the person's own computer by computer/mac-tools.mjs.",
+  "records": [
+    {
+      "id": "package::trillion::tool::hold-to-it",
+      "address": "package::trillion::tool::hold-to-it",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false
+        },
+        "id": "tool:hold-to-it",
+        "listed_on": "2026-10-05T20:00:00Z",
+        "label": "Hold a group to what it agreed",
+        "job": "Keep an agreement a group made, or a session one person planned (a daily meeting, a habit, a deadline, a study block), put its meetings on the pursuit's calendar, remind everyone, check who came, keep each person's scorecard and say plainly in the pursuit who did not keep it",
+        "description": "operation keep: { space_id, what, agreed_by: [names as shown in the space], proposed_by?, cadence?: { every: day | week | once, at: \"HH:MM\", on?: [weekdays], date?, minutes?, time_zone? }, quote?: the exact words, source_ref?: the message or file it was heard in, aliases?: { name: [other names they are heard as] } }. cadence.at only when someone said the time (and for a one-time session cadence.date, its day): with no time the agreement is kept, nothing is booked, and the person is asked to choose one in their needs-you notices (suggested_at: a time everyone's calendars show free). Keeping it posts the agreement and the scorecard rules in the space, books the next meeting on the space's calendar and sets two schedules: a reminder (which also turns listening on) before each meeting and a check after it. ask_time: { agreement_id, suggested_at?, because? } asks the person to choose or confirm its time in their needs-you notices. retime: { agreement_id, at, date?, time_zone?, minutes?, on?, because? } gives it its time or a new one, moves the booked meeting and the reminder and check with it, and says once in the space that it moved. check marks every person who agreed as came, missed, or (when nobody set it up) not arranged, from who was heard or wrote during the meeting, then says it in the space to everyone. Voices heard during a meeting that have no name yet never score anyone absent: those people are marked not-counted (0) until the voices are named. mark lets any member's AI mark a person with evidence (rule not-done: agreed and did not do it), in a merit area when given; with date (an earlier day) it replaces that day's mark, which is how a wrong mark is corrected. scorecard sums each person's marks, in total and by area, from what actually happened. agreements lists them. free_times: { space_id, from?, to?, duration_minutes?, earliest?, latest?, time_zone? } answers the times every member is free, read from each member's own connected calendar (only when they are busy, never what), and says whose calendar is not connected (never counted free); offer one as suggested_at or book it, and a booked meeting goes onto each member's own connected calendar. Run keep whenever words you read show people agreeing to do something together, and for any session or block of time that is planned, even by one person alone (every: once, with its day and time): it is the only way a plan lands on the person's calendar with a reminder in their face and a check afterwards, so a plan with no keep is just words.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "operation"
+          ],
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "keep",
+                "ask_time",
+                "retime",
+                "book",
+                "remind",
+                "check",
+                "mark",
+                "scorecard",
+                "agreements",
+                "free_times"
+              ]
+            },
+            "space_id": {
+              "type": "string",
+              "description": "The pursuit the agreement belongs to (list_pursuits)"
+            },
+            "agreement_id": {
+              "type": "string",
+              "description": "An agreement from agreements, for book, remind, check and mark"
+            },
+            "what": {
+              "type": "string",
+              "description": "What was agreed, in a few words"
+            },
+            "agreed_by": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Who agreed, by the names they show in the pursuit"
+            },
+            "proposed_by": {
+              "type": "string"
+            },
+            "cadence": {
+              "type": "object",
+              "properties": {
+                "every": {
+                  "type": "string",
+                  "enum": [
+                    "day",
+                    "week",
+                    "once"
+                  ]
+                },
+                "at": {
+                  "type": "string",
+                  "description": "24-hour local time, like 11:00"
+                },
+                "on": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "date": {
+                  "type": "string"
+                },
+                "minutes": {
+                  "type": "integer",
+                  "minimum": 5,
+                  "maximum": 600
+                },
+                "time_zone": {
+                  "type": "string"
+                }
+              }
+            },
+            "quote": {
+              "type": "string",
+              "description": "The exact words that show the agreement"
+            },
+            "heard_in": {
+              "type": "string",
+              "description": "Where it was heard or written (a message id, a file)"
+            },
+            "source_ref": {
+              "type": "string"
+            },
+            "aliases": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "person": {
+              "type": "string",
+              "x-free-text-because": "A member of the pursuit by the name they show in it; pursuit members are people in the pursuit, not rows of a list."
+            },
+            "rule": {
+              "type": "string"
+            },
+            "evidence": {
+              "type": "string"
+            },
+            "area": {
+              "type": "string",
+              "description": "With mark: the merit area the mark is about (showing up when left out), so each person's scorecard sums by strength"
+            },
+            "date": {
+              "type": "string",
+              "description": "With mark: the day the mark is for (like 2026-10-05); a mark for a day that already has one replaces it. With retime: the day of a one-time session (like 2026-10-08)"
+            },
+            "at": {
+              "type": "string",
+              "description": "With retime: the time, like 15:00, in the agreement's time zone"
+            },
+            "time_zone": {
+              "type": "string",
+              "description": "With retime: the time zone the time is in (like America/Los_Angeles); with free_times, the zone its times are said in"
+            },
+            "minutes": {
+              "type": "integer",
+              "minimum": 5,
+              "description": "With retime: how long each meeting runs"
+            },
+            "on": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "With retime, for a weekly agreement: the weekdays"
+            },
+            "because": {
+              "type": "string",
+              "description": "With retime or ask_time: why, in plain words"
+            },
+            "from": { "type": "string", "format": "date-time", "description": "With free_times: the earliest moment (now when left out)" },
+            "to": { "type": "string", "format": "date-time", "description": "With free_times: the latest moment (a week on when left out)" },
+            "duration_minutes": { "type": "integer", "minimum": 5, "maximum": 720, "description": "With free_times: how long the meeting runs" },
+            "earliest": { "type": "string", "description": "With free_times: the earliest local time of day, like 09:00" },
+            "latest": { "type": "string", "description": "With free_times: the latest local time of day, like 18:00" },
+            "suggested_at": {
+              "type": "string",
+              "description": "With keep and no time said: a time everyone's calendars show free, offered to the person to say yes to"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "said": {
+              "type": "string"
+            },
+            "agreement_id": {
+              "type": "string"
+            },
+            "present": {
+              "type": "array"
+            },
+            "absent": {
+              "type": "array"
+            },
+            "people": {
+              "type": "array"
+            },
+            "agreements": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "hold-to-it"
+        }
+      }
+    }
+  ]
+}

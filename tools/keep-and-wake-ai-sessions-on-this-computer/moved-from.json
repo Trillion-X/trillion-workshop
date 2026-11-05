@@ -2991,6 +2991,48 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/your-records-tool-input-bound.test.mjs",
       "source_identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43",
       "identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43"
+    },
+    {
+      "from": "records/workshop-chrome-web-store-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-chrome-web-store-tool-records.json",
+      "source_identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0",
+      "identity": "1f:912a5f7c2f23b4e7730e1714bec5bee44f697825eb1a1441701d4a8c8325f0f0"
+    },
+    {
+      "from": "records/workshop-harness-setup-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/records/workshop-harness-setup-tool-records.json",
+      "source_identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b",
+      "identity": "1f:09319a93a5a5926678d79d2ddc438f827181c8ce620c270f19e3a2869ab7116b"
+    },
+    {
+      "from": "harness/README.md",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/from-old-trillion/harness/README.md",
+      "source_identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e",
+      "identity": "1f:52faa191032c548107a3da6e2b4aade94482efb31a0fbe0566a5d8417afe7e1e"
+    },
+    {
+      "from": "harness/claude-with-work-channel.sh",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/claude-with-work-channel.sh",
+      "source_identity": "1f:38fad3f3511882f5dc317702f46afdf961482e2e5dabc800c82cd1819438c59f",
+      "identity": "1f:38fad3f3511882f5dc317702f46afdf961482e2e5dabc800c82cd1819438c59f"
+    },
+    {
+      "from": "harness/queue-codex-handoff.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/queue-codex-handoff.mjs",
+      "source_identity": "1f:70d76034a47a1d94ab1ef5bc8af5f5a164c2d05e1b197151350426573b55458a",
+      "identity": "1f:70d76034a47a1d94ab1ef5bc8af5f5a164c2d05e1b197151350426573b55458a"
+    },
+    {
+      "from": "harness/tell-a-chat-app.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/tell-a-chat-app.mjs",
+      "source_identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569",
+      "identity": "1f:73010269b74f37aeb442e38ff359bafa70839f928bae26010b54f1d04fe1a569"
     }
   ]
 }

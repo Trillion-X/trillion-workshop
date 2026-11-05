@@ -1,0 +1,110 @@
+{
+ "kind": "package-set-records",
+ "package_set": "trillion",
+ "record_set": "workshop-drives-tool-records",
+ "what_this_is": "Drives as Workshop tools: tool:drives, the person's Trillion space (run in their own store, placement:this-account, and the Drives screen's own tool), and the drive tools of the Trillion app on their computer. Each computer tool runs on placement:your-computer: the run is handed to the agent that placement names (computer-tools, which the Trillion app publishes while it is open) as { tool_id, input }, and what the computer answers is the run's output. The computer keeps which route each tool id reaches (media-workspace trillion-tool-routes.json), so a run can never name a web address.",
+ "records": [
+  {
+   "id": "package::trillion::tool::drives",
+   "address": "package::trillion::tool::drives",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:this-account"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "id": "tool:drives",
+    "listed_on": "2026-09-30T23:55:41Z",
+    "label": "Drives: my Trillion space and my computers' drives",
+    "job": "Show how much this person keeps in their Trillion space (how many files, how much space, by kind of file), the same totals the Drives screen shows",
+    "description": "Returns files, bytes and kinds (each kind with its label, files and bytes, largest first), and said, the totals in words. The drives on the person's computer are tool:trillion-media-drives.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "account-action",
+     "action": "cloud-space"
+    },
+    "provenance": {
+     "source": "media-workspace trillion-tool-routes.json and trillion-tool-host.mjs: the Mac app takes each run handed to its agent computer-tools and answers it through its own route"
+    },
+    "screen": {
+     "group": "content-files",
+     "kind": "app-entry",
+     "entry": "guide",
+     "input": {
+      "screen": "drives"
+     },
+     "icon": "HardDrive",
+     "label": "Drives",
+     "about": "Your Trillion space, and the drives on your computers: eject one, or copy and move between them."
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "output_selector": "$.said",
+      "contains": "file"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::trillion::tool::live",
+   "address": "package::trillion::tool::live",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:this-account"
+    ],
+    "maker": "maker:trillion",
+    "needs": {
+     "expected_seconds": 1,
+     "network_egress": false
+    },
+    "id": "tool:live",
+    "listed_on": "2026-10-02T08:03:32Z",
+    "label": "Live: work going on right now",
+    "job": "Show the work going on for this person right now (drives and cards copying, videos being made, recordings being transcribed, any tool or AI reporting progress) with how far each has got, then everything that finished",
+    "description": "A screen: the notification center with what is running first. Work shows here when a program, a tool run or an AI reports it with tool:report-progress.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {}
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "screen": {
+     "group": "content-publish",
+     "kind": "app-entry",
+     "entry": "notifications",
+     "icon": "Activity",
+     "label": "Live",
+     "about": "Work going on right now and how far it has got, then what finished."
+    }
+   }
+  }
+ ]
+}

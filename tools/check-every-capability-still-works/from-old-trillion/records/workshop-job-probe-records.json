@@ -1,0 +1,233 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-job-probe-records",
+  "records": [
+    {
+      "id": "package::ai-tool-catalog::job-probe-harness-selection::claude-with-public-tools-only",
+      "address": "package::ai-tool-catalog::job-probe-harness-selection::claude-with-public-tools-only",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "servers": [
+          "expansion"
+        ],
+        "account_tool_prefixes": [
+          "mcp__claude_ai_Trillion"
+        ],
+        "kind": "job-probe-harness-selection",
+        "id": "harness:claude-with-public-tools-only"
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::pull-post-stats",
+      "address": "package::ai-tool-catalog::job-probe::pull-post-stats",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:pull-post-stats",
+        "effect": "read",
+        "request": "Pull the stats (views, likes, comments, shares) for my last 10 published posts across my accounts and tell me which one did best.",
+        "pursuits": [
+          "pursuit:content"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::see-scheduled-posts",
+      "address": "package::ai-tool-catalog::job-probe::see-scheduled-posts",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:see-scheduled-posts",
+        "effect": "read",
+        "request": "Show me every post I have scheduled, with where and when each one goes out.",
+        "pursuits": [
+          "pursuit:content"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::schedule-a-post",
+      "address": "package::ai-tool-catalog::job-probe::schedule-a-post",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:schedule-a-post",
+        "effect": "outside-effect",
+        "request": "Schedule my most recent prepared post to go out tomorrow at 9am on Instagram.",
+        "pursuits": [
+          "pursuit:content"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::publish-a-post-now",
+      "address": "package::ai-tool-catalog::job-probe::publish-a-post-now",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:publish-a-post-now",
+        "effect": "outside-effect",
+        "request": "Post my most recent finished video to YouTube now with its prepared title and description.",
+        "pursuits": [
+          "pursuit:content"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::web-research",
+      "address": "package::ai-tool-catalog::job-probe::web-research",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:web-research",
+        "effect": "read",
+        "request": "Research on the web which cooking videos are outperforming this month and give me three formats I could copy, with links.",
+        "pursuits": [
+          "pursuit:content",
+          "pursuit:cooking-channel"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::list-projects-and-videos",
+      "address": "package::ai-tool-catalog::job-probe::list-projects-and-videos",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:list-projects-and-videos",
+        "effect": "read",
+        "request": "List all my projects and how many videos are in each one.",
+        "pursuits": [
+          "pursuit:media"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::find-a-moment",
+      "address": "package::ai-tool-catalog::job-probe::find-a-moment",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:find-a-moment",
+        "effect": "read",
+        "request": "Find a recording where I talk about the sauce and give me the exact start time of that moment.",
+        "pursuits": [
+          "pursuit:content",
+          "pursuit:cooking-channel"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::edit-a-video",
+      "address": "package::ai-tool-catalog::job-probe::edit-a-video",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:edit-a-video",
+        "effect": "outside-effect",
+        "request": "Edit one of my recent cooking recordings into a 30-second vertical clip with captions, and slow the plating moment down to half speed.",
+        "pursuits": [
+          "pursuit:content"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::videos-for-a-pursuit",
+      "address": "package::ai-tool-catalog::job-probe::videos-for-a-pursuit",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:videos-for-a-pursuit",
+        "effect": "read",
+        "request": "Look at my pursuits, pick the one that matters most right now, and list which of my recordings would move it forward.",
+        "pursuits": [
+          "pursuit:media",
+          "pursuit:trillion"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::instagram-feed-and-comments",
+      "address": "package::ai-tool-catalog::job-probe::instagram-feed-and-comments",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:instagram-feed-and-comments",
+        "effect": "read",
+        "request": "Scroll my Instagram feed and show me the comments on my latest post.",
+        "pursuits": [
+          "pursuit:content"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::instagram-followers-and-messages",
+      "address": "package::ai-tool-catalog::job-probe::instagram-followers-and-messages",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:instagram-followers-and-messages",
+        "effect": "read",
+        "request": "Who are my newest Instagram followers, and what do my unread direct messages say?",
+        "pursuits": [
+          "pursuit:content",
+          "pursuit:community-network"
+        ]
+      }
+    },
+    {
+      "id": "package::ai-tool-catalog::job-probe::book-a-class",
+      "address": "package::ai-tool-catalog::job-probe::book-a-class",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "job-probe",
+        "id": "probe:book-a-class",
+        "effect": "outside-effect",
+        "request": "Book me a yoga class or a room at my local studio for Saturday morning.",
+        "pursuits": [
+          "pursuit:fitness"
+        ]
+      }
+    }
+  ]
+}

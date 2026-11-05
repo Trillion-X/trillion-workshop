@@ -1,0 +1,449 @@
+{
+  "kind": "package-set-records",
+  "package_set": "trillion",
+  "record_set": "workshop-publishing-tool-records",
+  "what_this_is": "Trillion's publishing jobs in a person's account as Workshop tools: each runs inside that person's store (placement:this-account, whose executor looks the row's invoke.action up in the store's own map), so the person, their AIs, their rules and schedules use the same job. A row's screen is how the person does the same job by hand.",
+  "records": [
+    {
+      "id": "package::trillion::tool::read-post-calendar",
+      "address": "package::trillion::tool::read-post-calendar",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "id": "tool:read-post-calendar",
+        "listed_on": "2026-09-30T07:01:23Z",
+        "label": "Posting calendar",
+        "job": "Show what this person is posting between two times, and which drafts have no time yet, so a post can be given a time or moved to another",
+        "description": "Give from and to (dates and times with their zone). Returns posts: each post whose scheduled time falls in between (or, sent without a time, when it was sent), earliest first, with at, status, words and can_move; and unscheduled: the drafts and approved posts with no time yet. A post gets a new time through draft_post with post_id and scheduled_for, which makes an approved or scheduled post a draft again to approve. Its screen is the month and hour calendar, where a post is dragged to its time.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "from",
+            "to"
+          ],
+          "properties": {
+            "from": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The start of the span, like 2026-10-01T00:00:00-04:00"
+            },
+            "to": {
+              "type": "string",
+              "format": "date-time",
+              "description": "The end of the span, after from"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "from",
+            "to",
+            "posts",
+            "unscheduled"
+          ],
+          "properties": {
+            "from": {
+              "type": "string"
+            },
+            "to": {
+              "type": "string"
+            },
+            "posts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "unscheduled": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "read-post-calendar"
+        },
+        "provenance": {
+          "source": "media-workspace scheduled-calendar.mjs and calendar-placement.mjs (the Mac's Schedule month, week and day views), rebuilt on src/social-posts.mjs calendar, the same read list_post_calendar makes"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "from": "2026-10-01T00:00:00Z",
+              "to": "2026-11-01T00:00:00Z"
+            },
+            "output_selector": "$.from",
+            "contains": "2026-10-01"
+          }
+        ],
+        "screen": {
+          "group": "content-plan",
+          "kind": "app-entry",
+          "entry": "calendar",
+          "icon": "CalendarDays",
+          "label": "Posting calendar",
+          "about": "When each of your posts goes out.",
+          "inputs": {
+            "from": {
+              "label": "From",
+              "placeholder": "Like 2026-10-01T09:00:00-04:00"
+            },
+            "to": {
+              "label": "To",
+              "placeholder": "A later date and time"
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::check-a-post",
+      "address": "package::trillion::tool::check-a-post",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "id": "tool:check-a-post",
+        "listed_on": "2026-09-30T07:01:23Z",
+        "label": "Posts",
+        "job": "Check that one of this person's posts is ready for each place it is going (the words not too long, the video or picture that place needs, the settings it needs), and say what is missing in plain words",
+        "description": "Give post_id (from draft_post or list_posts). Returns ready (true when every place will take the post), said, and destinations: for each account the post is going to, its platform, ready, problems (each { check, said }: what that place will refuse) and not_checked (limits that could not be compared, such as a video's length Trillion was not told). A post going nowhere yet is not ready: said tells the person to pick where it goes, and pick_from lists the connected accounts and the places not connected yet. What each place takes is its own row's format (records/post-place-records.json), so a new place is one row. It changes nothing. Its screen lists the person's posts by status, with each post's words, file, destinations and this check, Approve and Publish, and lets the person write a new draft (words and an optional time) and pick where it goes.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "post_id"
+          ],
+          "properties": {
+            "post_id": {
+              "type": "string",
+              "description": "The post to check, from draft_post or list_posts"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "said"
+          ],
+          "properties": {
+            "post_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "ready": {
+              "type": "boolean"
+            },
+            "said": {
+              "type": "string"
+            },
+            "destinations": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "check-a-post"
+        },
+        "provenance": {
+          "source": "media-workspace publishing-capabilities.mjs, distribution-capabilities.mjs and publishing-format-policy (the Mac's review before publishing), rebuilt on src/post-ready.mjs over each post-place row's format, the same check check_post reads"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "post_id": "post:sample-check"
+            },
+            "output_selector": "$.said",
+            "contains": "nothing was checked"
+          }
+        ],
+        "screen": {
+          "group": "content-publish",
+          "kind": "app-entry",
+          "entry": "posts",
+          "icon": "Send",
+          "label": "Posts",
+          "about": "Check a post is ready for each place it goes.",
+          "inputs": {
+            "post_id": {
+              "label": "Post",
+              "placeholder": "The post, from your posting calendar"
+            }
+          },
+          "takes_file": {
+            "takes": "seen-or-heard",
+            "label": "Post or schedule",
+            "icon": "Send",
+            "input": {
+              "media": {
+                "identity": {
+                  "from": "file",
+                  "field": "identity"
+                },
+                "name": {
+                  "from": "file",
+                  "field": "name"
+                },
+                "media_type": {
+                  "from": "file",
+                  "field": "type"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "package::trillion::tool::link-in-bio",
+      "address": "package::trillion::tool::link-in-bio",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:this-account"
+        ],
+        "maker": "maker:trillion",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "id": "tool:link-in-bio",
+        "listed_on": "2026-09-30T07:01:23Z",
+        "label": "Link in bio",
+        "job": "Keep this person's link-in-bio page: one public address with their own links and their published posts that carry a link, and count what people opened there, by post or link and by the place they came from",
+        "description": "Send nothing to read the page; send a change to make it first. on turns the page on or off (off hides it from everyone, and the address stays the same for when it is on again); title and about are its heading and line; links replaces the whole list of the person's own links (each { label, url }); add_link adds one; remove_link removes one by link_id. Setting links for the first time turns the page on. Returns on, address, addresses_by_place (one address per place the person posts to, each with ?from=<place> so its visits are counted apart), title, about, links, posts (their published posts with a link, newest first), counts (visits and opens in all and over the last days, by_place and by_item) and said. Every open leaves tagged with the place and the post or link, so a sign-up says where it came from. Its screen is the same page by hand, with Copy for each address.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "on": {
+              "type": "boolean",
+              "description": "Turn the page on or off"
+            },
+            "title": {
+              "type": "string",
+              "description": "The page's heading"
+            },
+            "about": {
+              "type": "string",
+              "description": "One line under the heading"
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "label",
+                  "url"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "label": {
+                    "type": "string",
+                    "description": "The words people see"
+                  },
+                  "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "A full https address"
+                  },
+                  "link_id": {
+                    "type": "string",
+                    "description": "Kept from an earlier answer, so the link keeps its counts"
+                  }
+                }
+              },
+              "description": "The whole list of the person's own links"
+            },
+            "add_link": {
+              "type": "object",
+              "required": [
+                "label",
+                "url"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "label": {
+                  "type": "string",
+                  "description": "The words people see"
+                },
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "description": "A full https address"
+                },
+                "link_id": {
+                  "type": "string",
+                  "description": "Kept from an earlier answer, so the link keeps its counts"
+                }
+              }
+            },
+            "remove_link": {
+              "type": "string",
+              "description": "A link_id from an earlier answer"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "on",
+            "links",
+            "posts",
+            "counts",
+            "said"
+          ],
+          "properties": {
+            "on": {
+              "type": "boolean"
+            },
+            "address": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "addresses_by_place": {
+              "type": "object"
+            },
+            "title": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "about": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "links": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "posts": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "counts": {
+              "type": "object"
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "account-action",
+          "action": "link-in-bio"
+        },
+        "provenance": {
+          "source": "media-workspace media-attribution.mjs (the Mac's post and profile-bio links), rebuilt on src/link-page.mjs, the same owner read_link_page and set_link_page call; the public page is src/link-page-pages.mjs at /l/<code>"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "output_selector": "$.said",
+            "contains": "Your page"
+          }
+        ],
+        "screen": {
+          "group": "content-publish",
+          "kind": "app-entry",
+          "entry": "guide",
+          "input": {
+            "screen": "link-page"
+          },
+          "icon": "Link",
+          "label": "Link in bio",
+          "about": "One page with links to your posts.",
+          "inputs": {
+            "on": {
+              "label": "The page",
+              "choices": [
+                {
+                  "value": "",
+                  "label": "Leave it as it is"
+                },
+                {
+                  "value": "true",
+                  "label": "On"
+                },
+                {
+                  "value": "false",
+                  "label": "Off"
+                }
+              ]
+            },
+            "title": {
+              "label": "Heading"
+            },
+            "about": {
+              "label": "Line under the heading"
+            },
+            "remove_link": {
+              "label": "Take a link off",
+              "placeholder": "The link, from your page"
+            },
+            "links": {
+              "hidden": true
+            },
+            "add_link": {
+              "hidden": true
+            }
+          }
+        }
+      }
+    }
+  ]
+}

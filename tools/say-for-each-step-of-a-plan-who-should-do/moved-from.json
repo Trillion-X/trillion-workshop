@@ -10,6 +10,13 @@
       "to": "tools/say-for-each-step-of-a-plan-who-should-do/src/who-does-it.mjs",
       "source_identity": "1f:faaba686b0510d2c59f5a7e551e1805dbaccb6809fe6a3e498c8f93b176403ec",
       "identity": "1f:18dde98b60082fead9948a0e6ccb99f30107af2efd7cbdde2347a288fec7d45f"
+    },
+    {
+      "from": "records/workshop-who-does-it-tool-records.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/say-for-each-step-of-a-plan-who-should-do/from-old-trillion/records/workshop-who-does-it-tool-records.json",
+      "source_identity": "1f:54982f0303300f30396b16d0c8af4edb5407451a436fb8f08515683c3dc3e60e",
+      "identity": "1f:54982f0303300f30396b16d0c8af4edb5407451a436fb8f08515683c3dc3e60e"
     }
   ]
 }
