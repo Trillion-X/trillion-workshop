@@ -1,0 +1,55 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CITE-PRINCIPLES-INDEX-TEMPLATE",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the trillion-launch-video port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "ad0581c23b915b3ed6a59d8c27b8f8c6d6f2b681",
+      "path": "tools/cite-principles-from-captions/read-data/registry.py",
+      "multihash": "1f:e0db70ecd2c704fe101104033fbb380696d0ca84faf7ded725f84d91babc6bce",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/cite-principles-from-captions/read-data/registry.py"
+    }
+  ],
+  "preserve": [
+    "build_registry: groups, lanes in first-seen order, evidence strength by independent channel (log2(1 + min(xmed, 64)), halved for demonstrations), ranking by strength then quotes, P-NNN ids, contradictions linked both ways",
+    "index_markdown keeps every section the index already wrote: counts, top principles with one source per channel, demonstration-only principles, contradiction pairs, stages, channels, silent channels, lanes"
+  ],
+  "allowed_deltas": [
+    "the index is written into the person's own Markdown template: <!-- cite-principles:SECTION --> sections filled under the header they wrote, {ids:...}, {count:...} and {evidence:ID.FIELD} filled in their words; --intro/--outro/--title/--top flags are gone because the template says all of it",
+    "the job of trillion-launch-video tools/principles/make_index.py lands here; its prose and proposal table are the person's index-template setting (list:settings), not code; that old copy is deleted by Trillion-X/trillion-launch-video pull request 11",
+    "a contradiction pair takes the first disagreement the registry records, so the same registry always gives the same page (the old page picked it in string-hash order)",
+    "a channel a principle cites is listed in the channel table even when none of its videos were read"
+  ],
+  "banned_substitutions": [
+    "a person's prose, channel names or terms written into the code",
+    "picking among equal rows in set or hash order"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e0db70ecd2c704fe101104033fbb380696d0ca84faf7ded725f84d91babc6bce",
+    "target_multihash_at_baseline": "1f:e0db70ecd2c704fe101104033fbb380696d0ca84faf7ded725f84d91babc6bce",
+    "commit": "ad0581c23b915b3ed6a59d8c27b8f8c6d6f2b681"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs index without a template writes every section: counts, strongest principles, contradiction pairs, stages, channels and lanes",
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs index fills the person's own template: their prose and headers stay, sections are written anew, ids, counts and evidence are filled",
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs index refuses a template it cannot fill, saying what to write instead",
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs registry merges rows by the person's groups, counts evidence by independent channel and links contradictions both ways"
+    ]
+  }
+}
