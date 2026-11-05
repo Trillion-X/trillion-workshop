@@ -5,3 +5,4 @@ Files old trillion deleted with no home and no backlog row, whose job is this to
 | Old path | Deleted by | Here | Status |
 |---|---|---|---|
 | `records/workshop-email-tool-records.json` | 27b458af26 (Delete what is left of the old mail sender: its tool record and every ...) | `records/workshop-email-tool-records.json` | not wired |
+| `src/audience-sends.json` | `src/audience-sends.json` | data, read by its module (from 5dc302be) |

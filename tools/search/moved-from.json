@@ -10,6 +10,20 @@
       "to": "tools/search/test/search-notice-searchable-writes.test.mjs",
       "source_identity": "1f:2d528a2e1402c58678c2c098466b2dfec685e897ca2b77f639e30d070511d0ef",
       "identity": "1f:9efb5f0744fc32e4ae07e7368490b592aa604b4cddccc61be008becd33614342"
+    },
+    {
+      "from": "src/file-words.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/search/from-old-trillion/src/file-words.json",
+      "source_identity": "1f:e9de95d454b0f62cd321a0503f0ebf7dbed9118acefc3f8574e6e150e3b01b83",
+      "identity": "1f:e9de95d454b0f62cd321a0503f0ebf7dbed9118acefc3f8574e6e150e3b01b83"
+    },
+    {
+      "from": "src/file-words.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/search/from-old-trillion/src/file-words.mjs",
+      "source_identity": "1f:f750d042017987bf07746a63527258433efbd73db1ca8a4868427b3035179791",
+      "identity": "1f:f750d042017987bf07746a63527258433efbd73db1ca8a4868427b3035179791"
     }
   ]
 }

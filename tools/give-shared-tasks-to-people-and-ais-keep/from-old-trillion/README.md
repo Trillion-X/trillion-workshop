@@ -8,3 +8,4 @@ Files of old trillion whose job is this tool's (give shared tasks to people and 
 | `src/space-task-command-owner.mjs` | `src/space-task-command-owner.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/resource-host.mjs (at the tag, not moved here yet) |
 | `src/space-task-shard-query.mjs` | `src/space-task-shard-query.mjs` | loads here |
 | `test/space-task-shard-query.test.mjs` | `test/space-task-shard-query.test.mjs` | runs here: 2/2 pass |
+| `src/space-assignment-delivery.json` | `src/space-assignment-delivery.json` | data, read by its module (from 5dc302be) |

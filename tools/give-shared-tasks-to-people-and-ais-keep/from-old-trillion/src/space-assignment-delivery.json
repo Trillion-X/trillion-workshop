@@ -1,0 +1,10 @@
+{
+  "about": "A task assigned in a shared pursuit is recorded before delivery is attempted. Its owner retries definite delivery failures in bounded passes. A stored row, a provider accepting a notice, a read receipt and completing the task are separate facts. Channels and permission choices remain with the recipient's tell-the-person owner.",
+  "assignee_field": "assignee",
+  "notice_kind": "needs-you-request",
+  "key_prefix": "space-assignment",
+  "open": "/spaces/{space_id}/{item_id}",
+  "batch": 20,
+  "retry_seconds": [60, 300, 900, 3600, 14400],
+  "attempts": 8
+}

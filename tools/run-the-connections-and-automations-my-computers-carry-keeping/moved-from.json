@@ -10,6 +10,13 @@
       "to": "tools/run-the-connections-and-automations-my-computers-carry-keeping/src/native-carried-automation-owner.mjs",
       "source_identity": "1f:965e00b45e944847bcb3c7b2cc43c5194ad1de733cabac1eba4c2731f90409aa",
       "identity": "1f:a0f99dab048ac54cd19e312b97c8a60479610ed7cbcb446ef8fa662c387c7c09"
+    },
+    {
+      "from": "src/send-from.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/run-the-connections-and-automations-my-computers-carry-keeping/src/send-from.mjs",
+      "source_identity": "1f:357474b775bc3affcc892ec440ee20557bec0a782999efe89131dd56ba5a4156",
+      "identity": "1f:357474b775bc3affcc892ec440ee20557bec0a782999efe89131dd56ba5a4156"
     }
   ]
 }

@@ -14,3 +14,6 @@ Files of old trillion whose job is this tool's (keep a shared space's posts, fil
 | `src/space-shard-routing.mjs` | `src/space-shard-routing.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/native-shared-source-query.mjs (at the tag, not moved here yet), src/shared-native-dependency-command.mjs (at the tag, not moved here yet), src/community-activity.mjs (at the tag, not moved here yet) |
 | `test/space-commit-context.test.mjs` | `test/space-commit-context.test.mjs` | runs here: 5/5 pass |
 | `test/space-content-policy.test.mjs` | `test/space-content-policy.test.mjs` | runs here: 9/9 pass |
+| `src/space-item-rules.mjs` | `src/space-item-rules.mjs` | loads here (from 5dc302be) |
+| `src/space-mail.json` | `src/space-mail.json` | data, read by its module (from 5dc302be) |
+| `src/space-mail.mjs` | `src/space-mail.mjs` | loads here (from 5dc302be) |

@@ -1,0 +1,5 @@
+{
+  "per_wake": 20,
+  "addressees_per_wake": 8,
+  "again_after_seconds": 5
+}

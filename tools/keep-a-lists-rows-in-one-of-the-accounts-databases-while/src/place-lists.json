@@ -1,0 +1,36 @@
+{
+  "_what": "The kinds of places list an account keeps (src/place-lists.mjs). A places list is an ordinary list whose rows are places: each row names the installed implementation it runs on, who pays, the parts it keeps and the rule (`when`, an applies-when field over the kind's `facts`) that must hold for it to be chosen. Rows are tried in `order`, lowest first. The account's own rows are its own (it adds one when it connects a cloud or a device); the default rows come from the default publishers' published rows on the kind's shelf (src/marketplace-defaults.mjs), shown beside them through the published-defaults row source, and an own row with the same id is used instead of a default one. This file holds no place: only each kind's list definition, the facts its rules read and the parts a place keeps.",
+  "row_source": "published-defaults",
+  "shelf_prefix": "list-",
+  "most_places": 50,
+  "kinds": [
+    {
+      "id": "storage-places",
+      "list": {
+        "id": "storage-places", "label": "Storage places", "row_type": "storage-place", "title_field": "label", "icon": "Database",
+        "about": "Where this account's lists are kept; make_lists chooses from these rows.",
+        "fields": [
+          { "id": "label", "label": "Place", "kind": "text" },
+          { "id": "implementation", "label": "Runs on", "kind": "text" },
+          { "id": "pays", "label": "Who pays", "kind": "choice", "choices": ["person", "account", "trillion"] },
+          { "id": "keeps", "label": "Keeps", "kind": "tags" },
+          { "id": "next_part_at", "label": "Next part at", "kind": "number" },
+          { "id": "order", "label": "Tried in order", "kind": "number" },
+          { "id": "when", "label": "Applies when", "kind": "applies-when" }
+        ]
+      },
+      "facts": [
+        { "id": "expected_rows", "kind": "number", "label": "How many rows the list is expected to hold" },
+        { "id": "shared", "kind": "boolean", "label": "The list's rows are shared with other people or a Space" },
+        { "id": "their_cloud_can", "kind": "boolean", "label": "A cloud account of the person's own can keep a list" },
+        { "id": "their_device_can", "kind": "boolean", "label": "A device of the person's own that is reachable can keep a list" },
+        { "id": "trillion_budget_dollars", "kind": "number", "label": "What the person lets Trillion spend on their work in a day" }
+      ],
+      "parts": [
+        { "id": "keep-a-list", "part": "first", "label": "Keep a list's rows" },
+        { "id": "keep-a-list-part", "part": "next", "label": "Keep the next part of a list that is nearly full" }
+      ],
+      "otherwise": { "id": "wait", "label": "Waits until a place can keep it" }
+    }
+  ]
+}

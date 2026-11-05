@@ -47,6 +47,27 @@
       "identity_at_move": "1f:cf9cc05eaac47472cdd0611d1563febef5f1cfedd200ddf86c19922342db0869",
       "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
       "changed": true
+    },
+    {
+      "from": "src/activation.json",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-work-to-ais/from-old-trillion/src/activation.json",
+      "source_identity": "1f:de741a94f4c06bc42cf72285c433b710d5bf9b7dd28ec13ebec38901d2f86df8",
+      "identity": "1f:de741a94f4c06bc42cf72285c433b710d5bf9b7dd28ec13ebec38901d2f86df8"
+    },
+    {
+      "from": "src/activation.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-work-to-ais/from-old-trillion/src/activation.mjs",
+      "source_identity": "1f:5ca6fa7b0c5caa9def8aae89c1213eebf6a4e80ac530797ffc8b931f2fd510f5",
+      "identity": "1f:5ca6fa7b0c5caa9def8aae89c1213eebf6a4e80ac530797ffc8b931f2fd510f5"
+    },
+    {
+      "from": "test/activation.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/hand-work-to-ais/from-old-trillion/test/activation.test.mjs",
+      "source_identity": "1f:3850b4219069ce75f551fe70b6eb2c4a74edf7054b794bba8b8651448f4a927a",
+      "identity": "1f:3850b4219069ce75f551fe70b6eb2c4a74edf7054b794bba8b8651448f4a927a"
     }
   ]
 }

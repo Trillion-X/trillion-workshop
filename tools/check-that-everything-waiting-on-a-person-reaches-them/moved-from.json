@@ -10,6 +10,34 @@
       "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/scripts/waiting-controls.mjs",
       "source_identity": "1f:09af68acc56a6834409b73e4fc6278685d52dd24c249f598cc9de38f282be644",
       "identity": "1f:7062169857d15b1f0db3f678f9e73a300c5fb0e9e8ae64391914a53d854ea177"
+    },
+    {
+      "from": "src/steps-ais-leave-runs.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave-runs.mjs",
+      "source_identity": "1f:d3da726cc48999c47af2527d7b851eb04c7c3b4b0cf41b143ebf79e906b14731",
+      "identity": "1f:d3da726cc48999c47af2527d7b851eb04c7c3b4b0cf41b143ebf79e906b14731"
+    },
+    {
+      "from": "src/steps-ais-leave.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.mjs.held",
+      "source_identity": "1f:52fd1338874736d68b17b8da45713c5729c3ba29438bf2a7de2bfcd0df01fa6f",
+      "identity": "1f:52fd1338874736d68b17b8da45713c5729c3ba29438bf2a7de2bfcd0df01fa6f"
+    },
+    {
+      "from": "test/steps-ais-leave-runs.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave-runs.test.mjs.held",
+      "source_identity": "1f:1bdd2b0d38a77fa57a48be88ac03c07b8c853856955dcccc2a39d9b7a9288414",
+      "identity": "1f:1bdd2b0d38a77fa57a48be88ac03c07b8c853856955dcccc2a39d9b7a9288414"
+    },
+    {
+      "from": "test/steps-ais-leave.test.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/test/steps-ais-leave.test.mjs.held",
+      "source_identity": "1f:c053e80ecf6b5a2788ee88be2c1b2d8c85c1ed01d8fa4cc428a9f435b61b5275",
+      "identity": "1f:6531b63ed00e0f346c3a06d5fb9d0318dd7afef2860f4e739aba698b6d5861b3"
     }
   ]
 }

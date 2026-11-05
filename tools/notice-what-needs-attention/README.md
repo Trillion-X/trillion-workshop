@@ -23,3 +23,12 @@ The job's other moved files are kept once in a shared place, because more than o
 **Depends on:** the files its moved files import, at the paths those imports name.
 
 **Depended on by:** nothing in this repository yet.
+
+## Moved from old trillion main (5dc302be)
+
+Byte for byte under their old paths, only import paths changed; `moved-from.json` names each.
+
+| Old path | Here | Status |
+|---|---|---|
+| `src/attention-calibration.json` | `src/attention-calibration.json` | data, read by its module |
+| `src/attention.json` | `src/attention.json` | data, read by its module |

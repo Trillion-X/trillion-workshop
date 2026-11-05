@@ -1,0 +1,14 @@
+{
+  "_what": "What follows finished work when the person turns it on (src/after-work-review.mjs): the AI that finished it is handed one review job, with the rule blocks below, to keep what the work taught as a reusable method (publish_method, save_tool, learn_workflow) instead of leaving it in one chat. Off unless `on` is true. A review is never itself reviewed.",
+  "on": false,
+  "applies_to": { "min_attempts": 1, "skip_from_agents": [], "only_if_input_flag": null },
+  "once_per_prefix": "after-work-review:",
+  "priority": 0,
+  "hold_minutes": 30,
+  "job": "Review the work you just finished (handoff {handoff_id}: {work}). {blocks}Write nothing if nothing is worth keeping, and say so in the result.",
+  "blocks": [
+    "Where it goes: a fact about the person goes in saved instructions or a note, a way of doing a kind of job goes in a method or a saved tool, and a one-off detail goes nowhere. ",
+    "Lessons are class-level: state what holds for the whole kind of job, never this one run's names, ids or dates. ",
+    "If a method for this kind of job already exists, patch it instead of making another (find_workflow, find_tool_for_job first). "
+  ]
+}

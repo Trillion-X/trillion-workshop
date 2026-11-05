@@ -17,6 +17,13 @@
       "to": "tools/send-invitations-and-introductions-to-people-in-the-network-and/src/network-introduction-expiry.mjs",
       "source_identity": "1f:7ac1329d84877ded267a5c158d1152a3681d89ad5b30e471e7479d75c961a979",
       "identity": "1f:160f2d5a17412fb1f8cab7c84276fc217e93ead08bc99c7a14d18eb206035255"
+    },
+    {
+      "from": "src/network-ai-ping-credit.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/send-invitations-and-introductions-to-people-in-the-network-and/src/network-ai-ping-credit.mjs",
+      "source_identity": "1f:972820a8190e6d6a3ad9fb5a2df58ff7c49c75d2829efdb2dcc298509efc04b7",
+      "identity": "1f:972820a8190e6d6a3ad9fb5a2df58ff7c49c75d2829efdb2dcc298509efc04b7"
     }
   ]
 }

@@ -1,0 +1,24 @@
+{
+  "what_this_is": "Words and answers for src/close-many.mjs, which closes up to max_items waiting jobs in one call: each is closed as handled (with its one-line reason) or gathered into one digest job. A job made from the person's own words is finished only once its message's decision (method message-intake) is decided; its answers are below, filled with {meaning}, {reason} and {outcome}, and the option chosen is the outcome row's decision_option. Two or more of the person's messages with no decision yet share one decision, worded by together. Its next action is nothing, so it is recorded as carried out (carried_out) in the same step and never handed to an AI later as a decision whose next step was not done. Adding an outcome is a row in outcomes.",
+  "max_items": 50,
+  "outcomes": {
+    "handled": { "result_state": "handled", "decision_option": "keep" },
+    "digest": { "result_state": "folded", "decision_option": "keep" }
+  },
+  "answers": {
+    "scope": { "decision_context": {} },
+    "message-meaning": { "meaning": "{meaning}", "source": "Sorted with the other waiting work before any full AI run." },
+    "message-result": { "result": "No new action from this message: {reason}", "check": "The chat it came from shows it handled, or the digest carries it to the person's AIs.",
+      "asks": [{ "ask": "Sorted as asking nothing more: {reason}", "kind": "context", "reason_none": "Sorted as needing nothing more of the person's AIs: {reason}" }] }
+  },
+  "decide": { "reason": "{reason}", "next_action": "None from this message: it was {outcome}.", "success_measure": "Nothing further is asked of the person's AIs by this message." },
+  "carried_out": { "state": "done", "what_happened": "Nothing was asked of the person's AIs: the message was {outcome} when it was sorted ({reason})." },
+  "together": {
+    "goal": "{count} of the person's messages, sorted together as needing nothing more",
+    "meaning": "{count} messages from the person, each kept as a fact of this decision in their own words.",
+    "reason": "Each message, and why it asks nothing more: {reasons}"
+  },
+  "digest_job": "Information that arrived for the person and asks for nothing; {count} items are in `arrived.items`, each with why it was gathered here. Read them for anything that bears on what the person is pursuing (list_pursuits); act on that if anything does, and finish saying what, if anything, you did.",
+  "summary_handled": "Already handled: {reason}",
+  "summary_folded": "Only information, gathered into {into}: {reason}"
+}

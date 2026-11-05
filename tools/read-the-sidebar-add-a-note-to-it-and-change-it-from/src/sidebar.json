@@ -1,0 +1,13 @@
+{
+  "what_this_is": "The limits and words of the person's sidebar for their AIs (src/sidebar.mjs): the most notes a sidebar keeps, the longest message, the biggest count shown, how many screens one note offers, how many list changes one call makes, and the notification kind a note's message rings (records/tell-the-person.json). `places` are the regions of the sidebar a row can be kept in instead of a list (src/workspace AppSidebar `sidebar_place`); a row's colour is one of the shared palette's hues, the ones a space can take (src/space-settings.json colours).",
+  "notes_max": 200,
+  "message_max": 280,
+  "count_max": 9999,
+  "opens_max": 4,
+  "changes_max": 50,
+  "notice_kind": "sidebar-note",
+  "places": [
+    "bottom",
+    "controls"
+  ]
+}

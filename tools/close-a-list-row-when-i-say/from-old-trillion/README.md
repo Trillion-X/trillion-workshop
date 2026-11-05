@@ -6,3 +6,4 @@ Files of old trillion whose job is this tool's (close a list row when I say in m
 |---|---|---|
 | `src/said-done.mjs` | `src/said-done.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/said-done.json (at the tag, not moved here yet), src/brought-in.mjs (at the tag, not moved here yet), src/message-decision.mjs (at the tag, not moved here yet) |
 | `test/said-done.test.mjs` | `test/said-done.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports test/fault/simulated-person.mjs (at the tag, not moved here yet), src/payment.mjs (at the tag, not moved here yet) |
+| `src/said-done.json` | `src/said-done.json` | data, read by its module (from 5dc302be) |

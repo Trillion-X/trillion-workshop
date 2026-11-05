@@ -12,6 +12,13 @@
       "identity_at_move": "1f:f8507ab7d6d0b3271a31f6732cf276fd8278d41c9ff9db193730bc3c52d80763",
       "byte_copy_commit": "eba4881679551efe2b9a9de9773ce019a4521246",
       "port_contract": "tools/build-and-send-a-sales-contract/ports/sales-contract-builder.json"
+    },
+    {
+      "from": "src/sales-contracts.mjs",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "to": "tools/build-and-send-a-sales-contract/from-old-trillion/src/sales-contracts.mjs",
+      "source_identity": "1f:22c4b476f7384fbb193e2830a27f0b4dc168ad0a04ac8634cc43400b2c506bdd",
+      "identity": "1f:22c4b476f7384fbb193e2830a27f0b4dc168ad0a04ac8634cc43400b2c506bdd"
     }
   ]
 }
