@@ -536,10 +536,10 @@
       ]
     },
     {
-      "capability": "cut word-timed transcripts into spoken moments and file each moment into topic buckets",
+      "capability": "cut word-timed transcripts, or untimed transcript text, into spoken moments and file each moment into topic buckets",
       "owner": ["tools/file-spoken-moments-into-topic-buckets/"],
       "entry": "tools/file-spoken-moments-into-topic-buckets/tool-rows.json",
-      "evidence": "do-work/bucket_moments.py, read-data/moments.py"
+      "evidence": "do-work/bucket_moments.py, read-data/moments.py; do-work/cut_text_into_moments.py moved from trillion-launch-video (ports/)"
     },
     {
       "capability": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite",
