@@ -1,30 +1,40 @@
-#!/bin/zsh
-# render_ab.sh <line.json> <out dir>: every A/B take of one narration line, one heavy job at a time, then the same
-# clean + master chain as the film (narrator/tools/voice_clean.py, showtime voice master: -16 LUFS, -1.5 dBTP, 48 kHz
-# mono) and the measurements (tools/measure.py -> <out dir>/work/measure-final.jsonl, narrator/tools/gap_ticks.py).
-# A take is a row of TAKES: "<work name>|<Finder name>|<command after the python>". A take already in <out dir> is
-# moved to the Trash before it is made again.
-set -e
-LINE=${1:a}; OUT=${2:a}
-HERE=${0:a:h}; NARR=${HERE:h:h}
+#!/usr/bin/env bash
+# render_takes.sh <line.json> <out dir> [<settings record>]: every A/B take of one narration line, one heavy job at a time, then the same
+# clean + master chain for every take (the settings' clean_command, then master_command, e.g. "showtime voice master": -16 LUFS, -1.5 dBTP, 48 kHz
+# mono) and the measurements (of the settings' measure_glob in <out dir>, else the takes made) (measure_takes.py -> <out dir>/work/measure-final.jsonl, then the settings' ticks_command).
+# A take is a row of TAKES: "<work name>|<final name>|<script> <argument>" (say_a_line_in_kokoro.py --take-rows prints the
+# settings' takes that way). A take already in <out dir> is moved to <out dir>/work/replaced/ before it is made again.
+# The last line is {"result": {...}} or {"error": "what to change"}.
+set -eo pipefail  # bash 3.2 (macOS) too: no mapfile, no set -u over an empty array
+refuse() { printf '{"error": "%s"}\n' "$1"; exit 2; }
+[[ $# -ge 2 ]] || refuse "pass <line.json> <out dir> and, if the person has one, their settings record"
+[[ -f $1 ]] || refuse "$1 is not there: pass the narration line as JSON"
+LINE=$(cd "$(dirname "$1")" && pwd)/$(basename "$1"); mkdir -p "$2"; OUT=$(cd "$2" && pwd)
+HERE=$(cd "$(dirname "$0")" && pwd)
 PY=${PYTHON:-python3}
-mkdir -p $OUT/work
-TAKES=(
-  "synthetic-2c278db27507|Narrator - 2 Kokoro fixed|$HERE/kokoro_take.py $LINE bm_lewis"
-  "qwen3|Narrator - 3 Qwen3-TTS clone|$HERE/clone_take.py $LINE qwen3"
-  "pocket|Narrator - 4 Pocket TTS clone|$HERE/clone_take.py $LINE pocket"
-  "chatterbox|Narrator - 5 Chatterbox Turbo clone|$HERE/clone_take.py $LINE chatterbox"
-  "synthetic-4ae1cb8ef177|Narrator - 6 Kokoro fixed, voice bm_george|$HERE/kokoro_take.py $LINE bm_george"
-  "kokoro-bm_fable|Narrator - 7 Kokoro fixed, voice bm_fable|$HERE/kokoro_take.py $LINE bm_fable"
-)
-for row in $TAKES; do
-  parts=("${(@s:|:)row}"); work=$OUT/work/$parts[1].wav; final="$OUT/$parts[2].wav"
-  nice -n 5 $PY ${=parts[3]} $work > /dev/null
-  $PY $NARR/tools/voice_clean.py $work ${work:r}-clean.wav
-  [[ -e $final ]] && mv $final ~/.Trash/"${final:t:r} $(date +%Y%m%d-%H%M%S).wav"
-  ${SHOWTIME:-showtime} voice master ${work:r}-clean.wav -o $final > /dev/null
-  echo "made $final"
+SETTINGS=${3:-}
+SET=(); [[ -n $SETTINGS ]] && SET=(--settings-record "$SETTINGS")
+mkdir -p "$OUT/work"
+rows=$($PY -I "$HERE/say_a_line_in_kokoro.py" --take-rows "${SETTINGS:--}") || refuse "the settings' takes cannot be read: $rows"
+chain=$($PY -I "$HERE/say_a_line_in_kokoro.py" --chain "${SETTINGS:--}") || refuse "the settings' clean, master and ticks commands cannot be read: $chain"
+CLEAN=$(sed -n 1p <<<"$chain"); MASTER=$(sed -n 2p <<<"$chain"); TICKS=$(sed -n 3p <<<"$chain"); GLOB=$(sed -n 4p <<<"$chain")
+if [[ -n $MASTER ]] && ! command -v "${MASTER%% *}" >/dev/null; then refuse "${MASTER%% *} is not installed: install it, or set master_command"; fi
+TAKES=(); while IFS= read -r row; do [[ -n $row ]] && TAKES+=("$row"); done <<<"$rows"
+made=()
+for row in "${TAKES[@]}"; do
+  IFS='|' read -r w f cmd <<<"$row"; work=$OUT/work/$w.wav; final="$OUT/$f.wav"
+  read -r script arg <<<"$cmd"
+  said=$(nice -n 5 $PY -I "$HERE/$script" "$LINE" "$arg" "$work" "${SET[@]}") || refuse "take $w was not made: $(tail -n 1 <<<"$said" | tr -d '"')"
+  if [[ -n $CLEAN ]]; then $CLEAN "$work" "${work%.wav}-clean.wav"; else cp "$work" "${work%.wav}-clean.wav"; fi
+  [[ -e $final ]] && mkdir -p "$OUT/work/replaced" && mv "$final" "$OUT/work/replaced/$(basename "${final%.wav}") $(date +%Y%m%d-%H%M%S).wav"
+  if [[ -n $MASTER ]]; then $MASTER "${work%.wav}-clean.wav" -o "$final" > /dev/null; else cp "${work%.wav}-clean.wav" "$final"; fi
+  echo "made $final" >&2
+  made+=("$final")
 done
-$PY $NARR/tools/gap_ticks.py $OUT/Narrator*.wav
-$PY $HERE/measure.py $LINE $OUT/Narrator*.wav 2> $OUT/work/measure.err | grep '^{' > $OUT/work/measure-final.jsonl
-echo "measured -> $OUT/work/measure-final.jsonl"
+# The takes measured: every file of measure_glob in <out dir> when the settings name one (a take kept from before, too), else those made.
+if [[ -n $GLOB ]]; then shopt -s nullglob; made=("$OUT"/$GLOB); shopt -u nullglob; fi
+if [[ -n $TICKS ]]; then $TICKS "${made[@]}" >&2; fi
+measured=$($PY -I "$HERE/measure_takes.py" "$LINE" "${made[@]}" "${SET[@]}" 2> "$OUT/work/measure.err") || refuse "the measure refused: $(tail -n 1 <<<"$measured" | tr -d '"')"
+grep '^{"take"' <<<"$measured" > "$OUT/work/measure-final.jsonl"
+echo "measured -> $OUT/work/measure-final.jsonl" >&2
+printf '{"result": {"takes": %s, "measures": "%s"}}\n' "${#made[@]}" "$OUT/work/measure-final.jsonl"
