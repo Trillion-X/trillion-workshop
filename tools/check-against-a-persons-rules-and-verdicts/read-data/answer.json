@@ -1,0 +1,11 @@
+{
+ "what_this_is": "DATA for askedOf in do-work/rules-and-verdicts.mjs: how a check's questions are put in an answer. `questions_at_most_bytes`: the most JSON bytes of question entries one answer holds. A tool run's answer goes through the door twice in one 65,536-byte message (the pieces rows measured 28,000 bytes of answer fitting where more ended in an unknown outcome), and the engine kills a run whose output passes 262,144 bytes, so a page is held well under both with the rest of the answer (results, lines, read_by_a_model) beside it; the rest of the questions come in the next calls (questions_after). `ask_fields`: the fields of a rule's ask that, when every rule has the same, are said once in ask_all.",
+ "questions_at_most_bytes": 20000,
+ "ask_fields": [
+  "options",
+  "fail",
+  "adapter",
+  "model",
+  "examples"
+ ]
+}

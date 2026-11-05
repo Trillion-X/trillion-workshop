@@ -1,0 +1,5 @@
+{
+  "_what": "Whether a notice that arrives while the person is inside their own quiet hours, and chose to be written to without a push (working-hours mode auto_silent, src/calendar-tasks.mjs), is shown at a quieter level (src/tell-the-person.mjs invariant 18). `enabled` is off until this row is turned on; `level` is one of the levels a kind may have (passive, active, time-sensitive).",
+  "enabled": false,
+  "level": "passive"
+}

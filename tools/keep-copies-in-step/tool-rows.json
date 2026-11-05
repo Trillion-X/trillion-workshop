@@ -548,6 +548,159 @@
           }
         ]
       }
+    },
+    {
+      "id": "package::keep-copies-in-step::tool::answer-the-catch-up-here-route",
+      "address": "package::keep-copies-in-step::tool::answer-the-catch-up-here-route",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-the-catch-up-here-route",
+        "label": "Answer the page that says how this device stands",
+        "status": "active",
+        "job": "Answer the Trillion page route POST /work/api/catch-up/here: keep how this device stands and answer the page as old Trillion did",
+        "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. POST /catch-up/here with { device_id, state, waiting?, at?, title?, kind?, copy_id? } keeps that device's row in setting:catch_up_devices (written only when what the person sees changed, or its last catch-up moved by more than an hour; newest 40 kept) and answers 200 { device, written }. A refused report answers 400 { error }; any other path or method answers 404 { error: \"Not found\" }. The write stands on the rows it read; rows another device changed meanwhile are read again.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The route after /work/api"
+            },
+            "method": {
+              "type": "string"
+            },
+            "query": {
+              "type": "object"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "keep-copies-in-step",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/keep-copies-in-step"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-copies-in-step",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-copies-in-step/do-work/catch-up-routes.mjs",
+            "answerCatchUpRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "setting",
+                "id": "setting:catch_up_devices",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:keep-copies-in-step",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/catch-up.mjs handleCatchUpRequest 'POST /catch-up/here' (tag old-trillion-before-worker-retire), reached from src/worker.mjs:1185 and src/person-store.mjs:8189; the decision is read-data/catch-up.mjs here(), unchanged"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/catch-up/here",
+              "method": "POST",
+              "query": {},
+              "body": {
+                "device_id": "d-sample01",
+                "state": "caught-up"
+              },
+              "browser": {}
+            },
+            "output_selector": "$.body.device.device_id",
+            "contains": "d-sample01"
+          }
+        ]
+      }
     }
   ]
 }

@@ -1,0 +1,59 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CONTENT-FORMATS-PAGE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:9ed5c330511f3ab73bc1783f1ddc912e3471464769a65002c0195ebaecd6d332",
+  "quote": "A Workshop route tool is an ordinary `ai-tool-descriptor` row (invoke kind container, `stdout: json`, stdin filled from\ninput) that reads and writes the person's records only through the records door"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the content formats page routes over the records door: read the saved formats record, hand the owner its source readers over the person's files and pursuit records, write the saved list back",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/shape-a-thought-into-my-content-formats/do-work/answer-the-content-formats-page.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/shape-a-thought-into-my-content-formats/",
+   "why": "This tool itself: the owner it runs is read-data/content-formats.mjs, ported byte for byte first (ports/content-formats.json); this file only reads and writes through the door and answers the route."
+  },
+  {
+   "repository": "trillion",
+   "path": "src/standalone-resource-behavior.mjs",
+   "why": "The old account resource handed the owner readers over its hosted Namespace HTTP and its engine's pursuits; that host is retired and no records-door run can reach it, so the readers here read the same folders and fields through the files door and the pursuit records."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the content formats page routes over the records door: read the saved formats record, hand the owner its source readers over the person's files and pursuit records, write the saved list back",
+    "answer the content formats page routes over the records door",
+    "answerTheContentFormatsPage"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerTheContentFormatsPage"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+    },
+    {
+     "repository": "trillion",
+     "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/shape-a-thought-into-my-content-formats/test/answer-the-content-formats-page.test.mjs"
+  ]
+ }
+}

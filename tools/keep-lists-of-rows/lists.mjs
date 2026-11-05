@@ -113,7 +113,7 @@
 // Security: one person's own store; a list can only name record types (`record:<type>`), never a decision, a pursuit,
 // a setting or a payment.
 //
-import { boundedWalk, refusalWords } from '../bounded-walk.mjs';
+import { boundedWalk, refusalWords } from '../walk-nested-input-within-limits/read-data/bounded-walk.mjs';
 import { makeConfigurations, ConfigurationError } from '../query-and-change-list-rows/src/configurations.mjs';
 import { ListsError, listRefusal, listSay } from '../query-and-change-list-rows/src/list-refusals.mjs';
 import { backlinks, duplicateRows, fileReferences, joinAnswers, mergeRows, planRowRequest, resolveRows, rewriteFileNames, withDangling } from '../query-and-change-list-rows/src/list-row-operations.mjs';

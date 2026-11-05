@@ -29,8 +29,10 @@ const round = (value, places = 3) => Math.round(value * 10 ** places) / 10 ** pl
 const placeLabel = Object.fromEntries(config.places.map(place => [place.id, place.label]));
 const reasonOf = error => error?.code ?? 'refused';
 const canonicalFiles = identities => new Map(identities.map(identity => [identity, identity]));
-// The lanes a question asks: the records always, the files only when no record type narrows it.
-const planned = type => config.lanes.filter(lane => type === undefined || type === null || lane.match === 'records');
+// The lanes a question asks: the records always, the files only when no record type narrows it; and, as old planned
+// (src/search.mjs:1518) did for GET /work/api/search, only the asked places, sources and matches when they are named.
+const planned = (type, { places = null, sources = null, matches = null } = {}) => config.lanes.filter(lane => (type === undefined || type === null || lane.match === 'records')
+  && (!places || lane.place == null || places.includes(lane.place)) && (!sources || sources.includes(lane.source)) && (!matches || matches.includes(lane.match)));
 
 // `{ question, type?, limit? }` in; `{ question, terms, results, unavailable, pending, sat_out }` out.
 export async function searchEverything(input, { door }) {
@@ -40,7 +42,7 @@ export async function searchEverything(input, { door }) {
     // The records door's search; each kind it answers is its own lane.
     records: async (lane, { report }) => {
       let answer;
-      try { answer = await door.search(fields); }
+      try { answer = await door.search({ question: fields.question, ...(fields.type === undefined ? {} : { type: fields.type }), ...(fields.limit === undefined ? {} : { limit: fields.limit }) }); }
       catch (error) { refusal = error; return []; }
       for (const item of answer?.unavailable ?? []) report.passed.unavailable.push(item);
       for (const item of answer?.pending ?? []) report.passed.pending.push(item);
@@ -53,12 +55,12 @@ export async function searchEverything(input, { door }) {
       return (answer?.results ?? []).map(hit => ({ start: 0, end: 0, ...hit, key: hit.id }));
     },
   };
-  return finish(fields.question, { type: fields.type, limit: Number.isInteger(fields.limit) ? fields.limit : config.limit });
+  return finish(fields.question, { type: fields.type, places: fields.places, sources: fields.sources, matches: fields.matches, limit: Number.isInteger(fields.limit) ? fields.limit : config.limit });
 
-  async function finish(question, { type = null, limit = config.limit } = {}, partial = null) {
+  async function finish(question, { type = null, places = null, sources = null, matches = null, limit = config.limit } = {}, partial = null) {
     question = String(question ?? '').trim().slice(0, 500);
     const terms = [...new Set(words(question).filter(word => word.length >= config.min_word_length))];
-    const lanes = planned(type);
+    const lanes = planned(type, { places, sources, matches });
     const given = partial ?? { answered: lanes.map(() => null), unavailable: [], pending: [], still_reading: Object.fromEntries(lanes.filter(lane => INDEX_MATCHES.has(lane.match)).map(lane => [lane.id, 1])) };
     const unavailable = [...given.unavailable], pending = [...given.pending];
     const participated = new Map(Object.entries(given.participated ?? {}));
@@ -141,4 +143,20 @@ export async function searchEverything(input, { door }) {
     });
     return { question, terms, results, unavailable, pending, sat_out: satOut };
   }
+}
+
+// GET /work/api/search?q=&places=&sources=&matches=&limit= as the page asks it (old src/worker.mjs:865 handed it to the
+// account's Namespace resource, src/namespace.mjs:2127 `namespaceSearch(q ?? '', searchOptions(params))`): the route's
+// { path, method, query } in, its { status, body } out. searchOptions is old src/search.mjs:2221: places, sources and
+// matches as comma lists, limit a whole number above 0, at most 200. Any other request is no route of this one.
+export async function answerTheSearchRoute(input, { door }) {
+  const { path, method, query } = input && typeof input === 'object' ? input : {};
+  if (method !== 'GET' || path !== '/search') return { status: 404, body: { error: 'Not found' } };
+  const asked = query && typeof query === 'object' ? query : {};
+  const list = name => (typeof asked[name] === 'string' && asked[name] ? asked[name].split(',').map(item => item.trim()).filter(Boolean) : null);
+  const limit = Number(asked.limit);
+  try {
+    return { status: 200, body: await searchEverything({ question: typeof asked.q === 'string' ? asked.q : '', places: list('places'), sources: list('sources'), matches: list('matches'),
+      ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}) }, { door }) };
+  } catch (error) { return { status: 500, body: { error: error.message } }; }
 }

@@ -1,0 +1,31 @@
+{
+  "cases": [
+    {
+      "facts": {},
+      "description": {
+        "title": "Look",
+        "lead": "How Trillion looks and feels on every screen you open it on.",
+        "sections": [
+          {
+            "id": "look",
+            "heading": "Screen look",
+            "body": "Choose a look. Changes appear right away.",
+            "part": "screen-look"
+          },
+          {
+            "id": "panes",
+            "heading": "Panes",
+            "body": "Drag the edge to feel it. Changes appear right away.",
+            "part": "pane-sizes"
+          },
+          {
+            "id": "feel",
+            "heading": "Feel",
+            "body": "How each moment feels: the touch, the sound and the motion. Press play to feel one.",
+            "part": "feel"
+          }
+        ]
+      }
+    }
+  ]
+}

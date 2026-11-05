@@ -1,0 +1,54 @@
+{
+  "kind": "tool-rows",
+  "record_set": "show-my-screens-from-a-catalogue-of-reads-and-layouts-tool-rows",
+  "what_this_is": "The catalogue screens the generic screen host answers (GET /work/api/screens/<id> is the row tool:<id> here): each row’s screen is { kind: \"reads\", reads: [{ id, tool, input }], shown_when?, layout }, moved from old trillion records/marketplace-screens.json (tag old-trillion-before-worker-retire). The host runs each read as that tool’s run for the asking account and draws the layout from what the reads answered.",
+  "records": [
+    {
+      "id": "package::show-my-screens-from-a-catalogue-of-reads-and-layouts::tool::look",
+      "address": "package::show-my-screens-from-a-catalogue-of-reads-and-layouts::tool::look",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:look",
+        "status": "active",
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "label": "Look",
+        "job": "Show how Trillion looks and feels on every screen this account opens it on: the look it wears, how panes size and snap, and how each moment feels",
+        "description": "A screen with no facts to read: three sections that lend the shared parts that keep their own choice in the account’s records (Screen look, Panes, Feel). It runs nothing: the screen host draws its layout as it is (GET /work/api/screens/look).",
+        "screen": {
+          "kind": "reads",
+          "label": "Look",
+          "reads": [],
+          "layout": {
+            "title": "Look",
+            "lead": "How Trillion looks and feels on every screen you open it on.",
+            "sections": [
+              {
+                "id": "look",
+                "heading": "Screen look",
+                "body": "Choose a look. Changes appear right away.",
+                "part": "screen-look"
+              },
+              {
+                "id": "panes",
+                "heading": "Panes",
+                "body": "Drag the edge to feel it. Changes appear right away.",
+                "part": "pane-sizes"
+              },
+              {
+                "id": "feel",
+                "heading": "Feel",
+                "body": "How each moment feels: the touch, the sound and the motion. Press play to feel one.",
+                "part": "feel"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

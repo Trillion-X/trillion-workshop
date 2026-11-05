@@ -16,7 +16,7 @@
     "label": "Check words or anything made against a person's own rules and verdicts",
     "status": "active",
     "job": "Check words, a title, a script line or a plan against a person's own rules and the verdicts they already gave, and say pass, fail or uncertain for each, with why",
-    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's branch rows (a node of kind branch in their one Checks list, list:checks, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: one tree in one list, every node naming the node it is part_of; the rows part_of that branch or a branch it is part_of, each branch read on its own (a branch below is never judged), plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. Nothing about any person is built in.",
+    "description": "Give the units to check (each { text, kind } or { view, kind } for JSON such as a plan, with optional facts, field, context and findings you already have), rules (rule rows judge-words runs, and ask rows a model answers), and the person's own rule document (verdict_rules) and stands (stances, as tool:read-where-you-stand gives them), read at run time from their records or files. Or give a branch in place of rules and verdict_rules: one of the person's branch rows (a node of kind branch in their one Checks list, list:checks, such as the kind of thing being made: a book, a script, an article, a post), and the rules are read from their own records: one tree in one list, every node naming the node it is part_of; the rows part_of that branch or a branch it is part_of, each branch read on its own (a branch below is never judged), plus the rows of every list a branch names in check_lists; step rows (questions of a decision step) and rows set Off are left out, a row that states no test (no words, pattern, exact, check, groups, path, evidence, ask or part) but says something is a reading row: a question a model answers once for each whole unit, made from the tool's own DATA over the row's words, carrying the calibration and model of the nearest branch's reading_settings, and listed in read_by_a_model; a piece of a source file, or a row that says nothing, is never judged: it is counted in rows_used.skipped.no_test, and a branch with only such rows answers no-applicable-rule; and the rows of the nearest branch carrying judge_settings (and of the branches extending it) are their verdict rows under those settings, the inherited rows generic rules. The answer then adds branch, lineage (nearest first) and rows_used. Their exact stand on a thing decides first: disagree fails, partly holds at review and fails at final, agree passes and clears the generic rules they named. Then their stated rows fail and their inferred rows (at_most uncertain) only hold. Nothing passes on silence: a thing nothing of theirs judges is novel, and an ask row never passes without a calibrated answer. The answer lists the questions a model may answer, by id; send the answers back in answers to use them. With branch the questions of a branch of hundreds of reading rows come in pages that each fit one answer: one entry for each rule (its ask said once, what every rule shares once in ask_all, a unit's own words never copied), and questions_page.next is the questions_after of the next call. Nothing about any person is built in.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -204,6 +204,10 @@
        "type": "string",
        "description": "When the stands were read, if they were read from a copy and not live"
       },
+      "questions_after": {
+       "type": "string",
+       "description": "With branch: the questions_page.next of the last page of questions, for the next page; leave it out for the first. Send the same request otherwise, with the answers you have."
+      },
       "stage": {
        "type": "string",
        "enum": [
@@ -260,16 +264,27 @@
       },
       "questions": {
        "type": "array",
+       "description": "The questions a model may answer. With rules: one { id, rule, question, options, text } for each. With branch: one entry for each rule asked, { rule, question, ...ask, asked: [{ id, text? }] }, as many entries as fit one answer (see questions_page); a question is an entry over ask_all, and its text is the whole unit's (its result's) unless asked names one",
        "items": {
         "type": "object",
         "required": [
-         "id",
          "rule",
-         "question",
-         "options",
-         "text"
+         "question"
         ]
        }
+      },
+      "questions_page": {
+       "type": "object",
+       "required": [
+        "rules",
+        "returned",
+        "next"
+       ],
+       "description": "With branch: how many rules ask questions, how many entries this answer holds, and the questions_after of the next page (null on the last)"
+      },
+      "ask_all": {
+       "type": "object",
+       "description": "With branch: the fields of the ask (options, fail, adapter, model, examples) that every rule has the same, said once for all the entries of questions"
       },
       "lines": {
        "type": "array",
