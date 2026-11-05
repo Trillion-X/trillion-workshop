@@ -66,7 +66,9 @@ async function methodsOf(door) {
   if (!methods.length) refuse('no_methods');
   return methods;
 }
-const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: NAMES.method_link });
+// The link a method and a check name their parent in, then the old fields still read until the rows are rewritten.
+const LINK = [NAMES.method_link, ...(NAMES.old_method_links ?? [])];
+const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: LINK });
 // The method functions with the check rows of one step: that step's rows and the rows it names by id (`check_ids`), each
 // read with the door's `where`, so a call carries one step's checks, never the whole list. The step is the one given,
 // or the step asked next.

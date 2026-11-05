@@ -13,7 +13,9 @@
 // Non-negotiable invariants
 //   1. The branch rows are read once with the door's `where { kind: branch }`, then only the rows of the branches of
 //      the lineage, each with `where { part_of }`, never the whole list. A branch part of a branch is a branch below,
-//      never judged: it is counted in rows_used.skipped.branch.
+//      never judged: it is counted in rows_used.skipped.branch. Until the rows are rewritten, the old link fields
+//      (read-data/branch.json `old_link_fields`) are read too, one `where` each; a row's parent is its first link that
+//      names one, so a row read by an old field whose `part_of` names another branch is not this branch's row.
 //   2. A row with `step` is a question of a decision step (tools/decide-with-a-method asks it); its `check` is question
 //      text, not a judge-words check name, so it never reaches makeJudge. A row whose `on` is "Off" is not judged.
 //   3. A row that states no test (none of tools/judge-words SELECTOR_NAMES, imported from there, never a second list)
@@ -38,7 +40,7 @@
 //                                  read_by_a_model; its `questions` are one entry a rule in one page (rules-and-verdicts.mjs
 //                                  askedOf; input `questions_after` the next), with questions_page and ask_all; with no row
 //                                  to judge or read, status no-applicable-rule
-import { lineageOf, whereOfLink } from './branch.mjs';
+import { lineageOf, linksOf, wheresOfLink } from './branch.mjs';
 import { askedOf, check, CheckRefusal, compileVerdictRules, linesOf, statusOf } from './rules-and-verdicts.mjs';
 import { SELECTOR_NAMES } from '../../judge-words/do-work/judge-words.mjs';
 import SETTINGS from '../read-data/branch.json' with { type: 'json' };
@@ -48,6 +50,8 @@ const READING = SETTINGS.reading;
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 const hasWords = value => typeof value === 'string' && value.trim() !== '';
+// The link every node names its parent in, then the old fields still read until the rows are rewritten.
+const LINK = [SETTINGS.link_field, ...(SETTINGS.old_link_fields ?? [])];
 const isPiece = row => row[SETTINGS.kind_field] === SETTINGS.piece_kind;
 // Whether makeJudge can judge with a row: it names a judge-words selector, asks a model, or reads a part of a thing.
 const statesATest = row => !isPiece(row)
@@ -74,6 +78,17 @@ async function valuesOf(door, query) {
   return values;
 }
 
+// The rows part of branch `id`: one read a field of the link, each row once, kept only when its first link names `id`.
+async function rowsPartOf(door, branchRows, id) {
+  const byId = new Map();
+  for (const where of wheresOfLink(branchRows, LINK, id)) {
+    for (const row of await valuesOf(door, { type: SETTINGS.check_type, where })) {
+      if (!byId.has(row.id) && linksOf(row, LINK).includes(id)) byId.set(row.id, row);
+    }
+  }
+  return [...byId.values()];
+}
+
 // A list a branch names: `list:<id>` or its bare id, read as the list record, then its rows by its row type.
 async function rowsOfList(door, method, listId) {
   const id = listId.startsWith(SETTINGS.list_prefix) ? listId : `${SETTINGS.list_prefix}${listId}`;
@@ -91,7 +106,7 @@ export async function rulesOfBranch(door, branch) {
   const methods = await valuesOf(door, { type: SETTINGS.check_type, where: SETTINGS.branch_where });
   if (!methods.length) throw new CheckRefusal(WORDS.no_methods);
   let lineage;
-  try { lineage = lineageOf(methods, branch, SETTINGS.link_field); } catch (error) { throw new CheckRefusal(error.message); }
+  try { lineage = lineageOf(methods, branch, LINK); } catch (error) { throw new CheckRefusal(error.message); }
   const methodById = new Map(methods.map(row => [row.id, row]));
   const judgeAt = lineage.findIndex(id => object(methodById.get(id).judge_settings));
   const settings_from = lineage.find(id => object(methodById.get(id)[READING.settings_field])) ?? null;
@@ -117,7 +132,7 @@ export async function rulesOfBranch(door, branch) {
   const listsRead = new Set();
   for (const [at, id] of lineage.entries()) {
     const isVerdict = judgeAt >= 0 && at <= judgeAt;
-    const own = (await valuesOf(door, { type: SETTINGS.check_type, where: whereOfLink(methods, SETTINGS.link_field, id) }))
+    const own = (await rowsPartOf(door, methods, id))
       .sort((a, b) => (String(a.id) < String(b.id) ? -1 : 1));
     rows_used.branches[id] = own.length;
     take(own, isVerdict);
