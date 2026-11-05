@@ -13,6 +13,7 @@ import json, sys, time, re, resource
 from pathlib import Path
 H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place; R = place.request(); DEV = place.device()
 S = place.json_of(place.need(R, "slots"), "slots"); S = S["slots"] if isinstance(S, dict) else S; M = place.need(R, "method"); MODEL = place.need(R, "model")
+ORIG = {s["slot"]: [c.get("frame") for c in s["cands"]] for s in S}  # c<index> names a candidate by its place before frameless ones go
 for s in S: s["cands"] = [c for c in s["cands"] if "frame" in c]
 t0 = time.time(); scores = {}; n = 0; tt = 0
 if M == "siglip":
@@ -75,7 +76,7 @@ if R.get("reference"):
     for s in S:
         ref = R["reference"].get(str(s["slot"]))
         if not ref or not rank.get(s["slot"]): continue
-        frames = {f"c{ci}": c["frame"] for ci, c in enumerate(s["cands"])}
+        frames = {f"c{ci}": f for ci, f in enumerate(ORIG[s["slot"]])}
         ref = [frames.get(x, x) for x in ref]; best = rank[s["slot"]][0]; n += 1
         one += best == ref[0]; within += best in ref[:3]
     result["agreement"] = {"top1": f"{one}/{n}", f"top1_in_{who}_top3": f"{within}/{n}"}

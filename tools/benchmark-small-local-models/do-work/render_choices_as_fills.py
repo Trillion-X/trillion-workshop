@@ -10,7 +10,8 @@ Request: choice (a choose_* or judge_* answer, or its file), options (the option
 abstain (default 0), template (the word template), root (the folder the candidates' sources are read from), title
 (the fills' title, with {tag}), out_dir (where word.template.json, a copy of the template, and out/fills-<tag>.json, fill-<tag>.md, fill-<tag>.piece.json and
 drift-<tag>.json are written), write_to.
-Answer: { result: { fills, written: { fills, md, piece, drift }, drift } }."""
+Answer: { result: { fills, written: { fills, md, piece, drift }, drift, errors: [what fill.py or drift.py said when it
+failed] } }."""
 import json, subprocess, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
@@ -36,8 +37,10 @@ json.dump({"title": place.need(R, "title").replace("{tag}", a.tag), "root": str(
 md = H/"out"/f"fill-{a.tag}.md"; piece = H/"out"/f"fill-{a.tag}.piece.json"
 r = subprocess.run([sys.executable, str(WT/"fill.py"), str(H/"word.template.json"), str(fj), str(md), "--piece", str(piece), "--root", str(TLV)], capture_output=True, text=True)
 print(r.stdout[-300:], r.stderr[-500:])
+said = [] if r.returncode == 0 else ["fill: " + r.stderr.strip()[-500:]]
 r = subprocess.run([sys.executable, str(WT/"drift.py"), str(H/"word.template.json"), str(piece), "--json", str(H/"out"/f"drift-{a.tag}.json"), "--root", str(TLV)], capture_output=True, text=True, cwd=TLV)
 print("\n".join(r.stdout.splitlines()[:3]), r.stderr[-300:])
+said += [] if r.returncode == 0 else ["drift: " + r.stderr.strip()[-500:]]
 dj = H/"out"/f"drift-{a.tag}.json"
 place.answer({"fills": fills, "written": {"fills": str(fj), "md": str(md), "piece": str(piece), "drift": str(dj)},
-              "drift": json.load(open(dj)) if dj.exists() else None})
+              "drift": json.load(open(dj)) if dj.exists() and not said else None, "errors": said})
