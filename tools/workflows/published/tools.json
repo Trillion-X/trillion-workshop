@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:073f4e4e5c379843a9ed9b41f6ecf95ade203fed48981cc079e3e761f1349ac6"
+  "blake3": "1f:86f8e34f6b98f6bb37381b77b04525f2cf7a2bca347240c366dfaff05b33bf04"
  },
  "fields": [
   {
@@ -3187,21 +3187,6 @@
    }
   },
   {
-   "id": "tool:find-closest-across-my-indexes",
-   "values": {
-    "title": "Find what is closest to a vector across several of my indexes",
-    "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
-    "status": "active",
-    "maker": "maker:meaning-search",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "meaning-search"
-   }
-  },
-  {
    "id": "tool:find-cold-rows",
    "values": {
     "title": "Find the rows nobody uses",
@@ -3581,21 +3566,6 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
-   }
-  },
-  {
-   "id": "tool:find-words-said-in-my-recordings",
-   "values": {
-    "title": "Find the lines my recordings say, by their words",
-    "job": "Find the spoken lines in my recordings that say all of some words, and say the file and time of each",
-    "description": "Reads the vector sets of several of the person's semantic-index-descriptor records (index_ids) whose points_to names a text field, and returns, in the order the sets hold them, the lines that contain every word of query_text longer than two letters (case ignored), at most limit (8 when none is asked). Needs no model: it matches the words themselves, where tool:find-similar-by-meaning matches what they mean. Returns index_ids and lines: each line's address, file, start, end, text and any field the descriptor's points_to.carry names.",
-    "status": "active",
-    "maker": "maker:meaning-search",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "meaning-search"
    }
   },
   {
@@ -5910,21 +5880,6 @@
    }
   },
   {
-   "id": "tool:make-a-vector-set-from-picture-vectors-my-apps-kept",
-   "values": {
-    "title": "Make a searchable set from picture vectors another program kept (runs on your computer)",
-    "job": "Turn picture vectors my programs already kept (an asset index of CLIP matrices, a folder of timed frames, an app's results store) into sets I can search by what the pictures show",
-    "description": "Reads, only reading, the stores the person names: an asset index of CLIP matrices (video frames with no time, images, and readable names from assets.jsonl), a folder of timed frames (frames.npy and frames.jsonl), and an app's SQLite results store of timed frames (base64 float16 vectors, each item's path from its library entries), with the id a namespace store keeps each of those videos under. Each store becomes its own set in --out: items.jsonl (path, kind, t or null, and name, or id and b2), vectors.npy (float16, normalised) and vector-set.json, the vector_set member of a semantic-index-descriptor record with points_to.carry naming the extra fields. Last line: {\"result\": {\"sets\": {name: items}}} or {\"error\": ...}.",
-    "status": "active",
-    "maker": "maker:meaning-search",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "meaning-search"
-   }
-  },
-  {
    "id": "tool:make-a-view-patch",
    "values": {
     "title": "Send only what changed in an answer",
@@ -6047,6 +6002,21 @@
      "placement:deployed-container"
     ],
     "folder": "ask-questions-sort-answers-follow-up"
+   }
+  },
+  {
+   "id": "tool:make-spoken-line-candidates-one-slot-at-a-time",
+   "values": {
+    "title": "Make the candidates of a spoken line, one slot varying at a time (runs on your computer)",
+    "job": "Make candidate versions of a spoken line where each slot's other options are tried one at a time against my base picks, each with its script, shot file and a claim for every sentence",
+    "description": "From a request of slots (each with a base pick and candidates, each candidate with the words it adds and the claim it makes) and sentence templates ({SLOT} where a slot's words go), writes the base variant, then every other candidate of each slot with all other slots at their base pick. Each variant gets a script line, a shot file naming that script and a claims file with one entry per sentence taken from the candidate that formed the sentence (a sentence whose filled words are empty is left out with its claim), plus a manifest of the variants and a list of their lines. A picked candidate that has words but no claim is refused. The words, claims, ids and file shapes are the person's own and come in the request (one file, or several laid over each other key by key); the tool names no film, speaker or claim.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {
@@ -12521,6 +12491,21 @@
      "placement:your-computer"
     ],
     "folder": "export-documents-to-files"
+   }
+  },
+  {
+   "id": "tool:write-a-word-template-from-the-words-i-keep-and-the-slots",
+   "values": {
+    "title": "Write a word template by hand from the words I keep and the slots I leave open (runs on your computer)",
+    "job": "Write a word template for a spoken line from the words that stay and the slots that change, when no reader can measure its file",
+    "description": "Writes word-template@1 token tables from a request: for each template a name, a time span, where its words came from, parts (kept words, and slot words each naming a slot) and the slots (type and note). Each word becomes a token marked KEEP or SLOT in order, with its slot, slot type and note; only the slots a word uses are listed; every dimension other than the spoken words is left pending with the reason. The words, slots, sources and notes are the person's own and come in the request (one file, or several laid over each other key by key, so their settings can be a row of their records and the output folder stays with the run); the tool names no piece, speaker or film. The templates are the same shape make_template.py writes, so tool:fill-a-word-template and tool:check-words-against-a-word-template take them.",
+    "status": "active",
+    "maker": "maker:fill-a-template-without-changing-its-words",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "fill-a-template-without-changing-its-words"
    }
   },
   {
