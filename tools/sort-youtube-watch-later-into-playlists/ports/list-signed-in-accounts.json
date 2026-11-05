@@ -42,7 +42,7 @@
   "copied_before_adaptation": true,
   "source_multihash": "1f:5ec9c3586f4f7ca493d11f5263069f03696b3a201325d21a3fc3451bc647ef6d",
   "target_multihash_at_baseline": "1f:5ec9c3586f4f7ca493d11f5263069f03696b3a201325d21a3fc3451bc647ef6d",
-  "commit": "0146504f13236de9fe738845515ebdce3ad5289e",
+  "commit": "740bde78de7ab553e0a0358ffe75318e75da3fc1",
   "recorded_at": "2026-11-05T20:15:00Z"
  },
  "proof": {

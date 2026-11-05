@@ -123,7 +123,7 @@ class PlanCommandTests(unittest.TestCase):
     def test_settings_record_from_the_persons_list(self):
         settings = {'channels': [{'slug': 's', 'label': 'S', 'sort': 'rules', 'rules': RULES}]}
         record = {'id': 'record:setting:sort-youtube-watch-later-into-playlists~person~sam', 'type': 'record:setting',
-                  'value': {'name': 'sort', 'tool': 'sort-youtube-watch-later-into-playlists', 'scope_kind': 'person', 'scope_id': 'sam',
+                  'value': {'name': 'sort', 'tool': 'tool:plan-sorting-youtube-watch-later-into-playlists', 'scope_kind': 'person', 'scope_id': 'sam',
                             'settings': json.dumps(settings), 'from': 'old/rules.json@abc', 'status': 'active'}}
         code, out = run_cmd('plan_sort.py', {'settings_record': record, 'watch_later': {'s': ITEMS}, 'generated': 'g'})
         self.assertEqual(code, 0, out)
@@ -138,6 +138,13 @@ class PlanCommandTests(unittest.TestCase):
         code, out = run_cmd('plan_sort.py', {'settings_record': other, 'watch_later': {'s': ITEMS}})
         self.assertEqual(code, 2)
         self.assertIn('sort-youtube-watch-later-into-playlists', out['error'])
+        wrong_tool = dict(record, value=dict(record['value'], tool='tool:something-else'))
+        code, out = run_cmd('plan_sort.py', {'settings_record': wrong_tool, 'watch_later': {'s': ITEMS}})
+        self.assertEqual(code, 2)
+        self.assertIn('tool:something-else', out['error'])
+        two = [dict(record, id='record:setting:sort-youtube-watch-later-into-playlists~person~kim', value=dict(record['value'], scope_id='kim', settings='{"channels": [{"slug": "k", "label": "K"}]}')), record]
+        code, out = run_cmd('plan_sort.py', {'settings_record': two, 'person': 'sam', 'watch_later': {'s': ITEMS}, 'generated': 'g'})
+        self.assertEqual(out['result']['plan'], inline['result']['plan'])
         retired = dict(record, value=dict(record['value'], status='retired'))
         code, out = run_cmd('plan_sort.py', {'settings_record': retired, 'watch_later': {'s': ITEMS}})
         self.assertEqual(code, 2)
