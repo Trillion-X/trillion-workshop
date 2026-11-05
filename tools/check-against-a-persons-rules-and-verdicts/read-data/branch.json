@@ -13,7 +13,7 @@
  "part_field": "part",
  "kind_field": "kind",
  "piece_kind": "piece",
- "read_by_a_model_at_most": 50,
+ "read_by_a_model_at_most": 20,
  "reading": {
   "about": "How a reading row's ask is made (do-work/check-a-branch.mjs readingRow): { question, options, fail, per }, plus each of `carries` that the nearest branch of the lineage holds in its `settings_field` (a field of the person's method row, their DATA): `calibration` ({ status, t_pass, t_fail, ... } as tools/ask-a-small-model-for-a-verdict fit-lines measures it), `model`, `adapter` and `at_most`. With no such branch, or no usable calibration there, no unit it reads can pass (rules-and-verdicts.mjs invariant 2). `question` is its parts joined by new lines: a string is filled from the row ({field}); a part { field, text } is added only when the row has words at `field` that its `says_field` does not already hold. `per` is `unit`: the question is asked once of each whole unit, never once a sentence, so a branch of n reading rows asks n questions a unit.",
   "says_field": "says",

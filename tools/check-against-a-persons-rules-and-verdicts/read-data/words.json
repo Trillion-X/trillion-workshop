@@ -3,7 +3,8 @@
  "rule_ids": {
   "no_applicable_rule": "no-applicable-rule",
   "uncertain_only": "uncertain-only-rows-cannot-qualify",
-  "context_review": "context-policy-unqualified"
+  "context_review": "context-policy-unqualified",
+  "reading_unsettled": "reading-questions-unsettled"
  },
  "stance_did": {
   "agree": "They agreed",
@@ -22,6 +23,7 @@
  "no_status": "no calibration status",
  "no_calibration": "no calibration",
  "ask_unqualified": "model qualification is not established ({status})",
+ "reading_unsettled": "{count} model questions about this text are not settled: each is in questions, and none passes the text until a model calibrated to answer it has.",
  "ask_no_answer": "no model answer",
  "ask_capped_over": "the model says this may break the rule: P(fail) {p} is at or over {t_fail}; it never fails a unit on its own",
  "ask_not_usable": "the model is not calibrated as usable on this rule ({status})",
@@ -48,6 +50,7 @@
  "lines_waived_finding": "  {rule}: the person agreed to this exact line with this rule named, so it is waived here and nowhere else",
  "refused": {
   "rules": "rules is a non-empty list of rule rows: the rules the units are checked against.",
+  "questions_after": "questions_after {after} is not a rule of the questions: send the questions_page.next of the last page, or leave it out for the first.",
   "units": "units is a non-empty list of { text, kind } (or { view, kind } for a JSON artifact): the things to check.",
   "verdict_rules": "verdict_rules is the person's rule document: { rows, fold, stage: { default }, stance_rule, novel: { rule, says }, agree_clears: { rules } }. Missing: {missing}.",
   "stage": "stage is review or final.",
