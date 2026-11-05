@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:3b0010855b65a9043a4ad911228e04f1714af29b3d53c049c97eb32844f3b1e9"
+  "blake3": "1f:903f2bf54f44c78e6a07131b3abc21dfe7e7495fc189d8911ec0dca0ea268982"
  },
  "fields": [
   {
@@ -8499,6 +8499,21 @@
    }
   },
   {
+   "id": "tool:read-transcript-files-and-captions-into-timed-words",
+   "values": {
+    "title": "Read transcript and caption files into timed words, and check quotes against them (runs on your computer)",
+    "job": "Read a folder of transcript files (srt, vtt, txt, json) or a channel's downloaded YouTube captions into one timed-words shape, and check that quotes really are in the transcripts at the times they cite",
+    "description": "Five readers on the person's own computer, none of which hears audio or reads the network. pick_transcript_files.py picks, from an asset index (JSON lines with root, ext, name, display_path, sha256), the files of one drive or library that look like transcripts (srt or vtt, or a name with transcript, _raw., _clean., _cleaned_up or _rag.), names each one's kind, and joins each to the person's file store by its sha256 (the files door's answer given as a JSON file, or a namespace sqlite copy opened read only), listing one the store does not hold as missing. read_transcript_files.py reads each listed file's bytes (or one file) into a words.json: srt and vtt cues, '## h:mm:ss.fff - h:mm:ss.fff' txt blocks with their source line, 'hh:mm:ss:ff' timecode txt at the frames per second given, or a recognizer's json with its words; it says whether the timing is per word, per segment or none, and keeps the whole text of a file with no times. caption_transcripts.py turns a channel download (raw/json3 caption files, raw/meta and raw/flat-videos.jsonl, as yt-dlp leaves them for tool:keep-channels-latest-videos-and-captions) into one [m:ss] paragraph transcript per video, preferring a video's manual English track, and an index of every listed video. find_whisper_quotes.py checks each quote cited from a whisper transcript: it finds the quote's exact words among the word times and says whether it starts inside the cited window. show_segments.py prints a transcript's segments between two seconds. Each prints its account and a last line {\"result\": ...}.",
+    "status": "active",
+    "maker": "maker:audio-transcription",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "audio-transcription"
+   }
+  },
+  {
    "id": "tool:read-voice",
    "values": {
     "title": "Read how someone writes",
@@ -11478,7 +11493,7 @@
    "values": {
     "title": "Transcribe a recording with a time for every word, and repair Whisper loops (runs on your computer)",
     "job": "Turn a recording into a transcript with a time for every word, and fix the places where the transcription got stuck repeating one sentence",
-    "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long, refusing one judge rejects. Nothing leaves the computer and no key is needed.",
+    "description": "Runs the audio-transcription package's own transcribe-audio.py on the person's own computer: the recording (audio, or video with sound) is decoded to 16 kHz mono and read by whisper.cpp, and the answer is the package's result: language, full text, segments, and words with a start, an end and a timing_source that says whether the time came from the engine's token times, from the segment's bounds or from an even split of the segment. The seam adds the recording's length, its path, and when it was made (a camera's sidecar XML beside it, else the file's time). transcribe-many does a whole folder, skipping recordings already done, a few at once and waiting while the computer is busy. Whisper sometimes gets stuck and writes one sentence again and again over minutes of real speech or silence. find-loops finds those stretches (a sentence said four or more times that fills half a segment, or a segment that repeats the one before). repair merges the ones that are close, hears again only those windows with the earlier text not carried in (whisper.cpp -mc 0) and splices the new words in at their true seconds. A sentence that still loops is taken out and kept in removed_hallucinated, so nothing disappears silently; repair-many repairs a whole folder, each transcript from the recording it names. judge says whether a whole answer is to be trusted at all (one segment said over and over, one run of four words coming back again and again, too few different words, too few words a minute, mostly no speech) and why. index writes one line per transcript (length, words, segments, first thing said) with the totals, and text writes a transcript as [m:ss] paragraphs about thirty seconds long (with the title and header lines the person gives), refusing one judge rejects. When a transcript does not carry its recording's length, judge and text take it as --duration, or judge takes each recording's length from a tab-separated list (--durations). Nothing leaves the computer and no key is needed.",
     "status": "active",
     "maker": "maker:audio-transcription",
     "licence_class": "licence:maker-own",
