@@ -1,0 +1,64 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WHERE-A-PERSON-STANDS-RULING-RECORDS-FROM-COPY-GATE-VERDICT-LOG",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane, part stands: tools/copy-gate/verdicts.mjs to tools/where-a-person-stands",
+    "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+    "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "7198da3969ce9976f469bab4273b6327c160d693",
+      "path": "tools/where-a-person-stands/do-work/rulings.mjs",
+      "lines": [
+        19,
+        32
+      ],
+      "multihash": "1f:82551c8d5a70d980a11eaf919d1c2af41cbd79c2d2299431ac6526a9961f4d10",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T13:00:00-07:00",
+        "deleted_with": "this pull request: freshRulings leaves do-work/rulings.mjs for do-work/ruling-records.mjs"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/where-a-person-stands/do-work/ruling-records.mjs"
+    }
+  ],
+  "preserve": [
+    "the same (text, verdict, by, rule) is written once: a ruling already in the list is not written again, so re-running a check does not inflate it",
+    "a row without its own `at` is stamped with the time of the write; a row keeps every field it came with",
+    "a write holding a row from a test piece or a temporary folder is refused whole, naming how many rows, and nothing is written",
+    "the place a ruling was given is read from its `where` when the row names none"
+  ],
+  "allowed_deltas": [
+    "freshRulings (the earlier port of source-repo-a tools/copy-gate/verdicts.mjs recordVerdicts, lines 164-188 at 5a9ba398) moves here unchanged from do-work/rulings.mjs, and rulingRecords around it keeps the rest of recordVerdicts: the refusal of test pieces and temporary folders, the place read from where, and the allowed words of a ruling added by hand (its command line)",
+    "the rulings are rows of a list in the person's own account (records:write input, one record per (text, verdict, by, rule)) instead of lines appended to a JSON-lines file in the repository; the rows already in the list are handed in as `existing`",
+    "the refused test pieces and temporary folders, the allowed verdict and by words, the field and pattern that name the place, and the list's row type are the person's setting (list:settings, read through tools/settings), not a file beside the code",
+    "the refusal of a test run that resolves to the real log file is gone with the file: a test now runs on an in-memory door and can reach no account"
+  ],
+  "banned_substitutions": [
+    "a ruling written into a file of the Workshop or the launch-video repository",
+    "a person's name, film folder or path written into the code"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T13:30:00-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:82551c8d5a70d980a11eaf919d1c2af41cbd79c2d2299431ac6526a9961f4d10",
+    "target_multihash_at_baseline": "1f:82551c8d5a70d980a11eaf919d1c2af41cbd79c2d2299431ac6526a9961f4d10"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/where-a-person-stands/test/said-words-and-rulings.test.mjs a ruling is one record per (text, verdict, by, rule), a ruling already in the list is not written again, and a refused row refuses the write",
+      "tools/where-a-person-stands/test/rulings-from-the-verdict-log.test.mjs the rulings list takes each (text, verdict, by, rule) once and counts only real bad film rulings",
+      "tools/where-a-person-stands/test/rulings-from-the-verdict-log.test.mjs a test piece or a temporary folder never reaches the list: the whole write is refused",
+      "tools/where-a-person-stands/test/rulings-from-the-verdict-log.test.mjs a ruling given by hand uses only the words the setting allows"
+    ]
+  }
+}
