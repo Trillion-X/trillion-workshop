@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:57fb262b693bf14970c19ce3e808ea51a9f25da4727c3690819e94d4a10fe760"
+  "blake3": "1f:02bf47c373f998dc8d7efd21fa65da511c9a1c37aaa8c22ac906152431e51411"
  },
  "fields": [
   {
@@ -9526,6 +9526,21 @@
     ],
     "listed_on": "2026-10-31T00:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:render-a-motion-graphics-overlay",
+   "values": {
+    "title": "Draw a motion-graphics overlay for a video from a timed list of paper cut-outs, type, cards, charts and marks",
+    "job": "Draw the animated graphics that go over a piece of my video (paper cut-outs, typed words, cards, charts, marker marks) as a see-through overlay with its sound, from a list of what appears when",
+    "description": "Draws one spec, a list of timed events ({type, at, ...}: torn paper strips and cards, typed and kinetic words, count-ups, charts and labels, marker circles and underlines, cut-out photos, footage insets, endcards and many more, one module per event type in do-work/overlay/events/), into overlay.mov (ProRes 4444 with alpha), its sound stem sound.wav (every placed sound, plus the voice when the spec mixes one; sfx-only.wav then holds the sounds alone) and timeline.json (every element, sound and placed box with its time), or, with stills, single frames over the spec's still background. The look (colours, faces, paper textures, motion, sound table, title-safe margin) is the person's settings: a row of their list:settings named by settings_record, or settings, or settings_files. The spec is the request's spec, or a piece's settings row named by spec_record. Times are seconds from the overlay's first frame, or [word, offset] against the voice's word times. A render stops, saying where, when an element leaves the title-safe area or the last frame still shows something. The crumple exit needs Blender; a citation card read by OCR needs tesseract.",
+    "status": "active",
+    "maker": "maker:render-a-motion-graphics-overlay",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "render-a-motion-graphics-overlay"
    }
   },
   {
