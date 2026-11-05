@@ -1,8 +1,8 @@
 # tools/settings/
 
-The one reader every Workshop tool uses for a person's own settings. A library: it offers no tool of its own, and a
-row that reads settings packs it (`read-data`, `do-work`) at `/opt/settings`, beside `tools/records-door` at
-`/opt/records-door`.
+The one reader every Workshop tool uses for a person's own settings. A library that every row reading settings packs
+(`read-data`, `do-work`) at `/opt/settings`, beside `tools/records-door` at `/opt/records-door`. Its own row,
+`tool:read-my-setting-for-a-tool`, reads one row of `list:settings` and says whether it is there and in use.
 
 ## Where settings live
 
@@ -53,6 +53,7 @@ Its row grants only `records:read` on its own folder's prefix:
 | `do-work/run-with-settings.mjs` | The wrapper above. |
 | `test/settings.test.mjs` | Ids, row checks, the merge, reading through the stand-in records door, the wrapper running a made-up Python program. |
 | `test/echo_settings.py` | That made-up program. |
+| `tool-rows.json` | `tool:read-my-setting-for-a-tool`: `readSettingRow` under `tools/records-door`'s `run-an-export.mjs`, with records:read on `record:setting:`. |
 
 ## Dependencies
 

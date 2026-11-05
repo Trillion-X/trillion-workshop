@@ -1,0 +1,69 @@
+{
+ "kind": "tool-rows",
+ "record_set": "settings-tool-rows",
+ "what_this_is": "The Workshop row of tools/settings: read one row of the person's list:settings. The folder is also the library every tool that takes settings_record packs at /opt/settings.",
+ "records": [
+  {
+   "id": "package::settings::tool::read-my-setting-for-a-tool",
+   "address": "package::settings::tool::read-my-setting-for-a-tool",
+   "path": ["current-item", "published-record"],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": ["placement:small-container"],
+    "maker": "maker:settings",
+    "needs": { "expected_seconds": 5, "network_egress": false },
+    "id": "tool:read-my-setting-for-a-tool",
+    "label": "Read one of my settings for a tool",
+    "job": "Read the settings I keep for one tool and one film, piece, person or account, and say whether they are there and in use",
+    "description": "Give id, a row of list:settings: record:setting:<workshop-folder>~<scope_kind>~<scope_id> (scope_kind person, film, piece or account). Answers found and row ({ name, tool, scope_kind, scope_id, settings, from, status, folder }) or null when the person keeps no such row. A row whose fields do not match its id, or whose status is unknown, is refused naming what is wrong. Changes nothing.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "required": ["id"],
+     "properties": {
+      "id": { "type": "string", "pattern": "^record:setting:[a-z0-9][a-z0-9._-]*~(person|film|piece|account)~[a-z0-9][a-z0-9._-]*$", "description": "The setting row's id" }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": ["id", "found", "row"],
+     "properties": {
+      "id": { "type": "string" },
+      "found": { "type": "boolean" },
+      "row": { "type": ["object", "null"] }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       { "package": "settings", "paths": ["do-work", "read-data"], "at": "/opt/settings" },
+       { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
+       { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+       { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+      ]
+     },
+     "workdir": "/opt/settings",
+     "internet": false,
+     "stdout": "json",
+     "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/settings/read-data/settings.mjs", "readSettingRow"],
+     "stdin": { "fill": { "from": "input" } },
+     "records": { "fd": 3, "rights": [{ "kind": "record:setting", "prefix": "record:setting:", "operations": ["records:read"] }] }
+    },
+    "provenance": { "source": "old trillion src/decision-store.mjs at 4ffa1dc4a2^, lines 8 and 751-754 (the setting record kind and setting(name))" },
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": { "id": "record:setting:sample-tool~film~sample-film" },
+      "records": [
+       { "id": "record:setting:sample-tool~film~sample-film", "type": "record:setting", "value": { "name": "sample-tool for sample-film", "tool": "tool:sample", "scope_kind": "film", "scope_id": "sample-film", "settings": { "fps": 30 }, "from": "made-up@0000000", "status": "active" } }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
