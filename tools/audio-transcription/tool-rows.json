@@ -197,6 +197,55 @@
         "maker": "maker:audio-transcription",
         "provenance": {"source": "audio-transcription/read-data/hear-here.mjs, moved from the product repo's computer/listen.mjs and computer/hear-a-link.mjs"}
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:move-word-starts-to-where-the-voice-starts",
+        "label": "Time each word of a voice take from where the voice really starts, for graphics on the word (runs on your computer)",
+        "job": "Make the word times of my voice take start where each word is actually heard, so on-screen graphics land on the word and not early in the pause before it",
+        "description": "Reads a voice take and its word times (a Whisper word list) and moves each word's start to the first 10 ms window inside the word whose level is above a silence line (default -45 dBFS); each end stays. Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Given the take's line file (its script), each word takes the script's spelling when the script and Whisper give the same number of words, and a word Whisper split at a hyphen is joined into one; otherwise Whisper's spelling stays and the answer says why. Writes {source, timing, words: [{text, start, end}]} and answers how many words moved.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "request"
+          ],
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "The request JSON file, put where {request} is in the command: {take, words, out, line?, edge_db?}."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Last line {\"result\": {\"out\", \"words\", \"moved\", \"spelling\"}}, or {\"error\": \"what to change\"} with exit 2."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install numpy soundfile"
+          ],
+          "run": "python3 trillion-workshop/tools/audio-transcription/do-work/word_onsets.py < {request}",
+          "needs": [
+            "python",
+            "numpy and soundfile",
+            "the voice take and its Whisper word times"
+          ],
+          "say": "This runs on the person's own computer. Hear the take first (tool:transcribe-audio-and-repair-whisper-loops or whisper_here) for its word times, then write the request with the take, those words, the take's line file if there is one, and a new output file. Read the last line: how many words moved and whose spelling the words carry. Time graphics from the output, never from the raw Whisper starts."
+        },
+        "maker": "maker:audio-transcription",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from a film repository's films/<film>/narrator/tools/word_onsets.py; the silence line is a request field"
+        }
+      }
     }
   ]
 }

@@ -1,0 +1,85 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FILMCRAFT-FRAME-HOLDS-FROM-A-FILMS-NARRATOR-TOOLS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools: the narrator tools of a film",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e813eba91d4c327fed551ab8bf4e168566a03ea6178a8df706c20452e4125284",
+   "lines": [
+    1,
+    127
+   ],
+   "multihash": "1f:382f685823afeeb4274df25be3fdd12ffec57e4e584aa401e2f71743896f6ce3",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e813eba91d4c327fed551ab8bf4e168566a03ea6178a8df706c20452e4125284",
+   "lines": [
+    129,
+    133
+   ],
+   "multihash": "1f:712470f038689ea04a3b7751f9bafc794396dd8da84c958ed0eb6953cbb5880c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/edit-a-copy-of-a-premiere-project/do-work/filmcraft_insert_frame_holds.py",
+   "baseline_commit_message": "edit-a-copy-of-a-premiere-project: a film's filmcraft_insert.py, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "a frame-hold segment of the plate's own clip is ripple-inserted at the frame, with the clip's own effects",
+  "every clip spanning the point is razored and everything after it moves by the hold's length",
+  "the adjustment layer grows over the inserted span",
+  "the overlay on video track 3, the narrator on audio track 2, music and effects on audio track 3, their facts read by ffprobe",
+  "the input project is never written"
+ ],
+ "allowed_deltas": [
+  "the shot and rendered folders are --shots and --out instead of where the script sat",
+  "the sequence suffix is --sequence-suffix",
+  "refusals say what to change and the last line is {result} or {error}"
+ ],
+ "banned_substitutions": [
+  "opening or scripting FilmCraft",
+  "writing the input project"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:382f685823afeeb4274df25be3fdd12ffec57e4e584aa401e2f71743896f6ce3",
+  "target_multihash_at_baseline": "1f:382f685823afeeb4274df25be3fdd12ffec57e4e584aa401e2f71743896f6ce3",
+  "commit": "1491a41bb08aba964c6339028905dd99efa71a1b",
+  "recorded_at": "2026-11-05T22:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "--shots",
+   "--out",
+   "--sequence-suffix"
+  ],
+  "test_refs": [
+   "tools/edit-a-copy-of-a-premiere-project/test/test_filmcraft_insert.py",
+   "tools/edit-a-copy-of-a-premiere-project/test/edit-a-copy-of-a-premiere-project.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines holding a person's name or a private path are left out of the sources (each source names its lines), so they never reach this public repository; the first source is the byte copy."
+}
