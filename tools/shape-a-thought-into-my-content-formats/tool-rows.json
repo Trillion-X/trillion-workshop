@@ -1,0 +1,249 @@
+{
+ "kind": "tool-rows",
+ "record_set": "shape-a-thought-into-my-content-formats-tool-rows",
+ "what_this_is": "The Workshop row for tools/shape-a-thought-into-my-content-formats: the Formats page's routes (the person's content formats, the sources that fill them, a thought shaped into each and a script followed), read and written through the run's records door.",
+ "records": [
+  {
+   "id": "package::shape-a-thought-into-my-content-formats::tool::answer-the-content-formats-page",
+   "address": "package::shape-a-thought-into-my-content-formats::tool::answer-the-content-formats-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:answer-the-content-formats-page",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "Answer the Formats page",
+    "job": "Answer the Formats page: read and save my content formats, list what can fill them, shape a thought into them and follow a script",
+    "description": "The Formats page's routes, as the old account owner answered them: GET /content-formats (the person's saved formats first, then the starters, with removed_starters and example_kinds); POST /content-formats { formats } replaces their own list, checked whole first (a refused save is 400 and keeps the list as it was); GET /content-formats/sources (their recordings and notes from their files and their pursuits, newest first); POST /content-formats/shape { thought?, source?, format_ids? } (each format's script, with before_writing); POST /content-formats/follow { format_id | script, heard, said? }. Answers { status, body }.",
+    "needs": {
+     "expected_seconds": 4,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The page route after /work/api: /content-formats, /content-formats/sources, /content-formats/shape, /content-formats/follow"
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "GET",
+        "POST"
+       ]
+      },
+      "query": {
+       "type": "object",
+       "description": "The route's query parameters, by name"
+      },
+      "body": {
+       "description": "The JSON body the page sent ({} when none)"
+      },
+      "browser": {
+       "type": "object",
+       "description": "The asking browser's own facts: user_agent, origin, visitor"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "shape-a-thought-into-my-content-formats",
+        "paths": [
+         "do-work",
+         "read-data",
+         "data"
+        ],
+        "at": "/opt/shape-a-thought-into-my-content-formats"
+       },
+       {
+        "package": "media-composition",
+        "paths": [
+         "read-data/caption-styles.json"
+        ],
+        "at": "/opt/media-composition"
+       },
+       {
+        "package": "turn-any-recording-already-in-the-persons-files",
+        "paths": [
+         "src/workspace/recording.mjs",
+         "src/workspace/recording.json"
+        ],
+        "at": "/opt/turn-any-recording-already-in-the-persons-files"
+       },
+       {
+        "package": "record-voice-and-meetings",
+        "paths": [
+         "read-data/heard-words.mjs",
+         "read-data/heard-words.json"
+        ],
+        "at": "/opt/record-voice-and-meetings"
+       },
+       {
+        "package": "tweak-live-controls",
+        "paths": [
+         "failure.mjs",
+         "failure-codes.json",
+         "platform-failures.json",
+         "effect-outcomes.json"
+        ],
+        "at": "/opt/tweak-live-controls"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/shape-a-thought-into-my-content-formats",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/shape-a-thought-into-my-content-formats/do-work/answer-the-content-formats-page.mjs",
+      "answerTheContentFormatsPage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "content-formats",
+        "id": "content-formats",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "files": "/Recordings from the web/",
+        "operations": [
+         "list_files",
+         "read_file"
+        ]
+       },
+       {
+        "files": "/Recordings from iPhone/",
+        "operations": [
+         "list_files",
+         "read_file"
+        ]
+       },
+       {
+        "files": "/Notes/",
+        "operations": [
+         "list_files",
+         "read_file"
+        ]
+       },
+       {
+        "files": "/Notes from members/",
+        "operations": [
+         "list_files",
+         "read_file"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/content-formats.mjs makeContentFormats and handleContentFormatsRequest, with records/content-format-starters.json and records/content-format-sources.json (tag old-trillion-before-worker-retire), ported to the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/content-formats",
+       "method": "GET",
+       "query": {},
+       "body": {}
+      },
+      "records": [
+       {
+        "id": "content-formats",
+        "type": "content-formats",
+        "value": {
+         "formats": [
+          {
+           "id": "walk_note",
+           "label": "Walk note",
+           "spec": "Say it plainly.",
+           "slots": [],
+           "tags": []
+          }
+         ]
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

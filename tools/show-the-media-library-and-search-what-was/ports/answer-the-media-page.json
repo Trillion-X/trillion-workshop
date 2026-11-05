@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEDIA-PAGE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:9ed5c330511f3ab73bc1783f1ddc912e3471464769a65002c0195ebaecd6d332",
+  "quote": "Your job is to port old trillion's behaviour for your family's routes one to one, with the old tests ported alongside, so each route gets a real owner."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/work-media.mjs",
+   "multihash": "1f:c4f605f31b1ff934bd1422ae2c3aea30512a851cc6abba565529c057c77b7bfe",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "already gone from Trillion-X/trillion main: the worker retirement removed src/ owners after tag old-trillion-before-worker-retire"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/show-the-media-library-and-search-what-was/do-work/answer-the-media-page.mjs"
+  }
+ ],
+ "preserve": [
+  "handleWorkMedia's /media/edit read and save unchanged: the edit's validation, its fact shape and each clip kept as edited on Recent",
+  "every other branch of handleWorkMedia kept as it was, answering what its owner answers"
+ ],
+ "allowed_deltas": [
+  "imports name this repository's copies (see-what-my-ais-did, show-live-words-while-recording, send-a-saved-edit-from-the-media-editor, keep-the-media-editors-open-session-its-published, media-composition)",
+  "the /search branch is left to its own route tool and the /media/library branch to the Namespace's owner: a library request answers 503 with words",
+  "answerTheMediaPage added after the handler: the person carrier over the records door (media-edit records, the files door's record_file_use), and 503 with words for what it cannot reach"
+ ],
+ "banned_substitutions": [
+  "a made-up library, suggestion or task when the owner cannot be reached",
+  "a second store of edits beside the media-edit records"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T06:17:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:c4f605f31b1ff934bd1422ae2c3aea30512a851cc6abba565529c057c77b7bfe",
+  "target_multihash_at_baseline": "1f:c4f605f31b1ff934bd1422ae2c3aea30512a851cc6abba565529c057c77b7bfe",
+  "commit": "20f9437455511e8a100a8821d9839ceaca9c1608"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/show-the-media-library-and-search-what-was/test/answer-the-media-page.test.mjs the tag's test/work-media.test.mjs and test/native-browser-media.test.mjs edit cases, ported"
+  ]
+ }
+}
