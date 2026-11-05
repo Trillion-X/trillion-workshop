@@ -1,0 +1,60 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VIEWER-QUESTION-REMAP",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: models-research lane, slice viewer-questions",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:9737c64ac6e975e08464187a83e3133d0faaecc3e74b350efcc298ed3da43964",
+   "multihash": "1f:48033ef862f530ae3fc2d05b269f7f1cd4053a9d559fa1f463b38460afe455cc",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/collect-and-rank-viewer-questions/do-work/remap_picks.py",
+   "baseline_commit_message": "collect-and-rank-viewer-questions: the old viewer-questions scripts, byte copies (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "a candidate id keeps its meaning by question text and source link",
+  "a pick whose text no longer exists stops the run"
+ ],
+ "allowed_deltas": [
+  "the asker overrides are optional and may sit in a settings file as asker_overrides",
+  "the last line is {result}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another folder",
+  "a person's bucket, code, segment, path or name written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:48033ef862f530ae3fc2d05b269f7f1cd4053a9d559fa1f463b38460afe455cc",
+  "target_multihash_at_baseline": "1f:48033ef862f530ae3fc2d05b269f7f1cd4053a9d559fa1f463b38460afe455cc",
+  "commit": "14725d9d1d0c612a49da56c73a4f966dc2fc2546",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def read"
+  ],
+  "test_refs": [
+   "tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of trillion-launch-video beside this one finds it."
+}
