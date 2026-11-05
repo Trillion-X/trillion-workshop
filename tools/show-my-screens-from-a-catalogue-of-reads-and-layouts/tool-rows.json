@@ -49,6 +49,77 @@
           }
         }
       }
+    },
+    {
+      "id": "package::show-my-screens-from-a-catalogue-of-reads-and-layouts::tool::get-started",
+      "address": "package::show-my-screens-from-a-catalogue-of-reads-and-layouts::tool::get-started",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:get-started",
+        "status": "active",
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "label": "Get started",
+        "job": "Show the setup steps this account still has to finish",
+        "description": "A screen: the required setup steps with their live checked progress, the way to connect an AI, and what is left before the rest of Trillion opens. Its one read, tool:read-setup, gathers this account's setup facts for the asking browser (the account files door's setup_facts, its own show rules and setup context, and its account id) and draws the steps with tool:see-what-is-left-to-set-up; the screen host answers what that read drew (GET /work/api/screens/get-started).",
+        "screen": {
+          "kind": "reads",
+          "label": "Get started",
+          "reads": [
+            {
+              "id": "setup",
+              "tool": "tool:read-setup",
+              "input": {
+                "user_agent": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "self",
+                    "path": [
+                      "browser",
+                      "user_agent"
+                    ]
+                  },
+                  "default": ""
+                },
+                "origin": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "self",
+                    "path": [
+                      "browser",
+                      "origin"
+                    ]
+                  },
+                  "default": ""
+                },
+                "account_id": {
+                  "$kind": "binding",
+                  "select": {
+                    "from": "self",
+                    "path": [
+                      "account_id"
+                    ]
+                  }
+                }
+              }
+            }
+          ],
+          "layout": {
+            "$kind": "binding",
+            "select": {
+              "from": "self",
+              "path": [
+                "reads",
+                "setup"
+              ]
+            }
+          }
+        }
+      }
     }
   ]
 }

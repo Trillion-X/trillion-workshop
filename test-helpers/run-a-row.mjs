@@ -213,7 +213,7 @@ export async function runRow(row, sampleInput, sample = {}) {
       if (error instanceof Unfillable) return { cannot: error.message };
       throw error;
     }
-    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, runs: Array.isArray(row.runs) ? row.runs : [], toolRuns: sample.tool_runs ?? {}, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records, files: doorFiles });
+    if (invoke.records) fake = await startFakeDoor({ ...doorOptions, runs: Array.isArray(invoke.records.runs) ? invoke.records.runs : [], toolRuns: sample.tool_runs ?? {}, fileAnswers: sample.file_answers ?? {}, rights, mostWrites: invoke.records.most_writes ?? doorOptions.mostWrites, records, files: doorFiles });
     if (invoke.internet === true) outside = await startStandInEgress(replies);
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
     const mounts = invoke.credential_mounts ?? [];
