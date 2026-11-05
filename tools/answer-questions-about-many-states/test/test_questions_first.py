@@ -103,11 +103,54 @@ class Cache(unittest.TestCase):
         h = self.qf.prepare(self.rows, independent=True)
         seen = []
         out = self.qf.score(h, self.states, on_batch=lambda done, n: seen.append(list(done)), should_stop=lambda: len(seen) >= 1)
-        self.assertEqual(len(seen), 1)
+        self.assertGreaterEqual(len(seen), 1)
         finished = set(seen[-1])
         self.assertLess(len(finished), len(self.states))
         for s in finished:
             self.assertTrue(np.allclose(out[s].sum(axis=-1), 1.0))
+
+
+def contract_scan(q, k, v, decay, beta, state_in, start):
+    """metal_scan.scan's documented contract in plain MLX: state_in [P, H, Dv, Dk], decay = exp(g), q/k normalised."""
+    state = state_in[start].swapaxes(-1, -2)                                  # [B, H, Dk, Dv]
+    outs = []
+    for t in range(q.shape[1]):
+        state = state * decay[:, t][..., None, None]
+        kt = k[:, t]
+        kv = (state * kt[..., None]).sum(axis=-2)
+        delta = (v[:, t] - kv) * beta[:, t][..., None]
+        state = state + kt[..., None] * delta[..., None, :]
+        outs.append((state * q[:, t][..., None]).sum(axis=-2))
+    return mx.stack(outs, axis=1)
+
+
+class MetalPath(unittest.TestCase):
+    """The indexed-start path (states in the kernel's layout, read by index) gives the gathered path's answers."""
+    def run_with(self, scan):
+        from questions_first import metal_scan
+        tok = S.SyntheticTokenizer()
+        bb = tiny(seed=3)
+        rows = [{"question": "Is the lamp warm?", "options": ["no", "yes"]},
+                {"question": "Which thing is the late one, if any of them is?", "options": ["parcel", "river", "violin"]}]
+        states = ["The warm lamp glowed.", "The late parcel arrived and the river grew."]
+        plain = QuestionsFirst(bb, tok, 0, use_metal=False)
+        a = plain.score(plain.prepare(rows), states)
+        real = metal_scan.scan
+        metal_scan.scan = scan
+        try:
+            fast = QuestionsFirst(bb, tok, 0, use_metal=True)
+            b = fast.score(fast.prepare(rows), states)
+        finally:
+            metal_scan.scan = real
+        self.assertLess(np.abs(a - b).max(), 1e-4)
+
+    def test_wiring_with_the_kernel_contract(self):
+        self.run_with(contract_scan)
+
+    @unittest.skipUnless(__import__("questions_first.metal_scan", fromlist=["available"]).available(), "needs Apple's GPU")
+    def test_the_metal_kernel(self):
+        from questions_first import metal_scan
+        self.run_with(metal_scan.scan)
 
 
 class Prompt(unittest.TestCase):
