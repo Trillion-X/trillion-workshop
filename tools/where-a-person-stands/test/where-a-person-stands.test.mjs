@@ -125,7 +125,9 @@ test('a reload plan writes earlier stands first, oldest first, counts changed re
 
 const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
 const at = (value, selector) => selector.replace(/^\$\.?/, '').split(/\.|\[(\d+)\]/).filter(Boolean).reduce((node, key) => node?.[key], value);
-const run = (argv, input) => spawnSync(process.execPath, argv, { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
+// The container's /opt/<package>/ folders are this checkout's tools/<package>/ folders.
+const local = part => part.replace(/^\/opt\/([^/]+)\//, (_, name) => `${resolve(folder, '..', name)}/`);
+const run = (argv, input) => spawnSync(process.execPath, argv.map(local), { cwd: folder, input: JSON.stringify(input), encoding: 'utf8' });
 
 for (const row of rows) {
   test(`${row.id} answers its own sample on the last line`, () => {
