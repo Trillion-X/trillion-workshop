@@ -1,0 +1,257 @@
+{
+ "kind": "tool-rows",
+ "record_set": "read-and-edit-the-saved-configurations-others-shared-tool-rows",
+ "what_this_is": "The Workshop row for tools/read-and-edit-the-saved-configurations-others-shared: the saved-configurations routes, answered by the old configurations owner over the person's own record:configuration records through the run's records door.",
+ "records": [
+  {
+   "id": "package::read-and-edit-the-saved-configurations-others-shared::tool::answer-the-configurations-page",
+   "address": "package::read-and-edit-the-saved-configurations-others-shared::tool::answer-the-configurations-page",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:trillion",
+    "id": "tool:answer-the-configurations-page",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "Answer the saved configurations routes",
+    "job": "Answer the saved configurations routes: list, read, save, remove and copy my saved configurations",
+    "description": "The /configurations routes, as the old account owner answered them (tools/query-and-change-list-rows/src/configurations.mjs): GET /configurations?target=&limit=&before= lists this account's own configurations, newest id first, with next_before; GET /configurations/<id> reads one (404 configuration_not_found); POST /configurations saves one ({ label, target, settings, aspects, field_ids, format, open_path }); POST /configurations/<id> updates it at expected_revision (409 configuration_conflict when stale) or removes it with { remove: true, expected_revision }; POST /configurations/<id>/duplicate copies it. Each is one record:configuration record, and the Saved configurations list record is made with the first. Configurations shared with this account by link or offer, and the time-bound context, answer 503 configuration_unavailable: they are reached through record sharing, which no records-door run reaches. Answers { status, body }.",
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The page route after /work/api: /configurations, /configurations/<id>, /configurations/<id>/duplicate"
+      },
+      "method": {
+       "type": "string",
+       "enum": [
+        "GET",
+        "POST"
+       ]
+      },
+      "query": {
+       "type": "object",
+       "description": "The route's query parameters, by name"
+      },
+      "body": {
+       "description": "The JSON body the page sent ({} when none)"
+      },
+      "browser": {
+       "type": "object",
+       "description": "The asking browser's own facts: user_agent, origin, visitor"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "read-and-edit-the-saved-configurations-others-shared",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/read-and-edit-the-saved-configurations-others-shared"
+       },
+       {
+        "package": "formula-engine",
+        "paths": [
+         "rules/rule-operators.json"
+        ],
+        "at": "/opt/formula-engine"
+       },
+       {
+        "package": "keep-lists-of-rows",
+        "paths": [
+         "read-data/configuration-aspects.json",
+         "read-data/configuration-values.mjs",
+         "read-data/saved-view-engine.mjs"
+        ],
+        "at": "/opt/keep-lists-of-rows"
+       },
+       {
+        "package": "query-and-change-list-rows",
+        "paths": [
+         "src/configurations.mjs"
+        ],
+        "at": "/opt/query-and-change-list-rows"
+       },
+       {
+        "package": "run-work-later-or-on-a-repeat",
+        "paths": [
+         "do-work/wall-time.ts"
+        ],
+        "at": "/opt/run-work-later-or-on-a-repeat"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/effect-outcomes.json",
+         "read-data/failure-codes.json",
+         "read-data/platform-failures.json"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/failure.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "wall-time",
+        "paths": [
+         "read-data/wall-time.mjs"
+        ],
+        "at": "/opt/node_modules/trillion-workshop/tools/wall-time"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/read-and-edit-the-saved-configurations-others-shared",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/read-and-edit-the-saved-configurations-others-shared/do-work/answer-the-configurations-page.mjs",
+      "answerTheConfigurationsPage"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:configuration",
+        "operations": [
+         "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "list",
+        "id": "list:saved-configurations",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "list",
+        "prefix": "list:",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     }
+    },
+    "provenance": {
+     "source": "trillion src/configurations.mjs makeConfigurations and handleConfigurationsRequest (tag old-trillion-before-worker-retire, moved to tools/query-and-change-list-rows/src/configurations.mjs), answered over the records door"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/configurations",
+       "method": "GET",
+       "query": {},
+       "body": {}
+      },
+      "records": [
+       {
+        "id": "record:configuration:sample",
+        "type": "record:configuration",
+        "value": {
+         "label": "Sample view",
+         "target": "screen:connections",
+         "format": "record-view",
+         "aspects": [
+          "search"
+         ],
+         "settings": {
+          "search": "made-up"
+         },
+         "field_ids": [],
+         "revision": 1,
+         "owner": {
+          "id": "self",
+          "name": "You"
+         },
+         "owner_name": "You",
+         "created_at": "2026-11-01T00:00:00.000Z",
+         "updated_at": "2026-11-01T00:00:00.000Z",
+         "open_path": "/connections?configuration=record%3Aconfiguration%3Asample"
+        }
+       }
+      ]
+     }
+    ],
+    "result_selector": "$.result"
+   }
+  }
+ ]
+}

@@ -101,12 +101,11 @@ const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, 
 const cut = (text, max) => (text.length > max ? `${text.slice(0, max - 1)}…` : text);
 const asText = value => (Array.isArray(value) ? value.filter(item => item !== null && item !== undefined).map(String).join(', ') : value === null || value === undefined ? '' : String(value));
 
-import { DeviceError } from '../../../tell-the-person-something-on-all-of-their-own-phones-computers/src/tell-devices.mjs';
-import glanceFeeds from '../records/glance-feeds.json' with { type: 'json' };
+import { DeviceError } from '../../tell-the-person-something-on-all-of-their-own-phones-computers/src/tell-devices.mjs';
+import glanceFeeds from './glance-feeds.json' with { type: 'json' };
 import quietHoursLevel from './tell-quiet-hours.json' with { type: 'json' };
-import {resolveMarketplaceContentDocument} from './marketplace-content-document.mjs';
-import screens from '../../../shared-code/src/workspace/screens.mjs';
-import { thingAddress, thingScreen } from '../../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
+import screens from '../../shared-code/src/workspace/screens.mjs';
+import { thingAddress, thingScreen } from '../../hand-off-jobs-between-agents/src/workspace/addresses.mjs';
 
 // An address of the person's own Trillion (`/decisions/c1`), never another site or a protocol-relative `//host`.
 const ownPath = value => (nonempty(value) && /^\/(?![/\\])/.test(value.trim()) ? value.trim() : null);
@@ -772,11 +771,10 @@ const ROUTES = {
   'POST /tell/devices/remove': (owner, body) => committed(owner, 'tell:remove-device', () => owner.devices.remove(body)),
   'POST /tell/activities': (owner, body) => committed(owner, 'tell:keep-activity', () => owner.activities.keep(body)),
   // What a glance surface (an iPhone widget, a watch complication) can be set to show, and which feeds a surface that
-  // shows several (the watch app) shows: records/glance-feeds.json, as DATA.
-  'GET /tell/feeds': async owner => {
-    const rows=await resolveMarketplaceContentDocument(owner.env,'records/glance-feeds.json',glanceFeeds,['/feeds','/surfaces'],{current:owner.current});
-    return {feeds:rows.feeds,surfaces:rows.surfaces??{}};
-  },
+  // shows several (the watch app) shows: read-data/glance-feeds.json, as DATA. Old trillion let the marketplace publish
+  // over its `/feeds` and `/surfaces` (src/marketplace-content-document.mjs); that read is the published shelf's, another
+  // account's, so here the shipped DATA answers.
+  'GET /tell/feeds': async () => ({ feeds: glanceFeeds.feeds, surfaces: glanceFeeds.surfaces ?? {} }),
 };
 // The writes the routes commit through owner.commit.
 export const TELL_RECEIPTED_WRITES = Object.freeze(['tell:choose', 'tell:read-notices', 'tell:add-device', 'tell:remove-device', 'tell:keep-activity']);

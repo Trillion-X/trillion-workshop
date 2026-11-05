@@ -1,0 +1,71 @@
+{
+  "what_this_is": "What a glance surface (an iPhone Home Screen or Lock Screen widget, and any other small surface that reads it) can show: each feed is one way to read rows from the person's own account and how to draw them, picked by the person when they add or edit the widget. `read` is either an account path (`path`, read with GET /mcp/api<path>) or a Trillion tool (`tool` and its `arguments`, called over MCP). `rows` is the path to the list in the answer (a `*` step gathers the lists of every item there into one), a tool argument written `{\"$time\": {\"day\": n}}` is the start of the day n days from today on the device, in its own time zone, `where` keeps only rows whose field equals a value (`equals`), is none of some values (`none_of`), or has a nonempty value (`present`), one test or a list of tests that must all hold, `order` puts rows whose `field` is one of `first` ahead in that order, and `show` names the path of each part the surface draws: `title`, `detail`, `note`, `done` and `total` (a progress bar when both are numbers), `time` (a date and time the surface shows as a time of day), `flag` (true marks the row) and `open` (the address a tap opens, either a path to the row's own address or `fill`, an address with {field} taken from the row; an address on one of `own_origins` opens that place in Trillion, any other whole address in the browser or app it names). `empty` is what it says when no row is left. `surfaces` names, for a surface that shows several feeds at once (the Apple Watch app, ios/Watch), which feeds it shows and in what order; its complications offer the same feeds. Read by GET /tell/feeds (src/tell-the-person.mjs) and drawn by ios/LiveActivity/TrillionGlance.swift. `surfaces` lists, per surface, the feeds it shows in order: `widgets` is the order unconfigured widgets take their feeds in, so no two show the same, and the order a large widget fills its room in after its own feed; `watch` is the watch's. A new feed is a row here and nothing else: no app update.",
+  "surfaces": {
+    "watch": ["habits", "pursuits", "told", "ai-work", "running", "decisions"],
+    "widgets": ["habits", "waiting", "running", "today", "needle-mover", "pursuits", "decisions", "told", "ai-work"]
+  },
+  "feeds": [
+    {
+      "id": "habits", "label": "Things you want to do", "about": "Actions that serve your pursuits, each opening at the moment it matters. Your AI keeps these rows in your Habits list.",
+      "read": { "tool": "read_list", "arguments": { "list_id": "habits" } }, "rows": ["rows"],
+      "where": [{ "field": ["values", "state"], "none_of": ["Stopped", "Established"] }, { "field": ["values", "entry_path"], "present": true }],
+      "show": { "title": ["values", "habit"], "detail": ["values", "cue"], "note": ["values", "easier_path"], "open": { "path": ["values", "entry_path"] } },
+      "empty": "No action is ready yet. Your AI can add one to Habits."
+    },
+    {
+      "id": "waiting", "label": "Waiting on you", "about": "What only you can do now, with why each needs you: what your AIs asked for, decisions, posts to approve, accounts to sign in to again.",
+      "read": { "path": "/waiting-on-you" }, "rows": ["sections", "*", "cards"],
+      "order": { "field": ["section"], "first": ["asks", "decide", "approve", "stuck", "sign-in", "look", "voices"] },
+      "show": { "title": ["title"], "detail": ["detail"], "note": ["action"], "open": { "path": ["address"], "own_origins": ["https://app.gettrillion.ai", "https://gettrillion.ai"] } },
+      "empty": "Nothing is waiting on you."
+    },
+    {
+      "id": "running", "label": "Running now", "about": "Everything your tools and AIs are doing right now, with how far along it is.",
+      "read": { "path": "/tell/notices" }, "rows": ["notices"],
+      "where": [{ "field": ["state"], "equals": "running" }, { "field": ["kind"], "none_of": ["needs-you", "needs-you-now"] }],
+      "show": { "title": ["title"], "detail": ["body"], "note": ["source"], "done": ["progress", "done"], "total": ["progress", "total"], "open": { "path": ["open"] } },
+      "empty": "Nothing is running."
+    },
+    {
+      "id": "today", "label": "Today", "about": "Today's events, with when each starts.",
+      "read": { "tool": "my_events", "arguments": { "from": { "$time": { "day": 0 } }, "to": { "$time": { "day": 1 } } } }, "rows": ["events"],
+      "show": { "title": ["title"], "detail": ["space_title"], "time": ["starts_at"], "open": { "fill": "/spaces/{space_id}" } },
+      "empty": "Nothing on today."
+    },
+    {
+      "id": "needle-mover", "label": "Your needle mover", "about": "The one pursuit that moves the others most, where it stands and where it is going.",
+      "read": { "tool": "list_pursuits", "arguments": { "limit": 25 } }, "rows": ["pursuits"], "where": { "field": ["needle_mover"], "equals": true },
+      "show": { "title": ["title"], "detail": ["now"], "note": ["after"], "flag": ["needle_mover"], "open": { "fill": "/pursuits/{id}" } },
+      "empty": "No needle mover yet. Tell your AI which pursuit moves the others most."
+    },
+    {
+      "id": "told", "label": "What Trillion told you", "about": "The newest things Trillion told you, read or not.",
+      "read": { "path": "/tell/notices" }, "rows": ["notices"],
+      "show": { "title": ["title"], "detail": ["body"], "note": ["source"], "open": { "path": ["open"] } },
+      "empty": "Nothing new."
+    },
+    {
+      "id": "pursuits", "label": "Your pursuits", "about": "What you are pursuing, your biggest needle mover marked.",
+      "read": { "tool": "list_pursuits", "arguments": { "limit": 8 } }, "rows": ["pursuits"],
+      "show": { "title": ["title"], "detail": ["after"], "flag": ["needle_mover"], "open": { "fill": "/pursuits/{id}" } },
+      "empty": "No pursuits yet. Tell your AI what you are working toward."
+    },
+    {
+      "id": "decisions", "label": "Decisions waiting", "about": "Decisions still waiting to be made.",
+      "read": { "tool": "list_decisions", "arguments": { "limit": 20 } }, "rows": ["decisions"],
+      "where": [{ "field": ["decided"], "equals": false }, { "field": ["method"], "none_of": ["message-intake"] }],
+      "show": { "title": ["goal"], "open": { "fill": "/decisions/{case_id}" } },
+      "empty": "No decision is waiting."
+    },
+    {
+      "id": "ai-work", "label": "Work for your AIs", "about": "Jobs waiting for one of your AIs to take them.",
+      "read": { "tool": "read_handoff", "arguments": {} }, "rows": ["handoffs"], "where": { "field": ["state"], "equals": "open" },
+      "show": { "title": ["said"], "open": { "fill": "/jobs/{handoff_id}" } },
+      "empty": "No work is waiting."
+    },
+    {"id": "spend-total", "label": "Estimated service costs", "about": "Estimated costs from connected service usage, today and this billing cycle. These are not provider invoices.", "read": {"path": "/spend"}, "rows": ["items"], "where": {"field": ["kind"], "equals": "total"}, "show": {"title": ["title"], "detail": ["cost"], "open": {"fill": "/spend"}}, "empty": "Nothing is counted yet. Connect a service on Connections."},
+    {"id": "spend-services", "label": "Spend by service", "about": "Estimated cost for each connected service today and this billing cycle.", "read": {"path": "/spend"}, "rows": ["groups"], "show": {"title": ["title"], "detail": ["cost"], "open": {"fill": "/spend"}}, "empty": "No service is counted yet."},
+    {"id": "spend-budgets", "label": "Spend budgets", "about": "Each spend budget with how much of it is used.", "read": {"path": "/spend"}, "rows": ["items"], "where": {"field": ["kind"], "equals": "budget"}, "show": {"title": ["title"], "detail": ["budget"], "open": {"fill": "/spend"}}, "empty": "No budget is set."},
+    {"id": "spend-lines", "label": "Usage by line", "about": "Each kind of service usage with its estimated cost.", "read": {"path": "/spend"}, "rows": ["items"], "where": {"field": ["kind"], "equals": "line"}, "show": {"title": ["title"], "detail": ["cost"], "note": ["group"], "open": {"fill": "/spend"}}, "empty": "Nothing is counted yet."}
+  ]
+}

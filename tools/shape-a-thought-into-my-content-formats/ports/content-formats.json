@@ -1,0 +1,54 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CONTENT-FORMATS-OWNER",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:9ed5c330511f3ab73bc1783f1ddc912e3471464769a65002c0195ebaecd6d332",
+  "quote": "Your job is to port old trillion's behaviour for your family's routes one to one, with the old tests ported alongside, so each route gets a real owner."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/content-formats.mjs",
+   "multihash": "1f:d8c1ce8148524af87cdb56e39bbc529c0c06823d7bb5a7ade876d4a2466ed1ac",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "already gone from Trillion-X/trillion main: the worker retirement removed src/ owners after tag old-trillion-before-worker-retire"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/shape-a-thought-into-my-content-formats/read-data/content-formats.mjs"
+  }
+ ],
+ "preserve": [
+  "makeContentFormats read, save, sources, shape, reference and follow unchanged",
+  "handleContentFormatsRequest's routes, status codes and words unchanged",
+  "a save is checked whole before anything is written"
+ ],
+ "allowed_deltas": [
+  "imports name this repository's copies of the same DATA and modules (data/, tools/media-composition, tools/turn-any-recording-already-in-the-persons-files, tools/tweak-live-controls failure.mjs)",
+  "makeMarketplaceContentFormats (Marketplace-published sections over the bundled DATA) left behind: the bundled DATA is read"
+ ],
+ "banned_substitutions": [
+  "starter formats written into the code instead of the DATA file",
+  "a source read from outside the account"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T01:37:14Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d8c1ce8148524af87cdb56e39bbc529c0c06823d7bb5a7ade876d4a2466ed1ac",
+  "target_multihash_at_baseline": "1f:d8c1ce8148524af87cdb56e39bbc529c0c06823d7bb5a7ade876d4a2466ed1ac",
+  "commit": "9f150361c689d0ed4dba707e5c4fb832584d71d1"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/shape-a-thought-into-my-content-formats/test/content-formats.test.mjs the tag's test/content-formats.test.mjs, ported"
+  ]
+ }
+}

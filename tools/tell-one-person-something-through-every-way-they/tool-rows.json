@@ -1,0 +1,194 @@
+{
+ "kind": "tool-rows",
+ "record_set": "tell-one-person-something-through-every-way-they-tool-rows",
+ "what_this_is": "The Workshop row for tools/tell-one-person-something-through-every-way-they: the page route that lists what Trillion told the person.",
+ "records": [
+  {
+   "id": "package::tell-one-person-something-through-every-way-they::tool::answer-the-tell-notices-route",
+   "address": "package::tell-one-person-something-through-every-way-they::tool::answer-the-tell-notices-route",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:answer-the-tell-notices-route",
+    "label": "Answer the page that lists what Trillion told me",
+    "status": "active",
+    "read_only": true,
+    "job": "Answer the Trillion page route GET /work/api/tell/notices: the notices the open page shows, or what one channel's devices read, as old Trillion did",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /tell/notices answers 200 { notices }: the newest notices the open Trillion page carried (its own channel), newest first, each with its read mark, the surface it was read on, how far each way got, its state, chips and buttons. With query channel (and after, a notice number) it answers what that channel's devices read after it, oldest first; a channel that does not exist answers 400 { error }. Any other path or method answers 404. It reads the person's told-the-person records and writes nothing.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The route after /work/api"
+      },
+      "method": {
+       "type": "string"
+      },
+      "query": {
+       "type": "object"
+      },
+      "body": {},
+      "browser": {
+       "type": "object"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "tell-one-person-something-through-every-way-they",
+        "paths": [
+         "read-data",
+         "do-work"
+        ],
+        "at": "/opt/tell-one-person-something-through-every-way-they"
+       },
+       {
+        "package": "tell-the-person",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/tell-the-person"
+       },
+       {
+        "package": "tell-the-person-something-on-all-of-their-own-phones-computers",
+        "paths": [
+         "src/tell-devices.mjs"
+        ],
+        "at": "/opt/tell-the-person-something-on-all-of-their-own-phones-computers"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/workspace/screens.mjs",
+         "src/web-push.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "hand-off-jobs-between-agents",
+        "paths": [
+         "src/workspace/addresses.mjs",
+         "src/workspace/view-transition.mjs"
+        ],
+        "at": "/opt/hand-off-jobs-between-agents"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "src/workspace/surfaces.json",
+         "records/workshop-screen-tool-records.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/tell-one-person-something-through-every-way-they",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/tell-one-person-something-through-every-way-they/do-work/tell-routes.mjs",
+      "answerTellNoticesRoute"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "told-the-person",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:tell-one-person-something-through-every-way-they",
+    "result_selector": "$.result",
+    "provenance": {
+     "source": "trillion src/tell-the-person.mjs handleTellRequest 'GET /tell/notices' (recent, forDevice), tag old-trillion-before-worker-retire, moved here as read-data/tell-the-person.mjs"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/tell/notices",
+       "method": "GET",
+       "query": {},
+       "body": {},
+       "browser": {}
+      },
+      "output_selector": "$.status",
+      "contains": "200"
+     }
+    ]
+   }
+  }
+ ]
+}
