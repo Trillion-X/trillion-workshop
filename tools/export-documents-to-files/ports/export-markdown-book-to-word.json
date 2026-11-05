@@ -1,0 +1,58 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-EXPORT-MARKDOWN-BOOK-TO-WORD",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane, launch-video port 2026-11-04 (part export)",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:de1af37e2f4016491c23a9978511481a3ddccb3ec840944c616035797336f930",
+   "multihash": "1f:358c8fbc2d408e1d5de67aaa6fdc417ad10e6fa28e1197faab8defd70e0461cd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T19:00:00Z",
+    "deleted_with": "the lane lead's launch-video removal change deletes tools/private-book-reader, naming tools/export-documents-to-files as its new home"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/export-documents-to-files/do-work/export_markdown_book_to_word.py"
+  }
+ ],
+ "preserve": [
+  "the Markdown subset parse (headings, GFM tables with escaped pipes, nested ordered and unordered lists, quotes, wrapped paragraphs) and the H1 title",
+  "inline projection keeps literal underscores, escaped delimiters and code text",
+  "the template's styles; clickable contents with PAGEREF fields and BookHeadingN bookmarks; BookBody marker; footer page field; updateFields",
+  "separate numbered lists restart; standalone emphasis labels keep with next; comparison signs drawn in Arial",
+  "no DOCX without the writing gate and a current source snapshot; the saved DOCX is read back against the source"
+ ],
+ "allowed_deltas": [
+  "the manuscript, template and output come from arguments or the book's settings row (tools/settings); the gate is handed the settings and the checks receipt; the last line is one JSON answer"
+ ],
+ "banned_substitutions": [
+  "a DOCX written before the gate admits the exact bytes",
+  "a policy file found beside the manuscript"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:358c8fbc2d408e1d5de67aaa6fdc417ad10e6fa28e1197faab8defd70e0461cd",
+  "target_multihash_at_baseline": "1f:358c8fbc2d408e1d5de67aaa6fdc417ad10e6fa28e1197faab8defd70e0461cd",
+  "commit": "c22c2ace0dc47ba8d4c185f56124c5a5988df473"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/export-documents-to-files/test/test_export_markdown_book_to_word.py",
+   "tools/export-documents-to-files/test/test_writing_gate.py",
+   "tools/export-documents-to-files/test/export-a-book.test.mjs"
+  ]
+ }
+}
