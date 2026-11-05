@@ -14,7 +14,10 @@
    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
    "path_multihash": "1f:ffe201ce6ede4e0ba5be96a042d2abc211e4e9f4fc0f085a87f7530afc1bc7e1",
    "multihash": "1f:1089898fd6fbbc21b8821dfc9ce9fd046461cdfdba963d46b974b5b7a5114911",
-   "ownership": "repository-owned"
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-06T00:00:00Z"
+   }
   }
  ],
  "targets": [
