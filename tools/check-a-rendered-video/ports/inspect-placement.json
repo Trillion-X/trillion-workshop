@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-INSPECT-PLACEMENT-FROM-A-FILMS-SHOW-EXITS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools, sub-lane checks: the rendered-video checker's helper scripts",
+  "message_multihash": "1f:bd5226af46e0371dc78cbb65016a2055faec34cbf0bb7c6792eea867d3f085f4",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; settings are rows in the person's lists, read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ba485e07fb5eb5dd3b8df91d0ba9accd1cd75a01562ce197322f092ec24c410b",
+   "multihash": "1f:a5b33d2648722e55fc5a4805244e3aea4f4721d4b2482d9de7462eeacafe0136",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-a-rendered-video/do-work/rendercheck/inspect_placement.py",
+   "baseline_commit_message": "check-a-rendered-video: the film checker-owner's inspect and span-export scripts, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "per video of each findings file: placement's per-box heat (None over a cover) and exit heat, or its FAIL row with id, heat and frames",
+  "the run records (_film_qa, _run) skipped",
+  "the old printout, on standard error"
+ ],
+ "allowed_deltas": [
+  "the findings files are arguments of the inspect command",
+  "the last line is {\"result\": {\"rows\"}} (show_boxes.py printed the same heat without the exits)"
+ ],
+ "banned_substitutions": [
+  "a person's limits file path, film folder or name written in code",
+  "a second implementation of a check's numbers beside the check module itself"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a5b33d2648722e55fc5a4805244e3aea4f4721d4b2482d9de7462eeacafe0136",
+  "target_multihash_at_baseline": "1f:a5b33d2648722e55fc5a4805244e3aea4f4721d4b2482d9de7462eeacafe0136",
+  "commit": "b01391dc781f8d205dd2469b333b9cc709daff33",
+  "recorded_at": "2026-11-05T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "checks.get('placement', [])",
+   "b['exit']['heat']"
+  ],
+  "test_refs": [
+   "tools/check-a-rendered-video/test/test_inspect_and_spans.py InspectEyesAndPlacement"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "A source in the private film repository is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

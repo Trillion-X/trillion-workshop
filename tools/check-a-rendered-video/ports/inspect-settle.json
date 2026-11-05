@@ -1,0 +1,78 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-INSPECT-SETTLE-FROM-A-FILMS-SETTLE-DEBUG-SCRIPTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools, sub-lane checks: the rendered-video checker's helper scripts",
+  "message_multihash": "1f:bd5226af46e0371dc78cbb65016a2055faec34cbf0bb7c6792eea867d3f085f4",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; settings are rows in the person's lists, read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e36f004cec1f258ec825e71346f3de8b611b2269df955da0e7d43e6f107f1bc4",
+   "multihash": "1f:49e20f2a00e288f206a216dd19f99cf6b2d862d6a5d2e9bef78691ff1f4bdd56",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:7da3fcb27b4bd2752c1c94e96b7b14e8b45d47d26f3a5e2d139ef31239a7de42",
+   "multihash": "1f:4b64b5c21f7d032917d29e8031be281c5f9f27499d4a0ad61c457e90c6b77cb0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-a-rendered-video/do-work/rendercheck/inspect_settle.py",
+   "baseline_commit_message": "check-a-rendered-video: the film checker-owner's inspect and span-export scripts, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "the overlay alpha mass and centroid per frame, raw and with the occlusion fill (settle.unmask), and the declared occlusions",
+  "the landing windows (settle.landing_windows) and the beats settle.split_at_rests cuts each into",
+  "the per-frame motion over a stretch, max per half second",
+  "the old printout, on standard error"
+ ],
+ "allowed_deltas": [
+  "the video, spec, overlay, timeline and limits are arguments (the limits a file or the person's list:settings row), not argv positions, a checkout env and a fixed limits path",
+  "the windows are built on settle.silhouette as settle's run reads them (the old script used the unmasked alpha, which the check no longer judges)",
+  "the centroid scale is the limits' frame width over the overlay width, not a fixed 4",
+  "the sampled frames and the half second follow arguments and the overlay rate",
+  "the last line is {\"result\": ...}"
+ ],
+ "banned_substitutions": [
+  "a person's limits file path, film folder or name written in code",
+  "a second implementation of a check's numbers beside the check module itself"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:49e20f2a00e288f206a216dd19f99cf6b2d862d6a5d2e9bef78691ff1f4bdd56",
+  "target_multihash_at_baseline": "1f:49e20f2a00e288f206a216dd19f99cf6b2d862d6a5d2e9bef78691ff1f4bdd56",
+  "commit": "b01391dc781f8d205dd2469b333b9cc709daff33",
+  "recorded_at": "2026-11-05T23:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "settle.unmask",
+   "settle.landing_windows",
+   "settle.split_at_rests",
+   "settle.silhouette"
+  ],
+  "test_refs": [
+   "tools/check-a-rendered-video/test/test_inspect_and_spans.py InspectSettle"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "A source in the private film repository is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}
