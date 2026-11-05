@@ -8,13 +8,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "do-work"))
 
-import mlx.core as mx  # noqa: E402
+import importlib.util  # noqa: E402
 
 import synthetic as S  # noqa: E402
 from questions_first import prompt as P  # noqa: E402
-from questions_first.backbone import Backbone, Config  # noqa: E402
-from questions_first.engine import QuestionsFirst  # noqa: E402
-from questions_first.gated_delta import chunk_gated_delta_rule, recurrent_gated_delta_rule, unit_lower_inverse  # noqa: E402
+
+HAS_MLX = importlib.util.find_spec("mlx") is not None
+if HAS_MLX:
+    import mlx.core as mx
+    from questions_first.backbone import Backbone, Config
+    from questions_first.engine import QuestionsFirst
+    from questions_first.gated_delta import chunk_gated_delta_rule, recurrent_gated_delta_rule, unit_lower_inverse
+needs_mlx = unittest.skipUnless(HAS_MLX, "needs mlx (python3 -m pip install mlx; on Linux mlx[cpu])")
 
 TINY = {"model_type": "qwen3_5_text", "hidden_size": 64, "intermediate_size": 128, "num_hidden_layers": 4,
         "layer_types": ["linear_attention", "linear_attention", "linear_attention", "full_attention"],
@@ -36,6 +41,7 @@ def full_forward_logits(bb, qf, ids, slots):
     return np.array((h[0, mx.array(slots)] @ qf.W.T).astype(mx.float32))
 
 
+@needs_mlx
 class Kernel(unittest.TestCase):
     def test_chunked_equals_recurrent(self):
         rng = np.random.default_rng(1)
@@ -59,6 +65,7 @@ class Kernel(unittest.TestCase):
         self.assertLess(np.abs((eye + n) @ inv - eye).max(), 1e-3)
 
 
+@needs_mlx
 class Cache(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -124,6 +131,7 @@ def contract_scan(q, k, v, decay, beta, state_in, start):
     return mx.stack(outs, axis=1)
 
 
+@needs_mlx
 class MetalPath(unittest.TestCase):
     """The indexed-start path (states in the kernel's layout, read by index) gives the gathered path's answers."""
     def run_with(self, scan):
@@ -147,7 +155,7 @@ class MetalPath(unittest.TestCase):
     def test_wiring_with_the_kernel_contract(self):
         self.run_with(contract_scan)
 
-    @unittest.skipUnless(__import__("questions_first.metal_scan", fromlist=["available"]).available(), "needs Apple's GPU")
+    @unittest.skipUnless(HAS_MLX and __import__("questions_first.metal_scan", fromlist=["available"]).available(), "needs Apple's GPU")
     def test_the_metal_kernel(self):
         from questions_first import metal_scan
         self.run_with(metal_scan.scan)
