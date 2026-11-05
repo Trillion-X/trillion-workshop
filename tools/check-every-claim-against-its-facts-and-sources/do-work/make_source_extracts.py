@@ -1,15 +1,21 @@
 #!/usr/bin/env python3 -I
-"""Make the plain-text extract of every source in fact-gate/sources.json from its raw file.
+"""Make the plain-text extract of every source in a sources file from its raw file.
 
-The fact gate (tools/fact_gate.py) checks every quoted source wording against these extracts. Run this after
-adding or re-fetching a source:  python3 -I tools/fact_sources.py
+The claim check (check_claims.py) checks every quoted source wording against these extracts. Run this after adding or
+re-fetching a source. One JSON request on standard input: {"sources": "<the sources file>"}. Each source names its
+`raw` file and its `text` extract (both relative to the sources file's folder, or absolute) and its `extract` kind:
+html, fdc-json (a FoodData Central food), new-order (an edit plan's new_order rows) or copy. A kind with no builder here
+(made by its own tool, such as whisper-words or text) keeps its extract and is refused when it is missing.
+Answer: {"result": {"sources": [{"id", "text", "chars" | "kept"}]}} or {"error": "what to change"}.
+
+Ported one to one from a film repository's narrator/tools/fact_sources.py; the folder is the request's sources file
+instead of where the script sat.
 """
 import html
 import json
 import os
 import re
-
-GATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'fact-gate')
+import sys
 
 
 def from_html(raw):
@@ -38,25 +44,41 @@ def from_new_order(raw):
 EXTRACT = {'html': from_html, 'fdc-json': from_fdc_json, 'new-order': from_new_order, 'copy': lambda raw: raw}
 
 
-def main():
-    with open(os.path.join(GATE, 'sources.json')) as f:
+def make(sources_file):
+    gate = os.path.dirname(os.path.abspath(sources_file))
+    with open(sources_file) as f:
         sources = json.load(f)['sources']
+    done = []
     for sid, s in sources.items():
+        out = os.path.join(gate, s['text'])
         if s['extract'] not in EXTRACT:
             # Kinds whose extract is made by their own tool (whisper-words, text): keep it, refuse if it is missing.
-            out = os.path.join(GATE, s['text'])
             if not os.path.exists(out):
                 raise SystemExit(f'{sid}: extract kind {s["extract"]!r} has no builder here and {out} is missing')
-            print(f'{sid}: kept its own {s["extract"]} extract -> {os.path.normpath(out)}')
+            print(f'{sid}: kept its own {s["extract"]} extract -> {os.path.normpath(out)}', file=sys.stderr)
+            done.append({'id': sid, 'text': os.path.normpath(out), 'kept': True})
             continue
-        with open(os.path.join(GATE, s['raw']), encoding='utf-8', errors='replace') as f:
+        with open(os.path.join(gate, s['raw']), encoding='utf-8', errors='replace') as f:
             text = EXTRACT[s['extract']](f.read())
-        out = os.path.join(GATE, s['text'])
-        if os.path.abspath(out) != os.path.abspath(os.path.join(GATE, s['raw'])):
+        if os.path.abspath(out) != os.path.abspath(os.path.join(gate, s['raw'])):
             with open(out, 'w') as f:
                 f.write(text)
-        print(f'{sid}: {len(text)} chars -> {os.path.normpath(out)}')
+        print(f'{sid}: {len(text)} chars -> {os.path.normpath(out)}', file=sys.stderr)
+        done.append({'id': sid, 'text': os.path.normpath(out), 'chars': len(text)})
+    return done
+
+
+def main():
+    try:
+        request = json.load(sys.stdin)
+        if not isinstance(request, dict) or not isinstance(request.get('sources'), str):
+            raise SystemExit('send {"sources": "<the sources file>"} on standard input')
+        print(json.dumps({'result': {'sources': make(request['sources'])}}))
+        return 0
+    except (SystemExit, OSError, json.JSONDecodeError, KeyError) as e:
+        print(json.dumps({'error': str(e) if not isinstance(e, KeyError) else f'a source lacks {e}'}))
+        return 2
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main())
