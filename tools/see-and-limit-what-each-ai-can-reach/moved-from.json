@@ -52,6 +52,14 @@
       "to": "tools/see-and-limit-what-each-ai-can-reach/test/proposer-names.test.mjs",
       "source_identity": "1f:7603e3a95fa0b1d0dce9bdaa6bfce4f54daf004a571c1b4e0bfc7544cab4e0da",
       "identity": "1f:7603e3a95fa0b1d0dce9bdaa6bfce4f54daf004a571c1b4e0bfc7544cab4e0da"
+    },
+    {
+      "from": "test/ais.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-and-limit-what-each-ai-can-reach/test/ais.test.mjs",
+      "source_identity": "1f:b71443354bae690b0ebeb05e73ebb4d805b0ba878358cd870a3c751e37efcf95",
+      "identity": "1f:cde5fc845bcc6df06d55a02298291ad79c64cb61b4a72edfdd0c5282fc1c9c4b",
+      "adapted": "six tests are the old ones over src/ais.mjs, with old mcpSignInId and countingHost as stand-ins; tests over connected-ais, person-spaces, the Connect screen and source reads of old account-routes, screen-reads and person-store are left out: none runs anywhere."
     }
   ]
 }
