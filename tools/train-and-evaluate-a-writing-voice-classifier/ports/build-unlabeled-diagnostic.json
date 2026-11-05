@@ -1,0 +1,58 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-WRITING-VOICE-UNLABELED-DIAGNOSTIC-FROM-COPY-GATE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "writing-gate lane 2026-11-05: finish the launch-video port so the repository can be retired",
+    "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+    "quote": "Port the correct parts one to one; never rebuild what worked."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-launch-video",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "path_multihash": "1f:ff45343f212236aa12169b8fda1a3901fc8c8d9e910159052b586549b5863a55",
+      "multihash": "1f:316871b83855a6695375b3d611bd272379a69a7099508449f1628ef134961efa",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T20:00:00Z",
+        "deleted_with": "the launch-video removal pull request of the writing-gate lane, which names this folder as the new home"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/build-unlabeled-diagnostic.mjs"
+    }
+  ],
+  "preserve": [
+    "a frozen source whose bytes or adoption manifest differ from the freeze is refused",
+    "only blocks the selected criterion applies to become rows; the others are counted and indexed as unassessed",
+    "each row keeps its byte span, verified against the source bytes, and the two preceding blocks as reader context",
+    "no gold label is written"
+  ],
+  "allowed_deltas": [
+    "writingBlocks is imported from tools/pin-files-by-content directly instead of through a checkout an environment variable names",
+    "BLAKE3 is the Workshop's content-identity owner instead of the b3sum program"
+  ],
+  "banned_substitutions": [
+    "a guessed label on an unlabeled row"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:316871b83855a6695375b3d611bd272379a69a7099508449f1628ef134961efa",
+    "target_multihash_at_baseline": "1f:316871b83855a6695375b3d611bd272379a69a7099508449f1628ef134961efa"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "unassessed_block_indices",
+      "preceding_block_indices"
+    ],
+    "test_refs": [
+      "tools/train-and-evaluate-a-writing-voice-classifier/test/build-unlabeled-diagnostic.test.mjs"
+    ]
+  }
+}
