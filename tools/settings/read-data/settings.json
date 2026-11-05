@@ -1,0 +1,9 @@
+{
+  "what_this_is": "The rules for one row of list:settings (type record:setting), read by read-data/settings.mjs and read-data/settings.py.",
+  "list": "list:settings",
+  "type": "record:setting",
+  "id_shape": "record:setting:<workshop-folder>~<scope_kind>~<scope_id>",
+  "scope_kinds": ["person", "film", "piece", "account"],
+  "required_fields": ["name", "tool", "scope_kind", "scope_id", "settings", "from", "status"],
+  "statuses": ["active", "retired", "draft"]
+}
