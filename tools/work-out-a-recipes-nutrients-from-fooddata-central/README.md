@@ -2,7 +2,7 @@
 
 Works out the nutrients in a person's recipe from their USDA FoodData Central downloads: 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake (men and women) with a flag. One JSON request in, one JSON answer out; it reads only the CSVs it is given and makes no calls.
 
-The recipe is the person's data, never this code's. It comes in the request. Kept for later, the person's recipe lives as a row `record:setting:work-out-a-recipes-nutrients-from-fooddata-central~piece~<piece-id>` in `list:settings`, whose value is this tool's request (without `datasets`, which name folders on one computer), so their AI reads it, adds the datasets and runs the row.
+The recipe is the person's data, never this code's. It comes in the request, or from the person's `list:settings`: the row `record:setting:work-out-a-recipes-nutrients-from-fooddata-central~piece~<piece-id>`, whose `settings` are this tool's request fields (without `datasets`, which name folders on one computer). Their AI reads the row with `records:read` and passes it as `settings_record`, with `piece` naming which one; it is read through `tools/settings` (the one settings reader, packed by the row), and a field the request gives itself wins.
 
 ## Files
 
@@ -14,7 +14,7 @@ The recipe is the person's data, never this code's. It comes in the request. Kep
 | `read-data/fooddata_central.py` | The FoodData Central reader and the reference data, kept from the source: `NUTS` (33 nutrients: key, label, unit, FDC nutrient ids in fallback order), `DRI` (adult 19-30, male and female), `DOSE_MAX` (sodium, a limit). `load(base)` reads a download folder (an empty amount is skipped; a later row for the same food and nutrient wins), `load_texts(texts)` the same from CSV texts, `per100(src, fdc)` (first nutrient id a food has wins), `portion_g(src, fdc, word)` (the first portion whose modifier and description contain the word, case-insensitive, as gram_weight / amount). |
 | `read-data/recipe_profile.py` | `work_out(request, tables, built)`: grams (as given, or count x one portion), label scaling, totals, rounding, flags, caveats, the profile and the recipe. Pure. |
 | `ports/recipe-nutrients-reading.json`, `ports/recipe-nutrients-profile.json` | The port contracts: the source file's reading part (lines 1-100) and its summing part (lines 116-152), each byte-copied here first and then adapted. The source's recipe lines (101-115, 153-197) are the person's data and did not move as code. |
-| `test/test_recipe_nutrients.py` | 12 tests on two made-up datasets: fallback ids, empty amounts, last row wins, portions, label scaling, rounding, every flag, unknowns in a main ingredient, caveats, the recipe's kept words, the printed table, refusals, the command on stdin, `--request`, folders and `write_to`. |
+| `test/test_recipe_nutrients.py` | 13 tests on two made-up datasets: fallback ids, empty amounts, last row wins, portions, label scaling, rounding, every flag, unknowns in a main ingredient, caveats, the recipe's kept words, the printed table, refusals, the command on stdin, `--request`, folders, `write_to` and a recipe read from made-up `list:settings` rows. |
 | `test/work-out-a-recipes-nutrients.test.mjs` | Checks the row, runs its sample the way the container runner does, and runs the Python tests; skips, saying why, without python3. |
 
 ## The request
@@ -60,6 +60,6 @@ On a made-up FoodData-Central-shaped fixture set the old script and this tool ga
 
 ## Dependencies
 
-**Depends on:** Python 3 standard library only; the person's FoodData Central CSV downloads (public domain), given in the request.
+**Depends on:** Python 3 standard library; `tools/settings` (`read-data/settings.py`, for `settings_record`); the person's FoodData Central CSV downloads (public domain), given in the request.
 
 **Depended on by:** `tool-rows.json`. Nothing imports this folder.
