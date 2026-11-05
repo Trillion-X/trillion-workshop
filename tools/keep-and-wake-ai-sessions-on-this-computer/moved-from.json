@@ -3134,6 +3134,38 @@
       "source_identity": "1f:a349ae4cbd680e80bb39475dbb8417bec77f9e12293e24d2068837aac185449c",
       "identity": "1f:0680caf24032b290da8f5ac694f82f6347efbf12c5a5d3067ed7b2385c28f8b2",
       "adapted": "the erase_record tool-row test runs as it was; the PersonStore /records/erase test is not carried, the route being trillion-rust src/record_value/account_routes.rs"
+    },
+    {
+      "from": "test/execution-lookup.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/execution-lookup.test.mjs",
+      "source_identity": "1f:c105758bf965b3c72c7ec465238aa710514996159c73cbf90817653b9fcc88dc",
+      "identity": "1f:4925c8f4985164156e03fb1eb2bef73143f81e04f33b1790db261cc9a160fa50",
+      "adapted": "the PersonStore.activityTrace test is left out, as no running code has that entry point; the other four are the old ones"
+    },
+    {
+      "from": "test/execution-context.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/execution-context.test.mjs",
+      "source_identity": "1f:a43a5195df1fd2c63f3a7fb174195bce5eeb3779e0827f489fe71ee80d2f43bd",
+      "identity": "1f:b3d64b3337c347948aebc4f81c9084bc2bf78ae2cf1e9c13f286b23962b098e9",
+      "adapted": "activity rows come from see-what-my-ais-did; the tests through the retired MCP handler and Spaces route are left out; the other six are the old ones"
+    },
+    {
+      "from": "test/hop-trail.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/hop-trail.test.mjs",
+      "source_identity": "1f:0963bc2afe09857db05ceec2aa2752d623f18964b53bc863b8775109a8ebad18",
+      "identity": "1f:c482e1b7ee3fd4764add90bad4dd05e9788c4c841431483e63329ec9e2a23e26",
+      "adapted": "the assertions that called through the retired Durable Object stub wrapper (resource-host.mjs hostOf) are left out; every other assertion is the old one"
+    },
+    {
+      "from": "test/failure-payload.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/failure-payload.test.mjs",
+      "source_identity": "1f:158b747c6869beada114fa8e6570697426c7969a89a041145ebe1b91c0cdd6db",
+      "identity": "1f:fe9ce210c45eac8016a3e3ea9aa1de66fc6bd397605c36f16b7353c7645202d5",
+      "adapted": "the registry is set-up-my-account's failure-codes.json; the calls through the retired MCP handler are left out, the payloadOf assertions kept"
     }
   ]
 }
