@@ -1,0 +1,40 @@
+{
+  "about": "Code whose job moved here from another code tree and was rewritten, not copied: each row names the source path (or, where the path names a real company's site, the BLAKE3 identity of the path, from_path_identity, so the name is not published) and commit, the identity of its source bytes, the file here that now does its job, and how. The parity runs (old script and new tool on the same live sites) are kept with the port's evidence, not in this public repository.",
+  "source": "Trillion-X/trillion-launch-video",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "capture/site-media.mjs",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "to": "tools/browse-public-page/do-work/list-the-videos-a-site-plays.mjs",
+      "source_identity": "1f:92b53c7d35ab8675b56241a4f8edf8872bca8f71bbb3d9cac5d0fa12498064c8",
+      "identity": "1f:f8da2d3f0830c8e076b7ae293fbf786b4774752ad4f87f4c36e42e1e077eca35",
+      "found_by": "rewritten: the same walk of a site's own pages, scrolls and video requests, over DevTools instead of Playwright; frames are listed only when they are players"
+    },
+    {
+      "from_path_identity": "1f:9a68118dfe36953196d12fad4647a1bd709de2f1433ac0dec9e256aa31299e83",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "to": "tools/browse-public-page/do-work/list-the-videos-a-site-plays.mjs",
+      "source_identity": "1f:f38925ab01252b1190cd6a178c254bc70d4d570320c83b6f9bdef758c5b97463",
+      "identity": "1f:f8da2d3f0830c8e076b7ae293fbf786b4774752ad4f87f4c36e42e1e077eca35",
+      "found_by": "rewritten: one site's page list became the paths input and its media request test the Media resource type in video-addresses.json"
+    },
+    {
+      "from_path_identity": "1f:32140334f45da71e669d6e15adb8da50ab795c2ef5b606675997130a5d6c465b",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "to": "tools/browse-public-page/do-work/list-the-videos-a-site-plays.mjs",
+      "source_identity": "1f:855cfd6453060c01fef23634cf82a7374ce3be46c448929709a6e9d53196aeac",
+      "identity": "1f:f8da2d3f0830c8e076b7ae293fbf786b4774752ad4f87f4c36e42e1e077eca35",
+      "found_by": "rewritten: playing each page's videos is the play input; its stream address rule is strip_query_hosts in video-addresses.json"
+    },
+    {
+      "from_path_identity": "1f:94b482cc8cdcbd16628bb23650904ac73d471d30f01d39911b4b0934f7fa31dd",
+      "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+      "to": "tools/browse-public-page/do-work/list-the-videos-a-site-plays.mjs",
+      "source_identity": "1f:222dfcf6525e41884699e20b35d6636432ee7112d4edaecd1cc80f5ba4de72e0",
+      "identity": "1f:f8da2d3f0830c8e076b7ae293fbf786b4774752ad4f87f4c36e42e1e077eca35",
+      "found_by": "rewritten: each video's surrounding link and its words are listed for every link, not one site's post links"
+    }
+  ]
+}

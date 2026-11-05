@@ -1,0 +1,7 @@
+{
+  "about": "Which addresses a drawn page asks for are videos, for do-work/list-the-videos-a-site-plays.mjs. A request is a video when the browser says its type is one of request_types, its path ends in one of extensions, or its whole address matches one of players (a hosted player's stream or file address). A video at a host in strip_query_hosts is kept without its query, since each play signs the same stream with a new one-time query. A new player is one entry here.",
+  "request_types": ["Media"],
+  "extensions": ["mp4", "webm", "mov", "m3u8", "m4v", "mpd"],
+  "players": ["stream\\.mux\\.com/", "youtube(-nocookie)?\\.com/embed/", "fast\\.wistia\\.(net|com)/embed/", "vimeo\\.com/.*/video", "player\\.vimeo\\.com/", "videodelivery\\.net/", "cloudflarestream\\.com/"],
+  "strip_query_hosts": ["stream.mux.com"]
+}

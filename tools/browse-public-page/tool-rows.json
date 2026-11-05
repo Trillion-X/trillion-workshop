@@ -362,6 +362,217 @@
     ],
     "result_selector": "$"
    }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "status": "active",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "maker": "maker:browse-public-page",
+    "id": "tool:list-the-videos-a-site-plays",
+    "listed_on": "2026-11-05T00:00:00Z",
+    "label": "List the videos a site plays",
+    "job": "List every video a website plays across its pages, streams and other sites' players included, with the pages each is on and the link and words around it",
+    "description": "Opens the site's start page, and each same-site page it links to or that paths names, in a headless browser; scrolls each page through so late players load, plays its videos muted, and lists every video address the pages ask for (files such as mp4 and webm, streams such as m3u8, and hosted players: which addresses are videos is do-work/video-addresses.json) every video, video source and player frame the pages show, and every link to a video file, each once with the pages it is on and, when it sits inside a link, that link and its words. A stream address signed anew on each play is listed without its one-time query. Visits at most max_pages pages (default 25) and says which linked pages it left (remaining_paths). Keeps nothing and does not sign in. Works on public web sites: the engine lets it reach nothing else.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "url"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "url": {
+       "type": "string",
+       "format": "uri",
+       "description": "The site's first page, like https://example.com/films"
+      },
+      "max_pages": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 100,
+       "description": "The most pages to visit (default 25)"
+      },
+      "paths": {
+       "type": "array",
+       "maxItems": 200,
+       "items": {
+        "type": "string"
+       },
+       "description": "Pages of the site to visit that no link reaches, like [\"/films/one\"]"
+      },
+      "scrolls": {
+       "type": "integer",
+       "minimum": 0,
+       "maximum": 60,
+       "description": "How many times each page is scrolled a screen and a half down before it is read (default 10)"
+      },
+      "play": {
+       "type": "boolean",
+       "description": "Play every video on each page so players that load their stream only when played reveal it (default true)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "origin",
+        "pages",
+        "videos",
+        "remaining_paths",
+        "skipped"
+       ],
+       "properties": {
+        "origin": {
+         "type": "string"
+        },
+        "pages": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "videos": {
+         "type": "array",
+         "items": {
+          "type": "object",
+          "required": [
+           "address",
+           "found",
+           "pages",
+           "link",
+           "words"
+          ],
+          "properties": {
+           "address": {
+            "type": "string"
+           },
+           "found": {
+            "enum": [
+             "requested",
+             "linked",
+             "shown",
+             "frame"
+            ]
+           },
+           "pages": {
+            "type": "array",
+            "items": {
+             "type": "string"
+            }
+           },
+           "link": {
+            "type": [
+             "string",
+             "null"
+            ]
+           },
+           "words": {
+            "type": [
+             "string",
+             "null"
+            ]
+           }
+          }
+         }
+        },
+        "remaining_paths": {
+         "type": "array",
+         "items": {
+          "type": "string"
+         }
+        },
+        "skipped": {
+         "type": "array"
+        }
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "browse-public-page",
+        "paths": [
+         "do-work/list-the-videos-a-site-plays.mjs",
+         "do-work/video-addresses.json"
+        ],
+        "at": "/opt/browse-public-page"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json",
+         "devtools.mjs",
+         "browser-places.json"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
+     },
+     "workdir": "/opt/browse-public-page",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/list-the-videos-a-site-plays.mjs",
+      "--url",
+      {
+       "from": "url"
+      },
+      "--max-pages",
+      {
+       "from": "max_pages",
+       "otherwise": {
+        "const": 25
+       }
+      },
+      "--paths",
+      {
+       "from": "paths",
+       "otherwise": {
+        "const": []
+       }
+      },
+      "--scrolls",
+      {
+       "from": "scrolls",
+       "otherwise": {
+        "const": 10
+       }
+      },
+      "--play",
+      {
+       "from": "play",
+       "otherwise": {
+        "const": true
+       }
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 300,
+     "network_egress": true,
+     "memory_mb": 4096
+    },
+    "verify": [
+     {
+      "kind": "output-number-within",
+      "output_selector": "$.result.pages.length",
+      "at_least": 1
+     }
+    ]
+   }
   }
  ]
 }
