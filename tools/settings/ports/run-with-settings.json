@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SETTINGS-RUN-WITH-SETTINGS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film-tools lane, case source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ",
+  "message_multihash": "1f:e0e36c565697ec654c41546442049ecc2c3450343b398cdd48804b1788dfccf1",
+  "quote": "a tool reads its list:settings row at run time through one shared Workshop reader; add to tools/settings, never beside it"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run a program with the settings row its request names, read through the records door and handed to it",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/settings/do-work/run-with-settings.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/records-door/do-work/run-an-export.mjs",
+   "why": "that command imports a JavaScript function and calls it with the door; this one reads one settings row through the door and hands it to a program in any language on its stdin, passing its output through"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/settings/",
+   "why": "the folder's own readers take a record already handed in; this command is what hands it in, so the program never holds the door"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run a program with the settings row its request names, read through the records door and handed to it",
+    "run a program with the settings row its request names",
+    "run with settings",
+    "hand a program its settings row read through the records door"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "runWithSettings",
+    "run-with-settings"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "6a8d69dafb08b51516af5b9dd748ce845540d35c"
+    },
+    {
+     "repository": "trillion",
+     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/settings/test/run-with-settings.test.mjs run-with-settings hands a Python program the row it names, and request_settings lays it the same way"
+  ]
+ }
+}

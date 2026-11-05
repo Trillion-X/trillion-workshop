@@ -1,0 +1,19 @@
+{
+  "schema": "book-reader-context-scope-reproduction-v1",
+  "date_local": "2026-10-27",
+  "maintained_consumer": "../copy-gate/evaluate-book-voice-integrity.mjs :: requestPlan",
+  "method": "Called requestPlan with two book-block sequences. Target text and blocks at index 2 and 3 were identical; only the referenced method definition at index 0 differed. Each item.reader_context was the literal join of indices 2 and 3, matching the current two-block policy.",
+  "result": {
+    "target_same": true,
+    "immediate_two_blocks_same": true,
+    "older_definition_different": true,
+    "request_state_same": true,
+    "state": "{\"reference_text\":\"Reference\",\"reader_context\":\"shared immediate prior one\\n\\nshared immediate prior two\",\"target_kind\":\"paragraph\",\"target_text\":\"The method is the basis of this target.\"}"
+  },
+  "scope_limit": "The maintained request state cannot distinguish an older definition when it occurs before the immediate two-block prefix. Any decision depending on that older meaning is unsupported by the current context input.",
+  "not_established": [
+    "Whether selecting a particular earlier passage is semantically relevant remains a reviewer assertion.",
+    "This reproduction does not establish that the reader or model understands the selected passage.",
+    "This feature alone cannot qualify whole-book reader context."
+  ]
+}

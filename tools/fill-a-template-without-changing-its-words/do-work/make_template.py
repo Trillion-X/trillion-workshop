@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""make_template.py <input> <out.template.json> [--registry R] [--root DIR] [--medium M] [--id ID]
+"""make_template.py <input> <out.template.json> [--registry R | --settings-record S [--scope KIND:ID]] [--root DIR] [--medium M] [--id ID]
 
 <input> is a spec (schema word-template-spec@1: sources, lines, slots, keeps, readings) or any one
 measurement a registry reader can detect (a transcript JSON, a post JSON, a table .tsv, a folder of images).
@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'read-data'))
-from wt_core import Registry, WTError, load_json, write_json  # noqa: E402
+from wt_core import Registry, WTError, load_json, parse_scopes, registry_for, tool_settings, write_json  # noqa: E402
 from wt_ops import tokenize  # noqa: E402
 from wt_render import render_template_md  # noqa: E402
 
@@ -52,12 +52,15 @@ def main(argv=None):
     ap.add_argument("input")
     ap.add_argument("out")
     ap.add_argument("--registry")
+    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns); its settings.registry is the registry")
+    ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     ap.add_argument("--root")
     ap.add_argument("--medium")
     ap.add_argument("--id")
     a = ap.parse_args(argv)
     try:
-        reg = Registry.load(a.registry)
+        settings = tool_settings(a.settings_record, parse_scopes(a.scope)) if a.settings_record else None
+        reg = registry_for(None, a.registry, settings)
         spec = spec_for(a.input, reg, a.medium, a.id)
         if a.registry:
             spec["registry"] = a.registry

@@ -13,6 +13,7 @@ Standard library only.
 """
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from typing import Any, Iterable
@@ -168,3 +169,36 @@ def chosen(given: Any, folder: str | None = None, scopes: Iterable[tuple[str, st
             if _scope(record)[1:] == (kind, scope_id):
                 return record
     return None
+
+
+# --- The settings a program runs with (added for programs run under do-work/run-with-settings.mjs) ---
+
+def lay_over(under: Any, over: Any) -> Any:
+    """Plain objects merge key by key; anything else is replaced whole (settings.mjs layOver)."""
+    if not isinstance(under, dict) or not isinstance(over, dict):
+        return under if over is None else over
+    out = dict(under)
+    for key, value in over.items():
+        out[key] = lay_over(under[key], value) if key in under else value
+    return out
+
+
+def request_settings(request: dict, defaults: Any, folder: str | None = None,
+                     scopes: Iterable[tuple[str, str]] | None = None, tool: str | None = None) -> Any:
+    """Weakest first: `defaults`, the row `request['settings_record']` holds (a record, its value, a list or a file,
+    as setting() takes; do-work/run-with-settings.mjs has already read a named id through the door), then
+    `request['settings']`."""
+    given = request.get('settings_record')
+    if isinstance(given, str) and given.startswith(ID_PREFIX):
+        raise SettingError(f'settings_record names {given}, which this program cannot read itself: run it under '
+                           'tools/settings/do-work/run-with-settings.mjs, or hand the record itself.')
+    found = None if given is None else chosen(given, folder, scopes)
+    out = copy.deepcopy(defaults)
+    if found is not None:
+        out = lay_over(out, settings_of(found, tool))
+    own = request.get('settings')
+    if own is not None:
+        if not isinstance(own, dict):
+            raise SettingError('settings, when given, must be a JSON object.')
+        out = lay_over(out, own)
+    return out
