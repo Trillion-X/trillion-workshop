@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SETTINGS-SETTING-MJS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, models-research lane, cloud 2026-11-05: the one settings reader",
+  "message_multihash": "1f:6126578b79caf43cd31088cd2f22bcfedf731fcd6a99550aabeeb59f580bc884",
+  "quote": "Settings home, decided: one generic list in the person's account, `list:settings`, with row type record:setting and id `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`. scope_kind is person, film, piece or account. Fields: name, tool, scope_kind, scope_id, settings (JSON), from (\"<old path>@<sha>\") and status."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read a tool's settings for a person, film, piece or account from the person's list:settings",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/settings/read-data/setting.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/records-door/",
+   "why": "the door client carries any record; this reads and checks one kind, record:setting, and answers the settings"
+  },
+  {
+   "repository": "trillion",
+   "path": "src/decision-store.mjs",
+   "why": "old trillion's setting(name) (before 4ffa1dc4a2, lines 751-754) read settings from the hosted store; it left old trillion's main line with that commit, so no live owner remains, and its rule (the value, or nothing) is kept here"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read a tool's settings for a person, film, piece or account from the person's list:settings",
+    "read a setting"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "record:setting",
+    "read_setting",
+    "settings_record"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "ad0581c23b915b3ed6a59d8c27b8f8c6d6f2b681"
+    },
+    {
+     "repository": "trillion",
+     "commit": "e402c27799d8c007b425674d0a53642dd7cdcb6d"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/settings/test/settings.test.mjs",
+   "tools/settings/test/test_read_setting.py",
+   "tools/settings/tool-rows.json sample run (tool:read-a-tools-settings)"
+  ]
+ }
+}
