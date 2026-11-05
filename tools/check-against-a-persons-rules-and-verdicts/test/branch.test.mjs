@@ -192,21 +192,24 @@ test('reading rows are asked once a unit, never once a sentence, and no unit pas
   const units = [{ text: 'One made-up sentence. Two made-up sentences. Three.', kind: 'line' }, { text: 'Another made-up unit.', kind: 'line' }];
   // Uncalibrated: every question is asked, and the units are uncertain, never passed, whatever the answers say.
   const bare = await checkABranch({ branch: 'made-up-base', units }, memoryDoor({ checkRows: rows }));
-  assert.equal(bare.questions.length, rows.length * units.length, 'one question a reading row a unit');
-  assert.deepEqual(bare.questions.map(question => question.text), [...rows.map(() => units[0].text), ...rows.map(() => units[1].text)]);
-  const allPass = Object.fromEntries(bare.questions.map(question => [question.id, { yes: 0.01 }]));
+  const askedIds = answer => answer.questions.flatMap(entry => entry.asked.map(question => question.id));
+  assert.equal(askedIds(bare).length, rows.length * units.length, 'one question a reading row a unit');
+  assert.deepEqual(bare.questions.map(entry => entry.rule), rows.map(row => row.id), 'one entry a rule, the ask said once');
+  assert.ok(bare.questions.every(entry => entry.asked.every(question => question.text === undefined)), 'a question about the whole unit carries no copy of its text');
+  const allPass = Object.fromEntries(askedIds(bare).map(id => [id, { yes: 0.01 }]));
   const uncalibrated = await checkABranch({ branch: 'made-up-base', units, answers: allPass }, memoryDoor({ checkRows: rows }));
   assert.equal(uncalibrated.status, 'uncertain');
-  assert.ok(uncalibrated.results.every(result => result.uncertain.some(finding => finding.qualified === false && finding.rule === 'made-up-a')));
+  assert.ok(uncalibrated.results.every(result => result.uncertain.some(finding => finding.qualified === false && finding.rule === 'reading-questions-unsettled' && finding.count === rows.length)));
   // Calibrated: unanswered is uncertain, low answers pass, one answer at or over t_fail fails the unit on that row.
   const methodRows = methods().map(row => (row.id === 'made-up-base' ? { ...row, reading_settings: CALIBRATED } : row));
   const door = () => memoryDoor({ methodRows, checkRows: rows });
   const asked = await checkABranch({ branch: 'made-up-base', units }, door());
   assert.equal(asked.status, 'uncertain');
-  assert.ok(asked.questions.every(question => question.model?.name === 'made-up-model'));
+  assert.equal(asked.ask_all.model.name, 'made-up-model', 'the model every rule has is said once');
+  assert.ok(asked.questions.every(entry => entry.model === undefined));
   const passed = await checkABranch({ branch: 'made-up-base', units, answers: allPass }, door());
   assert.equal(passed.status, 'passed');
-  const oneBad = { ...allPass, [asked.questions.find(question => question.rule === 'made-up-b' && question.id.startsWith('0:')).id]: { yes: 0.93 } };
+  const oneBad = { ...allPass, [asked.questions.find(entry => entry.rule === 'made-up-b').asked.find(question => question.id.startsWith('0:')).id]: { yes: 0.93 } };
   const failed = await checkABranch({ branch: 'made-up-base', units, answers: oneBad }, door());
   assert.equal(failed.status, 'failed');
   assert.deepEqual(failed.results[0].breaks.map(finding => [finding.rule, finding.p_fail]), [['made-up-b', 0.93]]);
@@ -222,7 +225,7 @@ test('reading rows under judge_settings are the person\'s reading rows, asked on
   assert.ok(verdict_rules.rows.some(row => row.id === 'made-up-own' && row.ask.per === 'unit'));
   const unit = { text: 'A made-up title. With two sentences.', kind: 'title' };
   const answer = await checkABranch({ branch: 'made-up-grandchild', units: [unit] }, memoryDoor({ methodRows, checkRows: [...checks(), noted('made-up-own', 'made-up-grandchild')] }));
-  assert.deepEqual(answer.questions.map(question => [question.rule, question.text]), [['made-up-own', unit.text]]);
+  assert.deepEqual(answer.questions.map(entry => [entry.rule, entry.asked.map(question => question.id)]), [['made-up-own', ['0:made-up-own:0']]]);
 });
 
 test('a row with ask or part states its test and is not skipped', async () => {
