@@ -73,6 +73,22 @@
       "to": "tools/run-rules-and-schedules-by-themselves/test/keep-running.test.mjs",
       "source_identity": "1f:427e46c96c3e81947cef04a46fcf9a5d965f5af5154735819f49ce98f2edd429",
       "identity": "1f:427e46c96c3e81947cef04a46fcf9a5d965f5af5154735819f49ce98f2edd429"
+    },
+    {
+      "from": "test/events-read-by-trillion.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/test/events-read-by-trillion.test.mjs",
+      "source_identity": "1f:44df65bd685797b27aad4be3f7ecb7a3758170c91ad25605cce0f4ceb072d852",
+      "identity": "1f:212643d30d03aa0b97e00a573b63898e947f430cec407ba46d3955e9d41773b6",
+      "adapted": "makeEventRules runs over in-memory facts and a stand-in Workshop on a made-up polled source in place of the shipped GitHub row; the six tests over shipped source rows are left out, as no running code ships them"
+    },
+    {
+      "from": "test/events.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-rules-and-schedules-by-themselves/test/events.test.mjs",
+      "source_identity": "1f:892b94ebc54e2b6981342afa699c368532c0ab59dafc4fdd7bb1e92a1ca5ee33",
+      "identity": "1f:70c2fe31a5e7214aacc89eae9559590fa5c31add0341ab591cb716b5c812cc79",
+      "adapted": "the word-match test runs as it was against keep-and-wake's events.mjs; the seventeen end-to-end tests over the shipped Instagram, Facebook and Stripe rows are left out, as those rows and modules are gone"
     }
   ]
 }

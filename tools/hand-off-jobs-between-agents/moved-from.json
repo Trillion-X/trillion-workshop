@@ -198,6 +198,14 @@
       "to": "tools/hand-off-jobs-between-agents/test/quoted-words.test.mjs",
       "source_identity": "1f:7548e155d8415f735e657e991b1729a659a7e7b7c947497b49ce5a8012a77dff",
       "identity": "1f:399f50c74f79899d7f066a5a1a67f915c45fa23614cba3d1f664d872647baa28"
+    },
+    {
+      "from": "test/ai-space-projection-queue.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/hand-off-jobs-between-agents/test/ai-space-projection-queue.test.mjs",
+      "source_identity": "1f:dbebb8c8f4b6f69d8ef40307f37be1291b02e364b206bdaa06916db8f03b01b5",
+      "identity": "1f:9c6265792126cde51e6703a1d729cb98a427b1e32a5fa93509264464be5819f4",
+      "adapted": "imports this tool's ai-space-projection.mjs and makeAis from see-and-limit-what-each-ai-can-reach; four tests that drove the retired PersonStore's alarm wiring are left out, as no running code arms one from this queue"
     }
   ]
 }
