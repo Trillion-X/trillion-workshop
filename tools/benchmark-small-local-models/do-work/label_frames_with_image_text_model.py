@@ -1,15 +1,22 @@
-"""Zero-shot shot labels with SigLIP2 (open_clip). Two prompt sets: bare vocabulary words and plain definitions."""
+"""Zero-shot shot labels with SigLIP2 (open_clip). Two prompt sets: bare vocabulary words and plain definitions.
+
+  python3 tools/benchmark-small-local-models/do-work/label_frames_with_image_text_model.py <request.json>   (or stdin)
+
+Request: shots (with frame; cut_sample_frames.py's answer or a file), vocabulary ({ field: { value: definition } }),
+model (an open_clip name, for example hf-hub:<repo>), tag, device (optional), write_to. Each value is asked two ways:
+bare ("a video frame, <field>: <value>") and defined ("a video frame: <definition>").
+Answer: { result: { meta, rows: [{ i, "<field>|<mode>": [top 3], "<field>|<mode>|all": [score per value] }] } }."""
 import json, sys, time, resource
 from pathlib import Path
 import torch, open_clip
 from PIL import Image
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"lib"))
-from labels import FIELDS, values, DEFINE
-H = Path(__file__).parent
-MODEL = sys.argv[1] if len(sys.argv) > 1 else "hf-hub:timm/ViT-SO400M-16-SigLIP2-384"
-TAG = sys.argv[2] if len(sys.argv) > 2 else "siglip2-so400m"
-S = json.load(open(H/"sample.json"))
-import place; dev = place.device()
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data"))
+import place; R = place.request()
+FIELDS, values, DEFINE = place.vocabulary(R)
+MODEL = place.need(R, "model")
+TAG = place.need(R, "tag")
+S = place.shots_of(R)
+dev = place.device()
 t0 = time.time()
 model, pre = open_clip.create_model_from_pretrained(MODEL)
 tok = open_clip.get_tokenizer(MODEL)
@@ -30,7 +37,7 @@ with torch.no_grad():
     for s in S:
         if "frame" not in s: continue
         im = pre(Image.open(s["frame"]).convert("RGB")).unsqueeze(0).to(dev)
-        t = time.time(); ie = torch.nn.functional.normalize(model.encode_image(im), dim=-1); torch.mps.synchronize(); t_img += time.time() - t
+        t = time.time(); ie = torch.nn.functional.normalize(model.encode_image(im), dim=-1); place.sync(dev); t_img += time.time() - t
         row = {"i": S.index(s)}
         for (f, mode), te in temb.items():
             sc = (ie @ te.T)[0].float().cpu().tolist()
@@ -40,7 +47,7 @@ with torch.no_grad():
         out.append(row)
 n = len(out)
 meta = {"model": MODEL, "tag": TAG, "load_s": round(load_s, 1), "ms_per_image": round(1000*t_img/n, 1), "n": n,
-        "mps_GB": round(torch.mps.driver_allocated_memory()/1e9, 2), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2),
+        "mps_GB": place.mps_gb(dev), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2),
         "params_M": round(sum(p.numel() for p in model.parameters())/1e6)}
-json.dump({"meta": meta, "rows": out}, open(H/f"pred-{TAG}.json", "w"), indent=1)
 print(meta)
+place.answer({"meta": meta, "rows": out})
