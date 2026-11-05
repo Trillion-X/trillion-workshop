@@ -84,7 +84,9 @@ def reference(args):
         for i in range(0, len(sts), args.states_per_batch):
             probs = dec._se.score(compiled.h, [render_state(s) for s in sts[i:i + args.states_per_batch]], temperature=temperature, max_ctx_tokens=32768)
             rows += [[[float(x) for x in r[:n]] for r, n in zip(p, compiled.h.nopts)] for p in probs]
-        answers = compiled.batch(sts)
+        # the decider's own assemble over the rows above (CompiledSchema.batch would score every state in one batch)
+        from decider.systemone import assemble
+        answers = [{"answers": assemble(compiled.rqs, compiled.index, [list(r) for r in rws])} for rws in rows]
     json.dump(dict(model_dir=model_dir, tokenizer=tokenizer, dtype=args.dtype, temperature=temperature, packed=args.packed,
                    questions=qs, states=sts, rows=rows, answers=[a["answers"] for a in answers],
                    seconds=dict(prepare=t_prep, total=time.time() - t)), open(os.path.join(args.out, "reference.json"), "w"))
