@@ -46,7 +46,7 @@ test('in the branch mode, run as the container runs it, a made-up reading row is
   const first = answerOf(await runRow(row, { branch: 'made-up-base', units }, { records }));
   assert.equal(first.status, 'uncertain');
   assert.deepEqual(first.rows_used.skipped, { branch: 0, step: 0, off: 0, no_test: 0 });
-  assert.deepEqual(first.questions.map(question => [question.id, question.text]), [['0:made-up-note:0', units[0].text]]);
+  assert.deepEqual(first.questions.map(entry => [entry.rule, entry.asked]), [['made-up-note', [{ id: '0:made-up-note:0' }]]]);
   const pass = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.05 } } }, { records }));
   assert.equal(pass.status, 'passed');
   const fail = answerOf(await runRow(row, { branch: 'made-up-base', units, answers: { '0:made-up-note:0': { yes: 0.9 } } }, { records }));
