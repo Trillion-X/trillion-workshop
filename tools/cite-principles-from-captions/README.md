@@ -2,7 +2,7 @@
 
 A script a person's AI runs on the person's own computer. It keeps the principles people state or show in captioned videos, each with the exact words and the second they are said, proves every quote is really in the captions, and ranks each principle by how many independent channels back it and how well their videos did. With a chat model on the same computer (or any OpenAI-compatible one the person names) it also reads every part of every video and writes the rows the person asks for, from any domain, each quote put back onto the exact caption words and seconds it came from.
 
-What the principles are about, how advice sounds, what rows a model is asked for and how they are shaped, and how rows group and name their stages are the person's own files, passed in at run time. The tool holds none of them.
+What the principles are about, how advice sounds, what rows a model is asked for and how they are shaped, and how rows group and name their stages are the person's own, passed in at run time: as files, or as one row of their `list:settings` (`--settings-record`, read through [`tools/settings`](../settings/)). The tool holds none of them.
 
 ## Files
 
@@ -12,9 +12,10 @@ What the principles are about, how advice sounds, what rows a model is asked for
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/cite_principles.py` | The command: `corpus`, `coverage`, `candidates`, `extract`, `find`, `verify`, `registry`, `index`. Each prints its account and a last line `{"result": ...}`. `verify` and `find` exit 1 (2 for a video with no captions) when a quote is not found. |
 | `read-data/captions.py` | Pure readers: caption files to timed lines, exact-quote search, how a video did against its channel's usual, scoring of passages, evidence strength. |
+| `../settings/read-data/settings.py` | The shared reader for the person's `list:settings` row (`--settings-record`). |
 | `read-data/registry.py` | Pure: merges working rows into the ranked registry, and writes its Markdown index. |
 | `read-data/extraction.py` | Pure: cuts videos into the parts a model reads (short videos packed together), fills the person's prompt, reads the model's reply, and places each quote on the caption words it came from. |
-| `test/cite-principles.test.mjs` | Runs every command on synthetic captions made here. |
+| `test/cite-principles.test.mjs` | Runs every command on synthetic captions made here, from files and from a made-up `list:settings` row. |
 | `test/test_captions.py`, `test/test_extraction.py` | The pure readers. |
 | `test/test_verify.py` | The quote check against the corpus and caption files outside it. |
 | `test/fake_chat.py` | A stand-in OpenAI-compatible chat server for the `extract` test. |
@@ -60,6 +61,16 @@ The person's files:
 
 `extract --coverage-out FILE` atomically refreshes coverage after each progress report and at the end, including a `row_files` manifest (`{path, sidecar?}`, relative to that coverage file). Downstream importers can consume each channel without naming channels in code or reading extraction ledgers as knowledge. `coverage --done FILE` separately counts completed videos, including videos that yielded no kept rows; `mined_videos` counts videos cited by kept rows. Completed, rejected and failed extraction outcomes do not inflate kept-row coverage. A source's original URL is retained when the corpus supplies one, including other platforms.
 
+The same settings as one row of the person's `list:settings` (`record:setting:cite-principles-from-captions~account~main`, or a film's or piece's row), saved from `records:read`:
+
+```
+python3 do-work/cite_principles.py candidates --corpus ./work/corpus.jsonl --settings-record ./setting.json --out ./work/candidates
+python3 do-work/cite_principles.py registry --corpus ./work/corpus.jsonl --rows './work/rows/*.jsonl' --settings-record ./setting.json --out ./principles.jsonl --id-map ./work/map.json
+python3 do-work/cite_principles.py index --registry ./principles.jsonl --corpus ./work/corpus.jsonl --settings-record ./setting.json --id-map ./work/map.json --out ./INDEX.md
+```
+
+Its `settings` object holds any of `terms`, `caps`, `lanes`, `merge` (each the JSON its file flag takes) and `index-template` (the Markdown `--template` takes). `--scope KIND:ID ...` picks the row, most specific first (default `account:main`); a retired row is refused; a file flag given beside it wins for that one setting.
+
 Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--window-seconds`, `--per-video`, `--opening-seconds`, `--openings-per-channel`, `--openings-per-large-channel`; `verify --caption-files GLOB` (json3 files for videos not in the corpus; `{video}` is the video id); `registry --id-map FILE`, `--url-template`; `index --template FILE`.
 
 ## What it does
@@ -88,6 +99,6 @@ Options: `candidates --caps FILE` (`{channel: most passages to keep}`), `--windo
 
 ## Dependencies
 
-**Depends on:** Python 3.10 or later and its standard library. Only `extract` sends anything: each part's words go to the chat model the person's `model.json` names (on their own computer when its url is local); a key, when needed, is read from the environment variable it names and never written down.
+**Depends on:** Python 3.10 or later and its standard library; `tools/settings/read-data/settings.py` (beside it in the same clone) for `--settings-record`. Only `extract` sends anything: each part's words go to the chat model the person's `model.json` names (on their own computer when its url is local); a key, when needed, is read from the environment variable it names and never written down.
 
 **Depended on by:** `tool-rows.json` (`tool:cite-principles-from-captions`), run on the person's computer by their AI.
