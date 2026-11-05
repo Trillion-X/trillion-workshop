@@ -45,7 +45,7 @@
    ],
    "capability_rows": [],
    "code_patterns": [
-    "readAskRow",
+    "labelled-line",
     "calibrateAsks",
     "answerAsks"
    ],
