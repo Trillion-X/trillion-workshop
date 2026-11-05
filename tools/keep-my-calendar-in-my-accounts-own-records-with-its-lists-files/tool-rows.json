@@ -1,0 +1,543 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files-tool-rows",
+  "what_this_is": "The Workshop row for tools/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files: the page's calendar routes, answered by the moved calendar owner over the person's own records.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-the-calendar-page-route",
+        "label": "Answer the calendar page routes",
+        "status": "active",
+        "job": "Answer the page's calendar routes (GET /work/api/calendar, GET and POST /work/api/calendar/tasks, and the task proposal and date-shift routes) from my own records",
+        "description": "The page's calendar routes, run by the engine for the page's account (workshop-routes): the request's { path, method, query, body } in, { status, body } out. Each is answered by old trillion's own calendar owner (src/native-calendar-owner.mjs calendar:request, moved here unchanged) over the person's calendar task lists, read and written only through the records door, every write conditional on what was read. GET /calendar reads every source; the person's tasks are read here, and a source only another route or a connected calendar tool can read is said unread in the calendar's own words. /calendar/actions and /calendar/availability are not answered here (404).",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The route after /work/api (/calendar, /calendar/tasks, ...)"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST"
+              ]
+            },
+            "query": {
+              "type": "object"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {}
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "read-data/calendar-connection-options.ts"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "documents-as-list-rows",
+                "paths": [
+                  "document-properties.mjs"
+                ],
+                "at": "/opt/documents-as-list-rows"
+              },
+              {
+                "package": "formula-engine",
+                "paths": [
+                  "rules/rule-operators.json"
+                ],
+                "at": "/opt/formula-engine"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "read-data/list-refusals.mjs",
+                  "read-data/list-value-history.mjs",
+                  "read-data/lists.json",
+                  "read-data/write-via.json",
+                  "read-data/write-via.mjs"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "src/entity-mentions.json",
+                  "src/entity-mentions.mjs",
+                  "src/lists.json",
+                  "src/live-keys.json",
+                  "src/live-keys.mjs",
+                  "src/renamed-tools.json",
+                  "src/sold-copies.json",
+                  "src/work-progress.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "keep-lists-of-rows",
+                "paths": [
+                  "do-work/fractional-order.ts",
+                  "lists-over-the-records-door.mjs",
+                  "lists.mjs",
+                  "read-data/configuration-aspects.json",
+                  "read-data/configuration-values.mjs",
+                  "read-data/saved-view-engine.mjs",
+                  "record-at.mjs"
+                ],
+                "at": "/opt/keep-lists-of-rows"
+              },
+              {
+                "package": "keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+                "paths": [
+                  "src/calendar-actions.mjs",
+                  "src/calendar-connections.mjs",
+                  "src/calendar-route.mjs",
+                  "src/calendar.json",
+                  "src/calendar.mjs",
+                  "src/native-calendar-owner.mjs",
+                  "src/task-proposals.mjs"
+                ],
+                "at": "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files"
+              },
+              {
+                "package": "move-a-dated-plan",
+                "paths": [
+                  "src/date-shift.json",
+                  "src/date-shift.mjs"
+                ],
+                "at": "/opt/move-a-dated-plan"
+              },
+              {
+                "package": "plan-tasks-and-todo-lists",
+                "paths": [
+                  "calendar-task-messages.mjs",
+                  "calendar-tasks.json",
+                  "calendar-tasks.mjs",
+                  "parts/ui/show/schedule-calendar/schedule-placement.mjs",
+                  "parts/ui/show/schedule-calendar/schedule-planner.json",
+                  "parts/ui/show/schedule-calendar/schedule-planner.mjs"
+                ],
+                "at": "/opt/plan-tasks-and-todo-lists"
+              },
+              {
+                "package": "query-and-change-list-rows",
+                "paths": [
+                  "src/choice-kinds.json",
+                  "src/choice-mapping.mjs",
+                  "src/configurations.mjs",
+                  "src/document-properties.json",
+                  "src/list-aggregates.mjs",
+                  "src/list-filters.mjs",
+                  "src/list-identity.mjs",
+                  "src/list-input-grammar.mjs",
+                  "src/list-keys.mjs",
+                  "src/list-pairs.mjs",
+                  "src/list-paths.mjs",
+                  "src/list-plain-files.mjs",
+                  "src/list-proposals.mjs",
+                  "src/list-refusals.mjs",
+                  "src/list-relationships.json",
+                  "src/list-relationships.mjs",
+                  "src/list-rollups.mjs",
+                  "src/list-row-operations.mjs",
+                  "src/list-row-transfer.mjs",
+                  "src/list-snapshots.mjs",
+                  "src/list-stamps.mjs",
+                  "src/list-view-parameters.mjs"
+                ],
+                "at": "/opt/query-and-change-list-rows"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/log-position.mjs",
+                  "do-work/record-model.mjs",
+                  "do-work/record-time.mjs"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "record-voice-and-meetings",
+                "paths": [
+                  "do-work/meeting-join-recording.ts"
+                ],
+                "at": "/opt/record-voice-and-meetings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work/run-an-export.mjs",
+                  "read-data/byte-pages.mjs",
+                  "read-data/records-door.mjs",
+                  "read-data/write-batches.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "review-what-a-list-says",
+                "paths": [
+                  "read-data/list-refusals.mjs",
+                  "read-data/list-review.mjs",
+                  "read-data/lists.json"
+                ],
+                "at": "/opt/review-what-a-list-says"
+              },
+              {
+                "package": "run-work-later-or-on-a-repeat",
+                "paths": [
+                  "do-work/quiet-hours.json",
+                  "do-work/quiet-hours.ts",
+                  "do-work/wall-time.ts",
+                  "do-work/zone-drift.ts"
+                ],
+                "at": "/opt/run-work-later-or-on-a-repeat"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/effect-outcomes.json",
+                  "read-data/failure-codes.json",
+                  "read-data/platform-failures.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              },
+              {
+                "package": "settle-amounts-and-reconcile",
+                "paths": [
+                  "read-data/list-settlements.json",
+                  "read-data/list-settlements.mjs"
+                ],
+                "at": "/opt/settle-amounts-and-reconcile"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/failure.mjs",
+                  "src/renamed-tools.mjs",
+                  "src/repo-explorer.mjs",
+                  "src/sold-copies.mjs",
+                  "src/task-proposals.json",
+                  "src/typed-operation-contract.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "turn-a-list-column-that-holds-names-into",
+                "paths": [
+                  "src/naming-fields.mjs"
+                ],
+                "at": "/opt/turn-a-list-column-that-holds-names-into"
+              },
+              {
+                "package": "ui",
+                "paths": [
+                  "show/record-picker/record-value.ts"
+                ],
+                "at": "/opt/ui"
+              },
+              {
+                "package": "walk-nested-input-within-limits",
+                "paths": [
+                  "read-data/bounded-walk.json",
+                  "read-data/bounded-walk.mjs"
+                ],
+                "at": "/opt/walk-nested-input-within-limits"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/node_modules/trillion-workshop/tools/wall-time"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "blake2.js",
+                  "blake3.js",
+                  "package.json",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/keep-my-calendar-in-my-accounts-own-records-with-its-lists-files/src/calendar-route.mjs",
+            "answerTheCalendarRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "list",
+                "prefix": "list:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "record:calendar-task",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:calendar-task-list",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:calendar-day-hours",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:calendar-working-hours",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "entity-list",
+                "prefix": "entity-list:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "entity-row",
+                "prefix": "entity-row:record:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "entity-spelling",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-open-mark",
+                "prefix": "list-open-mark:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-open-mark",
+                "prefix": "list-open-mark:ordering-calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "naming-fields-mark",
+                "id": "naming-fields-mark:lists",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-key",
+                "prefix": "list-key:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-trash",
+                "prefix": "list-trash:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-tombstone",
+                "prefix": "list-tombstone:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-proposal",
+                "prefix": "list-proposal:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-heat",
+                "prefix": "list-heat:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-view",
+                "prefix": "list-view:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-filter",
+                "prefix": "list-filter:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "list-snapshot",
+                "prefix": "list-snapshot:calendar-",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "workspace-preference",
+                "id": "workspace-preference:calendar-selections",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion old-trillion-before-worker-retire src/worker.mjs:1203-1207 (the page's /work/api/calendar routes), src/standalone-resource-behavior.mjs:1139 (nativeCalendarOwner bound over the account's records and lists) and src/native-calendar-owner.mjs calendar:request, moved to this folder's src/"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/calendar/tasks",
+              "method": "POST",
+              "query": {},
+              "body": {
+                "action": "create",
+                "request_key": "sample-1",
+                "title": "Water the sample ferns",
+                "duration_minutes": 15
+              },
+              "browser": {}
+            },
+            "records": [],
+            "output_selector": "$.status",
+            "contains": "200"
+          }
+        ]
+      }
+    }
+  ]
+}

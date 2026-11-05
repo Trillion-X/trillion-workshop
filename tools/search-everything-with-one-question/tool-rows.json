@@ -320,6 +320,198 @@
           }
         ]
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-the-search-page-route",
+        "label": "Answer the search page route",
+        "status": "active",
+        "job": "Answer the page's one search (GET /work/api/search) over every list, record and file name I keep",
+        "description": "The page's GET /work/api/search, run by the engine for the page's account (workshop-routes): the request's { path, method, query } in, { status, body } out, where body is the one search's answer (searchEverything) for query q, with places, sources and matches as comma lists and limit (1..200) as old src/search.mjs searchOptions read them. Any other request answers 404. It holds the same two read-only rights as tool:search-everything-in-a-small-container and writes nothing.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "path",
+            "method"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The route after /work/api (/search)"
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "GET",
+                "POST"
+              ]
+            },
+            "query": {
+              "type": "object",
+              "description": "q, places?, sources?, matches?, limit?"
+            },
+            "body": {},
+            "browser": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "body"
+          ],
+          "properties": {
+            "status": {
+              "type": "integer"
+            },
+            "body": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "search-everything-with-one-question",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/search-everything-with-one-question"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/search-everything-with-one-question",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/search-everything-with-one-question/do-work/search-everything.mjs",
+            "answerTheSearchRoute"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "*",
+                "operations": [
+                  "records:search"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "search"
+                ]
+              }
+            ]
+          }
+        },
+        "needs": {
+          "expected_seconds": 2,
+          "network_egress": false
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:trillion",
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "Trillion-X/trillion old-trillion-before-worker-retire src/worker.mjs:865 (GET /work/api/search to the account's Namespace resource), src/namespace.mjs:2127 namespaceSearch and src/search.mjs:2221 searchOptions, over this folder's searchEverything"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "path": "/search",
+              "method": "GET",
+              "query": {
+                "q": "merlinfalcon",
+                "sources": "trillion"
+              },
+              "body": {},
+              "browser": {}
+            },
+            "records": [
+              {
+                "id": "c1",
+                "type": "sample-contacts",
+                "value": {
+                  "title": "Sample contact",
+                  "notes": "met the merlinfalcon keeper"
+                }
+              },
+              {
+                "id": "i1",
+                "type": "sample-invoices",
+                "value": {
+                  "title": "Sample invoice",
+                  "notes": "merlinfalcon feed, 3 bags"
+                }
+              },
+              {
+                "id": "p1",
+                "type": "sample-places",
+                "value": {
+                  "title": "Sample place",
+                  "notes": "merlinfalcon aviary"
+                }
+              },
+              {
+                "id": "p2",
+                "type": "sample-places",
+                "value": {
+                  "title": "Other place",
+                  "notes": "nothing here"
+                }
+              }
+            ],
+            "output_selector": "$.body.results[0].found_in[0]",
+            "contains": "written"
+          }
+        ]
+      }
     }
   ]
 }
