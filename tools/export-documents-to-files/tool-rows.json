@@ -89,6 +89,114 @@
     "maker": "maker:export-documents-to-files",
     "provenance": { "source": "ported from bitfield-packages packages/public-document-renderer (render-public-document, RecordPublicationProjection); the default typeface is now the system one" }
    }
+  },
+  {
+   "id": "package::export-documents-to-files::tool::export-a-markdown-book-to-word",
+   "address": "package::export-documents-to-files::tool::export-a-markdown-book-to-word",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:export-a-markdown-book-to-word",
+    "label": "Export a Markdown book to Word through its writing checks, and verify the Word file and its PDF against the source (runs on your computer)",
+    "status": "active",
+    "job": "export a markdown manuscript to word and verify it against its source",
+    "description": "Reads the book's settings row (record:setting:export-documents-to-files~piece~<book_id>, list:settings): its manuscript, role (current_prose, comparison or historical_reference), the BLAKE3 its bytes must have, a retained Word template and output folder, and for current prose the checks branch, writing profile, reviews and captured book-voice runs in its evidence folder. For current prose it first runs the book's checks branch of list:checks (tools/check-against-a-persons-rules-and-verdicts, branch mode) on the exact bytes and stops when they do not pass; then the writing gate checks the writing profile and review evidence (tools/pin-files-by-content), and the captured voice-classifier run and its qualification benchmark (tools/train-and-evaluate-a-writing-voice-classifier). Only then is the Word file built from the template (title, a clickable contents list with page fields, heading bookmarks, native tables, lists, quotes, footer page numbers), read back and compared to the source. verify_book_against_its_source.py checks the Word file and a rendered PDF against the source (outline, contents links, page map, body text with two PDF readers) and can repair confirmed ligature mappings. Passing proves coverage and regression checks only, never author approval.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "book_id"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "book_id": {
+       "type": "string",
+       "description": "The piece id of the book's settings row"
+      },
+      "settings_record": {
+       "type": "string",
+       "description": "The settings row id, when it is not record:setting:export-documents-to-files~piece~<book_id>"
+      },
+      "manuscript": {
+       "type": "string",
+       "description": "Path of the Markdown manuscript (else the settings' manuscript)"
+      },
+      "template": {
+       "type": "string",
+       "description": "Path of the retained Word template (else the settings' template)"
+      },
+      "output": {
+       "type": "string",
+       "description": "Path of the Word file to write (else <output_folder>/<book_id>.docx)"
+      },
+      "page_map": {
+       "type": "string",
+       "description": "Path of the BookHeadingN to page JSON the verifier wrote, for the second pass"
+      },
+      "answers": {
+       "type": "object",
+       "description": "Answers to the checks branch's reading questions, by question id"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status"
+     ],
+     "properties": {
+      "status": {
+       "type": "string",
+       "enum": [
+        "exported",
+        "blocked"
+       ]
+      },
+      "written": {
+       "type": "string"
+      },
+      "reason": {
+       "type": "string"
+      },
+      "gate": {
+       "type": "object"
+      },
+      "checks": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "get_it": [
+      "clone the Workshop repository (package.json repository.url)",
+      "npm install   # for @noble/hashes",
+      "python3 with python-docx; pypdf and pypdfium2 for the PDF verifier; LibreOffice to render the PDF"
+     ],
+     "run": "node tools/records-door/do-work/run-with-stdio-mcp.mjs {door_client} tools/export-documents-to-files/do-work/export-a-book.mjs exportABook {request}",
+     "needs": [
+      "node",
+      "python",
+      "the person's records door (stdio client config)"
+     ],
+     "say": "This runs on the person's own computer, from the root of the Workshop checkout, with their records door. Write the request ({ book_id }, plus a manuscript, template or output when they differ from the book's settings row) to a file and run `run`; the last line is { result }. status exported names the Word file; blocked says why (no settings row, changed source bytes, the book's checks failed or have unanswered reading questions, the writing profile or review evidence, the voice-classifier evidence). When the checks ask reading questions, answer them and send `answers`. Then render the Word file to PDF (soffice --headless --convert-to pdf) and run `python3 tools/export-documents-to-files/do-work/verify_book_against_its_source.py --source MD --docx DOCX --raw-pdf PDF --page-map-out MAP --report REPORT`; rebuild with page_map set to MAP, render and verify again. Tell the person what passed and every unresolved difference. Never say the book is approved: these are coverage checks. If you cannot run commands, give them these steps."
+    },
+    "verify": null,
+    "result_selector": null,
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:export-documents-to-files",
+    "provenance": {
+     "source": "moved from Trillion-X/source-repo-a tools/private-book-reader (private_book_reader.py, writing_gate.py, verify_pdf_source.py) at 5a9ba3988a4d; the .writing-policy.json beside the manuscript became the book's settings row, and the gate calls the Workshop's checks branch, pin-files-by-content and voice-classifier tools"
+    }
+   }
   }
  ]
 }

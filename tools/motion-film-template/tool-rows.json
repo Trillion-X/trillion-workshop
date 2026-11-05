@@ -1,0 +1,350 @@
+{
+ "kind": "package-set-records",
+ "record_set": "motion-film-template-tool-rows",
+ "what_this_is": "The Workshop rows for the motion-film-template folder: the reusable parts of the motion-film format (a HyperFrames composition timed from its voice lines, rendered in two aspects, with a premixed soundtrack): plan and run the soundtrack premix from a cue sheet, and write the icon shapes a film uses.",
+ "records": [
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:plan-a-motion-films-soundtrack-premix",
+    "status": "active",
+    "label": "Work out the ffmpeg commands that premix a motion film's soundtrack",
+    "job": "Show me exactly how my film's soundtrack will be mixed: the music bed and how loud it is when, every voice line and every sound effect at its time, before anything is rendered",
+    "description": "Reads a motion film's cue sheet (its length, voice line offsets, the stretches where a voice is heard, and every sound effect as [time, palette sound, gain in dB]) and the film's settings, and answers the ffmpeg commands that premix its soundtrack: the music bed trimmed from its start and shaped over time (ducked while a voice is heard, set or lifted in named windows, faded out), each voice line delayed to its offset, each effect delayed to its time at its gain, all summed, then the film's loudness pass (in the graph, a measured gain and a limiter, or a linear two-pass loudnorm). Nothing is read or written: it is the plan tool:premix-a-motion-films-soundtrack runs where the recordings are. The film's choices are its settings row; the tool holds only the format's file layout.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "cue_sheet": {
+       "description": "The film's cue sheet: {DUR, VO?, voiced?, cues: [[t, sound, gain_db], ...]} (what a film's build writes to audio/cues.json), or a list of {t, sound, gain_db}.",
+       "type": [
+        "object",
+        "array"
+       ]
+      },
+      "cue_sheet_file": {
+       "type": "string",
+       "description": "A path to the cue sheet instead (on the computer that runs it)."
+      },
+      "film_folder": {
+       "type": "string",
+       "description": "The film's folder, {film} in the path templates."
+      },
+      "sound_folder": {
+       "type": "string",
+       "description": "The folder holding music/ and palette/, {sound} in the path templates."
+      },
+      "settings_record": {
+       "type": [
+        "string",
+        "object"
+       ],
+       "description": "The film's settings row in list:settings: its id (read through the records door) or the record itself."
+      },
+      "settings": {
+       "type": "object",
+       "description": "The film's settings, merged from settings_record (a row of the person's list:settings, record:setting:motion-film-template~film~<film>) and any given here: duration (when the cue sheet has no DUR); music {file (a path template with {sound} and {film}), start, fade_out, read_tail, bed, input_args, chain (the bed's ffmpeg filter chain; it may name {DUR}, {start}, {end}, {gain_expr}, {fade_out}, {fade_out_at}, {read_to}, {bed})}; gain {base, duck, duck_pad [before, after], windows: [{from, to, to_inclusive?, set | add | ramp [from_db, to_db]}], steps_per_second, time_format}; voice {files, chain}; cues {files, chain}; mix; after_mix; loudness {method: none | gain-then-limit {measure, target_i, limiter} | linear-two-pass {loudnorm, target_i, limit_db}}; out; work; sample_rate."
+      },
+      "run": {
+       "type": "boolean",
+       "description": "true runs ffmpeg and writes the soundtrack; false (default) answers the commands only."
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "DUR",
+      "method",
+      "out",
+      "counts",
+      "premix"
+     ],
+     "properties": {
+      "DUR": {
+       "type": "number"
+      },
+      "method": {
+       "type": "string"
+      },
+      "out": {
+       "type": "string"
+      },
+      "counts": {
+       "type": "object"
+      },
+      "premix": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      "measure": {
+       "type": [
+        "array",
+        "null"
+       ]
+      },
+      "gain_segments": {
+       "type": "array"
+      },
+      "settings_from": {
+       "type": "object"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "motion-film-template",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/motion-film-template"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/settings"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/motion-film-template",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/settings/do-work/run-with-settings.mjs",
+      "--folder",
+      "motion-film-template",
+      "--",
+      "python3",
+      "/opt/motion-film-template/do-work/premix_soundtrack.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "record:setting",
+        "prefix": "record:setting:motion-film-template~",
+        "operations": [
+         "records:read"
+        ]
+       }
+      ]
+     }
+    },
+    "result_selector": "$.result",
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "cue_sheet": {
+        "DUR": 6.0,
+        "VO": [
+         0.5,
+         2.3
+        ],
+        "voiced": [
+         [
+          0.6,
+          1.8
+         ],
+         [
+          2.4,
+          3.5
+         ]
+        ],
+        "cues": [
+         [
+          0.0,
+          "whoosh",
+          -12
+         ],
+         [
+          1.25,
+          "tick",
+          -18
+         ],
+         [
+          4.0,
+          "chime",
+          -9
+         ]
+        ]
+       },
+       "film_folder": "films/sample-film",
+       "sound_folder": "sound",
+       "settings": {
+        "music": {
+         "file": "{sound}/music/bed.wav",
+         "start": 2.0,
+         "fade_out": 1.5,
+         "chain": "aresample=48000,aformat=channel_layouts=stereo,atrim={start:.3f}:{end:.3f},asetpts=PTS-STARTPTS,volume='{gain_expr}':eval=frame,afade=t=out:st={fade_out_at:.3f}:d={fade_out}"
+        },
+        "gain": {
+         "base": -6,
+         "duck": -8,
+         "windows": [
+          {
+           "name": "a quiet beat",
+           "from": 4.0,
+           "to": 4.5,
+           "to_inclusive": true,
+           "set": -30
+          }
+         ]
+        },
+        "after_mix": "loudnorm=I=-14.5:TP=-1.5:LRA=11"
+       }
+      },
+      "output_selector": "$.counts.inputs",
+      "equals": 6
+     }
+    ],
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container",
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became list:settings rows"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:premix-a-motion-films-soundtrack",
+    "status": "active",
+    "label": "Premix a motion film's soundtrack from its cue sheet (runs on your computer)",
+    "job": "Mix my film's soundtrack: the music bed ducked under the voice, every voice line and every sound effect on the frame of its picture event, at the loudness I chose",
+    "description": "The same premix as tool:plan-a-motion-films-soundtrack-premix, run with ffmpeg where the film's recordings are: writes the film's soundtrack wav (by default <film>/assets/soundtrack.wav), measuring the premix first when the film's loudness method is two-pass, and removes its work file. Answers where it wrote, the counts and the loudness it measured and reached. The film's choices (music, start, gain windows, fades, filter chains, loudness) are its settings row in list:settings.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The request file (JSON) on the person's computer, put where {input} is in the command: the plan tool's request with run: true and the film's settings row's settings written in as settings."
+      }
+     },
+     "required": [
+      "input"
+     ]
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line: {\"result\": {out, DUR, method, counts, measured_i?, gain_db?, output_i?, output_tp?, output_lra?}} or {\"error\": text}."
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/Trillion-X/trillion-workshop",
+     "get_it": [
+      "git clone https://github.com/Trillion-X/trillion-workshop.git",
+      "brew install ffmpeg"
+     ],
+     "run": "python3 trillion-workshop/tools/motion-film-template/do-work/premix_soundtrack.py < {input}",
+     "needs": [
+      "python",
+      "ffmpeg"
+     ],
+     "say": "This runs on the person's own computer, where the film's recordings are. Read the film's settings row (record:setting:motion-film-template~film~<film>) from their account, write it as settings into a request file with the film's cue sheet (audio/cues.json), film_folder, sound_folder and run: true, run `run`, then tell the person where the soundtrack was written and the loudness it reached. Run the plan tool first when they want to see the mix before it is made. Never invent a setting: ask for what the row does not hold."
+    },
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became list:settings rows"
+    }
+   }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:write-the-icon-shapes-a-motion-film-uses",
+    "status": "active",
+    "label": "Write the icon shapes my motion film uses, from the real lucide icons (runs on your computer)",
+    "job": "Put the real icons my film shows into the film, as shapes its page can draw",
+    "description": "Reads each named icon from the lucide-react package on the person's computer (its dist/esm/icons folder) and writes the film's icons file: window.ICONS[name] = [[tag, attrs], ...] for a 24x24 viewBox, the React key dropped, with a first line naming where the shapes came from. Without out it answers the file's text instead of writing it. The icon names a film uses are its settings row.",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The request file (JSON), put where {input} is: {icons_dir, names, out?, note?}."
+      }
+     },
+     "required": [
+      "input"
+     ]
+    },
+    "output_schema": {
+     "type": "object",
+     "description": "The last line: {\"result\": {names, bytes, out | text}} or {\"error\": text}."
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/Trillion-X/trillion-workshop",
+     "get_it": [
+      "git clone https://github.com/Trillion-X/trillion-workshop.git",
+      "npm pack lucide-react (ISC) and unpack it, or use one already installed"
+     ],
+     "run": "node trillion-workshop/tools/motion-film-template/do-work/write-icon-shapes.mjs < {input}",
+     "needs": [
+      "node"
+     ],
+     "say": "This runs on the person's computer. Read the film's icon names from its settings row, write a request file naming lucide-react's dist/esm/icons folder, the names and the film's assets/js/icons.js as out, run `run`, and tell the person which icons were written."
+    },
+    "maker": "maker:motion-film-template",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "provenance": {
+     "source": "Moved from the per-film build and mix scripts of the motion-film format (audio/mix.py; build-icons.mjs) in the old films repository at 5a9ba39; each film's own values became list:settings rows"
+    }
+   }
+  }
+ ]
+}

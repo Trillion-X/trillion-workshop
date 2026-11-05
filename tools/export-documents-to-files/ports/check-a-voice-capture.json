@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-EXPORT-BOOK-CHECK-A-VOICE-CAPTURE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane, launch-video port 2026-11-04 (part export)",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:988e3514befc257a32189795ac0e5909930e3967c6613183b573467d19b8b6a5",
+   "multihash": "1f:546e83554eb6e5c01ad41c25844adde4f76ce83b530ae375c5ee9c023a652e07",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T19:00:00Z",
+    "deleted_with": "the lane lead's launch-video removal change deletes tools/private-book-reader, naming tools/export-documents-to-files as its new home"
+   },
+   "lines": [
+    255,
+    261
+   ]
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/export-documents-to-files/do-work/check-a-voice-capture.mjs"
+  }
+ ],
+ "preserve": [
+  "validateInput then validateReport with the captured model, endpoint, data path and BLAKE3, rubric, serving identity, request policy and evidence version, requireServing"
+ ],
+ "allowed_deltas": [
+  "a script file instead of node -e, so argv starts at 2; a header names it"
+ ],
+ "banned_substitutions": [
+  "accepting a capture the classifier's validator refuses"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:546e83554eb6e5c01ad41c25844adde4f76ce83b530ae375c5ee9c023a652e07",
+  "target_multihash_at_baseline": "1f:546e83554eb6e5c01ad41c25844adde4f76ce83b530ae375c5ee9c023a652e07",
+  "commit": "620d7e97734baefb2109ef54b7941247d251a75c"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/export-documents-to-files/test/test_writing_gate.py"
+  ]
+ }
+}

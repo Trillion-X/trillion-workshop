@@ -1,0 +1,124 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VIEWER-QUESTION-REPORTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: models-research lane, slice viewer-questions",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:7b4d956e1cc93d0adbca7df0ee51c8a226a784bfabc993100ee903d73b9ae243",
+   "multihash": "1f:d6c23cf2bd234a282ed1b92a321c0cc40d575618b14fdbc31de22413c3cb1c64",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b13c16e1932e10a71b1b90c4f64cdad3c0e6044cac4816f4080ddd612c9a511e",
+   "multihash": "1f:89d9ae03ac2788efaefbecab6e1c42797cfb9163f0e8b9949f698dc25a26d73b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:6243d348ea2c48c6585b7495dfa337940ef44b5b44feaee836902aaa088c7f0e",
+   "multihash": "1f:1b177598d4eb215cc9b39d1d1d39c57907a95496192a389f9bcdff3054755a99",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:94261133c2426104b04eb8ed877aa3473121f77ab981e9fb1c3178463a12aa7d",
+   "multihash": "1f:4c14ed060bd04e8b91478a79fd531f6b0b6fec709a5a84b862237d2242f3abc0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d9bc9c176f0e2a44647a5bdb3e4253deebae0ce017442bf2c6585f1b7cc2129b",
+   "multihash": "1f:734bce77fa7e5c460c8796132bb643bd005a25c2a4ffd8252bbafdd17b434093",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:8e2025ea81c4d4c0c116e73d54303e5220f9b33ab07beb5394bb9794dc8aa2a5",
+   "multihash": "1f:1b94d569dc7e1c9096c1fa615b7db68ef7e77f2b1e9660e1eaa79fb42b16351c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:da2b3cb6302d75a7d04d5a1b79ee361aa2f7408438cb4437b84f2241577aac2f",
+   "multihash": "1f:4cd03a37d78bc7f873276d55dd75b385887e29322a91cec4378823ec071c9fcc",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/collect-and-rank-viewer-questions/do-work/reports.py",
+   "baseline_commit_message": "collect-and-rank-viewer-questions: the old viewer-questions scripts, byte copies (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "shortlist: similar 2+, a strong answer, or a comment with 100 likes",
+  "answers by reach with totals",
+  "review: id, bucket, asker line, label and two answers",
+  "top30: the chosen ids in order with the best answer, written to a file",
+  "brief, comment counts and non-finite vector rows as before"
+ ],
+ "allowed_deltas": [
+  "the seven view scripts are views of one script, each also answered as JSON on the last line",
+  "an unknown top30 id is refused"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another folder",
+  "a person's bucket, code, segment, path or name written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d6c23cf2bd234a282ed1b92a321c0cc40d575618b14fdbc31de22413c3cb1c64",
+  "target_multihash_at_baseline": "1f:d6c23cf2bd234a282ed1b92a321c0cc40d575618b14fdbc31de22413c3cb1c64",
+  "commit": "5137c28293a249a497e448d180d9948edb9aa235",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def shortlist",
+   "def top30"
+  ],
+  "test_refs": [
+   "tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of source-repo-a beside this one finds it."
+}
