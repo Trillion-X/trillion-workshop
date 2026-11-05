@@ -56,9 +56,14 @@ def prefix_ids(tok, labels, rows):
     return pre
 
 
-def suffix_ids(tok, context, n_slots, max_ctx_tokens):
-    """-> (ids, slot positions): the context, cut to max_ctx_tokens tokens, then one answer slot per question."""
-    ids = tok.encode("\n\nContext:\n") + tok.encode(context)[:max_ctx_tokens]
+CONTEXT_OPENING = "\n\nContext:\n"
+
+
+def suffix_ids(tok, context, n_slots, max_ctx_tokens, opening=True):
+    """-> (ids, slot positions): the context, cut to max_ctx_tokens tokens, then one answer slot per question.
+    The opening "\\n\\nContext:\\n" is tokenized on its own (as the decider does), so with opening=False it can be run
+    once at the end of the prefix instead: the same tokens either way."""
+    ids = (tok.encode(CONTEXT_OPENING) if opening else []) + tok.encode(context)[:max_ctx_tokens]
     slots = []
     for k in range(n_slots):
         ids += tok.encode(f"{chr(10) * 2 if k == 0 else chr(10)}Answer{' ' + str(k + 1) if n_slots > 1 else ''}: (")

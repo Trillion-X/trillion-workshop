@@ -36,14 +36,15 @@ def reference(args):
     if args.random_config:
         from transformers import AutoConfig, AutoModelForCausalLM
         cfg = AutoConfig.from_pretrained(os.path.dirname(os.path.abspath(args.random_config)))
+        # initialise and save in bfloat16 (the model's own dtype), then read the saved weights back in --dtype:
+        # both frameworks read the same bfloat16 weights, and no step holds two full copies (a 15 GB machine runs it).
         with torch.device("cpu"):
-            lm = AutoModelForCausalLM.from_config(cfg, dtype=torch.float32)
-        # round the weights to bfloat16 (the model's own dtype) and save them so; then compute in --dtype.
-        # Both frameworks read the same bfloat16 weights, and the saved copy is half the size.
-        lm = lm.to(torch.bfloat16).eval()
+            lm = AutoModelForCausalLM.from_config(cfg, dtype=torch.bfloat16)
         model_dir = os.path.join(args.out, "model")
         lm.save_pretrained(model_dir, safe_serialization=True)
-        lm = lm.to(dtype)
+        del lm
+        import gc; gc.collect()
+        lm = AutoModelForCausalLM.from_pretrained(model_dir, dtype=dtype).eval()
         tok = S.SyntheticTokenizer()
         tokenizer = "synthetic"
         temperature = 1.18 if args.temperature is None else args.temperature

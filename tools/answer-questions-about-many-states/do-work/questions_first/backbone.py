@@ -14,7 +14,8 @@ import glob, json, math, os
 
 import mlx.core as mx
 
-from questions_first.gated_delta import chunk_gated_delta_rule
+from questions_first import metal_scan
+from questions_first.gated_delta import chunk_gated_delta_rule, l2norm
 
 SUPPORTED_MODEL_TYPES = ("qwen3_5_text",)
 
@@ -81,9 +82,7 @@ def load_weights(model_dir, cfg, dtype):
 
 def rms_norm(x, w, eps):
     """Qwen3.5's zero-centred RMSNorm: (x / rms(x)) * (1 + w), computed in float32, returned in x's dtype."""
-    xf = x.astype(mx.float32)
-    y = xf * mx.rsqrt((xf * xf).mean(axis=-1, keepdims=True) + eps)
-    return (y * (1.0 + w.astype(mx.float32))).astype(x.dtype)
+    return mx.fast.rms_norm(x.astype(mx.float32), 1.0 + w.astype(mx.float32), eps).astype(x.dtype)
 
 
 def gated_rms_norm(x, gate, w, eps):
@@ -106,6 +105,14 @@ def softplus(x):
 
 def linear(x, w):
     return x @ w.T
+
+
+def _mlp_fn(x, wg, wu, wd):
+    g = x @ wg.T
+    return ((g * mx.sigmoid(g)) * (x @ wu.T)) @ wd.T
+
+
+_mlp_compiled = mx.compile(_mlp_fn)                                   # fuses the gate's elementwise work
 
 
 def rope_cos_sin(positions, cfg, dtype):
@@ -189,10 +196,11 @@ class Backbone:
     # ---- layers
     def _mlp(self, i, x):
         p = f"layers.{i}.mlp."
-        return linear(silu(linear(x, self.w[p + "gate_proj.weight"])) * linear(x, self.w[p + "up_proj.weight"]), self.w[p + "down_proj.weight"])
+        return _mlp_compiled(x, self.w[p + "gate_proj.weight"], self.w[p + "up_proj.weight"], self.w[p + "down_proj.weight"])
 
-    def _attention(self, i, x, cos, sin, past, mask):
-        """past: (k, v) [B, KVH, Tp, D] or None; mask: bool [B, 1, T, Tp + T] (True = may attend)."""
+    def _attention(self, i, x, cos, sin, past, mask, start=None):
+        """past: (k, v) [B, KVH, Tp, D] or None (or [P, ...] with start [B]: row b continues prefix start[b]);
+        mask: bool [B, 1, T, Tp + T] (True = may attend)."""
         c = self.cfg; p = f"layers.{i}.self_attn."
         B, T, _ = x.shape
         D = c.head_dim
@@ -206,6 +214,8 @@ class Backbone:
         k = apply_rope(k, cos, sin, c.rotary_dim)
         new_kv = (k, v)
         if past is not None:
+            if start is not None:
+                past = (past[0][start], past[1][start])
             k = mx.concatenate([past[0], k], axis=2)
             v = mx.concatenate([past[1], v], axis=2)
         o = mx.fast.scaled_dot_product_attention(q, k, v, scale=D ** -0.5, mask=mask)
@@ -213,9 +223,10 @@ class Backbone:
         o = o * mx.sigmoid(gate)
         return linear(o, self.w[p + "o_proj.weight"]), new_kv
 
-    def _delta(self, i, x, past, keep):
-        """past: (conv [B, conv_k - 1, C], rec [B, H, Dk, Dv] float32) or None; keep: [B, T] (0 = a left pad) or None.
-        Returns (out, (conv tail, final state))."""
+    def _delta(self, i, x, past, keep, start=None):
+        """past: (conv [B, conv_k - 1, C], rec [B, H, Dk, Dv] float32) or None, or with start [B] the prepared
+        (conv [P, ...], rec [P, ...], rec on Metal's layout [P, H, Dv, Dk] or None) that row b continues at start[b];
+        keep: [B, T] (0 = a left pad) or None. Returns (out, (conv tail, final state)); with start, (out, None)."""
         c = self.cfg; p = f"layers.{i}.linear_attn."
         if keep is not None:
             x = x * keep[..., None].astype(x.dtype)
@@ -226,7 +237,10 @@ class Backbone:
         a = linear(x, self.w[p + "in_proj_a.weight"])
         K = c.conv_k
         cw = self.w[p + "conv1d.weight"].reshape(-1, K)                         # [C, K]
-        head = past[0].astype(qkv.dtype) if past is not None else mx.zeros((B, K - 1, qkv.shape[-1]), dtype=qkv.dtype)
+        if past is None:
+            head = mx.zeros((B, K - 1, qkv.shape[-1]), dtype=qkv.dtype)
+        else:
+            head = (past[0] if start is None else past[0][start]).astype(qkv.dtype)
         full = mx.concatenate([head, qkv], axis=1)                              # [B, K - 1 + T, C]
         ff, cwf = full.astype(mx.float32), cw.astype(mx.float32)               # accumulate in float32, round once
         conv = ff[:, 0:T] * cwf[:, 0]
@@ -244,14 +258,23 @@ class Backbone:
         if rep > 1:
             q = mx.repeat(q, rep, axis=2)
             k = mx.repeat(k, rep, axis=2)
-        out, state = chunk_gated_delta_rule(q, k, v, g, beta, None if past is None else past[1])
+        if start is not None and len(past) > 2 and past[2] is not None:
+            # one Metal pass: each row reads its prefix's state by index (no per-row copy), outputs only
+            qn = l2norm(q.astype(mx.float32)) * (c.lk_dim ** -0.5)
+            kn = l2norm(k.astype(mx.float32))
+            out = metal_scan.scan(qn, kn, v.astype(mx.float32), mx.exp(g), beta.astype(mx.float32), past[2], start).astype(q.dtype)
+            state = None
+        else:
+            init = None if past is None else (past[1] if start is None else past[1][start])
+            out, state = chunk_gated_delta_rule(q, k, v, g, beta, init)
         out = gated_rms_norm(out, z, self.w[p + "norm.weight"], c.eps).reshape(B, T, vd)
-        return linear(out, self.w[p + "out_proj.weight"]), (tail, state)
+        return linear(out, self.w[p + "out_proj.weight"]), (None if start is not None else (tail, state))
 
     # ---- passes
-    def forward(self, ids, positions, attn_mask, past=None, keep=None):
-        """ids [B, T]; positions [B, T]; attn_mask bool [B, 1, T, Tp + T]; past: {layer: cache} or None.
-        Returns (final hidden [B, T, hidden], {layer: cache of this pass})."""
+    def forward(self, ids, positions, attn_mask, past=None, keep=None, start=None):
+        """ids [B, T]; positions [B, T]; attn_mask bool [B, 1, T, Tp + T]; past: {layer: cache} or None;
+        start [B] int: row b continues prefix start[b] of a prepared past (whose caches are [P, ...]).
+        Returns (final hidden [B, T, hidden], {layer: cache of this pass}; none when start is given)."""
         c = self.cfg
         h = self.w["embed_tokens.weight"][ids]
         cos, sin = rope_cos_sin(positions, c, self.dtype)
@@ -260,9 +283,9 @@ class Backbone:
             r = h
             x = rms_norm(h, self.w[f"layers.{i}.input_layernorm.weight"], c.eps)
             if c.layer_types[i] == "linear_attention":
-                x, caches[i] = self._delta(i, x, None if past is None else past[i], keep)
+                x, caches[i] = self._delta(i, x, None if past is None else past[i], keep, start)
             else:
-                x, caches[i] = self._attention(i, x, cos, sin, None if past is None else past[i], attn_mask)
+                x, caches[i] = self._attention(i, x, cos, sin, None if past is None else past[i], attn_mask, start)
             h = r + x
             r = h
             h = r + self._mlp(i, rms_norm(h, self.w[f"layers.{i}.post_attention_layernorm.weight"], c.eps))
