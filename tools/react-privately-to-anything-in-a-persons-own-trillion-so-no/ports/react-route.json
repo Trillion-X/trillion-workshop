@@ -1,0 +1,56 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-REACT-PRIVATELY-ROUTE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, home feeds lane",
+  "message_multihash": "1f:13036fc8f75273156b9e6e722b129b4d38d2709fe03d90c77c8d9b1c67e29fb6",
+  "quote": "Each route becomes a Workshop route tool per the brief's contract (input {path, method, query, body, browser}, result {status, body}), reading and writing records through the records door."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the page route POST /work/api/responses/react as a Workshop route tool over the moved private reactions",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/do-work/react-route.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/",
+   "why": "This tool itself: the decision is src/private-responses.mjs react, moved here byte for byte from trillion; this file only lends it the person's records through the door and answers { status, body }."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the page route POST /work/api/responses/react as a Workshop route tool over the moved private reactions",
+    "answer the react privately page route as a Workshop route tool",
+    "react route tool"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerReactRoute",
+    "answer-the-react-privately-route"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "04f8c5b10769b35d636c1d4c86c2e8910199fcfb"
+    },
+    {
+     "repository": "trillion",
+     "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/test/react-route.test.mjs"
+  ]
+ }
+}

@@ -3226,6 +3226,260 @@
      }
     ]
    }
+  },
+  {
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:answer-the-decisions-route",
+    "label": "Answer the Decisions page",
+    "job": "Answer the Trillion page route GET /work/api/decisions: the Decisions screen's rows, as old Trillion answered them",
+    "description": "A page route tool: the engine runs it for the page's account with { path, method, query, body, browser } and answers the page with { status, body }. GET /decisions answers 200 with the Decisions screen's rows, the same read as tool:see-my-decisions with no input: { free, summaries, pursuits, space_pursuits, plans, access, allowance, pursuits_words, helped }. Any other path or method answers 404 { error: \"Not found\" }. It changes nothing.",
+    "status": "active",
+    "result_selector": "$.result",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "path",
+      "method"
+     ],
+     "properties": {
+      "path": {
+       "type": "string",
+       "description": "The route after /work/api"
+      },
+      "method": {
+       "type": "string"
+      },
+      "query": {
+       "type": "object"
+      },
+      "body": {},
+      "browser": {
+       "type": "object"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "status",
+      "body"
+     ],
+     "properties": {
+      "status": {
+       "type": "integer"
+      },
+      "body": {}
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": false,
+     "workdir": "/opt/decide-with-a-method",
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/decide-with-a-method/read-data/decisions-route.mjs",
+      "answerDecisionsRoute"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "decide-with-a-method",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/decide-with-a-method"
+       },
+       {
+        "package": "check-against-a-persons-rules-and-verdicts",
+        "paths": [
+         "do-work/branch.mjs"
+        ],
+        "at": "/opt/check-against-a-persons-rules-and-verdicts"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "kind": "decision",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "decision-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-evidence",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-answered-step",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-option",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-candidate",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-report",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-carried-out",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-history",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-cited-pursuit",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-method",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "decision-part",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "pursuit",
+        "operations": [
+         "records:read",
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record-scope",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "record-stance",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
+        "kind": "plan",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "record:check",
+        "operations": [
+         "records:list"
+        ]
+       },
+       {
+        "kind": "setting",
+        "prefix": "setting:agent-work:",
+        "operations": [
+         "records:list"
+        ]
+       }
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:decide-with-a-method",
+    "provenance": {
+     "source": "trillion src/worker.mjs:1026 GET /work/api/decisions, person.workScreen() (tag old-trillion-before-worker-retire), answered by the moved screen read read-data/work-screen.mjs seeMyDecisions"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "path": "/decisions",
+       "method": "GET",
+       "query": {},
+       "body": {},
+       "browser": {}
+      },
+      "output_selector": "$.body.pursuits_words.text",
+      "contains": "working toward"
+     }
+    ]
+   }
   }
  ]
 }
