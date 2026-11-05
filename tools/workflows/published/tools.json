@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:e2ed0d17ca1533902c2bcda68f7dbf6acd43e3e07534536cc7738036efb62947"
+  "blake3": "1f:f4e654bc3690730ad3f94d5612336a04eb30bb663376ba10b606ef3319a220d4"
  },
  "fields": [
   {
@@ -6585,6 +6585,21 @@
     "flags": [
      "keeps-records"
     ]
+   }
+  },
+  {
+   "id": "tool:name-the-recording-behind-transcript-lines",
+   "values": {
+    "title": "Find which recording a cited passage of my transcript archive comes from",
+    "job": "Tell me which of my recordings a passage of my transcript archive comes from, given the line numbers it was cited by",
+    "description": "Reads an archive index the person let this tool read (a JSON list of windows, each with an id, the recording's title, the first and last line it covers and its text) and, for each line range given, lists every window that overlaps it: the window id, the recording's title, the window's line span and its first words. A range that no window overlaps is listed in not_found. A range is written first-last, for example 120-180; a malformed or reversed range is refused with what to write. archive is a path inside the granted folder (or the archive setting a film's settings row holds, named by settings_record); preview_chars (a setting, default 120) sets how many first characters are shown. It changes nothing and reads only the index file.",
+    "status": "active",
+    "maker": "maker:name-the-recording-behind-transcript-lines",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "name-the-recording-behind-transcript-lines"
    }
   },
   {
