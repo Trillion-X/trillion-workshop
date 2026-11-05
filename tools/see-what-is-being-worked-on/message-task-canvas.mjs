@@ -1,4 +1,4 @@
-import { titleOf } from './work-title.mjs';
+import { titleOf } from '../shared-code/src/work-title.mjs';
 
 // A view of the existing message, arrival and activity records. IDs stay exactly
 // as their owners recorded them. A successful tool call is never task completion.

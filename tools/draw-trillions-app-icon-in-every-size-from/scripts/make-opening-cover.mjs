@@ -27,6 +27,8 @@ export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const IOS_COVER = join(ROOT, 'ios/App/thread-cover.html');
 export const IOS_NEEDLE_SET = join(ROOT, 'ios/App/Assets.xcassets/CoverNeedle.imageset');
 export const IOS_PAPER_SET = join(ROOT, 'ios/App/Assets.xcassets/CoverPaper.colorset');
+// The screen-look tool's show folder, which holds the faces (fonts.css) and their licences.
+const SCREEN_LOOK_SHOW = join(ROOT, '../screen-look/show');
 
 // One channel of a #rrggbb colour as the asset catalogue writes it.
 const channel = (hex, at) => `0x${hex.slice(1 + at * 2, 3 + at * 2).toUpperCase()}`;
@@ -35,9 +37,9 @@ const channel = (hex, at) => `0x${hex.slice(1 + at * 2, 3 + at * 2).toUpperCase(
  *  bundle root (ios/carry-licensed-faces.sh carries there the faces licensed for apps, so only those get an @font-face
  *  here, read from licences.json; a face left out falls back to the next family of the look's font variable, the system face), and the look's font variables. */
 export function coverLook() {
-  const licences = JSON.parse(readFileSync(join(ROOT, 'parts/screen-look/show/fonts/licences.json'), 'utf8'));
+  const licences = JSON.parse(readFileSync(join(SCREEN_LOOK_SHOW, 'fonts/licences.json'), 'utf8'));
   const carried = new Set(licences.faces.filter(face => face.licensed_for.includes('app')).map(face => face.family));
-  const faces = readFileSync(join(ROOT, 'parts/screen-look/show/fonts.css'), 'utf8')
+  const faces = readFileSync(join(SCREEN_LOOK_SHOW, 'fonts.css'), 'utf8')
     .match(/@font-face\s*\{[^}]*\}/g)
     .filter(rule => carried.has(/font-family:\s*'([^']+)'/.exec(rule)?.[1]))
     .join('').replace(/url\('fonts\//g, "url('").replace(/\s+/g, ' ');
