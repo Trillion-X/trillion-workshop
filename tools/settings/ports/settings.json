@@ -1,0 +1,68 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SETTINGS-ONE-SHARED-READER-OF-A-PERSONS-TOOL-SETTINGS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud port lane writing-gate 2026-11-05: one generic list:settings and one shared Workshop reader",
+  "message_multihash": "1f:0000000000000000000000000000000000000000000000000000000000000000",
+  "quote": "Settings home, decided: one generic list in the account, list:settings, with row type record:setting. A tool takes settings_record in its input and reads it at run time through one shared Workshop reader: a library folder with part.json."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read one of a person's tool settings, a row of their settings list, by its id at run time",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/settings/read-data/settings.mjs"
+  },
+  {
+   "path": "tools/settings/read-data/settings.py"
+  },
+  {
+   "path": "tools/settings/do-work/read-a-tool-setting.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion",
+   "path": "src/decision-store.mjs",
+   "why": "Old trillion src/decision-store.mjs (before commit 4ffa1dc4a2, which deleted it with the Worker) kept a setting as one record of type setting (line 8) read by name (lines 751-753 setting(name), 758-762 settings(prefix)) inside the hosted record store. That store and file are gone from old trillion; the setting is now a row of the person's list read through the records door, so there is no live owner to copy. The read (id to value) is kept; a missing setting is refused instead of null."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/run-on-a-persons-computer/settings-file.mjs",
+   "why": "Reads and parks writes of the computer app's own settings file on disk, not a person's tool settings in their account."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read one of a person's tool settings, a row of their settings list, by its id at run time",
+    "read a tool setting",
+    "settings record",
+    "setting by name"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "record:setting",
+    "settings_record"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "7198da3969ce9976f469bab4273b6327c160d693"
+    },
+    {
+     "repository": "trillion",
+     "commit": "e402c27799d8c007b425674d0a53642dd7cdcb6d"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/settings/test/settings.test.mjs"
+  ]
+ }
+}

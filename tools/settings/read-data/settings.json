@@ -1,0 +1,22 @@
+{
+ "what_this_is": "DATA for read-data/settings.mjs and read-data/settings.py, the one shared reader of a person's tool settings. A setting is one row of the person's generic Settings list (`list`), row type `row_type`, kept as the record type `record_type` with the id `<id_prefix><tool folder><separator><scope kind><separator><scope id>`. `scope_kinds`: what a setting may be for. `fields`: the fields of a setting row's value; `settings` holds the tool's own settings as one JSON object (or that object as JSON text). Only a row whose `status` is `active_status` is read. `words`: every refusal, {name} filled from the call.",
+ "list": "list:settings",
+ "row_type": "setting",
+ "record_type": "record:setting",
+ "id_prefix": "record:setting:",
+ "separator": "~",
+ "scope_kinds": ["person", "film", "piece", "account"],
+ "fields": ["name", "tool", "scope_kind", "scope_id", "settings", "from", "status"],
+ "active_status": "active",
+ "words": {
+  "bad_id": "settings_record must be a setting id `record:setting:<tool folder>~<scope kind>~<scope id>` (scope kind one of {kinds}); got {id}.",
+  "bad_scope_kind": "The setting {id} names scope kind {scope_kind}; it must be one of {kinds}.",
+  "other_tool": "The setting {id} is for the tool {owner}, not {tool}. Send this tool's own setting.",
+  "missing": "The person has no setting {id}. Add it as a row of list:settings (record type record:setting) with tool, scope_kind, scope_id and settings, then run again.",
+  "not_active": "The setting {id} has status {status}; only an active setting is read. Mark it active or send another setting.",
+  "value_tool": "The setting {id} says it is for the tool {owner}, but its id names {tool}. Fix the row so both name one tool.",
+  "bad_settings": "The setting {id} holds no settings object in `settings` (an object, or that object as JSON text). Fix the row.",
+  "no_door": "Reading the setting {id} needs the person's records door; this run was not handed one. Declare a records:read right on record:setting for that id.",
+  "bad_part": "A setting's {field} must be text without `~` or `/`; got {value}."
+ }
+}

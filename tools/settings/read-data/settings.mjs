@@ -1,91 +1,91 @@
-// One person's tool settings, read the way old Trillion's decision store read a `setting` record (Trillion-X/trillion
-// src/decision-store.mjs before 4ffa1dc4a2, lines 751-753: `setting(name)` gives the value or null). The same reader
-// as settings.py, for tools written in JavaScript. A setting is a row of the generic list `list:settings`: type
-// `record:setting`, id `record:setting:<workshop-folder>~<scope_kind>~<scope_id>`, fields name, tool, scope_kind,
-// scope_id, settings (JSON text or an object), from and status. Node's standard library only.
+// tools/settings/read-data/settings.mjs
+//
+// The one shared reader of a person's tool settings. A setting is a row of the person's generic Settings list
+// (list:settings, row type `setting`), kept as a record of type `record:setting` with the id
+// `record:setting:<tool folder>~<scope kind>~<scope id>` (scope kind person, film, piece or account). Its value holds
+// { name, tool, scope_kind, scope_id, settings, from, status }; `settings` is the tool's own settings object.
+//
+// A tool takes `settings_record` (that id) in its input and reads it at run time through its records door:
+//
+//   const settings = await readSettings(door, input.settings_record, { tool: 'my-tool-folder' });
+//
+// It is the old app's `setting` record kind (old trillion src/decision-store.mjs before commit 4ffa1dc4a2: line 8 names
+// the kind, lines 751-753 `setting(name)` read one by name as `setting:<name>` and answered its value or null,
+// 754-757 `setSetting`, 758-762 `settings(prefix)`), now one row of the person's list read through the door. One change
+// is on purpose: a missing setting is refused with what to do, never read as null, so a tool cannot run silently on
+// built-in defaults when the person's setting is absent. Invariants:
+//   1. A setting is read only by its exact id, and only for the tool its id names (a tool cannot read another's).
+//   2. Only an active row is read; its value's `tool` must equal the id's tool folder.
+//   3. `settings` is a JSON object (or that object as JSON text); anything else is refused.
+//   4. Nothing is cached between runs and nothing is written; `settingRow` only builds a row for a loader payload.
 import { readFileSync } from 'node:fs';
 
-export const LIST_ID = 'list:settings';
-export const RECORD_TYPE = 'record:setting';
-export const ID_PREFIX = 'record:setting:';
-export const SCOPE_KINDS = ['piece', 'film', 'person', 'account'];
+export const DATA = JSON.parse(readFileSync(new URL('./settings.json', import.meta.url), 'utf8'));
 
-export class SettingError extends Error {}
-
-export function settingId(folder, scopeKind, scopeId) {
-  if (!folder || /[~/]/.test(folder)) throw new SettingError(`${JSON.stringify(folder)} is not a Workshop folder name: give the folder under tools/, without ~ or /.`);
-  if (!SCOPE_KINDS.includes(scopeKind)) throw new SettingError(`scope_kind ${JSON.stringify(scopeKind)} is not one of ${SCOPE_KINDS.join(', ')}.`);
-  if (!scopeId) throw new SettingError('scope_id is empty: name the person, film, piece or account the settings are for.');
-  return `${ID_PREFIX}${folder}~${scopeKind}~${scopeId}`;
-}
-
-export function parseId(id) {
-  if (typeof id !== 'string' || !id.startsWith(ID_PREFIX)) throw new SettingError(`${JSON.stringify(id)} is not a setting id: it starts with ${ID_PREFIX}.`);
-  const rest = id.slice(ID_PREFIX.length);
-  const first = rest.indexOf('~');
-  const second = first < 0 ? -1 : rest.indexOf('~', first + 1);
-  const parts = second < 0 ? [] : [rest.slice(0, first), rest.slice(first + 1, second), rest.slice(second + 1)];
-  if (parts.length !== 3 || !parts[0] || !parts[2] || !SCOPE_KINDS.includes(parts[1])) throw new SettingError(`${JSON.stringify(id)} is not ${ID_PREFIX}<workshop-folder>~<scope_kind>~<scope_id>.`);
-  return parts;
-}
-
-const sorted = value => Array.isArray(value) ? value.map(sorted)
-  : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map(key => [key, sorted(value[key])])) : value;
-
-export function makeRecord(folder, scopeKind, scopeId, settings, { name, tool, source, status = 'active' }) {
-  if (!['active', 'retired'].includes(status)) throw new SettingError(`status ${JSON.stringify(status)} is not active or retired.`);
-  return { id: settingId(folder, scopeKind, scopeId), type: RECORD_TYPE,
-    value: { name, tool, scope_kind: scopeKind, scope_id: scopeId, settings: JSON.stringify(sorted(settings)), from: source, status } };
-}
-
-function records(given) {
-  if (given === undefined || given === null) return [];
-  if (typeof given === 'string') {
-    try { given = JSON.parse(readFileSync(given, 'utf8')); }
-    catch (error) { throw new SettingError(`settings_record names ${JSON.stringify(given)}, which could not be read as JSON (${error.message}): give the file records:read wrote, or the record itself.`); }
+export class SettingError extends Error {
+  constructor(code, words) {
+    super(words);
+    this.code = code;
   }
-  if (given && !Array.isArray(given) && Array.isArray(given.records)) given = given.records;
-  if (!Array.isArray(given)) given = [given];
-  if (!given.every(item => item && typeof item === 'object' && !Array.isArray(item))) throw new SettingError('settings_record is a record ({id, type, value}), its value, a list of them, or a JSON file of them.');
-  return given;
 }
 
-function valueOf(record) {
-  if (record.value && typeof record.value === 'object' && !Array.isArray(record.value)) {
-    if (record.type !== undefined && record.type !== RECORD_TYPE) throw new SettingError(`${JSON.stringify(record.id)} is a ${JSON.stringify(record.type)}, not a ${RECORD_TYPE}.`);
-    return [record.id ?? null, record.value];
+const say = (code, fill) => new SettingError(code, DATA.words[code].replace(/\{(\w+)\}/g, (_, name) => String(fill[name] ?? '')));
+const kinds = DATA.scope_kinds.join(', ');
+const plainPart = value => typeof value === 'string' && value.length > 0 && !value.includes(DATA.separator) && !value.includes('/');
+
+/** The id of a tool's setting for one scope. */
+export function settingId({ tool, scope_kind, scope_id }) {
+  for (const [field, value] of Object.entries({ tool, scope_kind, scope_id })) {
+    if (!plainPart(value)) throw say('bad_part', { field, value: JSON.stringify(value) });
   }
-  return [record.id ?? null, record];
+  if (!DATA.scope_kinds.includes(scope_kind)) throw say('bad_scope_kind', { id: `${tool}${DATA.separator}${scope_kind}`, scope_kind, kinds });
+  return `${DATA.id_prefix}${tool}${DATA.separator}${scope_kind}${DATA.separator}${scope_id}`;
 }
 
-const scopeOf = record => { const [id, value] = valueOf(record); return id ? parseId(id) : [null, value.scope_kind, value.scope_id]; };
-
-export function settingsOf(record, tool) {
-  const [id, value] = valueOf(record);
-  if ((value.status ?? 'active') !== 'active') throw new SettingError(`${JSON.stringify(id ?? value.name)} is ${JSON.stringify(value.status)}: read the active row that replaced it.`);
-  if (tool && value.tool && value.tool !== tool) throw new SettingError(`${JSON.stringify(id)} holds settings for ${value.tool}, not ${tool}.`);
-  if (typeof value.settings !== 'string') return value.settings;
-  try { return JSON.parse(value.settings); }
-  catch (error) { throw new SettingError(`${JSON.stringify(id)}: its settings field is not JSON (${error.message}).`); }
+/** { tool, scope_kind, scope_id } of a setting id; refuses anything that is not one. */
+export function parseSettingId(id) {
+  if (typeof id !== 'string' || !id.startsWith(DATA.id_prefix)) throw say('bad_id', { id: JSON.stringify(id), kinds });
+  const parts = id.slice(DATA.id_prefix.length).split(DATA.separator);
+  if (parts.length !== 3 || !parts.every(plainPart)) throw say('bad_id', { id: JSON.stringify(id), kinds });
+  const [tool, scope_kind, scope_id] = parts;
+  if (!DATA.scope_kinds.includes(scope_kind)) throw say('bad_scope_kind', { id, scope_kind, kinds });
+  return { tool, scope_kind, scope_id };
 }
 
-export function chosen(given, folder, scopes) {
-  let list = records(given);
-  if (folder) list = list.filter(record => [null, folder].includes(scopeOf(record)[0]));
-  if (!list.length) return null;
-  if (!scopes) {
-    if (list.length > 1) throw new SettingError(`${list.length} settings records were given and no scope: say which person, film, piece or account.`);
-    return list[0];
+/** The settings object of a setting row's value, checked as invariants 1-3 say. */
+export function settingsOf(value, id, { tool } = {}) {
+  const named = parseSettingId(id);
+  if (tool !== undefined && named.tool !== tool) throw say('other_tool', { id, owner: named.tool, tool });
+  if (value === null || value === undefined) throw say('missing', { id });
+  if (value.status !== DATA.active_status) throw say('not_active', { id, status: JSON.stringify(value.status ?? null) });
+  if (value.tool !== named.tool) throw say('value_tool', { id, owner: JSON.stringify(value.tool ?? null), tool: named.tool });
+  let settings = value.settings;
+  if (typeof settings === 'string') {
+    try { settings = JSON.parse(settings); } catch { throw say('bad_settings', { id }); }
   }
-  for (const [kind, scopeId] of scopes) {
-    const found = list.find(record => { const [, k, s] = scopeOf(record); return k === kind && s === scopeId; });
-    if (found) return found;
-  }
-  return null;
+  if (settings === null || typeof settings !== 'object' || Array.isArray(settings)) throw say('bad_settings', { id });
+  return settings;
 }
 
-/** The settings for `folder` at the first of `scopes` ([[kind, id], ...], most specific first) that has a row, else `fallback`. */
-export function setting(given, { folder, scopes, fallback = null, tool } = {}) {
-  const found = chosen(given, folder, scopes);
-  return found === null ? fallback : settingsOf(found, tool);
+/** Reads one setting through the person's records door (`door.read(type, id)` answers the value or null). */
+export async function readSettings(door, settingsRecord, { tool } = {}) {
+  const named = parseSettingId(settingsRecord);
+  if (tool !== undefined && named.tool !== tool) throw say('other_tool', { id: settingsRecord, owner: named.tool, tool });
+  if (!door || typeof door.read !== 'function') throw say('no_door', { id: settingsRecord });
+  return settingsOf(await door.read(DATA.record_type, settingsRecord), settingsRecord, { tool });
+}
+
+/** The rights item a row declares to read exactly one setting (tools/records-door: a kind narrowed to one id). */
+export function settingRight(id) {
+  parseSettingId(id);
+  return { kind: DATA.record_type, id, operations: ['records:read'] };
+}
+
+/** One row of list:settings as the `{ id, type, value }` a records:write takes, for a loader payload. */
+export function settingRow({ tool, scope_kind, scope_id, name, settings, from, status = DATA.active_status }) {
+  const id = settingId({ tool, scope_kind, scope_id });
+  if (settings === null || typeof settings !== 'object' || Array.isArray(settings)) throw say('bad_settings', { id });
+  const value = { name: name ?? `${tool} for ${scope_kind} ${scope_id}`, tool, scope_kind, scope_id, settings, status };
+  if (from !== undefined) value.from = from;
+  return { id, type: DATA.record_type, value };
 }
