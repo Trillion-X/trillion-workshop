@@ -11,6 +11,7 @@ Draws a person's Get started screen: which setup steps apply to their account, w
 
 | File | Purpose |
 |------|---------|
+| `do-work/read-setup.mjs` | `readSetup`, `tool:read-setup`: the Get started screen's one read (tool:get-started). It asks the account files door's `setup_facts` for the asking browser's user_agent and origin, reads the account's own `show-rules` and `setup-context` records, and runs `tool:see-what-is-left-to-set-up` with them and the page's account id (the row declares it in `runs`), as old trillion's readSetup over GET /setup/facts did. A source it cannot read is left unknown. |
 | `do-work/see-what-is-left-to-set-up.mjs` | `seeWhatIsLeftToSetUp(request)` and `filterRowsByRules`; the row's command (request on standard input, `{ result }` or `{ error }` on the last line) |
 | `read-data/setup-steps.mjs` | Which steps apply (show rules), their facts, done or not, workspace readiness and the policy answer |
 | `read-data/get-started-screen.mjs` | `getStartedFacts`: the screen (title, lead, sections, steps with their owner) from the steps |
@@ -24,11 +25,12 @@ Draws a person's Get started screen: which setup steps apply to their account, w
 
 | Row | Function | What it does |
 |-----|----------|--------------|
+| `tool:read-setup` | `readSetup` | `{ account_id, user_agent?, origin?, now? }` → the Get started screen, gathered from the files door and the account's own records, drawn by `tool:see-what-is-left-to-set-up` |
 | `tool:see-what-is-left-to-set-up` | `seeWhatIsLeftToSetUp` | `{ account_id, facts, system?, shared_rules?, rules?, context?, personal_context?, setup_access?, installs?, origin?, now? }` → the Get started screen (`title`, `lead`, `ready`, `setup_complete`, `workspace_mode`, `requirements`, `policy`, `sections`) |
 
 ## Not moved yet
 
-- **Who gathers the facts.** The engine read them from the account's own stores (sign-ins, the runtime record, device installs, AI evidence: `src/local_account/setup_*`, deleted with the screen). Here they come in the request; reading them from the person's rows through the records door is the next step.
+- **Who gathers the facts.** `tool:read-setup` gathers them: the account's own mechanics from the files door's `setup_facts`, its own show rules and setup context from its records. The operator's shared show rules and setup context were read by old trillion from the service's edge store, which no tool reaches: they are sent to the steps only when `setup_facts` carries them (`shared_rules`, `context`); otherwise they are unknown and the screen stays not ready. The plan-refusal recovery (`plan_sections`, `plan_lead`, `free_decisions`) old /setup/facts added on a 402 is not drawn yet: `tool:see-what-is-left-to-set-up` takes no such input.
 - **`setupInstalls`** (trillion `src/setup-installs.mjs`) reads harness and placement records that have not moved; its words come in the request as `installs`.
 - **`readSetupPolicy`** is carried but not called: the rules and context come in the request.
 - trillion `test/setup-policy.test.mjs` and `test/setup-policy-formula.test.mjs` test the policy with the wasm formula engine and the show-rules store, which have not moved.

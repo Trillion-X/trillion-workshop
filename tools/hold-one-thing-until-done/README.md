@@ -28,7 +28,9 @@ Covers a person's workspace until every required setup step is done, then holds 
 | `do-work/needs-you-hold-route.mjs` | `answerNeedsYouHoldRoute`, `tool:answer-the-needs-you-hold-route`: the page routes GET and POST /work/api/needs-you-hold as a route tool (`{ path, method, query, body, browser }` in, `{ status, body }` out), answering as old trillion's needsYouHold did (src/worker.mjs:1100-1121, src/native-waiting-account-owner.mjs): the read with `said` and `words` (503 busy when it fails), each change by its old op name (aside, hand_back, stake, off, on; seen; read) with the read after it, and each job kept once as an `ai-job` for the person's AIs. Contract: `ports/needs-you-hold-route.json`. |
 | `part.json` | The public modules |
 | `tool-rows.json` | The three Workshop rows |
-| `test/needs-you-hold-route.test.mjs` | The route tool against the records door stand-in: the read and its words, free, busy, a change with its job handed once, refusals (400), a conflict (409), the held thing kept, seen marking notices read (with old trillion's phone-tap test), 404. |
+| `test/needs-you-hold-route.test.mjs` | The route tool against the records door stand-in: the read and its words, free, busy, a change with its job handed once, refusals (400), a conflict (409), the held thing kept, seen marking notices read (with old trillion's phone-tap test), the device tools started once per change, a waiting row Trillion can do left out, 404. |
+| `test/needs-you-hold-nudge-old.test.mjs` | Old trillion's test/needs-you-hold.test.mjs tests whose subject moved here with the route: AI-doable cards handed back before the hold picks, walking away carries out the stake, and the held fact and its device runs name the person's own card (on the route) |
+| `read-data/waiting-weigh.mjs`, `read-data/waiting-nudge.mjs`, `read-data/waiting-on-you.json` | The doer gate and the walk-away nudge, moved from trillion, and the Waiting on you DATA they read |
 | `test/needs-you-hold-old.test.mjs` | Old trillion's test/needs-you-hold.test.mjs, the tests whose subject is here, assertions unchanged; its header names where the others run |
 | `test/hold.test.mjs` | The cover, ranking, each change, a conflict, a resent change, refusals and each row's sample run in the container (made-up rows) |
 
@@ -43,9 +45,28 @@ Covers a person's workspace until every required setup step is done, then holds 
 
 Like old trillion's needsYouHold, the route keeps the held thing as `setting:needs_you_held` (`{ key, title }`, null when nothing is held, written only when it changed), and `seen` marks read the notices the held thing's own device runs told (each `hold.devices.when_held` run whose input `key` names the thing), on the page's surface with `from: 'thing'`. It marks them with the moved tell owner's `markRead` (tools/tell-one-person-something-through-every-way-they) over the person's `told-the-person` records.
 
-Old needsYouHold also did three things this route cannot, each for an exact reason:
+A read first gathers what old trillion's Waiting on you reader answered from what the route can read: each card kept once (`sameOnce`) and weighed by the doer gate (`read-data/waiting-weigh.mjs`, over `tools/who-does-each-step` and the old doer DATA `tools/shared-code/src/who-does-it.json`), so a card Trillion can do, or one with nothing to press (`hold.no_control`), is left out of the person's view. Then the walk-away nudge's `prepareForHold` (`read-data/waiting-nudge.mjs`) hands what waited long enough and Trillion can do to the AIs, once per card, as an `ai-job`, and the hold is weighed over the rest. A new thing held, or nothing held any more, starts the person's device tools (`hold.devices`: `when_held` tool:hold-a-device-quiet and tool:take-me-there, `when_free` tool:release-a-device) once for that change, through the run's door: the row declares them in `runs` (the brief's contract A), and a run that fails is let go, as old trillion's did.
 
-- **The cards.** Old trillion read them from the whole Waiting on you answer (src/native-waiting-account-owner.mjs `waiting`, every source of src/waiting-on-you.json). This route reads the person's own Waiting on you rows (`record:waiting-on-you`) only. The rest of that answer is not a route run's to read: see the waiting-on-you notes in the lane report (shared-space assignments through the network relay, stuck work on the agents board, connections needing the person, social posts, voices and their Namespace clip searches, and what the AIs made).
-- **The walk-away nudge** (src/waiting-nudge.mjs `prepareForHold`) weighs that whole answer's sections and their `step` DATA, so it waits for the whole answer.
-- **The device tools** of `hold.devices` (`when_held`: tool:hold-a-device-quiet, tool:take-me-there; `when_free`: tool:release-a-device) are other Workshop tools. A run's capability holds only the records door's `run_operations` (trillion-rust src/record_value/records-routes.json: records:read, records:list, records:search, records:write, workspace:read, workspace:write, sharing.receive, wake:switch, wake:causes), and none of them starts another tool's run (`tools:run` at `@workshop-tools`).
+`read-data/waiting-weigh.mjs` and `read-data/waiting-nudge.mjs` are old trillion's src/waiting-weigh.mjs and src/waiting-nudge.mjs, moved byte for byte (commit bebf1966) and then changed only in their import paths (`ports/waiting-weigh.json`, `ports/waiting-nudge.json`). `read-data/waiting-on-you.json` carries the old Waiting on you DATA they read (`nudge`, and `hold.no_control`, under which the person's own hold rules lie).
+
+### Not a whole port yet
+
+Old needsYouHold read the whole Waiting on you answer (src/native-waiting-account-owner.mjs `waiting`, every source of src/waiting-on-you.json). The route reads its `asks` section only, the person's own Waiting on you rows (`record:waiting-on-you`). The other sections' sources are not the person's records today, each for this reason:
+
+| Section | Old source | Why the route cannot read it |
+|---|---|---|
+| `given` | shared-space assignments (`network.assignedTo` through the network relay) | the relay's items are another service's, not the person's records |
+| `approve` | social post drafts (`posts.posts.list`) | `post` records exist, but no record is shown to be the old post owner's list with its `status: draft` and `updated_at`; reading them would be a guess |
+| `look` | what the AIs made (`readNewWork` over the old store's SQL, unread counts from the relay) | not records |
+| `decide`, `answer` | the source engine's decision summaries (`engine.summaries`) | `decision` records exist, but the summaries' `status: needs_decision` and `outcome_question` are the old engine's projection, not a record field |
+| `stuck` | stuck work on the agents board (`claims.stuckWork`, handoffs `blocked`) | handoff claims are the agents board's, not records |
+| `turn-on-notices` | notification devices (`devices.listed`) | account mechanics: the files door's `setup_facts` (contract C) answers them, but its answer's shape is the engine lane's; this route does not read it yet |
+| `sign-in` | connections needing the person (`connectionsNeedingYou`) | the held connection owner's, not records |
+| `voices` | unnamed speakers in messages and their Namespace clip searches | the clip searches are the Namespace's, not records |
+
+Old needsYouHold also settled the Waiting on you rules first (`settleWaitingRules`: done-when checks over saved logins, connections, computer sources, files, arrivals and work), which read the same non-record owners.
+
+Two more differences:
+
 - A notice's delivery receipt (old `tell-delivery:<key>`, a Workshop fact) is not a record, so a read mark does not reach it.
+- The nudge's own wake (`runDue`: the reminder ladder, the live board, the walked-away stake) is not the route's: the route runs only `prepareForHold`, as old needsYouHold did.
