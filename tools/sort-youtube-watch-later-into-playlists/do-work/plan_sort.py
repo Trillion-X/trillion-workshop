@@ -1,6 +1,6 @@
 """Plan which playlist each Watch Later video goes in, from the person's sort settings. Reads only; changes nothing on YouTube.
 
-Request: {"settings_record": RECORD or FILE, "settings": {"channels": [...]}, "accounts_dir": DIR, "watch_later": {slug: [items]}, "out_dir": DIR}
+Request: {"settings_record": RECORD or FILE, "person": scope_id, "settings": {"channels": [...]}, "accounts_dir": DIR, "watch_later": {slug: [items]}, "out_dir": DIR}
 The sort settings are the person's row record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their
 list:settings, given as settings_record exactly as the door read it (or a JSON file holding it), and checked by the one shared
 reader, tools/settings; a request may instead give them inline as settings.
@@ -18,17 +18,22 @@ sys.path.insert(0, os.path.join(here, '..', 'read-data'))
 sys.path.insert(0, os.path.join(here, '..', '..', 'settings', 'read-data'))
 from youtube_client import Refusal, answer  # noqa: E402
 from sort_plan import SettingsError, make_plan  # noqa: E402
-from read_setting import SettingRefused, settings_of  # noqa: E402
+import settings as person_settings  # noqa: E402  tools/settings, the one reader of a list:settings row
 
 FOLDER = 'sort-youtube-watch-later-into-playlists'
+TOOL = 'tool:plan-sorting-youtube-watch-later-into-playlists'  # the row the settings row names as its tool
 
 
 def sort_settings(req):
-    """The person's sort settings: from settings_record (their list:settings row, checked), else inline settings."""
+    """The person's sort settings: from settings_record (their list:settings row, read by tools/settings; with person, the
+    row of that person among several), else inline settings."""
+    scopes = [('person', req['person'])] if req.get('person') else None
     try:
-        settings = settings_of(req, FOLDER)
-    except SettingRefused as e:
+        settings = person_settings.setting(req.get('settings_record'), FOLDER, scopes, default=req.get('settings'), tool=TOOL)
+    except person_settings.SettingError as e:
         raise Refusal(str(e))
+    if not isinstance(settings, dict):
+        raise Refusal('give the person\'s sort settings as settings_record: their row record:setting:sort-youtube-watch-later-into-playlists~person~<them> from list:settings, as the door read it (or settings inline)')
     if not isinstance(settings.get('channels'), list) or not settings['channels']:
         raise Refusal('the sort settings name no channels: give {"channels": [...]} in the person\'s settings row (or inline settings)')
     return settings

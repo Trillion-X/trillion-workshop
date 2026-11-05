@@ -2,7 +2,7 @@
 
 Sorts a person's YouTube Watch Later into public playlists on the same channel. It reads each signed-in channel's Watch Later, subscriptions and playlists, plans which playlist each video goes in from the person's sort settings, shows the plan, then makes the playlists by only adding videos. Watch Later is never changed and no video is ever removed.
 
-The sort settings are the person's own data, kept in their account and passed in at run time: which channels to read, how to find each one's account, and how each is sorted (by scored channel and title rules, or by hand-made lists). They are one row of the person's `list:settings`, `record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id>` (scope_kind `person` when they cover several of the person's channels), whose `settings` field holds the JSON below. A request gives that row as `settings_record`, exactly as the door's `records:read` answers it (or the path of a JSON file holding it), and the shared reader in `tools/settings` checks it; a sample run or a test may give `settings` inline instead. Nothing about any person is in this folder.
+The sort settings are the person's own data, kept in their account and passed in at run time: which channels to read, how to find each one's account, and how each is sorted (by scored channel and title rules, or by hand-made lists). They are one row of the person's `list:settings`, `record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id>` (scope_kind `person` when they cover several of the person's channels), whose `settings` field holds the JSON below. A request gives that row as `settings_record`, exactly as the door's `records:read` answers it (or the path of a JSON file holding it), and the shared reader in `tools/settings` checks it (its `tool` is `tool:plan-sorting-youtube-watch-later-into-playlists`; when several rows are given, `person` names whose); a sample run or a test may give `settings` inline instead. Nothing about any person is in this folder.
 
 ## Files
 
@@ -53,7 +53,7 @@ Each command reads one JSON request on standard input and prints `{"result": ...
 
 ## Dependencies
 
-**Depends on:** Python 3.10+ standard library; `tools/settings/read-data/read_setting.py` (the shared reader of a `list:settings` row); a cookies file from `tool:export-browser-login-cookies-for-yt-dlp`; the internet (www.youtube.com) for every command except the plan.
+**Depends on:** Python 3.10+ standard library; `tools/settings/read-data/settings.py` (the shared reader of a `list:settings` row); a cookies file from `tool:export-browser-login-cookies-for-yt-dlp`; the internet (www.youtube.com) for every command except the plan.
 
 **Depended on by:** nothing in this repository.
 

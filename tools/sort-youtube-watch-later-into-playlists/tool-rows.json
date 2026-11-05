@@ -17,8 +17,9 @@
           "properties": {
             "settings_record": {
               "type": ["object", "string"],
-              "description": "The person's sort settings row, record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their list:settings, exactly as the door's records:read answers it ({id, type: \"record:setting\", value: {name, tool, scope_kind, scope_id, settings, from, status}}), or the path of a JSON file holding it. Read and checked by the shared reader in tools/settings; its settings field holds what settings would."
+              "description": "The person's sort settings row, record:setting:sort-youtube-watch-later-into-playlists~<scope_kind>~<scope_id> in their list:settings, exactly as the door's records:read answers it ({id, type: \"record:setting\", value: {name, tool, scope_kind, scope_id, settings, from, status}}), or the path of a JSON file holding it (a list of rows too, with person naming whose). Read and checked by the shared reader in tools/settings; its tool is this row's id and its settings field holds what settings would."
             },
+            "person": { "type": "string", "description": "The scope_id of the person whose row to use when settings_record holds several." },
             "settings": {
               "type": "object",
               "required": ["channels"],
@@ -52,7 +53,7 @@
           "files": {
             "package_files": [
               { "package": "sort-youtube-watch-later-into-playlists", "paths": ["do-work", "read-data"], "at": "/opt/sort-youtube-watch-later-into-playlists" },
-              { "package": "settings", "paths": ["read-data/read_setting.py"], "at": "/opt/settings" }
+              { "package": "settings", "paths": ["read-data/settings.py"], "at": "/opt/settings" }
             ]
           }
         },
