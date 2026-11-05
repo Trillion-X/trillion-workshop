@@ -63,6 +63,8 @@ export function channelListingUrl(raw) {
   if (!given) throw new Error('Say which channel: a link, a channel id, or a @handle.');
   if (given.startsWith('http')) {
     if (/[?&]list=/.test(given)) return given;
+    // One video's own link is a listing of that one video, so its captions and comments can be kept by link.
+    if (/\/watch\?(?:.*&)?v=|\/shorts\/[\w-]{6,}/.test(given)) return given;
     const link = given.replace(/\/+$/, '');
     return LISTING_TABS.test(link) ? link : `${link}/videos`;
   }
