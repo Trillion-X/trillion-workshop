@@ -1,15 +1,9 @@
+// tools/train-and-evaluate-a-writing-voice-classifier/read-data/evaluation-integrity.mjs
+// The maintained checks of a writing-voice challenge, its request plans and a stored evaluation report. Pure: nothing
+// is read or sent here. Moved from trillion-launch-video tools/copy-gate/evaluate-book-voice-integrity.mjs.
 import { isDeepStrictEqual } from 'node:util';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
-const WORDS = JSON.parse(readFileSync(new URL('./words.json', import.meta.url), 'utf8'));
-/** One named input the place running this reports about itself, or a refusal in plain words; nothing is guessed from a folder layout. */
-export function placeReports(name) {
-  if (process.env[name]) return process.env[name];
-  throw new Error(WORDS.place_did_not_report[name] ?? WORDS.place_did_not_report.any.replace('{name}', name));
-}
-// The shared classifier adapter lives in the ai-command-center checkout this place reports (AI_COMMAND_CENTER).
-const { intoBatchRequest, outOfBatchReply } = await import(join(placeReports('AI_COMMAND_CENTER'), '.claude/hooks/judges/ask-a-hosted-classifier.mjs'));
+// The hosted classifier's wire shape has one home: tools/ask-a-small-model-for-a-verdict.
+import { intoBatchRequest, outOfBatchReply } from '../../ask-a-small-model-for-a-verdict/do-work/ask-a-hosted-classifier.mjs';
 
 export const LABELS = ['pass', 'fail', 'uncertain'];
 export const REQUEST_POLICY = 'neutral-passage-and-criterion-context-v1';

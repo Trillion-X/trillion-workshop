@@ -26,9 +26,22 @@ faulthandler.enable(file=sys.stderr, all_threads=True)
 faulthandler.dump_traceback_later(90, repeat=False, file=sys.stderr)
 
 HERE = Path(__file__).resolve().parent
-FINETUNE = HERE.parent / "decider-laws-finetune"
 print("phase: importing scorer dependencies", file=sys.stderr, flush=True)
-sys.path.insert(0, str(FINETUNE))
+# The decider model frame (common.py, which loads the decider package from its pinned model snapshot) is the caller's:
+# --decider-common-dir names the folder that holds it on the computer that trains (the person's setting). A test puts
+# stand-ins for common and decider in sys.modules first.
+def decider_common_dir(argv):
+    for index, word in enumerate(argv):
+        if word == "--decider-common-dir" and index + 1 < len(argv):
+            return Path(argv[index + 1]).resolve()
+        if word.startswith("--decider-common-dir="):
+            return Path(word.split("=", 1)[1]).resolve()
+    return None
+
+
+FINETUNE = decider_common_dir(sys.argv)
+if FINETUNE is not None:
+    sys.path.insert(0, str(FINETUNE))
 sys.path.insert(0, str(HERE))
 from exposure_audit import audit_exposure  # noqa: E402
 import common  # noqa: E402
@@ -50,7 +63,7 @@ MULTI_CRITERION_REQUEST_PROJECTION_POLICY = "maintained-requestPlan-multi-criter
 def validate_challenge_file(path: Path, dataset_role: str, *, raw_bytes: bytes | None = None) -> dict:
     """Run the maintained validator before loading weights; never rewrite splits."""
     node = shutil.which("node")
-    validator = HERE / "evaluate-book-voice-integrity.mjs"
+    validator = HERE.parent / "read-data" / "evaluation-integrity.mjs"
     if not node or not validator.is_file():
         raise ValueError("Maintained challenge validation requires Node and its integrity consumer")
     mode = "unlabeled" if dataset_role == "unlabeled_manuscript_diagnostic" else "scoring-evaluation"
@@ -513,7 +526,7 @@ def adapt_jsonl(data: Path, provenance_path: Path | None, *, raw_text: str | Non
 
 def validate_strict_jsonl_provenance(rows: list[dict], provenance: dict) -> None:
     """Bind strict rows to the same frozen source projection used by training."""
-    trainer_path = HERE / "train-book-voice-adapter.py"
+    trainer_path = HERE / "train-voice-adapter.py"
     spec = importlib.util.spec_from_file_location("book_voice_training_source_validator", trainer_path)
     if spec is None or spec.loader is None:
         raise ValueError("Could not load the maintained strict source-projection validator")
@@ -834,6 +847,8 @@ def main() -> None:
     os.umask(0o077)
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True, type=Path)
+    parser.add_argument("--decider-common-dir", type=Path,
+                        help="folder holding the decider model frame common.py (read before this parser runs)")
     parser.add_argument("--adapter", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--provenance", type=Path)
@@ -874,7 +889,7 @@ def main() -> None:
         raise ValueError("Adapter needs adapter_model.safetensors and its train-info.json receipt")
     identity_paths = [adapter_model, receipt_path, args.data]
     consumer_paths = {"scorer": Path(__file__).resolve(),
-                      "integrity_validator": HERE / "evaluate-book-voice-integrity.mjs",
+                      "integrity_validator": HERE.parent / "read-data" / "evaluation-integrity.mjs",
                       "exposure_audit": HERE / "exposure_audit.py"}
     identity_paths.extend(consumer_paths.values())
     if args.dataset_freeze:

@@ -13,6 +13,11 @@ from pathlib import Path
 import subprocess
 import sys
 
+# The decider prompt package is in the folder the caller names (--decider-dir, the pinned model snapshot); a test puts
+# stand-ins for it and for transformers in sys.modules first.
+for _index, _word in enumerate(sys.argv):
+    if _word == "--decider-dir" and _index + 1 < len(sys.argv):
+        sys.path.insert(0, str(Path(sys.argv[_index + 1]).resolve()))
 from transformers import AutoTokenizer
 from decider.systemone import render_question, plan_rows
 from decider.prompt import build
@@ -118,6 +123,7 @@ def main() -> int:
     parser.add_argument("--data", required=True, type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--tokenizer-model-dir", required=True, type=Path)
+    parser.add_argument("--decider-dir", type=Path, help="folder holding the decider prompt package (the model snapshot)")
     parser.add_argument("--target-tokens", type=int, default=PACK_TARGET)
     parser.add_argument("--tokens-only", action="store_true",
                         help="validate and size all v3 requests without editing DATA or packing sections")
@@ -125,7 +131,7 @@ def main() -> int:
     if not 1 <= args.target_tokens < LIMIT:
         parser.error(f"--target-tokens must be between 1 and {LIMIT - 1}")
     data = json.loads(args.data.read_text())
-    module = Path(__file__).resolve().with_name("evaluate-book-voice-integrity.mjs")
+    module = Path(__file__).resolve().parent.parent.joinpath("read-data", "evaluation-integrity.mjs")
     plans = maintained_plans(data, module, include_all=args.tokens_only)
     tokenizer = AutoTokenizer.from_pretrained(str(args.tokenizer_model_dir))
     keep = KeepFirst()

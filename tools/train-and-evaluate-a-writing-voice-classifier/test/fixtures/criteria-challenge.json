@@ -1,0 +1,384 @@
+{
+  "schema": "book-voice-decider-challenge-v2",
+  "dataset_role": "evaluation_only",
+  "items": [
+    {
+      "id": "MADE-UP-01",
+      "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 1).",
+      "family": "made-up-kettle",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "1-3"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "check_context": {
+        "source-fidelity": "Made-up source summary for case 1: the timing is an estimate, not a measurement."
+      }
+    },
+    {
+      "id": "MADE-UP-02",
+      "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 2).",
+      "family": "made-up-kettle",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "5-7"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-03",
+      "text": "Ask why the bread sank. The oven was cold, so the next loaf goes in after the light clicks off.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 3).",
+      "family": "made-up-bread",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "9-11"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "check_context": {
+        "source-fidelity": "Made-up source summary for case 3: the timing is an estimate, not a measurement."
+      }
+    },
+    {
+      "id": "MADE-UP-04",
+      "text": "Step one: preheat. Step two: bake. Step three: evaluate.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 4).",
+      "family": "made-up-bread",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "13-15"
+        }
+      },
+      "role": "quote",
+      "checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "uncertain"
+      }
+    },
+    {
+      "id": "MADE-UP-05",
+      "text": "The bike chain squeaked on every hill, which told me the oil had washed off in the rain.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 5).",
+      "family": "made-up-bike",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "17-19"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "check_context": {
+        "source-fidelity": "Made-up source summary for case 5: the timing is an estimate, not a measurement."
+      }
+    },
+    {
+      "id": "MADE-UP-06",
+      "text": "Optimize your cycling journey with these five actionable tips.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 6).",
+      "family": "made-up-bike",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "21-23"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-07",
+      "text": "My neighbour planted beans in March and lost them to frost, so this year she waited for the lilacs.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 7).",
+      "family": "made-up-garden",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "25-27"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "check_context": {
+        "source-fidelity": "Made-up source summary for case 7: the timing is an estimate, not a measurement."
+      }
+    },
+    {
+      "id": "MADE-UP-08",
+      "text": "Gardening success requires careful planning and consistent execution.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 8).",
+      "family": "made-up-garden",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "29-31"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-09",
+      "text": "The map said two hours. It took five, because the bridge was out and nobody had updated the sign.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 9).",
+      "family": "made-up-map",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "33-35"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "check_context": {
+        "source-fidelity": "Made-up source summary for case 9: the timing is an estimate, not a measurement."
+      }
+    },
+    {
+      "id": "MADE-UP-10",
+      "text": "Travel delays can be mitigated through proactive itinerary management.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 10).",
+      "family": "made-up-map",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "37-39"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-11",
+      "text": "He kept the receipts in a shoebox — every one since 2009.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 11).",
+      "family": "made-up-shoebox",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "41-43"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "uncertain",
+        "execution-gear": "uncertain",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "fail"
+      },
+      "check_context": {
+        "source-fidelity": "Made-up source summary for case 11: the timing is an estimate, not a measurement."
+      }
+    },
+    {
+      "id": "MADE-UP-12",
+      "text": "Short.",
+      "context": "A made-up note about this passage; the reviewer called it much better (case 12).",
+      "family": "made-up-short",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "45-47"
+        }
+      },
+      "role": "authored",
+      "checks": {
+        "voice-flow": "uncertain",
+        "execution-gear": "uncertain",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "id": "voice-flow",
+      "question": "Does this passage keep the made-up writer's rolling, specific reasoning?",
+      "options": [
+        "pass",
+        "fail",
+        "uncertain"
+      ]
+    },
+    {
+      "id": "execution-gear",
+      "question": "When this passage turns to action, does it stay in the same voice?",
+      "options": [
+        "pass",
+        "fail",
+        "uncertain"
+      ]
+    },
+    {
+      "id": "local-application",
+      "question": "Does the passage give enough local context to apply the idea?",
+      "options": [
+        "pass",
+        "fail",
+        "uncertain"
+      ]
+    },
+    {
+      "id": "source-fidelity",
+      "question": "Given the supplied source context, does the passage keep the source's facts?",
+      "options": [
+        "pass",
+        "fail",
+        "uncertain"
+      ]
+    },
+    {
+      "id": "authored-em-dash",
+      "question": "Does this newly authored prose contain an em dash? Ignore quoted or referenced text.",
+      "options": [
+        "pass",
+        "fail",
+        "uncertain"
+      ],
+      "deterministic": true
+    }
+  ]
+}

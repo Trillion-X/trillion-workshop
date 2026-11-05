@@ -24,8 +24,21 @@ from pathlib import Path
 
 
 HERE = Path(__file__).resolve().parent
-FINETUNE = HERE.parent / "decider-laws-finetune"
-sys.path.insert(0, str(FINETUNE))
+# The decider model frame (common.py, which loads the decider package from its pinned model snapshot) is the caller's:
+# --decider-common-dir names the folder that holds it on the computer that trains (the person's setting). A test puts
+# stand-ins for common and decider in sys.modules first.
+def decider_common_dir(argv):
+    for index, word in enumerate(argv):
+        if word == "--decider-common-dir" and index + 1 < len(argv):
+            return Path(argv[index + 1]).resolve()
+        if word.startswith("--decider-common-dir="):
+            return Path(word.split("=", 1)[1]).resolve()
+    return None
+
+
+FINETUNE = decider_common_dir(sys.argv)
+if FINETUNE is not None:
+    sys.path.insert(0, str(FINETUNE))
 import common  # noqa: E402
 from decider.infer import Example, Q  # noqa: E402
 from decider.systemone import render_question, render_state  # noqa: E402
@@ -279,7 +292,7 @@ def validate_multi_criterion_provenance(rows, provenance):
 def project_multi_criterion_requests(source_data, provenance_rows):
     """Validate and project the same immutable source snapshot through requestPlan."""
     node = shutil.which("node")
-    validator = HERE / "evaluate-book-voice-integrity.mjs"
+    validator = HERE.parent / "read-data" / "evaluation-integrity.mjs"
     if not node or not validator.is_file():
         raise ValueError("Multi-criterion provenance requires the maintained requestPlan consumer")
     script = r'''import fs from 'node:fs';
@@ -701,6 +714,8 @@ def collect_fit_logits(model, built, batch_size, torch):
 def build_argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--data", required=True, type=Path, help="private JSONL of v3-shaped training rows")
+    parser.add_argument("--decider-common-dir", type=Path,
+                        help="folder holding the decider model frame common.py (read before this parser runs)")
     parser.add_argument("--provenance", type=Path, help="optional private row-aligned source provenance JSON")
     parser.add_argument("--out", required=True, type=Path, help="new, isolated adapter directory")
     parser.add_argument("--rank", type=int, default=8)

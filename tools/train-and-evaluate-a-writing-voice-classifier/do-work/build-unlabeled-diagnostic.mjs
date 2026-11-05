@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-/** Build frozen, label-free prose subsets for a selected maintained v3 criterion. */
+/** Build frozen, label-free prose subsets for a selected maintained v3 criterion.
+ * Moved from trillion-launch-video tools/copy-gate/build-book-voice-unlabeled-diagnostic.mjs: the blocks are
+ * tools/pin-files-by-content's writingBlocks and BLAKE3 is tools/content-identity, each read from its one home. */
 import {readFileSync, writeFileSync} from 'node:fs';
 import {basename, resolve} from 'node:path';
-import {execFileSync} from 'node:child_process';
-import {classifyWritingBlock} from './evaluate-book-voice-integrity.mjs';
-import {fromWorkshop} from './workshop.mjs';
-
-const {writingBlocks} = await fromWorkshop('tools/pin-files-by-content/do-work/verify-writing-profile.mjs');
+import {classifyWritingBlock} from '../read-data/evaluation-integrity.mjs';
+import {writingBlocks} from '../../pin-files-by-content/do-work/verify-writing-profile.mjs';
+import {makeHashCodeHexFromBytes} from '../../content-identity/read-data/identity.mjs';
 
 const args = process.argv.slice(2);
 const arg = name => args.includes(name) ? args[args.indexOf(name) + 1] : null;
@@ -19,7 +19,7 @@ if (!arg('--freeze') || !arg('--criteria') || !arg('--out-dir')) {
   process.exit(2);
 }
 
-const digest = bytes => execFileSync('b3sum', ['--no-names'], {input: bytes, encoding: 'utf8'}).trim();
+const digest = bytes => makeHashCodeHexFromBytes(bytes).replace(/^1f:/, '');
 const freezeBytes = readFileSync(freezePath);
 const freeze = JSON.parse(new TextDecoder('utf-8', {fatal: true, ignoreBOM: true}).decode(freezeBytes));
 if (freeze.schema !== 'private-book-source-freeze-v1' || !Array.isArray(freeze.sources) || !freeze.sources.length) {

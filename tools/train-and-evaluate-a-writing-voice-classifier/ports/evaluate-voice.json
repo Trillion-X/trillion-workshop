@@ -23,7 +23,8 @@
   ],
   "targets": [
     {
-      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/evaluate-voice.mjs"
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/evaluate-voice.mjs",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
     }
   ],
   "preserve": [
@@ -35,7 +36,8 @@
   ],
   "allowed_deltas": [
     "endpoint, model, attempts and workers come from the person's settings row (tools/settings) or arguments instead of environment variables",
-    "the evaluation runs as a function the row calls with a stand-in post that plays recorded replies; the command line keeps the old flags"
+    "the evaluation runs as a function the row calls with a stand-in post that plays recorded replies; the command line keeps the old flags",
+    "the report keeps its local time in America/Phoenix, the lane's time zone, instead of America/Los_Angeles"
   ],
   "banned_substitutions": [
     "a default endpoint or model named in code",
@@ -45,7 +47,8 @@
     "recorded_at": "2026-11-05T20:30:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:96177dd9ee8c8bda733646c753d0b86b3947aaefdd81a40c980ce45499536d01",
-    "target_multihash_at_baseline": "1f:96177dd9ee8c8bda733646c753d0b86b3947aaefdd81a40c980ce45499536d01"
+    "target_multihash_at_baseline": "1f:96177dd9ee8c8bda733646c753d0b86b3947aaefdd81a40c980ce45499536d01",
+    "commit": "b64680e8a957fc944d4da7b71e0cf3b34cae1900"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

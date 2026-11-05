@@ -1,61 +1,68 @@
 #!/usr/bin/env node
 /**
- * Read-only held-out evaluation for the book-specific voice checks.
- * Uses the shared local classifier adapter and /v1/systemone, not film-law
- * rules, weights, or verdict storage. Each result is checkpointed as it lands.
+ * Read-only held-out evaluation for a writing-voice classifier's checks.
+ * Asks the hosted classifier (tools/ask-a-small-model-for-a-verdict, /v1/systemone) one request per passage;
+ * nothing is trained, weighted or stored as a verdict here. Each result is checkpointed as it lands.
+ * Moved from trillion-launch-video tools/copy-gate/evaluate-book-voice.mjs: the endpoint and model are the person's
+ * settings (a list:settings row read with tools/settings) or arguments, never an environment variable or a default.
  *
  * Usage:
- *   node evaluate-book-voice.mjs --data <challenge.json> --out <results.json> --live [--single-attempt]
+ *   node evaluate-voice.mjs --data <challenge.json> --out <results.json> --live (--settings-record <record.json> | --endpoint <url> --model <id>)
+ *        [--workers N] [--single-attempt] [--resume]
+ *   (--settings-record names a JSON file holding the person's setting row as records:read gives it: { id, type, value })
+ *   or one JSON request on standard input (the tool row): { action, data, settings_record?, replies?, report? }, with the
+ *   person's records door on descriptor 3 to read the settings_record id
  */
 import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
-import { execFileSync } from 'node:child_process';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { performance } from 'node:perf_hooks';
-import { placeReports, requestPolicyFor, SERVING_IDENTITY_POLICY, validServingIdentity, requestPlan, reportCriteria, validateInput, validateReport, criterionDecisionLabels, criterionAppliesTo, expectedDecision, aggregateSectionChunkResults } from './evaluate-book-voice-integrity.mjs';
-// The shared classifier adapter lives in the ai-command-center checkout this place reports (AI_COMMAND_CENTER).
-const { askMany } = await import(join(placeReports('AI_COMMAND_CENTER'), '.claude/hooks/judges/ask-a-hosted-classifier.mjs'));
+import { pathToFileURL } from 'node:url';
+import { requestPolicyFor, SERVING_IDENTITY_POLICY, validServingIdentity, requestPlan, reportCriteria, validateInput, validateReport, criterionDecisionLabels, criterionAppliesTo, expectedDecision, aggregateSectionChunkResults } from '../read-data/evaluation-integrity.mjs';
+import { askMany } from '../../ask-a-small-model-for-a-verdict/do-work/ask-a-hosted-classifier.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { readSettings, settingsOf } from '../../settings/read-data/settings.mjs';
 
-const args = process.argv.slice(2);
-const arg = name => args.includes(name) ? args[args.indexOf(name) + 1] : null;
-const dataPath = arg('--data');
-const outPath = arg('--out');
-// Evaluation can freeze one attempt per case without changing shared-adapter defaults.
-const requestAttempts = args.includes('--single-attempt') ? 1 : 3;
-if (!dataPath || !outPath || !args.includes('--live')) {
-  console.error('usage: node evaluate-book-voice.mjs --data <challenge.json> --out <results.json> --live [--single-attempt]');
-  process.exit(2);
+export const FOLDER = 'train-and-evaluate-a-writing-voice-classifier';
+export const TOOL = 'tool:evaluate-a-writing-voice-classifier';
+/** BLAKE3 of bytes as plain lowercase hex, the form the reports keep (the same digits b3sum prints). */
+export const blake3Hex = bytes => makeHashCodeHexFromBytes(Buffer.from(bytes)).replace(/^1f:/, '');
+
+/** Challenge DATA as JSON, or as JSON lines whose first line holds the header (and maybe the items). */
+export function parseChallenge(raw) {
+  let input;
+  try { input = JSON.parse(raw); }
+  catch {
+    const lines = raw.split('\n').filter(Boolean).map(line => JSON.parse(line));
+    input = lines[0]?.items ? lines[0] : { ...lines[0], items: lines.slice(1) };
+  }
+  return input;
 }
 
-const raw = readFileSync(resolve(dataPath), 'utf8');
-const dataBlake3 = execFileSync('b3sum', {input: raw, encoding: 'utf8'}).trim().split(/\s+/)[0];
-const rubricPath = resolve(dirname(resolve(dataPath)), 'rubric.json');
-let input;
-try { input = JSON.parse(raw); }
-catch {
-  const lines = raw.split('\n').filter(Boolean).map(line => JSON.parse(line));
-  input = lines[0]?.items ? lines[0] : { ...lines[0], items: lines.slice(1) };
+/** The classifier settings: endpoint and model are required; attempts and workers are bounded. */
+export function classifierSettings(values) {
+  if (!values || typeof values !== 'object') throw new Error('No classifier settings: give settings_record (a list:settings row with endpoint and model) or --endpoint and --model.');
+  const { endpoint, model } = values;
+  if (typeof endpoint !== 'string' || !/^https?:\/\//.test(endpoint)) throw new Error('The settings need endpoint: the address of the classifier\'s /v1/systemone.');
+  if (typeof model !== 'string' || !model) throw new Error('The settings need model: the classifier model to ask, as its replies name it.');
+  return { endpoint, model, attempts: values.attempts ?? 3, workers: Math.max(1, Math.min(8, Number(values.workers ?? 4))) };
 }
-let rubricBlake3 = input.criteria && existsSync(rubricPath)
-  ? execFileSync('b3sum', [rubricPath], {encoding: 'utf8'}).trim().split(/\s+/)[0]
-  : null;
-rubricBlake3 ??= input.rubric_blake3 ?? null;
+
+/**
+ * Evaluate every eval item of `input` against the classifier. `post` is fetch, or a stand-in that plays recorded
+ * replies; `write(report)` keeps each checkpoint. Returns the final report.
+ */
+export async function evaluateVoice({ input, dataPath, dataBlake3, rubricBlake3, model, endpoint, requestAttempts = 3, workerCount = 1, post = fetch, prior = null, write = () => {}, log = () => {} }) {
 const { evalItems: items, criteria } = validateInput(input);
-
-// The classifier is wherever this place reports it serves one; no fixed local port is assumed.
-const endpoint = placeReports('BOOK_VOICE_CLASSIFIER_ENDPOINT');
-const model = process.env.BOOK_VOICE_CLASSIFIER_MODEL || 'decider-v10';
 const candidate = { name: model, reach: { endpoint, model, credential: 'local', timeoutSeconds: 60, samples: 1 } };
 const labels = ['pass', 'fail', 'uncertain'];
 const overallQuestion = input.question;
 const requestEvidenceVersion = 1;
 const requestPolicy = requestPolicyFor(input);
-if (existsSync(resolve(outPath)) && !args.includes('--resume')) throw new Error('output already exists; use --resume to validate and continue without replacing prior evidence');
-
 let resumedReport = null;
-if (args.includes('--resume') && existsSync(resolve(outPath))) {
-  resumedReport = JSON.parse(readFileSync(resolve(outPath), 'utf8'));
+if (prior) {
+  resumedReport = prior;
   validateReport(resumedReport, {
-    input, model, endpoint, dataPath: resolve(dataPath), dataBlake3, rubricBlake3,
+    input, model, endpoint, dataPath, dataBlake3, rubricBlake3,
     requestPolicy,
     requestEvidenceVersion: resumedReport.request_evidence_version ?? 0,
     serving: resumedReport.serving ?? null,
@@ -66,10 +73,9 @@ const results = [...(resumedReport?.items ?? [])];
 const errors = [];
 const completedIds = new Set(results.map(item => item.id));
 const queueItems = items.filter(item => !completedIds.has(item.id));
-const workerCount = Math.max(1, Math.min(8, Number(process.env.BOOK_VOICE_EVAL_CONCURRENCY || 4)));
 let reportHealth = null;
 try {
-  const response = await fetch(endpoint.replace(/\/v1\/systemone\/?$/, '/health'));
+  const response = await post(endpoint.replace(/\/v1\/systemone\/?$/, '/health'));
   if (response.ok) reportHealth = await response.json();
 } catch { /* health read is supplementary */ }
 const hasPendingModelWork = queueItems.some(item => Object.keys(requestPlan(input, item, criteria).asking).length > 0);
@@ -77,7 +83,7 @@ const healthIdentityError = hasPendingModelWork && !validServingIdentity(reportH
   ? 'classifier health did not provide a nonempty serving identity of at most 1024 characters'
   : null;
 if (resumedReport) validateReport(resumedReport, {
-  input, model, endpoint, dataPath: resolve(dataPath), dataBlake3, rubricBlake3,
+  input, model, endpoint, dataPath, dataBlake3, rubricBlake3,
   serving: reportHealth?.serving ?? null,
   requestPolicy,
   requestEvidenceVersion: resumedReport.request_evidence_version ?? 0,
@@ -142,12 +148,12 @@ function writeReport(complete) {
   const evidenceVersion = hasLegacyEvidence ? 'mixed-legacy-v0+v1' : requestEvidenceVersion;
   const report = {
     schema: 'book-voice-decider-evaluation-v2',
-    evaluated_at_local: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles', timeZoneName: 'short' }),
+    evaluated_at_local: new Date().toLocaleString('en-US', { timeZone: 'America/Phoenix', timeZoneName: 'short' }),
     model, endpoint, route: 'shared local classifier adapter -> /v1/systemone',
     serving: reportHealth?.serving ?? null, device: reportHealth?.device ?? null,
     serving_identity_policy: hasUnverifiedRows ? 'historical-unverified' : SERVING_IDENTITY_POLICY,
     request_limits: {samples: 1, attempts: requestAttempts, workers: workerCount},
-    data: resolve(dataPath), data_blake3: dataBlake3, rubric_blake3: rubricBlake3,
+    data: dataPath, data_blake3: dataBlake3, rubric_blake3: rubricBlake3,
     dataset_role: input.dataset_role ?? null,
     source_derivative: input.source_derivative ?? null,
     assembled_docx: input.assembled_docx ?? null,
@@ -164,16 +170,14 @@ function writeReport(complete) {
     errors, complete, resume_prior_items: resumedReport?.items?.length ?? 0, prior_errors: resumedReport?.errors ?? [], summary: summary(), items: results,
   };
   const validated = validateReport(report, {
-    input, model, endpoint, dataPath: resolve(dataPath), dataBlake3, rubricBlake3,
+    input, model, endpoint, dataPath, dataBlake3, rubricBlake3,
     serving: report.serving, requestPolicy: report.request_policy,
     requestEvidenceVersion: report.request_evidence_version,
     servingIdentityPolicy: report.serving_identity_policy,
   }, {requireServing: true});
   report.serving_identity_assurance = validated.identity_assurance;
-  const checkpointPath = resolve(outPath) + '.checkpoint-tmp';
-  writeFileSync(checkpointPath, JSON.stringify(report, null, 2) + '\n');
-  renameSync(checkpointPath, resolve(outPath));
-  return report.summary;
+  write(report);
+  return report;
 }
 
 const requestEvidenceById = new Map();
@@ -187,7 +191,7 @@ async function evaluate(item) {
   const captureFetch = async (url, init) => {
     const request = typeof init?.body === 'string' ? init.body : null;
     try {
-      const response = await fetch(url, init);
+      const response = await post(url, init);
       const rawResponse = await response.text();
       requestEvidence.exchanges.push({url: String(url), status: response.status, statusText: response.statusText, request, response: rawResponse});
       const bodylessStatus = [204, 205, 304].includes(response.status);
@@ -306,14 +310,127 @@ const worker = async () => {
     requestEvidenceById.delete(item.id);
     const covered = new Set([...results.map(row => row.id), ...errors.map(row => row.id)]);
     const complete = covered.size === items.length && items.every(row => covered.has(row.id));
-    const totals = writeReport(complete);
-    console.error(`book-voice eval ${next}/${items.length}: ${errors.length} item errors`);
+    writeReport(complete);
+    log(`writing-voice eval ${next}/${items.length}: ${errors.length} item errors`);
   }
 };
 await Promise.all(Array.from({length: workerCount}, worker));
 const covered = new Set([...results.map(row => row.id), ...errors.map(row => row.id)]);
 const complete = covered.size === items.length && items.every(row => covered.has(row.id));
-const totals = writeReport(complete);
-console.log(JSON.stringify({output: resolve(outPath), model, serving: reportHealth?.serving ?? null,
-  evaluated_items: results.length, expected_items: items.length, errors: errors.length, summary: totals}, null, 2));
-if (errors.length) console.error('Some checks remain unjudged; they are preserved as errors, not passes.');
+return writeReport(complete);
+}
+
+
+/** The settings a run uses: the person's list:settings row for this tool (record:setting:<this folder>~<scope_kind>~
+ * <scope_id>), read through their records door with tools/settings, else the endpoint and model given directly. */
+export async function settingsFrom({ settings_record, endpoint, model, workers } = {}, { door } = {}) {
+  const fromRow = settings_record == null ? null : await readSettings(door, settings_record, { tool: FOLDER });
+  if (fromRow === null && endpoint == null && model == null) return classifierSettings(null);
+  return classifierSettings(fromRow ?? { endpoint, model, ...(workers == null ? {} : { workers }) });
+}
+
+/**
+ * A stand-in for the classifier that plays recorded exchanges ({ request, status, response }, as a report's
+ * request_evidence keeps them) and answers /health with the recorded serving identity. A request with no recording left
+ * is refused, never guessed.
+ */
+export function playRecordedReplies({ replies, health }) {
+  const left = replies.map(one => ({ ...one, wire: typeof one.request === 'string' ? JSON.parse(one.request) : one.request }));
+  return async (url, init = {}) => {
+    if (String(url).endsWith('/health')) return new Response(JSON.stringify(health ?? {}), { status: 200, headers: { 'content-type': 'application/json' } });
+    const wire = JSON.parse(init.body);
+    const at = left.findIndex(one => JSON.stringify(one.wire) === JSON.stringify(wire));
+    if (at < 0) throw new Error('no recorded reply for this request');
+    const [one] = left.splice(at, 1);
+    if (one.status === null) throw new Error(one.transport_error ?? 'recorded transport error');
+    return new Response([204, 205, 304].includes(one.status) ? null : one.response, { status: one.status, headers: { 'content-type': 'application/json' } });
+  };
+}
+
+const withoutEvidence = report => ({ ...report, items: report.items.map(({ request_evidence, ...row }) => row),
+  errors: report.errors.map(({ request_evidence, ...row }) => row), prior_errors: report.prior_errors.map(({ request_evidence, ...row }) => row) });
+
+/** The tool row: one request, one answer. */
+export async function answer(request, { door } = {}) {
+  const { action = 'evaluate', data, data_name: dataName = 'request:data' } = request ?? {};
+  if (!data || typeof data !== 'object') throw new Error('Give data: the challenge (schema book-voice-decider-challenge-v1, v2 or v3, with items).');
+  const raw = JSON.stringify(data);
+  if (action === 'validate') {
+    const mode = request.mode ?? 'evaluation';
+    const { evalItems, criteria } = validateInput(data, { mode });
+    const selected = mode === 'unlabeled' ? data.items : evalItems;
+    const plans = selected.map(item => requestPlan(data, item, criteria));
+    return { mode, items: selected.length, criteria: criteria?.map(one => one.id) ?? null, request_policy: requestPolicyFor(data),
+      model_questions: plans.reduce((sum, plan) => sum + Object.keys(plan.asking).length + (plan.chunk_requests?.length ?? 0), 0) };
+  }
+  if (action === 'plan') {
+    const { evalItems, criteria } = validateInput(data);
+    return { plans: evalItems.map(item => ({ id: item.id, ...requestPlan(data, item, criteria) })) };
+  }
+  const { endpoint, model, attempts, workers } = await settingsFrom(request, { door });
+  const dataBlake3 = request.data_blake3 ?? blake3Hex(raw);
+  const rubricBlake3 = request.rubric_blake3 ?? data.rubric_blake3 ?? null;
+  if (action === 'check-report') {
+    const report = request.report;
+    const checked = validateReport(report, { input: data, model, endpoint, dataPath: report?.data, dataBlake3: report?.data_blake3, rubricBlake3: report?.rubric_blake3 ?? null,
+      serving: report?.serving ?? null, requestPolicy: report?.request_policy ?? null, requestEvidenceVersion: report?.request_evidence_version ?? 0,
+      servingIdentityPolicy: report?.serving_identity_policy ?? null }, { requireServing: true });
+    return { valid: true, complete: checked.complete, covered: checked.coveredIds.size, identity_assurance: checked.identity_assurance };
+  }
+  if (action !== 'evaluate') throw new Error(`Unknown action ${JSON.stringify(action)}: use evaluate, validate, plan or check-report.`);
+  const post = request.replies ? playRecordedReplies({ replies: request.replies, health: request.health }) : fetch;
+  const report = await evaluateVoice({ input: data, dataPath: dataName, dataBlake3, rubricBlake3, model, endpoint,
+    requestAttempts: request.single_attempt ? 1 : attempts, workerCount: workers, post, prior: request.prior_report ?? null });
+  return request.include_evidence ? report : withoutEvidence(report);
+}
+
+async function commandLine(args) {
+  const arg = name => args.includes(name) ? args[args.indexOf(name) + 1] : null;
+  const dataPath = arg('--data');
+  const outPath = arg('--out');
+  if (!dataPath || !outPath || !args.includes('--live')) {
+    console.error('usage: node evaluate-voice.mjs --data <challenge.json> --out <results.json> --live (--settings-record <record.json> | --endpoint <url> --model <id>) [--workers N] [--single-attempt] [--resume]');
+    process.exit(2);
+  }
+  const kept = arg('--settings-record') ? JSON.parse(readFileSync(resolve(arg('--settings-record')), 'utf8')) : null;
+  const settings = kept ? classifierSettings(settingsOf(kept.value, kept.id, { tool: FOLDER }))
+    : await settingsFrom({ endpoint: arg('--endpoint'), model: arg('--model'), workers: arg('--workers') ?? undefined });
+  // Evaluation can freeze one attempt per case without changing shared-adapter defaults.
+  const requestAttempts = args.includes('--single-attempt') ? 1 : settings.attempts;
+  const raw = readFileSync(resolve(dataPath), 'utf8');
+  const dataBlake3 = blake3Hex(raw);
+  const rubricPath = resolve(dirname(resolve(dataPath)), 'rubric.json');
+  const input = parseChallenge(raw);
+  let rubricBlake3 = input.criteria && existsSync(rubricPath) ? blake3Hex(readFileSync(rubricPath)) : null;
+  rubricBlake3 ??= input.rubric_blake3 ?? null;
+  if (existsSync(resolve(outPath)) && !args.includes('--resume')) throw new Error('output already exists; use --resume to validate and continue without replacing prior evidence');
+  const prior = args.includes('--resume') && existsSync(resolve(outPath)) ? JSON.parse(readFileSync(resolve(outPath), 'utf8')) : null;
+  const write = report => {
+    const checkpointPath = resolve(outPath) + '.checkpoint-tmp';
+    writeFileSync(checkpointPath, JSON.stringify(report, null, 2) + '\n');
+    renameSync(checkpointPath, resolve(outPath));
+  };
+  const report = await evaluateVoice({ input, dataPath: resolve(dataPath), dataBlake3, rubricBlake3, model: settings.model, endpoint: settings.endpoint,
+    requestAttempts, workerCount: settings.workers, prior, write, log: line => console.error(line) });
+  console.log(JSON.stringify({output: resolve(outPath), model: settings.model, serving: report.serving,
+    evaluated_items: report.items.length, expected_items: report.expected_items, errors: report.errors.length, summary: report.summary}, null, 2));
+  if (report.errors.length) console.error('Some checks remain unjudged; they are preserved as errors, not passes.');
+}
+
+async function standardInput() {
+  const chunks = [];
+  for await (const chunk of process.stdin) chunks.push(chunk);
+  try {
+    const request = JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
+    // The person's records door is handed to the run on descriptor 3; it is opened only to read the settings row.
+    const door = request?.settings_record == null ? undefined
+      : (await import('../../records-door/read-data/records-door.mjs')).openRecordsDoor();
+    console.log(JSON.stringify({ result: await answer(request, { door }) }));
+  }
+  catch (error) { console.log(JSON.stringify({ error: String(error?.message ?? error) })); process.exitCode = 1; }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  if (process.argv.length > 2) await commandLine(process.argv.slice(2));
+  else await standardInput();
+}

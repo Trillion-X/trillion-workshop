@@ -23,7 +23,8 @@
   ],
   "targets": [
     {
-      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/build-unlabeled-diagnostic.mjs"
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/build-unlabeled-diagnostic.mjs",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
     }
   ],
   "preserve": [
@@ -43,7 +44,8 @@
     "recorded_at": "2026-11-05T20:30:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:316871b83855a6695375b3d611bd272379a69a7099508449f1628ef134961efa",
-    "target_multihash_at_baseline": "1f:316871b83855a6695375b3d611bd272379a69a7099508449f1628ef134961efa"
+    "target_multihash_at_baseline": "1f:316871b83855a6695375b3d611bd272379a69a7099508449f1628ef134961efa",
+    "commit": "b64680e8a957fc944d4da7b71e0cf3b34cae1900"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

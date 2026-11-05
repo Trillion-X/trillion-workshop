@@ -1,0 +1,133 @@
+{
+  "schema": "book-voice-decider-challenge-v2",
+  "dataset_role": "source_feedback_controls",
+  "criteria": [
+    {
+      "id": "claim-strength",
+      "primitive": "true-or-false",
+      "question": "Does the passage state the claim no more strongly than its source?"
+    }
+  ],
+  "items": [
+    {
+      "id": "MADE-UP-01",
+      "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+      "family": "made-up-kettle",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "1-3"
+        }
+      },
+      "checks": {
+        "claim-strength": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-02",
+      "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+      "family": "made-up-kettle",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "5-7"
+        }
+      },
+      "checks": {
+        "claim-strength": "fail"
+      }
+    },
+    {
+      "id": "MADE-UP-03",
+      "text": "Ask why the bread sank. The oven was cold, so the next loaf goes in after the light clicks off.",
+      "family": "made-up-bread",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "9-11"
+        }
+      },
+      "checks": {
+        "claim-strength": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-04",
+      "text": "Step one: preheat. Step two: bake. Step three: evaluate.",
+      "family": "made-up-bread",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "13-15"
+        }
+      },
+      "checks": {
+        "claim-strength": "fail"
+      }
+    },
+    {
+      "id": "MADE-UP-05",
+      "text": "The bike chain squeaked on every hill, which told me the oil had washed off in the rain.",
+      "family": "made-up-bike",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "17-19"
+        }
+      },
+      "checks": {
+        "claim-strength": "pass"
+      }
+    },
+    {
+      "id": "MADE-UP-06",
+      "text": "Optimize your cycling journey with these five actionable tips.",
+      "family": "made-up-bike",
+      "split": "eval",
+      "rationale": "Made-up fixture.",
+      "axis": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "21-23"
+        }
+      },
+      "checks": {
+        "claim-strength": "fail"
+      }
+    }
+  ]
+}

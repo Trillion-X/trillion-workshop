@@ -23,7 +23,8 @@
   ],
   "targets": [
     {
-      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/train-voice-adapter.py"
+      "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/train-voice-adapter.py",
+      "baseline_commit_message": "train-and-evaluate-a-writing-voice-classifier: byte copies of the copy-gate voice classifier files"
     }
   ],
   "preserve": [
@@ -43,7 +44,8 @@
     "recorded_at": "2026-11-05T20:30:00Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:f7ddb5db648aec39b557bd9ab234b9a1c17bfe6a9bfbdbbffc2ab5bd6f384f1a",
-    "target_multihash_at_baseline": "1f:f7ddb5db648aec39b557bd9ab234b9a1c17bfe6a9bfbdbbffc2ab5bd6f384f1a"
+    "target_multihash_at_baseline": "1f:f7ddb5db648aec39b557bd9ab234b9a1c17bfe6a9bfbdbbffc2ab5bd6f384f1a",
+    "commit": "b64680e8a957fc944d4da7b71e0cf3b34cae1900"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

@@ -1,0 +1,164 @@
+{
+  "schema": "book-voice-training-provenance-v2",
+  "source_dataset": "source-data.json",
+  "source_dataset_blake3": "dff483b8e5b79ec0fa05bd672cfd35ff4a026d4b16beeee07c9e4a53dd4dc1a5",
+  "criterion_id": "wording-and-connections",
+  "rows": [
+    {
+      "id": "made-up-train-01",
+      "family": "made-up-kettle",
+      "text": "The kettle stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-02",
+      "family": "made-up-bread",
+      "text": "Optimizing bread performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-03",
+      "family": "made-up-bike",
+      "text": "The bike stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-04",
+      "family": "made-up-garden",
+      "text": "Optimizing garden performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-05",
+      "family": "made-up-map",
+      "text": "The map stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-06",
+      "family": "made-up-shoebox",
+      "text": "Optimizing shoebox performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-07",
+      "family": "made-up-lamp",
+      "text": "The lamp stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-08",
+      "family": "made-up-boat",
+      "text": "Optimizing boat performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-09",
+      "family": "made-up-radio",
+      "text": "The radio stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-10",
+      "family": "made-up-clock",
+      "text": "Optimizing clock performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-11",
+      "family": "made-up-fence",
+      "text": "The fence stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-12",
+      "family": "made-up-piano",
+      "text": "Optimizing piano performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-13",
+      "family": "made-up-tent",
+      "text": "The tent stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-14",
+      "family": "made-up-stove",
+      "text": "Optimizing stove performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-15",
+      "family": "made-up-kite",
+      "text": "The kite stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-16",
+      "family": "made-up-well",
+      "text": "Optimizing well performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-17",
+      "family": "made-up-ladder",
+      "text": "The ladder stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-18",
+      "family": "made-up-barrel",
+      "text": "Optimizing barrel performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-19",
+      "family": "made-up-anchor",
+      "text": "The anchor stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-20",
+      "family": "made-up-button",
+      "text": "Optimizing button performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-21",
+      "family": "made-up-candle",
+      "text": "The candle stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-22",
+      "family": "made-up-drum",
+      "text": "Optimizing drum performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-23",
+      "family": "made-up-easel",
+      "text": "The easel stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-24",
+      "family": "made-up-funnel",
+      "text": "Optimizing funnel performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    },
+    {
+      "id": "made-up-train-25",
+      "family": "made-up-glove",
+      "text": "The glove stopped working on Tuesday. Why then? Because the rain came in, so I dried it and it ran again.",
+      "label": "pass"
+    },
+    {
+      "id": "made-up-train-26",
+      "family": "made-up-hammer",
+      "text": "Optimizing hammer performance unlocks transformative value for every stakeholder.",
+      "label": "fail"
+    }
+  ]
+}
