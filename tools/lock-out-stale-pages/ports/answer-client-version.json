@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LOCK-OUT-STALE-PAGES-ANSWER-CLIENT-VERSION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "route owner port, account/devices/misc lane, 2026-11-05",
+  "message_multihash": "1f:fed836d8e73e3cb4f3fa28ee8f76da2de7049213cd5d484c0cb478ec6103e824",
+  "quote": "Port behaviour one to one from the tag, with its tests. Do not invent behaviour, and do not stub an answer just to get an owner."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path_multihash": "1f:dfa53b51f5adc6b9a9178545adf7e4553e91b0614916ff56ab83e6ae818e826f",
+   "lines": [
+    1002,
+    1003
+   ],
+   "multihash": "1f:e7679bb34a551e8bbaf05eeeac60e5da6dd3140fccf9a03973ed9dbb5e8d8457",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T02:02:57Z",
+    "deleted_with": "old trillion retired the Worker after tag old-trillion-before-worker-retire: the file is no longer on its main line"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/lock-out-stale-pages/do-work/answer-client-version.mjs",
+   "baseline_commit_message": "Byte copies of the old owners of /work/api/client-version and /work/api/pursuits"
+  }
+ ],
+ "preserve": [
+  "GET /client-version answers clientVersionAnswer() from the DATA the tool was shipped with, and asks no store"
+ ],
+ "allowed_deltas": [
+  "the request comes as the @workshop-routes input { path, method } instead of a Worker Request; the answer is { status, body }",
+  "a route or method it does not own answers the Worker fallthrough 404 { error: \"Not found\" }"
+ ],
+ "banned_substitutions": [
+  "asking the person's records or any service for the version",
+  "a second copy of client-version.json"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:e7679bb34a551e8bbaf05eeeac60e5da6dd3140fccf9a03973ed9dbb5e8d8457",
+  "target_multihash_at_baseline": "1f:e7679bb34a551e8bbaf05eeeac60e5da6dd3140fccf9a03973ed9dbb5e8d8457",
+  "commit": "7712a478233d64f7cba8e042b0b080522ee1bedf",
+  "recorded_at": "2026-11-05T03:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "clientVersionAnswer()"
+  ],
+  "test_refs": [
+   "tools/lock-out-stale-pages/test/answer-client-version.test.mjs"
+  ]
+ }
+}
