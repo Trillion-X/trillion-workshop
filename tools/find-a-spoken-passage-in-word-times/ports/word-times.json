@@ -1,0 +1,86 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FIND-A-SPOKEN-PASSAGE-FROM-A-FILMS-WORD-TIME-TOOLS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools, sub-lane slate: a quoted passage's exact seconds, timed sentences, one words-file shape",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:84ef95d82d1f00e9504570b3f929ec6f4d5d2b4ed9ac24bb91f4f0bcf2839eba",
+   "multihash": "1f:f3ecda04048aef92005df953dd0bf2db850bdbb524d759859ecd6c94d4c70bb1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3044c4d0111dfe3b005a09a2e9dee50adeb34fd1af38bf007286f5cefa83c548",
+   "multihash": "1f:11f28c34c34746ef9f4e6dca57c212254c1f44707206e1ddba6bc767444d97cd",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ad69d9a68ff25cadf3f0cbd873f013753997684fbbbc133b061693dc5b1b910c",
+   "multihash": "1f:5ef3c1edc01ee99c0cac374c771ece98ee603445c4f72eb819ad1eff6b83efd6",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/find-a-spoken-passage-in-word-times/do-work/word_times.py",
+   "baseline_commit_message": "find-a-spoken-passage-in-word-times: a film's word-timed span finder, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "span: words compared lower-case with everything but letters, digits and apostrophes removed; the last words searched from the first match; the printed start, end and text",
+  "sentences: a sentence ends at a word ending in . ? or !; an unfinished last one prints with no end",
+  "words_home: a words list kept as it is, Whisper segments turned into {text, start, end}, the file {source, timing, words}",
+  "the three old command lines"
+ ],
+ "allowed_deltas": [
+  "one JSON request with a step; a clip read from the words_folder setting (the person's list:settings row)",
+  "sentences reads Whisper segments too (the old one raised KeyError)",
+  "the {t, start, end} words of tools/audio-transcription read; an offset and rounding when writing a words file"
+ ],
+ "banned_substitutions": [
+  "a second word timer",
+  "a person's transcript folder written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f3ecda04048aef92005df953dd0bf2db850bdbb524d759859ecd6c94d4c70bb1",
+  "target_multihash_at_baseline": "1f:f3ecda04048aef92005df953dd0bf2db850bdbb524d759859ecd6c94d4c70bb1",
+  "commit": "7a6b02438c82e267ad489f0d231c9f22f797862d",
+  "recorded_at": "2026-11-05T23:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def find(words, phrase, start_at=0):",
+   "def sentences",
+   "def words_home",
+   "def old_command_line"
+  ],
+  "test_refs": [
+   "tools/find-a-spoken-passage-in-word-times/test/test_word_times.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

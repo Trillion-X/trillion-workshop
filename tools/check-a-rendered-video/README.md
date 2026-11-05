@@ -13,7 +13,9 @@ A JSON object, given with `--limits FILE`, and required. It holds the person's r
 * A check whose sections are not all in the file does not run. It is reported `SKIP no limits for <sections>`, never passed.
 * Optional rows, used when present: `analysis.overlay_globs` (patterns relative to the video's folder, `{id}` the spec id or file name, for finding the overlay when the spec names none, e.g. `../out*/{id}/overlay.mov`); `sound_mix.plain_sibling` (`[regex, replacement]` on the video's file name: a same-length video with nothing added, used as the sound base) and `sound_mix.bases` (`{path regex: {file, t0}}`: an export of the source footage, used as the sound base for a video with no hold, cut or stitched opening); `placement.bases` (`{path regex: [{file, from, to}]}`: the source footage without the overlay, so placement reads what moves under a graphic even where the overlay covers the frame) with `lane_root_regex` (the folder those files are named from); and, for a film made as several options per moment, a `variety` section, which also turns on placement's side balance (`placement.scope_regex`, `timeline_glob`, `left_below`, `right_above`, `max_side_share`, `min_options_for_side`).
 
-The person's AI gets these rows from the person's own records (through the records door) or from a file the person points to, and passes the file's path. The tool never ships, merges or falls back to a default. `test/fixtures/limits-for-generated-videos.json` is a complete example of the shape, with synthetic numbers for the generated test videos.
+The person's AI gets these rows from the person's own records (through the records door) or from a file the person points to, and passes the file's path.
+
+The limits live as one row of the person's generic `list:settings` (type `record:setting`, id `record:setting:check-a-rendered-video~<scope_kind>~<scope_id>`, for example `~film~<film slug>`), read with the one shared reader `tools/settings` (`read-data/settings.py`). Its `settings` (JSON text, as `make_record` writes it, or an object) holds `limits` (this object) and, when the person keeps a gate on check verdicts, `reviewed_pins` (`{check: pin}`, below). `--limits` and `pins --reviewed` take that row as records:read gives it (the record, or its value) as well as a bare file; the reader refuses a retired row or one written for another tool. Run under `node tools/settings/do-work/run-with-settings.mjs --folder check-a-rendered-video -- python3 do-work/check_a_rendered_video.py request`, the `request` command takes `{"argv": [...], "settings_record": <row id or the row>, "settings"?: {...}}` and runs any command on `request_settings` of it (the row, then the request's own `settings` laid over it). The tool never ships, merges or falls back to a default. `test/fixtures/limits-for-generated-videos.json` is a complete example of the shape, with synthetic numbers for the generated test videos.
 
 ## Files
 
@@ -27,9 +29,13 @@ The person's AI gets these rows from the person's own records (through the recor
 | `do-work/rendercheck/checks/*.py` | One module per check. Each has `needs(ctx)` (why it cannot run) and `run(ctx)` (its findings). |
 | `do-work/rendercheck/pins.py` | The list of checks and, for each, the limit sections it reads; a check's pin is the BLAKE3 of those, its own code and the shared code. |
 | `do-work/rendercheck/sfx.py`, `media.py`, `report.py`, `jsonio.py`, `config.py` | Shared: the added sound effects, ffmpeg reading, findings and the printout, JSON, limits loading. |
+| `do-work/rendercheck/inspect_settle.py`, `inspect_type.py`, `inspect_eyes.py`, `inspect_placement.py` | `inspect settle\|type-sync\|eyes\|placement`: the numbers behind one check's verdict, computed by the check's own functions; the readable lines go to standard error. |
+| `do-work/rendercheck/spans.py` | `export-spans`: the source stretches a folder of specs plays, less those already held, exported as placement base footage (`--project`: nothing is exported while the editor project's media is offline). |
+| `ports/*.json` | The port contracts: each inspect module and spans.py port a script of a film's checker helpers (byte copy first, then adapted); cli.py and config.py are changed in place. |
 | `do-work/rendercheck/review_pack.py` | `review-pack`: per video, contact sheets, a transcript and the rules of one kind, for a reviewer who has seen nothing else. |
 | `do-work/rendercheck/vision_landmarks.py` | Face landmarks (eye and mouth openness) of still images from Apple Vision, run by `held-face` with a macOS python that has the Vision bindings. |
 | `test/fixtures/limits-for-generated-videos.json` | A worked example of the limits file, with synthetic numbers chosen for the generated test videos. It is not a recommendation and the tool never reads it outside the tests. |
+| `test/test_inspect_and_spans.py`, `test/test_settings_row.py` | `pins`, `inspect`, `export-spans`; the limits and reviewed pins read from a list:settings row and from a request. |
 | `test/test_*.py` | One passing and one failing case per check on small synthetic videos made with ffmpeg. |
 | `test/run_tests.py` | Runs them all: `python3 test/run_tests.py` (or one file: `python3 test/run_tests.py test_checks.py`). |
 | `test/check-a-rendered-video.test.mjs`, `test/check_environment.py` | Run those tests under `npm test`; skip, saying why, when python3, ffmpeg, numpy, OpenCV, Pillow, SciPy or blake3 is missing. |
@@ -54,6 +60,18 @@ python3 do-work/check_a_rendered_video.py variety ./film/ledger --limits my-limi
 python3 do-work/check_a_rendered_video.py declare ./film/ledger --lane b --option m4-1 --moment 2:19 --techniques chart-card,zoom-detail --kind built
 python3 do-work/check_a_rendered_video.py map-add ./film/ledger --id chart-card --event-types chart [--chapter1]
 ```
+
+```
+python3 do-work/check_a_rendered_video.py pins --limits my-settings-row.json [--reviewed my-settings-row.json]
+python3 do-work/check_a_rendered_video.py inspect settle my-video.mp4 --spec my-video.json --limits my-limits.json [--from 2 --to 6]
+python3 do-work/check_a_rendered_video.py inspect type-sync my-video.mp4 --spec my-video.json --limits my-limits.json
+python3 do-work/check_a_rendered_video.py inspect eyes landmarks.json [--lowest 14]
+python3 do-work/check_a_rendered_video.py inspect placement findings.json [...]
+python3 do-work/check_a_rendered_video.py export-spans ./specs --limits my-limits.json --bases-key REGEX --out-dir ./bases --export '["my-exporter", "--start", "{from}", "--end", "{to}", "{out}"]' --fps 23.976 --pad 1.0 --duration-tolerance-s 0.2 [--lock FILE] [--dry-run]
+echo '{"argv": ["pins"], "settings_record": "record:setting:check-a-rendered-video~film~my-film"}' | node ../settings/do-work/run-with-settings.mjs --folder check-a-rendered-video -- python3 do-work/check_a_rendered_video.py request
+```
+
+`pins` prints every check's pin now and, against the person's reviewed pins, which changed, which are new and which are gone: a check whose pin changed has new code or limits, so the verdicts recorded on it wait for the person to review it again; the person (never the builder whose work it judges) then writes the new pins into `reviewed_pins` of their settings row. `inspect` prints the numbers behind one check's verdict, through the check's own functions (settle's landing windows and beats, the mass and centroid it reads, its occlusions and per-frame motion; type-sync's per-line reveal; the eye and mouth openness `held_face.eye_open_min` is chosen from; placement's per-box heat and exit heat from `--json` findings), for a person tuning a limit. `export-spans` exports only the stretches of the source footage a folder of specs plays (cuts, holds and stitched openings mapped), less what `placement.bases[REGEX]` already holds, through the person's own exporter command, under an optional lock shared with their renders (`FILM_RENDER_LOCK_HELD` names a lock the parent already holds), checks each file's frame size, rate and length, and prints the rows to add to `placement.bases[REGEX]`; it never edits the limits. Each prints `{"result": ...}` as its last line.
 
 `review-pack` writes, per video, `sheet-NN.jpg` (one frame a second, 16 to a sheet), `transcript.txt` and `rules.txt` (the rows of a `{rows: [{id, rule, kinds}]}` file whose kinds include `--kind`): the input of a fresh-viewer review, with no spec and no checker output. `variety` judges the whole technique ledger at once (exit 1 on a breach); `declare` appends a ledger row and `map-add` a technique to `technique-map.json`, both under the folder's `.ledger.lock` (a wrapper that already holds it exports `FILM_LEDGER_LOCK_HELD` with its path) and both refuse an unknown or already-mapped technique.
 
@@ -117,10 +135,11 @@ The overlay is `--overlay` or the spec's `overlay_file`, with its timeline (the 
 | check module | `NAME`, `needs(ctx) => reason \| None`, `run(ctx) => [Finding]` | One check. `OVERLAY_ONLY` and `EMPTY_SET` say how an absent overlay or an empty kind is reported. |
 | `Context` | `(video, spec, cfg, overlay, timeline, words, source_words, recipe, cache_dir)` | Time maps (`joins()`, `source_time()`, `hold_spans()`) and lazy `overlay_alpha()`, `audio()`, `preview_words()`. |
 | `pins.check_pins` | `(cfg) => { check: blake3 }` | A per-check identity, so a recorded verdict on a check can be told stale when that check changed. |
+| `config.load`, `config.load_reviewed` | `(path) => limits`, `(path) => { check: pin }` | A bare file, or `settings.limits` / `settings.reviewed_pins` of an active list:settings row (read by tools/settings `settings_of`). |
 
 ## Dependencies
 
-**Depends on:** Python 3.10+, ffmpeg, numpy, OpenCV (`cv2`), Pillow, SciPy (`scipy.ndimage`), blake3 (or `b3sum` on the path), and for speech timings `mlx-whisper` (Apple silicon) or a `--words` file. `bridge` asks a local ollama model (the limits name it and its endpoint); `held-face` runs `vision_landmarks.py` with the python named by the env `LANDMARKS_PYTHON` or the limits' `held_face.python` (macOS with `pyobjc-framework-Vision`). Without them those checks say not measured.
+**Depends on:** Python 3.10+, ffmpeg, numpy, OpenCV (`cv2`), Pillow, SciPy (`scipy.ndimage`), blake3 (or `b3sum` on the path), and for speech timings `mlx-whisper` (Apple silicon) or a `--words` file. `bridge` asks a local ollama model (the limits name it and its endpoint); `held-face` runs `vision_landmarks.py` with the python named by the env `LANDMARKS_PYTHON` or the limits' `held_face.python` (macOS with `pyobjc-framework-Vision`). Without them those checks say not measured. A settings row is read through `tools/settings` (`read-data/settings.py`, beside this folder or at `/opt/settings`).
 
 **Depended on by:** `tool-rows.json` (`tool:check-a-rendered-video`), run on the person's computer by their AI.
 

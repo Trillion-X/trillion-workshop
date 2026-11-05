@@ -1,0 +1,85 @@
+{
+ "settings": {
+  "fetched": "a made-up morning",
+  "listing_url": "https://example.com/listing?id=",
+  "over_budget": {"ratio": 1.2, "min_words": 3},
+  "standard_holes": ["| [real run of {cap.id}] | every screen | one real run |"],
+  "fill_page": [
+   "# Fill: {format.short} x \"{listing.title}\"\n",
+   "- Listing: `{listing_file}` ({settings.listing_url}{cap.id}, read {settings.fetched})",
+   "| # | slot | line | budget | words | diff | {format.template.time_label} |",
+   {"each": "fill.line_rows", "as": "r", "item": "{r}"},
+   "Total: {fill.words} of {fill.budget} ({fill.pct} %).",
+   {"if": "fill.over", "then": "Over budget: {fill.over}.", "else": "No line is over budget."},
+   {"if": "fill.extra", "then": "{fill.extra}"},
+   {"each": "fill.slot_rows", "as": "r", "item": "{r}"},
+   {"each": "fill.shoot_items", "as": "r", "item": "{r}"},
+   {"each": "fill.reuse_items", "as": "r", "item": "{r}"},
+   "| hole | where | what would fill it |",
+   {"each": "fill.hole_rows", "as": "r", "item": "{r}"}
+  ]
+ },
+ "formats": [
+  {
+   "id": "counter-chat",
+   "short": "counter",
+   "template": {
+    "time_label": "secs",
+    "values": {
+     "nm": {"if": "cap.spoken", "then": "{cap.spoken}", "else": "a Lantern {cap.kind}"},
+     "steps": {"if": "listing.steps", "then": {"each": "listing.steps", "as": "s", "item": "\"{s}\"", "sep": " -> "}, "else": "the recipe card, then the jug"}
+    },
+    "lines": [
+     {"no": 1, "slot": 1, "text": "Hi, today I'm showing you {v.nm}.", "budget": 8, "secs": 2.5},
+     {"no": 2, "slot": 2, "text": "{cap.pain}. It got me <<3|the real count|the till roll for one morning>>. Then it got better.", "budget": 12, "secs": 4.0}
+    ],
+    "slots": [
+     {"slot": "1", "time": "0-3", "line": "L1", "picture": "a pour of {cap.id}", "made": "filmed"},
+     {"slot": "2", "time": "3-8", "line": "L2", "picture": "the steps: {v.steps}, then <<0|first pour|a real pour on the day>>", "made": "filmed"}
+    ],
+    "shoot": ["Film {cap.id} at the counter."],
+    "reuse": ["One counter for every fill."],
+    "extra": "\nOpen on <<0|opening day|the shop's own calendar>>.\n"
+   }
+  },
+  {
+   "id": "silent-card",
+   "short": "card",
+   "template": {
+    "count": "quoted-words",
+    "time_label": "secs",
+    "others": {"present_first": "spoken", "limit": 6},
+    "values": {"others": {"each": "others", "as": "o", "item": "\"{o.listing.title}\"", "sep": " / "}},
+    "lines": [
+     {"no": 1, "slot": 1, "text": "(card slides in) badge \"{listing.title}\" next to {v.others}", "budget": 6, "secs": 3}
+    ],
+    "slots": [{"slot": "1", "time": "0-3", "line": "L1", "picture": "title card", "made": "motion graphics"}],
+    "shoot": [],
+    "reuse": []
+   }
+  }
+ ],
+ "capabilities": [
+  {"key": "steeper", "id": "tool:steeper", "kind": "tool", "spoken": "Steeper", "pain": "Cups went cold while I waited"},
+  {"key": "cold-brew", "id": "workflow:cold-brew", "kind": "recipe", "spoken": null, "pain": "Jugs sat warm"}
+ ],
+ "listings": {
+  "tool:steeper": {"file": "listings/tool-steeper.json", "listing": {"title": "Steeper", "job": "steep a pot", "steps": ["Warm the pot", "Steep", "Pour"]}},
+  "workflow:cold-brew": {"file": "listings/workflow-cold-brew.json", "listing": {"title": "Cold brew overnight", "job": "make cold brew", "steps": []}}
+ },
+ "index": {
+  "file": "INDEX.md",
+  "page": [
+   "# Tea shop fills\n",
+   "{index.matrix_header}",
+   "{index.matrix_rule}",
+   {"each": "index.matrix_rows", "as": "r", "item": "{r}"},
+   "| kind | count |",
+   {"each": "buckets", "as": "b", "item": "| {b.label} | {b.count} |"},
+   "Total: {index.bucket_total}."
+  ],
+  "counts": {"R": 7},
+  "buckets": [{"label": "Recipes", "count_from": "R"}, {"label": "Kettles", "count": 2}],
+  "matrix": {"row": "\"{listing.title}\"", "column": "{format.short}", "cell": "[{fill.words}/{fill.budget}]({fill.file})"}
+ }
+}

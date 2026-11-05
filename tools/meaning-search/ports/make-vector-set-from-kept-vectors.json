@@ -1,0 +1,49 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEANING-SEARCH-KEPT-VECTORS",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:fe9fad1eedf57184e6755e02e25beb54a0f50eb6e19faaa13caf4b6b114012fa",
+   "lines": [41, 77],
+   "multihash": "1f:639a4ebbfb480e8c1702a842352ddca074e56bb5791bd2176d885aee58319e1a",
+   "ownership": "repository-owned",
+   "old_copy": { "deleted_by": "2026-11-08" }
+  }
+ ],
+ "targets": [ { "path": "tools/meaning-search/do-work/make_vector_set_from_kept_vectors.py" } ],
+ "preserve": [
+  "the stores are read as q.py read them: the asset index's matrices and ids, the timed frames cut to the shorter of the two files, the results store's picture-vectors frames of the right size with their path and time, and the namespace store's live aliases as each video's b2 id; every source opened read-only"
+ ],
+ "allowed_deltas": [
+  "the stores are arguments (--asset-index, --ssd-index, --expansion-results, --namespace, --kind) instead of what the place reports in its environment",
+  "each store is written as a vector set (items.jsonl, vectors.npy, vector-set.json) instead of being searched here; the search is findSimilarAcross",
+  "the readable names of the asset index are read for every item, not only for the hits"
+ ],
+ "banned_substitutions": [
+  "a person's index folders, drives or film folders written into the code",
+  "a second search beside meaning-search's"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T00:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:639a4ebbfb480e8c1702a842352ddca074e56bb5791bd2176d885aee58319e1a",
+  "target_multihash_at_baseline": "1f:639a4ebbfb480e8c1702a842352ddca074e56bb5791bd2176d885aee58319e1a",
+  "commit": "57ba5bc3e08a001f0d804d290cb6a8617d4a4f9f"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/meaning-search/test/kept_vectors_check.py AssetIndex.test_videos_and_images_become_sets_with_readable_names",
+   "tools/meaning-search/test/kept_vectors_check.py ResultsStore.test_frames_become_timed_items_a_wrong_sized_vector_is_skipped_and_the_b2_id_is_carried",
+   "tools/meaning-search/test/kept_vectors_check.py ResultsStore.test_the_stores_are_only_read"
+  ]
+ }
+}
