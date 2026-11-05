@@ -1,0 +1,1711 @@
+{
+ "id": "move:trillion-sweep-scripts-to-apps",
+ "about": "The old-trillion sweep, scripts lane: every file under scripts/ (and the tests in test/ that reach them) still only on old trillion main 5dc302be37 with no copy in a new repository, carried byte for byte into trillion-apps web/, which keeps the old web app's own paths under it (web/scripts, web/test), beside the build, deploy and check code already there. They are the old app's own build, deploy, release, proof and repository-guard scripts, so they belong with the app (engine-feature-boundary.json: screens, app parts and their release/build/deploy scripts are trillion-apps). One group per file, so a file whose import has no home yet is held alone. Files whose import is home in the Workshop package import it there; files a newer copy here already adapted are adapted_homes. src/typed-operation-contract.mjs comes too, as old main held it, into web/src: the Workshop's newer tools/shared-code copy imports a .ts file that Node will not strip under node_modules, so the scripts that import it cannot load it from the package.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-apps",
+  "package": "trillion-apps",
+  "shared_folder": "web"
+ },
+ "groups": [
+  {
+   "id": "scripts-readme-md",
+   "owner": [
+    "scripts/README.md"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-advance-shared-checkout-mjs",
+   "owner": [
+    "scripts/advance-shared-checkout.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-agent-tool-eval-core-mjs",
+   "owner": [
+    "scripts/agent-tool-eval-core.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-agent-tool-eval-models-json",
+   "owner": [
+    "scripts/agent-tool-eval-models.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-annotate-activity-proof-mjs",
+   "owner": [
+    "scripts/annotate-activity-proof.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-annotate-audience-question-screenshot-mjs",
+   "owner": [
+    "scripts/annotate-audience-question-screenshot.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-annotate-marketplace-tour-proof-mjs",
+   "owner": [
+    "scripts/annotate-marketplace-tour-proof.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-attach-site-worker-bundle-mjs",
+   "owner": [
+    "scripts/attach-site-worker-bundle.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-audit-action-surfaces-mjs",
+   "owner": [
+    "scripts/audit-action-surfaces.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-backfill-done-when-rules-json",
+   "owner": [
+    "scripts/backfill-done-when-rules.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-backfill-done-when-rules-mjs",
+   "owner": [
+    "scripts/backfill-done-when-rules.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-build-chatgpt-plugin-mjs",
+   "owner": [
+    "scripts/build-chatgpt-plugin.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-build-mjs",
+   "owner": [
+    "scripts/build.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-carry-public-app-name-claims-mjs",
+   "owner": [
+    "scripts/carry-public-app-name-claims.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-committed-credentials-mjs",
+   "owner": [
+    "scripts/check-committed-credentials.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-copy-mjs",
+   "owner": [
+    "scripts/check-copy.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-delight-mjs",
+   "owner": [
+    "scripts/check-delight.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-generated-files-mjs",
+   "owner": [
+    "scripts/check-generated-files.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-person-facts-mjs",
+   "owner": [
+    "scripts/check-person-facts.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-port-fidelity-json",
+   "owner": [
+    "scripts/check-port-fidelity.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-port-fidelity-mjs",
+   "owner": [
+    "scripts/check-port-fidelity.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-pushed-person-facts-mjs",
+   "owner": [
+    "scripts/check-pushed-person-facts.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-reaches-mjs",
+   "owner": [
+    "scripts/check-reaches.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-check-shell-strings-mjs",
+   "owner": [
+    "scripts/check-shell-strings.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-ci-usage-mjs",
+   "owner": [
+    "scripts/ci-usage.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-classify-legacy-passkeys-mjs",
+   "owner": [
+    "scripts/classify-legacy-passkeys.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-commit-on-current-main-mjs",
+   "owner": [
+    "scripts/commit-on-current-main.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-commit-paths-sh",
+   "owner": [
+    "scripts/commit-paths.sh"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-compare-early-metadata-mjs",
+   "owner": [
+    "scripts/compare-early-metadata.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-compare-share-poster-priority-mjs",
+   "owner": [
+    "scripts/compare-share-poster-priority.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-correct-message-authored-at-mjs",
+   "owner": [
+    "scripts/correct-message-authored-at.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-correct-message-provenance-mjs",
+   "owner": [
+    "scripts/correct-message-provenance.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-credential-shapes-json",
+   "owner": [
+    "scripts/credential-shapes.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-collaboration-mjs",
+   "owner": [
+    "scripts/customer-collaboration.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-conversation-fixtures-mjs",
+   "owner": [
+    "scripts/customer-conversation-fixtures.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-conversation-methodology-md",
+   "owner": [
+    "scripts/customer-conversation-methodology.md"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-conversation-scenarios-json",
+   "owner": [
+    "scripts/customer-conversation-scenarios.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-driver-reply-mjs",
+   "owner": [
+    "scripts/customer-driver-reply.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-proof-outcome-mjs",
+   "owner": [
+    "scripts/customer-proof-outcome.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-source-pin-mjs",
+   "owner": [
+    "scripts/customer-source-pin.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-test-evidence-mjs",
+   "owner": [
+    "scripts/customer-test-evidence.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-customer-usability-mjs",
+   "owner": [
+    "scripts/customer-usability.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deleted-code-homes-mjs",
+   "owner": [
+    "scripts/deleted-code-homes.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-build-progress-mjs",
+   "owner": [
+    "scripts/deploy-build-progress.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-gate-mjs",
+   "owner": [
+    "scripts/deploy-gate.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-guard-suite-mjs",
+   "owner": [
+    "scripts/deploy-guard-suite.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-guard-tests-json",
+   "owner": [
+    "scripts/deploy-guard-tests.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-guard-mjs",
+   "owner": [
+    "scripts/deploy-guard.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-lock-mjs",
+   "owner": [
+    "scripts/deploy-lock.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-deploy-order-mjs",
+   "owner": [
+    "scripts/deploy-order.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-dispatch-failure-text-mjs",
+   "owner": [
+    "scripts/dispatch-failure-text.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-embed-proof-images-mjs",
+   "owner": [
+    "scripts/embed-proof-images.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-export-public-app-name-claim-inventory-mjs",
+   "owner": [
+    "scripts/export-public-app-name-claim-inventory.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-failed-tests-reporter-mjs",
+   "owner": [
+    "scripts/failed-tests-reporter.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-fill-answer-mjs",
+   "owner": [
+    "scripts/fill-answer.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-fill-purchase-names-mjs",
+   "owner": [
+    "scripts/fill-purchase-names.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-first-paint-evidence-mjs",
+   "owner": [
+    "scripts/first-paint-evidence.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-generated-files-json",
+   "owner": [
+    "scripts/generated-files.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-git-hooks-post-checkout",
+   "owner": [
+    "scripts/git-hooks/post-checkout"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-git-hooks-pre-commit",
+   "owner": [
+    "scripts/git-hooks/pre-commit"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-git-hooks-pre-push",
+   "owner": [
+    "scripts/git-hooks/pre-push"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-git-hooks-pre-rebase",
+   "owner": [
+    "scripts/git-hooks/pre-rebase"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-git-hooks-reference-transaction",
+   "owner": [
+    "scripts/git-hooks/reference-transaction"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-growing-tables-json",
+   "owner": [
+    "scripts/growing-tables.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-guard-continue-mjs",
+   "owner": [
+    "scripts/guard-continue.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-guard-selection-mjs",
+   "owner": [
+    "scripts/guard-selection.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-hooks-from-main-mjs",
+   "owner": [
+    "scripts/hooks-from-main.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-inspect-payment-episode-mjs",
+   "owner": [
+    "scripts/inspect-payment-episode.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-keep-platform-key-mjs",
+   "owner": [
+    "scripts/keep-platform-key.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-keychain-read-allowance-json",
+   "owner": [
+    "scripts/keychain-read-allowance.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-limits-only-go-down-mjs",
+   "owner": [
+    "scripts/limits-only-go-down.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-lint-unbounded-reads-mjs",
+   "owner": [
+    "scripts/lint-unbounded-reads.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-local-catalogue-publication-mjs",
+   "owner": [
+    "scripts/local-catalogue-publication.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-local-cost-runtime-mjs",
+   "owner": [
+    "scripts/local-cost-runtime.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-local-cost-source-map-mjs",
+   "owner": [
+    "scripts/local-cost-source-map.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-local-cost-worker-mjs",
+   "owner": [
+    "scripts/local-cost-worker.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-local-host-calls-mjs",
+   "owner": [
+    "scripts/local-host-calls.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-local-proxy-mjs",
+   "owner": [
+    "scripts/local-proxy.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-make-device-looks-mjs",
+   "owner": [
+    "scripts/make-device-looks.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-make-embedded-faces-mjs",
+   "owner": [
+    "scripts/make-embedded-faces.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-make-embedded-shell-css-mjs",
+   "owner": [
+    "scripts/make-embedded-shell-css.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-marketplace-content-actions-json",
+   "owner": [
+    "scripts/marketplace-content-actions.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-marketplace-content-inventory-mjs",
+   "owner": [
+    "scripts/marketplace-content-inventory.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-measure-attention-mjs",
+   "owner": [
+    "scripts/measure-attention.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-measure-decision-evals-mjs",
+   "owner": [
+    "scripts/measure-decision-evals.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-measure-shared-video-speed-mjs",
+   "owner": [
+    "scripts/measure-shared-video-speed.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-measure-visual-embeddinggemma2-py",
+   "owner": [
+    "scripts/measure-visual-embeddinggemma2.py"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-merge-method-classifications-mjs",
+   "owner": [
+    "scripts/merge-method-classifications.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-method-checks-mjs",
+   "owner": [
+    "scripts/method-checks.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-method-sources-mjs",
+   "owner": [
+    "scripts/method-sources.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-miniflare-config-grows-by-doubling-mjs",
+   "owner": [
+    "scripts/miniflare-config-grows-by-doubling.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-namespace-import-state-mjs",
+   "owner": [
+    "scripts/namespace-import-state.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-narrow-width-findings-json",
+   "owner": [
+    "scripts/narrow-width-findings.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-native-baseline-source-comparison-mjs",
+   "owner": [
+    "scripts/native-baseline-source-comparison.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-native-preview-proof-mjs",
+   "owner": [
+    "scripts/native-preview-proof.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-one-checkout-mjs",
+   "owner": [
+    "scripts/one-checkout.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-one-shared-checkout-guard-json",
+   "owner": [
+    "scripts/one-shared-checkout-guard.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-one-shared-checkout-guard-mjs",
+   "owner": [
+    "scripts/one-shared-checkout-guard.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-page-steps-mjs",
+   "owner": [
+    "scripts/page-steps.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-paid-proof-account-mjs",
+   "owner": [
+    "scripts/paid-proof-account.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-person-facts-known-json",
+   "owner": [
+    "scripts/person-facts-known.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-person-facts-json",
+   "owner": [
+    "scripts/person-facts.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-portable-service-connection-mjs",
+   "owner": [
+    "scripts/portable-service-connection.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-portable-service-host-setup-sh",
+   "owner": [
+    "scripts/portable-service-host-setup.sh"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-presentation-budget-mjs",
+   "owner": [
+    "scripts/presentation-budget.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-proof-ai-switches-mjs",
+   "owner": [
+    "scripts/proof-ai-switches.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-anatomy-explainer-mjs",
+   "owner": [
+    "scripts/prove-anatomy-explainer.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-audience-question-live-mjs",
+   "owner": [
+    "scripts/prove-audience-question-live.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-catalogue-screens-json",
+   "owner": [
+    "scripts/prove-catalogue-screens.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-chat-intake-live-mjs",
+   "owner": [
+    "scripts/prove-chat-intake-live.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-dynamic-controls-showcase-mjs",
+   "owner": [
+    "scripts/prove-dynamic-controls-showcase.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-events-mjs",
+   "owner": [
+    "scripts/prove-events.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-isolated-saved-screen-browser-mjs",
+   "owner": [
+    "scripts/prove-isolated-saved-screen-browser.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-mounted-namespace-metadata-py",
+   "owner": [
+    "scripts/prove-mounted-namespace-metadata.py"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-prove-send-to-trillion-mjs",
+   "owner": [
+    "scripts/prove-send-to-trillion.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-public-app-domain-deployment-json",
+   "owner": [
+    "scripts/public-app-domain-deployment.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-public-app-domain-deployment-mjs",
+   "owner": [
+    "scripts/public-app-domain-deployment.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-publish-current-main-mjs",
+   "owner": [
+    "scripts/publish-current-main.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-publish-marketplace-screens-mjs",
+   "owner": [
+    "scripts/publish-marketplace-screens.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-publish-public-app-manifest-mjs",
+   "owner": [
+    "scripts/publish-public-app-manifest.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-publish-registry-mjs",
+   "owner": [
+    "scripts/publish-registry.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-pushed-work-kept-json",
+   "owner": [
+    "scripts/pushed-work-kept.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-pushed-work-kept-mjs",
+   "owner": [
+    "scripts/pushed-work-kept.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-qualify-marketplace-method-consumers-mjs",
+   "owner": [
+    "scripts/qualify-marketplace-method-consumers.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-reaches-baseline-json",
+   "owner": [
+    "scripts/reaches-baseline.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-reaches-json",
+   "owner": [
+    "scripts/reaches.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-read-file-identities-mjs",
+   "owner": [
+    "scripts/read-file-identities.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-record-marketplace-public-app-mjs",
+   "owner": [
+    "scripts/record-marketplace-public-app.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-render-worldview-mjs",
+   "owner": [
+    "scripts/render-worldview.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-reopen-incorrect-handoff-finish-mjs",
+   "owner": [
+    "scripts/reopen-incorrect-handoff-finish.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-repo-copy-owners-json",
+   "owner": [
+    "scripts/repo-copy-owners.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-repository-config-witness-mjs",
+   "owner": [
+    "scripts/repository-config-witness.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-retired-paths-json",
+   "owner": [
+    "scripts/retired-paths.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-review-public-surface-mjs",
+   "owner": [
+    "scripts/review-public-surface.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-run-always-guards-mjs",
+   "owner": [
+    "scripts/run-always-guards.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-screen-matrix-screens-json",
+   "owner": [
+    "scripts/screen-matrix-screens.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-screen-mount-inventory-mjs",
+   "owner": [
+    "scripts/screen-mount-inventory.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-set-site-worker-backend-mjs",
+   "owner": [
+    "scripts/set-site-worker-backend.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-smoke-routes-json",
+   "owner": [
+    "scripts/smoke-routes.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-source-lifecycle-preflight-mjs",
+   "owner": [
+    "scripts/source-lifecycle-preflight.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-staged-imports-resolve-json",
+   "owner": [
+    "scripts/staged-imports-resolve.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-staged-imports-resolve-mjs",
+   "owner": [
+    "scripts/staged-imports-resolve.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-start-built-workers-mjs",
+   "owner": [
+    "scripts/start-built-workers.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-stored-file-parts-mjs",
+   "owner": [
+    "scripts/stored-file-parts.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-test-cache-folder-mjs",
+   "owner": [
+    "scripts/test-cache-folder.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-test-runs-mjs",
+   "owner": [
+    "scripts/test-runs.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-test-mjs",
+   "owner": [
+    "scripts/test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-unbounded-reads-baseline-json",
+   "owner": [
+    "scripts/unbounded-reads-baseline.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-visual-check-account-mjs",
+   "owner": [
+    "scripts/visual-check-account.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-visual-check-dockerfile",
+   "owner": [
+    "scripts/visual-check.Dockerfile"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-visual-checks-json",
+   "owner": [
+    "scripts/visual-checks.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-waiting-for-an-ai-mjs",
+   "owner": [
+    "scripts/waiting-for-an-ai.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-worked-example-json",
+   "owner": [
+    "scripts/worked-example.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-worked-example-mjs",
+   "owner": [
+    "scripts/worked-example.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-worker-bundle-plugins-mjs",
+   "owner": [
+    "scripts/worker-bundle-plugins.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-workerd-production-clock-mjs",
+   "owner": [
+    "scripts/workerd-production-clock.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-workshop-typescript-env-mjs",
+   "owner": [
+    "scripts/workshop-typescript-env.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-workshop-typescript-hooks-mjs",
+   "owner": [
+    "scripts/workshop-typescript-hooks.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-workshop-typescript-mjs",
+   "owner": [
+    "scripts/workshop-typescript.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-workspace-budgets-json",
+   "owner": [
+    "scripts/workspace-budgets.json"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-worldview-speakers-mjs",
+   "owner": [
+    "scripts/worldview-speakers.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "scripts-wrangler-credential-reader-mjs",
+   "owner": [
+    "scripts/wrangler-credential-reader.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-advance-shared-checkout-test-mjs",
+   "owner": [
+    "test/advance-shared-checkout.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-backfill-done-when-rules-test-mjs",
+   "owner": [
+    "test/backfill-done-when-rules.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-check-bundle-part-boundaries-test-mjs",
+   "owner": [
+    "test/check-bundle-part-boundaries.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-check-retired-paths-test-mjs",
+   "owner": [
+    "test/check-retired-paths.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-ci-usage-test-mjs",
+   "owner": [
+    "test/ci-usage.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-commit-on-current-main-test-mjs",
+   "owner": [
+    "test/commit-on-current-main.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-committed-credentials-guard-test-mjs",
+   "owner": [
+    "test/committed-credentials-guard.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-concurrent-gates-share-nothing-test-mjs",
+   "owner": [
+    "test/concurrent-gates-share-nothing.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-copy-owner-placement-test-mjs",
+   "owner": [
+    "test/copy-owner-placement.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-copy-required-owner-test-mjs",
+   "owner": [
+    "test/copy-required-owner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-credential-file-test-mjs",
+   "owner": [
+    "test/credential-file.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-customer-notification-navigation-test-mjs",
+   "owner": [
+    "test/customer-notification-navigation.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-customer-proof-outcome-test-mjs",
+   "owner": [
+    "test/customer-proof-outcome.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-customer-remote-browser-test-mjs",
+   "owner": [
+    "test/customer-remote-browser.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-customer-test-evidence-test-mjs",
+   "owner": [
+    "test/customer-test-evidence.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-customer-video-output-test-mjs",
+   "owner": [
+    "test/customer-video-output.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deleted-code-homes-test-mjs",
+   "owner": [
+    "test/deleted-code-homes.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-build-progress-test-mjs",
+   "owner": [
+    "test/deploy-build-progress.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-guard-bucket-read-retry-test-mjs",
+   "owner": [
+    "test/deploy-guard-bucket-read-retry.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-guard-file-timeout-test-mjs",
+   "owner": [
+    "test/deploy-guard-file-timeout.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-guard-stop-when-test-mjs",
+   "owner": [
+    "test/deploy-guard-stop-when.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-guard-suite-test-mjs",
+   "owner": [
+    "test/deploy-guard-suite.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-guard-timing-test-mjs",
+   "owner": [
+    "test/deploy-guard-timing.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-guards-test-mjs",
+   "owner": [
+    "test/deploy-guards.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deploy-provider-read-recovery-test-mjs",
+   "owner": [
+    "test/deploy-provider-read-recovery.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-deployment-gate-test-mjs",
+   "owner": [
+    "test/deployment-gate.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-derived-tool-controls-test-mjs",
+   "owner": [
+    "test/derived-tool-controls.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-failed-tests-reporter-test-mjs",
+   "owner": [
+    "test/failed-tests-reporter.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-film-copy-owner-test-mjs",
+   "owner": [
+    "test/film-copy-owner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-guard-known-failures-test-mjs",
+   "owner": [
+    "test/guard-known-failures.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-guard-trailer-keeps-core-and-failed-test-mjs",
+   "owner": [
+    "test/guard-trailer-keeps-core-and-failed.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-hooks-from-main-test-mjs",
+   "owner": [
+    "test/hooks-from-main.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-interactive-lesson-copy-owner-test-mjs",
+   "owner": [
+    "test/interactive-lesson-copy-owner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-limits-only-go-down-test-mjs",
+   "owner": [
+    "test/limits-only-go-down.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-marketplace-content-shrink-only-test-mjs",
+   "owner": [
+    "test/marketplace-content-shrink-only.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-method-sources-test-mjs",
+   "owner": [
+    "test/method-sources.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-module-download-graph-test-mjs",
+   "owner": [
+    "test/module-download-graph.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-native-preview-proof-test-mjs",
+   "owner": [
+    "test/native-preview-proof.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-no-mac-vault-road-test-mjs",
+   "owner": [
+    "test/no-mac-vault-road.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-one-checkout-test-mjs",
+   "owner": [
+    "test/one-checkout.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-one-copy-of-each-rule-test-mjs",
+   "owner": [
+    "test/one-copy-of-each-rule.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-one-shared-checkout-guard-test-mjs",
+   "owner": [
+    "test/one-shared-checkout-guard.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-open-source-notices-test-mjs",
+   "owner": [
+    "test/open-source-notices.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-paid-proof-account-grant-test-mjs",
+   "owner": [
+    "test/paid-proof-account-grant.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-paid-proof-account-test-mjs",
+   "owner": [
+    "test/paid-proof-account.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-paid-proof-owner-test-mjs",
+   "owner": [
+    "test/paid-proof-owner.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-portable-service-connection-test-mjs",
+   "owner": [
+    "test/portable-service-connection.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-pre-push-always-guards-test-mjs",
+   "owner": [
+    "test/pre-push-always-guards.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-public-app-domain-config-test-mjs",
+   "owner": [
+    "test/public-app-domain-config.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-public-app-domain-deployment-test-mjs",
+   "owner": [
+    "test/public-app-domain-deployment.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-public-app-name-claim-inventory-test-mjs",
+   "owner": [
+    "test/public-app-name-claim-inventory.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-publish-current-main-mode-test-mjs",
+   "owner": [
+    "test/publish-current-main-mode.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-pushed-work-kept-test-mjs",
+   "owner": [
+    "test/pushed-work-kept.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-read-file-identities-test-mjs",
+   "owner": [
+    "test/read-file-identities.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-repository-config-witness-test-mjs",
+   "owner": [
+    "test/repository-config-witness.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-retired-paths-stay-retired-test-mjs",
+   "owner": [
+    "test/retired-paths-stay-retired.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-screen-mount-shrink-only-test-mjs",
+   "owner": [
+    "test/screen-mount-shrink-only.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-source-composition-copy-test-mjs",
+   "owner": [
+    "test/source-composition-copy.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-source-lifecycle-preflight-test-mjs",
+   "owner": [
+    "test/source-lifecycle-preflight.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-support-fixture-git-env-mjs",
+   "owner": [
+    "test/support/fixture-git-env.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-test-cache-folder-test-mjs",
+   "owner": [
+    "test/test-cache-folder.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-test-launcher-checks-settings-test-mjs",
+   "owner": [
+    "test/test-launcher-checks-settings.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-test-runs-strict-guards-test-mjs",
+   "owner": [
+    "test/test-runs-strict-guards.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-trigger-engine-test-mjs",
+   "owner": [
+    "test/trigger-engine.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-unbounded-reads-lint-test-mjs",
+   "owner": [
+    "test/unbounded-reads-lint.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-visual-check-account-test-mjs",
+   "owner": [
+    "test/visual-check-account.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-without-git-location-test-mjs",
+   "owner": [
+    "test/without-git-location.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-workerd-production-clock-test-mjs",
+   "owner": [
+    "test/workerd-production-clock.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-workflow-engine-test-mjs",
+   "owner": [
+    "test/workflow-engine.test.mjs"
+   ],
+   "to": "web"
+  },
+  {
+   "id": "test-wrangler-credential-reader-test-mjs",
+   "owner": [
+    "test/wrangler-credential-reader.test.mjs"
+   ],
+   "to": "web"
+  }
+ ],
+ "keep": [
+  "parts/judge-words/",
+  "records/marketplace-screens.json",
+  "records/workshop-tool-records.json"
+ ],
+ "read_as_rows": [
+  "methods/",
+  "records/copy-rules.json"
+ ],
+ "homes_in_packages": [
+  {
+   "from": "parts/delight-moments/read-data/choose-moment.mjs",
+   "home": "trillion-workshop/tools/make-things-feel-good/read-data/choose-moment.mjs",
+   "source_identity": "1f:8df8e48fe8e0a569b957dcc884f8a0623541d3cf90712e5569b9706a1df32b25"
+  },
+  {
+   "from": "parts/feel/read-data/choose-feel.mjs",
+   "home": "trillion-workshop/tools/make-things-feel-good/read-data/choose-feel.mjs",
+   "source_identity": "1f:1cdd10b6174773e8f35dd562fdea5c789ecda4196d04dd60a25a895d432f381a"
+  },
+  {
+   "from": "scripts/built-worker-folder.mjs",
+   "home": "trillion-workshop/tools/shared-code/scripts/built-worker-folder.mjs",
+   "source_identity": "1f:7a45b9f4e28922f3b1a1729c534426b434853256103885e5ea2e0505823c0912"
+  },
+  {
+   "from": "server.json",
+   "home": "trillion-workshop/tools/keep-and-wake-ai-sessions-on-this-computer/server.json",
+   "source_identity": "1f:d07917b7540326e824c82fb4ba63c9c2c6a52ead7844d3790919eabb02389c6e"
+  }
+ ],
+ "adapted_homes": [
+  {
+   "from": "scripts/build-formula-evaluator.mjs",
+   "home": "web/scripts/build-formula-evaluator.mjs",
+   "why": "trillion-apps already holds this file at web/scripts/build-formula-evaluator.mjs, carried earlier and then changed here for the web/ layout (the diff against old main is those changes only); the copy here is the one that runs"
+  },
+  {
+   "from": "scripts/compiled-modules.mjs",
+   "home": "web/scripts/compiled-modules.mjs",
+   "why": "trillion-apps already holds this file at web/scripts/compiled-modules.mjs, carried earlier and then changed here for the web/ layout (the diff against old main is those changes only); the copy here is the one that runs"
+  },
+  {
+   "from": "scripts/keep-bundle-names.mjs",
+   "home": "web/scripts/keep-bundle-names.mjs",
+   "why": "trillion-apps already holds this file at web/scripts/keep-bundle-names.mjs, carried earlier and then changed here for the web/ layout (the diff against old main is those changes only); the copy here is the one that runs"
+  },
+  {
+   "from": "scripts/workspace-source-record.mjs",
+   "home": "web/scripts/workspace-source-record.mjs",
+   "why": "trillion-apps already holds this file at web/scripts/workspace-source-record.mjs, carried earlier and then changed here for the web/ layout (the diff against old main is those changes only); the copy here is the one that runs"
+  },
+  {
+   "from": "scripts/native-frontend-wrapper.mjs",
+   "home": "scripts/native-frontend-wrapper.mjs",
+   "why": "trillion-apps already holds this file at scripts/native-frontend-wrapper.mjs, carried earlier and then changed here for the web/ layout (the diff against old main is those changes only); the copy here is the one that runs"
+  },
+  {
+   "from": "scripts/prepare-compiled-modules.mjs",
+   "home": "scripts/prepare-compiled-modules.mjs",
+   "why": "trillion-apps already holds this file at scripts/prepare-compiled-modules.mjs, carried earlier and then changed here for the web/ layout (the diff against old main is those changes only); the copy here is the one that runs"
+  }
+ ],
+ "leave_tests": [
+  {
+   "path": "test/customer-source-pin.test.mjs",
+   "why": "Its fixture writes `import dependency from \"dep\"` inside a string (a made-up tree's main.mjs), which the import reader takes for an import of a package neither tree declares; it is carried by hand beside this row, byte for byte, with its own receipt."
+  }
+ ]
+}
