@@ -31,9 +31,16 @@ export const TOOL = 'where-a-person-stands';
  */
 export async function withSettings(input = {}) {
   const { settings_record, ...given } = input ?? {};
-  if (settings_record === undefined) return given;
-  return { ...setting(settings_record, { folder: TOOL, fallback: {} }), ...given };
+  const out = settings_record === undefined ? given : { ...setting(settings_record, { folder: TOOL, fallback: {} }), ...given };
+  return Array.isArray(out.rulings) ? { ...out, rulings: asRulings(out.rulings) } : out;
 }
+
+// A ruling kept in list:checks (labelled-line or escalated-line) has its copy kind as line_kind; read back, it is kind again.
+const KEPT = new Set(['labelled-line', 'escalated-line']);
+/** Rulings read back from list:checks (records or their values) as rulings; any other row is passed as it is. */
+export const asRulings = (rows = []) => rows.map(row => (row && typeof row === 'object' && 'value' in row && 'type' in row ? row.value : row))
+  .filter(Boolean).map(({ line_kind, part_of, ...row }) => (KEPT.has(row.kind) ? { ...row, kind: line_kind } : { line_kind, part_of, ...row }))
+  .map(row => Object.fromEntries(Object.entries(row).filter(([, value]) => value !== undefined)));
 
 /**
  * Calibration examples from the rulings of the people in `real`: a bad ruling is { good: false, bad_for: [bad_label] },

@@ -88,28 +88,28 @@ test('a reload checks every earlier stand against its own source and names a row
   assert.deepEqual(plan.summary.unverified.map(row => [row.id, row.why]), [[fig.id, 'an earlier word I never wrote']]);
 });
 
-test('a ruling is one record per (text, verdict, by, rule), a ruling already in the list is not written again, and a refused row refuses the write', () => {
+test('a ruling is one record per (text, verdict, by, rule) in list:checks, a ruling already there is not written again, and a refused row refuses the write', () => {
   const at = '2026-01-01T00:00:00Z';
   const refuse = [{ field: 'piece', one_of: ['practice-piece'] }, { field: 'where', contains_one_of: ['/scratch-'] }];
-  const existing = [{ id: 'record:line-rulings:x', type: 'record:line-rulings', value: { text: 'Old line.', verdict: 'bad', by: 'person', at: '2025-12-01T00:00:00Z' } }];
-  const { write, fresh } = rulingRecords({ row_type: 'line-rulings', at, refuse, existing, rows: [
-    { text: 'Bad line.', verdict: 'bad', by: 'person', where: 'pieces/a/script.md:3' },
+  const existing = [{ id: 'record:check:ruling-x', type: 'record:check', value: { kind: 'labelled-line', text: 'Old line.', verdict: 'bad', by: 'person', at: '2025-12-01T00:00:00Z' } }];
+  const { write, fresh } = rulingRecords({ unruled_part_of: 'story', at, refuse, existing, rows: [
+    { text: 'Bad line.', verdict: 'bad', by: 'person', kind: 'narrator', where: 'pieces/a/script.md:3' },
     { text: 'Bad line.', verdict: 'bad', by: 'person', where: 'pieces/b/script.md:9' },
-    { text: 'Bad line.', verdict: 'bad', by: 'person', rule: 'r', at: '2026-01-02T00:00:00Z' },
+    { text: 'Bad line.', verdict: 'escalated', by: 'small-model', rule: 'r', at: '2026-01-02T00:00:00Z' },
     { text: 'Old line.', verdict: 'bad', by: 'person' },
   ] });
   assert.equal(fresh, 2);
-  assert.deepEqual(write.records.map(record => [record.type, record.value.text, record.value.rule ?? null, record.value.at, record.value.where ?? null]), [
-    ['record:line-rulings', 'Bad line.', null, at, 'pieces/a/script.md:3'], ['record:line-rulings', 'Bad line.', 'r', '2026-01-02T00:00:00Z', null]]);
-  assert.equal(write.records[0].id, rulingRecordId('line-rulings', { text: 'Bad line.', verdict: 'bad', by: 'person' }));
-  assert.match(write.records[0].id, /^record:line-rulings:[0-9a-f]{64}$/);
+  assert.deepEqual(write.records.map(record => [record.type, record.value.kind, record.value.part_of, record.value.text, record.value.line_kind ?? null, record.value.at]), [
+    ['record:check', 'labelled-line', ['story'], 'Bad line.', 'narrator', at], ['record:check', 'escalated-line', ['r'], 'Bad line.', null, '2026-01-02T00:00:00Z']]);
+  assert.equal(write.records[0].id, rulingRecordId({ text: 'Bad line.', verdict: 'bad', by: 'person' }));
+  assert.match(write.records[0].id, /^record:check:ruling-[0-9a-f]{64}$/);
   assert.notEqual(write.records[0].id, write.records[1].id);
   for (const row of [{ text: 'Odd line.', verdict: 'escalated', by: 'small-model', rule: 'r', p_fail: 0.99, piece: 'practice-piece' },
-    { text: 'Temp line.', verdict: 'escalated', by: 'small-model', where: 'scratch-7/script.md:1' }]) {
-    assert.throws(() => rulingRecords({ row_type: 'line-rulings', refuse, rows: [{ text: 'Fine.', verdict: 'good', by: 'person' }, row] }), /REFUSED: 1 row/);
+    { text: 'Temp line.', verdict: 'escalated', by: 'small-model', rule: 'r', where: 'scratch-7/script.md:1' }]) {
+    assert.throws(() => rulingRecords({ refuse, rows: [{ text: 'Fine.', verdict: 'good', by: 'person', rule: 'r' }, row] }), /REFUSED: 1 row/);
   }
-  assert.throws(() => rulingRecords({ row_type: 'Line Rulings', rows: [] }), RulingRefusal);
-  assert.throws(() => rulingRecords({ row_type: 'line-rulings', rows: [{ text: 'No verdict.', by: 'person' }] }), RulingRefusal);
+  assert.throws(() => rulingRecords({ rows: [{ text: 'No rule.', verdict: 'bad', by: 'person' }] }), /unruled_part_of/);
+  assert.throws(() => rulingRecords({ rows: [{ text: 'No verdict.', by: 'person', rule: 'r' }] }), RulingRefusal);
 });
 
 test('only real rulings become examples, and a text ruled both ways or trained on is left out and counted', () => {

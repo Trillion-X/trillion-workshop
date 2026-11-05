@@ -747,8 +747,8 @@
     "id": "tool:keep-rulings-on-lines",
     "label": "Keep rulings on lines",
     "status": "active",
-    "job": "Write down rulings on single lines of copy, such as a line a checker flagged for the person or a reviewer's good or bad, as rows of the person's list",
-    "description": "Give rows (each ruling: text, verdict, by, and optionally rule, at, where and any other field the list keeps), existing (the rulings already in the list, as records:list pages them, so a ruling is written once) and settings_record (the person's setting for this tool: row_type, the row type of their rulings list; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use), or those fields themselves. by_hand true checks hand_rulings. Returns write, the records:write input to send at @own-records (one record per text, verdict, by and rule, id record:<row_type>:<BLAKE3 hex>), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
+    "job": "Write down rulings on single lines of copy, such as a line a checker flagged for the person or a reviewer's good or bad, as rows of the person's Checks list",
+    "description": "Give rows (each ruling: text, verdict, by, and optionally rule, kind, at, where and any other field kept), existing (the rulings already in list:checks, as records:list type record:check prefix record:check:ruling- pages them, so a ruling is written once) and settings_record (the person's row of list:settings for this tool as records:read gives it: unruled_part_of, the check branch a ruling with no rule goes under; refuse, [{ field, one_of: [values] } or { field, contains_one_of: [path parts] }] such as a test piece or a temporary folder; place, { field, pattern } that reads a ruling's place from its where; hand_rulings, the words a ruling given by hand may use; escalated_verdicts), or those fields themselves. by_hand true checks hand_rulings. Returns write, the records:write input to send at @own-records: one record:check per text, verdict, by and rule (id record:check:ruling-<BLAKE3 hex>, kind labelled-line, or escalated-line for an escalated line, part_of its rule or unruled_part_of, its copy kind as line_kind), and fresh, how many are new. A write holding a refused row is refused whole. It writes nothing.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -762,11 +762,6 @@
         "type": "object"
        },
        "description": "Rulings on single lines: text, verdict (bad, good, escalated or any one word), by (who gave it), rule (optional), at (optional) and any other field the list keeps (where, kind, p_fail, why, note)"
-      },
-      "row_type": {
-       "type": "string",
-       "pattern": "^[a-z0-9][a-z0-9-]*$",
-       "description": "The row type of the list the rulings are kept in"
       },
       "at": {
        "type": "string",
@@ -804,6 +799,17 @@
       "hand_rulings": {
        "type": "object",
        "description": "{ field: [words] } a ruling given by hand may use"
+      },
+      "unruled_part_of": {
+       "type": "string",
+       "description": "The check branch a ruling that names no rule is kept under (the person's setting, such as content-production)"
+      },
+      "escalated_verdicts": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "The verdict words that mark a line a checker escalated (default [escalated]): kept as kind escalated-line"
       }
      }
     },
@@ -908,7 +914,6 @@
      {
       "kind": "sample-run",
       "input": {
-       "row_type": "line-rulings",
        "at": "2026-01-01T00:00:00Z",
        "refuse": [
         {
@@ -938,10 +943,11 @@
          "verdict": "good",
          "by": "reviewer"
         }
-       ]
+       ],
+       "unruled_part_of": "story"
       },
-      "output_selector": "$.write.records[0].type",
-      "contains": "record:line-rulings"
+      "output_selector": "$.write.records[0].value.kind",
+      "contains": "escalated-line"
      }
     ]
    }
@@ -959,7 +965,7 @@
     "label": "Make examples from rulings on lines",
     "status": "active",
     "job": "Make labelled examples for calibrating a small model from the rulings a person gave on lines of copy, and from lines they said themselves",
-    "description": "Give rulings (the rows of the person's rulings list), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
+    "description": "Give rulings (the person's ruling rows of list:checks, records:list type record:check prefix record:check:ruling-, as records or values), real (who counts), needs (fields a ruling must carry to count), and optionally speech (lines they said, each with sets), speech_set, exclude (lists of lines a model was trained on), bad_label (the label a bad example carries in bad_for), contexts ({ text: context }) and verdicts ({ bad, good }). Returns items ({ text, good, bad_for, split, source: ruling or speech, context }) and left_out (texts ruled both ways, texts in exclude). Only rulings by the people in real count. Any of these may come from settings_record, the person's setting for this tool (their row of list:settings as records:read gives it, read by tools/settings); the input's own fields win. It writes nothing.",
     "input_schema": {
      "type": "object",
      "required": [
@@ -1373,7 +1379,7 @@
     "label": "Count the real bad rulings on lines",
     "status": "active",
     "job": "Count how many lines a person ruled bad, whether that is enough to let a model row fail lines, and how many of them each model row catches",
-    "description": "Give rulings (the rows of the person's rulings list) and settings_record (the person's setting for this tool: real, who counts; needs, fields a ruling must carry to count; needed, how many real bad rulings a model row needs before it may fail lines; and optionally verdict, the bad word, and default_kind), or those fields themselves. Returns real_bad_film (the real bad rulings), needed, promotion_allowed, counts (every \"<by> <verdict>\" of the log) and bad_lines (one per text: text, kind, where), the lines to check. Send again with rules (the model rows, [{ id, ask: { calibration: { t_fail } } }]) and results (the check's results on the bad lines: [{ text, uncertain: [{ rule, p_fail }] }]) to add escalated_by_any, per_rule (lines each row catches at its own t_fail) and unanswered. It runs no check and writes nothing.",
+    "description": "Give rulings (the person's ruling rows of list:checks, records:list type record:check prefix record:check:ruling-, as records or values) and settings_record (the person's setting for this tool: real, who counts; needs, fields a ruling must carry to count; needed, how many real bad rulings a model row needs before it may fail lines; and optionally verdict, the bad word, and default_kind), or those fields themselves. Returns real_bad_film (the real bad rulings), needed, promotion_allowed, counts (every \"<by> <verdict>\" of the log) and bad_lines (one per text: text, kind, where), the lines to check. Send again with rules (the model rows, [{ id, ask: { calibration: { t_fail } } }]) and results (the check's results on the bad lines: [{ text, uncertain: [{ rule, p_fail }] }]) to add escalated_by_any, per_rule (lines each row catches at its own t_fail) and unanswered. It runs no check and writes nothing.",
     "input_schema": {
      "type": "object",
      "required": [
