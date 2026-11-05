@@ -1,0 +1,59 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CONFIGURATIONS-PAGE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:9ed5c330511f3ab73bc1783f1ddc912e3471464769a65002c0195ebaecd6d332",
+  "quote": "A Workshop route tool is an ordinary `ai-tool-descriptor` row (invoke kind container, `stdout: json`, stdin filled from\ninput) that reads and writes the person's records only through the records door"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the saved configurations page routes over the records door: read the configuration and list records, run the configurations owner on them, write back what it wrote",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/read-and-edit-the-saved-configurations-others-shared/do-work/answer-the-configurations-page.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/query-and-change-list-rows/src/configurations.mjs",
+   "why": "The owner itself, moved byte for byte earlier; this file runs it unchanged and only carries records in and out through the door."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/read-and-edit-the-saved-configurations-others-shared/",
+   "why": "This tool itself."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the saved configurations page routes over the records door: read the configuration and list records, run the configurations owner on them, write back what it wrote",
+    "answer the saved configurations page routes over the records door",
+    "answerTheConfigurationsPage"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "answerTheConfigurationsPage"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+    },
+    {
+     "repository": "trillion",
+     "commit": "5dc302be373027de2185edcf1d6137fd4cca3552"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/read-and-edit-the-saved-configurations-others-shared/test/answer-the-configurations-page.test.mjs"
+  ]
+ }
+}
