@@ -1,0 +1,67 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-KEEP-FORUM-POSTS-FROM-THE-OLD-FORUM-READER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-05: models-research lane, slice viewer-questions",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:baa0067334b2595494544a2c11b2e81dbb02ab581bf75701eb29c67f7d7dbc8a",
+   "multihash": "1f:f36a62369169838017deee386885e0ce095830af77f24c2676e95df3c91ed4a5",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/research-a-creator-or-topic/do-work/fetch_forum_posts.py",
+   "baseline_commit_message": "research-a-creator-or-topic: a forum's posts from a public archive, byte copy of the old reader (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "the same archive address, query (subreddit, limit 100, sort desc, before) and user agent",
+  "each page starts before the oldest post of the last page",
+  "four tries a page with a growing wait, half a second between pages",
+  "only the archive's own fields id, permalink, title, selftext, score, num_comments, created_utc are kept, with the forum and its group; nothing is invented"
+ ],
+ "allowed_deltas": [
+  "the forums and their groups come in a JSON request on standard input instead of a sources file, and the posts are written to out/forum-posts.jsonl",
+  "the request is checked whole before any page is asked for",
+  "a run stops at budget_seconds and answers again with where each forum stopped",
+  "a forum that never answered is named in failed",
+  "the last line is {result} for the row's result_selector"
+ ],
+ "banned_substitutions": [
+  "a second forum reader beside this one",
+  "forums or groups written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f36a62369169838017deee386885e0ce095830af77f24c2676e95df3c91ed4a5",
+  "target_multihash_at_baseline": "1f:f36a62369169838017deee386885e0ce095830af77f24c2676e95df3c91ed4a5",
+  "commit": "e1fd17415b7b55f49275df25f2c85870fed2fd0e",
+  "recorded_at": "2026-11-05T20:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def page",
+   "before = min(post[\"created_utc\"] for post in posts)"
+  ],
+  "test_refs": [
+   "tools/research-a-creator-or-topic/test/fetch-forum-posts.test.mjs",
+   "tools/research-a-creator-or-topic/tool-rows.json sample run (tool:keep-forum-posts-from-a-public-archive)"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of trillion-launch-video beside this one finds it."
+}
