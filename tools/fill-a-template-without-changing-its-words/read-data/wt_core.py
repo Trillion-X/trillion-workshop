@@ -6,6 +6,7 @@ a medium or a slot type. Readers are the one place that knows a file format; a r
 records {id, t0?, t1?, unit?, region?, is_unit?, fields{}} and nothing else.
 """
 import copy
+import hashlib
 import json
 import math
 import os
@@ -13,6 +14,7 @@ import re
 import shutil
 import statistics
 import subprocess
+import sys
 import unicodedata
 from pathlib import Path
 from html.parser import HTMLParser
@@ -95,8 +97,18 @@ class Registry:
 
     @classmethod
     def load(cls, path=None):
+        if isinstance(path, str) and path.startswith(SETTING_MARK):
+            raise WTError(f"this piece was measured with the registry kept in the settings row {path[len(SETTING_MARK):]}",
+                          "give that row with --settings-record (the record records:read returns), or a registry file with --registry")
         p = expand(path) if path else DEFAULT_REGISTRY
         return cls(load_json(p, "registry"), p)
+
+    def fingerprint(self):
+        """What a rebuild compares: the file's stamp, or for a registry read from a settings row, its content."""
+        if self.path and self.path.startswith(SETTING_MARK):
+            return {"setting": self.path[len(SETTING_MARK):],
+                    "sha256": hashlib.sha256(json.dumps(self.data, sort_keys=True).encode("utf-8")).hexdigest()}
+        return stamp(self.path)
 
     def dim(self, dim_id):
         return self.dims.get(dim_id)
@@ -114,6 +126,71 @@ class Registry:
     def is_text(self, dim_id):
         k = self.kind_of(dim_id)
         return bool(k and k.get("split"))
+
+
+# ---------------------------------------------------------------- settings
+# A person keeps this tool's settings as one row of their list:settings (record:setting:<this folder>~<scope_kind>~<scope_id>),
+# read with the shared reader tools/settings/read-data/settings.py. The row's settings may hold:
+#   registry   the person's dimensions registry (the same shape as read-data/dimensions.json)
+#   discovery  what build.py reads from a discovery file (its "films" may be the films object itself)
+SETTINGS_FOLDER = HERE.parent.name
+SETTING_MARK = "setting:"
+
+
+def _settings_reader():
+    folder = HERE.parent.parent / "settings" / "read-data"
+    if not (folder / "settings.py").is_file():
+        raise WTError(f"the shared settings reader is not at {folder / 'settings.py'}",
+                      "use a whole Workshop checkout (tools/settings/ beside this tool), or give --registry FILE instead")
+    if str(folder) not in sys.path:
+        sys.path.insert(0, str(folder))
+    import settings  # noqa: E402
+    return settings
+
+
+def parse_scopes(texts):
+    """--scope KIND:ID (most specific first) to the reader's [(kind, id)]; none means the one row given."""
+    if not texts:
+        return None
+    scopes = []
+    for text in texts:
+        kind, sep, scope_id = str(text).partition(":")
+        if not sep or not kind or not scope_id:
+            raise WTError(f"--scope {text!r} is not KIND:ID", "write it as piece:<id>, film:<id>, person:<id> or account:main")
+        scopes.append((kind, scope_id))
+    return scopes
+
+
+def tool_settings(settings_record, scopes=None):
+    """(settings, row id) of this tool's settings row in settings_record, read through the shared reader."""
+    reader = _settings_reader()
+    try:
+        found = reader.chosen(settings_record, SETTINGS_FOLDER, scopes)
+        if found is None:
+            raise WTError(f"no settings row for {SETTINGS_FOLDER} at {scopes or 'the scope given'} is in the settings record",
+                          f"give the record:setting:{SETTINGS_FOLDER}~<scope_kind>~<scope_id> row records:read returns")
+        values = reader.settings_of(found)
+        held = found["value"] if isinstance(found.get("value"), dict) else found
+        row_id = found.get("id") if isinstance(found.get("value"), dict) else None
+        row_id = row_id or reader.setting_id(SETTINGS_FOLDER, held.get("scope_kind"), held.get("scope_id"))
+    except reader.SettingError as e:
+        raise WTError(str(e), "give the settings row as records:read returns it (a record, its value, a list, or a JSON file)") from None
+    if not isinstance(values, dict):
+        raise WTError(f"{row_id}: its settings are not an object", "keep the settings as JSON text of an object: {\"registry\": {...}}")
+    return values, row_id
+
+
+def registry_for(remembered=None, registry=None, settings=None):
+    """The registry to use: a --registry file, else the settings row's registry, else the one the piece remembers, else the shipped one."""
+    if registry:
+        return Registry.load(registry)
+    if settings is not None:
+        values, row_id = settings
+        if "registry" in values:
+            if not isinstance(values["registry"], dict):
+                raise WTError(f"{row_id}: settings.registry is not an object", "keep the registry itself there (the shape of read-data/dimensions.json)")
+            return Registry(values["registry"], SETTING_MARK + row_id)
+    return Registry.load(remembered)
 
 
 # ---------------------------------------------------------------- words

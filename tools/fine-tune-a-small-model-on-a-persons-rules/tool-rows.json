@@ -1,0 +1,359 @@
+{
+  "kind": "package-set-records",
+  "record_set": "fine-tune-a-small-model-on-a-persons-rules-tool-rows",
+  "what_this_is": "The Workshop rows for the fine-tune-a-small-model-on-a-persons-rules folder: scripts the person's AI runs on the person's own computer to teach a small multiple-choice decider model the person's rules: build train rows and held-out test lines from the rules and the lines the person ruled on, LoRA-train an adapter on them, then score the held-out lines and report how well each rule's question separates bad lines from good ones.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:build-training-rows-from-a-persons-rules",
+        "label": "Build the train rows and held-out test lines for teaching a small model my rules (runs on your computer)",
+        "job": "Make the training set to teach a small model my writing rules, with the test lines held out before any training",
+        "description": "Reads the person's laws, their writing rules (one yes-or-no question per law, which answer fails, and which ruled-bad sets count as bad for it), the lines they ruled on, an optional transcript of them speaking, an optional folder of other people's caption files, made-up training lines and their held-out lines. Splits real lines by source before any training (ruled lines by the heading they sit under in a folder of guides, the transcript by halves, captions by video), keeps never-train and held-out lines out of training, and writes items.json (every real line with its side, sets and the laws it breaks) and train.jsonl (one row per law and line: question, options, gold answer). The same request always makes the same rows.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "out_dir",
+            "laws",
+            "labelled_lines"
+          ],
+          "properties": {
+            "out_dir": {
+              "type": "string",
+              "description": "The folder items.json and train.jsonl are written to."
+            },
+            "seed": {
+              "type": "integer",
+              "description": "The random generator's seed."
+            },
+            "test_share": {
+              "type": "number",
+              "description": "The share of groups that go to test."
+            },
+            "good_sets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The set names whose lines are good lines."
+            },
+            "fail_set": {
+              "type": "string",
+              "description": "The set name of ruled lines that are bad."
+            },
+            "pass_set": {
+              "type": "string",
+              "description": "The set name of ruled lines that are good."
+            },
+            "labelled_lines": {
+              "description": "Rows {text, sets, bad_for}, inline or {\"file\": a JSON Lines file}."
+            },
+            "group_by_headings_in": {
+              "type": "string",
+              "description": "A folder of markdown guides; a ruled line found in one is grouped by its nearest heading."
+            },
+            "spoken": {
+              "type": "object",
+              "description": "{set, transcript_file, per_split, min_words}: sentences of the person speaking; the first half trains, the second half tests."
+            },
+            "captions": {
+              "type": "object",
+              "description": "{set, folder, per_video, train, test, max_characters, min_words, max_words, language}: caption sentences of other people's videos (.info.json beside .<language>.json3), split by video."
+            },
+            "never_train": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Lines never trained on (written to items.json as narrator); an empty list when there are none."
+            },
+            "held_out": {
+              "description": "Rows {text, kind, breaks, unsure}, never trained on, inline or {\"file\": ...}."
+            },
+            "synthetic": {
+              "description": "Made-up training rows {law (or * for every law), text, label: good|bad, kind}, inline or {\"file\": ...}; read in the order given (the samples depend on it)."
+            },
+            "short_kinds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The kinds of short good lines (law *) every law trains on."
+            },
+            "short_kinds_for": {
+              "type": "object",
+              "description": "{<law id>: [kinds]} for a law that takes other short kinds."
+            },
+            "no_other_goods": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Laws that do not train on other laws' good lines."
+            },
+            "laws": {
+              "type": "object",
+              "description": "{<law id>: {question, options: [two answers], fail: the answer that fails the line, bad_from: [the bad_for names that count as bad for this law]}}; other keys are kept."
+            },
+            "per_law": {
+              "type": "object",
+              "description": "{spoken_goods, other_goods, short_goods}: how many of each kind of good line each law trains on."
+            },
+            "settings_record": {
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as the door's records:read (or tool:read-a-tool-setting) answers it, or the path of a JSON file holding it. Its settings' build object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Inline settings {build: {...}} instead of settings_record, for a test or a sample."
+            },
+            "settings_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "[scope_kind, scope_id]: which row to read when settings_record holds several."
+            }
+          },
+          "description": "With settings_record, the person's build settings give seed, test_share, good_sets, fail_set, pass_set, per_law, short_kinds, never_train and the rest; without it the request gives them all (seed, test_share, good_sets, fail_set, pass_set, per_law, short_kinds and never_train are then required)."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Summary lines, then a last line {\"result\": {items_file, train_file, items, train_items, test_items, train_rows, synthetic_rows, synthetic_dropped, per_law: {<law>: {train_bad, train_good, test_bad, test_good}}}} or {\"error\": \"what to change\"}. items.json holds {laws, narrator (the never-train lines), items (text, sets, bad_for, bad_laws, good, split, group), synthetic_dropped_as_test_overlap}; train.jsonl one {law, question, options, text, gold, bad, source} per line."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/build_training_rows.py {input}",
+          "needs": [
+            "python",
+            "the person's rules and the lines they ruled on"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Every law, line, set name and number is the person's: read their settings row (tool:read-a-tool-setting) and pass it as settings_record, and read their laws and lines from their lists; never invent them. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } names the two files and the counts per rule; { error } says what to change. Tell the person how many bad test lines each law has: a law with fewer than a handful cannot be measured."
+        },
+        "maker": "maker:fine-tune-a-small-model-on-a-persons-rules",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:train-a-small-model-on-a-persons-rules",
+        "label": "Teach a small decider model my rules by training a LoRA adapter (runs on your Mac or GPU)",
+        "job": "Train a small local model to judge lines by my rules",
+        "description": "LoRA-trains a decider-style multiple-choice model (a model folder that carries its own decider package and decider_config.json, such as decider-2b) on train.jsonl from tool:build-training-rows-from-a-persons-rules, with cross-entropy on the option letter, each line put in the person's frame. It runs at low priority with few CPU threads beside the person's work, projects the whole run after 20 steps and stops when the projection passes the time budget. It saves the adapter and train-info.json (settings, rows, minutes, final loss).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "base_model",
+            "train_file",
+            "out"
+          ],
+          "properties": {
+            "base_model": {
+              "type": "string",
+              "description": "The decider model folder."
+            },
+            "frame": {
+              "type": "string",
+              "description": "The context each line is put in, holding {text}, exactly as the person's gate asks it."
+            },
+            "train_file": {
+              "type": "string",
+              "description": "train.jsonl from tool:build-training-rows-from-a-persons-rules."
+            },
+            "out": {
+              "type": "string",
+              "description": "The folder the adapter is saved to; the log is written beside it."
+            },
+            "rank": {
+              "type": "integer"
+            },
+            "epochs": {
+              "type": "integer"
+            },
+            "lr": {
+              "type": "number"
+            },
+            "batch": {
+              "type": "integer"
+            },
+            "budget_minutes": {
+              "type": "number",
+              "description": "The longest the run may take."
+            },
+            "seed": {
+              "type": "integer"
+            },
+            "lora_targets": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "The model's module names LoRA goes into."
+            },
+            "device": {
+              "type": "string",
+              "description": "cuda, mps or cpu; else what torch finds (cuda, then mps, then cpu)."
+            },
+            "nice": {
+              "type": "integer",
+              "description": "The lowest priority to run at (default 15)."
+            },
+            "threads": {
+              "type": "integer",
+              "description": "CPU threads (default 2)."
+            },
+            "settings_record": {
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as the door's records:read (or tool:read-a-tool-setting) answers it, or the path of a JSON file holding it. Its settings' train object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Inline settings {train: {...}} instead of settings_record, for a test or a sample."
+            },
+            "settings_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "[scope_kind, scope_id]: which row to read when settings_record holds several."
+            }
+          },
+          "description": "With settings_record, the person's train settings give the keys the request leaves out (all but the paths)."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Progress lines, then a last line {\"result\": {adapter, base, rank, alpha, targets, epochs, lr, batch, rows, minutes, final_loss, frame}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U torch peft transformers"
+          ],
+          "run": "python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/train_an_adapter.py {input}",
+          "needs": [
+            "a Mac with Apple silicon or a CUDA GPU",
+            "python with torch, peft and transformers",
+            "the decider model folder on disk"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, and can take most of an hour. Ask the person for the time budget. Write the request to a file, run `run` with that file as {input}, and read the last line: { result } names the adapter folder; { error } says what to change (a projection over budget says so). Then measure it with tool:score-held-out-lines-with-a-small-model, with and without the adapter."
+        },
+        "maker": "maker:fine-tune-a-small-model-on-a-persons-rules",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:score-held-out-lines-with-a-small-model",
+        "label": "Measure how well a small model judges my rules on lines it never trained on (runs on your computer)",
+        "job": "Check how well my trained model catches lines that break each of my rules",
+        "description": "Scores the held-out test lines, the never-trained lines and the held-out set with a decider model, with or without a LoRA adapter, and reports per law: AUC of the probability of the failing answer on bad vs good lines, recall at the thresholds that fail 1%, 2% and 5% of good lines, the same with only written good lines, the share of other laws' bad lines it also fails, the held-out set's good lines failed (by kind) and bad lines caught, and each never-trained line's verdict. A line is scored per sentence and takes its highest probability. Given scores_from, it reports again from an earlier run's kept scores without a model. Fit the lines a gate uses with tool:fit-pass-and-fail-lines.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "name",
+            "items_file",
+            "out_dir"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The run's name; results go to <out_dir>/<name>.json."
+            },
+            "items_file": {
+              "type": "string",
+              "description": "items.json from tool:build-training-rows-from-a-persons-rules."
+            },
+            "out_dir": {
+              "type": "string"
+            },
+            "pass_set": {
+              "type": "string",
+              "description": "The set name of written lines ruled good."
+            },
+            "held_out": {
+              "description": "The held-out rows {text, kind, breaks, unsure}, inline or {\"file\": ...}."
+            },
+            "base_model": {
+              "type": "string",
+              "description": "The decider model folder (not needed with scores_from)."
+            },
+            "frame": {
+              "type": "string",
+              "description": "The context each line is put in, holding {text}."
+            },
+            "adapter": {
+              "type": "string",
+              "description": "The adapter folder; without it the base model is measured."
+            },
+            "scores_from": {
+              "type": "string",
+              "description": "An earlier results file whose kept scores are reported again."
+            },
+            "batch": {
+              "type": "integer"
+            },
+            "device": {
+              "type": "string"
+            },
+            "nice": {
+              "type": "integer"
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "settings_record": {
+              "description": "The person's settings row record:setting:fine-tune-a-small-model-on-a-persons-rules~<scope_kind>~<scope_id> from their list:settings, exactly as the door's records:read (or tool:read-a-tool-setting) answers it, or the path of a JSON file holding it. Its settings' score object gives every request key the request does not give (an object both give is merged key by key). Read by tools/settings/read-data/settings.py; a list of rows, or a JSON file of them, is read too."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Inline settings {score: {...}} instead of settings_record, for a test or a sample."
+            },
+            "settings_scope": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "[scope_kind, scope_id]: which row to read when settings_record holds several."
+            }
+          },
+          "description": "With settings_record, the person's score settings give the keys the request leaves out (all but the paths)."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Summary lines, then a last line {\"result\": {results_file, asks, seconds, laws: {<law>: {n_bad, n_good, auc, recall_at_2pct}}}} or {\"error\": \"what to change\"}. The results file holds per law the report (auc, at_1pct/at_2pct/at_5pct, written_good, other_law_bad_flagged_at_2pct, film: the held-out set, narrator: the never-train lines, top_good, missed_bad) and scores {test, narrator, film} it was made from."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U torch peft transformers"
+          ],
+          "run": "python3 -I tools/fine-tune-a-small-model-on-a-persons-rules/do-work/score_held_out_lines.py {input}",
+          "needs": [
+            "python",
+            "with a model run: a Mac with Apple silicon or a CUDA GPU, torch, peft, transformers and the decider model folder"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Score once without the adapter and once with it, on the same items file, and tell the person the before and after per rule; a rule with few bad test lines is not measured, say so. Read the last line: { result } or { error } saying what to change."
+        },
+        "maker": "maker:fine-tune-a-small-model-on-a-persons-rules",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
+    }
+  ]
+}
