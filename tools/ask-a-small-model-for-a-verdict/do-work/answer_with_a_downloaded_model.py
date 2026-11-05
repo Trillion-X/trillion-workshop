@@ -12,8 +12,8 @@ usage (one JSON request on standard input, { result } or { error } on the last l
                                                                  (an adapter's training lines must never calibrate it)
 
 `settings` is the person's setting row for this tool (list:settings, record:setting:ask-a-small-model-for-a-verdict~...),
-already read: do-work/answer-with-a-downloaded-model.mjs reads it through the records door with tools/settings and hands it
-here. Every model id, snapshot, adapter path, the model cache, the answer cache, the frame and the bars are in it; nothing
+already read: do-work/answer-with-a-downloaded-model.mjs reads it through the records door with tools/settings `setting` and
+hands it here. Every model id, snapshot, adapter path, the model cache, the answer cache, the frame and the bars are in it; nothing
 about a person is in this file.
 
 An `ask` may name a LoRA adapter for decider-2b: {"adapter": {"name": ..., "blake3": ...}}, its folder being the setting's
