@@ -1,0 +1,66 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FINE-TUNE-SCORE-HELD-OUT-LINES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-04, models-research lane, finetune slice",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:853ecc9e922d851047efe2df00a91777fdc626fdfe979e2f1466b299bb1c0170",
+   "multihash": "1f:8f40b674f0eba206577f39f4d28687a049228c610f979a7aff93ceaa616f78d2",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/fine-tune-a-small-model-on-a-persons-rules/do-work/score_held_out_lines.py",
+   "baseline_commit_message": "fine-tune-a-small-model-on-a-persons-rules: the decider-laws-finetune build, train, score and model code, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "per law: AUC, and recall at the thresholds that fail 1%, 2% and 5% of good lines (ties fail together)",
+  "a line is scored per sentence and takes its highest P(fail); never-train lines are scored whole",
+  "written-good only, other laws' bad lines flagged, the held-out set by kind and its bad lines caught",
+  "every score the report was made from is kept in the results file"
+ ],
+ "allowed_deltas": [
+  "the items file, held-out lines, pass set and model are the request's",
+  "scores_from reports again from kept scores with no model",
+  "a held-out set with no good lines, or a law with no good test lines, is reported as such instead of dividing by zero"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job beside the old one",
+  "the person's laws, lines, paths or counts written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:8f40b674f0eba206577f39f4d28687a049228c610f979a7aff93ceaa616f78d2",
+  "target_multihash_at_baseline": "1f:8f40b674f0eba206577f39f4d28687a049228c610f979a7aff93ceaa616f78d2",
+  "commit": "9da86bc43e305bfb34c4aa2e28f9ffa98c74418d",
+  "recorded_at": "2026-11-05T21:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def auc",
+   "def at_fpr",
+   "def report",
+   "scores_from"
+  ],
+  "test_refs": [
+   "tools/fine-tune-a-small-model-on-a-persons-rules/test/test_fine_tune.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

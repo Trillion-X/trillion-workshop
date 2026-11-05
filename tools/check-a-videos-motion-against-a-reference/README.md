@@ -15,11 +15,12 @@ This tool measures how much the whole frame moves. Tracking a subject or an obje
 | `tool-rows.json` | The Workshop rows `tool:check-a-videos-motion-against-a-reference` and `tool:list-the-longest-still-holds-of-my-video`: `on-your-computer`, with what they need and the commands. |
 | `part.json` | The files other code may import: `read-data/motion-bar.mjs` and `read-data/measure-motion.mjs`. |
 | `do-work/check-motion.mjs` | The command. Measures the reference and the piece, builds the bar from the person's rows, prints `{"result": ...}` or `{"error": ...}`. Exit 0 whether the piece passed or not; 2 when a flag, file or bar row is wrong. |
-| `do-work/list-holds.mjs` | The hold list. Prints `{"result": {video, seconds, still_threshold, holds: [{seconds, at}], text}}` or `{"error": ...}`. Exit 0 with an answer; 2 when a flag or file is wrong. |
-| `read-data/measure-motion.mjs` | The measure: `measureMotion(path, seconds, still)` decodes every frame as a small grey picture with ffmpeg, reads the change between neighbouring frames and returns `moving_share`, `longest_hold_s`, `holds_over_1s_per_min`, `seconds` and `still_threshold`. `holdsIn(changes, level, fps)` gives every hold with the second it starts; `longestHolds(path, seconds, still, top)` the longest first. |
+| `do-work/list-holds.mjs` | The hold list, on the measure's own frame changes, cut level and still level. Prints `{"result": {video, seconds, still_threshold, holds: [{seconds, at}], text}}` or `{"error": ...}`. Exit 0 with an answer; 2 when a flag or file is wrong. |
+| `read-data/measure-motion.mjs` | The measure: `measureMotion(path, seconds, still)` decodes every frame as a small grey picture with ffmpeg, reads the change between neighbouring frames and returns `moving_share`, `longest_hold_s`, `holds_over_1s_per_min`, `seconds` and `still_threshold`. |
 | `read-data/motion-measure.json` | The measure's own settings as DATA (frame width, the cut level, how the still level is read). They define how a video is read; they are no one's bar. |
 | `read-data/motion-bar.mjs` | Pure: `rowsOf(record)`, `barFor(reference, rows)` and `judge(draft, bar, rows)`. |
-| `test/list-holds.test.mjs` | The hold list: holds and their start seconds on made-up frame changes, the longest first on a video made with ffmpeg (two holds), the same still level and longest hold as the check, and the command's refusals. |
+| `test/list-holds.test.mjs` | The hold list on videos made with ffmpeg: the longest first with its start second (two holds), the same still level and longest hold as the check, a still and a moving video, the seconds and still level asked for, and the command's refusals. |
+| `ports/list-holds.json` | The port contract of `do-work/list-holds.mjs`: the hold-listing lines it carries from the film tool it was moved from. |
 | `test/check-motion.test.mjs` | Checks the rows, the verdict, the still level, the measure on small videos made with ffmpeg (a moving pattern, a still picture, a pattern that moves then holds) and the command's refusals, all with made-up bars. Skips, saying why, when ffmpeg or ffprobe is missing. |
 
 ## How it measures
