@@ -81,7 +81,7 @@ A transform is a one-key object, used in `compute` and in `map`.
 
 **Depends on:** Python 3.10+; a records mapping that uses the `identity` expression also needs Node 22.6+ and the declared `tools/content-identity` files. The sender's request keys need the `blake3` module or the `b3sum` command.
 
-**Depended on by:** nothing in this repository. A library's own mapping file lives with the library.
+**Depended on by:** nothing in this repository. A library's own mapping lives with the library, or as a setting row of the person's `list:settings`; `--mapping-record` reads it with `tools/settings/read-data/settings.py`.
 
 ## Records for `records:write`
 
@@ -89,6 +89,8 @@ A transform is a one-key object, used in `compute` and in `map`.
 
 ```
 python3 -I do-work/build_record_write.py --mapping FILE --out FILE [--root NAME=DIR ...]
+python3 -I do-work/build_record_write.py --mapping-record ID (--door CONFIG | --records-from FILE ...) --out FILE [--root NAME=DIR ...]
+python3 -I do-work/build_record_write.py --mapping FILE --as-setting account~main --setting-name TEXT --setting-from TEXT --out FILE
 ```
 
 When the mapping reads `kind: records`, `--records-url ADDRESS` can point those reads at another MCP endpoint, such as an isolated clone. It changes only the read destination; the configured credential remains a handle (a keychain item or a key file), never a key.
@@ -99,15 +101,17 @@ When `tool:build-records-to-write` runs through Workshop, it is a `computer` row
 
 `here` is always the folder of the mapping; every other folder the mapping names is given with `--root NAME=DIR`. The output holds the counts (with a per-link breakdown), what is `pending` (an optional staged file not there yet, or naming a row that does not exist yet), any notes diverted from the rows (for example a staged row that only adds a source to a row), and `commands`. Sending a command twice writes the same records again.
 
-- The lists and saved views are the person's rows (`lists_file`); this tool names no list or field.
+- The lists and saved views are the person's rows (`lists_file`); this tool names no list or field. With `lists_read` instead, the lists are read from the person's account (their own `list` records, through the door), `lists_add` names only the fields, choices and top-level keys a mapping needs added, and only a list that this changes is written again, with the saved views the mapping's `views` names.
 - `emit_definitions: false` treats `lists_file` as a read-only schema snapshot: it still uses the row types and runs all existing row/link checks, but emits no list or saved-view writes. Omit it (or use `true`) to retain definition writes. Only boolean values are accepted; emitted list/view counts reflect the selected behavior.
-- Each source makes the rows of one list from records already in a JSON file (`kind: rows`) or from staged files (`kind: staged`: JSON, or JSON lines, one entry per file or glob; `inputs_from` reads the entries from a file the person keeps).
+- Each source makes the rows of one list from records already in a JSON file (`kind: rows`) or from staged files (`kind: staged`: JSON, JSON lines, tab-separated text with a header line, markdown `lines` (one row per matching line inside a section, carrying headings and table cells), a whole `text` file, or rows kept in the mapping itself under root `mapping`; one entry per file or glob; `one_row` makes a JSON file one row and `each` one row per item of a list in it; `inputs_from` reads the entries from a file the person keeps). A `kind: again` source works more fields out for rows another source already made (for example their links to rows made after them) and merges them by `on_duplicate`. A staged or again source's `skip_if` leaves a row out.
 - A `kind: records` source reads one declared type and optional id prefix from the person's Trillion door, using `records: { "type": "shared", "prefix": "shared:", "config": { "root": "here", "path": "sender.json" } }`. The standalone CLI uses the existing `send_record_write.py` config and its Keychain handle; the managed Workshop row ignores that config and uses only the run's scoped descriptor right. The builder only reads; it sends nothing. The source's `id`, `keys`, `compute`, `values` and `basis` map those records just like other rows. Add `each: "value.items"` to make one row per item in an array; expressions can read the containing record as `record` and current item as `item`. A reader must return the declared type and prefix or the build is refused.
 - A row's values and its `_basis` (reasoning and sources for a value, with the maker and time) are worked out by expressions over the staged row. The expression language and every key of a mapping are described at the top of `read-data/records_write.py` and `read-data/expressions.py`.
 - Refusals name the row: two rows with one id, a slash in an id, a link to a row that does not exist, a value over the text limit, a basis naming too many sources, a row with no web address, a missing folder, one record bigger than a command takes.
 - Two sources may make one row id when the later one says `on_duplicate`: `fill` (the row already made keeps its values and takes the fields it lacks) or `over` (the later values win, the earlier row fills the rest). The payload's `merged` names every merge, the fields filled and each differing value that was not kept.
 - The mapping's `at` (an expression over a row's record, for example the staged file's `_generated`) is the time each basis says it was made, so building the same files again gives byte-identical records.
 - The `identity` expression calls the declared content-identity owner on the exact UTF-8 bytes of its text; it needs Node 22.6+. Other expressions need only Python.
+- A basis may give its own `confidence`, instead of the mapping's.
+- A person's own mapping is kept as a setting row of their `list:settings` (read with `tools/settings`): `--as-setting SCOPE_KIND~SCOPE_ID --setting-name TEXT --setting-from TEXT` with `--mapping FILE` writes the payload of those rows (one, or a first row naming the others in `parts` when the mapping is bigger than one command; the text keeps the mapping's key order, which `keys` and `compute` depend on), and `--mapping-record record:setting:export-records-as-list-rows~<scope_kind>~<scope_id>` builds from them. `--records-from FILE` (saved `records:read` answers) answers the mapping record, `lists_read` and `kind: records` sources from those files instead of the door, so a build can be repeated on the same account state.
 - Several `rows` sources may feed one list; each builds the records its own file holds. A `rows` source for a list that is never emitted is a lookup table other sources read with `row_of`.
 
 ## Putting the records into the account
@@ -185,6 +189,7 @@ Prints `{ ok, bundle_id, file, written, reference_issues, tier_issues }`. The fi
 | `do-work/send_built_record_write.mjs` | The managed writer: consumes the builder's result object, uses only the run-scoped descriptor, and returns readback. |
 | `read-data/record_write_send.py` | Reading what an account holds, writing only what differs in BLAKE3-keyed bounded commands, readback and export. |
 | `test/test_record_write.py`, `test/test_send_batches.py` | Both on made-up fixtures: `test/fixtures/pantry/` (a pantry's goods and stores) and `test/fixtures/fake_list_service.py`. |
+| `test/test_record_write_sources.py` | The tab-separated, markdown-lines, text and mapping-kept sources, `again` and `skip_if`, `lists_read`/`lists_add`, a basis's own confidence, the list, text, number and file expressions, and a mapping kept as setting rows (one, or in parts) read back to the same payload, on a made-up orchard almanac. |
 | `test/test_record_write_send.py` | Byte-bounded commands, merged duplicates, the stable basis time, and the sender against `test/fixtures/fake_record_door.py` (a made-up door). |
 | `do-work/publish_view_file.py` | The view publisher's command line. |
 | `read-data/view_publish.py` | Reading a saved view, its list and rows, asking the rule filter, the view's order and the BLAKE3-keyed file. |
