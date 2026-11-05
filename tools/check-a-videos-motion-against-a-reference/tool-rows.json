@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "check-a-videos-motion-against-a-reference-tool-rows",
-  "what_this_is": "The Workshop row for the check-a-videos-motion-against-a-reference folder: a script the person's AI runs on the person's own computer to say whether a video they made moves as much as the video it copies, against a bar the person passes in.",
+  "what_this_is": "The Workshop rows for the check-a-videos-motion-against-a-reference folder: scripts the person's AI runs on the person's own computer to say whether a video they made moves as much as the video it copies, against a bar the person passes in, and to list where it holds still longest.",
   "records": [
     {
       "payload": {
@@ -13,12 +13,30 @@
         "status": "active",
         "input_schema": {
           "type": "object",
-          "required": ["reference", "render", "end_card_start_seconds", "bar"],
+          "required": [
+            "reference",
+            "render",
+            "end_card_start_seconds",
+            "bar"
+          ],
           "properties": {
-            "reference": { "type": "string", "description": "The video file being copied, put where {reference} is in the command." },
-            "render": { "type": "string", "description": "The video file made, put where {render} is in the command." },
-            "end_card_start_seconds": { "type": "number", "exclusiveMinimum": 0, "description": "The second the made video's end card begins; the piece is measured from 0 to there. Put where {end_card_start_seconds} is in the command." },
-            "bar": { "type": "string", "description": "A JSON file holding a motion-bar record, put where {bar} is in the command: { kind: 'motion-bar', rows: [{ name, bar_key, measure, relation, times_reference | value }] }. The person's AI reads the person's own bar record and writes it to a file." }
+            "reference": {
+              "type": "string",
+              "description": "The video file being copied, put where {reference} is in the command."
+            },
+            "render": {
+              "type": "string",
+              "description": "The video file made, put where {render} is in the command."
+            },
+            "end_card_start_seconds": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "The second the made video's end card begins; the piece is measured from 0 to there. Put where {end_card_start_seconds} is in the command."
+            },
+            "bar": {
+              "type": "string",
+              "description": "A JSON file holding a motion-bar record, put where {bar} is in the command: { kind: 'motion-bar', rows: [{ name, bar_key, measure, relation, times_reference | value }] }. The person's AI reads the person's own bar record and writes it to a file."
+            }
           }
         },
         "output_schema": {
@@ -46,6 +64,68 @@
         ],
         "provenance": {
           "source": "A frame-difference measure of motion written for this tool on ffmpeg: the whole-reference still level and the person's bar rows"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-the-longest-still-holds-of-my-video",
+        "label": "List where my video holds still longest (runs on your computer)",
+        "job": "Show me where my video holds still the longest, and the second each of those holds starts, so I can find it and fix it",
+        "description": "Reads a video with the same frame-difference measure as tool:check-a-videos-motion-against-a-reference (every frame as a small grey picture; a frame moves when it or a neighbour changed by more than the still level and less than a cut) and lists its longest holds, longest first, each with its length and the second it starts. The still level is the one the person gives (for example a reference's still_threshold from the check, so the list matches what the check counted) or, left out, the one read from this video. The person can measure only the first seconds of the video (up to its end card) and say how many holds to list. It names no bar and judges nothing: it says where the stills are.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "video"
+          ],
+          "properties": {
+            "video": {
+              "type": "string",
+              "description": "The video file to read, put where {video} is in the command."
+            },
+            "seconds": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Measure from 0 to this second (for example where the end card begins); 0 or left out reads all of it. Put where {seconds} is, as --seconds {seconds}."
+            },
+            "still": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "The still level to read the video at (a change in grey, 0 to 255), for example the reference's still_threshold from tool:check-a-videos-motion-against-a-reference; left out, it is read from this video. Put where {still} is, as --still {still}."
+            },
+            "top": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "How many holds to list, longest first (12 when left out). Put where {top} is, as --top {top}."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"video\", \"seconds\", \"still_threshold\", \"holds\": [{\"seconds\": length, \"at\": start second}], \"text\": the list on one line as <seconds>s@<at>}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install ffmpeg (brew install ffmpeg), which brings ffprobe"
+          ],
+          "run": "node tools/check-a-videos-motion-against-a-reference/do-work/list-holds.mjs --video {video} [--seconds {seconds}] [--still {still}] [--top {top}]",
+          "needs": [
+            "node",
+            "ffmpeg and ffprobe (declared programs; the measure calls them)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. When the person just ran tool:check-a-videos-motion-against-a-reference, pass its still_threshold as --still and the end card's second as --seconds, so the holds listed are the ones the check counted. Read the last line: { result } or { error } saying what to change. Tell the person each hold as its length and the second it starts (mm:ss), longest first; say what is on screen there only if you looked."
+        },
+        "maker": "maker:check-a-videos-motion-against-a-reference",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "The hold list a film's measure folder kept beside the motion check (holds.mjs), moved here onto this tool's own measure"
         }
       }
     }

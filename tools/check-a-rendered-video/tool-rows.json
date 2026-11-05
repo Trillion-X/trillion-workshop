@@ -34,7 +34,7 @@
             },
             "limits": {
               "type": "string",
-              "description": "The person's limits file (JSON) on their computer: which checks run and the numbers and word lists they use, put where {limits} is in the command. Without it nothing runs."
+              "description": "The person's limits (JSON) on their computer: which checks run and the numbers and word lists they use, put where {limits} is in the command. Either a bare limits file or the person's list:settings row for this tool (record:setting:check-a-rendered-video~<scope_kind>~<scope_id>, as read from their records), whose settings.limits are used; a row that is not active is refused. Without it nothing runs."
             }
           },
           "required": [
@@ -59,7 +59,7 @@
             "python",
             "ffmpeg"
           ],
-          "say": "This runs on the person's own computer, from the root of the Workshop checkout. It needs the person's limits: read them from the person's own records (or the file they point to), write them to a file, and pass its path as {limits}; do not invent limits. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their video in place of {input} (and their spec in place of {spec}, or leave `--spec {spec}` out), then read the last line and the report above it. Tell the person, for each FAIL and WARN, the check, the seconds it happens at and what it found, then which checks could not run and why (not_measured). Do not edit the video: say what to change. If you cannot run commands, give them these steps."
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. It needs the person's limits: read their list:settings row record:setting:check-a-rendered-video~<scope_kind>~<scope_id> (for a film, ~film~<its slug>) from their own records (or the file they point to), write it to a file, and pass its path as {limits}; do not invent limits. `pins --limits <row> --reviewed <row>` says which checks changed since the person reviewed them (settings.reviewed_pins). If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their video in place of {input} (and their spec in place of {spec}, or leave `--spec {spec}` out), then read the last line and the report above it. Tell the person, for each FAIL and WARN, the check, the seconds it happens at and what it found, then which checks could not run and why (not_measured). Do not edit the video: say what to change. If you cannot run commands, give them these steps."
         },
         "result_selector": "$.result",
         "licence_class": "licence:maker-own",

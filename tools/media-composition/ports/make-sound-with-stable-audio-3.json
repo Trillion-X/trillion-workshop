@@ -1,0 +1,66 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEDIA-COMPOSITION-MAKE-SOUND-WITH-STABLE-AUDIO-3",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, lane audio-sound (sound effects), 2026-11-05",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:17659053b303ce3b06e72b28119d9ab5af0b4840a134f133dbf133428f1461ae",
+   "multihash": "1f:d58673cdc5002a5de3b593b02037b6bcba36db5a70f615dad2d93abdfd172c7d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/media-composition/do-work/make-sound-with-stable-audio-3.py",
+   "baseline_commit_message": "media-composition: byte copies of the three local sound-effect model scripts"
+  }
+ ],
+ "preserve": [
+  "the t5gemma text encoder is pointed at the weights folder, never fetched",
+  "the model loads once for every candidate",
+  "latents are decoded here and a loud clip is scaled under full scale (-0.1 dB) instead of clamped",
+  "a candidate already written is not made again",
+  "each candidate's prompt, seed, length, decoded peak and wall time are written beside it"
+ ],
+ "allowed_deltas": [
+  "one prompt and COUNT seeds per run (the maker row's makes_all), instead of every prompt of a prompts file: the prompts are the person's settings and the style's input",
+  "weights folder, output folder, seed and count are arguments; the log is a .json beside each file instead of one jsonl",
+  "a weights folder without model_config.json is refused by name"
+ ],
+ "banned_substitutions": [
+  "the library's generate() with its [-1, 1] clamp",
+  "a second sound-effect runner beside make-pictures-and-sounds.mjs"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d58673cdc5002a5de3b593b02037b6bcba36db5a70f615dad2d93abdfd172c7d",
+  "target_multihash_at_baseline": "1f:d58673cdc5002a5de3b593b02037b6bcba36db5a70f615dad2d93abdfd172c7d",
+  "commit": "9a4085ae3ee3ae1bae6bce29fbc5c234805d4b97",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "return_latents=True",
+   "pt.decode(",
+   "x / max(peak, 1.0)"
+  ],
+  "test_refs": [
+   "tools/media-composition/test/test_local_sound_makers.py",
+   "tools/media-composition/test/make-sounds-on-this-computer.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

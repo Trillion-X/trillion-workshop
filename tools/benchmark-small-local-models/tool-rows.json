@@ -1,0 +1,602 @@
+{
+  "kind": "tool-rows",
+  "record_set": "benchmark-small-local-models-tool-rows",
+  "what_this_is": "The Workshop rows for measuring small models that run on the person's computer (image-text, vision deciders, vision-language and language models, cross-encoders, embedders) on their own material: sampling shots and frames from their format library, labelling and scoring frames against their labels, filling a script template's blanks with sourced phrases, ranking clips for slots, checking takes and ranking titles. Their paths, models, vocabulary and questions are their list:settings rows; the tool carries none.",
+  "records": [
+    {
+      "id": "package::benchmark-small-local-models::tool::label-video-frames-with-small-local-models",
+      "address": "package::benchmark-small-local-models::tool::label-video-frames-with-small-local-models",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:label-video-frames-with-small-local-models",
+        "label": "Label frames of my videos with a small model on my computer (runs on your computer)",
+        "status": "active",
+        "job": "Label sampled frames of my videos with a small model on my computer, from my own shot vocabulary: an image-text model, a vision decider or a vision-language model, and rank free-text places",
+        "description": "Give shots (with frames), vocabulary ({field: {value: plain definition}}) and the model. label_frames_with_image_text_model asks each value two ways (bare word, plain definition) of an open_clip model; label_frames_with_vision_decider asks a decider-vision snapshot one lettered question per field (questions, context, mode bare | defined), as a two-round tournament past ten values; label_frames_with_vision_language_model asks an mlx-vlm model for one JSON answer per frame (instruction, phrases for free text); rank_free_text_places ranks every distinct reference phrase per frame two ways. Each answer has meta (load seconds, time per frame, memory) and one row per frame. Steps: label_frames_with_image_text_model, label_frames_with_vision_decider, label_frames_with_vision_language_model, rank_free_text_places.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "shots": {},
+            "vocabulary": {
+              "type": "object"
+            },
+            "model": {
+              "type": "string"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install torch pillow open_clip_torch sentence-transformers (the models the step uses)",
+            "python3 -m pip install mlx mlx-lm mlx-vlm (the vision-language and language-model steps, on a Mac with Apple silicon)",
+            "hf download <model> (each model the request names; a decider snapshot holds its own decider package)"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/{step}.py {input}",
+          "needs": [
+            "python",
+            "the model's Python packages",
+            "the model, fetched into the Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Use write_to and hand the files to tool:score-small-model-labels-against-my-labels. Tell the person the time per frame and the memory held."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::score-small-model-labels-against-my-labels",
+      "address": "package::benchmark-small-local-models::tool::score-small-model-labels-against-my-labels",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:score-small-model-labels-against-my-labels",
+        "label": "Score small models' frame labels against the labels I already have (runs on your computer)",
+        "status": "active",
+        "job": "Score the frame labels my small models gave against the labels I already have: agreement per field, the top mix-ups, how often a model is right when it is sure, a prior-corrected reading, and the always-the-most-common-value baseline",
+        "description": "Give shots (the sample, each with reference labels, width and height), vocabulary, labels (the files the label steps wrote), reference_name, unknown, list_separator, thresholds, and optionally shape_field with shape_ratios (the field whose reference is the named ratio nearest the frame's own). Standard library only.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "shots": {},
+            "labels": {
+              "type": "array"
+            },
+            "vocabulary": {
+              "type": "object"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/score_frame_labels.py {input}",
+          "needs": [
+            "python (standard library only)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person, per field, which model agrees most and whether it beats the majority baseline."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::sample-shots-and-frames-from-my-format-library",
+      "address": "package::benchmark-small-local-models::tool::sample-shots-and-frames-from-my-format-library",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:sample-shots-and-frames-from-my-format-library",
+        "label": "Sample shots and their frames from my format library (runs on your computer)",
+        "status": "active",
+        "job": "Sample shots from my format library spread over creators, or candidate shots for described slots, and cut each one's frame with the frame tool I already use",
+        "description": "sample_shots_across_groups takes up to N videos round-robin over creators and evenly spaced shots of each (seeded); sample_candidates_for_slots takes, per described slot, candidates of the right kind from different videos; cut_sample_frames and cut_candidate_frames cut each frame at its middle second with frame_tool (an `evidence frames` command) and copy it beside the others. The library is formats/<creator>/<video>/shots.tsv with videos/<video>.mp4. Steps: sample_shots_across_groups, sample_candidates_for_slots, cut_sample_frames, cut_candidate_frames.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "library": {
+              "type": "string"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "brew install ffmpeg"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/{step}.py {input}",
+          "needs": [
+            "python (standard library only)",
+            "ffprobe",
+            "a frame tool with an `evidence frames <video> --out <folder> --times <json> --max-width <n>` command"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Say how many shots from how many videos and creators, and which frames could not be cut."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::fill-a-scripts-blanks-with-small-local-models",
+      "address": "package::benchmark-small-local-models::tool::fill-a-scripts-blanks-with-small-local-models",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:fill-a-scripts-blanks-with-small-local-models",
+        "label": "Fill a script template's blanks from sourced phrases with small models on my computer (runs on your computer)",
+        "status": "active",
+        "job": "Fill the blanks of my script template with true, sourced phrases chosen by small models on my computer: gather the phrases, rank them per blank, add the typed candidates, let a model choose, and render the fills with their drift",
+        "description": "make_candidate_pool gathers short phrases with a checkable source (a listing, a site's JSON, git histories, a product name, ages); template_blanks (read-data) reads the template's lines and blanks; rank_pool_for_blanks keeps a cross-encoder's 12 best per blank; make_typed_options adds every candidate of the blank's type; choose_fills_with_decider, judge_filled_lines_with_decider and choose_fills_with_language_model choose; render_choices_as_fills writes the fills (abstaining below a line) through tool:fill-a-template-without-changing-its-words and measures the drift. A blank of type PERSON-LINE is never filled from a pool. Steps: make_candidate_pool, rank_pool_for_blanks, make_typed_options, choose_fills_with_decider, judge_filled_lines_with_decider, choose_fills_with_language_model, render_choices_as_fills.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "template": {
+              "type": "string"
+            },
+            "options": {},
+            "pool": {},
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install torch pillow open_clip_torch sentence-transformers (the models the step uses)",
+            "python3 -m pip install mlx mlx-lm mlx-vlm (the vision-language and language-model steps, on a Mac with Apple silicon)",
+            "hf download <model> (each model the request names; a decider snapshot holds its own decider package)"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/{step}.py {input}",
+          "needs": [
+            "python",
+            "git",
+            "the model's Python packages for the rank and choose steps"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input} and the step's name as {step}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person which blanks a model filled, with each value's source, and which it left empty; never put a value without a source in a blank."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::rank-candidate-clips-for-a-slot-with-small-local-models",
+      "address": "package::benchmark-small-local-models::tool::rank-candidate-clips-for-a-slot-with-small-local-models",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rank-candidate-clips-for-a-slot-with-small-local-models",
+        "label": "Rank candidate clips for each slot of my video with a small model (runs on your computer)",
+        "status": "active",
+        "job": "Rank the candidate clips for each slot of my video with a small model on my computer, and see how often its best is the one I would pick",
+        "description": "Give slots (each with its candidates' frames and library text), method (siglip, decider-vision, decider-text, bge-text or qwen3vl) and model; optional reference ({slot: [candidate, best first]}) and reference_name give top1 and top1 within the reference's first three.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "slots": {},
+            "method": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install torch pillow open_clip_torch sentence-transformers (the models the step uses)",
+            "python3 -m pip install mlx mlx-lm mlx-vlm (the vision-language and language-model steps, on a Mac with Apple silicon)",
+            "hf download <model> (each model the request names; a decider snapshot holds its own decider package)"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/rank_candidate_frames.py {input}",
+          "needs": [
+            "python",
+            "the model's Python packages",
+            "the model in the Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person each slot's best candidate and the agreement with their own ranking."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::check-takes-are-complete-with-a-small-local-model",
+      "address": "package::benchmark-small-local-models::tool::check-takes-are-complete-with-a-small-local-model",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:check-takes-are-complete-with-a-small-local-model",
+        "label": "Check whether my spoken takes are complete with a small model (runs on your computer)",
+        "status": "active",
+        "job": "Test whether a small decider model on my computer can tell a complete, usable take from one cut short, restarted or self-corrected, on takes made from my own transcripts",
+        "description": "Give transcripts (a folder of word-timed transcript JSON) and model (a decider snapshot). Takes are built from real sentences: as said (usable) or with one controlled fault (not usable), so the labels are true by construction. Returns accuracy, accuracy per fault, and how many it answers and gets right at confidence 0.7, 0.8 and 0.9.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "transcripts": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install torch pillow open_clip_torch sentence-transformers (the models the step uses)",
+            "hf download <model> (each model the request names; a decider snapshot holds its own decider package)"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/check_takes_with_decider.py {input}",
+          "needs": [
+            "python",
+            "torch",
+            "a decider snapshot in the Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Say plainly that the labels are by construction, not real footage."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::rank-my-titles-with-a-small-local-model",
+      "address": "package::benchmark-small-local-models::tool::rank-my-titles-with-a-small-local-model",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:rank-my-titles-with-a-small-local-model",
+        "label": "Rank my title ideas with a small model on my computer (runs on your computer)",
+        "status": "active",
+        "job": "Rank my video title ideas by how strongly a small decider model on my computer answers yes to my question about each",
+        "description": "Give titles ({ref: title}), question (your yes/no question) and model (a decider snapshot). P(yes) is used only as a ranking.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "titles": {},
+            "question": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install torch pillow open_clip_torch sentence-transformers (the models the step uses)",
+            "hf download <model> (each model the request names; a decider snapshot holds its own decider package)"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/rank_titles_with_decider.py {input}",
+          "needs": [
+            "python",
+            "torch",
+            "a decider snapshot in the Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Show the ranking; it is a ranking, not a prediction of clicks."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    },
+    {
+      "id": "package::benchmark-small-local-models::tool::time-a-small-local-decider",
+      "address": "package::benchmark-small-local-models::tool::time-a-small-local-decider",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:time-a-small-local-decider",
+        "label": "Time how fast a small decider model loads and answers on my computer (runs on your computer)",
+        "status": "active",
+        "job": "Time how long a small decider model takes to load and to answer on my computer, and how much memory it holds",
+        "description": "Give model (a decider snapshot in the Hugging Face cache) and optionally revision and device. Runs a made-up two-question case four times.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "string"
+            },
+            "settings_record": {
+              "type": [
+                "object",
+                "array",
+                "string"
+              ],
+              "description": "The person's list:settings rows for this folder as records:read gave them, or a file of them"
+            },
+            "scopes": {
+              "type": "array",
+              "description": "[[scope_kind, scope_id]], most specific first"
+            },
+            "settings": {
+              "type": "object",
+              "description": "The same settings inline, for a sample"
+            },
+            "write_to": {
+              "type": "string",
+              "description": "Also write the whole answer to this file; the last line counts it"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install torch pillow open_clip_torch sentence-transformers (the models the step uses)",
+            "hf download <model> (each model the request names; a decider snapshot holds its own decider package)"
+          ],
+          "run": "python3 trillion-workshop/tools/benchmark-small-local-models/do-work/time_a_decider.py {input}",
+          "needs": [
+            "python",
+            "torch",
+            "a decider snapshot in the Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. Read the person's settings rows record:setting:benchmark-small-local-models~<scope_kind>~<scope_id> from list:settings through their door (tool:read-a-tool-setting) and pass them as settings_record, with scopes [[kind, id], ...] most specific first; each step's defaults are under commands.<step>, and the request's own fields win. Write the request to a file and run `run` with it as {input}; each script's header names its fields. Read the last line: { result } or { error } saying what to change. Tell the person the load seconds, the milliseconds per answer and the memory."
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:benchmark-small-local-models",
+        "provenance": {
+          "source": "Ported from a private film repository's small-model experiments; each script is the experiment's own, its fixed paths, models and words made request fields"
+        }
+      }
+    }
+  ]
+}

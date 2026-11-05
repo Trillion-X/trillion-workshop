@@ -1,0 +1,33 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-PICK-GATE-STANCE-ID-BRIDGE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "for the stand-record id, call where-a-person-stands' own JavaScript through a tiny node bridge: stdin JSON in, one line out"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "name the stance record of each option from its text for a Python program",
+ "sources": [],
+ "targets": [ { "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/stance-id-from-stdin.mjs" } ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  { "repository": "trillion-workshop", "path": "tools/where-a-person-stands/", "why": "owns the fold, the identity and the stance record id; this bridge only calls its exports for a Python caller and keeps no copy of them" },
+  { "repository": "trillion-workshop", "path": "tools/content-identity/do-work/identity-from-stdin.mjs", "why": "bridges the BLAKE3 identity of bytes; this bridges a stance record id, which folds the text and names the kind first" }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": ["name the stance record of each option from its text for a Python program", "stance record id bridge", "stance id from stdin"],
+   "capability_rows": [],
+   "code_patterns": ["stance-id-from-stdin"],
+   "repositories": [
+    { "repository": "trillion-workshop", "commit": "7e481f1be218e04e0c7cdc084a9153db70f52fa4" },
+    { "repository": "trillion", "commit": "e402c27799d8c007b425674d0a53642dd7cdcb6d" }
+   ]
+  },
+  "test_refs": [ "tools/put-picked-options-into-a-filmcraft-project/test/pick-gate.test.mjs the bridge names each option's stance record as tools/where-a-person-stands does" ]
+ }
+}
