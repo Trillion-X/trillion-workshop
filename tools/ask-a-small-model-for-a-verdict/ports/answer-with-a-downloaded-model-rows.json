@@ -49,6 +49,21 @@
    "repository": "trillion-workshop",
    "path": "tools/workflows/published/tools.json",
    "why": "The generated tool catalog: one flat row per tool copied from this folder's tool-rows.json (publish-tool-catalog.mjs); it lists the tool and runs nothing."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/README.md",
+   "why": "This tool's own README, describing the labelled-line rows this entry reads; documentation of this entry, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/tool-rows.json",
+   "why": "This tool's own rows, whose schemas name the labelled-line rows this entry reads; they declare this entry, they own no other job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs",
+   "why": "The test of this entry, seeding made-up labelled-line rows in an in-memory door; it tests this job, it does not do it."
   }
  ],
  "proof": {
