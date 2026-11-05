@@ -1,0 +1,1390 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-RENDER-A-MOTION-GRAPHICS-OVERLAY",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c5226fc08d3d6efc039ce31297a03f2e4dc2fe391370f774c12826a875534248",
+   "multihash": "1f:beb52ec8b825e59940113e74955eb3f046bf0d65264ba1ee85407ddd253b5fc9",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:997411f528c5bd16b541fc10c00044554c6703881c863ab9fd1990a05251e25f",
+   "multihash": "1f:1f4380d0195118800f944dc492a860795aa9bc4ef98223ef896c34d4f2b12904",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:2c05ec2d90f8945ea6d30204e872daa0ec2a9ae23a29b482a5b18f8df41236ac",
+   "multihash": "1f:cf7832c0b844e41363f2811f0e80a734ab19942abea354b927e770821785b1c0",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:2fae46111e5ddb075bac3ce9ae1394fb159a7fce0f799067f26fdee0047790b3",
+   "multihash": "1f:28a382c5b56fea319f05ffae7672d6e381c6287bcb8bec11a9ae5bc61a92ce48",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b41cfaef145ff5e381299d3563c3894fa62404e9e544e9e26866f06227c0ea08",
+   "multihash": "1f:687b87fb473fd4e45eaadc815e933424b48fcde4e94176758a8754c7310941a4",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:5cd753d23cda945b360f0e63c5fd43165dc50d7dae089b804c6e86f49e93e617",
+   "multihash": "1f:66f20419c9bd84855cd5de462f58a6b88ce5677fefc6ff0837aaaebe6f014543",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:39aa2057713df0b0549cf45bfb2fb1e4302a546512e1b29c22d649b61beca182",
+   "multihash": "1f:e2956e2470a8352ecb0130fcb5b70bb2386c83975f2a3a41814ec013c895d5a2",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:642ccdd39b92033d9aee97ee77ea601d1ebedf8b3d9978bb886eaa26bae9b1ee",
+   "multihash": "1f:76283aff53d5bf5f1c0f510740f907cdfa662658064badad215141d49df7c378",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e54c3eee5c0dcda30a5a44d20cb4120f90e1a588103cd158378269edae718735",
+   "multihash": "1f:14caaa3faa9b0b648a09fba6ab215d12dea74bd60f9dd2eda5f6fd1a3b8b18cd",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:820eaf35c9458008258e6651822b9e1ed209636a992dada67ec6af9d14e5af97",
+   "multihash": "1f:e4d155a2d2d9321979573c53c3b75dee54784ebb172c809cdf76870718ec8b03",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:660cef15d18e0096bf70ebe1bed6e64aa6637f7042d97bd09b6b3eccf3f9b94c",
+   "multihash": "1f:9219f7013e44e8109dfa53b5ea597d62958358b83c7df997e1ae781c86ef9402",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:788d0919737630e75128950d49a3fb409ebc1eb3e3c804030955370810c1fd02",
+   "multihash": "1f:746da38c3c5ba04d891a809e1d0dfa58a41a5c7a650244f0e305c8cdae01ae93",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:80eb4b1ad70e7689781f7a5ef33215d846d03771eb33d1407ed58c2ddd846d9f",
+   "multihash": "1f:da4ab7eadb8df797c01161ba111fdc333fb43dc70ca3c886972b0d26bc95c53b",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:cffead0f6a7ec8ad1bfdde440f41aaf9be6eaf219d057b81369baa2152a33718",
+   "multihash": "1f:adae23a9993565127321cd54c916b67f98b024c84381475c78460cb0de531cb6",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d7a920fd0393d76e29fe62dea009d8dbce1069bb9c83fa8f4af54f69a8d38f0f",
+   "multihash": "1f:94dfa90736769f60585f85e71ccbac59823cdfe4a07b9ab9dbaa62881f432770",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:67d791a99161286e1be7673a0db4644c28bed82fcd55aca6aceb9668c7f56287",
+   "multihash": "1f:2ee03eb5f55c923fe7511443722aa97f91b2c28e54f9eab132132ffb3b41b956",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:23f969a3509b3a44c89693b0a39292eac6e59f41f2ed19f9e1602802f552662b",
+   "multihash": "1f:da92083b0bccf9d3cbedda7fa2c64f5bfdf4559131183a6021c11a0962cbca43",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:fa86331396086fa44335ab013daaf6f5b9a404c4bfceedae93c24fb19e5229df",
+   "multihash": "1f:1d6ccd1426cff8603d6b46e8132b547c37b2e4151fd232a6f2d55437ae218590",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:6d279b5c5a1598a749293012c0d72fb6cd937af3c0255b3113012c9c023c771c",
+   "multihash": "1f:419d0c25be1ecffb363651dfd20513e1bb6f9396f4dbae36b66e75b9d269b0f2",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:03de2e6c1ad08c725324fae2458b80c79fdec75062fbaedbbfe7f65183d84027",
+   "multihash": "1f:c9bc8352770a9a34aefc741916c9a6c055595ba6b9779aa137a8a46d41ed51d4",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:451290237d44bb71f22b88c0c2d8773d448b7aa7e8972d95174cfe96b8fcbf88",
+   "multihash": "1f:4edeba08b166346c819d83d610c38062fb101e649c5edf8d96ab2caccc4a7b39",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:59244e7802364eb4bce4828a73eeec88833f35467559ca13e46777f5dbe43d92",
+   "multihash": "1f:2c3a66483be15d87bd86f9876198ff202203a29894ca15e31a0ab5f896c8c8da",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:46b489b6d54194c680ec0015ae37635b9dd8d915b90f7cac73a93c118f2f763c",
+   "multihash": "1f:853fceef05cd056d3557ac6e0a6269cd82c45e5a04d8fd5c895f2d07256f6a00",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:34e6feaa57500510d39a8d9ae25518260ea60a7dd42d9a11e4c8f6c83b352775",
+   "multihash": "1f:17dfeedac8ce837a5010ea402486b6bd6b9bd87e42a317ff4ec26e84cac37442",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:26c185ff177fe5fbecdb4ed34de655a4d1231a32284585ecfc60a174bd9e1a47",
+   "multihash": "1f:a1978cd0ab3005a12465b18901b8b6046399728aa114adcf96b4bf2f91dbb181",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d14b0c53f5c9edf055119a197298a776f30ff7173ca86b97724c24d45f45cd20",
+   "multihash": "1f:e0387be423c33cfe8f656175163fbc592cb5b781c0b0517a3d794fe4b1984419",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:777bf5465b634ba2c2fecafbbd53373ea45fb1bb5bed84b15edd331e9a70a9ac",
+   "multihash": "1f:419b89bccfba2761a6f7914da830d1e9c708af7a6acd1c9d2c9b0277d2737c19",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:7eab11e7d7f3f418658c2319800573aa86eff7908a546fcd6468473b17ae7f13",
+   "multihash": "1f:994c553f50567447213c6489e749d3a8bc84c157a66ec63c3d5f40928729ee37",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:487a952a553e87a44327ff1bd2fafef8e5a51387b0ed8f6335016fb9c9398478",
+   "multihash": "1f:b6190861432809b293192a2670cb7f12f924ce5ad955646c688a6ccd1e650317",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4100c95134300313b81c4495a8f0f7cf2bb3ec15090e66ac9966bf4223bd439b",
+   "multihash": "1f:e0a0754db526b542e68cb365e3626dc37eaf09cf6fbdda01d26baf4b0648cb11",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3fa3ec2534ed413acba22230791e71d09bafd63a0ba08f326e9f2752f9b925e0",
+   "multihash": "1f:4afe5216b83ec37b7081dee6a31aa189b286552a26719803ee4a8f70a99cfa55",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ed4ca9a7a9e4e529d94870d0621e9f958bdb8494aea179d3a6883b415e425e91",
+   "multihash": "1f:8c3dd11d5fad24043635a19c7b3bf6ee751ae9597b89eba25553e4465eee9207",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c92679f58eb25291dfc61a36d3550320ea13315588774bc5e3a1042f2669f343",
+   "multihash": "1f:c5fd324aff50c2568839e30c2a54b4a20d24eb4f8682e15f683ff61e3da9d16a",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1db97e310e238d9e58a73961f4dbe5916dc2ffcd093fb9f98e81aa14e4c14900",
+   "multihash": "1f:18fcad5e0217984234b32b16123472488021faa4edecd96bb4b412aa9b32bc2f",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:8008c228a4c5656600b65d907ca3f8365d2d7baf9d7bec0b3d6a61c21faa22b3",
+   "multihash": "1f:bd6841ce873a9d1fbf22dbf89eb9f60a4d380b119be98f8f3a8c3d8a28a0920f",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:180af5faa252a2ef9e36ccda9a9b9242f9d9f02286c2e18783d21866156dd76c",
+   "multihash": "1f:8923f8c4db31c635b810a0d6e359e3682bf4c6430c736fe8d9c127112b25a947",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1c423ec4b37df5afdef18e3b0341c068e91a6de830f97dba6f5c8f7065cc94ef",
+   "multihash": "1f:58cdc39410ee961d2117cdf9d95f8666bd483f4e25b781286438b731c8f26228",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:66ce620fdee2aaa64c088e99ddc42e4ff32c408a93bdd843c21ffce9e849e6fd",
+   "multihash": "1f:a8a4f087848eb15c98dbb629dea69a432b1e78c559b67d273341ff40064cb7ce",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:a02394c852c4b77f104076e3b3e96f7e2fd6bb10cf6bd431c2e79609123654bf",
+   "multihash": "1f:4a26334f6107ab717b5354a1b69c808ce6e1f467b36bc642775a70e9bd6fde29",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:13db8e760cbff7cf82d3a269e16e474c17507742fa0176c4ccbe45f7fe7e4e80",
+   "multihash": "1f:3d10c32903482e088bd7d684e0c51caaf13e6b9dfbc7da499ce72717e07ea883",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:15c77f6b7300cbe5d80adecaa96b160935af9e78482187781cec3c972221714b",
+   "multihash": "1f:8ca4181a1926047370d0ebe0e1c0d47d71c810cd521b276cbfbdc27ce46015f8",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:9f36db074244d8601eae0f3a7a4392b1cdf4116eab1bf513e93356b178f73e38",
+   "multihash": "1f:20d317dc569e955628168bd862557dbc5ee641c0d64ae7724b8707a8f6766310",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1c00cb951faf2bb3855463844a2858888463d171f0d6ef12f5b73afc21197732",
+   "multihash": "1f:ca67d749d5e18da616fdc7571ecbcb8d97f7535b38489164fe8368e4c6df5c72",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:664605ba0a085aa28a387c06b5d4335035eda2bc0a07b2ca49849b65196d8e28",
+   "multihash": "1f:3deab21e3870121aed275de43b715a89fec8234b57c9b0cf87aca6dbee1fc85e",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b1475fd563a032fafbc1ed81e94db7f08e620dab44ebc5a32bcfb1d3016c8833",
+   "multihash": "1f:2ff341d9b3bbda36e4ba405108c816b4f4220eea7926743bad985f32d165c6a5",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ac4cf30d40887f0c7ad6107da3744dd9a567e0f15f19f54995f92d2c4ec6864b",
+   "multihash": "1f:54c321bc20be84573c0b29392225fee42127facb106bda600c4b1c27e1d81e96",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:542170b1c4d449383c47dd017357daa246e3e5921688c5d5d0c6a33be1d5bc4f",
+   "multihash": "1f:082cfb019dc41b91b8447a3652802a52306b9c61a2b2fa6cc14a14b910c2e5f1",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:728b492bc7d852615367d1dd7a4ef493aee2153c7cfc447e9df3b7ad01093fda",
+   "multihash": "1f:106d8373dfca097c0ac0a29692a4adc95ba53091e1fa7bb50757dde63b26bd51",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:17871fa7f79c7f944c5a625ea43fd7624e183eac096f9379b9f8a9e806e08377",
+   "multihash": "1f:75c6d4f637e89f062d80630f1542a60f55d71cab59dbd40b69270c593ad8e67e",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3c1af130e53031eef3388ee4bd71df9fd37c3a9855397afafaba18d4cbbf08e9",
+   "multihash": "1f:e3d2e44f3151056528886e5dc607ff5a5442be10fa293b89f1602dbc4b06856d",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4ed55884ec578a657492aa217f53701216583ab020107951b3f7d70c1002164c",
+   "multihash": "1f:96e2b2bf99c4933399c431981fd64e4d3da20b3eb2a8cae6232b2f2987c50caf",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:00384840fa265e5007ff0261b4b81222e8df17b4576faa7a06255bf2930db7ea",
+   "multihash": "1f:e7dc407f7a97b28172d340005e8fc955d7e660988241ecba71566e1ce612ef19",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:fa27f1289a9df3cdc4a94ef86b6d049f67997f4e4419e0c413779b20f9ab4abd",
+   "multihash": "1f:32dc2cbb4ccae115caebd08c1df1573745900e06e882cc59cfa344648b28778f",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c1d567b48652c0d3d18719e8c42e389fd97ed9c48b798630c487dac52b2886e9",
+   "multihash": "1f:c62b3a0db82a9cf42aad6a7bb1fe05db4b3517a9c0380c06966908a4c642f0bb",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:006842102848405b601d02eedc6b31687fd7c7632a830db9bed89f150b592baf",
+   "multihash": "1f:8118eb4cc2a414f7670f1435adabd8825db142ac02ca0ea958c5f57d78818bbf",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:f25db4f943f65b798e3e3afbbcf532059289e8a3fb9500410fae50221f6e28ef",
+   "multihash": "1f:3eb079b022b397399b264517cb217ad097d568f693abd8472137c8b353581caf",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:cd4de78cf587a66aa8a66c943a8337d487f22ae533d8c568d7d88989609bed50",
+   "multihash": "1f:e023951a4a61a48607a08cbedada175a8421d3c679230b992b191956d72419ec",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4b033580b16f36e569e71ab726b4bdfc41621985190f98341147bbd4b188593a",
+   "multihash": "1f:0f63fabaaa95e59e1af701714983778c46aede832e94a9ad6b4634a272950c21",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ddb64cbd30f26557ae5ec20d657520b2ae0febd4a064f86a8bcb6ad914f47948",
+   "multihash": "1f:a6a3af612028ca2f428c4d230d90c185c0c1a28720ed6078da25bab7a554c0bf",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ff469a35b3c936db24713b9d09462a42add7c43db1c58e40c8924c18cb78a742",
+   "multihash": "1f:152c2043528dad4701a1abb012b7257fd997efe9402fd1bbdb9c25183f5ac1f9",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:f0714251a64130aa190df4fc04096305bbb80489fcfc650450559d5bec5be874",
+   "multihash": "1f:81a5d76d73588f2d3d235db336e8fbd0afa2371e5bceda14b74c75bd8ded72ba",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:c05eff29f5121ab7f24fbb03f36e00d6db5f40ed33fc2092e8a8a1899791aacb",
+   "multihash": "1f:4dea34a20e345253f66ee807124da1a6e41f350fb1ca4f1c2886cb4b0e84d5af",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:bec0d621233c58c6a9f2a2413d3ea9de4f4bdbfe03b22bb2febf8002e8d23392",
+   "multihash": "1f:8aa6854dd34d8ab9e0c089e4c009705a19f4faaf58345f40e957f966b488aa46",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d86ecae3151404b936570adac3398705ba5e095fde52ca6141250013ee342681",
+   "multihash": "1f:db6e43421ff925b8754e0c9c063629fe9ad2e65105c9db96def565eb33e93b6a",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dc6a5bde1d275f1c4ce3071dfc865ce29575ca240a522613896babd0117ee0b9",
+   "multihash": "1f:dace7d4b2235729e373068367864984516204504f3d171a556193fb566e2fde6",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:245208ffc0aa3b93646b3c225c5b41d26dc97f9459a46fac2315cd2061dbae31",
+   "multihash": "1f:f8d5219930890da472ed2db7fa6304b116f9fc3646f3db09771228790a358ded",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:eed4f613b3be8e3c036767a34dd0bb76e7fd61288fdf49d0e8686ff409f45bba",
+   "multihash": "1f:1a88821aa1be57ad4ae17a057a6d491c25804d5ec132d1621c0eac6f535d9482",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:bb8d3d8f623a311ef734dbe76da7a373a193f129753d222a21d11715f72151b9",
+   "multihash": "1f:7f53bdd7e7649b09d624fbc3d73a2741a9007e3855b0090fc7c792a2f9afd6f9",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e6d937e8c0ef970cc958628f3132b49722a09537b0d307330cbab3277db87d39",
+   "multihash": "1f:d431add192d06eea21f7546c7eaa08a493ba0270b3bb0d01c674996ed9d65b65",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:2e593f842aa2cd8f6f29cedac33e55138dd21a58dc6a5112d4763ae2ad02ae01",
+   "multihash": "1f:efd4a358d27d2d687aaf62a5f3571450d9a75f1ffee0e8b4606430dda1a5522a",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:5299cf16b9ef9500d51957d13a9731947f5e59533a5a2d9519fcbd93d60defdf",
+   "multihash": "1f:e4975405f3cf4f0a369687f75856f45a3333f69b0d7bedd56ce6c3520ee9340d",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:239715896c87b50fb64da7a2783d986429094a875d85f2ba23307bedbd66b443",
+   "multihash": "1f:99dc965dc7ed72e1c5006540a03c589cfa83ae10f3ec3cf1772ae414c37ad7a4",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ecf2de316876cf9e4d70c810eec7f9bd552347246af211156ec92ab2300d3a19",
+   "multihash": "1f:3d04099b5869ca2eec9b0f0055c8dd59c002734412e111108a7f640ca3052ff1",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:375f1cd3dd0ddd7f779e13f9a2a2c2fefee7c48f195c56b6216e9f6ea871c38b",
+   "multihash": "1f:bbd98b5e45b07f4be23c1fff62be7cf95fbd4d195b2e7aff1329cc84854ee14b",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:0594c9fce4d4c084aa01555c54e5f2c1fc0778e25a9c48187e8e5afa68da5580",
+   "multihash": "1f:5648d35e3584f7bbdec69687c14aab0ff62278daef6f312a3809c48c93810057",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b954767951f5a8625da65a0353ad2e4ad9c1f555076d8df673d6d5ffbe6b05a6",
+   "multihash": "1f:00c0e212b2f3c63e33540635f29b124c0d95821e0437c40ba0f6afc1a70e6577",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d6d58e2cb347bb9d561b871d1e274689b79a7b1cb71aefe67c896e3bbc3a3444",
+   "multihash": "1f:dc1f36f83341dd1707d10d63349f585e0d96584be7af7af5338bc9df9a021eaf",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:e511aa68a09154bb4fa449bf182a8def38b9d7e9d3c45c2cdb7ca6a859d6b145",
+   "multihash": "1f:2be585810fd5b67b8c55356b9868950c38f65d291e289a93c9c63124d877a656",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:6173961a359a81cfba394f7ffda8509b879e6707357076ca736b410b6ab678e3",
+   "multihash": "1f:f0d5e22055b3fc77635e60edffb0f9f22e835493ebdd6ada4f001b1d3b7d41ae",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:5d1ad8add21267a42c36fabca52e3f04f3d479a861305d3180ec0f443b0758ee",
+   "multihash": "1f:bec0b9871bafb8d33e04992d08189193f5d1fef168760043a43c926e512f36ac",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:94e65aa1300272155b314c9dc05d51b5b683de8205aa5e7f814eaf61711e220a",
+   "multihash": "1f:9d982d4553d1d937e5b39a88862ecf6d91b4c2cfa394853eea3bd92b2f5338ed",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:51077e1f1a2e1d280399d73f4510695a7beb080a91e551dfd824712b87b49e39",
+   "multihash": "1f:f1a0a8ebb027829b8ccf31824e522ee816f1d2522555ce03e9aa7e8eb96d6624",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b2466e48d8adb8f1ac8caa05f644dc1fc4e005f808ba1f4d9692b6177d4b8eea",
+   "multihash": "1f:e035078bd30b5a793d4a35ecf5f4ad0dc7c90d770ae3abf11682fb7eff835912",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:49d5e6ee13f014e733b6e20505382cb9d7231ebbfd6f454c2361e3753dc97283",
+   "multihash": "1f:f55fe0d13ab8236f938a34d6e4efe0e5e7283ef022f803422ad4988169e2f970",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:3ced2214b6285c735fb2c2bda90da6442334290524931ae35b9c7b8f8a7e5070",
+   "multihash": "1f:9ede134f78d1fc9e7bd2c9fd95c2f419d55e83892c1c5ad610fa3d2e0137b62e",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:9921fb40673261baea7579ab85ea1d1064999d613349bcf3909f2798e5de5f52",
+   "multihash": "1f:f5f98c51b2b8becbf9d533b2e81a2e3109b46dc83fe1f283584a87dc1fc6e718",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:5e8cba780292c49e564c6761bb6b8f61a3bbd32654b613b0d56a9d7ff464b512",
+   "multihash": "1f:8c10d74cef93f07860516a0430ecb52cf1d271d731dc3a8b1d98a827b6d8111d",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:2499b31ba4fcc4e1b2fecb62ac0ed2ac0f98f743d0d363f9118967b90f48824b",
+   "multihash": "1f:c77a41481183f017e621d91d3f7fc8fbabbddd4112cb03eefcf071988d504426",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d5f5fd57073a2f68f94140d21c9c1432ef2fae97cf43cf23cec07f1fc3443292",
+   "multihash": "1f:27e5f2a3813a64a7e04a7cb32fb4a6b65847f8a8ad6384db5b14f9b80eb0c3b1",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ce21d8246c7388e1e2c3a997a910dd1fb8100803ee4a8e7d2477216aff79d56f",
+   "multihash": "1f:529f5c46a11443678144e8a13efe63a8159cd831e6c31119c62f5440111b7b13",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:ef7d7a7455bf75aac6d3455d55a5ac7a3195d10e14059255268875d4b21f73d9",
+   "multihash": "1f:0e508651bf5a98217ed5927c3a2111a27b142897dd4372951c24b3854127e1c0",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:03747e1342e37bee672788dea83790aaa9b059fa17911517af7c134c8ad1bf50",
+   "multihash": "1f:67b747ddefc185b1984151f0761b2bf1ea6974269e20edb22a03c84c4edc1ac1",
+   "ownership": "user-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/crumple_a_card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/__init__.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/build.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/__init__.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/archive_panels.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/arrow.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/axis_reframe.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/bead_chain.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/bfull.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/bfull3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/bigword.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/bottle_drop.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/branch_map.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/brush.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/callout.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/camps_collage.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/cause_notes.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/ch2_sfx.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/ch5_camera.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/chart.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/chart3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/citation_card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/clear.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/collage.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/collage3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/count.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/count3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/ctick.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/ctick3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/cutout.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/dial_panel.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/dictionary_entry.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/document_zoom.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/dv_sliver.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/energy_budget.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/evidence_bubble.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/exit.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/fact_grid.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/figure.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/film_strip_timeline.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/focus_tapes.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/gauge_settle.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/glass_fill.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/goal_tracks.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/graph_paper_map.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/haul_lineup.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/hold_still.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/jelly_pouch.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/kinetic_words.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/label_highlight.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/label_liftout.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/label.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/label3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/letters.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/lit_words.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/lower_third.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/marker_note.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/marker_underline.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/marker_word.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/molecule_scoop.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/name.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/narrator_endcard.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/narrator_footnote.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/narrator_label.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/narrator_tag.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/note.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/nutri_card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/nutrient_label.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/object_cutout.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/paper_sweep.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/particle_assemble.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/pause.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/pen_page.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/peptide_takeover.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/photo_proof.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/pictogram.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/pile.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/plate_card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/print.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/proglucagon_cut.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/proof_page.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/pull_quote.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/qcard_circle.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/qcard.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/qcard3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/question_ledger.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/ransom.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/receipt_unroll.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/role.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/route_draw.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/ruler_bracket.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/scatter.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/scoop_form.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/scrap.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/scrap3.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/sfname.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/slide_card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/slide_out.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/soft_backing.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/sound.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/split_compare.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/stamp_steps.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/stapled_note.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/sticker_slap.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/sticky_peel.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/still_full.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/strata_descent.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/strike_revision.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/strike.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/strip.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/sum_board.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/tear_exit.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/tick.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/tracked_circle.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/typed_scrap.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/typepage.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/version_card.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/water_glasses.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/widening_circle.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/word_behind.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/word_stack.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/wordtext.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/events/workshop.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/ice_cream_picture.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/marker_and_slide.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/motion_smear.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/paper_pieces.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/particles_to_picture.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/peptide_beads.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/slide_pieces.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/sound_classes.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/table_objects.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/helpers/writing_sounds.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/kit.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/lock.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/look.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/render.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/stage.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/render_a_motion_graphics_overlay.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/render-overlay.mjs"
+  }
+ ],
+ "preserve": [
+  "every event type of the newest renderer (round-3 Build3 over round-2 Build2, the option Build and the narrator recipe Build) and every technique module, drawing the same frames: 426 of 426 stills of 166 specs byte-identical old vs new, one full render (frames, sound, timeline) identical",
+  "stop-motion on twos for paper, smooth sprites for footage and count-ups, torn and scrapbook edges, paper textures and grain, the coloured-pencil restyle, light leak, subtitles, the person matte",
+  "the sound mix (library gain plus sound_trim_db, staggered copies of one recording, the voice and the sfx-only stem) and the timeline with followed exit boxes",
+  "the title-safe stop and the exit-leaves-frame stop, the render lock (reentrant for children, lowest priority, waits while a flag file says so)",
+  "the crumple exit: the Blender cloth simulation of the card and its measured crumple.json"
+ ],
+ "allowed_deltas": [
+  "the film's look (recipe, look_r2, look_r3, the chapters' sound tables, the sound palette, writing sounds, felt stroke, tear and marker recordings, highlight colour) is the person's list:settings rows, read through tools/settings; no film path, name or palette in code",
+  "one package (look, stage, kit, build, events, helpers, render, lock) replaces the chain of modules that imported each other by path; old module aliases renamed to the package modules",
+  "the spec comes in the request or from a piece row; its relative file names are read against root",
+  "event types named after a person became narrator_label, narrator_footnote and narrator_endcard; chapter 4 note became stapled_note",
+  "refusals answer {error} in words; a faces value of builtin draws with Pillow's own font for the made-up example look"
+ ],
+ "banned_substitutions": [
+  "a film's words, names, colours or private paths written into the code",
+  "a renderer rewritten from scratch instead of moved"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T23:30:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:beb52ec8b825e59940113e74955eb3f046bf0d65264ba1ee85407ddd253b5fc9",
+  "target_multihash_at_baseline": "1f:beb52ec8b825e59940113e74955eb3f046bf0d65264ba1ee85407ddd253b5fc9",
+  "commit": "fe566a1113497205500ba52758c4c0ba903551dc"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/render-a-motion-graphics-overlay/test/test_render_a_motion_graphics_overlay.py Render, Refusals, Units, Lock, SlideCard",
+   "tools/render-a-motion-graphics-overlay/test/render-a-motion-graphics-overlay.test.mjs the command renders a piece from the film's look row and the piece's row"
+  ]
+ },
+ "_paths": "The sources live in a private repository, so each is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}
