@@ -1,22 +1,32 @@
-"""Build the thumbnail candidates from real graded frames.
+"""Build thumbnail candidates from real frames with six layout templates, each candidate one row of values.
 
-python3 tools/build.py            # all candidates -> ../<id>.png
-python3 tools/build.py T3 T5      # some
+One JSON request (a file named as the first argument, or standard input), run under tools/settings run-with-settings so a
+person's settings row (`settings_record`) can hold their candidates; the last line printed is the answer,
+{"result": {"thumbnails": [paths]}}, or {"error": "..."} with what to change.
 
-Frames: work/4k/<clip>_<t>.png (4K, final.cube applied). Cut-outs: work/cut/out/<clip>_<t>_cut.png
-(rembg u2netp on the crop x1000..3000, y150..2160 of the same frame). Every candidate is one row in CANDIDATES;
-the layout functions are the templates (KEEP), the row's values are the slots.
+Request: `frames` (folder of full-size frames, <name>.png), `cutouts` (folder of cut-outs, <name>_cut.png, cut from the crop
+whose top-left is `cut_offset` of the same frame), `out` (folder; each candidate is written as <id>.png), `font`
+({"file": a TrueType/OpenType file, "variable": true when it is a variable font with the named styles below}),
+`only` (candidate ids; all when absent), and `settings_record` / `settings` giving `candidates`: {id: {template, ...values}}.
+The layout functions are the templates (KEEP); a candidate's values are its slots. Templates: split_claim,
+face_right_stack, zoom_flaw, tags, hold_quote, corner_face (the README says which values each reads).
 """
+import json
 import math
+import os
 import sys
-from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 
-HERE = Path(__file__).resolve().parent.parent
-K4 = HERE / "work/4k"
-CUT = HERE / "work/cut/out"
+sys.path.insert(0, '/opt/settings/read-data')
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'settings', 'read-data'))
+import settings as person_settings  # noqa: E402
+
+FOLDER = 'compose-thumbnails-from-layout-templates'
+K4 = None
+CUT = None
 CUT_OFF = (1000, 150)
+FONT = {}
 W, H = 1280, 720
 RED = (214, 32, 39)
 YELLOW = (255, 214, 0)
@@ -24,9 +34,14 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 
+class Refusal(Exception):
+    pass
+
+
 def font(size, style="Condensed Heavy"):
-    f = ImageFont.truetype("/Library/Fonts/SF-Pro.ttf", size)
-    f.set_variation_by_name(style)
+    f = ImageFont.truetype(FONT["file"], size)
+    if FONT.get("variable"):
+        f.set_variation_by_name(style)
     return f
 
 
@@ -39,11 +54,17 @@ def punch(im, contrast=1.22, colour=1.18, bright=1.0):
 
 
 def frame(name):
-    return Image.open(K4 / f"{name}.png").convert("RGB")
+    path = os.path.join(K4, f"{name}.png")
+    if not os.path.isfile(path):
+        raise Refusal(f"no frame {name}: put {name}.png in the frames folder")
+    return Image.open(path).convert("RGB")
 
 
 def cutout(name):
-    return Image.open(CUT / f"{name}_cut.png").convert("RGBA")
+    path = os.path.join(CUT, f"{name}_cut.png")
+    if not os.path.isfile(path):
+        raise Refusal(f"no cut-out {name}: put {name}_cut.png in the cut-outs folder")
+    return Image.open(path).convert("RGBA")
 
 
 def crop_cover(im, cx, cy, w, h, out_w, out_h):
@@ -232,7 +253,7 @@ def t_zoom_flaw(c):
     s = c["face_px"] / fh
     place_cut(cv, cutout(c["person"]), s, c["cut_x"] - (fx - CUT_OFF[0]) * s, c["face_y"] - (fy - CUT_OFF[1]) * s, outline=9)
     src = frame(c["zoom_frame"])
-    spot = c["spot"](s)
+    spot = (int(c["cut_x"] + (c["zoom_c"][0] - fx) * s), int(c["face_y"] + (c["zoom_c"][1] - fy) * s))  # the zoomed spot on the cut-out
     zoom_circle(cv, src, c["zoom_c"], c["zoom_r"], c["zoom_at"], 165, line_to=spot)
     y = 34
     for i, line in enumerate(c["lines"]):
@@ -287,51 +308,56 @@ def t_corner_face(c):
 TEMPLATES = {"split_claim": t_split_claim, "face_right_stack": t_face_right_stack, "zoom_flaw": t_zoom_flaw,
              "tags": t_tags, "hold_quote": t_hold_quote, "corner_face": t_corner_face}
 
-# Face boxes (x, y, h) in the 4K frame, from OpenCV haar (work/4k).
-F = {"C9940_16": (2146, 428, 492), "C9940_23.5": (1884, 408, 664), "C9940_33": (1972, 360, 608),
-     "C9940_34": (2018, 428, 524), "C9940_67": (2012, 548, 496), "C9941_1": (1810, 340, 628),
-     "C9941_2": (1934, 388, 620), "C9941_4": (2036, 412, 592)}
-SCOOP = (1490, 1420)  # centre of the scooped ice cream in C9940_16 (4K)
-
-CANDIDATES = {
-    "T1": dict(template="split_claim", person="C9941_1", face=F["C9941_1"], subject_frame="C9940_16",
-               subject=(1300, 1300, 900), text="488 CALORIES", arrow_to=(900, 420)),
-    "T2": dict(template="split_claim", person="C9940_67", face=F["C9940_67"], subject_frame="C9940_16",
-               subject=(1300, 1300, 900), text="JUST BEANS", arrow_to=(900, 420)),
-    "T9": dict(template="split_claim", person="C9941_4", face=F["C9941_4"], subject_frame="C9940_16",
-               subject=(1300, 1300, 900), text="56G PROTEIN", arrow_to=(900, 420)),
-    "T3": dict(template="face_right_stack", person="C9940_67", face=F["C9940_67"], face_px=235, face_x=920,
-               face_y=40, bg="C9940_16", bg_box=(1500, 1200, 1900, 1070),
-               lines=[("56G", "plain", 210), ("PROTEIN", "box", 118)], text_y=150),
-    "T4": dict(template="face_right_stack", person="C9940_33", face=F["C9940_33"], face_px=320, face_x=930,
-               face_y=95, bg="C9940_16", bg_box=(1500, 1200, 1900, 1070),
-               lines=[("488", "plain", 210), ("CALORIES", "box", 112)], text_y=150),
-    "T5": dict(template="zoom_flaw", person="C9940_16", face=F["C9940_16"], face_px=250, cut_x=820, face_y=70,
-               bg="C9940_16", bg_box=(2000, 1000, 2600, 1460), zoom_frame="C9940_16", zoom_c=SCOOP, zoom_r=170,
-               zoom_at=(250, 520),
-               spot=lambda s: (int(820 + (SCOOP[0] - 2146) * s), int(70 + (SCOOP[1] - 428) * s)),
-               lines=["IT'S", "ICY"], size=142),
-    "T6": dict(template="tags", person="C9940_16", face=F["C9940_16"], face_px=230, cut_x=800, face_y=40,
-               backdrop=(28, 110, 220),
-               tags=[("488 CAL", 50, 120, 104, 8), ("56G", 90, 330, 150, -8)]),
-    "T7": dict(template="hold_quote", person="C9940_16", face=F["C9940_16"], face_px=260, cut_x=860, face_y=60,
-               bg="C9940_16", bg_box=(1900, 1100, 2800, 1575), text="“JUST BEANS”",
-               arrow_to=(520, 470)),
-    "T8": dict(template="corner_face", person="C9940_34", face=F["C9940_34"], face_px=250, cut_x=220, face_y=360,
-               bg="C9940_16", bg_box=(1400, 1250, 1500, 844),
-               lines=[("112G", 600), ("PROTEIN?", 600)], text_y=40, size=138,
-               arrow_from=(700, 360), arrow_to=(600, 500)),
-}
+def tuples(v):
+    """JSON lists of numbers back to the tuples the templates add and unpack."""
+    if isinstance(v, list):
+        if v and all(isinstance(x, (int, float)) for x in v):
+            return tuple(v)
+        return [tuples(x) for x in v]
+    if isinstance(v, dict):
+        return {k: tuples(x) for k, x in v.items()}
+    return v
 
 
-def build(cid):
-    c = CANDIDATES[cid]
-    im = TEMPLATES[c["template"]](c).convert("RGB")
-    out = HERE / f"{cid}.png"
-    im.save(out)
-    return out
+def build(cid, c, out):
+    if c.get("template") not in TEMPLATES:
+        raise Refusal(f"candidate {cid}: template is one of {', '.join(TEMPLATES)}")
+    try:
+        im = TEMPLATES[c["template"]](c).convert("RGB")
+    except KeyError as e:
+        raise Refusal(f"candidate {cid} ({c['template']}) needs the value {e}")
+    path = os.path.join(out, f"{cid}.png")
+    im.save(path)
+    return path
+
+
+def main():
+    global K4, CUT, CUT_OFF, FONT
+    try:
+        raw = open(sys.argv[1]).read() if len(sys.argv) > 1 else sys.stdin.read()
+        req = json.loads(raw or '{}')
+        for key in ("frames", "cutouts", "out", "font"):
+            if key not in req:
+                raise Refusal(f"the request needs `{key}` (see the README)")
+        if not req["font"].get("file") or not os.path.isfile(req["font"]["file"]):
+            raise Refusal("font.file must name a TrueType or OpenType file on this computer")
+        mine = person_settings.request_settings(req, {"candidates": {}}, folder=FOLDER,
+                                                tool="tool:compose-thumbnails-from-layout-templates")
+        candidates = tuples(mine.get("candidates") or {})
+        if not candidates:
+            raise Refusal("no candidates: give settings_record (the person's row) or settings.candidates")
+        K4, CUT, FONT = req["frames"], req["cutouts"], req["font"]
+        CUT_OFF = tuple(req.get("cut_offset", CUT_OFF))
+        os.makedirs(req["out"], exist_ok=True)
+        ids = req.get("only") or list(candidates)
+        missing = [cid for cid in ids if cid not in candidates]
+        if missing:
+            raise Refusal(f"no candidate {', '.join(missing)} in the settings")
+        print(json.dumps({"result": {"thumbnails": [build(cid, candidates[cid], req["out"]) for cid in ids]}}))
+    except (Refusal, person_settings.SettingError) as e:
+        print(json.dumps({"error": str(e)}))
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    for cid in sys.argv[1:] or CANDIDATES:
-        print(build(cid))
+    main()
