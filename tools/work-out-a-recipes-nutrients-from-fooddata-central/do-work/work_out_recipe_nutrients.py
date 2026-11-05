@@ -15,10 +15,36 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 READ_DATA = os.path.join(os.path.dirname(HERE), 'read-data')
+SETTINGS = os.path.join(os.path.dirname(os.path.dirname(HERE)), 'settings', 'read-data')
 sys.path.insert(0, READ_DATA)
+sys.path.insert(1, SETTINGS)
 
 from fooddata_central import Refusal, load_dir, load_texts  # noqa: E402
 from recipe_profile import work_out  # noqa: E402
+import settings  # noqa: E402  (tools/settings, the one reader of list:settings)
+
+FOLDER = 'work-out-a-recipes-nutrients-from-fooddata-central'
+TOOL = 'tool:' + FOLDER
+
+
+def with_saved_recipe(request):
+    """The request with the person's saved recipe under it: settings_record is their list:settings row(s)
+    (record:setting:<FOLDER>~piece~<piece>), read through tools/settings at scope piece (the request's `piece`);
+    a field the request gives itself wins."""
+    if 'settings_record' not in request:
+        return request
+    scopes = [('piece', str(request['piece']))] if request.get('piece') is not None else None
+    try:
+        saved = settings.setting(request['settings_record'], FOLDER, scopes, default=None, tool=TOOL)
+    except settings.SettingError as e:
+        raise Refusal(str(e))
+    if saved is None:
+        raise Refusal(f'no list:settings row for piece {request.get("piece")} was given: pass the row record:setting:{FOLDER}~piece~<piece> as settings_record')
+    if not isinstance(saved, dict):
+        raise Refusal('the saved recipe must be an object of request fields (id, ingredients, ...)')
+    merged = dict(saved)
+    merged.update({k: v for k, v in request.items() if k not in ('settings_record', 'piece')})
+    return merged
 
 
 def read_request(argv):
@@ -43,8 +69,9 @@ def read_request(argv):
 
 
 def answer(request):
+    request = with_saved_recipe(request)
     if not isinstance(request.get('id'), str) or not request['id']:
-        raise Refusal('the request needs an id for the recipe (a short name such as "chocolate-tofu-ice-cream-v1")')
+        raise Refusal('the request needs an id for the recipe (a short name such as "made-up-smoothie")')
     datasets = request.get('datasets')
     if not isinstance(datasets, dict) or not datasets:
         raise Refusal('the request needs datasets: {"<name>": {"dir": "<FoodData Central download folder>"}} or the CSV texts')

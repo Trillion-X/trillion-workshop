@@ -195,6 +195,30 @@ class TheCommand(unittest.TestCase):
             code, again = self.call(['--request', path])
             self.assertEqual((code, again['profile']), (0, answer['profile']))
 
+    def test_the_saved_recipe_is_read_from_list_settings(self):
+        saved = {k: v for k, v in request().items() if k != 'datasets'}
+        folder = 'work-out-a-recipes-nutrients-from-fooddata-central'
+        def row(piece, value):
+            return {'id': f'record:setting:{folder}~piece~{piece}', 'type': 'record:setting',
+                    'value': {'name': 'a made-up recipe', 'tool': 'tool:' + folder, 'scope_kind': 'piece', 'scope_id': piece,
+                              'settings': json.dumps(value, sort_keys=True), 'from': 'made-up', 'status': 'active'}}
+        other = dict(saved, id='another-recipe')
+        req = {'settings_record': [row('other', other), row('pudding', saved)], 'piece': 'pudding',
+               'datasets': {'a': A, 'b': B}, 'title': 'Given here wins'}
+        code, answer = self.call(stdin=json.dumps(req))
+        self.assertEqual(code, 0, answer)
+        self.assertEqual(answer['profile']['id'], 'made-up-pudding')
+        self.assertEqual(answer['profile']['mix_mass_g'], 443.0)
+        self.assertEqual(answer['recipe']['title'], 'Given here wins')
+        code, answer = self.call(stdin=json.dumps(dict(req, piece='missing')))
+        self.assertEqual(code, 1)
+        self.assertIn('no list:settings row for piece missing', answer['error'])
+        retired = row('pudding', saved)
+        retired['value']['status'] = 'retired'
+        code, answer = self.call(stdin=json.dumps(dict(req, settings_record=retired)))
+        self.assertEqual(code, 1)
+        self.assertIn('retired', answer['error'])
+
     def test_errors_say_what_to_change(self):
         self.assertEqual(self.call(stdin='not json'), (1, {'error': 'the request is not JSON: send one JSON object on standard input or with --request <file>'}))
         code, answer = self.call(stdin=json.dumps(request(datasets={'a': {'dir': '/no/such/folder'}})))

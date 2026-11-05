@@ -10,13 +10,11 @@
         "status": "active",
         "label": "Work out a recipe's nutrients from USDA FoodData Central",
         "job": "Work out the nutrients in my recipe, per batch and per 100 g, against the daily intakes an adult needs",
-        "description": "Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value. Nutrient ids fall back in order (energy 1008 then 2047, sugars 2000 then 1063, and so on). An ingredient can be scaled so one nutrient matches its pack label. It answers the profile, the recipe with the person's own words kept, and a printed table; with write_to it also writes <id>.profile.json and <id>.recipe.json. It reads only the CSVs it is given and makes no calls.",
+        "description": "Takes a recipe (each ingredient's FoodData Central food id and grams, or a count of a portion such as 2 tbsp) and the person's FoodData Central CSV downloads, and works out 33 nutrients for the whole batch and per 100 g of mix, each ingredient's share, and % of the adult 19-30 Dietary Reference Intake for men and women, with a flag: gap, low, meets a third or more, meets a full day, a limit (sodium), or unknown_lower_bound_only where a main ingredient has no value. Nutrient ids fall back in order (energy 1008 then 2047, sugars 2000 then 1063, and so on). An ingredient can be scaled so one nutrient matches its pack label. It answers the profile, the recipe with the person's own words kept, and a printed table; with write_to it also writes <id>.profile.json and <id>.recipe.json. It reads only the CSVs it is given and makes no calls. The recipe can come from the person's list:settings row (settings_record, read through tools/settings) instead of the request.",
         "input_schema": {
           "type": "object",
           "required": [
-            "id",
-            "datasets",
-            "ingredients"
+            "datasets"
           ],
           "properties": {
             "id": {
@@ -171,6 +169,13 @@
             "write_to": {
               "type": "string",
               "description": "A folder on the person's computer to write the two JSON files into"
+            },
+            "settings_record": {
+              "description": "The person's saved recipe: their list:settings row(s) as records:read gives them ({id, type, value}, id record:setting:work-out-a-recipes-nutrients-from-fooddata-central~piece~<piece-id>, value.settings the request fields without datasets), read through tools/settings. A field the request gives itself wins."
+            },
+            "piece": {
+              "type": "string",
+              "description": "Which saved recipe (the piece id) to read from settings_record"
             }
           }
         },
@@ -258,14 +263,23 @@
         "invoke": {
           "kind": "container",
           "files": {
-            "package_files": {
-              "package": "work-out-a-recipes-nutrients-from-fooddata-central",
-              "paths": [
-                "do-work",
-                "read-data"
-              ],
-              "at": "/opt/work-out-a-recipes-nutrients-from-fooddata-central"
-            }
+            "package_files": [
+              {
+                "package": "work-out-a-recipes-nutrients-from-fooddata-central",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/work-out-a-recipes-nutrients-from-fooddata-central"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
           },
           "workdir": "/opt/work-out-a-recipes-nutrients-from-fooddata-central",
           "stdout": "json",
