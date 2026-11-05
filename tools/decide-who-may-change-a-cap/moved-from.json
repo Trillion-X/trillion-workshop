@@ -17,6 +17,14 @@
       "to": "tools/decide-who-may-change-a-cap/src/passkey-authority.json",
       "source_identity": "1f:5659d86e3e79310f3a967c712867fa28fb6f23e2d5201034b75c317a753bb55b",
       "identity": "1f:5659d86e3e79310f3a967c712867fa28fb6f23e2d5201034b75c317a753bb55b"
+    },
+    {
+      "from": "test/cap-change.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-change-a-cap/test/cap-change.test.mjs",
+      "source_identity": "1f:2e9d0aa11ec866e92350b5ecfe7ce35ae59fe5889345348e2f6338187d6e8c77",
+      "identity": "1f:e7342a605e63bf317ce1789e332dff564ca1a611ec6c91752553497f64acba90",
+      "adapted": "six tests are the old ones over src/cap-change.mjs; the nine through old NativeResourceSpend setSpendBudget are left out (no repository runs that spend owner), and the confirmOptions check is the engine's (trillion-rust passkeys.rs tests it)."
     }
   ]
 }
