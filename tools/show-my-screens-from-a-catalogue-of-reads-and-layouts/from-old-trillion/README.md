@@ -14,3 +14,4 @@ Files old trillion main still held at 5dc302be37 with no copy in any new reposit
 | Old path | Here |
 |---|---|
 | `records/marketplace-screens.json` | `records/marketplace-screens.json` |
+| `scripts/publish-marketplace-screens.mjs` | `scripts/publish-marketplace-screens.mjs` (reads `../records/marketplace-screens.json` beside it, as it did; old trillion ran it after a release switch of the retired Worker) |
