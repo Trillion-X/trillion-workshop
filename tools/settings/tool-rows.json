@@ -1,0 +1,183 @@
+{
+  "kind": "tool-rows",
+  "record_set": "settings-tool-rows",
+  "what_this_is": "The Workshop rows of tools/settings: read one tool's settings from the person's list:settings.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-tools-settings",
+        "label": "Read the settings I keep for one of my tools",
+        "status": "active",
+        "job": "Read the settings I keep for one of my tools at one scope (me, a film, a piece or my account)",
+        "description": "Reads one row of the person's list:settings (a record:setting whose id is record:setting:<workshop-folder>~<scope_kind>~<scope_id>) through their records door and gives back its settings object, refusing a row for another tool's folder, a retired row and a row with no settings. Tools that take settings_record read their tuned values this way at run time instead of keeping them in files.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "settings_record"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "settings_record": {
+              "type": "string",
+              "pattern": "^record:setting:[a-z0-9][a-z0-9._-]*~(person|film|piece|account)~[a-z0-9][a-z0-9._-]*$",
+              "description": "The settings row id: record:setting:<workshop-folder>~<scope_kind>~<scope_id>."
+            },
+            "folder": {
+              "type": "string",
+              "description": "The Workshop folder of the tool that will use the settings; a row for another folder is refused. Defaults to the folder the id names."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "id",
+            "folder",
+            "scope_kind",
+            "scope_id",
+            "settings"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "folder": {
+              "type": "string"
+            },
+            "scope_kind": {
+              "type": "string",
+              "enum": [
+                "person",
+                "film",
+                "piece",
+                "account"
+              ]
+            },
+            "scope_id": {
+              "type": "string"
+            },
+            "settings": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "internet": false,
+          "workdir": "/opt/settings",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/settings/read-data/settings-record.mjs",
+            "readSettingsRow"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "settings_record"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:settings",
+        "provenance": {
+          "source": "Trillion-X/trillion src/decision-store.mjs:751-762 at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04 (the setting record kind), moved (ports/setting-record.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_record": "record:setting:make-a-sample-sound~person~me"
+            },
+            "records": [
+              {
+                "id": "record:setting:make-a-sample-sound~person~me",
+                "type": "record:setting",
+                "value": {
+                  "name": "Sample loudness",
+                  "tool": "tool:make-a-sample-sound",
+                  "scope_kind": "person",
+                  "scope_id": "me",
+                  "settings": {
+                    "target_lufs": -16
+                  },
+                  "from": "made-up/settings.json@0000000",
+                  "status": "active"
+                }
+              }
+            ],
+            "output_selector": "$.settings.target_lufs",
+            "equals": -16
+          }
+        ]
+      }
+    }
+  ]
+}

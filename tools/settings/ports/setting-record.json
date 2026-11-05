@@ -1,0 +1,65 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SETTINGS-SETTING-RECORD-KIND",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ",
+  "message_multihash": "1f:25777006094a12bbc60fa3149d903129fbf278050e15dd5c9cde5a152cc1b74c",
+  "quote": "one generic list list:settings; a tool reads settings_record at run time through one shared Workshop reader ported from decision-store.mjs setting(name)"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path": "src/decision-store.mjs",
+   "lines": [751, 762],
+   "multihash": "1f:25777006094a12bbc60fa3149d903129fbf278050e15dd5c9cde5a152cc1b74c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T00:00:00Z",
+    "deleted_with": "Trillion-X/trillion 4ffa1dc4a2 retired src/decision-store.mjs with the old Worker; the setting kind lives here now"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/settings/read-data/settings-record.mjs",
+   "baseline_commit_message": "settings: old trillion's setting record reader moves byte for byte (src/decision-store.mjs:751-762 at 4ffa1dc4a2^)"
+  }
+ ],
+ "preserve": [
+  "setting(name) answers the stored value of setting:<name>, or null",
+  "setSetting(name, value) writes one setting record and answers the value; null clears it",
+  "settings(prefix) lists every setting whose name starts with the prefix, keeping the name boundary explicit"
+ ],
+ "allowed_deltas": [
+  "the store is the person's list:settings, read through their records door, instead of the decision store's SQLite; settingStore runs over a snapshot of the rows read (snapshotEeaf) and its writes are kept for the caller to send",
+  "a setting's name is <workshop-folder>~<scope_kind>~<scope_id> and its row id record:setting:<name>, so one generic list holds every tool's settings at a scope",
+  "settingsOf refuses a row of another type, of another tool's folder, a retired row and one with no settings object, saying what to give instead"
+ ],
+ "banned_substitutions": [
+  "a settings file kept inside a tool instead of a list:settings row",
+  "a second settings reader beside this one"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:25777006094a12bbc60fa3149d903129fbf278050e15dd5c9cde5a152cc1b74c",
+  "target_multihash_at_baseline": "1f:25777006094a12bbc60fa3149d903129fbf278050e15dd5c9cde5a152cc1b74c",
+  "commit": "7b8eb87b888eb06137ed6e2ecf6c4358f22491a8",
+  "recorded_at": "2026-11-05T21:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export function settingStore",
+   "export function settingsOf",
+   "export async function readSettings"
+  ],
+  "test_refs": [
+   "tools/settings/test/settings-record.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

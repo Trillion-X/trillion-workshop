@@ -548,6 +548,12 @@
       "evidence": "README.md:3 word-level templates, so changed words cannot hide inside rewritten chunks"
     },
     {
+      "capability": "read the settings a person keeps for one of their tools, at one scope, from their list:settings",
+      "owner": ["tools/settings/"],
+      "entry": "tools/settings/tool-rows.json",
+      "evidence": "README.md:3 the one reader of a person's tool settings: rows of list:settings (record:setting:<folder>~<scope_kind>~<scope_id>) read at run time; ported from old trillion's setting record kind"
+    },
+    {
       "capability": "grade speech audio and repair it: keep, remaster or re-voice each stretch of speech",
       "owner": ["tools/grade-and-repair-speech-audio/"],
       "entry": "tools/grade-and-repair-speech-audio/tool-rows.json",
