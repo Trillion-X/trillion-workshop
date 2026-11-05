@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:fd1e0af731332bad4cdf45a32559516202af8676d0a032686d1f025701c8375c"
+  "blake3": "1f:9395179d1cda10af9b9f17d4783853833f0717f7dead912def753807fc5a20ae"
  },
  "fields": [
   {
@@ -7461,6 +7461,21 @@
     ],
     "listed_on": "2026-11-04T12:00:00Z",
     "folder": "publish-a-site-at-its-own-address"
+   }
+  },
+  {
+   "id": "tool:pull-a-time-window-from-a-stored-camera-file",
+   "values": {
+    "title": "Get one stretch of sound, or one picture, from a camera file in my cloud storage without downloading it",
+    "job": "Get the sound of a few seconds, or one still picture, out of a big camera video I keep in cloud storage, reading only the small part of the file that holds it",
+    "description": "Reads the MP4's box headers and its index (moov) by byte range, builds a sparse local copy with the same layout, asks ffprobe which byte ranges hold the audio packets inside the window (or the one key frame at or before the second asked for), reads only those ranges through the person's own reader program and decodes them with ffmpeg. Camera files run about 13 MB per second of footage, so this takes seconds where a whole-file pull takes hours and costs a few megabytes of storage reads instead of the file. The wav starts with silence up to the window's start, so second N of the wav is second N of the camera file. The request names the stored file's identity, the mode (window with from and to, or frame with at) and out (a file in the folder the person let this tool change). The person's own storage, kept in their list:settings row for this tool (settings_record) or given as settings: store (the store the reader is pointed at), account (the storage account id), reader {argv, cwd, env, ok_marker, retries, retry_seconds} (argv is a template filled with {store} {account} {identity} {out} {offset} {length}), credentials (names of environment variables the reader needs, set from the person's vault), gap (bytes; audio reads closer than this are joined). A key at the top of the request wins over the same setting. The tool never reads, prints or keeps a key; the reader program reads the storage itself.",
+    "status": "active",
+    "maker": "maker:pull-a-time-window-from-a-stored-camera-file",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-a-time-window-from-a-stored-camera-file"
    }
   },
   {
