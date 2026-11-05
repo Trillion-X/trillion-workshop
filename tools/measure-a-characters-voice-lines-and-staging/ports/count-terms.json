@@ -1,0 +1,77 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-COUNT-TERMS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the source-repo-a port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:7aaf3d9f94b44ac6993aade8079521cf52539c93cf0888e1ccc47143fd6557e2",
+   "lines": [
+    9,
+    32
+   ],
+   "multihash": "1f:51bfdd32d6415061a37d7e32ebb68d902a9eaace1d9ce9f9971e1d72a3f9eb1e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:7aaf3d9f94b44ac6993aade8079521cf52539c93cf0888e1ccc47143fd6557e2",
+   "lines": [
+    4,
+    7
+   ],
+   "multihash": "1f:2ade17faed927098f5bfa60bf6644a6f3f075ee84118acb4e99509aec6155bd6",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/count_terms.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of source-repo-a, byte for byte"
+  }
+ ],
+ "preserve": [
+  "per term: mentions, videos, first and last date, the middle mention as the example with its neighbouring lines",
+  "terms with no mention are listed with zeros"
+ ],
+ "allowed_deltas": [
+  "the terms are the person's settings, judged by tools/judge-words"
+ ],
+ "banned_substitutions": [
+  "a Python regular expression beside the word judge"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:51bfdd32d6415061a37d7e32ebb68d902a9eaace1d9ce9f9971e1d72a3f9eb1e",
+  "target_multihash_at_baseline": "1f:51bfdd32d6415061a37d7e32ebb68d902a9eaace1d9ce9f9971e1d72a3f9eb1e",
+  "commit": "41041a87ab8ea0e362bea7fdc34c8024d9e16caa",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "ex = h[len(h) // 2]"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}
