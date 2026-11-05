@@ -4,7 +4,7 @@
 Usage:
   python3 crumple.py --card card.png --out DIR [--seconds 0.55] [--fps 23.976] [--seed 1]
 
-Technique doc: library/techniques/paper-crumple.md
+Technique: a paper crumple (a cloth simulation of the card itself folding into a ball).
 
 One file, two modes. Run with system python it launches Blender headless (this same
 file as the Blender script), then measures the rendered frames and writes crumple.json.
