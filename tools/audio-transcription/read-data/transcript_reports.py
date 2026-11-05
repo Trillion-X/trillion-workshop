@@ -5,6 +5,7 @@ Nothing here runs a model. A transcript is {"segments": [{"start", "end", "text"
 "duration", ...}; a word's text may also be under "w" or "text" (other Whisper front ends).
 """
 import collections
+import csv
 import os
 import re
 import time
@@ -58,6 +59,14 @@ def index_totals(rows):
     return {"recordings": len(rows), "hours": round(sum(r["duration"] for r in rows) / 3600, 2),
             "silent": sum(1 for r in rows if r["words"] == 0), "segments": sum(r["segments"] for r in rows),
             "words": sum(r["words"] for r in rows)}
+
+
+def durations_list(path, id_column="id", duration_column="duration"):
+    """Each recording's length in seconds from a tab-separated list with a header: {name: seconds}, for the rows that give one.
+    A transcript's name is its file name up to the first dot."""
+    with open(path, encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle, delimiter="\t"))
+    return {r[id_column]: float(r[duration_column]) for r in rows if (r.get(duration_column) or "").strip()}
 
 
 def judge(doc, duration=None):
