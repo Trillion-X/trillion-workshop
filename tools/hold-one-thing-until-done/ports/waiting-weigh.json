@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-HOLD-ONE-THING-WAITING-WEIGH",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: route owner port, workshop round 2 lane",
+  "message_multihash": "1f:09ad7be752330d6288bfdb0002b98080e9d098dd1edb8f3e512469bbe1e478fa",
+  "quote": "needs-you-hold: finish it as a whole port of old needsYouHold. The walk-away nudge (prepareForHold) then runs over what the route can read."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path_multihash": "1f:ffe201ce6ede4e0ba5be96a042d2abc211e4e9f4fc0f085a87f7530afc1bc7e1",
+   "multihash": "1f:1089898fd6fbbc21b8821dfc9ce9fd046461cdfdba963d46b974b5b7a5114911",
+   "ownership": "repository-owned"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/hold-one-thing-until-done/read-data/waiting-weigh.mjs",
+   "baseline_commit_message": "hold-one-thing-until-done: waiting-weigh and waiting-nudge, moved byte for byte from trillion"
+  }
+ ],
+ "preserve": [
+  "every decision of the source: which waiting things are the person's, what goes to the AIs once per card, and the nudge's rungs, keys and board"
+ ],
+ "allowed_deltas": [
+  "import path: controlOf is this folder's own read-data/needs-you-hold.mjs, where old trillion imported it from the trillion-workshop package"
+ ],
+ "banned_substitutions": [
+  "a rewrite of the moved decisions",
+  "a second doer gate"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:1089898fd6fbbc21b8821dfc9ce9fd046461cdfdba963d46b974b5b7a5114911",
+  "target_multihash_at_baseline": "1f:1089898fd6fbbc21b8821dfc9ce9fd046461cdfdba963d46b974b5b7a5114911",
+  "commit": "bebf19669a935239b96f0c417e3a1183e73ce163",
+  "recorded_at": "2026-11-05T10:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.95,
+  "required_mechanisms": [
+   "export function weighCards",
+   "export function sameOnce"
+  ],
+  "test_refs": [
+   "tools/hold-one-thing-until-done/test/needs-you-hold-nudge-old.test.mjs",
+   "tools/hold-one-thing-until-done/test/needs-you-hold-route.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it."
+}

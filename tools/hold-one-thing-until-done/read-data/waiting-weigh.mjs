@@ -24,7 +24,7 @@
 //      doubled the jobs a store keeps per arrival (store-month, 2026-10-11).
 //   6. Pure: nothing is read or written here; hand-offs are returned for the caller, each `once_per` its card.
 //
-import { controlOf } from 'trillion-workshop/tools/hold-one-thing-until-done/read-data/needs-you-hold.mjs';
+import { controlOf } from './needs-you-hold.mjs';
 
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
 const listOf = value => (Array.isArray(value) ? value : String(value ?? '').split(',')).map(item => String(item).trim()).filter(Boolean);
