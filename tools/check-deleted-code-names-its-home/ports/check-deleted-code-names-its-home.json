@@ -4,6 +4,7 @@
  "status": "ADAPTED",
  "directive": {
   "thread_id": "cloud job 2026-11-04: what other old-trillion commits deleted since Oct 10 gets its correct home or a quoted reason",
+  "message_multihash": "1f:6b8cbff70a44ebd1777e6745bd6128362e2f7e26bb5f31d6788e0c0e40ffe0d7",
   "quote": "Then add a check row so this cannot recur: a commit in trillion, trillion-rust, trillion-workshop or trillion-apps that deletes a source or test file must name its new home (a moved-from receipt) or a retirement decision; write it as a record:check row through the Workshop check tools (the judge reads check rows; do not write hook code), with a test."
  },
  "mode": "NO_PRIOR_OWNER",
@@ -48,7 +49,8 @@
    "phrasings": [
     "refuse a commit or push that deletes a source or test file without naming its new home or the decision that retired it",
     "deleted code names its home",
-    "a deletion names its moved-from receipt or retirement decision"
+    "a deletion names its moved-from receipt or retirement decision",
+    "judge the deletions a commit or push makes"
    ],
    "capability_rows": [],
    "code_patterns": [

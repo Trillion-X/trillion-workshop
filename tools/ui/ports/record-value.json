@@ -3,6 +3,7 @@
   "id": "REF-RECORD-VALUE-FROM-WEB-SHELL-TO-UI",
   "status": "BASELINED",
   "directive": {
+    "message_multihash": "1f:b4160a4fc593d88630e71b00fc46127bffa1f00ad45eeff0b6df137a8138a921",
     "quote": "Imports inside the tool don't resolve in the Workshop ... The screens can't build until those imports point at web/ or at moved Workshop code. Port code one to one; never rebuild what already worked; keep one generic owner."
   },
   "mode": "SOURCE_FIRST_PORT",
@@ -48,6 +49,8 @@
       "export const recordText",
       "export function validRecordField"
     ],
-    "test_refs": ["tools/keep-lists-of-rows/test/imports-resolve.test.mjs"]
+    "test_refs": [
+      "tools/keep-lists-of-rows/test/imports-resolve.test.mjs"
+    ]
   }
 }

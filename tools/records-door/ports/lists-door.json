@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-LISTS-DOOR-TO-RECORDS-DOOR",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:13d88f31c1ee5b2a405ca500cd264704ec5952a29440fa19f81312a88b5bf65c",
     "quote": "if two tools need lists-door, move it into a library folder per CONTRIBUTING rule 1, never copy it"
@@ -30,7 +30,7 @@
     "every write conditional on what was read, keyed by what it writes"
   ],
   "allowed_deltas": [
-    "none: the file moves byte for byte; its importers import it from the library folder"
+    "putRows also answers kept: [{ id }] beside written, and its shape comment says so, landed with the formulas move in 138579b3; every other line is the byte copy"
   ],
   "banned_substitutions": [
     "a second copy of the lists door in another tool folder",
@@ -40,10 +40,11 @@
     "copied_before_adaptation": true,
     "source_multihash": "1f:96c248fa72706ec81da4373a8ed2609db7ae26bb4a6ab6d2891e56ff3afec927",
     "target_multihash_at_baseline": "1f:96c248fa72706ec81da4373a8ed2609db7ae26bb4a6ab6d2891e56ff3afec927",
+    "commit": "5cca007d476f8c76b218ae950ca1359b86a51507",
     "recorded_at": "2026-11-03T12:00:00Z"
   },
   "proof": {
-    "minimum_meaningful_line_retention": 1,
+    "minimum_meaningful_line_retention": 0.95,
     "required_mechanisms": [
       "export function listsOverDoor"
     ],

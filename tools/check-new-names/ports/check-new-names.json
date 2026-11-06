@@ -24,7 +24,8 @@
    "phrasings": [
     "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives",
     "check new file and folder names against word lists",
-    "refuse codenames in file names"
+    "refuse codenames in file names",
+    "judge only a repository the rules name"
    ],
    "capability_rows": [],
    "code_patterns": [

@@ -98,7 +98,7 @@
   "proof": {
     "search": {
       "phrasings": [
-        "Make a Trillion computer on this computer and start it: its key, its config and the running computer",
+        "Make this machine into a Trillion computer and start it: its key, its config and the running engine",
         "start trillion-local serve with a computer config",
         "write a computer config and a computer key file",
         "start a computer and print its computer id with trillion-local computer id"
