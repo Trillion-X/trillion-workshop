@@ -286,6 +286,321 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:list-the-speech-in-my-edit-plans-to-grade",
+        "label": "Make the spans file to grade from my edit plans (runs on your computer)",
+        "job": "Turn my edit plans into the list of recorded stretches whose speech should be graded, with their words and word times",
+        "description": "Reads a folder of edit plans (JSON files with a segments list; a segment with a clip is a cut of that recording from one second to another, with the words said) and writes the spans file tool:grade-and-repair-speech-audio reads: each cut with its media file (the plan's sources, else the source the clip's word file names) and the words inside it, timed in source seconds from a whisper result for the clip when there is one, else from the clip's word file. It also lists each plan's span ids as groups, so the grade writes one grades file per plan as well. Segments that are not cuts of a recording (a generated voice line) are left out. The plans, word files and recordings are only read. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The folder of edit plans on the person's computer, put where {input} is."
+            },
+            "transcripts": {
+              "type": "string",
+              "description": "The folder of <clip>.words.json word files ({source, words}), put where {transcripts} is."
+            },
+            "output": {
+              "type": "string",
+              "description": "The spans file to write, put where {output} is."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"spans\": \"<output>\", \"count\": <cuts>, \"plans\": <plans>}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/spans_from_plans.py --plans {input} --transcripts {transcripts} --out {output}",
+          "needs": [
+            "python"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with the person's plans folder and word files folder (add --wordtimes FOLDER when they keep whisper results per clip), then pass the spans file to tool:grade-and-repair-speech-audio. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "the plan, source and word-time readers of a film edit's audio grade, moved here"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-glitches-in-a-generated-voice-take",
+        "label": "Find the glitches in a generated voice take, word by word (runs on your computer)",
+        "job": "Check a voice take made by text to speech for breathy words, pitch breaks, clicks and stretched words before I use it",
+        "description": "Measures every word of a generated voice take: how periodic its voicing is (low is breathy, noise-like), pitch jumps (more than 3 semitones in 5 ms is not a human voice), clicks (sample-level jumps against the local level) and stretched words (time per letter far above the take's own median). Writes <take>.qc.json, one row per word with its measures and flags, and prints the flagged words and the worst five of each measure. The take is only read. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "take": {
+              "type": "string",
+              "description": "A generated voice take (a wav made by a text-to-speech engine) on the person's computer, put where {take} is in the command."
+            },
+            "words": {
+              "type": "string",
+              "description": "The take's word times on the person's computer, put where {words} is: a list of text, start and end (seconds), or an object whose words is one (a whisper read of the take)."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"qc\": \"<take>.qc.json\", \"words\": <count>, \"flagged\": <count>}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy librosa"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/check_voice_take.py {take} {words}",
+          "needs": [
+            "python"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with the take and its word times, then tell the person which words are flagged and why, and which are the least periodic. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "librosa pyin pitch and numpy autocorrelation measures, from a film's narrator voice checks"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses",
+        "label": "Silence the ticks and hiss in a generated voice take's pauses (runs on your computer)",
+        "job": "Clean the clicks and hiss a text-to-speech engine leaves in the pauses of a voice take",
+        "description": "Every stretch of the take quieter than -50 dBFS (20 ms windows) for at least 60 ms, bridged across a tick of up to 40 ms, becomes digital silence with 5 ms fades, and a sentence that stops at full level gets a 25 ms fade-out instead of a hard edge. The take is only read; the cleaned copy is written where the person says (24-bit). It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "take": {
+              "type": "string",
+              "description": "A generated voice take (a wav made by a text-to-speech engine) on the person's computer, put where {take} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The cleaned wav to write, put where {output} is."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"out\": \"<output>\", \"silenced\": <pauses>}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy soundfile"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/clean_voice_take_pauses.py {take} {output}",
+          "needs": [
+            "python"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with the take and a new file name, then tell the person how many pauses were silenced. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "numpy level gating, from a film's narrator voice cleaning"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:time-words-to-where-the-voice-starts",
+        "label": "Time each word of a voice take to where the voice starts (runs on your computer)",
+        "job": "Move the word start times of a voice take to where the voice really begins, so graphics land on the word",
+        "description": "Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Each word's start moves to the first 10 ms window inside the word whose level is above -45 dBFS; its end stays. With the take's line.json ({\"script\": the words the take was made from}) each word takes the script's spelling when the script and the read have the same number of words. Writes {source, timing, words}. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "take": {
+              "type": "string",
+              "description": "A generated voice take (a wav made by a text-to-speech engine) on the person's computer, put where {take} is in the command."
+            },
+            "words": {
+              "type": "string",
+              "description": "The whisper read of the take ({words: [text, start, end]}), put where {words} is."
+            },
+            "output": {
+              "type": "string",
+              "description": "The word file to write, put where {output} is."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"out\": \"<output>\", \"words\": <count>}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy soundfile"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/tighten_word_starts.py {take} {words} {output}",
+          "needs": [
+            "python"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` (add the take's line.json as a fourth argument to keep the script's spelling), then use the written word times for anything timed to a word. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "numpy level gating, from a film's narrator word timing"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:listen-to-a-generated-voice-take-word-by-word",
+        "label": "Listen to a generated voice take word by word (runs on your computer)",
+        "job": "Find the words in a generated voice take that sound least real or most like a glitch",
+        "description": "Asks the local listening package earshot, for every word of the take, how real the voice sounds and how well the word matches a glitch and the voice the person wants (described in their own words), then ranks each word against the take's own median so one odd word stands out. Writes one row per word. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "take": {
+              "type": "string",
+              "description": "A generated voice take (a wav made by a text-to-speech engine) on the person's computer, put where {take} is in the command."
+            },
+            "words": {
+              "type": "string",
+              "description": "The take's word times on the person's computer, put where {words} is: a list of text, start and end (seconds), or an object whose words is one (a whisper read of the take)."
+            },
+            "output": {
+              "type": "string",
+              "description": "The JSON file to write, put where {output} is."
+            },
+            "voice_wanted": {
+              "type": "string",
+              "description": "The voice the person wants, in their own words, put where {voice_wanted} is."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"out\": \"<output>\", \"words\": <count>}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy",
+            "the earshot listening package (api.realness, api.match), installed by the person"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/listen_voice_take_words.py {take} {words} 0 {output} \"{voice_wanted}\"",
+          "needs": [
+            "python",
+            "earshot"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with the take, its word times and the voice wanted, then tell the person the words with the lowest realness and the highest glitch match. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "earshot realness and text-match per word, from a film's narrator voice checks"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:score-voice-takes-against-the-voice-i-want",
+        "label": "Score voice takes against the voice I want and recordings of it (runs on your computer)",
+        "job": "Compare voice takes for pitch, realness, how well they match the voice I want and how close they are to my reference recordings",
+        "description": "For every take in a folder and every reference recording: median pitch and its spread, realness, how well it matches the voice the person wants (in their own words) and, for a take, how typical it is of the references (three nearest), plus words per second when a <take>.words.json lies beside it. Writes one JSON file of scores, to choose a voice and a speed. It runs on the person's own computer, never on Trillion.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "string",
+              "description": "The folder of voice takes (wav), put where {input} is."
+            },
+            "references": {
+              "type": "string",
+              "description": "The folder of reference recordings, put where {references} is."
+            },
+            "voice_wanted": {
+              "type": "string",
+              "description": "The voice the person wants, in their own words, put where {voice_wanted} is."
+            },
+            "output": {
+              "type": "string",
+              "description": "The scores file to write, put where {output} is."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"out\": \"<output>\", \"takes\": <files scored>}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git",
+            "python3 -m pip install -U numpy librosa",
+            "the earshot listening package (api.realness, api.match, api.compare), installed by the person"
+          ],
+          "run": "python3 trillion-workshop/tools/grade-and-repair-speech-audio/do-work/score_voice_takes.py {input} {references} \"{voice_wanted}\" {output}",
+          "needs": [
+            "python",
+            "earshot"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run`, then show the person each take's pitch, realness, match and typicality side by side. If you cannot run commands, give them these steps."
+        },
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "librosa pyin pitch and earshot realness, match and compare, from a film's narrator voice test"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:enhance-speech",
         "status": "active",
         "label": "Clean a recording's noise and find where the speech is",

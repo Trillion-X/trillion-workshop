@@ -1,0 +1,64 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VOICE-TAKE-SILENT-PAUSES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "case:finish-the-launch-video-port",
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:1adb7b79ae82664df04d6f07aa54ddc4dc4f5feed7fd3ecd05a496b6b6d8fc18",
+   "multihash": "1f:463427a90bde8a107bd135ddfa8149ed07ad191ec89acbc8e132e5c74139db06",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/do-work/clean_voice_take_pauses.py",
+   "baseline_commit_message": "grade-and-repair-speech-audio: byte copies of the speech-grading plan reader and the voice-take checks (port baseline)"
+  }
+ ],
+ "preserve": [
+  "every stretch under -50 dBFS (20 ms RMS) for at least 60 ms becomes digital silence with 5 ms fades",
+  "quiet runs split only by a blip of up to 40 ms are bridged",
+  "a sentence that ends at full level gets a 25 ms fade-out",
+  "the cleaned take is written 24-bit; the take is only read"
+ ],
+ "allowed_deltas": [
+  "the usage names this script",
+  "a last line {result: {out, silenced}}"
+ ],
+ "banned_substitutions": [
+  "a denoiser in place of the gate",
+  "changing the words' samples"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:463427a90bde8a107bd135ddfa8149ed07ad191ec89acbc8e132e5c74139db06",
+  "target_multihash_at_baseline": "1f:463427a90bde8a107bd135ddfa8149ed07ad191ec89acbc8e132e5c74139db06",
+  "commit": "0cec7d6c1c58fff002796260577f514a18fb8f7f",
+  "recorded_at": "2026-11-06T00:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "quiet = db < -50",
+   "# bridge quiet runs split only by a short blip",
+   "sf.write(dst, y * gain[:, None], sr, subtype='PCM_24')"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/plans-records-and-voice-takes.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "The old copy leaves the private repository on its own branch once the Mac parity run (out/speech/mac-parity) says EQUAL."
+}

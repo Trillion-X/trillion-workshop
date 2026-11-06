@@ -1,0 +1,65 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VOICE-TAKE-SCORES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "case:finish-the-launch-video-port",
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:0f4e84ce9dd771d1dfa689eea9c39d5a24dd9422e875b411735442c6f6b9e41c",
+   "multihash": "1f:a3613e82ca70fddea530b541d488f5dd94eeb0ece0c62f876b91d3c82f6d71a8",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/do-work/score_voice_takes.py",
+   "baseline_commit_message": "grade-and-repair-speech-audio: byte copies of the speech-grading plan reader and the voice-take checks (port baseline)"
+  }
+ ],
+ "preserve": [
+  "pyin pitch median and interquartile spread (60-250 Hz) per file",
+  "earshot realness, match to the voice wanted and, for a take, compare against the references (k=3)",
+  "words per second when a <take>.words.json lies beside it",
+  "one JSON of scores keyed by file name"
+ ],
+ "allowed_deltas": [
+  "the takes folder, references folder, voice wanted and output file are arguments instead of the film's folders and a description in the code",
+  "a reference is told from a take by its folder instead of 'refs' in its path",
+  "a last line {result: {out, takes}}"
+ ],
+ "banned_substitutions": [
+  "a fixed description of the voice",
+  "scores written into the takes folder"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a3613e82ca70fddea530b541d488f5dd94eeb0ece0c62f876b91d3c82f6d71a8",
+  "target_multihash_at_baseline": "1f:a3613e82ca70fddea530b541d488f5dd94eeb0ece0c62f876b91d3c82f6d71a8",
+  "commit": "0cec7d6c1c58fff002796260577f514a18fb8f7f",
+  "recorded_at": "2026-11-06T00:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "librosa.pyin(y,fmin=60,fmax=250,sr=sr,frame_length=1024)",
+   "api.compare(f,refs=[REFS],k=3)",
+   "rec['wps']=round(len(words)/dur,2)"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/plans-records-and-voice-takes.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "The old copy leaves the private repository on its own branch once the Mac parity run (out/speech/mac-parity) says EQUAL."
+}

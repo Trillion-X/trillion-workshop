@@ -1,0 +1,65 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VOICE-TAKE-WORD-GLITCHES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "case:finish-the-launch-video-port",
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b64350a1053fa0f9a454a51064625428b618b1c77d7bed518ae1fda83a80935d",
+   "multihash": "1f:0dd9a418eeb293c22754cbf064c4009985f1a36ca97119508a58054803a17915",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/do-work/check_voice_take.py",
+   "baseline_commit_message": "grade-and-repair-speech-audio: byte copies of the speech-grading plan reader and the voice-take checks (port baseline)"
+  }
+ ],
+ "preserve": [
+  "per word: pyin pitch at 5 ms hops, jumps over 3 semitones per hop counted as pitch breaks",
+  "clicks are the waveform's second difference against the local 10 ms RMS, flagged above 6",
+  "stretched words are seconds per letter over 2.6 times the take's median",
+  "periodicity is the median normalised autocorrelation peak (55-250 Hz lags) over 40 ms frames above -45 dBFS",
+  "<take>.qc.json holds one row per word; the flagged words and the worst five of each measure are printed"
+ ],
+ "allowed_deltas": [
+  "the usage names this script",
+  "a last line {result: {qc, words, flagged}}"
+ ],
+ "banned_substitutions": [
+  "a different pitch tracker",
+  "thresholds read from a person's settings: they are what a human voice cannot do"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0dd9a418eeb293c22754cbf064c4009985f1a36ca97119508a58054803a17915",
+  "target_multihash_at_baseline": "1f:0dd9a418eeb293c22754cbf064c4009985f1a36ca97119508a58054803a17915",
+  "commit": "0cec7d6c1c58fff002796260577f514a18fb8f7f",
+  "recorded_at": "2026-11-06T00:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "librosa.pyin(y, fmin=50, fmax=300",
+   "def periodicity(seg)",
+   "if r > 2.6 * med and L > 1"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/plans-records-and-voice-takes.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "The old copy leaves the private repository on its own branch once the Mac parity run (out/speech/mac-parity) says EQUAL."
+}

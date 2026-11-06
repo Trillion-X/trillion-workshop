@@ -1,0 +1,63 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VOICE-TAKE-LISTEN-WORD-BY-WORD",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "case:finish-the-launch-video-port",
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:46dbe69e9540795e0c174e0b51eafe5e0d67be633eb7ef3826cf2731ae56660b",
+   "multihash": "1f:b5e59926153ebc8a4451f564a9739007c77526a289b251b014dc70d7342e616b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/do-work/listen_voice_take_words.py",
+   "baseline_commit_message": "grade-and-repair-speech-audio: byte copies of the speech-grading plan reader and the voice-take checks (port baseline)"
+  }
+ ],
+ "preserve": [
+  "each word, 60 ms either side, gets earshot realness and a match against a glitch and the voice wanted",
+  "each word's realness and glitch match are ranked against the take's own median and spread",
+  "the five least real and the five most glitch-like words are printed"
+ ],
+ "allowed_deltas": [
+  "the voice wanted is the person's words, an argument, instead of a description written in the code",
+  "a last line {result: {out, words}}"
+ ],
+ "banned_substitutions": [
+  "a model other than earshot's listening calls",
+  "a fixed description of the voice"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:b5e59926153ebc8a4451f564a9739007c77526a289b251b014dc70d7342e616b",
+  "target_multihash_at_baseline": "1f:b5e59926153ebc8a4451f564a9739007c77526a289b251b014dc70d7342e616b",
+  "commit": "0cec7d6c1c58fff002796260577f514a18fb8f7f",
+  "recorded_at": "2026-11-06T00:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "api.realness(wav, start=a, end=b)",
+   "api.match(wav, [GLITCH, CLEAN], start=a, end=b)",
+   "r['p_real_dev']"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/plans-records-and-voice-takes.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "The old copy leaves the private repository on its own branch once the Mac parity run (out/speech/mac-parity) says EQUAL."
+}
