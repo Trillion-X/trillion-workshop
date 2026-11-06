@@ -46,6 +46,126 @@
       "to": "tools/decide-with-a-method/from-old-trillion/workshop/architecture-patterns/workflow.json",
       "source_identity": "1f:aac892dc31849629be8bd32a7c83161e4c9e9e640253d139883df584fa659745",
       "identity": "1f:aac892dc31849629be8bd32a7c83161e4c9e9e640253d139883df584fa659745"
+    },
+    {
+      "from": "test/guided.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/guided.test.mjs",
+      "source_identity": "1f:8090d03fb273d4167cc560d2c7f8a5a5c9deac309f0da5097476b1056d8a1942",
+      "identity": "1f:a9b4ee292c9b055ce6cc199ffe083089a04920f7a501cb684abfe7f1a1594b1a",
+      "adapted": "DecisionEngine guide/decideGuided over the universal method became the door tools over fixtures.mjs's made-up method, each step filled to its schema and judged by the caller's verdicts; replies compared without the replayed and ready_for_decision marks."
+    },
+    {
+      "from": "test/cost.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/cost.test.mjs",
+      "source_identity": "1f:6cb8bd49483c1b3594936b8c6c0fb86f4762d606d28a677285286d02dc79ab96",
+      "identity": "1f:47d85c13fee342c72308c7c6134ceb5182d143f25a95d0d363842cbec1c1c0da",
+      "adapted": "costOf became the step and decision usage kept by the tools and summed by work-screen.mjs helpedItem/whatHelpedOf; the markdown export and the service call log (second test) were left out, no running owner."
+    },
+    {
+      "from": "test/judge-reads-the-case.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/judge-reads-the-case.test.mjs",
+      "source_identity": "1f:d6940b90100d31d5c86b58b5377189325a6f49a6df6c1e89921622983a362532",
+      "identity": "1f:69c4f252b75e7b4f9a6d1b075c3124f89a46031aae436109263f1f92f000851e",
+      "adapted": "The service's own check judge became the calling AI's verdicts: the question's words for the judge and a retracted fact not taken are checked; the refusal's words are takeCallerVerdicts'; the refused-call log tests were left out, no running owner."
+    },
+    {
+      "from": "test/judging-holds-no-other-decision.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/judging-holds-no-other-decision.test.mjs",
+      "source_identity": "1f:94e7c4bdcbaca2b5447e3338470860f40a80b1c5409ad63be63c6079b55aee14",
+      "identity": "1f:7170963c2609cead148e43ae512bc1804c72d33b50985ba4470a8643fa064b63",
+      "adapted": "A judge held in the engine queue became one decision's write held at the in-memory door while another decision starts and answers; the racing second answer is asserted refused as before."
+    },
+    {
+      "from": "test/guide-cited-pursuits-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/guide-cited-pursuits-bounded.test.mjs",
+      "source_identity": "1f:84c078daf2c7efa556db5c53360456c5f5caf99b8fdf33ccec3ffaebd8870f0e",
+      "identity": "1f:3d29ca8ac9153eab2eac7a2049332065f06dc8544170f565cfbccff02ce5a5b2",
+      "adapted": "SQL statement and row counts became records read and listed at the door; pursuit citations through tool:answer-a-decision-question; the 257 references refused before any record lookup."
+    },
+    {
+      "from": "test/guide-answer-flat.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/guide-answer-flat.test.mjs",
+      "source_identity": "1f:8fbc9775e0dd4dd7523b3d621fee28053ca8b4f0d67941ff556850b9dd97618b",
+      "identity": "1f:6ec18f77e9d8012a8e2c0cf0b8fa8a14ea363640c0b52e6087d075622aa277e7",
+      "adapted": "A PersonStore grown to N and 4N SQLite rows became N and 4N records of each kind in the in-memory door; the cost is records crossed at the door, with a ceiling from similar.look_back."
+    },
+    {
+      "from": "test/person-answers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/person-answers.test.mjs",
+      "source_identity": "1f:def759d4f3cee50451a3ba54bf5d39a2497800dfaa6806569416d8ad18ac43b7",
+      "identity": "1f:10ada4184f6b6d7874c22df0f8d187e0ac547fc2b7a0e488af1a5468438ab66e",
+      "adapted": "The in-process MCP tools became tool:start-a-decision and tool:answer-a-decision-question over a made-up method with person-only fields; the MCP elicitation form was left out, no running owner."
+    },
+    {
+      "from": "test/pursuits.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/pursuits.test.mjs",
+      "source_identity": "1f:14fbddb410f561bf61b33bbf8dd50f2cc1d67c628c2503544319de85c84c9190",
+      "identity": "1f:b78fa0a3efec0c5c231afb4b2d6dda27ac72d038766329df9791085bb9422df0",
+      "adapted": "DecisionEngine.recordPursuits/pursuits became do-work/answer-the-pursuits-page.mjs pursuitsOf, summaries tool:see-my-decisions; record-log value history and pursuit paging were left out, no running owner."
+    },
+    {
+      "from": "test/correct-source-identity.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/correct-source-identity.test.mjs",
+      "source_identity": "1f:b06dd3fcee618fce9f6c17ea3b9e8771ba2763c169a214c7a5d9e6f965ef8dcc",
+      "identity": "1f:6eaa361d9463fc57d55842f9f9bc52dc9a67b6b84b50b58e2ee950c5c67b5ffa",
+      "adapted": "POST /cases/:id/correct-source became tool:end-a-decision (status ended with its reason, as the owner ends an invalid source); the correct-source-identity test was left out, no running owner."
+    },
+    {
+      "from": "test/decision-content-reads.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/decision-content-reads.test.mjs",
+      "source_identity": "1f:2d7c3350c93fecf700fac1dacf3c4ce8a426682b7ffa7c838d3e7f877bc05c0a",
+      "identity": "1f:a7d1e1d966fec9aa9f67b65a2ccb107d18498fb72e52169cfda2afd6e15906e0",
+      "adapted": "The store's contentOf became readDecision over the door, SQL counts became records crossed; a whole root reads as it is; story, privacy-term and PersonStore retry checks were left out, no running owner."
+    },
+    {
+      "from": "test/decision-summary-index.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/decision-summary-index.test.mjs",
+      "source_identity": "1f:a576c9567f2e189b33fcdfe45035f1c9e56f9eeee213810dfde7ef4d5a4486ce",
+      "identity": "1f:e39c72f725f902fd36e902b78d5eaf6ca06581b9aeb7ee44c5aaebfe0bcf6ef2",
+      "adapted": "engine.summaries/page became tool:see-my-decisions pages and engine.related tool:bring-back-similar-decisions, record reads counted at the door; the pursuit snapshot, notCarriedOut, undecidedMessages and status filter were left out, no running owner."
+    },
+    {
+      "from": "test/decision-summaries-bounded.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/decision-summaries-bounded.test.mjs",
+      "source_identity": "1f:3400fa4b8ee221a5121126e8b03091be9425b0026682e05e333245af02738cf8",
+      "identity": "1f:760e07eb23458138d96faf8169544aa432af23b4f0794de767dcc3ac99456c40",
+      "adapted": "engine.summaries/get/ownOf/contentOf became tool:see-my-decisions, readDecision and laidTogether over the door, SQL counts became records crossed; one in-memory door instead of two record engines."
+    },
+    {
+      "from": "test/decision-own-reads.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/decision-own-reads.test.mjs",
+      "source_identity": "1f:bcc65bb2db79e540f0d6db68dc7b7e12e2f34cdc5275526115af845a0bb9af10",
+      "identity": "1f:d13750a4a878ba6d70bc49d1bf64e150fd80d4602c9729437206f1b76ce5f1d3",
+      "adapted": "engine.related and ownOf became tool:bring-back-similar-decisions and laidTogether over the door; SQL statements naming decision-step/decision-call keys became door reads of those records."
+    },
+    {
+      "from": "test/decision-call-payload-cost.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/decision-call-payload-cost.test.mjs",
+      "source_identity": "1f:de4dd0a21c179b55630f45e725d391526d5dee9a23f7294bbb0aecd1dc8fa05a",
+      "identity": "1f:c70b8b8d072ec15161d8e6f6a46538c98175c58d55794b0fd5f75e26beae4202",
+      "adapted": "The store's bounded refused-call payloads became this tool's no call log: a refusal writes nothing and a whole decision's call is laid apart without its payload (bareCall); payload retention and rollback were left out, no running owner."
+    },
+    {
+      "from": "test/decision-workflow-phases.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-with-a-method/test/decision-workflow-phases.test.mjs",
+      "source_identity": "1f:8a9ed7181caadf65b95b73f7be380f6fb5018b9d66fd2bc364d0f304d7092dd3",
+      "identity": "1f:cc60ef3a11383ccb8e345e4e89d5b2894d0a125802bb6c0948089237049ad105",
+      "adapted": "The engine's planning step became the door tools over a made-up method with two workflows plus track-decision-obligations' decision-workflows.mjs; run_ids are refused as the owner does; outcome checks and observers were left out, no running owner."
     }
   ]
 }

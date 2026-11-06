@@ -1,7 +1,7 @@
 // tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs
 //
 // `tool:publish-an-engine-release` (tool-rows.json), run on the builder computer: fetch the repository's branch,
-// check the commit is on its first-parent line, number it (git rev-list --count --first-parent), build the engine
+// check the commit is on its first-parent line, number it (its commit time, git show -s --format=%ct), build the engine
 // with `cargo build --release --bin trillion-local` for the builder's own rust target, pack the program and the
 // repository's product/ folder as a tar.gz, name it by its BLAKE3 identity, sign the entry with the builder's key, put
 // the tar.gz at <feed folder>/<commit>/<target>.tar.gz and add the entry to feed.json in one rename. A commit older
@@ -65,11 +65,21 @@ export async function fetchRepository({ repository, branch, source, token }) {
   return (await git(source, ['rev-parse', `refs/remotes/origin/${branch}`])).trim();
 }
 
-/** The commit's sequence: its count of first-parent commits, refused unless it is on the branch's first-parent line. */
+/**
+ * The commit's sequence: its commit time in seconds, refused unless it is on the branch's first-parent line. This is the
+ * one numbering every engine build uses: the Mac app stamps the engine it carries the same way (trillion-apps
+ * scripts/release-macos-app.sh, `git show -s --format=%ct`), so a release from this feed runs on a Mac only when it is
+ * newer than the engine the app carries, and the computers that already follow the feed see a larger number.
+ */
 export async function sequenceOf({ source, branch, commit }) {
   const line = (await git(source, ['rev-list', '--first-parent', `refs/remotes/origin/${branch}`])).split('\n');
   if (!line.includes(commit)) throw refuse(`Commit ${commit} is not on ${branch}'s first-parent line: only a commit the branch itself moved to is published.`, 3);
-  return Number((await git(source, ['rev-list', '--count', '--first-parent', commit])).trim());
+  return commitTime(source, commit);
+}
+
+/** A commit's time in seconds: the one sequence rule every engine build uses (see sequenceOf). */
+export async function commitTime(source, commit) {
+  return Number((await git(source, ['show', '-s', '--format=%ct', commit])).trim());
 }
 
 /** The builder's own rust target, the host line of `rustc -vV`. */

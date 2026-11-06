@@ -41,9 +41,9 @@
     "input": "Send an object: { metadata_only?, native_collection_page?, before?, access?, allowance?, space_pursuits? }.",
     "flag": "{name} is true or false.",
     "before": "before is the created_at the last page answered as next_before: a string of at most {most} characters.",
-    "access": "access is what your place reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }.",
-    "allowance": "allowance is what your place reports: { count, per, used }, whole numbers and a period word.",
-    "allowance_needed": "Your access limits deciding, so send the allowance your place reports: { count, per, used }.",
+    "access": "access is what your computer reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }.",
+    "allowance": "allowance is what your computer reports: { count, per, used }, whole numbers and a period word.",
+    "allowance_needed": "Your access limits deciding, so send the allowance your computer reports: { count, per, used }.",
     "space_pursuits": "space_pursuits is a list of the pursuits your spaces share.",
     "too_many": "More than {most} {what} rows: ask for one bounded page instead (native_collection_page: true)."
   }

@@ -4,7 +4,7 @@ import { tableGeneration } from '../../keep-and-wake-ai-sessions-on-this-compute
 // PURPOSE
 //   When a reader last saw a place: one mark per (place, reader), the one thing every "what is new to you" count reads.
 //   A space's unread (src/spaces.mjs, src/community-activity.mjs) and a person's new work on each screen
-//   (src/new-work.mjs) are both "what arrived after this reader's mark on this place"; they differ only in what they
+//   (src/new-work.mjs) are both "what arrived after this reader's mark on this computer"; they differ only in what they
 //   count, never in how the mark is kept.
 //
 // NON-NEGOTIABLE INVARIANTS

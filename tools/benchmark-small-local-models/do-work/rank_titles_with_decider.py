@@ -9,11 +9,11 @@ Answer: { result: { meta, ranked: [{ ref, title, p_yes }] } }, best first."""
 import json, sys, time, resource
 from pathlib import Path
 import torch
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
-R = place.request(); MODEL = place.need(R, "model")
-titles = place.json_of(place.need(R, "titles"), "titles")
-Q = place.need(R, "question")
-d, load_s = place.load_decider(MODEL)
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer
+R = computer.request(); MODEL = computer.need(R, "model")
+titles = computer.json_of(computer.need(R, "titles"), "titles")
+Q = computer.need(R, "question")
+d, load_s = computer.load_decider(MODEL)
 reqs = [(f"A YouTube video title:\n\"{t}\"", [{"question": Q, "options": ["no", "yes"]}]) for t in titles.values()]
 t0 = time.time(); out = []
 for k in range(0, len(reqs), 8):
@@ -22,7 +22,7 @@ el = time.time() - t0
 rows = sorted(({"ref": r, "title": t, "p_yes": round(o[0]["probs"]["yes"], 4)} for (r, t), o in zip(titles.items(), out)),
               key=lambda x: -x["p_yes"])
 meta = {"model": MODEL, "question": Q, "load_s": round(load_s, 1), "ms_per_decision": round(1000*el/len(reqs)),
-        "mps_GB": place.mps_gb(place.device()), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2)}
+        "mps_GB": computer.mps_gb(computer.device()), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2)}
 for x in rows: print(x["p_yes"], x["title"])
 print(meta)
-place.answer({"meta": meta, "ranked": rows})
+computer.answer({"meta": meta, "ranked": rows})

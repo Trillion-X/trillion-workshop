@@ -108,7 +108,7 @@ def key_file_key(handle: dict) -> str:
     return key
 
 
-# Where a computer may keep the key, by the one name the handle holds; a place without a keychain names a key file.
+# Where a computer may keep the key, by the one name the handle holds; a computer without a keychain names a key file.
 KEY_READERS = {'keychain_item': keychain_key, 'key_file': key_file_key}
 
 

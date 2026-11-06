@@ -1,6 +1,6 @@
 # tools/publish-an-engine-release/
 
-Publish a signed engine release on every merge, so an engine fix reaches every account without an app install. A builder computer receives each push to the engine repository's branch, builds `trillion-local` at that commit for its own rust target, packs it (with the repository's `product/` folder when the commit has one), signs the entry with a key only the builder holds, and adds it to a feed served at `https://<builder name>/engine-releases/feed.json`. A release is a pointer change: each computer reads the feed, checks the signature against the public keys its config names (`release_feed` in the place config start-a-place writes) and adopts the newest release itself (engine job J1). The repository, branch and builder are input; nothing here names them.
+Publish a signed engine release on every merge, so an engine fix reaches every account without an app install. A builder computer receives each push to the engine repository's branch, builds `trillion-local` at that commit for its own rust target, packs it (with the repository's `product/` folder when the commit has one), signs the entry with a key only the builder holds, and adds it to a feed served at `https://<builder name>/engine-releases/feed.json`. A release is a pointer change: each computer reads the feed, checks the signature against the public keys its config names (`release_feed` in the computer config start-a-computer writes) and adopts the newest release itself (engine job J1). The repository, branch and builder are input; nothing here names them.
 
 ## Files
 
@@ -26,7 +26,7 @@ Publish a signed engine release on every merge, so an engine fix reaches every a
 { commit, sequence, target, url, content, bytes, urgent, signature }
 ```
 
-- `sequence`: `git rev-list --count --first-parent <commit>`, for a commit on the branch's first-parent line (anything else is refused).
+- `sequence`: the commit's time in seconds (`git show -s --format=%ct <commit>`), for a commit on the branch's first-parent line (anything else is refused). It is the one numbering every engine build uses: the Mac app stamps the engine it carries the same way (trillion-apps scripts/release-macos-app.sh).
 - `target`: the builder's rust target triple (the host line of `rustc -vV`).
 - `url`: `<base_url><commit>/<target>.tar.gz`; the tar.gz holds `trillion-local`, and `product/` when the commit has one.
 - `content`: `1f:` and the BLAKE3 hex of the tar.gz (`tools/content-identity`), `bytes` its size.
@@ -73,7 +73,7 @@ Every follower's existing `public_keys` (start-a-place's `release_feed`, the Mac
 
 **Depends on:** `tools/content-identity` (BLAKE3, with `@noble/hashes`), Node's `crypto`, `http`, `zlib`, `child_process`; `git`, `tar`, `cargo` and `rustc` on the builder; `ssh` and `tar` on the person's computer; `apt-get`, systemd 250+, Caddy and ufw on the builder.
 
-**Depended on by:** `tool-rows.json`; the feed is read by the engine's release-feed reader (engine job J1), configured by `tools/start-a-place`'s `release_feed`.
+**Depended on by:** `tool-rows.json`; the feed is read by the engine's release-feed reader (engine job J1), configured by `tools/start-a-computer`'s `release_feed`.
 
 ## Ported from
 
