@@ -15,8 +15,11 @@ import { makeReceiver, makeTargetQueues, readOffer } from '../do-work/receive-pu
 import { builderConfig, checkRequest } from '../do-work/install-a-builder.mjs';
 
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-targets-'));
+// A release's sequence is its commit's time in seconds; the made-up repository's commit n is made at BASE_TIME + n.
+const BASE_TIME = 1_800_000_000;
 const git = (cwd, ...args) => {
-  const ran = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: { ...process.env, GIT_AUTHOR_NAME: 'A', GIT_AUTHOR_EMAIL: 'a@example.com', GIT_COMMITTER_NAME: 'A', GIT_COMMITTER_EMAIL: 'a@example.com' } });
+  const extra = typeof args.at(-1) === 'object' ? args.pop().env : {};
+  const ran = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: { ...process.env, GIT_AUTHOR_NAME: 'A', GIT_AUTHOR_EMAIL: 'a@example.com', GIT_COMMITTER_NAME: 'A', GIT_COMMITTER_EMAIL: 'a@example.com', ...extra } });
   assert.equal(ran.status, 0, ran.stderr);
   return ran.stdout.trim();
 };
@@ -30,8 +33,9 @@ function engine(count) {
   git(work, 'init', '-q', '-b', 'main');
   writeFileSync(join(work, 'product', 'new-accounts.json'), '{"sign_in_ways":[]}\n');
   git(work, 'add', '.');
-  git(work, 'commit', '-q', '-m', 'first');
-  for (let i = 2; i <= count; i++) git(work, 'commit', '-q', '--allow-empty', '-m', `change ${i}`);
+  const at = n => ({ env: { GIT_COMMITTER_DATE: `${BASE_TIME + n} +0000`, GIT_AUTHOR_DATE: `${BASE_TIME + n} +0000` } });
+  git(work, 'commit', '-q', '-m', 'first', at(1));
+  for (let i = 2; i <= count; i++) git(work, 'commit', '-q', '--allow-empty', '-m', `change ${i}`, at(i));
   git(work, 'remote', 'add', 'origin', remote);
   git(work, 'push', '-q', 'origin', 'main');
   const program = join(top, 'built', 'trillion-local');
@@ -73,7 +77,7 @@ test('another builder\'s signed entry joins the one feed, signed again by the fe
   const { key, config } = feedBuilder(remote, [publicKeyHex(theirs)]);
   for (const target of ['aarch64-apple-darwin', 'aarch64-unknown-linux-gnu']) {
     const { entry, body } = await packAndSign({ source: work, program, target }, theirs);
-    assert.deepEqual([entry.commit, entry.sequence, entry.target, entry.url], [commits[3], 4, target, undefined]);
+    assert.deepEqual([entry.commit, entry.sequence, entry.target, entry.url], [commits[3], BASE_TIME + 4, target, undefined]);
     assert.ok(verifyEntry({ ...entry }, publicKeyHex(theirs)), 'signed by the other builder');
     const answer = await accept(config, { entry, body });
     assert.deepEqual([answer.already_published, answer.target, answer.url], [false, target, `https://releases.example.com/engine-releases/${commits[3]}/${target}.tar.gz`]);
@@ -102,7 +106,7 @@ test('accept refuses a key it does not take, a body that is not the entry\'s, a 
   const good = await packAndSign({ source: work, program, target }, theirs);
   await assert.rejects(accept(config, { entry: good.entry, body: Buffer.concat([good.body, Buffer.from('x')]) }), /release_content_mismatch/);
   const lying = await packAndSign({ source: work, program, target, sequence: 9 }, theirs);
-  await assert.rejects(accept(config, lying), /but it is 3/);
+  await assert.rejects(accept(config, lying), new RegExp(`but it is ${BASE_TIME + 3}`));
   assert.ok(!existsSync(join(config.feed_folder, 'feed.json')), 'nothing refused reached the feed');
   await accept(config, good);
   git(work, 'checkout', '-q', commits[1]);
@@ -117,7 +121,7 @@ test('contribute sends the tar.gz as the body and the signed entry in one header
   let sent;
   const fetchImpl = async (url, options) => { sent = { url, ...options }; return new Response(JSON.stringify({ queued: commits[1] }), { status: 202 }); };
   const answer = await contribute({ source: work, program, target: 'aarch64-apple-darwin', entries_url: 'https://releases.example.com/engine-release-entry' }, theirs, { fetchImpl });
-  assert.deepEqual([answer.commit, answer.sequence, answer.target, answer.builder.queued], [commits[1], 2, 'aarch64-apple-darwin', commits[1]]);
+  assert.deepEqual([answer.commit, answer.sequence, answer.target, answer.builder.queued], [commits[1], BASE_TIME + 2, 'aarch64-apple-darwin', commits[1]]);
   const entry = readEntryHeader(sent.headers[settings.entry_header]);
   assert.ok(verifyEntry(entry, publicKeyHex(theirs)));
   assert.equal(sent.body.length, entry.bytes);

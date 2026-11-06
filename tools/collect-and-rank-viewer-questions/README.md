@@ -13,6 +13,7 @@ Fetching is not here: forum posts are `tool:keep-forum-posts-from-a-public-archi
 | `tool-rows.json` | The Workshop row `tool:collect-and-rank-viewer-questions`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/candidates.py` | Question sentences out of `<dir>/forum-posts.jsonl` (or `raw/reddit.jsonl`), `youtube-comments/*.info.json` (or `raw/youtube-comments/`) and the channel harvest's `comments.jsonl`, as a TSV: id, kind, link, segment, score, question. |
+| `do-work/keep_comments.py` | Keeps the top-level video comments (`<comments dir>/<video id>.info.json` of each `url` in a sources TSV) that ask a question or state the writer's own situation, tags each with every tag of every tag column whose regex hits, and writes `questions.tsv` (most-liked first) and `by-concept.md` (the most-liked comments of each tag of one column). Settings: `keep_comments` ({min_chars, max_chars, is_question, is_situation}), `comment_tags` (ordered `[[column, [[tag, regex]]]]`), `comment_group_by`, `comment_group_top`. |
 | `do-work/rank.py` | The first reading order: each candidate in the settings' bucket (`buckets`, `{name: [regex]}`) whose patterns hit it most, the top N of each. |
 | `do-work/embed_moments.py` | The person's moments from word-timed transcripts (cut at sentence ends, Whisper loops dropped) and an optional moments table, with their bge-small vectors. |
 | `do-work/build_library.py` | `questions.json` from the picks: frequency in the sample (similar sentences at 0.82, plus score or likes), the answer moments (nearest 40 by meaning, re-ranked by the cross-encoder, kept at 0.25, 3 a question), each moment's nearest bucket. Settings: `bucket_codes`, `kinds`, `asker_overrides`, `inferred`, `inferred_file`, `inferred_segment`, `comment_segment`, `basis`, `note`, `buckets_note`, `moment_buckets`, `moment_bucket_field`. |
@@ -30,6 +31,7 @@ Fetching is not here: forum posts are `tool:keep-forum-posts-from-a-public-archi
 ```
 python3 -m pip install sentence-transformers numpy
 python3 do-work/candidates.py DIR DIR/raw/candidates.tsv
+python3 do-work/keep_comments.py comment-sources.tsv DIR/youtube-comments setting.json DIR/kept
 python3 do-work/rank.py setting.json DIR/raw/candidates.tsv 40 DIR/raw/ranked.tsv
 python3 do-work/embed_moments.py TRANSCRIPTS moments.tsv DIR/raw/moments
 python3 do-work/build_library.py DIR picks.txt setting.json

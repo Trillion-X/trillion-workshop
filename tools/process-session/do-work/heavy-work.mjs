@@ -1,12 +1,12 @@
-// One build/test slot per place, independent of browser admission and deploy leases.
+// One build/test slot per computer, independent of browser admission and deploy leases.
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { placeCacheFolder } from './place-cache-folder.mjs';
+import { computerCacheFolder } from './computer-cache-folder.mjs';
 import { createProcessAdmissionQueue, identityOf, sameLiveProcess, UNKNOWN_LIVE } from './process-admission.mjs';
 import { groupCleanupError, runOwnedProcess } from './run-owned-process.mjs';
 
 export const HEAVY_WORK_CLAIM = 'TRILLION_HEAVY_WORK_CLAIM';
-const ROOT = join(placeCacheFolder(), 'heavy-work-admission');
+const ROOT = join(computerCacheFolder(), 'heavy-work-admission');
 const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
 const groupsOf = owner => owner?.process_groups ?? (owner?.group_id ? [{ group_id: owner.group_id, group_started: owner.group_started }] : []);
 

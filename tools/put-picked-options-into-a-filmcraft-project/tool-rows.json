@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "put-picked-options-into-a-filmcraft-project-tool-rows",
-  "what_this_is": "The Workshop row for tools/put-picked-options-into-a-filmcraft-project: a script the person's AI runs on the person's own computer that puts an option the person picked into a protected FilmCraft project, only when the person's own stand on it is a pick.",
+  "what_this_is": "The Workshop rows for tools/put-picked-options-into-a-filmcraft-project: scripts the person's AI runs on the person's own computer that put an option the person picked into a protected FilmCraft project (only when the person's own stand on it is a pick), build an option on its own copy of the project and export its preview, publish a checked preview and put it in the watch folder, make a working preview of a stitched opening, and make a fresh-viewer review pack.",
   "records": [
     {
       "id": "package::put-picked-options-into-a-filmcraft-project::tool::put-a-picked-option-into-a-filmcraft-project",
@@ -130,6 +130,480 @@
           {
             "kind": "needs-a-machine",
             "requires": "the person's computer with filmcraft-cli installed, the film's folder with its FilmCraft project and ops file, and the trillion command signed in to the person's own records",
+            "proved_on": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::put-picked-options-into-a-filmcraft-project::tool::build-a-filmcraft-option-preview",
+      "address": "package::put-picked-options-into-a-filmcraft-project::tool::build-a-filmcraft-option-preview",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:build-a-filmcraft-option-preview",
+        "label": "Build an option on its own copy of my FilmCraft project and export its preview (runs on your computer)",
+        "status": "active",
+        "job": "Build one picked option on its own copy of my FilmCraft project with filmcraft-cli and export its preview",
+        "description": "Copies the chapter's base FilmCraft project to projects-round-<n>/<id>.fcproj and makes every edit of the option's spec with FilmCraft's own headless commands (filmcraft-cli --save run; never the live app): a stitched opening (prepend), cuts, earlier heads (head_extend), frame holds with the grade kept over them, a still on its own track for a hold, muted and raised or lowered stretches of the cut's sound, scale keyframes and the overlay with its sound. Then exports the preview range at the settings' format and scale under one render lock for the computer, masters its sound to the settings' loudness in two EBU R128 passes and takes its still, into work-round-<n>/pending/ (never a folder the person watches). With plan true it runs nothing that writes and answers the exact command list. With how \"composite\" an overlay-only option is composited onto the chapter's FilmCraft export of the cut instead of a new export. With overlay it first renders the overlay with tool:render-a-motion-graphics-overlay. Every folder, name, level and the lock come from the film's list:settings row.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "A JSON file on the person's computer holding the request, put where {request} is in the command."
+            }
+          },
+          "required": [
+            "request"
+          ],
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; how (optional): Optional: \"build\" (the default: FilmCraft exports the preview) or \"composite\" (an overlay-only option composited onto the chapter's FilmCraft export of the cut, settings composite {base, base_t0}).; overlay (optional): Optional: {request, command?}: first render out-round-<n>/<id>/overlay.mov and sound.wav with tool:render-a-motion-graphics-overlay (its request without out; the build holds the render lock)."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {option, project, preview, still?, overlay?, plan?}} or {\"error\": what to change}.",
+          "properties": {
+            "result": {
+              "type": "object",
+              "properties": {
+                "option": {
+                  "type": "string"
+                },
+                "project": {
+                  "type": "string"
+                },
+                "preview": {
+                  "type": "string"
+                },
+                "still": {
+                  "type": "string"
+                },
+                "plan": {
+                  "type": "array"
+                },
+                "overlay": {
+                  "type": "object"
+                }
+              }
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install FilmCraft with its filmcraft-cli, and ffmpeg with ffprobe"
+          ],
+          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/filmcraft_preview.py {request}",
+          "needs": [
+            "python3",
+            "filmcraft-cli",
+            "ffmpeg",
+            "node (only for the overlay step)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Write the request (the film folder, the option id, the film's settings row id) as a JSON file and pass its path. Run it with plan true first and show the person the commands; then run it for real. The preview lands in a pending folder: publish it with tool:publish-a-checked-filmcraft-preview only after it is checked. Never edit the person's graded project another way; putting a picked option into it is tool:put-a-picked-option-into-a-filmcraft-project.",
+          "files": {
+            "package_files": [
+              {
+                "package": "put-picked-options-into-a-filmcraft-project",
+                "paths": [
+                  "do-work/option_folders.py",
+                  "do-work/filmcraft_preview.py",
+                  "do-work/composite_preview.py",
+                  "do-work/publish_preview.py",
+                  "do-work/working_preview.py",
+                  "do-work/review_pack.py"
+                ],
+                "at": "/opt/put-picked-options-into-a-filmcraft-project"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "render-a-motion-graphics-overlay",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/render-a-motion-graphics-overlay"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:put-picked-options-into-a-filmcraft-project",
+        "provenance": {
+          "source": "A film repository's FilmCraft option-preview tools (round 3 preview builder, its option-folder and render-lock module, publish step, working preview, review pack and chapter-4 composite at b968a719), byte-copied in their first commit here, then adapted: every folder, name, lock and level is a field of the film's list:settings row"
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the person's computer with FilmCraft's filmcraft-cli and ffmpeg, the film's folder with the chapter's base FilmCraft project and the camera media it uses",
+            "proved_on": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::put-picked-options-into-a-filmcraft-project::tool::publish-a-checked-filmcraft-preview",
+      "address": "package::put-picked-options-into-a-filmcraft-project::tool::publish-a-checked-filmcraft-preview",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:publish-a-checked-filmcraft-preview",
+        "label": "Publish a checked option preview, then put it in my watch folder (runs on your computer)",
+        "status": "active",
+        "job": "Move a finished option preview into its previews folder, and put it in my watch folder only after it was checked",
+        "description": "action publish: moves work-round-<n>/pending/<id>.mp4 and its still into previews-round-<n>/ by a rename (a file the person can open is never written in place), only once ffprobe reads one video stream of the settings' frame size and one audio stream and the picture is as long as the spec's preview range. action watch: hard-links the published preview into the round's watch folder under the spec's watch name (a temporary link renamed over the old one, never left behind), only when the rendered-video check has measured that very file after it was made and the settings' content gate passes for the option; no content gate in the settings refuses it. The person's rule: never show an unfinished preview.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "A JSON file on the person's computer holding the request, put where {request} is in the command."
+            }
+          },
+          "required": [
+            "request"
+          ],
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; action (optional): \"publish\" (the default) or \"watch\".; options (optional): Optional: several option ids instead of option."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {\"published\": [{option, preview, duration_s}]}} or {\"result\": {\"watching\": [{option, name, preview}]}}, with plan when asked; {\"error\": why it refused}.",
+          "properties": {
+            "result": {
+              "type": "object",
+              "properties": {
+                "published": {
+                  "type": "array"
+                },
+                "watching": {
+                  "type": "array"
+                },
+                "plan": {
+                  "type": "array"
+                }
+              }
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install ffmpeg with ffprobe"
+          ],
+          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/publish_preview.py {request}",
+          "needs": [
+            "python3",
+            "ffprobe"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Publish after a build; run the rendered-video check (tool:check-a-rendered-video) on the published file; only then ask for watch. If it refuses, say why in its words and do not copy the file into the watch folder another way.",
+          "files": {
+            "package_files": [
+              {
+                "package": "put-picked-options-into-a-filmcraft-project",
+                "paths": [
+                  "do-work/option_folders.py",
+                  "do-work/filmcraft_preview.py",
+                  "do-work/composite_preview.py",
+                  "do-work/publish_preview.py",
+                  "do-work/working_preview.py",
+                  "do-work/review_pack.py"
+                ],
+                "at": "/opt/put-picked-options-into-a-filmcraft-project"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:put-picked-options-into-a-filmcraft-project",
+        "provenance": {
+          "source": "A film repository's FilmCraft option-preview tools (round 3 preview builder, its option-folder and render-lock module, publish step, working preview, review pack and chapter-4 composite at b968a719), byte-copied in their first commit here, then adapted: every folder, name, lock and level is a field of the film's list:settings row"
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the person's computer with ffprobe, the film's folder with the pending preview, its rendered-video check answer and the content gate the settings name",
+            "proved_on": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::put-picked-options-into-a-filmcraft-project::tool::make-a-working-preview-of-a-stitched-opening",
+      "address": "package::put-picked-options-into-a-filmcraft-project::tool::make-a-working-preview-of-a-stitched-opening",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-working-preview-of-a-stitched-opening",
+        "label": "Make a working preview of a stitched opening with ffmpeg (runs on your computer)",
+        "status": "active",
+        "job": "Make a quick working preview of a stitched opening from a render of my cut, to judge its timing and sound while FilmCraft cannot export",
+        "description": "For an option whose spec stitches an opening (edit.prepend, an optional hold at 0:00, the overlay at 0:00): cuts the same frame-snapped ranges, in the same order, out of a render of the person's cut with ffmpeg, holds the first frame for the hold, mutes the cut's sound where edit.a1_mute says, lays the overlay and its sound over it and masters the sound the way the real export is mastered. Not the delivered preview (no grade layer): it goes to work-round-<n>/working/ and is never published.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "A JSON file on the person's computer holding the request, put where {request} is in the command."
+            }
+          },
+          "required": [
+            "request"
+          ],
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; spec (optional): Optional: the option's spec (its edit block) instead of specs-round-<n>/<id>.json in the option folder.; plan (optional): true: run nothing that writes; the answer lists the exact filmcraft-cli and ffmpeg commands, in order.; cut (required): The full render of the person's cut the ranges are cut from."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {option, preview, plan?}} or {\"error\": what to change}.",
+          "properties": {
+            "result": {
+              "type": "object",
+              "properties": {
+                "option": {
+                  "type": "string"
+                },
+                "preview": {
+                  "type": "string"
+                },
+                "plan": {
+                  "type": "array"
+                }
+              }
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install ffmpeg"
+          ],
+          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/working_preview.py {request}",
+          "needs": [
+            "python3",
+            "ffmpeg"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Say plainly that it is a working preview for timing, without the grade, and not the preview a pick is made from.",
+          "files": {
+            "package_files": [
+              {
+                "package": "put-picked-options-into-a-filmcraft-project",
+                "paths": [
+                  "do-work/option_folders.py",
+                  "do-work/filmcraft_preview.py",
+                  "do-work/composite_preview.py",
+                  "do-work/publish_preview.py",
+                  "do-work/working_preview.py",
+                  "do-work/review_pack.py"
+                ],
+                "at": "/opt/put-picked-options-into-a-filmcraft-project"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:put-picked-options-into-a-filmcraft-project",
+        "provenance": {
+          "source": "A film repository's FilmCraft option-preview tools (round 3 preview builder, its option-folder and render-lock module, publish step, working preview, review pack and chapter-4 composite at b968a719), byte-copied in their first commit here, then adapted: every folder, name, lock and level is a field of the film's list:settings row"
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the person's computer with ffmpeg, a render of the person's cut and the option's overlay files",
+            "proved_on": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::put-picked-options-into-a-filmcraft-project::tool::make-a-fresh-viewer-review-pack-of-a-preview",
+      "address": "package::put-picked-options-into-a-filmcraft-project::tool::make-a-fresh-viewer-review-pack-of-a-preview",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:make-a-fresh-viewer-review-pack-of-a-preview",
+        "label": "Make a fresh-viewer review pack of a preview: contact sheets and a transcript (runs on your computer)",
+        "status": "active",
+        "job": "Make the contact sheets and the timed transcript a fresh viewer reviews a preview from",
+        "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the place's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "string",
+              "description": "A JSON file on the person's computer holding the request, put where {request} is in the command."
+            }
+          },
+          "required": [
+            "request"
+          ],
+          "description": "The request file holds one JSON object with: film (required): The film's folder on the person's computer; the settings name each chapter's option folder, the lock and the base export relative to it.; option (required): The option id; its round is part of it (x02-r4-1 is round 4) and the settings say which chapter holds it.; chapter (optional): Optional: the chapter of the settings (preview.chapters) when the option id does not say it.; options_folder (optional): Optional: the option folder itself, instead of a chapter of the settings.; settings_record (optional): Optional: the film's list:settings row, record:setting:put-picked-options-into-a-filmcraft-project~film~<film folder name>: its id (read through the person's records door, the trillion command), the record, its value or a JSON file of it.; settings (optional): Optional: settings laid over the row, key by key: filmcraft_cli, and preview {chapters, round_pattern, layout, base_project, lock, export, loudness, still_qscale, frame, duration_tolerance_s, require_content_gate, content_gate, review_pack} (README).; video (optional): Optional: the preview to review, instead of the working preview."
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line: {\"result\": {pack, sheets, tiles, lines, scratch}} or {\"error\": what to change}.",
+          "properties": {
+            "result": {
+              "type": "object",
+              "properties": {
+                "pack": {
+                  "type": "string"
+                },
+                "sheets": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "tiles": {
+                  "type": "integer"
+                },
+                "lines": {
+                  "type": "integer"
+                },
+                "scratch": {
+                  "type": "string"
+                }
+              }
+            },
+            "error": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "install ffmpeg",
+            "python3 -m pip install -U pillow",
+            "python3 -m pip install -U mlx-whisper   # or faster-whisper / openai-whisper"
+          ],
+          "run": "python3 tools/put-picked-options-into-a-filmcraft-project/do-work/review_pack.py {request}",
+          "needs": [
+            "python3 with Pillow",
+            "ffmpeg",
+            "a Whisper engine (mlx-whisper, faster-whisper or openai-whisper)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Hand the pack to the fresh-viewer review; do not summarize the preview for the reviewer yourself.",
+          "files": {
+            "package_files": [
+              {
+                "package": "put-picked-options-into-a-filmcraft-project",
+                "paths": [
+                  "do-work/option_folders.py",
+                  "do-work/filmcraft_preview.py",
+                  "do-work/composite_preview.py",
+                  "do-work/publish_preview.py",
+                  "do-work/working_preview.py",
+                  "do-work/review_pack.py"
+                ],
+                "at": "/opt/put-picked-options-into-a-filmcraft-project"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "make-a-contact-sheet-of-pictures-or-video-frames",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/make-a-contact-sheet-of-pictures-or-video-frames"
+              },
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "do-work/whisper_here.py"
+                ],
+                "at": "/opt/audio-transcription"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:put-picked-options-into-a-filmcraft-project",
+        "provenance": {
+          "source": "A film repository's FilmCraft option-preview tools (round 3 preview builder, its option-folder and render-lock module, publish step, working preview, review pack and chapter-4 composite at b968a719), byte-copied in their first commit here, then adapted: every folder, name, lock and level is a field of the film's list:settings row"
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the person's computer with ffmpeg, Pillow and a Whisper engine, and the preview to review",
             "proved_on": null
           }
         ]

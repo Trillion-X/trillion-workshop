@@ -1,4 +1,4 @@
-"""whisper_here picks the engine the place has and returns mlx_whisper's shape from each.
+"""whisper_here picks the engine the computer has and returns mlx_whisper's shape from each.
 Run: python3 -m unittest discover -s tools/audio-transcription/test -p 'test_whisper_here.py'
 
 Ported from trillion-launch-video tools/place-capabilities/tests/test_whisper_here.py@5a9ba39: its five tests, their

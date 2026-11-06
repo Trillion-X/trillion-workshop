@@ -7,9 +7,9 @@ Request: model (its repository in the Hugging Face cache), revision (optional: o
 Answer: { result: { device, load_s, ms: [4 runs], choice, confidence, alloc_GB, maxrss_GB } }."""
 import sys, time, torch, resource
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request()
-D=str(place.snapshot(place.need(R, "model"), R.get("revision"))); DEV=place.device()
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request()
+D=str(computer.snapshot(computer.need(R, "model"), R.get("revision"))); DEV=computer.device()
 sys.path.insert(0, D)
 from decider.infer import Decider
 t=time.time(); d = Decider(D, device=DEV); print("load", round(time.time()-t,1),"s")
@@ -21,5 +21,5 @@ for i in range(4):
     ms.append(round((time.time()-t)*1000))
 print(DEV, "alloc GB", round((torch.mps.driver_allocated_memory() if DEV == "mps" else torch.cuda.memory_allocated() if DEV == "cuda" else 0)/1e9,2), "maxrss GB", round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2))
 alloc = (torch.mps.driver_allocated_memory() if DEV == "mps" else torch.cuda.memory_allocated() if DEV == "cuda" else 0)
-place.answer({"device": DEV, "load_s": load_s, "ms": ms, "choice": r[0]["choice"], "confidence": round(r[0]["confidence"], 3),
+computer.answer({"device": DEV, "load_s": load_s, "ms": ms, "choice": r[0]["choice"], "confidence": round(r[0]["confidence"], 3),
               "alloc_GB": round(alloc/1e9, 2), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2)})
