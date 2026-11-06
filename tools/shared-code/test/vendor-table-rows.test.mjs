@@ -1,7 +1,8 @@
 // Ported from old trillion test/vendor-table-rows.test.mjs (tag old-trillion-before-worker-retire, b6ae0ebf81), deleted by
 // Trillion-X/trillion #243. The reader is src/data-rows.mjs here, held to the frozen values in
 // test/fixtures/vendor-tables-golden.json. The programs now read their tables from their own tools: the readers of a link
-// from tools/audio-transcription/read-data/hear-here.mjs, the speech programs and engines from
+// from tools/audio-transcription/read-data/hear-here.mjs and of a channel's list from
+// tools/run-on-a-persons-computer/list-a-channel.mjs, the speech programs and engines from
 // tools/generate-speech/read-data/speak.mjs, the local models from tools/run-on-a-persons-computer/local-models.mjs; the
 // storage origins from tools/price-and-sell-by-contract/records/cloud-files-origins.json. Left out, each searched in
 // trillion-workshop tools/, trillion-apps web/ and trillion-rust src/ with nothing running found: test a (no
@@ -18,12 +19,16 @@ import originRecords from '../../price-and-sell-by-contract/records/cloud-files-
 import { linkSettings } from '../../audio-transcription/read-data/hear-here.mjs';
 import { speakSettings } from '../../generate-speech/read-data/speak.mjs';
 import { localModelSettings } from '../../run-on-a-persons-computer/local-models.mjs';
+import { listSettings } from '../../run-on-a-persons-computer/list-a-channel.mjs';
 
 // The shipped sign-in apps as a records file: one row of kind oauth-client per golden value, in its order.
 const oauthRecords = { records: golden.oauth_clients.map(payload => ({ id: `oauth-client:${payload.clientId}`, kind: 'oauth-client', payload })) };
 
 test('c. each program reads its settings with its tables in place', () => {
-  assert.deepEqual(linkSettings().fetchers, golden.hear_fetchers);
+  // The old hear-fetcher rows are read by two programs now: the channel lister keeps each whole row, `list` and all
+  // (list-a-channel.json), and tool:hear-a-link keeps the same row without the `list` only the lister runs.
+  assert.deepEqual(listSettings().fetchers, golden.hear_fetchers);
+  assert.deepEqual(linkSettings().fetchers, golden.hear_fetchers.map(({ list, ...hearing }) => hearing));
   const speak = speakSettings();
   assert.deepEqual(speak.programs, golden.speech_programs);
   assert.deepEqual(speak.engines, golden.speech_engines);
