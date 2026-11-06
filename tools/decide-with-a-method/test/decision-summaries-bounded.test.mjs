@@ -48,7 +48,7 @@ test('cold decision summaries read the cited pursuits, not every pursuit, as pur
 const laidId = 'source:bGFpZC1hcGFydA';
 const pad = (n, digits) => String(n).padStart(digits, '0');
 const laidMethod = { id: 'careful', steps: [{ id: 'scope' }, { id: 'outcome' }] };
-const laidInput = { goal: 'Choose where it goes', options: [{ id: 'x', label: 'Place X' }, { id: 'y', label: 'Place Y' }] };
+const laidInput = { goal: 'Choose where it goes', options: [{ id: 'x', label: 'Spot X' }, { id: 'y', label: 'Spot Y' }] };
 const laidEvidence = Array.from({ length: 400 }, (_, n) => ({ ref: `fact-${n}`, claim: `Claim ${n} ${'w'.repeat(200)}`, added_at: at }));
 const laidStep = { step_id: 'outcome', answer: { why: 'because' }, answered_at: at, checklist: { checks: Array.from({ length: 60 }, (_, n) => ({ id: `check-${n}`, question: `Question ${n}?` })) }, verdicts: { given: [{ check: 'check-1', meets: true }] } };
 const startedWith = inputIdentity(JSON.parse(canonical({ ...laidInput, evidence: laidEvidence })));
@@ -110,5 +110,5 @@ test('a laid-apart decision with more than 64 KiB of evidence reads whole', asyn
   assert.equal(summary.method, 'careful');
   assert.equal(summary.decided, true);
   assert.equal(summary.carried_out, true);
-  assert.equal(summary.decision, 'Place X');
+  assert.equal(summary.decision, 'Spot X');
 });

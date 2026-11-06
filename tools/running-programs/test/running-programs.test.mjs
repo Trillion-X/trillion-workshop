@@ -13,7 +13,7 @@ const programs = [
   { pid: 12, name: 'Sample Helper', footprint_bytes: 900, resident_bytes: 950 },
   { pid: 13, name: 'system-service', footprint_bytes: null, resident_bytes: null },
 ];
-// The osascript reader, chosen because the place has nothing but its `at`.
+// The osascript reader, chosen because the computer has nothing but its `at`.
 const osascriptOnly = [{ reads: 'libproc-through-osascript', at: '/pretend/osascript' }];
 const reader = answer => ({ readers: osascriptOnly, has: () => true, exec: async () => ({ ok: true, stdout: `noise\n${JSON.stringify(answer)}\n` }) });
 

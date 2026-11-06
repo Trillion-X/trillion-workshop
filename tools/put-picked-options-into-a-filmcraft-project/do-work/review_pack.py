@@ -14,17 +14,17 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import option_folders as place  # noqa: E402
+import option_folders as rounds  # noqa: E402
 TOOLS = os.path.dirname(os.path.dirname(HERE))
 SHEET = os.path.join(TOOLS, 'make-a-contact-sheet-of-pictures-or-video-frames', 'do-work', 'frames_at_times.py')
 sys.path.insert(1, os.path.join(TOOLS, 'audio-transcription', 'do-work'))  # whisper_here, packed at /opt/audio-transcription
 
 
 def main(req):
-    place.configure(req)
+    rounds.configure(req)
     oid = req['option']
-    RP = place.PLACE['review_pack']
-    WR = place.rdir('work', oid)
+    RP = rounds.PREVIEW['review_pack']
+    WR = rounds.rdir('work', oid)
     video = os.path.join(WR, 'working', oid + '.mp4')
     video = os.path.expanduser(req.get('video') or video)
     if not os.path.exists(video):
@@ -47,7 +47,7 @@ def main(req):
     tmp = tempfile.mkdtemp(prefix='rp-', dir=os.path.join(WR, 'working'))
     wav = os.path.join(tmp, 'a.wav')
     subprocess.run(['ffmpeg', '-y', '-v', 'error', '-i', video, '-vn', '-ac', '1', '-ar', '16000', wav], check=True)
-    import whisper_here  # tools/audio-transcription: mlx_whisper where the place has it, else faster-whisper or openai-whisper
+    import whisper_here  # tools/audio-transcription: mlx_whisper where the computer has it, else faster-whisper or openai-whisper
     res = whisper_here.transcribe(wav, path_or_hf_repo=RP['model'], word_timestamps=True, language=RP['language'])
     said = [w for s in res['segments'] for w in s['words']]
     json.dump({'words': [{'text': w['word'].strip(), 'start': w['start'], 'end': w['end']} for w in said]}, open(os.path.join(tmp, 'w.json'), 'w'), indent=1)
@@ -74,4 +74,4 @@ def transcript_lines(words):
 
 
 if __name__ == '__main__':
-    place.answer(main)
+    rounds.answer(main)

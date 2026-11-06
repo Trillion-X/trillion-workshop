@@ -36,7 +36,7 @@ import json, os, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import option_folders as place  # noqa: E402
+import option_folders as rounds  # noqa: E402
 from option_folders import filmcraft_cli as cli, filmcraft_export, odir, rdir, render_lock, run_program, spec_of  # noqa: E402,F401  cli: lanes call filmcraft_preview.cli
 T = 254016000000
 
@@ -108,21 +108,21 @@ def _main(oid=None):
     oid = oid or sys.argv[1]
     spec = spec_of(oid)
     ed = spec['edit']
-    place.makedirs(rdir('projects', oid))
+    rounds.makedirs(rdir('projects', oid))
     proj = rdir('projects', oid, oid + '.fcproj')
-    place.copy_project(place.base_project(), proj)
+    rounds.copy_project(rounds.base_project(), proj)
     build_edits(proj, oid, spec)
     a, b = ed['preview']
     raw, dst = export_paths(oid)
-    place.makedirs(os.path.dirname(dst))
-    ex = place.PLACE['export']
+    rounds.makedirs(os.path.dirname(dst))
+    ex = rounds.PREVIEW['export']
     filmcraft_export(proj, raw, a, b, scale=ex['scale'], quality=ex['quality'], fmt=ex['format'])
     master_loudness(raw, dst)
     remove(raw)  # scratch only; the mastered preview is dst (disk is short)
     st = spec.get('still_preview')
     if st is None and spec.get('still_at') is not None:
         st = spec['still_at'] - a
-    q = str(place.PLACE['still_qscale'])
+    q = str(rounds.PREVIEW['still_qscale'])
     if st is not None:
         run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st:.3f}', '-i', dst, '-frames:v', '1', '-q:v', q, dst[:-4] + '.jpg'], check=True)
     print(f'{oid}: {dst} (pending; publish_preview.py moves it into the previews folder after ffprobe)', file=sys.stderr)
@@ -130,8 +130,8 @@ def _main(oid=None):
 
 
 def remove(path):
-    if place.planning():
-        place.plan_note(remove=path)
+    if rounds.planning():
+        rounds.plan_note(remove=path)
     else:
         os.remove(path)
 
@@ -142,8 +142,8 @@ def render_overlay(oid, overlay):
     req = dict(overlay['request'], out=odir(oid))
     req.pop('lock', None)
     cmd = overlay.get('command') or ['node', os.path.join(HERE, '..', '..', 'render-a-motion-graphics-overlay', 'do-work', 'render-overlay.mjs')]
-    if place.planning():
-        place.plan_note(argv=list(cmd), stdin=req)
+    if rounds.planning():
+        rounds.plan_note(argv=list(cmd), stdin=req)
         return None
     done = subprocess.run(cmd, input=json.dumps(req), capture_output=True, text=True)
     last = (done.stdout.strip().splitlines() or ['{}'])[-1]
@@ -157,8 +157,8 @@ def render_overlay(oid, overlay):
 
 
 def build(req):
-    """The request's build: configure the option's place, render its overlay when asked, then main() (or the composite)."""
-    place.configure(req)
+    """The request's build: configure the option's folders, render its overlay when asked, then main() (or the composite)."""
+    rounds.configure(req)
     oid = req['option']
     if req.get('how', 'build') == 'composite':
         import composite_preview
@@ -168,8 +168,8 @@ def build(req):
         out = main(oid)
     if made is not None:
         out['overlay'] = made
-    if place.planning():
-        out['plan'] = place.plan_steps()
+    if rounds.planning():
+        out['plan'] = rounds.plan_steps()
     return out
 
 
@@ -274,11 +274,11 @@ MEASURED_IN_A_PLAN = {k: '{' + k + '}' for k in ('input_i', 'input_tp', 'input_l
 
 def master_loudness(src, dst):
     """Two-pass EBU R128 loudness on the preview's sound (picture copied), to the settings' loudness {I, TP, LRA}."""
-    L = place.PLACE['loudness']
+    L = rounds.PREVIEW['loudness']
     tgt = f"I={L['I']}:TP={L['TP']}:LRA={L['LRA']}"
     err = run_program(['ffmpeg', '-nostdin', '-i', src, '-af', f'loudnorm={tgt}:print_format=json', '-vn', '-f', 'null', '-'],
                       capture_output=True, text=True).stderr
-    m = MEASURED_IN_A_PLAN if place.planning() else json.loads(err[err.rindex('{'):err.rindex('}') + 1])
+    m = MEASURED_IN_A_PLAN if rounds.planning() else json.loads(err[err.rindex('{'):err.rindex('}') + 1])
     af = (f"loudnorm={tgt}:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}"
           f":measured_thresh={m['input_thresh']}:offset={m['target_offset']},aresample=48000")
     run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-i', src, '-c:v', 'copy', '-af', af, '-c:a', 'aac', '-b:a', '256k',
@@ -286,4 +286,4 @@ def master_loudness(src, dst):
 
 
 if __name__ == '__main__':
-    place.answer(build)
+    rounds.answer(build)

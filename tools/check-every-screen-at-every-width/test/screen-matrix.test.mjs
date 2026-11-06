@@ -150,7 +150,7 @@ test('low-contrast text fails the contrast probe, in every mode that leaves the 
   assert.ok(rows.length > 0, 'contrast failed');
   assert.ok(rows.every(row => row.selector.includes('p.faint')), `only the faint line fails: ${rows.map(row => row.selector)}`);
   assert.ok(where(rows).includes('phone/light') && where(rows).includes('desktop/light'));
-  assert.ok(!where(rows).some(place => place.endsWith('/forced')), 'forced colours repaint the text, so the faint colour is not what is drawn');
+  assert.ok(!where(rows).some(at => at.endsWith('/forced')), 'forced colours repaint the text, so the faint colour is not what is drawn');
   assert.deepEqual(failing('low-contrast').filter(row => row.probe !== 'contrast' && row.probe !== undefined).map(row => row.probe), []);
 });
 

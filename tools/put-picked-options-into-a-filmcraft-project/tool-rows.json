@@ -492,7 +492,7 @@
         "label": "Make a fresh-viewer review pack of a preview: contact sheets and a transcript (runs on your computer)",
         "status": "active",
         "job": "Make the contact sheets and the timed transcript a fresh viewer reviews a preview from",
-        "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the place's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
+        "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the computer's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
         "input_schema": {
           "type": "object",
           "properties": {

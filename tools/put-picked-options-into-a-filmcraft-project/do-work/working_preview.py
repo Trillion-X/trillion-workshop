@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # tools/put-picked-options-into-a-filmcraft-project/do-work/working_preview.py
 """A WORKING preview of a stitched cold open (edit.prepend, optional edit.hold at 0:00, overlay at 0:00) made with ffmpeg from a render of the
-person's cut, for judging placement, timing and sound while the FilmCraft export cannot run (the project's source media is not at this place).
+person's cut, for judging placement, timing and sound while the FilmCraft export cannot run (the project's source media is not on this computer).
 It is not the delivered preview: the picture has no V2 grade layer, and it is never published (publish_preview.py reads work-round-<n>/pending, this writes
 work-round-<n>/working/<id>.mp4). Same snapping and order as filmcraft_preview.prepend; same loudness mastering as the real export.
 Request: film, option, cut (the full render of the person's cut), chapter?, options_folder?, spec?, settings_record?, settings?, plan?.
@@ -10,7 +10,7 @@ import json, os, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import option_folders as place  # noqa: E402
+import option_folders as rounds  # noqa: E402
 from filmcraft_preview import master_loudness, remove  # noqa: E402
 from option_folders import odir, rdir, run_program  # noqa: E402
 
@@ -18,12 +18,12 @@ FPS = 24000 / 1001
 
 
 def main(req):
-    place.configure(req)
+    rounds.configure(req)
     oid = req['option']
     if not req.get('cut'):
         raise SystemExit('give cut: the full render of the person\'s cut the working preview is made from')
     cut = os.path.abspath(os.path.expanduser(req['cut']))
-    spec = place.spec_of(oid)
+    spec = rounds.spec_of(oid)
     ed = spec['edit']
     if not ed.get('prepend'):
         raise SystemExit(f'{oid}: a working preview is of a stitched opening: the spec has no edit.prepend')
@@ -57,15 +57,15 @@ def main(req):
     chains.append(f'[{k + 1}:a]aresample=48000,aformat=channel_layouts=stereo[fx]')
     chains.append('[bed][fx]amix=inputs=2:normalize=0:duration=first:dropout_transition=0[aout]')
     out_dir = rdir('work', oid, 'working')
-    place.makedirs(out_dir)
+    rounds.makedirs(out_dir)
     raw, dst = os.path.join(out_dir, f'_raw-{oid}.mp4'), os.path.join(out_dir, oid + '.mp4')
-    run_program(['nice', '-n', str(place.NICE), 'ffmpeg', '-nostdin', '-v', 'error', '-y'] + inputs + ['-filter_complex', ';'.join(chains), '-map', '[vout]', '-map', '[aout]',
+    run_program(['nice', '-n', str(rounds.NICE), 'ffmpeg', '-nostdin', '-v', 'error', '-y'] + inputs + ['-filter_complex', ';'.join(chains), '-map', '[vout]', '-map', '[aout]',
                  '-t', f'{n_total / FPS:.5f}', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '256k', raw], check=True)
     master_loudness(raw, dst)
     remove(raw)
     print(dst, file=sys.stderr)
-    return {'option': oid, 'preview': dst, **({'plan': place.plan_steps()} if place.planning() else {})}
+    return {'option': oid, 'preview': dst, **({'plan': rounds.plan_steps()} if rounds.planning() else {})}
 
 
 if __name__ == '__main__':
-    place.answer(main)
+    rounds.answer(main)

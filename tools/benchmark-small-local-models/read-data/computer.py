@@ -1,4 +1,4 @@
-"""What the place running these experiments reports, read in one spot (docs/decouple-sweep.md, "The shape").
+"""What the computer running these experiments reports, read in one spot (docs/decouple-sweep.md, "The shape").
 
 - device(): DECIDER_DEVICE, else what torch finds here (cuda, then mps, then cpu). Apple's mps is one option, not the rule.
 - hf_hub(): the model cache, HF_HUB_CACHE, else HF_HOME/hub, else the Hugging Face default under the home folder.
@@ -58,7 +58,7 @@ def snapshot(repo, revision=None):
 def reported(name):
     at = REQUEST.get(name.lower()) or os.environ.get(name)
     if not at:
-        refuse(f"This computer has not said where it keeps {name}. Give {name.lower()} in the request, or set {name} to the folder this place holds.")
+        refuse(f"This computer has not said where it keeps {name}. Give {name.lower()} in the request, or set {name} to the folder this computer holds.")
     return Path(at)
 
 

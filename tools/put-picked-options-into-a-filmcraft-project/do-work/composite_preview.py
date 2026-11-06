@@ -25,7 +25,7 @@ T = fc.T
 
 def base_export():
     """(the chapter's FilmCraft export of the graded cut, the second of the cut it starts at): settings composite {base, base_t0}."""
-    c = rounds.PLACE.get('composite') or {}
+    c = rounds.PREVIEW.get('composite') or {}
     if not c.get('base'):
         raise SystemExit('how "composite" needs the chapter\'s settings composite {base, base_t0}: the FilmCraft export of the cut to composite onto')
     return os.path.expanduser(rounds.under(rounds.OPT, c['base'])), float(c.get('base_t0', 0.0))
@@ -94,7 +94,7 @@ def composite(oid, spec):
     fc.master_loudness(raw, dst)
     st = spec.get('still_at')
     if st is not None:
-        rounds.run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st - a:.3f}', '-i', dst, '-frames:v', '1', '-q:v', str(rounds.PLACE['still_qscale']), dst[:-4] + '.jpg'], check=True)
+        rounds.run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st - a:.3f}', '-i', dst, '-frames:v', '1', '-q:v', str(rounds.PREVIEW['still_qscale']), dst[:-4] + '.jpg'], check=True)
     print(f'{oid}: {dst} (pending)', file=sys.stderr)
     return {'option': oid, 'preview': dst, **({'still': dst[:-4] + '.jpg'} if st is not None else {})}
 
