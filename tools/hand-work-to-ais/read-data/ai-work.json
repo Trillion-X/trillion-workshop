@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The rules of handing work between a person's AIs, as DATA read by read-data/ai-work.mjs. A job is one record of kind `job_kind` in the person's own records; an AI is one record of kind `ai_kind`. A job's `status` is one of `states`, and it changes only by a declared `transitions` row: { action, from, to, when, set, clear }. `when` is a condition of tools/move-records-through-declared-states (all, any, equals, at_least, at_most, absent) over the signals of the call: `is_taker` (the job's taker is the caller), `is_sender` (the job's from is the caller), `addressed_to_me` (the job names no AI, or names the caller) and `taken_minutes` (minutes since the job was taken; absent when it is not). The first row of the action from the job's status whose condition holds is the move. `set` names the fields the move writes, each from `as` (the caller's AI id), `now` (the time of the call), `input` (a field of the request) or `note` ({ by, at, words }: the caller, the time and a field of the request), `required` when the move needs that field and `most_chars` its longest (else `limits.words_chars`), and `clear` the fields it removes. Every move is one records:write of the whole job conditioned on the value just read (`expected`), so of two callers who read the same job only the first changes it. `remove_when` says who may delete a job, with the signal `terminal` too (the job's status is a terminal state). `take_order` sorts the waiting jobs a caller may take, first row first; `take_tries` is how many of them one take tries when another AI wins the one it tried. `most_jobs_read` and `most_ais_read` bound one call's reads, `jobs_shown` how many jobs a listing answers, and `live_minutes_default` how long after it was last seen an AI counts as live when its record names no minutes. Change a rule here, not in code: the stale-take time is the `taken_minutes` value of the take and release rows.",
+  "what_this_is": "The rules of handing work between a person's AIs, as DATA read by read-data/ai-work.mjs. A job is one record of kind `job_kind` in the person's own records; an AI is one record of kind `ai_kind`. A job's `status` is one of `states`, and it changes only by a declared `transitions` row: { action, from, to, when, set, clear }. `when` is a condition of tools/move-records-through-declared-states (all, any, equals, at_least, at_most, absent) over the signals of the call: `is_taker` (the job's taker is the caller), `is_sender` (the job's from is the caller), `addressed_to_me` (the job names no AI, or names the caller) and `taken_minutes` (minutes since the job was taken; absent when it is not). A row with no `when` holds for every AI: any AI may say a job it watches is stuck, or clear that, and the note keeps who said it and when. `read_as` maps a stored status word that is not a state to the declared state it means (a long job written `running` by another writer is `taken`, the one word for a job an AI is doing, as old trillion named it), so the rules, listings and counts read it as that state; a move to the state it is already in keeps its stored word, and any other move writes the declared state. The first row of the action from the job's status whose condition holds is the move. `set` names the fields the move writes, each from `as` (the caller's AI id), `now` (the time of the call), `input` (a field of the request) or `note` ({ by, at, words }: the caller, the time and a field of the request), `required` when the move needs that field and `most_chars` its longest (else `limits.words_chars`), and `clear` the fields it removes. Every move is one records:write of the whole job conditioned on the value just read (`expected`), so of two callers who read the same job only the first changes it. `remove_when` says who may delete a job, with the signal `terminal` too (the job's status is a terminal state). `take_order` sorts the waiting jobs a caller may take, first row first; `take_tries` is how many of them one take tries when another AI wins the one it tried. `most_jobs_read` and `most_ais_read` bound one call's reads, `jobs_shown` how many jobs a listing answers, and `live_minutes_default` how long after it was last seen an AI counts as live when its record names no minutes. Change a rule here, not in code: the stale-take time is the `taken_minutes` value of the take and release rows.",
   "job_kind": "ai-job",
   "ai_kind": "ai",
   "start": "waiting",
@@ -10,6 +10,7 @@
     { "key": "failed", "label": "Could not be done", "terminal": true },
     { "key": "withdrawn", "label": "Taken back by its sender", "terminal": true }
   ],
+  "read_as": { "running": "taken" },
   "transitions": [
     {
       "action": "take", "from": "waiting", "to": "taken",
@@ -43,13 +44,11 @@
     },
     {
       "action": "stuck", "from": "taken", "to": "taken",
-      "when": { "equals": { "signal": "is_taker", "value": true } },
       "set": { "stuck": { "from": "note", "field": "words", "required": true } },
       "clear": []
     },
     {
       "action": "unstuck", "from": "taken", "to": "taken",
-      "when": { "equals": { "signal": "is_taker", "value": true } },
       "set": {},
       "clear": ["stuck"]
     },
