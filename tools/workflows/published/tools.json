@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:05cdd3019cc833f28944991c159c4eb634aab42c810cba702a387135bca09b5b"
+  "blake3": "1f:4c209cd3c918dd9f87ea1aa53198cd0ed7371575b593ea22fb6591edb31e12c9"
  },
  "fields": [
   {
@@ -4012,6 +4012,21 @@
    }
   },
   {
+   "id": "tool:gate-a-pieces-delivery-checklist",
+   "values": {
+    "title": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer)",
+    "job": "Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
+    "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read through their records door, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
+    "status": "active",
+    "maker": "maker:keep-a-record-library-valid",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-record-library-valid"
+   }
+  },
+  {
    "id": "tool:gate-telemetry-by-privacy",
    "values": {
     "title": "May telemetry send about this page",
@@ -6637,6 +6652,21 @@
      "placement:small-container"
     ],
     "folder": "plan-trips"
+   }
+  },
+  {
+   "id": "tool:measure-a-reference-video",
+   "values": {
+    "title": "Measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline (runs on your computer)",
+    "job": "Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+    "description": "Runs the programs the person names (hf-media for frame sheets and the cut scan, a motion-rhythm script, a Python with earshot for the sound timeline, ffprobe) over one video into a new folder, checking every program before any media work. A film longer than 120 seconds gets small labelled review pages instead of one contact sheet. It records evidence; it does not certify viewing or meaning. Answers one JSON line.",
+    "status": "active",
+    "maker": "maker:keep-a-record-library-valid",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-record-library-valid"
    }
   },
   {
