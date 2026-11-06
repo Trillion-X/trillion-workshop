@@ -367,7 +367,7 @@
                 "package": "process-session",
                 "paths": [
                   "do-work/process-admission.mjs",
-                  "do-work/place-cache-folder.mjs"
+                  "do-work/computer-cache-folder.mjs"
                 ],
                 "at": "/opt/process-session"
               },

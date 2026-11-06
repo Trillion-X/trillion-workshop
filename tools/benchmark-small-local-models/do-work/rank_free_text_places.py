@@ -13,19 +13,19 @@ Answer: { result: { distinct_places, chance_top1, chance_top5, "<vl>_phrase+<emb
 import json, sys
 from pathlib import Path
 import torch
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request(); F = place.need(R, "field")
-DEV = place.device()
-S = place.shots_of(R); idx = [i for i, s in enumerate(S) if "frame" in s]
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request(); F = computer.need(R, "field")
+DEV = computer.device()
+S = computer.shots_of(R); idx = [i for i, s in enumerate(S) if "frame" in s]
 places = sorted({S[i]["reference"][F] for i in idx if S[i]["reference"][F] not in ("", "unknown")})
-if not places: place.refuse(f"no sampled shot has a reference {F}: check `field`")
+if not places: computer.refuse(f"no sampled shot has a reference {F}: check `field`")
 from sentence_transformers import SentenceTransformer
 if R.get("embedder"): emb = SentenceTransformer(R["embedder"], device=DEV)
 else:
     emb = SentenceTransformer("BAAI/bge-small-en-v1.5", device=DEV)
     R["embedder"] = "BAAI/bge-small-en-v1.5"
 P = emb.encode(places, normalize_embeddings=True, convert_to_tensor=True)
-PH = place.json_of(place.need(R, "phrased"), "phrased")
+PH = computer.json_of(computer.need(R, "phrased"), "phrased")
 Q = {r["i"]: r.get(F) or "" for r in PH["rows"]}
 def score(rank_fn):
     t1 = t5 = n = 0
@@ -38,7 +38,7 @@ qe = {i: emb.encode([Q.get(i, "")], normalize_embeddings=True, convert_to_tensor
 r_q = score(lambda i: [places[j] for j in torch.argsort(P @ qe[i], descending=True).tolist()])
 import open_clip
 from PIL import Image
-M = place.need(R, "image_text_model")
+M = computer.need(R, "image_text_model")
 model, pre = open_clip.create_model_from_pretrained(M); tok = open_clip.get_tokenizer(M)
 if hasattr(tok, "tokenizer") and not hasattr(type(tok.tokenizer), "batch_encode_plus"):
     type(tok.tokenizer).batch_encode_plus = lambda self, *a, **k: self(*a, **k)
@@ -50,4 +50,4 @@ r_s = score(lambda i: [places[j] for j in torch.argsort(T @ IE[i], descending=Tr
 name = lambda m: str(m).rstrip("/").split("/")[-1]
 out = {"distinct_places": len(places), "chance_top1": round(1/len(places), 3), "chance_top5": round(5/len(places), 3),
        f"{PH.get('meta', {}).get('model', 'phrases')}_phrase+{name(R['embedder'])}": r_q, f"{name(M)}_image": r_s}
-print(out); place.answer(out)
+print(out); computer.answer(out)

@@ -12,7 +12,7 @@
 //      called workScreen() with nothing from the request.
 //   2. Only GET /decisions is this row's; any other path or method answers 404 { error: 'Not found' }, the answer old
 //      trillion's page routes gave a path they had no row for.
-//   3. The access and allowance are what the caller's place reports (work-screen.mjs): a page route reports none, so
+//   3. The access and allowance are what the caller's computer reports (work-screen.mjs): a page route reports none, so
 //      the screen reads as a plan with no limit, the way the native engine's account has no plan.
 //
 import { seeMyDecisions } from './work-screen.mjs';

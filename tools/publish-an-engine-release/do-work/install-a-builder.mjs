@@ -1,7 +1,7 @@
 // tools/publish-an-engine-release/do-work/install-a-builder.mjs
 //
 // `tool:install-an-engine-builder` and `tool:read-an-engine-builder` (tool-rows.json), run on the person's computer:
-// make a Linux machine they run into the builder that publishes signed engine releases, over SSH as start-a-place
+// make a Linux machine they run into the builder that publishes signed engine releases, over SSH as start-a-computer
 // reaches a machine. install runs set-up-the-builder.sh (a builder user, git, Node.js, rust, Caddy serving the feed
 // folder at https://<name>/engine-releases/ and passing push deliveries to the receiver, a firewall), copies this
 // tool's own files there, writes the publish config, makes the signing key once on the builder (it never leaves; its

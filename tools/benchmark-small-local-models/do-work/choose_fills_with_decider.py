@@ -9,11 +9,11 @@ import json, sys, time, resource
 from pathlib import Path
 import torch
 import pathlib
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
-R = place.request(); MODEL = place.need(R, "model")
-def load(): return place.load_decider(MODEL)
-LISTING = place.json_of(place.need(R, "listing"), "listing")
-O = place.json_of(place.need(R, "options"), "options")["slots"]
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer
+R = computer.request(); MODEL = computer.need(R, "model")
+def load(): return computer.load_decider(MODEL)
+LISTING = computer.json_of(computer.need(R, "listing"), "listing")
+O = computer.json_of(computer.need(R, "options"), "options")["slots"]
 NONE, ESC = "none of these is a true value for this blank; leave it empty", "escalate to a bigger model"
 d, load_s = load()
 res = {}; times = []
@@ -32,6 +32,6 @@ for sid, s in O.items():
                 "top3": sorted(probs.items(), key=lambda x: -x[1])[:3]}
     print(sid, "->", r[0]["choice"], round(r[0]["confidence"], 3), "| any fits P(yes)=", round(r[1]["probs"].get("yes",0),3))
 meta = {"model": MODEL, "load_s": round(load_s,1), "ms_per_request_median": round(1000*sorted(times)[len(times)//2]), "ms_first": round(1000*times[0]),
-        "mps_GB": place.mps_gb(place.device()), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
+        "mps_GB": computer.mps_gb(computer.device()), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
 print(meta)
-place.answer({"meta": meta, "choices": res})
+computer.answer({"meta": meta, "choices": res})

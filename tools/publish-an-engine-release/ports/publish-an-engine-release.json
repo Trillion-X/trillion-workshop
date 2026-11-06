@@ -45,8 +45,8 @@
     },
     {
       "repository": "trillion-workshop",
-      "path": "tools/start-a-place/",
-      "why": "start-a-place writes the release_feed a place reads this tool's feed with, and its README names this folder as the feed's publisher; it starts places and publishes nothing."
+      "path": "tools/start-a-computer/",
+      "why": "start-a-computer writes the release_feed a computer reads this tool's feed with, and its README names this folder as the feed's publisher; it starts places and publishes nothing."
     },
     {
       "repository": "trillion",

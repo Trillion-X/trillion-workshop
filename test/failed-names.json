@@ -1,0 +1,11 @@
+{
+  "_what": "Names that failed the finger-point test (trillion-rust docs/names.md, docs/naming-decision.md), read by test/failed-names.test.mjs. Each row: the name, the word to use instead, its forms as word parts (an identifier's parts, place_key is place then key), and `most`, the uses counted in this repository's code and every *words*.json (not the from-old-trillion copies or *.held files) when the row was written. Here the count also holds the other meanings of the word that stay (a post's destination, a spot on a map, a placement, the verb in place-pursuits-on-a-life-map) and the strings a running computer reads (/var/lib/place, /opt/place, place.service, the `place` user, place-lease/1, place_key_file, default_places). A change may not raise a number; a change that removes uses lowers its number in the same commit.",
+  "names": [
+    {
+      "name": "place",
+      "use_instead": "computer (in code); on screens \"the computer that keeps this account\"",
+      "forms": [["place"], ["places"]],
+      "most": 5327
+    }
+  ]
+}

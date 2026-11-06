@@ -52,7 +52,7 @@ export async function keyFileKey(handle) {
   return key;
 }
 
-// Where a computer may keep the key, by the one name the handle holds; a place without a keychain names a key file.
+// Where a computer may keep the key, by the one name the handle holds; a computer without a keychain names a key file.
 const KEY_READERS = { keychain_item: keychainKey, key_file: keyFileKey };
 
 /** The key the credential handle names, from the one key store it names. */

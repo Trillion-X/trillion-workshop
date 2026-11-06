@@ -54,13 +54,13 @@ import { fetchWithoutCopies } from '../../live-namespace/do-work/send-without-co
 import { accountTools, tellTheAccount } from './tell-the-account.mjs';
 import { lookForDevices, printedBy, turnedOnBy } from './know-which-devices.mjs';
 import { endWithTheApp } from '../../../computer/end-with-the-app.mjs';
-import { appDataFolder } from '../../process-session/do-work/place-data-folder.mjs';
+import { appDataFolder } from '../../process-session/do-work/computer-data-folder.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_SETTINGS = path.join(HERE, '..', 'receive-settings.json');
 const DEVICES = path.join(HERE, '..', 'devices.json');
 
-/** This place's folder for app data (one owner: parts/process-session/do-work/place-data-folder.mjs). */
+/** This computer's folder for app data (one owner: parts/process-session/do-work/computer-data-folder.mjs). */
 export { appDataFolder };
 
 /** The day a file arrived, in this computer's time zone: 2026-09-28. */
