@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MOVED-REVIEW-WHAT-A-LIST-SAYS-READ-DATA-LIST-REVIEW",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:925e29d8cc4b0f92e7de0596ab10bbfc3eb15e0cc48013987b9a5cec15905325",
+    "quote": "review-what-a-list-says and formulas: move old trillion src/list-review.mjs and src/list-value-history.mjs"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/list-review.mjs",
+      "multihash": "1f:b0e991ab595ad5dcd2ec088bd80b985334f82a4d3430d50c7e8a39b9e2847030",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:31:53Z",
+        "deleted_with": "the move 138579b3ac took this file out of trillion into the Workshop; the old copy leaves trillion's main line with that move"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/review-what-a-list-says/read-data/list-review.mjs"
+    }
+  ],
+  "preserve": [
+    "the moved code itself: tools/review-what-a-list-says/read-data/list-review.mjs kept 100.0% of the copy's meaningful lines when this contract was written"
+  ],
+  "allowed_deltas": [
+    "import paths and the calls the tool's wiring needs here, after the byte copy"
+  ],
+  "banned_substitutions": [
+    "a rewrite of the moved code in place of the byte copy",
+    "a second live copy of this job in another folder"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T22:31:53Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:b0e991ab595ad5dcd2ec088bd80b985334f82a4d3430d50c7e8a39b9e2847030",
+    "target_multihash_at_baseline": "1f:b0e991ab595ad5dcd2ec088bd80b985334f82a4d3430d50c7e8a39b9e2847030",
+    "commit": "138579b3ace9f3b979940c515785401961f5f34d"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/review-what-a-list-says/read-data/moved-from.json names its source and the identity of the source bytes",
+    "test_refs": []
+  }
+}
