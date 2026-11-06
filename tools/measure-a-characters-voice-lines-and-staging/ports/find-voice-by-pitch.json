@@ -1,0 +1,79 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-FIND-VOICE-BY-PITCH",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:674d694c29a0cdbeae4cf24047160b7f12a98d54cdba160162d1be765b7ee7b1",
+   "lines": [
+    8,
+    75
+   ],
+   "multihash": "1f:51c09b0dffe6ad7278d76c86380ed22df1379c46b3e1025e14bed4d82958fda0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:674d694c29a0cdbeae4cf24047160b7f12a98d54cdba160162d1be765b7ee7b1",
+   "lines": [
+    3,
+    6
+   ],
+   "multihash": "1f:18f6b7b8d67e778e5be74c495cac08991e3ac6cd820452066bf93d39593d26d6",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice_by_pitch.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of trillion-launch-video, byte for byte"
+  }
+ ],
+ "preserve": [
+  "yin pitch at 8 kHz with a periodicity voicing test above 0.6 and loudness above the 30th percentile",
+  "runs in the band of at least 0.5 s, merged over 1.2 s gaps, kept when half their voiced frames are in the band"
+ ],
+ "allowed_deltas": [
+  "the band is the person's settings",
+  "one JSON request in, one JSON answer out"
+ ],
+ "banned_substitutions": [
+  "pyin instead of yin with the periodicity test"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:51c09b0dffe6ad7278d76c86380ed22df1379c46b3e1025e14bed4d82958fda0",
+  "target_multihash_at_baseline": "1f:51c09b0dffe6ad7278d76c86380ed22df1379c46b3e1025e14bed4d82958fda0",
+  "commit": "291e392a894c47e16aa60b078a234164898b4571",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def f0_track(path):",
+   "def runs(f0, vf, vp):"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

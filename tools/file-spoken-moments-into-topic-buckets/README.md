@@ -11,10 +11,13 @@ The buckets are the person's own: the vocabulary starts empty, or from the perso
 | `tool-rows.json` | The Workshop row `tool:file-spoken-moments-into-topic-buckets`: `on-your-computer`, with the commands that fetch it and run it. |
 | `part.json` | Nothing here is imported by other code. |
 | `do-work/bucket_moments.py` | The command: `tag`, `tag-moments`, `report`. Each prints its account and a last line `{"result": ...}`. |
+| `do-work/cut_text_into_moments.py` | Untimed transcript text from a cloud-results sqlite copy cut into moments of whole sentences (at most `--max-words`, 120), each placed by its share of the text and, when the length is known, in estimated seconds; its source (b2, r2 or drive-only) read from the person's file store (`--held`, the files door's answer, or `--namespace-sqlite`); identical texts kept once with the copies named in `duplicates`; the coverage (moments per source, transcripts per source and media kind, hours) in its answer. Moved from trillion-launch-video (`ports/cut-text-into-moments.json`). |
+| `ports/` | The port contract of the moved file. |
 | `read-data/moments.py` | Pure: cutting a transcript into moments, reading the model's reply, counting. |
 | `read-data/bucketing-defaults.json` | DATA: the words the model is given. It names no buckets. Replace it with `--defaults FILE`. |
 | `test/bucket-moments.test.mjs` | Runs every command against a stand-in for Ollama on synthetic transcripts. |
 | `test/test_moments.py` | The pure parts. |
+| `test/test_cut_text.py`, `test/cut-text.test.mjs` | `cut_text_into_moments.py` on a made-up cloud-results copy and store. |
 | `test/fake_ollama.py`, `test/write_fixtures.py` | The stand-in model and the synthetic inputs. |
 
 ## How to run it
@@ -23,6 +26,7 @@ The buckets are the person's own: the vocabulary starts empty, or from the perso
 brew install ollama && ollama pull qwen2.5:14b-instruct
 python3 do-work/bucket_moments.py tag --transcripts ./transcripts
 python3 do-work/bucket_moments.py report --transcripts ./transcripts
+python3 do-work/cut_text_into_moments.py --results-sqlite ./cloud-results.sqlite --held ./held.json --out ./moments.jsonl
 python3 do-work/bucket_moments.py tag-moments --moments ./moments.jsonl --tagged ./moments-tagged.jsonl
 ```
 

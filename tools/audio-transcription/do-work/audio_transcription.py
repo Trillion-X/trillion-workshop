@@ -7,9 +7,10 @@ hear again only those windows.
   audio_transcription.py find-loops      --transcript FILE.json [FILE.json ...]
   audio_transcription.py repair          --transcript FILE.json --audio FILE --model-path FILE [--out FILE.json] [--whisper-cli PATH] [--ffmpeg PATH]
   audio_transcription.py repair-many     --transcript FILE.json [FILE.json ...] --model-path FILE [--workers N] [--max-load L]
-  audio_transcription.py judge           --transcript FILE.json [FILE.json ...]
+  audio_transcription.py judge           --transcript FILE.json [FILE.json ...] [--duration S | --durations LIST.tsv]
   audio_transcription.py index           --transcripts DIR [--out index.tsv]
-  audio_transcription.py text            --transcript FILE.json --out FILE.txt [--title T] [--paragraph-seconds S] [--even-if-rejected]
+  audio_transcription.py text            --transcript FILE.json --out FILE.txt [--title T] [--header LINE ...] [--duration S]
+                                         [--paragraph-seconds S] [--even-if-rejected]
 
 transcribe runs do-work/process-scripts/transcribe-audio.py, copied unchanged from the package, and keeps its result (segments, words
 with their timing_source, full_text, language) with the length of the recording added. repair hears each loop window again with
@@ -211,8 +212,9 @@ def command_repair_many(args):
 
 def command_judge(args):
     verdicts = []
+    lengths = reports.durations_list(args.durations, args.id_column, args.duration_column) if args.durations else {}
     for path in args.transcript:
-        why = reports.judge(read_json(path))
+        why = reports.judge(read_json(path), lengths.get(os.path.basename(path).split(".")[0], args.duration))
         print(os.path.basename(path), "REJECT: " + "; ".join(why) if why else "accepted")
         verdicts.append({"transcript": path, "accepted": not why, "reasons": why})
     return {"verdicts": verdicts, "rejected": sum(not v["accepted"] for v in verdicts)}
@@ -231,7 +233,7 @@ def command_index(args):
 
 def command_text(args):
     doc = read_json(args.transcript)
-    why = reports.judge(doc)
+    why = reports.judge(doc, args.duration)
     if why and not args.even_if_rejected:
         print("REJECT: " + "; ".join(why), file=sys.stderr)
         args.exit_code = 2
@@ -239,6 +241,7 @@ def command_text(args):
     title = args.title or os.path.splitext(os.path.basename(doc.get("source") or args.transcript))[0]
     header = [f"Source: {doc['source']}"] if doc.get("source") else []
     header.append(f"Transcript: whisper, word timings in {os.path.basename(args.transcript)}")
+    header = args.header or header
     with open(args.out, "w", encoding="utf-8") as handle:
         handle.write(reports.as_text(doc, title, args.paragraph_seconds, header))
     count = len(reports.paragraphs(doc, args.paragraph_seconds))
@@ -286,6 +289,10 @@ def build_parser():
     rm.set_defaults(run=command_repair_many)
     j = sub.add_parser("judge", help="whether each whole answer looks looped or invented, and why")
     j.add_argument("--transcript", nargs="+", required=True)
+    j.add_argument("--duration", type=float, help="the recording's length in seconds, when the transcript does not say it")
+    j.add_argument("--durations", help="a tab-separated list of each recording's length, one row per transcript name")
+    j.add_argument("--id-column", default="id", help="the --durations column holding the transcript's name (default id)")
+    j.add_argument("--duration-column", default="duration", help="the --durations column holding the seconds (default duration)")
     j.set_defaults(run=command_judge)
     i = sub.add_parser("index", help="one line per transcript in a folder, with the totals")
     i.add_argument("--transcripts", required=True, help="the folder of <name>.json transcripts")
@@ -295,6 +302,8 @@ def build_parser():
     x.add_argument("--transcript", required=True)
     x.add_argument("--out", required=True)
     x.add_argument("--title")
+    x.add_argument("--header", action="append", help="a line under the title (repeat for more); replaces the source and transcript lines")
+    x.add_argument("--duration", type=float, help="the recording's length in seconds, for the judge, when the transcript does not say it")
     x.add_argument("--paragraph-seconds", type=float, default=30.0)
     x.add_argument("--even-if-rejected", action="store_true", help="write it anyway, for a person to look at")
     x.set_defaults(run=command_text)

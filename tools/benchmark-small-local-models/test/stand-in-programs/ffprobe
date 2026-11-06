@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+"""Stand-in ffprobe: a made-up media file holds one line, `<width>x<height> <seconds> <rotation>`, and this answers the two
+questions sample_shots_across_groups.py and sample_candidates_for_slots.py ask in ffprobe's own shapes."""
+import json
+import sys
+
+media = sys.argv[-1]
+size, seconds, rotation = open(media).read().split()
+w, h = (int(x) for x in size.split("x"))
+if any("format=duration" in a for a in sys.argv):
+    print(seconds)
+else:
+    stream = {"width": w, "height": h}
+    if rotation != "0":
+        stream["side_data_list"] = [{"rotation": int(rotation)}]
+    print(json.dumps({"streams": [stream]}))

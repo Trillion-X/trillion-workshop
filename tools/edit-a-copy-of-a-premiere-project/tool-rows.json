@@ -62,6 +62,73 @@
           "source": "Moved from Trillion-X/trillion-launch-video tools/premiere-insert at e1100bf; the project format is read from projects Premiere Pro itself wrote, and Premiere opened and saved a project this tool wrote"
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:insert-frame-holds-into-a-filmcraft-project-copy",
+        "label": "Insert my rendered corrections into a copy of my FilmCraft project as editable clips (runs on your computer)",
+        "job": "Make a new copy of my FilmCraft project with each rendered correction put in at its freeze frame: a frame hold of the same clip, the overlay on the third video track, the voice and the music and sound effects on the second and third audio tracks",
+        "description": "Reads a FilmCraft project (.fcproj, JSON) and writes a NEW project. For each shot named, from <shots>/<shot id>.json (its plate source file and frame) and the three files in <out>/<shot id>/ (<id>-overlay-prores4444.mov, <id>-narrator.wav, <id>-sfx-music.wav), it ripple-inserts a frame-hold segment of the plate's own clip at that frame (the clip's own effects, so its grade applies), razors every clip that spans the point and moves everything after it, extends the adjustment layer over the inserted span, and places the overlay on video track 3, the voice on audio track 2 and the music and sound effects on audio track 3, with each file's facts read by ffprobe. Refuses, saying what to change: an output that is the input, a missing shot file, a missing rendered file, a plate that is not a media file of the project, a frame no clip on the first video track holds. The input project is never written. It does not open or script FilmCraft. The inserts here are the person's own corrections; a project the person protects takes picked options only through its own apply tool, so run this on a copy.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["project", "output", "shots", "out", "shot_ids"],
+          "properties": {
+            "project": {
+              "type": "string",
+              "description": "The input .fcproj, put where {project} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The new .fcproj to write, put where {output} is. It must not be the input. The project's name becomes this file's name."
+            },
+            "shots": {
+              "type": "string",
+              "description": "The folder of <shot id>.json files, put where {shots} is. A shot file holds {\"plate\": {\"source\": the plate's media path in the project, \"frame\": the frame number in that file}}."
+            },
+            "out": {
+              "type": "string",
+              "description": "The folder holding <shot id>/<shot id>-overlay-prores4444.mov, <shot id>-narrator.wav and <shot id>-sfx-music.wav, put where {out} is."
+            },
+            "shot_ids": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "The shot ids to insert, in order, each one word after {out}."
+            },
+            "sequence_suffix": {
+              "type": "string",
+              "description": "Optional: text added to the sequence's name (add --sequence-suffix TEXT before the shot ids); default ' + corrections'."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "One line per shot, then a last line {\"result\": {\"output\", \"inserts\": [{\"shot\", \"frames\", \"seconds\", \"at_seconds\", \"hold_frame\"}]}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "brew install ffmpeg"
+          ],
+          "run": "python3 -I tools/edit-a-copy-of-a-premiere-project/do-work/filmcraft_insert_frame_holds.py {project} {output} --shots {shots} --out {out} {shot_ids}",
+          "needs": [
+            "python",
+            "ffmpeg and ffprobe",
+            "the person's FilmCraft project and rendered corrections"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout, on a COPY: name a new output file, never the project in use. Read the last line: { result } lists each insert and where it landed; { error } says what to change. Tell the person to open the new project in FilmCraft; the input is untouched."
+        },
+        "maker": "maker:edit-a-copy-of-a-premiere-project",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from a film repository's films/<film>/narrator/tools/filmcraft_insert.py; the project shape is read from projects FilmCraft itself wrote"
+        }
+      }
     }
   ]
 }

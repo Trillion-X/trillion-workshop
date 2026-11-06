@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """drift.py <template.json> <target> [--json out.json] [--annotated out.json] [--exceptions exc.json]
-           [--threshold 1.0] [--check] [--lines all|worst] [--root DIR]
+           [--threshold 1.0] [--check] [--lines all|worst] [--root DIR] [--settings-record S [--scope KIND:ID]]
 
 <target> is any script (.md/.txt: fenced ```dim:<id>``` blocks, else a table column starting 'line', else
 the whole text) or any piece JSON (a fill, our own render measured by make_template.py, another template).
@@ -14,7 +14,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / 'read-data'))
-from wt_core import SCHEMA, Registry, WTError, load_json, write_json  # noqa: E402
+from wt_core import SCHEMA, WTError, load_json, parse_scopes, registry_for, tool_settings, write_json  # noqa: E402
 from wt_ops import drift  # noqa: E402
 from wt_render import render_drift_text  # noqa: E402
 
@@ -42,11 +42,14 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--lines", default="all", choices=["all", "worst"])
     ap.add_argument("--root")
+    ap.add_argument("--settings-record", help="this tool's row of the person's list:settings (a JSON file of the record records:read returns); its settings.registry is the registry")
+    ap.add_argument("--scope", action="append", help="KIND:ID, most specific first, when the settings record holds several rows")
     ap.add_argument("--column", default="line", help="for a markdown script without dim fences: the table column to read (header starts with this)")
     a = ap.parse_args(argv)
     try:
         tpl = load_json(a.template, "template")
-        reg = Registry.load(tpl.get("registry"))
+        settings = tool_settings(a.settings_record, parse_scopes(a.scope)) if a.settings_record else None
+        reg = registry_for(tpl.get("registry"), None, settings)
         exc = load_json(a.exceptions, "exceptions file") if a.exceptions else []
         out = drift(tpl, load_target(a.target), reg, a.root or str(Path.cwd()), exc, a.threshold, a.column)
         rep = out["notes"]["drift"]

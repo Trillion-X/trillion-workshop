@@ -1,0 +1,108 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-CATALOG-VIDEOS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:947d032c8c69747763f1d11047aa8d03a222d5c893901ef2eb3cf193484864b0",
+   "lines": [
+    24,
+    47
+   ],
+   "multihash": "1f:dbe30fc9d049adea6005397fefafd933e0ac69bc997eca96e421fd5aac930d71",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:947d032c8c69747763f1d11047aa8d03a222d5c893901ef2eb3cf193484864b0",
+   "lines": [
+    9,
+    15
+   ],
+   "multihash": "1f:2a025e77a18cf7839841d7f30f6de59f98ea3bba646ebde6c60a6016f7ab5bf7",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:947d032c8c69747763f1d11047aa8d03a222d5c893901ef2eb3cf193484864b0",
+   "lines": [
+    17,
+    22
+   ],
+   "multihash": "1f:16c9e2e705ed58f46df9824d0dad3480b020516bd53d54243be29290fef3ff81",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:947d032c8c69747763f1d11047aa8d03a222d5c893901ef2eb3cf193484864b0",
+   "lines": [
+    4,
+    7
+   ],
+   "multihash": "1f:e917550992a4cb866e79047fd78e2abbac9e3c4d547eccff94c269c51b3df379",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/catalog_videos.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of trillion-launch-video, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a format per video: short, series by title start, compilation, members-only without views, side by pattern or under 3 minutes, else episode",
+  "the baseline is the median views of the 10 nearest same-format videos on each side",
+  "an info.json gives the exact date, else the timestamp day with ~"
+ ],
+ "allowed_deltas": [
+  "the series prefixes, compilation words and side pattern are the person's settings",
+  "the library folder and channel name come in the request"
+ ],
+ "banned_substitutions": [
+  "a format list in the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:dbe30fc9d049adea6005397fefafd933e0ac69bc997eca96e421fd5aac930d71",
+  "target_multihash_at_baseline": "1f:dbe30fc9d049adea6005397fefafd933e0ac69bc997eca96e421fd5aac930d71",
+  "commit": "291e392a894c47e16aa60b078a234164898b4571",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def fmt(title, kind, dur, views):",
+   "nb = [x['views'] for j, x in enumerate(seq) if j != i and abs(j - i) <= 10 and x['views']]"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

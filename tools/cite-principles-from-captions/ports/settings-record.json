@@ -1,0 +1,53 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CITE-PRINCIPLES-SETTINGS-RECORD",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the trillion-launch-video port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "ad0581c23b915b3ed6a59d8c27b8f8c6d6f2b681",
+      "path": "tools/cite-principles-from-captions/do-work/cite_principles.py",
+      "multihash": "1f:3d31d1481756690b3105703112da675c5046e8b383835b5b9f24621ba0555b2c",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/cite-principles-from-captions/do-work/cite_principles.py"
+    }
+  ],
+  "preserve": [
+    "every command (corpus, coverage, candidates, extract, find, verify, registry, index) keeps its arguments, its account and its last line {\"result\": ...}",
+    "the terms, caps, lanes, merge and template files are still read when given, and a file flag wins for its one setting"
+  ],
+  "allowed_deltas": [
+    "candidates, registry and index take --settings-record (the person's list:settings row as records:read gives it) and --scope KIND:ID, read through tools/settings/read-data/settings.py, the one shared reader",
+    "index --template replaces --intro/--outro/--title/--top/--demonstrated-top/--lanes-top (the template says all of it)",
+    "--terms is no longer required when the settings record holds terms"
+  ],
+  "banned_substitutions": [
+    "a person's terms, caps, lanes, merge groups or index words written into the code or shipped as files here",
+    "a second settings reader beside tools/settings"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-05T20:30:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3d31d1481756690b3105703112da675c5046e8b383835b5b9f24621ba0555b2c",
+    "target_multihash_at_baseline": "1f:3d31d1481756690b3105703112da675c5046e8b383835b5b9f24621ba0555b2c",
+    "commit": "ad0581c23b915b3ed6a59d8c27b8f8c6d6f2b681"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs one list:settings row gives candidates, registry and index the same terms, caps, lanes, merge and template as the files",
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs candidates keeps the best windows per channel and each channel's openings, best video first",
+      "tools/cite-principles-from-captions/test/cite-principles.test.mjs a cap file limits how many passages a channel keeps"
+    ]
+  }
+}

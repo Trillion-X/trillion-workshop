@@ -1112,6 +1112,214 @@
    }
   },
   {
+   "id": "package::research-a-creator-or-topic::tool::keep-forum-posts-from-a-public-archive",
+   "address": "package::research-a-creator-or-topic::tool::keep-forum-posts-from-a-public-archive",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:keep-forum-posts-from-a-public-archive",
+    "label": "Keep the latest posts of forums I name",
+    "status": "active",
+    "job": "Keep the newest posts of the forums I name (subreddits), with their titles, words, scores and comment counts, from a public archive of the site",
+    "description": "For each forum (a subreddit) asks the Arctic Shift public archive of Reddit (a third-party service, not the site itself) for its newest posts, a page of 100 at a time, each page older than the last, up to `pages` pages a forum (6 when left out), and keeps each post's id, link, title, words, score, comment count and time, with the forum and the group you name for it. This depends on that archive staying up. It waits half a second between pages and tries a page four times before it names the forum in `failed`. It keeps one file in your files (forum-posts.jsonl: one line per post). A run that reaches budget_seconds answers `again`, the input to send next (it holds where each forum stopped); repeat until `again` is null. tool:collect-and-rank-viewer-questions finds the questions people ask in these posts.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "forums"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "forums": {
+       "anyOf": [
+        {
+         "type": "object",
+         "minProperties": 1,
+         "maxProperties": 100,
+         "additionalProperties": {
+          "type": [
+           "string",
+           "null"
+          ]
+         }
+        },
+        {
+         "type": "array",
+         "minItems": 1,
+         "maxItems": 100,
+         "items": {
+          "anyOf": [
+           {
+            "type": "string",
+            "minLength": 2
+           },
+           {
+            "type": "object",
+            "required": [
+             "name"
+            ],
+            "additionalProperties": false,
+            "properties": {
+             "name": {
+              "type": "string"
+             },
+             "group": {
+              "type": "string",
+              "description": "Your own word for who writes there, kept on each post"
+             }
+            }
+           }
+          ]
+         }
+        }
+       ],
+       "description": "Forums by name (a subreddit without r/): {forum: group}, or a list of names or { name, group }; group is your own word for who writes there, kept on each post"
+      },
+      "pages": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 20,
+       "description": "Pages of posts a forum, newest first; 6 when left out"
+      },
+      "progress": {
+       "type": "object",
+       "description": "Set by again: where each forum stopped"
+      },
+      "budget_seconds": {
+       "type": "integer",
+       "minimum": 1,
+       "maximum": 110,
+       "description": "How long this run may work; 100 when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "stopped",
+      "forums",
+      "failed",
+      "again"
+     ],
+     "properties": {
+      "stopped": {
+       "enum": [
+        "finished",
+        "budget"
+       ]
+      },
+      "forums": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "forum",
+         "posts",
+         "pages",
+         "finished"
+        ]
+       }
+      },
+      "failed": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "forum",
+         "reason"
+        ]
+       }
+      },
+      "again": {
+       "type": [
+        "object",
+        "null"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "internet": true,
+     "workdir": "/opt/research-a-creator-or-topic",
+     "stdout": "json",
+     "argv": [
+      "python3",
+      "/opt/research-a-creator-or-topic/do-work/fetch_forum_posts.py"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "files": {
+      "package_files": [
+       {
+        "package": "research-a-creator-or-topic",
+        "paths": [
+         "do-work/fetch_forum_posts.py"
+        ],
+        "at": "/opt/research-a-creator-or-topic"
+       }
+      ]
+     },
+     "outputs": [
+      {
+       "name": "forum-posts",
+       "path": "/opt/research-a-creator-or-topic/out/forum-posts.jsonl",
+       "keep_in": "files",
+       "media_type": "application/x-ndjson",
+       "max_bytes": 16777216
+      }
+     ]
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 110,
+     "network_egress": true,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "maker": "maker:research-a-creator-or-topic",
+    "provenance": {
+     "source": "moved from a film repository's forum reader (fetch_reddit.py), which read subreddits through the Arctic Shift public Reddit archive (a third-party service)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "forums": [
+        {
+         "name": "baking",
+         "group": "home-bakers"
+        }
+       ],
+       "pages": 1
+      },
+      "shape_read_at": "2026-11-04",
+      "replies": [
+       {
+        "request": {
+         "method": "GET",
+         "url": "https://arctic-shift.photon-reddit.com/api/posts/search?subreddit=baking&limit=100&sort=desc"
+        },
+        "status": 200,
+        "headers": {
+         "content-type": "application/json"
+        },
+        "body": "{\"data\": [{\"id\": \"zz1\", \"permalink\": \"/r/baking/comments/zz1/a_made_up_post/\", \"title\": \"Why does my made-up dough never rise?\", \"selftext\": \"A made-up post.\", \"score\": 4, \"num_comments\": 1, \"created_utc\": 1793491200}]}"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
    "id": "package::research-a-creator-or-topic::tool::brief-a-prospect",
    "address": "package::research-a-creator-or-topic::tool::brief-a-prospect",
    "path": ["current-item", "published-record"],

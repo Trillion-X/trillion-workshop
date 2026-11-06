@@ -8,6 +8,11 @@ A mapping:
 
   lists_file        REF of a JSON file { "lists": [{ id, value }], "views": [{ list, order, view }] }; `value.row_type` names a
                     list's rows' type, `value.fields` its columns
+  lists_read        instead of lists_file: { config: REF, ids: [list ids] }: the person's own list records, read through the door
+                    with the sender config; then only a list `lists_add` changes is written, and the saved views are `views`
+  lists_add         { list id: { fields: [field], choices: { field: [choices] }, set: { key: value } } }: a field a list lacks is
+                    added, a field it holds takes the keys given, a choice field gains the choices it lacks, `set` gives top-level keys
+  views             with lists_read: [{ list, order, view }], the saved views written
   ids               how record ids read; defaults: list "list:{id}", view "list-view:{list}:{view_id}", view_type "list-view",
                     row "record:{row_type}:{id}", row_type "record:{row_type}"
   limits            { text_chars, basis_sources, per_command, command_bytes }: a field named in a source's `fits` may not be
@@ -32,6 +37,9 @@ A source makes the rows of one list (`list`). Its `kind` is:
                     (its credential is a keychain handle, never a secret value); optional `each` is a dotted path to an array
                     in the record, with one mapped row per element (`record` and `item` are available to expressions)
   staged            rows read from files, one `inputs` entry per file or glob; `defaults` is merged under each entry
+  again             { again: { list } }: each row another source already made of that list, its record with its values over it,
+                    worked out again (for example its links to rows made after it) and merged by `on_duplicate` (fill or over)
+A staged or again source's `skip_if` (a condition over a row's record and values) leaves that row out.
 
 Per source: `id` (an expression), `keys`, `compute` (then `compute_after`, which every input shares), `values` (`keep_empty`: fields
 kept when their text or list/object value is empty), `basis`, `fits`, `on_duplicate`. Without `on_duplicate`, a row whose id another row of the list already
@@ -40,7 +48,16 @@ lacks from this one; `over`: this row's values win and the row already made fill
 and the payload's `merged` names each one with the fields filled and the fields whose two values differed (the value not kept). Per `staged` input (a source may also give `inputs_from`: { file, path, rename } to read the entries from a file, with those keys
 renamed to the ones below; `link`: { field, into } names the field an optional input's rows link by; `file_label` is the expression
 that names an input for `pending`):
-  root, path | paths    the file REF (paths are globs inside root); JSON ({ rows } or the rows themselves) or JSON lines
+  root, path | paths    the file REF (paths are globs inside root); JSON ({ rows } or the rows themselves) or JSON lines; the
+                        root `mapping` is the mapping itself, and `path` the dotted path of its rows there
+  format                by the file's ending (json, jsonl, tsv) or given: `tsv` (a header line; a line with another number of
+                        cells is not a row; a quote mark is part of its cell), `text` (the file is one row { text }), `lines`
+                        ({ pattern, start, end, carry, needs_carry, cells }: one row per line matching `pattern`, its named groups
+                        and `line`, `text`, after the first line matching `start` and before the next matching `end`; the named
+                        groups of a line matching one of `carry` go on every later row, and `needs_carry` waits for them all;
+                        `cells` adds the line's markdown table cells)
+  one_row               a JSON file is one row
+  each                  a dotted path: one row per item of that list in each row, with `_parent` (the row) and `_index`
   optional              reported under `pending` while the file is missing or names a link target with no row
   rows_at               key holding the rows in a JSON object (default "rows"); `flatten`: spread a row's object of that name
   keep                  { field: value }: only rows whose fields equal these
@@ -55,11 +72,12 @@ A row's record holds its fields, `raw` (the staged row), `input`, `_file`, `_gen
 `keys` are worked out first from that record; where a link field's target has no row yet and the file names one, `parent_rows`
 makes it: { list, field, from: "_about", when: condition, id: expression, rec: {...expression values} }. `compute` then adds fields
 in order, `values` makes the row's values (a map of expressions; an empty result leaves the field out; the key "..." merges an
-object), and `basis[field]` = { reasoning, sources } makes `_basis[field]` (no reasoning, no basis).
+object), and `basis[field]` = { reasoning, sources, confidence? } makes `_basis[field]` (no reasoning, no basis; `confidence`, when given, says how sure this one is instead of the mapping's).
 """
 from __future__ import annotations
 
 import glob
+import re
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -74,25 +92,84 @@ LIMIT_DEFAULTS = {'text_chars': 20000, 'basis_sources': 10, 'per_command': 64}
 
 def read_staged(ctx: Context, entry: dict) -> list[dict]:
     """Every row of the entry's files with where it was read from."""
-    root = ctx.roots[entry['root']]
-    paths = ([entry['path']] if 'path' in entry else
-             [str(Path(p).relative_to(root)) for pattern in entry['paths'] for p in sorted(glob.glob(str(root / pattern)))])
+    if 'path' in entry:
+        paths = [entry['path']]
+    else:
+        root = ctx.path_of({'root': entry['root'], 'path': ''})
+        paths = [str(Path(p).relative_to(root)) for pattern in entry['paths'] for p in sorted(glob.glob(str(root / pattern)))]
     items = []
     for path in paths:
         ref = {'root': entry['root'], 'path': path}
-        text = ctx.path_of(ref).read_text(encoding='utf-8')
-        if path.endswith('.jsonl'):
-            kept, rows = None, [json.loads(line) for line in text.split('\n') if line.strip()]
-        else:
+        held = entry['root'] in ctx.documents
+        text = '' if held else ctx.path_of(ref).read_text(encoding='utf-8')
+        kind = entry.get('format') or ('jsonl' if path.endswith('.jsonl') else 'tsv' if path.endswith('.tsv') else 'json')
+        kept = None
+        if held:
+            rows = ctx.json(ref)
+        elif kind == 'jsonl':
+            rows = [json.loads(line) for line in text.split('\n') if line.strip()]
+        elif kind == 'tsv':
+            rows = tsv_rows(text)
+        elif kind == 'lines':
+            rows = line_rows(text, entry)
+        elif kind == 'text':
+            rows = [{'text': text}]
+        elif kind == 'json':
             kept = json.loads(text)
-            rows = kept if isinstance(kept, list) else kept.get(entry.get('rows_at', 'rows'))
+            rows = [kept] if entry.get('one_row') else kept if isinstance(kept, list) else kept.get(entry.get('rows_at', 'rows'))
+        else:
+            raise ValueError(f'{ref_text(ref)}: format {kind} is not one of json, jsonl, tsv, lines, text.')
         if not isinstance(rows, list):
             raise ValueError(f'{ref_text(ref)} holds no rows.')
+        if 'each' in entry:
+            rows = [{**(item if isinstance(item, dict) else {'value': item}), '_parent': row, '_index': index}
+                    for row in rows for index, item in enumerate(expressions.dig(row, entry['each']) or [])]
         meta = kept if isinstance(kept, dict) else {}
         about = meta.get('source') if meta else None
         generated = meta.get('generated') or (meta.get('meta') or {}).get('generated') or entry.get('generated_default')
         items += [{'raw': row, 'ref': ref, 'about': about, 'generated': generated} for row in rows]
     return items
+
+
+def tsv_rows(text: str) -> list[dict]:
+    """One row per line of a tab-separated text with a header line; a line with another number of cells is not a row, and a quote
+    mark is part of a cell, never the start of a quoted one."""
+    header, *lines = text.split('\n')
+    columns = header.split('\t')
+    return [dict(zip(columns, cells)) for cells in (line.split('\t') for line in lines) if len(cells) == len(columns)]
+
+
+def table_cells(line: str) -> list[str]:
+    """The cells of a markdown table line; an escaped bar (\\|) stays in its cell."""
+    return [cell.strip().replace('\0', '|') for cell in line.replace('\\|', '\0').split('|')[1:-1]]
+
+
+def line_rows(text: str, entry: dict) -> list[dict]:
+    """One row per line matching `pattern` (its named groups are the fields, `line` its number from 1, `text` the line), after the
+    first line matching `start` and before the next matching `end`. A line matching one of `carry` gives its named groups to every
+    later row; with `needs_carry` a row comes only once every carry group has a value. `cells` adds the line's table cells."""
+    started = 'start' not in entry
+    carried: dict = {}
+    carry_names = {name for pattern in entry.get('carry', []) for name in re.compile(pattern).groupindex}
+    rows = []
+    for number, line in enumerate(text.split('\n'), 1):
+        if not started:
+            started = re.search(entry['start'], line) is not None
+            continue
+        if 'end' in entry and re.search(entry['end'], line):
+            break
+        for pattern in entry.get('carry', []):
+            match = re.search(pattern, line)
+            if match:
+                carried.update(match.groupdict())
+        match = re.search(entry['pattern'], line)
+        if not match or (entry.get('needs_carry') and any(carried.get(name) is None for name in carry_names)):
+            continue
+        row = {**carried, **match.groupdict(), 'line': number, 'text': line}
+        if entry.get('cells'):
+            row['cells'] = table_cells(line)
+        rows.append(row)
+    return rows
 
 
 def ref_text(ref: dict) -> str:
@@ -147,7 +224,8 @@ def build_basis(source: dict, rec: dict, ctx: Context, state: dict) -> dict:
         sources = evaluate(spec['sources'], rec, ctx) or []
         if len(sources) > limits['basis_sources']:
             raise ValueError(f'A basis names at most {limits["basis_sources"]} sources.')
-        basis[field] = {'confidence': state['confidence'], 'reasoning': reasoning, 'sources': sources, 'by': state['by'], 'at': at}
+        confidence = evaluate(spec['confidence'], rec, ctx) if 'confidence' in spec else state['confidence']
+        basis[field] = {'confidence': confidence, 'reasoning': reasoning, 'sources': sources, 'by': state['by'], 'at': at}
     return basis
 
 
@@ -253,9 +331,26 @@ def make_staged(source: dict, ctx: Context, state: dict) -> None:
             rec = {**shape(entry, item), 'raw': base['raw'], 'input': entry, '_file': item['ref'], '_generated': item['generated'], '_about': item['about']}
             for field in source.get('keys', {}):
                 rec[field] = base[field]
-            row = add_row(source, rows, make_row(source, entry.get('compute', source.get('compute', {})), rec, ctx, state), state)
+            made = make_row(source, entry.get('compute', source.get('compute', {})), rec, ctx, state)
+            if 'skip_if' in source and holds(source['skip_if'], {**made['rec'], **made['values']}, ctx):
+                continue
+            row = add_row(source, rows, made, state)
             if entry.get('staged', True):
                 state['staged_counts'].setdefault(source['name'], []).append(row)
+
+
+def make_again(source: dict, ctx: Context, state: dict) -> None:
+    """Work more fields out for the rows another source already made of `again.list` (for example the links that need rows made
+    after them); each is merged into its row by the source's `on_duplicate`, which must say how."""
+    if source.get('on_duplicate') not in DUPLICATE_POLICIES:
+        raise ValueError(f'{source.get("name", source["list"])} works rows out again: give on_duplicate fill or over.')
+    rows = state['rows'].setdefault(source['list'], [])
+    ctx.rows[source['list']] = rows
+    for rec in ctx.made_rows(source['again']['list']):
+        made = make_row(source, source.get('compute', {}), rec, ctx, state)
+        if 'skip_if' in source and holds(source['skip_if'], {**made['rec'], **made['values']}, ctx):
+            continue
+        add_row(source, rows, made, state)
 
 
 def make_rows_kind(source: dict, recs: list[dict], ctx: Context, state: dict) -> None:
@@ -322,16 +417,61 @@ def make_records(source: dict, ctx: Context, state: dict, record_reader) -> None
             add_row(source, rows, make_row(source, source.get('compute', {}), rec, ctx, state), state)
 
 
+def add_to_list(value: dict, add: dict) -> dict:
+    """A list definition with the fields a mapping needs: a field it lacks is added at the end, a field it holds takes the keys the
+    mapping gives (every other key, and every field the mapping does not name, stays as it is), a choice field gains the choices it
+    lacks, and `set` gives top-level keys."""
+    fields = [dict(field) for field in value.get('fields', [])]
+    for wanted in add.get('fields', []):
+        kept = next((field for field in fields if field['id'] == wanted['id']), None)
+        if kept is None:
+            fields.append(dict(wanted))
+        else:
+            kept.update(wanted)
+    for field_id, choices in add.get('choices', {}).items():
+        kept = next((field for field in fields if field['id'] == field_id), None)
+        if kept is None:
+            raise ValueError(f'lists_add names choices for {field_id}, a field the list does not have.')
+        kept['choices'] = [*kept.get('choices', []), *(c for c in choices if c not in kept.get('choices', []))]
+    return {**value, **add.get('set', {}), 'fields': fields}
+
+
+def lists_of(mapping: dict, ctx: Context, ids: dict, record_reader) -> tuple[dict, list[str] | None]:
+    """The list definitions and saved views, and which lists changed: a file (`lists_file`; every list is written), or the person's
+    own list records read through the door (`lists_read`: { config, ids }) with the fields and choices `lists_add` needs, where only a
+    list whose definition that changes is written, with the saved views the mapping's `views` names."""
+    if 'lists_file' in mapping:
+        return ctx.json(mapping['lists_file']), None
+    spec = mapping['lists_read']
+    if record_reader is None:
+        raise ValueError('lists_read reads the lists through the door: give the run a records reader (the sender config).')
+    reader_source = {'name': 'lists', 'list': 'lists', 'records': {'type': 'list', 'prefix': ids['list'].format(id=''), 'config': spec['config']}}
+    held = {record['id']: record['value'] for record in record_reader(reader_source)}
+    lists, changed = [], []
+    for list_id in spec['ids']:
+        value = held.get(ids['list'].format(id=list_id))
+        if value is None:
+            raise ValueError(f'The account holds no list {list_id}: lists_read names only lists the account has.')
+        wanted = add_to_list(value, mapping.get('lists_add', {}).get(list_id, {}))
+        lists.append({'id': list_id, 'value': wanted})
+        if wanted != value:
+            changed.append(list_id)
+    unknown = sorted(set(mapping.get('lists_add', {})) - set(spec['ids']))
+    if unknown:
+        raise ValueError(f'lists_add names {", ".join(unknown)}, which lists_read does not read.')
+    return {'lists': lists, 'views': mapping.get('views', [])}, changed
+
+
 def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_reader=None) -> dict:
     """The payload for a mapping: counts, what is pending or diverted, and the commands of records to send in order."""
     emit_definitions = mapping.get('emit_definitions', True)
     if not isinstance(emit_definitions, bool):
         raise ValueError('emit_definitions must be a boolean.')
     at = at or datetime.now(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
-    ctx = Context(roots)
+    ctx = Context(roots, {'mapping': mapping})
     limits = {**LIMIT_DEFAULTS, **mapping.get('limits', {})}
     ids = {**ID_DEFAULTS, **mapping.get('ids', {})}
-    definition = ctx.json(mapping['lists_file'])
+    definition, changed = lists_of(mapping, ctx, ids, record_reader)
     list_value = {entry['id']: entry['value'] for entry in definition['lists']}
     state = {'limits': limits, 'by': mapping['by'], 'confidence': mapping.get('confidence', 'medium'), 'at': at, 'at_of': mapping.get('at'),
              'rows': {}, 'pending': [], 'diverted': [], 'staged_counts': {}, 'merged': [], 'checks': mapping.get('checks', [])}
@@ -349,6 +489,8 @@ def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_r
             make_staged(source, ctx, state)
         elif source['kind'] == 'records':
             make_records(source, ctx, state, record_reader)
+        elif source['kind'] == 'again':
+            make_again(source, ctx, state)
     first_of_list: set = set()
     for source, own in read:
         made = [] if source['list'] in first_of_list else [r for r in ctx.recs.get(source['list'], []) if id(r) not in file_recs]
@@ -357,7 +499,8 @@ def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_r
     check_rows(state)
     records = []
     if emit_definitions:
-        records = [{'id': ids['list'].format(id=entry['id']), 'type': 'list', 'value': entry['value']} for entry in definition['lists']]
+        records = [{'id': ids['list'].format(id=entry['id']), 'type': 'list', 'value': entry['value']} for entry in definition['lists']
+                   if changed is None or entry['id'] in changed]
         records += [{'id': ids['view'].format(list=v['list'], view_id=v['view']['id']), 'type': ids['view_type'], 'value': {'list_id': v['list'], 'view': v['view'], 'order': v['order']}}
                     for v in definition['views']]
     for list_id in mapping.get('emit', [entry['id'] for entry in definition['lists']]):
@@ -366,7 +509,7 @@ def build(mapping: dict, roots: dict[str, Path], at: str | None = None, record_r
             value = {**row['values'], **({'_basis': row['basis']} if row['basis'] else {})}
             records.append({'id': ids['row'].format(row_type=row_type, id=row['id']), 'type': ids['row_type'].format(row_type=row_type), 'value': value})
     commands = commands_of(records, limits)
-    counts = {'records': len(records), 'commands': len(commands), 'lists': len(definition['lists']) if emit_definitions else 0,
+    counts = {'records': len(records), 'commands': len(commands), 'lists': sum(1 for r in records if r['type'] == 'list'),
               'views': len(definition['views']) if emit_definitions else 0,
               'rows': {list_id: len(rows) for list_id, rows in state['rows'].items()}}
     if 'breakdown' in mapping:

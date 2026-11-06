@@ -34,8 +34,10 @@
           "icon": "icon",
           "record_address": "record_address",
           "short_label": "short_label",
-          "about": "about"
+          "about": "about",
+          "runs_on": "runs_on"
         },
+        "lay_over": [{"where": {"runs_on": "your-computer"}, "row": {"placements": ["placement:your-computer"], "invoke": {"kind": "computer", "capabilities": ["change-a-folder", "start-a-program"], "workdir": "/opt/media-composition", "internet": false, "stdout": "json", "argv": ["node", "/opt/media-composition/do-work/make-pictures-and-sounds.mjs", "--style", {"fill": {"from": "entry", "field": "id"}}, "--out", {"fill": {"from": "task", "field": "grants.change-a-folder.folder"}}, "--work", "/opt/media-composition/making"], "stdin": {"fill": {"from": "input"}}, "files": {"package_files": {"package": "media-composition", "paths": ["do-work", "read-data"], "at": "/opt/media-composition", "exclude": ["__tests__"]}}}, "billing": {"payers": ["own-account"], "per": "run"}, "needs": {"expected_seconds": 1800, "network_egress": false}}}],
         "id_prefix": "tool:make-",
         "row": {
           "label": {
@@ -260,6 +262,34 @@
               "mood": {
                 "label": "Mood",
                 "placeholder": "The mood or style of the music"
+              },
+              "recipe": {
+                "label": "Recipe",
+                "placeholder": "The synthesis recipe: keypress, click, whoosh, impact, pluck"
+              },
+              "alts": {
+                "label": "Not like",
+                "placeholder": "Sounds it must sound less like"
+              },
+              "refs": {
+                "label": "Real recordings",
+                "placeholder": "Recordings of this kind of sound to compare with"
+              },
+              "seconds": {
+                "label": "Seconds",
+                "placeholder": "How long each one is made"
+              },
+              "sounds": {
+                "label": "Sounds",
+                "placeholder": "The sounds the track should have, in a few words"
+              },
+              "section_starts": {
+                "label": "Section starts",
+                "placeholder": "Seconds where the video's sections start"
+              },
+              "settings": {
+                "label": "Settings",
+                "placeholder": "Your settings for this computer: program, code and weights folders"
               }
             }
           }
