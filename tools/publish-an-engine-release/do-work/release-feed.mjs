@@ -2,7 +2,9 @@
 //
 // The release feed's own rules, with no file, network or process: the text a release's signature covers, signing and
 // checking it with Ed25519, a signing key's public half as 64 hex, and adding one entry to a feed (`{ releases }`,
-// newest last, at most `keep_releases`), which refuses a sequence older than the newest one for the same target.
+// newest last, at most `keep_releases`, each target's newest always kept), which refuses a sequence older than the
+// newest one for the same target. Every target is one entry per commit in the same feed: a target is data, and
+// another builder (one per target it builds for) hands its signed entry to the feed's builder (`accept`).
 // The engine's feed reader (engine job J1) reads the same format.
 import { createPrivateKey, createPublicKey, generateKeyPairSync, sign, verify } from 'node:crypto';
 import { readFileSync } from 'node:fs';
@@ -102,6 +104,16 @@ export function addRelease(feed, entry, keep = settings.keep_releases) {
   const may = mayPublish(feed, entry);
   if (may.already) return { feed, added: false, entry: may.already, dropped: [] };
   const releases = [...feed.releases, entry].map((one, at) => ({ one, at })).sort((a, b) => a.one.sequence - b.one.sequence || a.at - b.at).map(({ one }) => one);
-  const dropped = releases.length > keep ? releases.slice(0, releases.length - keep) : [];
-  return { feed: { releases: releases.slice(dropped.length) }, added: true, entry, dropped };
+  // The oldest leave first, but never a target's newest: a target whose builder is behind (or down) keeps the
+  // release its computers follow while the other targets' builders go on publishing into the same feed.
+  const newest = new Set([...new Set(releases.map(one => one.target))].map(target => newestFor({ releases }, target)));
+  const dropped = [];
+  for (const one of releases) {
+    if (releases.length - dropped.length <= keep) break;
+    if (!newest.has(one)) dropped.push(one);
+  }
+  return { feed: { releases: releases.filter(one => !dropped.includes(one)) }, added: true, entry, dropped };
 }
+
+/** The first of `publicHexes` the entry's signature verifies with, or null: which builder signed it. */
+export const signerOf = (entry, publicHexes) => (publicHexes ?? []).find(key => verifyEntry(entry, key)) ?? null;
