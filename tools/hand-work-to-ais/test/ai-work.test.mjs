@@ -52,6 +52,8 @@ test('the shipped rules hold together: states once, no way out of a finished job
   assert.deepEqual(rowOf(ROWS, 'tool:change-an-ai-job').input_schema.properties.action.enum, rules.actions);
   assert.throws(() => workRules({ ...RULES, transitions: [...RULES.transitions, { action: 'reopen', from: 'done', to: 'waiting' }] }), /terminal/);
   assert.throws(() => workRules({ ...RULES, transitions: [{ ...RULES.transitions[0], set: { taker: { from: 'clock' } } }] }), /not as, now, input or note/);
+  assert.throws(() => workRules({ ...RULES, read_as: { running: 'busy' } }), /not a declared state/);
+  assert.throws(() => workRules({ ...RULES, read_as: { done: 'taken' } }), /already a declared state/);
 });
 
 test('a job is handed once per key, to a named AI or to any, and an unknown AI is refused', async () => {
@@ -106,8 +108,9 @@ test('two AIs taking the next job at once get different jobs: the loser of the f
     await handAJob({ input: { as: 'ai:east', job: 'First', key: 'one', priority: 7 } }, { door: door(), now: at(0) });
     await handAJob({ input: { as: 'ai:east', job: 'Second', key: 'two' } }, { door: door(), now: at(1) });
     await handAJob({ input: { as: 'ai:east', job: 'For east only', key: 'three', to: 'ai:east', priority: 9 } }, { door: door(), now: at(2) });
-    // Each taker lists the two statuses a take leaves from (waiting, and taken past the stale time).
-    const gate = gateFor(4);
+    // Each taker lists the stored words of the two states a take leaves from (waiting, and taken or running past the
+    // stale time).
+    const gate = gateFor(6);
     const [north, south] = await Promise.all([
       takeAJob({ input: { as: 'ai:north' }, task: { request_key: 'n' } }, { door: afterAllRead(door(), gate), now: at(3) }),
       takeAJob({ input: { as: 'ai:south' }, task: { request_key: 's' } }, { door: afterAllRead(door(), gate), now: at(3) }),
@@ -174,6 +177,25 @@ test('a taker gives a job back or says what blocks it; another AI may give back 
     assert.equal(takenOver.taken.taker, 'ai:south', 'a job held past the stale time may be taken by another AI');
     await moveAJob({ input: { as: 'ai:north', id: 'ai-job:inbox', action: 'release' } }, { door: door(), now: at(stale + 1) }).then(
       () => assert.fail('north no longer holds it'), error => assert.match(error.message, /does not hold for ai:north/));
+  } finally { await fake.close(); }
+});
+
+test('a watcher may say a running job is stuck, and its taker can still finish it', async () => {
+  // A long job written by another writer with the status word "running", which read_as reads as taken.
+  const running = { id: 'ai-job:finish:long', type: 'ai-job', value: { kind: 'ai-job', status: 'running', job: 'A long job', to: 'ai:north', from: 'ai:east', priority: 5, sent_at: '2026-11-01T20:00:00.000Z', taker: 'ai:north', taken_at: '2026-11-01T20:00:00.000Z' } };
+  const { fake, door } = await account([...AIS, running]);
+  try {
+    const flagged = await moveAJob({ input: { as: 'ai:south', id: 'ai-job:finish:long', action: 'stuck', words: 'No change for three hours' } }, { door: door(), now: at(180) });
+    assert.deepEqual({ moved: flagged.moved, from: flagged.from }, { moved: true, from: 'running' });
+    assert.equal(job(fake, 'ai-job:finish:long').status, 'running', 'a move that stays in the state keeps the stored word');
+    assert.deepEqual(job(fake, 'ai-job:finish:long').stuck, { by: 'ai:south', at: '2026-11-01T23:00:00.000Z', words: 'No change for three hours' }, 'the note says who flagged it and when');
+    assert.deepEqual((await seeAiWork({ input: { status: 'taken' } }, { door: door() })).jobs.map(one => one.id), ['ai-job:finish:long'], 'a running job lists as taken');
+    assert.equal((await seeMyAis({}, { door: door(), now: at(180) })).ais.find(one => one.id === 'ai:north').busy, 1, 'and counts as its taker\'s');
+    await assert.rejects(moveAJob({ input: { as: 'ai:south', id: 'ai-job:finish:long', action: 'finish', result: 'Mine now' } }, { door: door(), now: at(181) }), /does not hold for ai:south/, 'flagging it does not let the watcher finish it');
+    const done = await moveAJob({ input: { as: 'ai:north', id: 'ai-job:finish:long', action: 'finish', result: 'Done at last' } }, { door: door(), now: at(182) });
+    assert.deepEqual({ moved: done.moved, from: done.from, to: done.to }, { moved: true, from: 'running', to: 'done' });
+    assert.equal(job(fake, 'ai-job:finish:long').status, 'done');
+    assert.equal('stuck' in job(fake, 'ai-job:finish:long'), false, 'finishing clears the stuck note');
   } finally { await fake.close(); }
 });
 
