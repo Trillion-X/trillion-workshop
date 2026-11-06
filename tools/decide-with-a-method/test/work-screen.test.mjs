@@ -146,7 +146,7 @@ test('allowance metadata reads no decision, and a free plan keeps nothing (nativ
   const free = await seeMyDecisions({ metadata_only: true, access, allowance }, { door });
   assert.equal(free.free, true);
   assert.deepEqual(free.summaries, []);
-  await assert.rejects(seeMyDecisions({ access }, { door }), /send the allowance your place reports/);
+  await assert.rejects(seeMyDecisions({ access }, { door }), /send the allowance your computer reports/);
 });
 
 test('one page covers what it read and says where the next starts; the whole view counts every decided decision', async () => {
@@ -184,5 +184,5 @@ test('no pursuits says so in the screen\'s words, and a request it cannot read i
   assert.equal(page.pursuits_words.measured, false);
   assert.match(page.pursuits_words.text, /what you are working toward/);
   await assert.rejects(seeMyDecisions({ metadata_only: 'yes' }, { door }), /metadata_only is true or false/);
-  await assert.rejects(seeMyDecisions({ access: { capabilities: 'all' } }, { door }), /access is what your place reports/);
+  await assert.rejects(seeMyDecisions({ access: { capabilities: 'all' } }, { door }), /access is what your computer reports/);
 });

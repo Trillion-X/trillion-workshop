@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FC-PREVIEW-REVIEW-PACK",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:16f401f0e39a5e0833a193284580804f9f0448fcc697e073cb3862d4c87b9934",
+   "lines": [
+    1,
+    41
+   ],
+   "multihash": "1f:ac05322c81a2b480650ce8e7bca717dc3d12f21dccc38670568c54204e999dc1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/review_pack.py"
+  }
+ ],
+ "preserve": [
+  "a contact sheet of a frame a second, 12 a sheet at 640 px (old sheets removed first), and transcript.txt a line per sentence with its mm:ss, from the working preview, into work-round-<n>/review-pack/<id>/"
+ ],
+ "allowed_deltas": [
+  "the sheets are made by tools/make-a-contact-sheet-of-pictures-or-video-frames frames_at_times.py and the words by tools/audio-transcription whisper_here where they were the film's own contact_sheet.py and whisper_words.py; the round is the option's (it was fixed to round 8); every_s, per_sheet, width, model and language are settings"
+ ],
+ "banned_substitutions": [
+  "a film's folders, option ids, watch-folder names or the person's name written into the code",
+  "a second copy of the overlay renderer (the overlay step calls tool:render-a-motion-graphics-overlay)",
+  "an edit of the person's graded project other than FilmCraft's own headless commands on a copy"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T10:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:ac05322c81a2b480650ce8e7bca717dc3d12f21dccc38670568c54204e999dc1",
+  "target_multihash_at_baseline": "1f:ac05322c81a2b480650ce8e7bca717dc3d12f21dccc38670568c54204e999dc1",
+  "commit": "7f5967a94af74c5ec1962078cd13c513cc30c9cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py the_review_pack_has_sheets_and_a_transcript"
+  ]
+ }
+}

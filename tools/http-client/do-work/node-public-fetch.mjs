@@ -3,7 +3,7 @@
 import { request as httpsRequest } from 'node:https';
 import { lookup } from 'node:dns/promises';
 import { createGunzip, createInflate, createBrotliDecompress } from 'node:zlib';
-import { publicAddress, fetchPublic } from './public-address.mjs';
+import { publicAddress, fetchPublic } from '../../refuse-requests-to-private-addresses/public-address.mjs';
 import { checkedLookup } from './resolved-address.mjs';
 
 export function nodePublicFetch({ resolve = host => lookup(host, { all: true, verbatim: true }), request = httpsRequest,

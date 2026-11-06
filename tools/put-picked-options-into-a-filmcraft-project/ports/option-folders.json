@@ -1,0 +1,59 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FC-PREVIEW-OPTION-FOLDERS",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:0dd3210ed946e340bc9758f1a3b01f2ca8533d647279a7a52609d0a092f26ccd",
+   "lines": [
+    1,
+    105
+   ],
+   "multihash": "1f:a84a3659c401d0de8d516aae8cefc153e00399cc4580638e69c388479364f853",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/option_folders.py"
+  }
+ ],
+ "preserve": [
+  "render_lock: an exclusive flock, reentrant across processes through FILM_RENDER_LOCK_HELD, the lowest priority, the wait while a flag file says urgent (giving up after max_s)",
+  "every filmcraft-cli export runs inside the lock, other commands do not; filmcraft-cli runs as nice -n 10 with --project P --compact [--save]",
+  "the round is part of the option id; rdir/odir/watch_dir name <kind>-round-<n> and the watch folder per round"
+ ],
+ "allowed_deltas": [
+  "the option folder is a chapter of the settings (or the request's options_folder) where it was FILMCRAFT_OPT or the file's own folder; the lock and wait flag are settings where they were repository paths; the layout and the round pattern may be named in the settings",
+  "the request reader, the settings reader (tools/settings request_settings, the row read through the person's records door) and the plan recorder are added here"
+ ],
+ "banned_substitutions": [
+  "a film's folders, option ids, watch-folder names or the person's name written into the code",
+  "a second copy of the overlay renderer (the overlay step calls tool:render-a-motion-graphics-overlay)",
+  "an edit of the person's graded project other than FilmCraft's own headless commands on a copy"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T10:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a84a3659c401d0de8d516aae8cefc153e00399cc4580638e69c388479364f853",
+  "target_multihash_at_baseline": "1f:a84a3659c401d0de8d516aae8cefc153e00399cc4580638e69c388479364f853",
+  "commit": "7f5967a94af74c5ec1962078cd13c513cc30c9cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_rounds.py the lock and export road (14 checks)",
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py the_option_id_picks_its_chapter_and_its_round"
+  ]
+ }
+}

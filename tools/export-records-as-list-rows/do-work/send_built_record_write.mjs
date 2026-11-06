@@ -6,13 +6,13 @@ import { fileURLToPath } from 'node:url';
 
 function refreshValues(records, baseline, held) {
   return new Promise((resolve, reject) => {
-    // `python3` from the place's own path, on every place, as the builder starts it.
+    // `python3` from the computer's own path, on every computer, as the builder starts it.
     const child = spawn('python3', ['-I', fileURLToPath(new URL('./refresh_record_values.py', import.meta.url))], { stdio: ['pipe', 'pipe', 'pipe'] });
     const stdout = [], stderr = [];
     child.stdout.on('data', bytes => stdout.push(bytes));
     child.stderr.on('data', bytes => stderr.push(bytes));
     child.on('error', error => reject(new Error(error.code === 'ENOENT'
-      ? 'This place has no python3 on its path; give the run Python 3.10 or newer as python3 to refresh source values.'
+      ? 'This computer has no python3 on its path; give the run Python 3.10 or newer as python3 to refresh source values.'
       : `Could not run the source refresh (${error.code ?? error.name}).`)));
     child.stdin.on('error', () => {}); // Process failure is reported by error/close, without echoing private input.
     child.on('close', code => {

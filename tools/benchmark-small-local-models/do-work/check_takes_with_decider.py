@@ -14,10 +14,10 @@ Answer: { result: { meta: { n, acc, by_kind, abstain, ms_per_decision }, rows: [
 import json, random, re, sys, time
 from pathlib import Path
 import pathlib
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
-R = place.request()
-T = pathlib.Path(place.need(R, "transcripts"))
-if not T.is_dir(): place.refuse(f"transcripts {T} is not a folder: name the folder of transcript JSON files")
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer
+R = computer.request()
+T = pathlib.Path(computer.need(R, "transcripts"))
+if not T.is_dir(): computer.refuse(f"transcripts {T} is not a folder: name the folder of transcript JSON files")
 rnd = random.Random(7)
 sents = []
 for f in sorted(T.glob("*.json"))[::9][:25]:
@@ -35,7 +35,7 @@ for k, (vid, s) in enumerate(sents):
     elif kind == "restart": n = rnd.randint(2, 4); t = " ".join(w[:n]) + ", uh, sorry, let me start again. " + s
     else: t = s.rstrip(".!?") + ", no wait, that's wrong, let me redo that."
     items.append({"video": vid, "kind": kind, "usable": kind == "complete", "take": t})
-d, _ = place.load_decider(place.need(R, "model"))
+d, _ = computer.load_decider(computer.need(R, "model"))
 res = []; tt = 0
 for it in items:
     q = [{"question": "Is this take complete and final, so an editor can use it as is?", "options": ["no", "yes"]}]
@@ -49,4 +49,4 @@ for th in (0.7, 0.8, 0.9):
     a = [r for r in res if max(r["p_yes"], 1 - r["p_yes"]) >= th]
     abst[th] = {"answered": len(a), "right": sum((r["p_yes"] >= 0.5) == r["usable"] for r in a)}
 out = {"n": len(res), "acc": round(acc, 3), "by_kind": {k: f"{sum(v)}/{len(v)}" for k, v in by.items()}, "abstain": abst, "ms_per_decision": round(1000 * tt / len(res))}
-print(out); place.answer({"meta": out, "rows": res})
+print(out); computer.answer({"meta": out, "rows": res})

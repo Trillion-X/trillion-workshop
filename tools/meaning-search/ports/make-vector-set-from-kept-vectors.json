@@ -23,7 +23,7 @@
   "the stores are read as q.py read them: the asset index's matrices and ids, the timed frames cut to the shorter of the two files, the results store's picture-vectors frames of the right size with their path and time, and the namespace store's live aliases as each video's b2 id; every source opened read-only"
  ],
  "allowed_deltas": [
-  "the stores are arguments (--asset-index, --ssd-index, --expansion-results, --namespace, --kind) instead of what the place reports in its environment",
+  "the stores are arguments (--asset-index, --ssd-index, --expansion-results, --namespace, --kind) instead of what the computer reports in its environment",
   "each store is written as a vector set (items.jsonl, vectors.npy, vector-set.json) instead of being searched here; the search is findSimilarAcross",
   "the readable names of the asset index are read for every item, not only for the hits"
  ],

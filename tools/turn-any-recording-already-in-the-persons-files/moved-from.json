@@ -76,7 +76,9 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/turn-any-recording-already-in-the-persons-files/test/workspace-recording.test.mjs",
       "source_identity": "1f:2eb5df50a3b37b7e3ab2c5b145f21569c31d45c174124a0d07322faf26d95878",
-      "identity": "1f:4d8736006c7bc5475841e267330188d1634d2bd2af8112961e0a239b8a4fc3b2"
+      "identity_at_move": "1f:4d8736006c7bc5475841e267330188d1634d2bd2af8112961e0a239b8a4fc3b2",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     }
   ]
 }

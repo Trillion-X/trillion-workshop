@@ -1,7 +1,7 @@
 {
   "kind": "tool-rows",
   "record_set": "render-a-motion-graphics-overlay-tool-rows",
-  "what_this_is": "The Workshop row for tools/render-a-motion-graphics-overlay: draw a spec of timed events into a see-through overlay video with its sound stem and timeline, with the look read from the person's settings.",
+  "what_this_is": "The Workshop rows for tools/render-a-motion-graphics-overlay: draw a spec of timed events into a see-through overlay video with its sound stem and timeline, and render a correction insert for a film cut (overlay, aligned voice and music stems, freeze plates, preview), with the look read from the person's settings.",
   "records": [
     {
       "id": "package::render-a-motion-graphics-overlay::tool::render-a-motion-graphics-overlay",
@@ -267,6 +267,384 @@
         ],
         "provenance": {
           "source": "render-a-motion-graphics-overlay/do-work/render_a_motion_graphics_overlay.py: the overlay renderer of a film's option rounds (one Build, one module per event type), with the film's look, words, pictures and sounds moved to settings and the spec"
+        }
+      }
+    },
+    {
+      "id": "package::render-a-motion-graphics-overlay::tool::render-an-overlay-insert-for-a-cut",
+      "address": "package::render-a-motion-graphics-overlay::tool::render-an-overlay-insert-for-a-cut",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:render-an-overlay-insert-for-a-cut",
+        "status": "active",
+        "label": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context",
+        "job": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
+        "description": "For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json. mode quick writes only the two stems and a 540p preview with the overlay piped in; audio_only re-renders the stems and preview against the existing overlay; stills writes frames over the shot's cut-out picture. A shot without duration_s lasts until its exit's light leak and its last word are done. specs (or spec_records) renders a batch one after another under one lock; copy_previews_to copies each preview into a picker folder under a given name. The look is the person's look row (as for tool:render-a-motion-graphics-overlay); its insert section can give claim_check and preview_encoder.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "assets",
+            "out"
+          ],
+          "properties": {
+            "settings_record": {
+              "description": "The person's look row of list:settings: its id record:setting:render-a-motion-graphics-overlay~<scope_kind>~<scope_id> (usually ~film~<film>), read through the records door, or the record itself",
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^record:setting:render-a-motion-graphics-overlay~(person|film|piece|account)~[a-z0-9][a-z0-9._-]*$"
+                },
+                {
+                  "type": "object"
+                }
+              ]
+            },
+            "settings": {
+              "type": "object",
+              "description": "The look, or changes laid over the row's: recipe, look, look3, frame, faces, sound_layers and named sections"
+            },
+            "settings_files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "JSON files of a look kept on this computer, laid under settings in order"
+            },
+            "spec_record": {
+              "type": "string",
+              "pattern": "^record:setting:render-a-motion-graphics-overlay~piece~[a-z0-9][a-z0-9._-]*$",
+              "description": "A piece's row of list:settings whose settings.spec is the spec"
+            },
+            "spec": {
+              "type": "object",
+              "required": [
+                "id",
+                "events"
+              ],
+              "description": "One shot: a spec (id, events, voice {wav, words, start_s}, cutout?, canvas?, duration_s?) with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s, preview_before_end_s?, preview_after_start_s? (null: the film ends with the insert)"
+            },
+            "assets": {
+              "type": "string",
+              "description": "The folder the look's relative file names (faces, textures, recordings) are read from"
+            },
+            "root": {
+              "type": "string",
+              "description": "The folder a spec's relative file names (voice, clips, pictures, mattes) are read from; default assets"
+            },
+            "out": {
+              "type": "string",
+              "description": "The folder the overlay, sound, timeline and the render's scratch are written to"
+            },
+            "stills": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "description": "Seconds: write those frames over each shot's cut-out picture (cutout.image) instead of the videos"
+            },
+            "lock": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "type": "string"
+                },
+                "wait_while": {
+                  "type": "object"
+                }
+              },
+              "required": [
+                "file"
+              ],
+              "description": "One render at a time on this computer: an exclusive lock on this file, held for the whole batch, at the lowest CPU priority; wait_while {file, says, poll_s, max_s} waits first while a flag file says so"
+            },
+            "specs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "events"
+                ]
+              },
+              "description": "A batch of shots, rendered one after another under one lock, each into out/<shot id>/"
+            },
+            "spec_records": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^record:setting:render-a-motion-graphics-overlay~piece~[a-z0-9][a-z0-9._-]*$"
+              },
+              "description": "Pieces' rows of list:settings whose settings.spec are the shots of a batch"
+            },
+            "mode": {
+              "enum": [
+                "full",
+                "quick",
+                "audio_only"
+              ],
+              "description": "full (default): overlay, stems, plates, preview; quick: the stems and a 540p preview with the overlay piped in; audio_only: the stems and preview against the overlay a full render wrote"
+            },
+            "preview_encoder": {
+              "type": "string",
+              "description": "The H.264 encoder of this computer for the preview: h264_videotoolbox on a Mac (the default), libx264 elsewhere; else the look's insert.preview_encoder"
+            },
+            "claim_check": {
+              "type": "object",
+              "description": "tool:check-every-claim-against-its-facts-and-sources's request without shots (lane_dir, sources, frames_root, world_dir, hedge_phrases, settings_record), or {\"skip\": \"<why the shot makes no claim>\"}; default the look's insert.claim_check"
+            },
+            "copy_previews_to": {
+              "type": "object",
+              "required": [
+                "folder"
+              ],
+              "properties": {
+                "folder": {
+                  "type": "string"
+                },
+                "names": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              },
+              "description": "A picker folder each preview is also copied to, as <names[shot id] or shot id>.mp4"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "inserts"
+          ],
+          "properties": {
+            "inserts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "id",
+                  "frames",
+                  "duration_s",
+                  "timeline",
+                  "claim_check"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "frames": {
+                    "type": "integer"
+                  },
+                  "duration_s": {
+                    "type": "number"
+                  },
+                  "timeline": {
+                    "type": "string"
+                  },
+                  "claim_check": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "overlay": {
+                    "type": "string"
+                  },
+                  "narrator": {
+                    "type": "string"
+                  },
+                  "sfx_music": {
+                    "type": "string"
+                  },
+                  "plate": {
+                    "type": "string"
+                  },
+                  "plate_graded": {
+                    "type": "string"
+                  },
+                  "preview": {
+                    "type": "string"
+                  },
+                  "copied_to": {
+                    "type": "string"
+                  },
+                  "stills": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "render-a-motion-graphics-overlay",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/render-a-motion-graphics-overlay",
+                "exclude": [
+                  "__pycache__"
+                ]
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "check-every-claim-against-its-facts-and-sources",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/check-every-claim-against-its-facts-and-sources",
+                "exclude": [
+                  "__pycache__"
+                ]
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "workdir": "/opt/render-a-motion-graphics-overlay",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/render-a-motion-graphics-overlay/do-work/render-insert.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:render-a-motion-graphics-overlay~",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:setting",
+                "prefix": "record:setting:check-every-claim-against-its-facts-and-sources~",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": false,
+          "memory_mb": 4096
+        },
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:deployed-container"
+        ],
+        "maker": "maker:render-a-motion-graphics-overlay",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "settings_files": [
+                "read-data/example-look/look.json"
+              ],
+              "assets": "read-data/example-look",
+              "out": "out/sample-insert",
+              "stills": [
+                0.2
+              ],
+              "claim_check": {
+                "skip": "a made-up shot that makes no claim"
+              },
+              "spec": {
+                "id": "sample-insert",
+                "canvas": [
+                  256,
+                  256
+                ],
+                "cutout": {
+                  "image": "paper.png"
+                },
+                "plate": {
+                  "source": "none.mp4",
+                  "frame": 0
+                },
+                "graded_frame": {
+                  "export": "none.mp4",
+                  "cut_frame": 0
+                },
+                "cut_insert_s": 0.0,
+                "events": [
+                  {
+                    "type": "pause",
+                    "at": 0.0
+                  },
+                  {
+                    "type": "exit",
+                    "at": 0.6
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "kind": "needs-a-machine",
+            "requires": "python3 with Pillow, numpy and OpenCV (cv2), and ffmpeg with the prores_ks encoder and an H.264 encoder (h264_videotoolbox on a Mac, or libx264 given as preview_encoder); the sample run above proves the row wherever they are installed",
+            "proved_on": "2026-11-06"
+          }
+        ],
+        "provenance": {
+          "source": "render-a-motion-graphics-overlay/do-work/overlay/insert.py: the outputs and the main of a film's narrator correction renderer (the overlay, the narrator and music-and-effects stems, the S-Log3 and graded freeze plates, the in-context preview, the refusal of a shot whose claims fail) and its batch and picker drivers, with the film's paths, sounds and claim check moved to the person's settings rows and the shot's piece row"
         }
       }
     }

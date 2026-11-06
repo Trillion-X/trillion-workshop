@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FC-PREVIEW-WORKING",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:c94511c56700c1cf9ff8177a056d1d05c036f684e47ab3bff215db6050ed6577",
+   "lines": [
+    1,
+    62
+   ],
+   "multihash": "1f:5bf8b315f71c44bfe2bf63ac032daa4cc8f2267236d028204bde819781456e28",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/working_preview.py"
+  }
+ ],
+ "preserve": [
+  "the same frame-snapped ranges and order as the stitched build, the first frame held for the hold, a1_mute as volume=0 windows, the overlay over and its sound mixed, the same loudness master, into work-round-<n>/working (never published)"
+ ],
+ "allowed_deltas": [
+  "one JSON request (cut a field) in place of argv; the paths come from the settings; plan mode"
+ ],
+ "banned_substitutions": [
+  "a film's folders, option ids, watch-folder names or the person's name written into the code",
+  "a second copy of the overlay renderer (the overlay step calls tool:render-a-motion-graphics-overlay)",
+  "an edit of the person's graded project other than FilmCraft's own headless commands on a copy"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T10:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:5bf8b315f71c44bfe2bf63ac032daa4cc8f2267236d028204bde819781456e28",
+  "target_multihash_at_baseline": "1f:5bf8b315f71c44bfe2bf63ac032daa4cc8f2267236d028204bde819781456e28",
+  "commit": "7f5967a94af74c5ec1962078cd13c513cc30c9cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py the_working_preview_is_planned_from_the_cut"
+  ]
+ }
+}

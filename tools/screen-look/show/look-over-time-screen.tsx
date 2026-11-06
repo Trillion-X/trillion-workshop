@@ -10,7 +10,7 @@
 //   (read-data/look-over-time.ts), shown and changed in one place. At the top a switch turns the plan on; under it
 //   the day as a strip of the colours the screen will wear (the background of each look, blended between points) with
 //   now marked on it, and what the screen is doing now: wearing one look, moving between two, or held. The starting
-//   plans are tiles; each point of the plan is a row (a time, or the sun at this place with minutes before or after,
+//   plans are tiles; each point of the plan is a row (a time, or the sun at this computer with minutes before or after,
 //   and the look); "Hold this look" keeps the screen as it is until the plan's next point and "Let the plan carry on"
 //   lets go; "Use the sun where I am" keeps this device's place to a tenth of a degree so sun points can be placed.
 //

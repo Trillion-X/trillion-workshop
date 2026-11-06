@@ -20,7 +20,7 @@ The audio-transcription package's local Whisper transcription with word times, a
 | `do-work/show_segments.py` | The segments of one words.json between two seconds. Moved from trillion-launch-video (`ports/show-segments.json`). |
 | `ports/` | The port contract of each file moved from trillion-launch-video: its source, the byte-copy commit and what changed. |
 | `read-data/transcript_reports.py` | Pure: when a recording was made (camera sidecar XML or file time), the index line and totals, the judge of a whole answer, and timed paragraphs. |
-| `do-work/whisper_here.py` | Speech to text with word times on whichever Whisper engine the place has: a drop-in for `mlx_whisper.transcribe(path, path_or_hf_repo=..., **options)` answering mlx_whisper's shape from mlx-whisper, faster-whisper or openai-whisper (below). Moved from trillion-launch-video `tools/place-capabilities/whisper_here.py`@5a9ba39 (`ports/whisper-here.json`). |
+| `do-work/whisper_here.py` | Speech to text with word times on whichever Whisper engine the computer has: a drop-in for `mlx_whisper.transcribe(path, path_or_hf_repo=..., **options)` answering mlx_whisper's shape from mlx-whisper, faster-whisper or openai-whisper (below). Moved from trillion-launch-video `tools/place-capabilities/whisper_here.py`@5a9ba39 (`ports/whisper-here.json`). |
 | `do-work/word_onsets.py` | `tool:move-word-starts-to-where-the-voice-starts`: a voice take's Whisper word starts moved to the first 10 ms above a silence line (default -45 dBFS), ends kept; with the take's line file, the script's spelling when the word counts agree (a hyphen split joined). One JSON request on stdin. Moved from a film's `narrator/tools/word_onsets.py`. |
 | `test/test_word_onsets.py`, `test/word-onsets.test.mjs` | A made-up tone take with a start inside the pause, the silence line, the script spelling, a hyphen split, a count mismatch and the refusals. Needs numpy and soundfile. |
 | `read-data/whisper_loops.py` | Pure: what a loop is, the windows to hear again, moving a heard window into place, and the splice. |
@@ -67,11 +67,11 @@ python3 do-work/show_segments.py ./words/clip.words.json 0 60
 
 Options: `--whisper-cli PATH`, `--ffmpeg PATH`, `--out FILE` (for `repair`; default is in place). The model file is the person's own choice; a larger one hears better.
 
-## Whisper on whatever engine the place has
+## Whisper on whatever engine the computer has
 
 `do-work/whisper_here.py` is for Python that hears with Whisper itself rather than through whisper.cpp. Call `whisper_here.transcribe(audio, path_or_hf_repo="mlx-community/whisper-large-v3-turbo", word_timestamps=True, ...)` where you would call `mlx_whisper.transcribe`.
 
-- `WHISPER_BACKEND=mlx|faster|openai` picks the engine; any other value is refused with the three names. Otherwise the first that imports runs, in this order: `mlx` (mlx-whisper, Apple silicon only), `faster` (faster-whisper: CTranslate2 on cuda or cpu, the same weights converted), `openai` (openai-whisper: torch on cuda, mps or cpu). A place with none is told to install one.
+- `WHISPER_BACKEND=mlx|faster|openai` picks the engine; any other value is refused with the three names. Otherwise the first that imports runs, in this order: `mlx` (mlx-whisper, Apple silicon only), `faster` (faster-whisper: CTranslate2 on cuda or cpu, the same weights converted), `openai` (openai-whisper: torch on cuda, mps or cpu). A computer with none is told to install one.
 - The model is named the mlx way and mapped for the others: `mlx-community/whisper-large-v3-turbo` is `large-v3-turbo`, `mlx-community/whisper-small-mlx` is `small`.
 - `verbose` is dropped. mlx-whisper gets every other option; the others get only `language`, `word_timestamps`, `condition_on_previous_text`, `initial_prompt`, `temperature`, `no_speech_threshold` and `compression_ratio_threshold`. faster-whisper runs on `WHISPER_DEVICE` (default `auto`), and its segments carry `words` only when `word_timestamps` was asked.
 - `result["engine"]` says which engine made the answer (`mlx_whisper`, `faster-whisper` or `openai-whisper`): word times from another engine are close to mlx-whisper's but not the same bytes.

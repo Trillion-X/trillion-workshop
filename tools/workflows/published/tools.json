@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:7254cf5ffc5493d6e6caad0d4849ce89261646952c9ecaaabdc862515c89ebe0"
+  "blake3": "1f:267798e00c2c9020b73d83b40910a280bace4b9e9f8c2124575e76fe2814016a"
  },
  "fields": [
   {
@@ -975,6 +975,21 @@
    }
   },
   {
+   "id": "tool:build-a-filmcraft-option-preview",
+   "values": {
+    "title": "Build an option on its own copy of my FilmCraft project and export its preview (runs on your computer)",
+    "job": "Build one picked option on its own copy of my FilmCraft project with filmcraft-cli and export its preview",
+    "description": "Copies the chapter's base FilmCraft project to projects-round-<n>/<id>.fcproj and makes every edit of the option's spec with FilmCraft's own headless commands (filmcraft-cli --save run; never the live app): a stitched opening (prepend), cuts, earlier heads (head_extend), frame holds with the grade kept over them, a still on its own track for a hold, muted and raised or lowered stretches of the cut's sound, scale keyframes and the overlay with its sound. Then exports the preview range at the settings' format and scale under one render lock for the computer, masters its sound to the settings' loudness in two EBU R128 passes and takes its still, into work-round-<n>/pending/ (never a folder the person watches). With plan true it runs nothing that writes and answers the exact command list. With how \"composite\" an overlay-only option is composited onto the chapter's FilmCraft export of the cut instead of a new export. With overlay it first renders the overlay with tool:render-a-motion-graphics-overlay. Every folder, name, level and the lock come from the film's list:settings row.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:build-a-quoted-section-from-entries",
    "values": {
     "title": "Build a markdown section from entries, word for word",
@@ -1639,12 +1654,12 @@
     "job": "Prove a public address takes a new account end to end: sign up, sign in and read a signed-in page",
     "description": "Signs up one synthetic account at the origin with a software passkey made for this run only, signs in with it under the new account's address, and reads a page only a signed-in person sees, then the same page without the session. Answers each step's HTTP status, the new address and whether the signed-in read answered 200. The passkey leaves with the process, so the synthetic account can never be signed in to again.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -4423,33 +4438,33 @@
    }
   },
   {
-   "id": "tool:give-a-place-a-new-release",
+   "id": "tool:give-a-computer-a-new-release",
    "values": {
-    "title": "Give a place a new release",
-    "job": "Put a new engine release on a running place and restart it",
-    "description": "Installs the request's engine release beside the old ones, points the place at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
+    "title": "Give a computer a new release",
+    "job": "Put a new engine release on a running computer and restart it",
+    "description": "Installs the request's engine release beside the old ones, points the computer at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
-   "id": "tool:give-back-a-place",
+   "id": "tool:give-back-a-computer",
    "values": {
-    "title": "Give back a place",
-    "job": "Stop paying for a place's machine: remove its public name and give the machine back",
-    "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the place's accounts to another place first: this deletes the machine's disk.",
+    "title": "Give back a computer",
+    "job": "Stop paying for a computer's machine: remove its public name and give the machine back",
+    "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the computer's accounts to another computer first: this deletes the machine's disk.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -6288,6 +6303,21 @@
    }
   },
   {
+   "id": "tool:make-a-fresh-viewer-review-pack-of-a-preview",
+   "values": {
+    "title": "Make a fresh-viewer review pack of a preview: contact sheets and a transcript (runs on your computer)",
+    "job": "Make the contact sheets and the timed transcript a fresh viewer reviews a preview from",
+    "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the place's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:make-a-lut-for-log-footage",
    "values": {
     "title": "Make a colour lookup table that fixes flat log footage from any camera (runs on your computer)",
@@ -6439,6 +6469,21 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
+   "id": "tool:make-a-working-preview-of-a-stitched-opening",
+   "values": {
+    "title": "Make a working preview of a stitched opening with ffmpeg (runs on your computer)",
+    "job": "Make a quick working preview of a stitched opening from a render of my cut, to judge its timing and sound while FilmCraft cannot export",
+    "description": "For an option whose spec stitches an opening (edit.prepend, an optional hold at 0:00, the overlay at 0:00): cuts the same frame-snapped ranges, in the same order, out of a render of the person's cut with ffmpeg, holds the first frame for the hold, mutes the cut's sound where edit.a1_mute says, lays the overlay and its sound over it and masters the sound the way the real export is mastered. Not the delivered preview (no grade layer): it goes to work-round-<n>/working/ and is never published.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
    }
   },
   {
@@ -8126,6 +8171,21 @@
    }
   },
   {
+   "id": "tool:publish-a-checked-filmcraft-preview",
+   "values": {
+    "title": "Publish a checked option preview, then put it in my watch folder (runs on your computer)",
+    "job": "Move a finished option preview into its previews folder, and put it in my watch folder only after it was checked",
+    "description": "action publish: moves work-round-<n>/pending/<id>.mp4 and its still into previews-round-<n>/ by a rename (a file the person can open is never written in place), only once ffprobe reads one video stream of the settings' frame size and one audio stream and the picture is as long as the spec's preview range. action watch: hard-links the published preview into the round's watch folder under the spec's watch name (a temporary link renamed over the old one, never left behind), only when the rendered-video check has measured that very file after it was made and the settings' content gate passes for the option; no content gate in the settings refuses it. The person's rule: never show an unfinished preview.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:publish-a-list-view-as-a-file",
    "values": {
     "title": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
@@ -8567,6 +8627,36 @@
    }
   },
   {
+   "id": "tool:read-a-computer",
+   "values": {
+    "title": "Read a computer",
+    "job": "See whether a computer's machine is running and its sign-up page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
+    "status": "active",
+    "maker": "maker:start-a-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-computer"
+   }
+  },
+  {
+   "id": "tool:read-a-computer-price",
+   "values": {
+    "title": "Read a computer's price",
+    "job": "See what a machine for a computer would cost each month before renting it",
+    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+    "status": "active",
+    "maker": "maker:start-a-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-computer"
+   }
+  },
+  {
    "id": "tool:read-a-fields-history",
    "values": {
     "title": "Read a field's history as lines",
@@ -8640,36 +8730,6 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
-   }
-  },
-  {
-   "id": "tool:read-a-place",
-   "values": {
-    "title": "Read a place",
-    "job": "See whether a place's machine is running and its sign-up page answers",
-    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the place's public name.",
-    "status": "active",
-    "maker": "maker:start-a-place",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-place"
-   }
-  },
-  {
-   "id": "tool:read-a-place-price",
-   "values": {
-    "title": "Read a place's price",
-    "job": "See what a machine for a place would cost each month before renting it",
-    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
-    "status": "active",
-    "maker": "maker:start-a-place",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-place"
    }
   },
   {
@@ -10211,6 +10271,21 @@
    }
   },
   {
+   "id": "tool:render-an-overlay-insert-for-a-cut",
+   "values": {
+    "title": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context",
+    "job": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
+    "description": "For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json. mode quick writes only the two stems and a 540p preview with the overlay piped in; audio_only re-renders the stems and preview against the existing overlay; stills writes frames over the shot's cut-out picture. A shot without duration_s lasts until its exit's light leak and its last word are done. specs (or spec_records) renders a batch one after another under one lock; copy_previews_to copies each preview into a picker folder under a given name. The look is the person's look row (as for tool:render-a-motion-graphics-overlay); its insert section can give claim_check and preview_encoder.",
+    "status": "active",
+    "maker": "maker:render-a-motion-graphics-overlay",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "render-a-motion-graphics-overlay"
+   }
+  },
+  {
    "id": "tool:render-music-note-events-to-a-test-wav",
    "values": {
     "title": "Play back a music model's note transcription as a plain test WAV (runs on your computer)",
@@ -10275,14 +10350,14 @@
    "values": {
     "title": "Rent a machine",
     "job": "Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
-    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a place) does that. tool:give-back-a-place gives it back from the same lease file. Running it again resumes from the saved lease.",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a computer) does that. tool:give-back-a-computer gives it back from the same lease file. Running it again resumes from the saved lease.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -11253,7 +11328,7 @@
    "values": {
     "title": "See my decisions",
     "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
-    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your computer reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -12207,6 +12282,21 @@
    }
   },
   {
+   "id": "tool:start-a-computer",
+   "values": {
+    "title": "Start a computer",
+    "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+    "status": "active",
+    "maker": "maker:start-a-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-computer"
+   }
+  },
+  {
    "id": "tool:start-a-decision",
    "values": {
     "title": "Start a decision with my method",
@@ -12219,21 +12309,6 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
-   }
-  },
-  {
-   "id": "tool:start-a-place",
-   "values": {
-    "title": "Start a place",
-    "job": "Make a machine into a place that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the place config with the machine's address and price, starts it, and answers the place id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
-    "status": "active",
-    "maker": "maker:start-a-place",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-place"
    }
   },
   {
@@ -12958,14 +13033,14 @@
    "values": {
     "title": "Update a computer",
     "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-    "description": "Reads a running computer's own layout from its service unit (its place config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its place config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
+    "description": "Reads a running computer's own layout from its service unit (its computer config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its computer config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
