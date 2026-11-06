@@ -1,4 +1,4 @@
-// tools/start-a-place/do-work/check-a-sign-up.mjs
+// tools/start-a-computer/do-work/check-a-sign-up.mjs
 //
 // `tool:check-a-sign-up` (tool-rows.json): prove that a public origin takes a new account end to end, the way a
 // browser does it. It signs up one synthetic account with a software passkey made for this run only, signs in with

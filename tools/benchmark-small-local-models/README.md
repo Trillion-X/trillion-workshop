@@ -12,7 +12,7 @@ The person's paths, models, vocabulary and questions are their `list:settings` r
 
 | File | Purpose |
 |------|---------|
-| `read-data/place.py` | What the computer reports (device, Hugging Face cache, a model's snapshot, a decider's load) and what every script shares: the request with its settings, `need`, `refuse`, `answer`. |
+| `read-data/computer.py` | What the computer reports (device, Hugging Face cache, a model's snapshot, a decider's load) and what every script shares: the request with its settings, `need`, `refuse`, `answer`. |
 | `read-data/template_blanks.py` | A word template's speech lines with each blank as `[slot]`, and each blank's lines. Also a command. |
 | `do-work/sample_shots_across_groups.py` | Up to N videos round-robin over creators, evenly spaced shots of each, seeded; reads width and height with ffprobe. |
 | `do-work/cut_sample_frames.py` | Each sampled shot's frame at its middle second, by the person's frame tool. |

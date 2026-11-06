@@ -1,4 +1,4 @@
-// tools/start-a-place/do-work/rent-a-machine.mjs
+// tools/start-a-computer/do-work/rent-a-machine.mjs
 //
 // One machine lease, driven by a provider row in ../read-data/providers.json. A `machines` row's `host` and
 // `access_key` name which of its own `requests` find, create, read and remove a machine and its SSH key; its `price`
@@ -95,8 +95,8 @@ function ask(request, row, part, name, ctx, id) {
 const named = (row, part, listed, key, value) => (Array.isArray(listed) ? listed : []).filter(item => at(item, part.name_at ?? key) === value);
 
 export async function rentMachine({ request, file, name, publicKey, placement = {}, lifetime = 'test', expiresAt, now = Date.now, provider }) {
-  const row = provider, place = { ...row.placement, ...placement };
-  if (!/^[a-z][a-z0-9-]{1,60}$/.test(name) || (row.base ? !publicKey?.startsWith('ssh-ed25519 ') || !place.size || !place.location || !place.image : isIP(place.address ?? '') !== 4)) throw new Error('The machine lease configuration was refused.');
+  const row = provider, spec = { ...row.placement, ...placement };
+  if (!/^[a-z][a-z0-9-]{1,60}$/.test(name) || (row.base ? !publicKey?.startsWith('ssh-ed25519 ') || !spec.size || !spec.location || !spec.image : isIP(spec.address ?? '') !== 4)) throw new Error('The machine lease configuration was refused.');
   const startedAt = now();
   if (!['test', 'service'].includes(lifetime)) throw new Error('The lease lifetime was refused.');
   if (lifetime === 'test' && (!Number.isSafeInteger(expiresAt) || expiresAt <= startedAt || expiresAt - startedAt > 24 * 60 * 60 * 1000)) throw new Error('A test machine needs a cleanup deadline within one day.');
@@ -104,13 +104,13 @@ export async function rentMachine({ request, file, name, publicKey, placement = 
   let lease;
   try { lease = readLease(file); } catch (error) { if (error.code !== 'ENOENT') throw error; }
   if (lease && lease.state !== 'removed') {
-    if (lease.name !== name || lease.provider !== row.id || lease.serverType !== (place.size ?? null) || lease.location !== (place.location ?? null)) throw new Error('The saved lease names another placement.');
+    if (lease.name !== name || lease.provider !== row.id || lease.serverType !== (spec.size ?? null) || lease.location !== (spec.location ?? null)) throw new Error('The saved lease names another placement.');
     return { ...lease, reused: true };
   }
-  lease = { schema: 'place-lease/1', provider: row.id, name, serverType: place.size ?? null, location: place.location ?? null, image: place.image ?? null, lifetime, startedAt, expiresAt: expiresAt ?? null, state: 'creating', serverId: null, sshKeyId: null, address: null };
+  lease = { schema: 'place-lease/1', provider: row.id, name, serverType: spec.size ?? null, location: spec.location ?? null, image: spec.image ?? null, lifetime, startedAt, expiresAt: expiresAt ?? null, state: 'creating', serverId: null, sshKeyId: null, address: null };
   // A machine the person already runs is adopted at its address; there is nothing to rent and nothing to delete later.
-  if (!row.base) { Object.assign(lease, { state: 'running', address: place.address, adopted: true }); save(file, lease); return lease; }
-  const base = { ...place, name, public_key: publicKey.trim(), fingerprint: fingerprintOf(publicKey) }, ctx = { ...base, ...fill(row.fill ?? {}, base) }, s = row.host, k = row.access_key;
+  if (!row.base) { Object.assign(lease, { state: 'running', address: spec.address, adopted: true }); save(file, lease); return lease; }
+  const base = { ...spec, name, public_key: publicKey.trim(), fingerprint: fingerprintOf(publicKey) }, ctx = { ...base, ...fill(row.fill ?? {}, base) }, s = row.host, k = row.access_key;
   const listed = async () => named(row, s, at(await ask(request, row, s, 'find', ctx), s.list_at), 'name', name);
   if ((await listed()).length) throw new Error('A machine with this name already exists without this lease; it was left untouched.');
   save(file, lease);
@@ -176,12 +176,12 @@ export async function releaseMachine({ request, file, provider }) {
 
 /** The size's monthly price at the lease's location: { cents, currency }, or null when the row reads none. */
 export async function readPrice({ request, provider, placement = {} }) {
-  const row = provider, place = { ...row.placement, ...placement };
-  if (!row.base) return Number.isSafeInteger(place.monthly_price_cents) ? { cents: place.monthly_price_cents, currency: place.currency ?? null } : null;
-  const p = row.price, prices = at(await ask(request, row, p, 'read', place), p.list_at);
-  const here = (Array.isArray(prices) ? prices : []).find(item => at(item, p.location_at) === place.location);
+  const row = provider, spec = { ...row.placement, ...placement };
+  if (!row.base) return Number.isSafeInteger(spec.monthly_price_cents) ? { cents: spec.monthly_price_cents, currency: spec.currency ?? null } : null;
+  const p = row.price, prices = at(await ask(request, row, p, 'read', spec), p.list_at);
+  const here = (Array.isArray(prices) ? prices : []).find(item => at(item, p.location_at) === spec.location);
   const monthly = Number(at(here, p.monthly_at));
-  if (!here || !Number.isFinite(monthly)) throw new Error(`${row.name} has no monthly price for ${place.size} at ${place.location}.`);
+  if (!here || !Number.isFinite(monthly)) throw new Error(`${row.name} has no monthly price for ${spec.size} at ${spec.location}.`);
   return { cents: Math.round(monthly * 100), currency: p.currency };
 }
 

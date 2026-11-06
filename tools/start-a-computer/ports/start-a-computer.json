@@ -7,11 +7,11 @@
     "quote": "Build a new Workshop tool start-a-place: makes and starts one Trillion place on this computer."
   },
   "mode": "NO_PRIOR_OWNER",
-  "job": "Make a Trillion place on this computer and start it: its key, its config and the running place",
+  "job": "Make this machine into a Trillion computer and start it: its key, its config and the running engine",
   "sources": [],
   "targets": [
     {
-      "path": "tools/start-a-place/do-work/start-a-place.mjs"
+      "path": "tools/start-a-computer/do-work/start-a-computer.mjs"
     }
   ],
   "preserve": [],
@@ -21,7 +21,7 @@
   "distinct_from": [
     {
       "repository": "trillion-workshop",
-      "path": "tools/start-a-place/",
+      "path": "tools/start-a-computer/",
       "why": "This tool itself: its README, rows and tests name the engine commands it runs."
     },
     {
@@ -37,37 +37,37 @@
     {
       "repository": "trillion-rust",
       "path": "src/main.rs",
-      "why": "The engine's command line: it parses `trillion-local serve PLACE_CONFIG` and runs one place from a config that already exists. It makes no key and writes no config; this tool makes both and then calls it."
+      "why": "The engine's command line: it parses `trillion-local serve PLACE_CONFIG` and runs one computer from a config that already exists. It makes no key and writes no config; this tool makes both and then calls it."
     },
     {
       "repository": "trillion-rust",
-      "path": "src/native_entry/place.rs",
-      "why": "The engine's place entry: it reads and checks a place config and serves it. It is what this tool's config is written for, and it creates nothing (no key, no folder, no config)."
+      "path": "src/native_entry/computer.rs",
+      "why": "The engine's computer entry: it reads and checks a computer config and serves it. It is what this tool's config is written for, and it creates nothing (no key, no folder, no config)."
     },
     {
       "repository": "trillion-rust",
-      "path": "src/native_entry/place/join.rs",
-      "why": "Adds a place to an account (`place id`, `send-root`, `freeze`, `join`) at a place whose config and key already exist; this tool calls its `place id` once and makes the config and key it reads."
+      "path": "src/native_entry/computer/join.rs",
+      "why": "Adds a computer to an account (`computer id`, `send-root`, `freeze`, `join`) at a computer whose config and key already exist; this tool calls its `computer id` once and makes the config and key it reads."
     },
     {
       "repository": "trillion-rust",
-      "path": "src/native_entry/place/signup.rs",
-      "why": "A sign-up at a running place; it reads the config's place key file, it does not make a place."
+      "path": "src/native_entry/computer/signup.rs",
+      "why": "A sign-up at a running computer; it reads the config's computer key file, it does not make a computer."
     },
     {
       "repository": "trillion-rust",
       "path": "src/account/create.rs",
-      "why": "Makes an account at a place (`account create PLACE_CONFIG`), not the place."
+      "why": "Makes an account at a computer (`account create PLACE_CONFIG`), not the computer."
     },
     {
       "repository": "trillion-rust",
       "path": "src/held_values/root.rs",
-      "why": "Reads a place key file (base64 on one line) into the vault root; it never makes one."
+      "why": "Reads a computer key file (base64 on one line) into the vault root; it never makes one."
     },
     {
       "repository": "trillion-rust",
       "path": "src/held_values/root.json",
-      "why": "The place key's size and file limit, read by root.rs; this tool's settings name the same size."
+      "why": "The computer key's size and file limit, read by root.rs; this tool's settings name the same size."
     },
     {
       "repository": "trillion-rust",
@@ -82,32 +82,32 @@
     {
       "repository": "trillion-rust",
       "path": "tests/place_router.rs",
-      "why": "The engine's own test place: a config and key written inside a Rust test for one process. Its values are this tool's defaults; it is not a tool a person runs."
+      "why": "The engine's own test computer: a config and key written inside a Rust test for one process. Its values are this tool's defaults; it is not a tool a person runs."
     },
     {
       "repository": "trillion-rust",
       "path": "docs/placement-decision/",
-      "why": "Status notes of the placement work that describe `trillion-local serve` and `place id`; words, not a way to make a place."
+      "why": "Status notes of the placement work that describe `trillion-local serve` and `computer id`; words, not a way to make a computer."
     },
     {
       "repository": "trillion-rust",
       "path": "docs/sign-in-port/G-door-cut-status.md",
-      "why": "A status note that says a place runs with no hosting app; words, not a way to make one."
+      "why": "A status note that says a computer runs with no hosting app; words, not a way to make one."
     }
   ],
   "proof": {
     "search": {
       "phrasings": [
-        "Make a Trillion place on this computer and start it: its key, its config and the running place",
-        "start trillion-local serve with a place config",
-        "write a place config and a place key file",
-        "start a place and print its place id with trillion-local place id"
+        "Make a Trillion computer on this computer and start it: its key, its config and the running computer",
+        "start trillion-local serve with a computer config",
+        "write a computer config and a computer key file",
+        "start a computer and print its computer id with trillion-local computer id"
       ],
       "capability_rows": [],
       "code_patterns": [
         "trillion-local serve",
-        "trillion-local place id",
-        "start-a-place|startAPlace",
+        "trillion-local computer id",
+        "start-a-computer|startAComputer",
         "place_key_file"
       ],
       "repositories": [
@@ -126,7 +126,7 @@
       ]
     },
     "test_refs": [
-      "tools/start-a-place/test/start-a-place.test.mjs"
+      "tools/start-a-computer/test/start-a-computer.test.mjs"
     ]
   }
 }

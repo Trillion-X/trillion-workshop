@@ -8,7 +8,8 @@
     "do-work/run-owned-process.mjs",
     "do-work/process-admission.mjs",
     "do-work/heavy-work.mjs",
-    "do-work/place-cache-folder.mjs",
-    "do-work/place-data-folder.mjs"
+    "do-work/computer-cache-folder.mjs",
+    "do-work/computer-data-folder.mjs",
+    "do-work/place-cache-folder.mjs"
   ]
 }

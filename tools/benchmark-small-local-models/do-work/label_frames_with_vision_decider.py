@@ -11,18 +11,18 @@ import json, sys, time, resource
 from pathlib import Path
 import torch
 from PIL import Image
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request(); MODEL = place.need(R, "model")
-V = place.snapshot(MODEL); DEV = place.device()
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request(); MODEL = computer.need(R, "model")
+V = computer.snapshot(MODEL); DEV = computer.device()
 sys.path.insert(0, str(V))
 from decider.vision import VisionDecisionModel
 from decider.infer import Example, Q
-FIELDS, values, DEFINE = place.vocabulary(R)
-MODE = place.need(R, "mode")
-QTEXT = place.need(R, "questions"); CONTEXT = place.need(R, "context")
+FIELDS, values, DEFINE = computer.vocabulary(R)
+MODE = computer.need(R, "mode")
+QTEXT = computer.need(R, "questions"); CONTEXT = computer.need(R, "context")
 missing = [f for f in FIELDS if f not in QTEXT]
-if missing: place.refuse(f"`questions` has no question for {', '.join(missing)}: give one per vocabulary field")
-S = place.shots_of(R)
+if missing: computer.refuse(f"`questions` has no question for {', '.join(missing)}: give one per vocabulary field")
+S = computer.shots_of(R)
 t0 = time.time(); m = VisionDecisionModel(str(V), grad_ckpt=False).to(DEV).eval(); load_s = time.time()-t0
 def opts(f): return [f"{v}: {DEFINE[f][v]}" if MODE == "defined" else v for v in values(f)]
 # decider-2b-vision reads at most 10 lettered options per question (prompt.LETTERS); larger fields run as a
@@ -46,7 +46,7 @@ for i, s in enumerate(S):
         j = max(range(len(vs)), key=p.__getitem__); win.setdefault(f, []).append((vs[j], p[j], vs, p))
     final = [(f, [w[0] for w in ws]) for f, ws in win.items() if len(ws) > 1]
     fp = dict(zip([f for f, _ in final], run(im, final))) if final else {}
-    place.sync(DEV); tt += time.time() - t
+    computer.sync(DEV); tt += time.time() - t
     row = {"i": i}
     for f, ws in win.items():
         if len(ws) == 1:
@@ -57,6 +57,6 @@ for i, s in enumerate(S):
         row[f"{f}|{MODE}"] = [vs[j] for j in order[:3]]; row[f"{f}|{MODE}|conf"] = round(p[order[0]], 4)
     out.append(row)
 meta = {"model": MODEL, "mode": MODE, "load_s": round(load_s,1), "ms_per_frame_all_fields": round(1000*tt/len(out)), "n": len(out),
-        "mps_GB": place.mps_gb(DEV), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
+        "mps_GB": computer.mps_gb(DEV), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
 print(meta)
-place.answer({"meta": meta, "rows": out})
+computer.answer({"meta": meta, "rows": out})
