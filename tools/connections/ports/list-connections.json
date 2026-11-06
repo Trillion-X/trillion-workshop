@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CONNECTIONS-LIST-CONNECTIONS",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "cloud job 2026-11-06: route owner port, the owner of a person's connected accounts",
+    "message_multihash": "1f:e8878333a2514edf8c2ba50ca819e1f15d520eedce27bd0c5ae304c5b2f4560a",
+    "quote": "Create tools/connections/ in the Workshop with tool:list-connections, ported one to one from the old owner and from what those engine files do for listing, over the records or door operations the connections actually live in."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/held-values.mjs",
+      "lines": [737, 740],
+      "multihash": "1f:e8878333a2514edf8c2ba50ca819e1f15d520eedce27bd0c5ae304c5b2f4560a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08T12:00:00Z",
+        "deleted_with": "old trillion 4ffa1dc4a2 (Retire old trillion's Worker and everything only it reached) already removed src/held-values.mjs from its main line"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/connections/do-work/list-connections.mjs"
+    }
+  ],
+  "preserve": [
+    "one row a connection, as the listing shows it (old connectionSummaryOf's fields), in connection id order",
+    "from the summary rows once every connection has one, from the facts until then: a connection is never left out of the list",
+    "a disconnected connection stays listed with can_send false",
+    "no value ever leaves: a row is the summary's own fields, never a record spread whole"
+  ],
+  "allowed_deltas": [
+    "the summary rows are the person's own `connection` records read through the records door, not the store's connection_summaries table",
+    "the facts of a connection with no record are what the account files door's held_connections says from the vault's names (its id and the fields it holds), made into a row by the old connectionSummaryOf (imported from tools/find-and-keep-my-connections, never copied); its status, connected_at, check and connected_by are not known there and are left out",
+    "the service's name for such a row comes from its descriptor in tools/connect-a-service-and-seal-its-key/records.json, as the old connect wrote it into the facts",
+    "a vault that cannot be read fails the list rather than answering it empty"
+  ],
+  "banned_substitutions": [
+    "a status, check or connection time said for a connection whose facts nobody kept",
+    "an empty list for a vault that could not be read"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-06T12:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e8878333a2514edf8c2ba50ca819e1f15d520eedce27bd0c5ae304c5b2f4560a",
+    "target_multihash_at_baseline": "1f:e8878333a2514edf8c2ba50ca819e1f15d520eedce27bd0c5ae304c5b2f4560a",
+    "commit": "64906524a2453ea1b40940f196cf4e13a296c10b"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/connections/test/list-connections.test.mjs a connection is listed by its id with can_send, and only the connection records and the held names are read",
+      "tools/connections/test/list-connections.test.mjs a check the service refused, and a disconnect, leave the connection listed with can_send false",
+      "tools/connections/test/list-connections.test.mjs until every held connection has its row the list answers from the facts: what the held names say, the rest unknown"
+    ]
+  }
+}

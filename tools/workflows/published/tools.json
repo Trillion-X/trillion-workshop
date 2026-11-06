@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:51e1b3acb9947fd7b7368d19b3349b7e757470cc06f886ead849a422ffaa02fd"
+  "blake3": "1f:370fd3122f54d816d144771928f394eaedfe189bcaded0e9fb8c92af69fa7587"
  },
  "fields": [
   {
@@ -5696,6 +5696,24 @@
      "placement:your-computer"
     ],
     "folder": "connected-drives"
+   }
+  },
+  {
+   "id": "tool:list-connections",
+   "values": {
+    "title": "List connections",
+    "job": "List the services this account is connected to, with each connection's status and when it was last checked",
+    "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records; a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it connects, checks and sends nothing, and shows no secret.",
+    "status": "active",
+    "maker": "maker:connections",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "connections",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {

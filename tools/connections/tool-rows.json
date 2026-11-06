@@ -1,0 +1,226 @@
+{
+  "kind": "tool-rows",
+  "record_set": "connections-tool-rows",
+  "what_this_is": "The Workshop rows of tools/connections: a person's connected accounts (old trillion's held-values connection owner, src/connection-summaries.mjs). Token refresh stays in the engine's running tools.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-connections",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:connections",
+        "placements": [
+          "placement:small-container"
+        ],
+        "needs": {
+          "expected_seconds": 3,
+          "network_egress": false
+        },
+        "read_only": true,
+        "label": "List connections",
+        "job": "List the services this account is connected to, with each connection's status and when it was last checked",
+        "description": "List the services this account is connected to, with each connection's status and when it was last checked. Returns connections: one row a connection in connection id order, { connection_id, service, vendor, account_label?, status?, can_send, connected_at?, grant_scopes_known, grant_scopes?, capabilityChoices?, last_checked?, connected_by? }, from the person's own connection records; a connection whose values the account holds and that has no record yet is listed from what its held names say (its id, service and vendor), its other facts left out as unknown. Reads only; it connects, checks and sends nothing, and shows no secret.",
+        "input_schema": {
+          "type": "object",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "connections"
+          ],
+          "properties": {
+            "connections": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "connection_id",
+                  "can_send",
+                  "grant_scopes_known"
+                ],
+                "properties": {
+                  "connection_id": {
+                    "type": "string"
+                  },
+                  "service": {
+                    "type": "string"
+                  },
+                  "vendor": {
+                    "type": "string"
+                  },
+                  "account_label": {
+                    "type": "string"
+                  },
+                  "status": {
+                    "type": "string"
+                  },
+                  "can_send": {
+                    "type": "boolean"
+                  },
+                  "connected_at": {
+                    "type": "string"
+                  },
+                  "grant_scopes_known": {
+                    "type": "boolean"
+                  },
+                  "grant_scopes": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "capabilityChoices": {
+                    "type": "object"
+                  },
+                  "last_checked": {
+                    "type": "object"
+                  },
+                  "connected_by": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/connections",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/connections/do-work/list-connections.mjs",
+            "listConnections"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "connections",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/connections"
+              },
+              {
+                "package": "find-and-keep-my-connections",
+                "paths": [
+                  "src/connection-records.mjs"
+                ],
+                "at": "/opt/find-and-keep-my-connections"
+              },
+              {
+                "package": "connect-a-service-and-seal-its-key",
+                "paths": [
+                  "records.json"
+                ],
+                "at": "/opt/connect-a-service-and-seal-its-key"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "connection",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "held_connections"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "provenance": {
+          "source": "trillion src/held-values.mjs heldValuesExecutor operation list (the row tool:list-connections, invoke held-values list) over src/connection-summaries.mjs and src/connection-records.mjs connectionSummaryOf, before 4ffa1dc4a2 (b6ae0ebf)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "records": [
+              {
+                "id": "connection:service_connection%3Astripe",
+                "type": "connection",
+                "value": {
+                  "connection_id": "service_connection:stripe",
+                  "service": "Stripe",
+                  "vendor": "stripe",
+                  "status": "connected",
+                  "can_send": true,
+                  "connected_at": "2026-10-01T09:00:00.000Z",
+                  "grant_scopes_known": false
+                }
+              }
+            ],
+            "file_answers": {
+              "held_connections": {
+                "connections": [
+                  {
+                    "connection_id": "service_connection:notion",
+                    "fields": [
+                      "api_key"
+                    ]
+                  },
+                  {
+                    "connection_id": "service_connection:stripe",
+                    "fields": [
+                      "secret_key"
+                    ]
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.result.connections.1.connection_id",
+            "contains": "service_connection:stripe"
+          }
+        ]
+      }
+    }
+  ]
+}
