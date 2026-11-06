@@ -15,7 +15,7 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -49,10 +49,9 @@ jobs:
       # the one every other browser test here drives, does not.
       - run: echo "WALK_BROWSER=$(node -e "console.log(require('playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
       # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg). Installed
-      # after Playwright's --with-deps, which has just read the package lists, so no second apt-get update (one took 28
-      # minutes on a slow mirror); skipped where the runner already has it.
-      - run: command -v ffmpeg || sudo apt-get install -y --no-install-recommends ffmpeg
-        timeout-minutes: 10
+      # after Playwright's --with-deps, which has just read the package lists, so no second apt-get update; skipped where
+      # the runner already has it. The Ubuntu mirror is sometimes slow (28 minutes once), so the job allows 60 minutes.
+      - run: command -v ffmpeg || sudo apt-get install -y --no-install-recommends -o Acquire::Retries=3 ffmpeg
       # Ubuntu 24.04 runners forbid unprivileged user namespaces (AppArmor), which Chrome's own sandbox is built on, so
       # the runner's /usr/bin/google-chrome that walk-through-an-app and its kin find first stops at start with a crash
       # dump. Allowing them lets the browser start with its sandbox on, as it does on a person's computer.
