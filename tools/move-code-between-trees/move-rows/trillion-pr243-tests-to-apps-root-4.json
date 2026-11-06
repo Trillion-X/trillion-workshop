@@ -1,0 +1,45 @@
+{
+ "id": "move:trillion-pr243-tests-to-apps-root-4",
+ "about": "Tests Trillion-X/trillion PR #243 (4ffa1dc4a2) deleted with no home and no port-backlog row whose code is home in trillion-apps and trillion-workshop, but whose Workshop files came after the trillion-workshop commit trillion-apps pinned (e9bc8eab); trillion-apps now pins trillion-workshop d533b90 in the same change. Carried byte for byte from 1e886c3f68 into trillion-apps test/ (old trillion's root paths, src/ and parts/) and web/test/ (whose test help reads scripts/ by path from web/), importing what is home in the Workshop through the trillion-workshop package (homes_in_packages), never a second copy; only a test with no failure by name that passes at the tag stays. trillion-workshop docs/pr243-deleted-tests.json lists every such test and where it went.",
+ "source": {
+  "name": "Trillion-X/trillion",
+  "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+  "test_folders": [
+   "test"
+  ]
+ },
+ "destination": {
+  "name": "Trillion-X/trillion-apps",
+  "package": "trillion-apps",
+  "shared_folder": "."
+ },
+ "homes_in_packages": [
+  {
+   "from": "src/keep-running.mjs",
+   "home": "trillion-workshop/tools/run-rules-and-schedules-by-themselves/src/keep-running.mjs",
+   "source_identity": "1f:9325e13de4ec0f23c0ff4a52b85aa4b26d49a3a70d1fa9482059e9e03787eafa"
+  },
+  {
+   "from": "src/steps-ais-leave.mjs",
+   "home": "trillion-workshop/tools/check-that-everything-waiting-on-a-person-reaches-them/from-old-trillion/src/steps-ais-leave.mjs",
+   "source_identity": "1f:52fd1338874736d68b17b8da45713c5729c3ba29438bf2a7de2bfcd0df01fa6f"
+  }
+ ],
+ "groups": [
+  {
+   "id": "tests-of-root",
+   "owner": [
+    "test/keep-running-record-clock.test.mjs",
+    "test/steps-ais-leave-equal-time-progress.test.mjs"
+   ],
+   "to": "."
+  },
+  {
+   "id": "tests-of-web",
+   "owner": [
+    "test/record-log-multipart-replay-stream.test.mjs"
+   ],
+   "to": "web"
+  }
+ ]
+}
