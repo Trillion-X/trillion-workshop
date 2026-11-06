@@ -1,0 +1,6 @@
+{
+  "_what": "Where tool:list-connections (do-work/list-connections.mjs) reads a person's connections. record_type is the kind of record a connection's summary row is kept as (the person's own `connection` records, id `connection:` + the connection id encoded as a URL component, the same records tools/social-posts reads by its connection_type). held_operation is the account files door's read of which connections hold values in the account's vault, by the names alone (trillion-rust src/account_files/account-files-routes.json `held_connections`). connection_id_prefix is how a connection id begins, `service_connection:<vendor>` or `service_connection:<vendor>:<account>` (tools/connect-a-service-and-seal-its-key read-data/read-service-connection-options.ts deriveConnectionInstanceId; trillion-rust src/tool_runs/tools.rs connection_of), so a connection with no record is named by its vendor.",
+  "record_type": "connection",
+  "held_operation": "held_connections",
+  "connection_id_prefix": "service_connection:"
+}
