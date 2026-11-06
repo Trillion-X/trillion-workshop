@@ -18,12 +18,25 @@ function filesUnder(dir, keep) {
   });
 }
 
+// Old trillion's computer/ moved whole, paths kept, to tools/run-on-a-persons-computer/ (a9ee2580); a computer/*.json
+// moved on from there to the tool folder that owns it is the `to` of a tools/*/moved-from.json receipt whose `from` is
+// computer/<name>.json. Those are the computer JSON now.
+function computerJson() {
+  const repo = fileURLToPath(new URL('../../../', import.meta.url));
+  const computer = join(repo, 'tools', 'run-on-a-persons-computer');
+  const receipts = filesUnder(join(repo, 'tools'), path => path.endsWith('moved-from.json') && !path.includes('node_modules'));
+  const movedOn = receipts.flatMap(path => JSON.parse(readFileSync(path, 'utf8')).files ?? [])
+    .filter(row => /^computer\/[^/]+\.json$/.test(row.from ?? '')).map(row => join(repo, row.to));
+  assert.ok(movedOn.length > 0, 'no receipt names a home for computer/*.json');
+  return [...new Set([...readdirSync(computer).filter(name => name.endsWith('.json') && name !== 'moved-from.json').map(name => join(computer, name)), ...movedOn])];
+}
+
 test('no former tool, agent, prefix or configuration id remains in records, src or the computer JSON', () => {
   const table = join(ROOT, 'src', 'renamed-tools.json');
   const scanned = [
     ...filesUnder(join(ROOT, 'records'), path => /\.(json|mjs)$/.test(path)),
     ...filesUnder(join(ROOT, 'src'), path => /\.(json|mjs)$/.test(path) && path !== table),
-    ...readdirSync(join(ROOT, 'computer')).filter(name => name.endsWith('.json')).map(name => join(ROOT, 'computer', name)),
+    ...computerJson(),
   ];
   const hits = [];
   for (const path of scanned) {
