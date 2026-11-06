@@ -12,14 +12,18 @@
 // descriptor 3 only: git reads it through a credential helper that reads that descriptor, so it never reaches argv,
 // a file, the environment, a log or the answer.
 //
-// usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | make-key KEY_FILE | public-key KEY_FILE
+// `accept` takes another builder's signed entry, for that builder's own target, into this same feed (`accept` below):
+// one feed holds every target, and a target is only the entry's data.
+//
+// usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | accept REQUEST_FILE ENTRY_FILE BODY_FILE
+//        | make-key KEY_FILE | public-key KEY_FILE
 import { closeSync, createReadStream, createWriteStream, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { addRelease, checkCommit, checkTarget, mayPublish, newSigningKey, publicKeyHex, readFeed, settings, signEntry } from './release-feed.mjs';
+import { addRelease, checkCommit, checkEntry, checkTarget, mayPublish, newSigningKey, publicKeyHex, readFeed, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const absolute = (path, what) => {
@@ -111,18 +115,21 @@ export function makeKey(file) {
   return { public_key: publicKeyHex(readSigningKey(file)), made: false };
 }
 
-/** Hold the feed folder's lock while `work` runs; a lock left by a process that is gone is taken over. */
-export async function withFeedLock(feedFolder, work) {
-  const lock = join(feedFolder, '.publish.lock');
-  for (let tries = 0; ; tries++) {
+/** Hold the feed folder's lock while `work` runs; a lock left by a process that is gone is taken over, and one a live
+ *  process holds (another target's publish or accept adding its entry) is waited for, at most `feed_lock_wait_ms`. */
+export async function withFeedLock(feedFolder, work, waitMs = settings.feed_lock_wait_ms) {
+  const lock = join(feedFolder, '.publish.lock'), until = Date.now() + waitMs;
+  for (;;) {
     try { const fd = openSync(lock, 'wx', 0o600); writeSync(fd, String(process.pid)); closeSync(fd); break; }
     catch (error) {
-      if (error.code !== 'EEXIST' || tries > 1) throw refuse(`The feed is locked by ${lock}: another publish is running; if none is, remove that file.`);
-      const holder = Number(readFileSync(lock, 'utf8'));
+      if (error.code !== 'EEXIST') throw refuse(`The feed's lock ${lock} could not be made: ${error.message}`);
+      let holder = NaN;
+      try { holder = Number(readFileSync(lock, 'utf8')); } catch { continue; /* the holder just let go */ }
       let alive = false;
       try { process.kill(holder, 0); alive = true; } catch (gone) { alive = gone.code === 'EPERM'; }
-      if (alive) throw refuse(`Another publish (process ${holder}) holds the feed's lock: wait for it to finish.`);
-      rmSync(lock, { force: true });
+      if (!alive) { rmSync(lock, { force: true }); continue; }
+      if (Date.now() >= until) throw refuse(`Another publish (process ${holder}) holds the feed's lock: wait for it to finish.`);
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
   try { return await work(); } finally { rmSync(lock, { force: true }); }
@@ -173,6 +180,49 @@ export async function publish(request, { token = '', commit: asked } = {}) {
   const { content, bytes } = packRelease({ program, source, file: part });
   const entry = signEntry({ commit, sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent }, privateKey);
 
+  return addUnderLock({ request, feedFolder, entry, part, file, publicKey });
+}
+
+/**
+ * Take one signed entry another builder made for its own target into this builder's feed. The other builder (one per
+ * target: a computer of that target, or a hosted runner of it) built the same commit with the same release identity,
+ * packed it the same way (`packRelease`) and signed the entry with its own key (contribute-an-engine-release.mjs);
+ * `body` is the tar.gz bytes. The entry is taken only when its signature is by a key in the config's
+ * `accept_entries_from`, its commit is on the branch's first-parent line at the entry's sequence (fetched here, into
+ * its own folder, so a build running meanwhile is untouched), its sequence is newer than the feed's for its target,
+ * and the body's length and BLAKE3 are the entry's. It is then signed again with this builder's key and served from
+ * this feed, so every computer's existing `public_keys` (the Mac app's carried ones too) take it with no config or app
+ * change: this builder vouches for what an accepted key signed. Anything else is refused and the feed is unchanged.
+ */
+export async function accept(request, { token = '', entry: offered, body } = {}) {
+  const { repository, branch } = request;
+  const accepted = request.accept_entries_from ?? [];
+  if (!Array.isArray(accepted) || !accepted.length || !accepted.every(key => /^[0-9a-f]{64}$/.test(key))) throw refuse('The config accepts no other builder\'s entries: accept_entries_from must list their Ed25519 public keys as 64 hex (install takes them).', 2);
+  if (typeof request.base_url !== 'string' || !/^https:\/\/[^/]+\/.*\/$/.test(request.base_url)) throw refuse('base_url must be the https address the feed folder is served at, ending in /.', 2);
+  if (!Buffer.isBuffer(body)) throw refuse('accept needs the release body, the tar.gz bytes.', 2);
+  const work = absolute(request.work_folder, 'work_folder'), feedFolder = absolute(request.feed_folder, 'feed_folder');
+  const privateKey = readSigningKey(absolute(request.key_file, 'key_file')), publicKey = publicKeyHex(privateKey);
+  const { signature, url: _theirs, ...fields } = offered ?? {};
+  const commit = checkCommit(fields.commit), target = checkTarget(fields.target);
+  const candidate = checkEntry({ ...fields, url: `${request.base_url}${commit}/${target}.tar.gz`, signature });
+  if (!signerOf(candidate, accepted)) throw refuse(`The entry for ${commit} (${target}) is not signed by a key in accept_entries_from: release_signature_refused.`, 3);
+  mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
+  const source = join(work, 'verify-source');
+  await fetchRepository({ repository, branch, source, token });
+  const sequence = await sequenceOf({ source, branch, commit });
+  if (sequence !== candidate.sequence) throw refuse(`The entry says ${commit} is sequence ${candidate.sequence}, but it is ${sequence} on ${branch}'s first-parent line.`, 3);
+  const before = mayPublish(readFeed(readText(feedFile(feedFolder))), candidate);
+  if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: readFeed(readText(feedFile(feedFolder))).releases.length });
+  if (body.length !== candidate.bytes || makeHashCodeHexFromBytes(body) !== candidate.content) throw refuse(`The body sent for ${commit} (${target}) is not the entry's content: release_content_mismatch.`, 3);
+  const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
+  mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
+  writeFileSync(part, body, { mode: 0o644 });
+  const { signature: _offered, ...unsigned } = candidate;
+  return addUnderLock({ request, feedFolder, entry: signEntry(unsigned, privateKey), part, file, publicKey });
+}
+
+/** Add a signed entry whose tar.gz is at `part` to the feed under its lock, and remove what no longer fits. */
+async function addUnderLock({ request, feedFolder, entry, part, file, publicKey }) {
   return withFeedLock(feedFolder, async () => {
     const now = readFeed(readText(feedFile(feedFolder)));
     let result;
@@ -220,11 +270,14 @@ export async function privateInput(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, ...rest] = process.argv.slice(2);
-  const usage = 'usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] (repository token on fd 3) | make-key KEY_FILE | public-key KEY_FILE';
+  const usage = 'usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | accept REQUEST_FILE ENTRY_FILE BODY_FILE (repository token on fd 3) | make-key KEY_FILE | public-key KEY_FILE';
   try {
     let answer;
     if (operation === 'publish' && first && (rest.length === 0 || (rest.length === 2 && rest[0] === '--commit'))) {
       answer = await publish(readRequest(resolvePath(first)), { token: await privateInput(3), commit: rest[1] });
+    } else if (operation === 'accept' && first && rest.length === 2) {
+      const entry = JSON.parse(readFileSync(resolvePath(rest[0]), 'utf8'));
+      answer = await accept(readRequest(resolvePath(first)), { token: await privateInput(3), entry, body: readFileSync(resolvePath(rest[1])) });
     } else if (operation === 'make-key' && first && rest.length === 0) answer = makeKey(resolvePath(first));
     else if (operation === 'public-key' && first && rest.length === 0) answer = { public_key: existsSync(resolvePath(first)) ? publicKeyHex(readSigningKey(resolvePath(first))) : null };
     else throw refuse(usage, 2);
