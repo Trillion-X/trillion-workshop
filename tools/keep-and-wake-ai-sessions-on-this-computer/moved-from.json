@@ -3230,6 +3230,14 @@
       "source_identity": "1f:0a5bd32c37ea71ddce089233df6469d70dc959a6d7e7c09169e6d92c58a3adb5",
       "identity": "1f:e6eee1f56f0f799962bf06e1b354082adb7eac5f3284856fac5a7f713b73b5f8",
       "adapted": "hand-work-to-ais agentRecordStore's wake index over this tool's record-log store; the retired own-AI routing's answers (runner().nextDue, its pages) are left out, so the first test runs a fixed number of cold wakes"
+    },
+    {
+      "from": "test/configuration-sharing.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/configuration-sharing.test.mjs",
+      "source_identity": "1f:153c1c5a98c736edcb69dc6c6b265f3808df333ae377c8377248fe8252fc62e3",
+      "identity": "1f:60af27f5d73d186c4367fcaed9cdfedd1b93054a9639dd445acaca11e2f4042f",
+      "adapted": "the receiver refusal test over this tool's handleConfigurationsRequest with a stand-in receiver, and the connection metadata test over write-public-share-files' shareableCopy with the old connection rule; the eleven record-sharing owner tests are left out, as no running code admits configuration links"
     }
   ]
 }
