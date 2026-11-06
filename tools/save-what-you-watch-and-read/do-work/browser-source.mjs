@@ -10,11 +10,16 @@
 //   - The browser this run started ends with the run.
 //   - No answer from X's list within `seconds_to_first_page` is an error that names what was seen, never an empty result.
 import { spawn } from 'node:child_process';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { conventions, listFor } from './saved-source.mjs';
 import { postsIn } from './x-posts.mjs';
+
+// The quiet switches (trillion-workshop/tools/headless-browser/quiet-switches.json) go first on every browser this run starts,
+// so macOS never asks for the login keychain; the tool row carries the file to /opt/headless-browser beside this folder.
+const quietSwitches = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '../../headless-browser/quiet-switches.json'), 'utf8')).switches;
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
 
@@ -40,7 +45,7 @@ export function findBrowser(asked) {
 /** Starts the browser on the person's profile folder; answers its DevTools address and how to end it. */
 function startBrowser(executable, profileDir) {
   const { browser } = conventions;
-  const child = spawn(executable, [...browser.switches, '--remote-debugging-port=0', `--user-data-dir=${profileDir}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const child = spawn(executable, [...quietSwitches, ...browser.switches, '--remote-debugging-port=0', `--user-data-dir=${profileDir}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const end = () => { try { child.kill('SIGKILL'); } catch { /* already ended */ } };
   process.once('exit', end);
   return new Promise((found, failed) => {
@@ -153,7 +158,7 @@ export function signIn(request) {
   if (!request.profile_dir) throw new Error('profile_dir must be the browser profile folder to sign in to X with.');
   const executable = findBrowser(request.browser?.executable);
   const switches = browser.switches.filter(name => !name.startsWith('--headless'));
-  const child = spawn(executable, [...switches, `--user-data-dir=${request.profile_dir}`, page], { stdio: 'ignore' });
+  const child = spawn(executable, [...quietSwitches, ...switches, `--user-data-dir=${request.profile_dir}`, page], { stdio: 'ignore' });
   return new Promise((done, failed) => {
     child.on('error', error => failed(new Error(`The browser ${executable} could not start: ${error.message}`)));
     child.on('exit', () => done());

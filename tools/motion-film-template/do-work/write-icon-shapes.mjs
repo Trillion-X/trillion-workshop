@@ -1,4 +1,4 @@
-// Writes assets/js/icons.js: the real lucide icon shapes (lucide-react 1.26.0 in the Trillion checkout this place reports, TRILLION_CHECKOUT) for every icon the
+// Writes assets/js/icons.js: the real lucide icon shapes (lucide-react 1.26.0 in the Trillion checkout this computer reports, TRILLION_CHECKOUT) for every icon the
 // slides use, as window.ICONS[name] = [[tag, attrs], ...] for a 24x24 viewBox. usage: node build-icons.mjs
 //
 // tools/motion-film-template/do-work/write-icon-shapes.mjs: the film's build-icons.mjs with what it fixed taken from
@@ -19,7 +19,7 @@ export function iconShapes(src, n) {
 export function iconsFile({ icons_dir, names, note = 'lucide-react (ISC)', by = 'tools/motion-film-template write-icon-shapes' }) {
   let dir = icons_dir;
   if (!dir && process.env.TRILLION_CHECKOUT) {
-    const LUCIDE = path.join(process.env.TRILLION_CHECKOUT, 'node_modules/lucide-react/dist/esm/icons');      // in the Trillion checkout this place reports
+    const LUCIDE = path.join(process.env.TRILLION_CHECKOUT, 'node_modules/lucide-react/dist/esm/icons');      // in the Trillion checkout this computer reports
     dir = LUCIDE;
   }
   const LUCIDE = dir;

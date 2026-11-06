@@ -1,12 +1,12 @@
 # process-session
 
-## Build and test admission on each place
+## Build and test admission on each computer
 
-`do-work/heavy-work.mjs` owns one cache-backed heavy-work slot per place, shared by
-all Trillion checkouts on that place. Its queue lives in the place's cache folder
-(`do-work/place-cache-folder.mjs`: `$XDG_CACHE_HOME/trillion`, or
-`~/.cache/trillion`), the same rule on every place; nothing asks what kind of
-place it runs on. `runHeavyProcess` runs already-authorized argv through
+`do-work/heavy-work.mjs` owns one cache-backed heavy-work slot per computer, shared by
+all Trillion checkouts on that computer. Its queue lives in the computer's cache folder
+(`do-work/computer-cache-folder.mjs`: `$XDG_CACHE_HOME/trillion`, or
+`~/.cache/trillion`), the same rule on every computer; nothing asks what kind of
+computer it runs on. `runHeavyProcess` runs already-authorized argv through
 the existing bounded process lifetime; `enterHeavyWork` guards a canonical CLI
 before dependencies, builds, checks or build-output mutation. The canonical test,
 build, local publication/deploy and native release entries use it. Native release

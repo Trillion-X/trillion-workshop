@@ -28,7 +28,7 @@
  ],
  "preserve": [
   "a drop-in for mlx_whisper.transcribe(path, path_or_hf_repo=..., **options) that answers mlx_whisper's shape from every engine, and says which engine made it in result[\"engine\"]",
-  "WHISPER_BACKEND=mlx|faster|openai picks one; an unknown one is refused with the ones to use; otherwise the first that imports, in the order mlx, faster, openai; a place with none is told what to install",
+  "WHISPER_BACKEND=mlx|faster|openai picks one; an unknown one is refused with the ones to use; otherwise the first that imports, in the order mlx, faster, openai; a computer with none is told what to install",
   "the model name is mapped from an mlx-community repo to the plain Whisper name for faster-whisper and openai-whisper",
   "verbose is dropped; mlx gets every other option; the other engines get only the options they take; a temperature tuple becomes a list for faster-whisper",
   "faster-whisper's segments carry words only when word times were asked; its device is WHISPER_DEVICE, else auto"

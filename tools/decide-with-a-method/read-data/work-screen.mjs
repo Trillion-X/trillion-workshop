@@ -4,7 +4,7 @@
 //   The Decisions/Home screen read, as one Workshop row (tool:see-my-decisions): the person's newest decisions as
 //   summaries (with the pursuits each cites and how far each has got), their current pursuits as the tree they nest
 //   into, their newest plans, what helped them (or, for one bounded page, the facts it is counted from), and the access
-//   and allowance their place reports. Moved from the old app (trillion d273ef3): src/native-work-screen.mjs whole,
+//   and allowance their computer reports. Moved from the old app (trillion d273ef3): src/native-work-screen.mjs whole,
 //   with the parts it called: src/check-uses.mjs (checkUses, helpedItem, whatHelpedOf), src/decision-store.mjs
 //   (carriedOut, decidedSummary, summaryOf, summariesOf), src/work-progress.mjs (progressFromSteps), src/record-scope.mjs
 //   (linksOf, choiceLinks, scopePursuitTree), src/allowance.mjs (decisionLimit, pursuitsWords), src/engine.mjs
@@ -17,7 +17,7 @@
 //   2. A bounded page says so: collection_coverage names the limit and whether more decisions, pursuits or plans exist.
 //      Full-history statistics are never approximated from a page.
 //   3. A decision's status and result are decision-outcome.mjs's, the same projection the decision tools write by.
-//   4. Access and allowance are what the caller's place reports (input.access, input.allowance). Nothing here invents
+//   4. Access and allowance are what the caller's computer reports (input.access, input.allowance). Nothing here invents
 //      a limit, a meter or a refusal: no access reported is no limit.
 //   5. The words and numbers are DATA: work-screen.json, decision-progress.json and what-helped-words.json.
 //
@@ -413,7 +413,7 @@ export async function seeMyDecisions(input = {}, { door }) {
   if (input.access !== undefined && !(object(input.access) && Array.isArray(input.access.capabilities) && (input.access.limits === undefined || object(input.access.limits)))) throw new Error(screen.words.access);
   if (input.allowance !== undefined && !(object(input.allowance) && Number.isInteger(input.allowance.count) && typeof input.allowance.per === 'string' && Number.isInteger(input.allowance.used))) throw new Error(screen.words.allowance);
   if (input.space_pursuits !== undefined && !Array.isArray(input.space_pursuits)) throw new Error(screen.words.space_pursuits);
-  // Access the caller's place reports; none reported is no limit (nothing here invents one).
+  // Access the caller's computer reports; none reported is no limit (nothing here invents one).
   const access = input.access ?? { capabilities: [], limits: {} };
   const limit = screen.limit;
   const held = new Map();

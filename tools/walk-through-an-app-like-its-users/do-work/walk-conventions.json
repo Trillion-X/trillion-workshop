@@ -20,7 +20,8 @@
     ],
     "switches": [
       "--headless=new", "--use-mock-keychain", "--password-store=basic", "--no-first-run", "--no-default-browser-check",
-      "--disable-gpu", "--hide-scrollbars", "--mute-audio", "--disable-dev-shm-usage", "--force-color-profile=srgb"
+      "--disable-gpu", "--hide-scrollbars", "--mute-audio", "--disable-dev-shm-usage", "--force-color-profile=srgb",
+      "--disable-background-networking", "--disable-component-update"
     ],
     "start_seconds": 30,
     "answer_seconds": 60

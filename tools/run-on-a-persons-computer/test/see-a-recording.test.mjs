@@ -49,7 +49,7 @@ test('a sound has a waveform and no still; a file with nothing to see answers nu
   assert.equal(await seeWith({ program: '/bin/see-it', probe: 'probe-it', sizes }, 'notes.bin', nothing), null);
 });
 
-// With the program this place has (the folders the row names, then the place's own PATH), a real clip is seen end to end.
+// With the program this computer has (the folders the row names, then the place's own PATH), a real clip is seen end to end.
 const found = programIn(rows.seeing[0].search_path, rows.seeing[0].check[0]);
 test('a real clip is seen by the program on this computer', { skip: !found && 'no seeing program here' }, async () => {
   const folder = mkdtempSync(join(tmpdir(), 'seen-'));

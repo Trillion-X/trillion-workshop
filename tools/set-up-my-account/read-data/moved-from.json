@@ -41,8 +41,10 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/set-up-my-account/read-data/platform-failures.json",
       "source_identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
-      "identity": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
-      "reused": true
+      "reused": true,
+      "identity_at_move": "1f:ff05d10f2ec52e296ee5bb07efdbc630b106d7645b7a38ac3f84298ea102db68",
+      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
+      "changed": true
     },
     {
       "from": "src/setup-access.json",
