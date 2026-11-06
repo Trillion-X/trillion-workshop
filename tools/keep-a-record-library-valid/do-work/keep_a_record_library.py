@@ -14,6 +14,9 @@
   finalize-page-journal ...           join a manifest, an extraction readback and page notes into a pinned journal
   validate-page-journal JOURNAL       recheck every join and identity of a finalized journal
   locate-quote ...                    where a literal quote occurs, once, in a transcript and a JSON3 caption file
+  gate, answer, answer-from-render-check, sweep, content-gates, audition-gates, audit-watch, scope-options
+                                      the delivery checklist gate (do-work/delivery_gate_commands.py, README "The delivery gate")
+  measure-reference VIDEO OUT ...     measure one reference video (do-work/measure-reference.sh); one JSON line
 
 `--library DIR` is the library root and `--schema FILE` the JSON file that names the library's files, checks, builders and
 settings (see the README); `locate-quote` and `frame-pages` need neither. A recorded answer establishes structure and file
@@ -30,17 +33,19 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'read-data'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))      # python -I leaves the script's own folder off the path
 
 import adoption  # noqa: E402
 import checks  # noqa: E402
+import delivery_gate_commands as gate_commands  # noqa: E402
 import derived_data  # noqa: E402
 import frame_evidence  # noqa: E402
 import investigation  # noqa: E402
 import quote_locator  # noqa: E402
 from library import PROGRAM, Store, read_json  # noqa: E402
 
-WRITERS = ('start', 'evidence', 'finding')
-NEEDS_LIBRARY = ('validate', 'rebuild-data', 'start', 'next', 'evidence', 'finding', 'progress', 'adopt-window')
+WRITERS = ('start', 'evidence', 'finding', *gate_commands.LOCKED)
+NEEDS_LIBRARY = ('validate', 'rebuild-data', 'start', 'next', 'evidence', 'finding', 'progress', 'adopt-window', *gate_commands.COMMANDS)
 
 
 def pair(text: str) -> tuple[str, str]:
@@ -56,7 +61,14 @@ def build_parser() -> argparse.ArgumentParser:
     ap.add_argument('--schema', type=Path, help='the schema file')
     ap.add_argument('--input', action='append', default=[], type=pair, metavar='NAME=PATH',
                     help='a file a builder reads that is not in the library, such as a database (repeatable); a builder whose input is not given is not checked')
+    ap.add_argument('--scope', action='append', default=[], type=pair, metavar='KIND=ID', help='when --schema holds several list:settings rows: the scope to read, most specific first')
+    gate_commands.add_options(ap)
     sub = ap.add_subparsers(dest='cmd', required=True)
+    gate_commands.add_commands(sub)
+    mr = sub.add_parser('measure-reference', help='Measure one reference video; every program is an argument (do-work/measure-reference.sh)')
+    mr.add_argument('video', type=Path)
+    mr.add_argument('out', type=Path)
+    mr.add_argument('programs', nargs=argparse.REMAINDER, help='--hf-media P --motion-tools DIR --earshot-python P [--ffprobe P] [--node P] [--pages-python P] [--earshot-threads N]')
     sub.add_parser('validate')
     rb = sub.add_parser('rebuild-data')
     rb.add_argument('--out', type=Path, help='Write here, under each output\'s own relative path, instead of the library')
@@ -142,7 +154,7 @@ def profile_of(a: argparse.Namespace) -> dict:
 
 
 def run_library(a: argparse.Namespace):
-    store = Store(a.library, a.schema)
+    store = Store(a.library, a.schema, list(a.scope))
     with contextlib.ExitStack() as stack:
         if a.cmd in WRITERS:
             stack.enter_context(store.lock())
@@ -162,6 +174,8 @@ def dispatch(store: Store, a: argparse.Namespace):
         return investigation.progress(store, a.piece)
     if a.cmd == 'rebuild-data':
         return rebuild(store, a)
+    if a.cmd in gate_commands.COMMANDS:
+        return gate_commands.run(store, a)
     if a.cmd == 'adopt-window':
         profile = adoption.check_profile(adoption_profile(store))
         frame_evidence.check_profile(profile['frame_evidence'])
@@ -195,6 +209,10 @@ def run_frames(a: argparse.Namespace):
 def main(argv: list[str] | None = None) -> int:
     a = build_parser().parse_args(argv)
     try:
+        if a.cmd == 'measure-reference':
+            run = subprocess.run(['sh', str(Path(__file__).with_name('measure-reference.sh')), str(a.video), str(a.out), *a.programs], stdout=subprocess.PIPE, text=True)
+            print(run.stdout.strip().splitlines()[-1] if run.stdout.strip() else '', end='\n' if run.stdout.strip() else '')
+            return run.returncode
         if a.cmd in NEEDS_LIBRARY:
             if not a.library or not a.schema:
                 raise ValueError(f'{a.cmd} needs --library and --schema')

@@ -1,0 +1,379 @@
+{
+ "about": "A made-up delivery checklist for the tests of keep-a-record-library-valid.",
+ "publish_phase": [
+  "S9.4"
+ ],
+ "after_phase": [],
+ "delivery_stages": {
+  "review": "an option shown to the person so they can pick it",
+  "final": "content placed, released or published"
+ },
+ "default_delivery_stage": "final",
+ "stages": [
+  {
+   "id": "S1",
+   "name": "Capture",
+   "checks": [
+    {
+     "id": "S1.1",
+     "check": "The raw recording is kept unchanged.",
+     "routes": "rec, film",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    }
+   ]
+  },
+  {
+   "id": "S5",
+   "name": "Picture",
+   "checks": [
+    {
+     "id": "S5.1",
+     "check": "The overlay lint has 0 errors.",
+     "routes": "hf",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S5.2",
+     "check": "The picture renders in every aspect the header names.",
+     "routes": "video, long",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S5.R01",
+     "check": "Rule `type-face-matches` holds for this option",
+     "routes": "video,long",
+     "verify": "the type-face-matches evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "type-face-matches",
+     "rule": "The made-up rule type-face-matches."
+    },
+    {
+     "id": "S5.R02",
+     "check": "Rule `synthetic-569701d9aae3` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-569701d9aae3 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-569701d9aae3",
+     "rule": "The made-up rule synthetic-569701d9aae3."
+    },
+    {
+     "id": "S5.R16",
+     "check": "Rule `paper-varies` holds for this option",
+     "routes": "video,long",
+     "verify": "the paper-varies evidence",
+     "kind": "tool output",
+     "must": false,
+     "per_option": true,
+     "rule_id": "paper-varies",
+     "rule": "The made-up rule paper-varies."
+    },
+    {
+     "id": "S5.R19",
+     "check": "Rule `in-frame` holds for this option",
+     "routes": "video,long",
+     "verify": "the render check in-frame",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "in-frame",
+     "rule": "The made-up rule in-frame."
+    },
+    {
+     "id": "S5.R22",
+     "check": "Rule `synthetic-a60dff45ac9e` holds for this option",
+     "routes": "video,long",
+     "verify": "the render check joins",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-a60dff45ac9e",
+     "rule": "The made-up rule synthetic-a60dff45ac9e."
+    },
+    {
+     "id": "S5.R30",
+     "check": "Rule `synthetic-d2b312484419` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-d2b312484419 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-d2b312484419",
+     "rule": "The made-up rule synthetic-d2b312484419."
+    },
+    {
+     "id": "S5.R31",
+     "check": "Rule `synthetic-c6d8973b2edf` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-c6d8973b2edf evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-c6d8973b2edf",
+     "rule": "The made-up rule synthetic-c6d8973b2edf."
+    },
+    {
+     "id": "S5.R32",
+     "check": "Rule `synthetic-4b111b631333` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-4b111b631333 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-4b111b631333",
+     "rule": "The made-up rule synthetic-4b111b631333."
+    },
+    {
+     "id": "S5.R33",
+     "check": "Rule `synthetic-bcc8a5f2f6a9` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-bcc8a5f2f6a9 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-bcc8a5f2f6a9",
+     "rule": "The made-up rule synthetic-bcc8a5f2f6a9."
+    },
+    {
+     "id": "S5.R34",
+     "check": "Rule `synthetic-7c28b96947fd` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-7c28b96947fd evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-7c28b96947fd",
+     "rule": "The made-up rule synthetic-7c28b96947fd."
+    },
+    {
+     "id": "S5.R35",
+     "check": "Rule `synthetic-95a047928cc3` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-95a047928cc3 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-95a047928cc3",
+     "rule": "The made-up rule synthetic-95a047928cc3."
+    },
+    {
+     "id": "S5.R36",
+     "check": "Rule `synthetic-99c2095c6735` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-99c2095c6735 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-99c2095c6735",
+     "rule": "The made-up rule synthetic-99c2095c6735."
+    },
+    {
+     "id": "S5.R40",
+     "check": "Rule `synthetic-73042df8cd3b` holds for this option",
+     "routes": "video+people,long+people",
+     "verify": "the synthetic-73042df8cd3b evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-73042df8cd3b",
+     "rule": "The made-up rule synthetic-73042df8cd3b."
+    },
+    {
+     "id": "S5.R43",
+     "check": "Rule `synthetic-fbd6706137ae` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-fbd6706137ae evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-fbd6706137ae",
+     "rule": "The made-up rule synthetic-fbd6706137ae."
+    },
+    {
+     "id": "S5.R53",
+     "check": "Rule `synthetic-9fb8b6e064f4` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-9fb8b6e064f4 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-9fb8b6e064f4",
+     "rule": "The made-up rule synthetic-9fb8b6e064f4."
+    },
+    {
+     "id": "S5.R55",
+     "check": "Rule `system-catches-before-the-person` holds for this option",
+     "routes": "video,long",
+     "verify": "the system-catches-before-the-person evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "system-catches-before-the-person",
+     "rule": "The made-up rule system-catches-before-the-person."
+    },
+    {
+     "id": "S5.R62",
+     "check": "Rule `synthetic-23338ffa125a` holds for this option",
+     "routes": "video,long",
+     "verify": "the synthetic-23338ffa125a evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-23338ffa125a",
+     "rule": "The made-up rule synthetic-23338ffa125a."
+    },
+    {
+     "id": "S5.R66",
+     "check": "Rule `synthetic-a22c9a75dcb4` holds for this option",
+     "routes": "video+people,long+people",
+     "verify": "the synthetic-a22c9a75dcb4 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-a22c9a75dcb4",
+     "rule": "The made-up rule synthetic-a22c9a75dcb4."
+    },
+    {
+     "id": "S5.Q07",
+     "check": "Rule `held-frame-eyes-open` holds for this option",
+     "routes": "video+people,long+people",
+     "verify": "the held-frame-eyes-open evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "held-frame-eyes-open",
+     "rule": "The made-up rule held-frame-eyes-open."
+    },
+    {
+     "id": "S5.G01",
+     "check": "Rule `copy-gate` holds for this option",
+     "routes": "video,long",
+     "verify": "the copy-gate evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "copy-gate",
+     "rule": "The made-up rule copy-gate.",
+     "gate_run": "copy-gate",
+     "advisory_passes_at": [
+      "review"
+     ]
+    },
+    {
+     "id": "S5.G02",
+     "check": "Rule `fact-gate` holds for this option",
+     "routes": "video,long",
+     "verify": "the fact-gate evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "fact-gate",
+     "rule": "The made-up rule fact-gate.",
+     "gate_run": "fact-gate"
+    },
+    {
+     "id": "S5.G03",
+     "check": "Rule `verdict-rules` holds for this option",
+     "routes": "video,long,audition",
+     "verify": "the verdict-rules evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "verdict-rules",
+     "rule": "The made-up rule verdict-rules.",
+     "gate_run": "verdict-rules",
+     "advisory_passes_at": [
+      "review"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S6",
+   "name": "Sound",
+   "checks": [
+    {
+     "id": "S6.1",
+     "check": "Integrated loudness is inside the mark.",
+     "routes": "sound (not audition)",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S6.2",
+     "check": "True peak is under the mark.",
+     "routes": "sound (not audition)",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S6.3",
+     "check": "Sound effects land on their picture events.",
+     "routes": "sfx",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S6.R01",
+     "check": "Rule `synthetic-0d6ea134bd48` holds for this option",
+     "routes": "sfx",
+     "verify": "the synthetic-0d6ea134bd48 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-0d6ea134bd48",
+     "rule": "The made-up rule synthetic-0d6ea134bd48."
+    },
+    {
+     "id": "S6.R07",
+     "check": "Rule `synthetic-6e8963a8ce18` holds for this option",
+     "routes": "voice,clone",
+     "verify": "the synthetic-6e8963a8ce18 evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "synthetic-6e8963a8ce18",
+     "rule": "The made-up rule synthetic-6e8963a8ce18."
+    },
+    {
+     "id": "S6.G01",
+     "check": "Rule `audio-measure` holds for this option",
+     "routes": "audition",
+     "verify": "the audio-measure evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "audio-measure",
+     "rule": "The made-up rule audio-measure.",
+     "gate_run": "audio-measure"
+    }
+   ]
+  },
+  {
+   "id": "S9",
+   "name": "Publish",
+   "checks": [
+    {
+     "id": "S9.4",
+     "check": "The published page reads back.",
+     "routes": "all",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    }
+   ]
+  }
+ ]
+}

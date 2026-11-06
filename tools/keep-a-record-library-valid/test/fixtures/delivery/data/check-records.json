@@ -1,0 +1,98 @@
+[
+ {
+  "id": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up-person",
+  "type": "record:setting",
+  "value": {
+   "name": "A made-up film's copy readers",
+   "tool": "tool:check-a-films-copy",
+   "scope_kind": "person",
+   "scope_id": "made-up-person",
+   "settings": "{\"fields_by_kind\": {}, \"readers\": {\"blockquotes\": \"description\", \"cell_drop_if\": [\"^$\"], \"cell_join\": [], \"cell_split\": [], \"cell_strip\": [], \"fenced_blocks\": {}, \"files\": {\"*\": {\"line\": {\"kind\": \"voiceover\"}}}, \"paragraph_files\": {}, \"skip_sections\": [], \"table_first_header_in\": [\"#\"], \"table_skip_if_header_has\": []}}",
+   "from": "made-up@0",
+   "status": "active"
+  }
+ },
+ {
+  "id": "record:check:made-up-base",
+  "type": "record:check",
+  "value": {
+   "kind": "branch",
+   "id": "made-up-base"
+  }
+ },
+ {
+  "id": "record:check:made-up-content",
+  "type": "record:check",
+  "value": {
+   "kind": "branch",
+   "id": "made-up-content",
+   "part_of": "made-up-base",
+   "judge_settings": {
+    "fold": {
+     "lowercase": true,
+     "collapse_space": true,
+     "strip_trailing": "[.!?]+"
+    },
+    "stage": {
+     "default": "final"
+    },
+    "stance_rule": "their-stance",
+    "novel": {
+     "rule": "synthetic-75ff1d417994",
+     "says": "Nothing of theirs judges this."
+    },
+    "agree_clears": {
+     "rules": []
+    }
+   }
+  }
+ },
+ {
+  "id": "record:check:no-glorp",
+  "type": "record:check",
+  "value": {
+   "id": "no-glorp",
+   "part_of": "made-up-base",
+   "words": [
+    "glorp"
+   ],
+   "says": "Never glorp."
+  }
+ },
+ {
+  "id": "record:check:their-teapot",
+  "type": "record:check",
+  "value": {
+   "id": "their-teapot",
+   "part_of": "made-up-content",
+   "kinds": [
+    "onscreen"
+   ],
+   "words": [
+    "teapot"
+   ],
+   "says": "Not on screen.",
+   "because": [
+    "a made-up note"
+   ]
+  }
+ },
+ {
+  "id": "record:check:their-leverage",
+  "type": "record:check",
+  "value": {
+   "id": "their-leverage",
+   "part_of": "made-up-content",
+   "kinds": [
+    "voiceover"
+   ],
+   "words": [
+    "leverage"
+   ],
+   "says": "They rejected this word.",
+   "because": [
+    "a made-up note"
+   ]
+  }
+ }
+]

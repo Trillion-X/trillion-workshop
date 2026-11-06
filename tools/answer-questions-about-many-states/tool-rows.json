@@ -1,0 +1,341 @@
+{
+  "kind": "package-set-records",
+  "record_set": "answer-questions-about-many-states-tool-rows",
+  "what_this_is": "The Workshop rows for the answer-questions-about-many-states folder: get a questions-first classifier ready on the person's Mac, start a bulk run of one question set over many states, read its status and paged answers, and cancel it.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:get-a-classifier-ready-on-this-mac",
+        "label": "Get a questions-first classifier ready on this Mac",
+        "job": "Get my question classifier model ready to run on my Mac",
+        "description": "Fetches the weights a model row names (a pinned Hugging Face revision, or a local folder), checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, to keep beside the model row. A gated model needs the person's own `huggingface-cli login`. Run it once per model row before start.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model"
+          ],
+          "properties": {
+            "model": {
+              "type": "object",
+              "required": [
+                "classifier",
+                "weights"
+              ],
+              "description": "The model row from the person's list: which classifier family it is and where its weights are. No model is built in.",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The row's own id, carried into the answers."
+                },
+                "classifier": {
+                  "type": "string",
+                  "enum": [
+                    "questions-first-decider"
+                  ],
+                  "description": "The classifier family: questions-first-decider is a Qwen3.5 hybrid decider whose questions are a cacheable prefix (decider.schema(questions).batch(states))."
+                },
+                "weights": {
+                  "type": "object",
+                  "description": "{\"folder\": a local folder} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision."
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {\"model\", \"classifier\", \"folder\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          ],
+          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py get-ready --request {input}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. The first run downloads the weights (about 4.5 GB for a 2B model)."
+        },
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:answer-questions-about-many-states",
+        "label": "Answer the same questions about many states, in bulk, on this Mac",
+        "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
+        "description": "Starts a bulk run in the background: every state (text, or JSON written compactly) is asked every question, with the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The job id is the BLAKE3 identity of the whole request, so the same request names the same run and a finished one is not run again. Read it with tool:read-a-bulk-answer-run; stop it with tool:cancel-a-bulk-answer-run.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "model",
+            "questions",
+            "states",
+            "settings",
+            "jobs_folder"
+          ],
+          "properties": {
+            "model": {
+              "type": "object",
+              "required": [
+                "classifier",
+                "weights"
+              ],
+              "description": "The model row from the person's list: which classifier family it is and where its weights are. No model is built in.",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "The row's own id, carried into the answers."
+                },
+                "classifier": {
+                  "type": "string",
+                  "enum": [
+                    "questions-first-decider"
+                  ],
+                  "description": "The classifier family: questions-first-decider is a Qwen3.5 hybrid decider whose questions are a cacheable prefix (decider.schema(questions).batch(states))."
+                },
+                "weights": {
+                  "type": "object",
+                  "description": "{\"folder\": a local folder} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision."
+                }
+              }
+            },
+            "questions": {
+              "type": "object",
+              "minProperties": 1,
+              "description": "{question id: {type: choice|score|noul, instructions, criteria?}}: choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false.",
+              "additionalProperties": {
+                "type": "object",
+                "required": [
+                  "instructions"
+                ],
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "choice",
+                      "score",
+                      "noul",
+                      "bool"
+                    ]
+                  },
+                  "instructions": {},
+                  "criteria": {}
+                }
+              }
+            },
+            "states": {
+              "type": "array",
+              "minItems": 1,
+              "description": "The states to ask about: strings, or JSON values (written compactly, long arrays numbered)."
+            },
+            "settings": {
+              "type": "object",
+              "required": [
+                "layout",
+                "dtype",
+                "tokens_per_batch",
+                "max_state_tokens",
+                "page_bytes"
+              ],
+              "description": "The tool's settings, from the person's settings row; none has a default.",
+              "properties": {
+                "layout": {
+                  "type": "string",
+                  "enum": [
+                    "independent",
+                    "packed"
+                  ],
+                  "description": "independent: one row per question, so no question sees another (the decider's default); packed: every question in one prefix, one row per state, several times fewer tokens."
+                },
+                "dtype": {
+                  "type": "string",
+                  "enum": [
+                    "bfloat16",
+                    "float32"
+                  ]
+                },
+                "tokens_per_batch": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "How many tokens one GPU pass may hold."
+                },
+                "max_state_tokens": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "The most tokens of a state the model reads; a longer state is cut there, as the decider does."
+                },
+                "page_bytes": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "How many bytes of answers one read returns."
+                }
+              }
+            },
+            "jobs_folder": {
+              "type": "string",
+              "description": "The folder on the person's computer that holds runs while they work and until their answers are read."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {\"job_id\", \"status\": \"queued\" | \"running\" | \"finished\" | \"cancelled\", \"states_done\", \"states\", \"already\"?}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          ],
+          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py start --request {input}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. It answers at once; the run goes on in the background until every state is answered."
+        },
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:read-a-bulk-answer-run",
+        "label": "Read how far a bulk answer run is, and its answers",
+        "job": "How far is my bulk question run, and give me its answers",
+        "description": "Says a run's status (queued, running, finished, cancelled or failed with why), how many states are answered and, once it is finished or cancelled, its answers as byte pages: {total, blake3, offset, length, base64, next_after_byte}. Ask again with after_byte set to next_after_byte until it is null, join the bytes, check the length and BLAKE3, and parse: {model, layout, questions, states, answers: [{state, answers: {question id: answer}}], seconds}. Keep what matters as rows in the person's lists; the run's folder is working space.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "job_id",
+            "jobs_folder"
+          ],
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$",
+              "description": "The job_id start answered: the BLAKE3 content identity of the whole request."
+            },
+            "jobs_folder": {
+              "type": "string",
+              "description": "The folder on the person's computer that holds runs while they work and until their answers are read."
+            },
+            "after_byte": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {\"job_id\", \"status\", \"states_done\", \"states\", \"seconds\"?, \"error\"?, \"byte_page\"?}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          ],
+          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py read --request {input}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. "
+        },
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:cancel-a-bulk-answer-run",
+        "label": "Stop a bulk answer run",
+        "job": "Stop my bulk question run",
+        "description": "Asks a run to stop after the batch in hand. The states it finished keep their answers, which read then returns; a run already finished is left as it is.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "job_id",
+            "jobs_folder"
+          ],
+          "properties": {
+            "job_id": {
+              "type": "string",
+              "pattern": "^1f:[0-9a-f]{64}$",
+              "description": "The job_id start answered: the BLAKE3 content identity of the whole request."
+            },
+            "jobs_folder": {
+              "type": "string",
+              "description": "The folder on the person's computer that holds runs while they work and until their answers are read."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {\"job_id\", \"status\": \"cancelling\" | \"cancelled\" | \"finished\" | \"failed\", \"states_done\", \"states\"}} or {\"error\": \"what to change\"}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          ],
+          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py cancel --request {input}",
+          "needs": [
+            "a Mac with Apple silicon",
+            "python",
+            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+          ],
+          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. "
+        },
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        }
+      }
+    }
+  ]
+}

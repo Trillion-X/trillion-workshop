@@ -41,6 +41,31 @@
    "repository": "trillion",
    "path": "parts/group/do-work/request-board-output.ts",
    "why": "Old Trillion saved an already-exported artifact through the process file-save envelope (line 13); it neither read a settings row nor checked a book."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "The tool's own capability row (\"export a markdown manuscript to word and verify it against its source\", owner tools/export-documents-to-files/), whose evidence cites do-work/export-a-book.mjs; an index row pointing here, not a second owner of the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/export-documents-to-files/README.md",
+   "why": "This tool's own README: its files table describes do-work/export-a-book.mjs (exportABook); documentation of this entry, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/export-documents-to-files/tool-rows.json",
+   "why": "This tool's own row tool:export-a-markdown-book-to-word, whose run line calls do-work/export-a-book.mjs exportABook; the row that declares this entry, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/export-documents-to-files/do-work/export_markdown_book_to_word.py",
+   "why": "The Word exporter this entry calls (ported byte-first under ports/export-markdown-book-to-word.json); it only names export-a-book.mjs as the writer of its --checks-receipt and reads no settings row or checks branch."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/export-documents-to-files/test/test_writing_gate.py",
+   "why": "The writing gate's own tests (ported with ports/writing-gate.json); a docstring names the receipt export-a-book.mjs hands in. It tests the gate, not this entry."
   }
  ],
  "proof": {
