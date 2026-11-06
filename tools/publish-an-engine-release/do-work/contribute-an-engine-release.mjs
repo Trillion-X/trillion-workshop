@@ -21,7 +21,7 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { hostTarget, packRelease, privateInput, runProgram } from './publish-an-engine-release.mjs';
+import { commitTime, hostTarget, packRelease, privateInput, runProgram } from './publish-an-engine-release.mjs';
 import { checkCommit, checkTarget, newSigningKey, publicKeyHex, settings, signEntry } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
@@ -45,8 +45,8 @@ export async function packAndSign(request, privateKey) {
   if (!isAbsolute(source ?? '') || !isAbsolute(program ?? '')) throw refuse('source and program must be paths to the checkout and the built trillion-local.', 2);
   const git = args => runProgram('git', ['-C', source, ...args]);
   const commit = checkCommit(request.commit ?? (await git(['rev-parse', 'HEAD'])).trim());
-  const sequence = request.sequence ?? Number((await git(['rev-list', '--count', '--first-parent', commit])).trim());
-  if (!Number.isSafeInteger(sequence) || sequence < 1) throw refuse('The sequence is not a whole number above 0: the checkout needs its full first-parent history (fetch-depth 0).', 2);
+  const sequence = request.sequence ?? await commitTime(source, commit);
+  if (!Number.isSafeInteger(sequence) || sequence < 1) throw refuse('The sequence is not a whole number above 0: it is the commit\'s time in seconds.', 2);
   const target = checkTarget(request.target ?? await hostTarget(request.rustc ?? 'rustc'));
   const trailer = (await git(['log', '-1', `--format=%(trailers:key=${settings.urgent_trailer},valueonly)`, commit])).trim().toLowerCase();
   const urgent = request.urgent === true || trailer.split('\n').includes('true');
