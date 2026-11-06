@@ -39,6 +39,7 @@ import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
+import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./decide-with-a-method.json', import.meta.url), 'utf8'));
 const { records: NAMES, words: WORDS, precedence, candidates: CANDIDATES, revision: REVISION, evidence: EVIDENCE, history: HISTORY, options: OPTIONS } = settings;
@@ -61,23 +62,64 @@ export async function rowsOf(door, rowType, where) {
   for await (const row of door.list({ type: `record:${rowType}`, ...(where ? { where } : {}) })) rows.push(row);
   return rows.sort((a, b) => (a.id < b.id ? -1 : 1)).map(row => row.value);
 }
-async function methodsOf(door) {
+// The link a method and a check name their parent in, then the old fields still read until the rows are rewritten.
+const LINK = [NAMES.method_link, ...(NAMES.old_method_links ?? [])];
+const rowKey = (rowType, id) => `record:${rowType}:${id}`;
+// One row of the person's Checks list read by its id (`record:check:<id>`), as its value with its id; null when absent.
+async function rowById(door, rowType, id) {
+  const value = await door.read(`record:${rowType}`, rowKey(rowType, id));
+  return value ? { ...value, id: value.id ?? id } : null;
+}
+const isMethodRow = row => Object.entries(NAMES.method_where).every(([name, value]) => canonical(row?.[name]) === canonical(value));
+// The rows of one method's lineage, read by id: the method named, then the one it is part of, up to its root, each one
+// `records:read` (the old app's private-method.mjs resolved `extends` by id the same way). A call costs the depth of the
+// method tree, never the size of the list. Null when the method named is not a branch row of the list.
+async function lineageRows(door, id) {
+  const rows = [];
+  for (let at = id; nonempty(at) && !rows.some(row => row.id === at);) {
+    const row = await rowById(door, NAMES.method_row, at);
+    if (!row || !isMethodRow(row)) {
+      if (!rows.length) return null;
+      throw new Error(`Method ${rows.at(-1).id} is ${NAMES.method_link} ${at}, which is not one of the branch rows; fix its ${NAMES.method_link}.`);
+    }
+    rows.push(row);
+    at = linksOf(row, LINK)[0];
+  }
+  return rows;
+}
+// The method rows a call needs: the lineage of the method it names (the one asked for, or the one its decision was opened
+// with), else of the person's default (`records.default_method`), each read by id. Only an account with neither row falls
+// back to listing its branch rows by `where` (`method_where`). A method named that is not there is refused where it is
+// snapshotted (`snapshotMethod`); a decision opened under a method since removed keeps its own snapshot.
+async function methodsOf(door, named) {
+  for (const id of new Set([named, NAMES.default_method])) {
+    if (!nonempty(id)) continue;
+    const rows = await lineageRows(door, id);
+    if (rows) return rows;
+  }
   const methods = await rowsOf(door, NAMES.method_row, NAMES.method_where);
   if (!methods.length) refuse('no_methods');
   return methods;
 }
-// The link a method and a check name their parent in, then the old fields still read until the rows are rewritten.
-const LINK = [NAMES.method_link, ...(NAMES.old_method_links ?? [])];
+const methodIdOf = record => record?.method_id ?? record?.method?.id ?? record?.input?.method;
 const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: LINK });
-// The method functions with the check rows of one step: that step's rows and the rows it names by id (`check_ids`), each
-// read with the door's `where`, so a call carries one step's checks, never the whole list. The step is the one given,
-// or the step asked next.
+// The method functions with the check rows of one step, each read by its id: the rows the step lists as its parts
+// (`records.step_parts_field`) and the rows it names by id (`check_ids`), so a call carries one step's checks and costs
+// as many reads as the step has checks, never the size of the list. A step written before it listed its parts is read
+// with the door's `where` on its step field, the one read whose cost is the engine's. The step is the one given, or the
+// step asked next.
 async function catalogueAt(door, methods, record, step = undefined) {
   const bare = catalogue(methods);
   const current = step === undefined ? bare.nextStepOf(record) : step;
   if (!current || current.kind === 'scope') return bare;
-  const checks = await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: current.id });
-  for (const id of current.check_ids ?? []) checks.push(...await rowsOf(door, NAMES.check_row, { [NAMES.check_id_field]: id }));
+  const parts = current[NAMES.step_parts_field];
+  const checks = Array.isArray(parts) ? [] : await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: current.id });
+  const ids = [...new Set([...(Array.isArray(parts) ? parts : []), ...(current.check_ids ?? [])])].filter(nonempty);
+  for (const id of ids) {
+    if (checks.some(row => row.id === id)) continue;
+    const row = await rowById(door, NAMES.check_row, id);
+    if (row) checks.push(row);
+  }
   return catalogue(methods, checks);
 }
 
@@ -220,7 +262,7 @@ export async function decisionOrRefuse(door, id, steps) {
 /** tool:start-a-decision. input { source_id, goal, evidence: [{ ref, claim }], options?: [{ id, label }], method? }: with no
  * options the method's own steps generate and rule out candidates (optionsOf). */
 export async function startADecision(input, { door }) {
-  const methods = await methodsOf(door);
+  const methods = await methodsOf(door, input?.method);
   const { id, method } = validatedCase(input, catalogue(methods));
   const current = await readDecision(door, id);
   if (current) {
@@ -246,7 +288,7 @@ export async function nextDecisionQuestion(input, { door }) {
     return versionsReply(door, record, input.versions_of);
   }
   const record = await decisionOrRefuse(door, decisionId(input));
-  const cat = await catalogueAt(door, await methodsOf(door), record);
+  const cat = await catalogueAt(door, await methodsOf(door, methodIdOf(record)), record);
   if (input.explain === undefined) return guideReply(door, cat, record);
   if (!Array.isArray(input.explain) || !input.explain.length || input.explain.length > settings.most_explained || !input.explain.every(nonempty)) refuse('explain_shape', { count: settings.most_explained });
   const { texts, unknown } = cat.checkTexts(record, input.explain);
@@ -443,8 +485,8 @@ export async function answerADecisionQuestion(input, { door }) {
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
   answerShape(input);
-  const methods = await methodsOf(door);
   const record = await decisionOrRefuse(door, id, [input.step_id]);
+  const methods = await methodsOf(door, methodIdOf(record));
   const bare = catalogue(methods);
   const at = record.guidance.findIndex(item => item.step_id === input.step_id);
   const entry = at < 0 ? null : record.guidance[at];
@@ -538,8 +580,8 @@ function decisionShape(decision, expectedGeneration) {
 export async function makeTheDecision(input, { door }) {
   const id = decisionId(input);
   const { decision, expected_generation: expectedGeneration } = input;
-  const cat = catalogue(await methodsOf(door));
   const record = await decisionOrRefuse(door, id, ['proof']);
+  const cat = catalogue(await methodsOf(door, methodIdOf(record)));
   const decidedBefore = Boolean(record.decision);
   // Every question is answered and none of them stands to be asked again.
   // Every step is graded: an answer kept before every check had a verdict waits for the rest of them.

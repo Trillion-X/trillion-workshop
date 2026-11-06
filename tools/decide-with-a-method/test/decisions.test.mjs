@@ -296,7 +296,9 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
     // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
     for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
     if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
-    else for (const kind of ['record:check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:list'], `${id} only lists ${kind} rows`);
+    // A tool that walks a method reads its rows by id (and lists by `where` only for rows written before they named their parts).
+    else if (['tool:report-a-decision-result', 'tool:say-what-was-done'].includes(id)) assert.deepEqual(rights.find(right => right.kind === 'record:check')?.operations, ['records:list'], `${id} only lists record:check rows`);
+    else assert.deepEqual(rights.find(right => right.kind === 'record:check')?.operations, ['records:list', 'records:read'], `${id} reads record:check rows by id and lists them only by where`);
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
   }
 });
