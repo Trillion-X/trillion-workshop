@@ -35,7 +35,7 @@
   "allowed_deltas": [
     "the money read is a nested Workshop run through the run's door (invoke.records.runs), not the account action's runTool",
     "the rows moneyServices reads are this folder's rows and the connect rows made from the service-connection descriptors, not loadWorkshopRows(env)",
-    "the person's connections have no owner a run reaches, so they are null (unknown): an unknown connection's money is read and a failed read is drawn as unread; given a list, it draws as before",
+    "the person's connections are a nested run of tool:list-connections (tools/connections), not connectionsNow; when that list cannot be read just now they are null (unknown): an unknown connection's money is read and a failed read is drawn as unread; given the list, it draws as before. The connections a computer carries (old src/carried-connections.mjs) have no owner and are not added",
     "the operator's part (payment config, call pool, price-test book: the hosted service's stores) has no owner here, so operatorBusiness and PAID_PLAN_TOOL are not carried; operatorFacts is",
     "optionalRead (old src/optional-read.mjs) is carried in this file"
   ],

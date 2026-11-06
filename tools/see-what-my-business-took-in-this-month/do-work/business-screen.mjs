@@ -14,12 +14,15 @@
 //   read-business ran it. What changed, and why:
 //     - The money read runs as a nested Workshop run (the row declares tool:stripe-events-read_money_since in
 //       invoke.records.runs), with the person's own Stripe connection held by the engine's vault, as old runTool did.
-//     - Which payment services the person connected has no owner today: old trillion read it from the account's
-//       held-values connection summaries (connectionsNow: held operation `list`, src/connection-summaries.mjs, the
-//       tool:list-connections row). Nothing a Workshop run can reach keeps that list, so `connections` is null
-//       (unknown). An unknown connection is never said to be connected or not: its money is read with the person's own
-//       connection, and a read that fails (no key held, a refusal, too slow) is drawn as old Business drew a failed
-//       read, "could not be read just now", with no number. Given the list (connections), it draws exactly as before.
+//     - Which payment services the person connected is read as old trillion read it (connectionsNow: the held-values
+//       operation `list`, src/connection-summaries.mjs, the tool:list-connections row), now a nested run of that row,
+//       owned by tools/connections (the person's connection records and the vault's held names). So a service the
+//       person did not connect is drawn "<service> is not connected", live. When that list cannot be read (the run
+//       fails or takes too long), `connections` is null (unknown) and an unknown connection is never said to be
+//       connected or not: its money is read with the person's own connection, and a read that fails (no key held, a
+//       refusal, too slow) is drawn as old Business drew a failed read, "could not be read just now", with no number.
+//       Old connectionsNow also added the connections a present computer carries (src/carried-connections.mjs); no
+//       owner keeps those today, and no payment service is carried by a computer, so none is added.
 //     - The operator's part has no owner today either: whether this account is the operator (env.OPERATOR_ACCOUNT_ID),
 //       the service's payment config (src/payment.mjs readPaymentConfig), its call pool's use (pool.callStats) and the
 //       price tests in the service's book (priceExperimentsState) were the hosted service's own stores. So readBusiness
@@ -188,7 +191,7 @@ export function businessFacts(facts) {
 /**
  * Business's facts for one account: this month's money on every payment service it connected, each read with its own
  * connection through `run(tool_id, input)` (the account's tool runner; a failed or slow read is unread). `connections`
- * null: they cannot be read (see PURPOSE). The operator's part is not read (no owner today, see PURPOSE).
+ * null: they could not be read just now (see PURPOSE). The operator's part is not read (no owner today, see PURPOSE).
  */
 export async function readBusiness({ rows = workshopRows(), connections, run, now = new Date() }) {
   const since = monthStart(now);
@@ -196,14 +199,25 @@ export async function readBusiness({ rows = workshopRows(), connections, run, no
   return businessFacts({ since: since.toISOString(), services, operator: undefined });
 }
 
+// The row that lists the person's connections (tools/connections), run nested like the money reads.
+export const LIST_CONNECTIONS = 'tool:list-connections';
+
+/** The person's connections, from a nested run of tool:list-connections, or null when they cannot be read just now. */
+export async function connectionsOf(run) {
+  const listed = await optionalRead(() => run(LIST_CONNECTIONS, {}), null);
+  return Array.isArray(listed?.connections) ? listed.connections : null;
+}
+
 /**
- * tool:read-business, the one read of the Business screen: { now? } → Business's facts for the page's account. Each
- * money read is a nested run through this run's door (contract A), keyed by the read and its moment, so a retried read
- * asks again under the same key. `now` (an ISO time) is only for a sample run; the month is this one otherwise.
+ * tool:read-business, the one read of the Business screen: { now? } → Business's facts for the page's account. The
+ * person's connections and each money read are nested runs through this run's door (contract A), keyed by the tool and
+ * its input, so a retried read asks again under the same key. `now` (an ISO time) is only for a sample run; the month
+ * is this one otherwise.
  */
 export async function readBusinessForScreen(input = {}, { door } = {}) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Send one JSON object: { now? }.');
   const now = input.now === undefined ? new Date() : new Date(input.now);
   if (!Number.isFinite(now.getTime())) throw new Error('now must be an ISO time, for example 2026-10-15T00:00:00.000Z.');
-  return readBusiness({ connections: null, now, run: (toolId, given) => door.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` }) });
+  const run = (toolId, given) => door.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` });
+  return readBusiness({ connections: await connectionsOf(run), now, run });
 }

@@ -8,12 +8,15 @@ Ported from old trillion `src/business-screen.mjs` (Trillion-X/trillion before 4
 
 | Tool | What it does | Runs |
 |------|--------------|------|
-| `tool:read-business` | Business's facts for the page's account: each payment service in `tools/money-reads/src/money-reads.json`, its money this month read by running that service's money read with the person's own connection (a nested run), summed per currency and written as the layout places it | in a small container, no internet; it reaches the person's records only to start the money read |
+| `tool:read-business` | Business's facts for the page's account: each payment service in `tools/money-reads/src/money-reads.json`, its money this month read by running that service's money read with the person's own connection (a nested run), summed per currency and written as the layout places it | in a small container, no internet; it reaches the person's records only to start the connections list and the money read |
 | `tool:stripe-events-read_money_since` | Stripe's balance transactions at or after a moment, at most 100, with the person's own Stripe key (old trillion's row of the same id, made from `package::service-connections::how-to-ask-something-else-to-do-things::stripe-events`) | the engine's `http` kind; the key goes only to `api.stripe.com` |
+
+## Which payment services this account connected
+
+Read as old trillion read it (`connectionsNow`, the held-values operation `list`, the row `tool:list-connections`): `tool:read-business` runs `tool:list-connections` (tools/connections: the person's `connection` records and the vault's held names) as a nested run, so a service the person did not connect is drawn "Stripe is not connected / Open Connections", live, and its money is not read. When that list cannot be read just now, each service's connection is unknown: its money is read anyway, with the person's own connection, and a read that fails is drawn as old Business drew a failed read ("Your Stripe money could not be read just now", no number). The connections a computer carries (old `src/carried-connections.mjs`) have no owner today and are not added; no payment service is carried.
 
 ## What it cannot read today
 
-- **Which payment services this account connected.** Old trillion read it from the account's held-values connection summaries (`connectionsNow`, the held operation `list` over `src/connection-summaries.mjs`; the row `tool:list-connections`). Nothing a Workshop run reaches keeps that list, so each service's connection is unknown: its money is read anyway, with the person's own connection, and a read that fails is drawn as old Business drew a failed read ("Your Stripe money could not be read just now", no number). The "Stripe is not connected / Open Connections" row is drawn only when a list of connections is given.
 - **The operator's part.** Whether this account is the operator (`OPERATOR_ACCOUNT_ID`), Trillion's payment config (`src/payment.mjs` readPaymentConfig), its call pool's use (`pool.callStats`) and its price tests (`priceExperimentsState`, the service's record book) were the hosted service's own stores. None is read, so Business is drawn as every other account saw it; `operatorFacts` and its layout are kept and tested from given facts.
 
 ## Files
