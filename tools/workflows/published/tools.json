@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:9b14372a546f68e12290e090d67977a17fd522d783a68ef251cf37eb29c84221"
+  "blake3": "1f:4c209cd3c918dd9f87ea1aa53198cd0ed7371575b593ea22fb6591edb31e12c9"
  },
  "fields": [
   {
@@ -391,21 +391,6 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
-   }
-  },
-  {
-   "id": "tool:answer-questions-about-many-states",
-   "values": {
-    "title": "Answer the same questions about many states, in bulk, on this Mac",
-    "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
-    "description": "Starts a bulk run in the background: every state (text, or JSON written compactly) is asked every question, with the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The job id is the BLAKE3 identity of the whole request, so the same request names the same run and a finished one is not run again. Read it with tool:read-a-bulk-answer-run; stop it with tool:cancel-a-bulk-answer-run.",
-    "status": "active",
-    "maker": "maker:answer-questions-about-many-states",
-    "licence_class": "licence:permissive",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -1131,21 +1116,6 @@
      "placement:small-container"
     ],
     "folder": "book-time"
-   }
-  },
-  {
-   "id": "tool:cancel-a-bulk-answer-run",
-   "values": {
-    "title": "Stop a bulk answer run",
-    "job": "Stop my bulk question run",
-    "description": "Asks a run to stop after the batch in hand. The states it finished keep their answers, which read then returns; a run already finished is left as it is.",
-    "status": "active",
-    "maker": "maker:answer-questions-about-many-states",
-    "licence_class": "licence:permissive",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -4042,6 +4012,21 @@
    }
   },
   {
+   "id": "tool:gate-a-pieces-delivery-checklist",
+   "values": {
+    "title": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer)",
+    "job": "Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
+    "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read through their records door, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
+    "status": "active",
+    "maker": "maker:keep-a-record-library-valid",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-record-library-valid"
+   }
+  },
+  {
    "id": "tool:gate-telemetry-by-privacy",
    "values": {
     "title": "May telemetry send about this page",
@@ -4118,21 +4103,6 @@
      "placement:your-computer"
     ],
     "folder": "generate-speech"
-   }
-  },
-  {
-   "id": "tool:get-a-classifier-ready-on-this-mac",
-   "values": {
-    "title": "Get a questions-first classifier ready on this Mac",
-    "job": "Get my question classifier model ready to run on my Mac",
-    "description": "Fetches the weights a model row names (a pinned Hugging Face revision, or a local folder), checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, to keep beside the model row. A gated model needs the person's own `huggingface-cli login`. Run it once per model row before start.",
-    "status": "active",
-    "maker": "maker:answer-questions-about-many-states",
-    "licence_class": "licence:permissive",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -6685,6 +6655,21 @@
    }
   },
   {
+   "id": "tool:measure-a-reference-video",
+   "values": {
+    "title": "Measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline (runs on your computer)",
+    "job": "Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+    "description": "Runs the programs the person names (hf-media for frame sheets and the cut scan, a motion-rhythm script, a Python with earshot for the sound timeline, ffprobe) over one video into a new folder, checking every program before any media work. A film longer than 120 seconds gets small labelled review pages instead of one contact sheet. It records evidence; it does not certify viewing or meaning. Answers one JSON line.",
+    "status": "active",
+    "maker": "maker:keep-a-record-library-valid",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-record-library-valid"
+   }
+  },
+  {
    "id": "tool:measure-ad-return",
    "values": {
     "title": "Measure what ad spend brings back (CAC, LTV, payback)",
@@ -8486,21 +8471,6 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
-   }
-  },
-  {
-   "id": "tool:read-a-bulk-answer-run",
-   "values": {
-    "title": "Read how far a bulk answer run is, and its answers",
-    "job": "How far is my bulk question run, and give me its answers",
-    "description": "Says a run's status (queued, running, finished, cancelled or failed with why), how many states are answered and, once it is finished or cancelled, its answers as byte pages: {total, blake3, offset, length, base64, next_after_byte}. Ask again with after_byte set to next_after_byte until it is null, join the bytes, check the length and BLAKE3, and parse: {model, layout, questions, states, answers: [{state, answers: {question id: answer}}], seconds}. Keep what matters as rows in the person's lists; the run's folder is working space.",
-    "status": "active",
-    "maker": "maker:answer-questions-about-many-states",
-    "licence_class": "licence:permissive",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "answer-questions-about-many-states"
    }
   },
   {

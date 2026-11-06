@@ -7,7 +7,8 @@
 // tool's own files there, writes the publish config, makes the signing key once on the builder (it never leaves; its
 // public half is answered), makes a read key on the builder for a repository reached over SSH (its public half is
 // answered, to add as a read-only deploy key), stores the repository token and the push secret as systemd credentials encrypted with
-// the builder's own host key, and starts the push receiver service. status reads the receiver, the feed and the last
+// the builder's own host key, and starts the push receiver service. A request's `accept_entries_from` (other builders'
+// public keys, one builder per target) lets the receiver take their signed entries into this one feed. status reads the receiver, the feed and the last
 // run back.
 //
 // The builder, repository and branch are input; this file names none. The repository token arrives on descriptor 3
@@ -67,6 +68,7 @@ export function checkRequest(request) {
   if (!ssh || typeof ssh.known_hosts !== 'string') throw refuse('ssh.known_hosts must name the known_hosts file for the builder (made the first time).');
   if (!repository || typeof repository.url !== 'string' || !/^(https:\/\/|ssh:\/\/|git@)/.test(repository.url)) throw refuse('repository.url must be the URL git fetches the engine repository from, like https://github.com/OWNER/REPOSITORY.git.');
   if (typeof repository.branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(repository.branch)) throw refuse('repository.branch must be the branch whose pushes are published, like main.');
+  if (request.accept_entries_from !== undefined && (!Array.isArray(request.accept_entries_from) || !request.accept_entries_from.every(key => /^[0-9a-f]{64}$/.test(key)))) throw refuse('accept_entries_from must list the Ed25519 public keys (64 lowercase hex) of the other builders whose signed entries this feed takes, one builder per target (contribute-an-engine-release.mjs public-key prints one).');
   if (request.keep_releases !== undefined && (!Number.isSafeInteger(request.keep_releases) || request.keep_releases < 1 || request.keep_releases > settings.keep_releases)) throw refuse(`keep_releases must be a whole number from 1 to ${settings.keep_releases}.`);
   return request;
 }
@@ -79,7 +81,8 @@ export function builderConfig(request) {
     work_folder: B.work_folder, feed_folder: B.feed_folder, key_file: B.key_file, state_folder: B.state_folder,
     keep_releases: request.keep_releases ?? settings.keep_releases,
     toolchain: { cargo: `${B.home}/.cargo/bin/cargo`, rustc: `${B.home}/.cargo/bin/rustc` },
-    receiver: { host: '127.0.0.1', port: settings.receiver_port, path: settings.push_path },
+    receiver: { host: '127.0.0.1', port: settings.receiver_port, path: settings.push_path, entry_path: settings.entry_path },
+    accept_entries_from: request.accept_entries_from ?? [],
   };
 }
 
@@ -130,7 +133,7 @@ export async function installBuilder(request, { token = '', secret = '', run = o
   checkRequest(request);
   if (!secret) throw refuse('Descriptor 4 holds no push secret: hand the webhook secret from the person\'s vault on descriptor 4 (the same secret goes in the repository\'s webhook).');
   const machine = { ssh: request.ssh, address: request.builder.address };
-  const setup = [request.builder.host_name, settings.receiver_port, settings.feed_path, settings.push_path, B.user, B.home, B.feed_folder, B.state_folder, settings.node_major_at_least, settings.node_dist, settings.rustup_url];
+  const setup = [request.builder.host_name, settings.receiver_port, settings.feed_path, settings.push_path, B.user, B.home, B.feed_folder, B.state_folder, settings.node_major_at_least, settings.node_dist, settings.rustup_url, settings.entry_path];
   await run(machine, `sh -s -- ${setup.map(q).join(' ')}`, readFileSync(SETUP));
   const T = B.tool_folder;
   await run(machine, `rm -rf ${q(`${T}.new`)} && install -d -m 0755 ${q(`${T}.new`)} && tar -C ${q(`${T}.new`)} -xzf - && chmod -R a+rX,go-w ${q(`${T}.new`)} && rm -rf ${q(`${T}.old`)} && { test ! -e ${q(T)} || mv ${q(T)} ${q(`${T}.old`)}; } && mv ${q(`${T}.new`)} ${q(T)} && rm -rf ${q(`${T}.old`)}`, tarball());
@@ -150,6 +153,7 @@ export async function installBuilder(request, { token = '', secret = '', run = o
     public_key: key.public_key, key_made: key.made, deploy_key: deployKey,
     feed_url: `https://${host}${settings.feed_path}${settings.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
     webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
+    entries_url: `https://${host}${settings.entry_path}`, accept_entries_from: request.accept_entries_from ?? [],
   };
 }
 
@@ -160,13 +164,14 @@ export async function builderStatus(request, { run = onMachine, fetchImpl = fetc
   const active = (await run(machine, `systemctl is-active ${q(B.service)} || true`)).trim();
   const feed = readFeed((await run(machine, `cat ${q(`${B.feed_folder}/${settings.feed_file}`)} 2>/dev/null || true`)) || null);
   const lastRun = (await run(machine, `cat ${q(`${B.state_folder}/last-run.json`)} 2>/dev/null || true`)).trim();
+  const lastEntries = (await run(machine, `for f in ${q(B.state_folder)}/last-entry-*.json; do test -f "$f" && cat "$f" && echo; done; true`)).trim().split('\n').filter(Boolean).flatMap(line => { try { return [JSON.parse(line)]; } catch { return []; } });
   const key = JSON.parse((await run(machine, `runuser -u ${q(B.user)} -- env PATH=${q(PATH)} node ${q(toolFile('publish-an-engine-release.mjs'))} public-key ${q(B.key_file)}`)).trim().split('\n').at(-1));
   const newest = {};
   for (const entry of feed.releases) if (!newest[entry.target] || entry.sequence > newest[entry.target].sequence) newest[entry.target] = entry;
   return {
     receiver_active: active === 'active', public_key: key.public_key ?? null, releases_held: feed.releases.length,
     newest: Object.values(newest).map(({ commit, sequence, target, urgent }) => ({ commit, sequence, target, urgent })),
-    last_run: lastRun ? JSON.parse(lastRun) : null, feed_status: await feedStatus(request.builder.host_name, fetchImpl),
+    last_run: lastRun ? JSON.parse(lastRun) : null, last_entries: lastEntries, feed_status: await feedStatus(request.builder.host_name, fetchImpl),
   };
 }
 
