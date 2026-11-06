@@ -1,16 +1,22 @@
 {
   "kind": "package-set-records",
   "record_set": "answer-questions-about-many-states-tool-rows",
-  "what_this_is": "The Workshop rows for the answer-questions-about-many-states folder: get a questions-first classifier ready on the person's Mac, start a bulk run of one question set over many states, read its status and paged answers, and cancel it.",
+  "what_this_is": "The Workshop rows for the answer-questions-about-many-states folder: get a questions-first classifier ready on the person's Mac, run one question set over many state rows there, and read and cancel that run from any computer. Inputs are read and outcomes written as the person's rows, through the records door.",
   "records": [
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        },
         "id": "tool:get-a-classifier-ready-on-this-mac",
         "label": "Get a questions-first classifier ready on this Mac",
         "job": "Get my question classifier model ready to run on my Mac",
-        "description": "Fetches the weights a model row names (a pinned Hugging Face revision, or a local folder), checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, to keep beside the model row. A gated model needs the person's own `huggingface-cli login`. Run it once per model row before start.",
-        "status": "active",
+        "description": "Reads the model row the person names (by record id), fetches the weights it names (a pinned Hugging Face revision, or a local folder) on this Mac, checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, kept as a classifier-ready row in the person's records beside the model row, so any computer can see which weights the row was made ready with. A gated model needs the person's own `huggingface-cli login`. Run it once per model row on each Mac that will answer.",
         "input_schema": {
           "type": "object",
           "required": [
@@ -20,25 +26,18 @@
             "model": {
               "type": "object",
               "required": [
-                "classifier",
-                "weights"
+                "type",
+                "id"
               ],
-              "description": "The model row from the person's list: which classifier family it is and where its weights are. No model is built in.",
+              "description": "The model row in the person's lists: its value names the classifier family (`classifier`: questions-first-decider) and where its weights are (`weights`: {\"folder\": a folder on this Mac} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision). No model is built in.",
               "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "The row's record type."
+                },
                 "id": {
                   "type": "string",
-                  "description": "The row's own id, carried into the answers."
-                },
-                "classifier": {
-                  "type": "string",
-                  "enum": [
-                    "questions-first-decider"
-                  ],
-                  "description": "The classifier family: questions-first-decider is a Qwen3.5 hybrid decider whose questions are a cacheable prefix (decider.schema(questions).batch(states))."
-                },
-                "weights": {
-                  "type": "object",
-                  "description": "{\"folder\": a local folder} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision."
+                  "description": "The row's record id."
                 }
               }
             }
@@ -46,295 +45,899 @@
         },
         "output_schema": {
           "type": "object",
-          "description": "{\"result\": {\"model\", \"classifier\", \"folder\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready\"}} or {\"error\": \"what to change\"}."
+          "description": "{\"result\": {\"model\", \"classifier\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready_at\", \"ready\", \"record\": {\"id\", \"type\"}}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/answer-questions-about-many-states",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
+            "getAClassifierReady"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "model.type"
+                  }
+                },
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "model.id"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "classifier-ready",
+                "prefix": "classifier-ready:",
+                "operations": [
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
             "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py get-ready --request {input}",
           "needs": [
             "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+            "python3 with mlx, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
           ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. The first run downloads the weights (about 4.5 GB for a 2B model)."
+          "programs": {
+            "python3": {
+              "warm": "python-script",
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                }
+              },
+              "search": "python3",
+              "runtime_read_dirs": [
+                "../lib",
+                {
+                  "from_program": "../lib/{executable_name}/site-packages"
+                }
+              ],
+              "runtime_programs": [
+                "../Resources/Python.app/Contents/MacOS/Python"
+              ]
+            }
+          }
         },
-        "result_selector": "$.result",
-        "maker": "maker:answer-questions-about-many-states",
-        "licence_class": "licence:permissive",
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": true,
+          "memory_mb": 2048
+        },
         "placements": [
           "placement:your-computer"
         ],
-        "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "model": {
+                "type": "record:classifier-model",
+                "id": "record:classifier-model:sample"
+              }
+            },
+            "records": [
+              {
+                "id": "record:classifier-model:sample",
+                "type": "record:classifier-model",
+                "value": {
+                  "classifier": "questions-first-decider",
+                  "weights": {
+                    "folder": "/made-up/model"
+                  }
+                }
+              }
+            ],
+            "stand_in_programs": {
+              "python3": "req=$(cat)\ncase \" $* \" in\n  *\" get-ready\"*) echo '{\"result\": {\"model\": \"sample-model\", \"classifier\": \"questions-first-decider\", \"identity\": \"1f:0000000000000000000000000000000000000000000000000000000000000000\", \"files\": [{\"name\": \"config.json\", \"bytes\": 2, \"blake3\": \"0000000000000000000000000000000000000000000000000000000000000000\"}], \"ready\": true}}' ;;\n  *\" work\"*) echo '{\"checked\": {\"states\": 2}}'; echo '{\"answered\": [{\"state\": 0, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.25}}}, {\"state\": 1, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.75}}}]}'; echo '{\"result\": {\"status\": \"finished\", \"states_done\": 2, \"states\": 2, \"classifier_answers_as\": \"made-up\", \"seconds\": {\"wall\": 0.01}}}' ;;\n  *) echo '{\"error\": \"made-up stand-in\"}'; exit 1 ;;\nesac"
+            }
+          }
+        ],
+        "record_model": {
+          "_what": "The record kinds this tool keeps: a run row per run, its answers as page rows, the stop a cancel asks for, and the naming of a model row's weights. read-data/bulk-answer.mjs names their ids.",
+          "kinds": [
+            {
+              "type": "bulk-answer-run",
+              "properties": {}
+            },
+            {
+              "type": "bulk-answer-page",
+              "properties": {}
+            },
+            {
+              "type": "bulk-answer-cancel",
+              "properties": {}
+            },
+            {
+              "type": "classifier-ready",
+              "properties": {}
+            }
+          ]
         }
       }
     },
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        },
         "id": "tool:answer-questions-about-many-states",
         "label": "Answer the same questions about many states, in bulk, on this Mac",
         "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
-        "description": "Starts a bulk run in the background: every state (text, or JSON written compactly) is asked every question, with the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The job id is the BLAKE3 identity of the whole request, so the same request names the same run and a finished one is not run again. Read it with tool:read-a-bulk-answer-run; stop it with tool:cancel-a-bulk-answer-run.",
-        "status": "active",
+        "description": "Reads, by record id through its records door, the model row, the question set ({questions: {question id: {type: choice|score|noul, instructions, criteria?}}}), the settings row and every state row under a prefix, and asks every state every question on this Mac: the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). As each batch finishes, its answers are written as bulk-answer-page rows of at most the settings' page_bytes, with the run's bulk-answer-run row (status, states done, pages), so tool:read-a-bulk-answer-run reads it and tool:cancel-a-bulk-answer-run stops it from any computer. The job id is the BLAKE3 identity of the rows read, so the same rows name the same run, and a finished or still-running one is not run again. Nothing is kept on this Mac: the states go to the classifier program on a pipe and its answers come back on one.",
         "input_schema": {
           "type": "object",
           "required": [
             "model",
             "questions",
-            "states",
             "settings",
-            "jobs_folder"
+            "states"
           ],
           "properties": {
             "model": {
               "type": "object",
               "required": [
-                "classifier",
-                "weights"
+                "type",
+                "id"
               ],
-              "description": "The model row from the person's list: which classifier family it is and where its weights are. No model is built in.",
+              "description": "The model row: its value names the classifier family (`classifier`: questions-first-decider) and its weights (`weights`: {\"folder\"} or {\"hugging_face\": {\"repo\", \"revision\"}}), made ready on this Mac by tool:get-a-classifier-ready-on-this-mac.",
               "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "The row's record type."
+                },
                 "id": {
                   "type": "string",
-                  "description": "The row's own id, carried into the answers."
-                },
-                "classifier": {
-                  "type": "string",
-                  "enum": [
-                    "questions-first-decider"
-                  ],
-                  "description": "The classifier family: questions-first-decider is a Qwen3.5 hybrid decider whose questions are a cacheable prefix (decider.schema(questions).batch(states))."
-                },
-                "weights": {
-                  "type": "object",
-                  "description": "{\"folder\": a local folder} or {\"hugging_face\": {\"repo\", \"revision\"}} with a pinned revision."
+                  "description": "The row's record id."
                 }
               }
             },
             "questions": {
               "type": "object",
-              "minProperties": 1,
-              "description": "{question id: {type: choice|score|noul, instructions, criteria?}}: choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false.",
-              "additionalProperties": {
-                "type": "object",
-                "required": [
-                  "instructions"
-                ],
-                "properties": {
-                  "type": {
-                    "type": "string",
-                    "enum": [
-                      "choice",
-                      "score",
-                      "noul",
-                      "bool"
-                    ]
-                  },
-                  "instructions": {},
-                  "criteria": {}
+              "required": [
+                "type",
+                "id"
+              ],
+              "description": "The question set row: its value's `questions` is {question id: {type: choice|score|noul, instructions, criteria?}}; choice criteria name 2 to 255 options, score criteria are 2 to 10 ordered levels, noul criteria may describe true and false.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "The row's record type."
+                },
+                "id": {
+                  "type": "string",
+                  "description": "The row's record id."
                 }
               }
-            },
-            "states": {
-              "type": "array",
-              "minItems": 1,
-              "description": "The states to ask about: strings, or JSON values (written compactly, long arrays numbered)."
             },
             "settings": {
               "type": "object",
               "required": [
-                "layout",
-                "dtype",
-                "tokens_per_batch",
-                "max_state_tokens",
-                "page_bytes"
+                "type",
+                "id"
               ],
-              "description": "The tool's settings, from the person's settings row; none has a default.",
+              "description": "The settings row: layout (independent: one row per question, so no question sees another; packed: every question in one prefix, several times fewer tokens), dtype (bfloat16 or float32), tokens_per_batch, max_state_tokens and page_bytes (the most bytes of answers one page row holds, at most 56000). None has a default.",
               "properties": {
-                "layout": {
+                "type": {
                   "type": "string",
-                  "enum": [
-                    "independent",
-                    "packed"
-                  ],
-                  "description": "independent: one row per question, so no question sees another (the decider's default); packed: every question in one prefix, one row per state, several times fewer tokens."
+                  "description": "The row's record type."
                 },
-                "dtype": {
+                "id": {
                   "type": "string",
-                  "enum": [
-                    "bfloat16",
-                    "float32"
-                  ]
-                },
-                "tokens_per_batch": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "description": "How many tokens one GPU pass may hold."
-                },
-                "max_state_tokens": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "description": "The most tokens of a state the model reads; a longer state is cut there, as the decider does."
-                },
-                "page_bytes": {
-                  "type": "integer",
-                  "minimum": 1,
-                  "description": "How many bytes of answers one read returns."
+                  "description": "The row's record id."
                 }
               }
             },
-            "jobs_folder": {
-              "type": "string",
-              "description": "The folder on the person's computer that holds runs while they work and until their answers are read."
+            "states": {
+              "type": "object",
+              "required": [
+                "type",
+                "prefix"
+              ],
+              "description": "The state rows: every row of `type` whose id starts with `prefix`, in id order. Each state is the row's `field` when given, else its whole value (text, or JSON written compactly).",
+              "properties": {
+                "type": {
+                  "type": "string"
+                },
+                "prefix": {
+                  "type": "string"
+                },
+                "field": {
+                  "type": "string"
+                }
+              }
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "{\"result\": {\"job_id\", \"status\": \"queued\" | \"running\" | \"finished\" | \"cancelled\", \"states_done\", \"states\", \"already\"?}} or {\"error\": \"what to change\"}."
+          "description": "{\"result\": {\"job_id\", \"status\": \"finished\" | \"cancelled\" | \"failed\" | \"running\", \"states_done\", \"states\", \"pages\", \"already\"?, \"error\"?}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "max_run_ms": 14400000,
+          "workdir": "/opt/answer-questions-about-many-states",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
+            "answerManyStates"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "model.type"
+                  }
+                },
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "model.id"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "questions.type"
+                  }
+                },
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "questions.id"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "settings.type"
+                  }
+                },
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "settings.id"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "states.type"
+                  }
+                },
+                "prefix": {
+                  "fill": {
+                    "from": "input",
+                    "field": "states.prefix"
+                  }
+                },
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "bulk-answer-run",
+                "prefix": "bulk-answer-run:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "bulk-answer-page",
+                "prefix": "bulk-answer-page:",
+                "operations": [
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "bulk-answer-cancel",
+                "prefix": "bulk-answer-cancel:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "read-data",
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          },
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
             "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py start --request {input}",
           "needs": [
             "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+            "python3 with mlx, numpy, tokenizers, blake3 and huggingface_hub (the get_it commands)"
           ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. It answers at once; the run goes on in the background until every state is answered."
+          "programs": {
+            "python3": {
+              "warm": "python-script",
+              "fetch": {
+                "macos-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "macos-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-x86_64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                },
+                "linux-aarch64": {
+                  "unverified": "No pinned download yet: the python-build-standalone release page was not readable from where this row was written, so no archive address or checksum was checked."
+                }
+              },
+              "search": "python3",
+              "runtime_read_dirs": [
+                "../lib",
+                {
+                  "from_program": "../lib/{executable_name}/site-packages"
+                }
+              ],
+              "runtime_programs": [
+                "../Resources/Python.app/Contents/MacOS/Python"
+              ]
+            }
+          }
         },
-        "result_selector": "$.result",
-        "maker": "maker:answer-questions-about-many-states",
-        "licence_class": "licence:permissive",
+        "needs": {
+          "expected_seconds": 600,
+          "network_egress": false,
+          "memory_mb": 16384
+        },
         "placements": [
           "placement:your-computer"
         ],
-        "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
-        }
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "model": {
+                "type": "record:classifier-model",
+                "id": "record:classifier-model:sample"
+              },
+              "questions": {
+                "type": "record:question-set",
+                "id": "record:question-set:sample"
+              },
+              "settings": {
+                "type": "record:setting",
+                "id": "record:setting:bulk-answer~sample"
+              },
+              "states": {
+                "type": "record:line",
+                "prefix": "record:line:sample~",
+                "field": "text"
+              }
+            },
+            "records": [
+              {
+                "id": "record:classifier-model:sample",
+                "type": "record:classifier-model",
+                "value": {
+                  "classifier": "questions-first-decider",
+                  "weights": {
+                    "folder": "/made-up/model"
+                  }
+                }
+              },
+              {
+                "id": "record:question-set:sample",
+                "type": "record:question-set",
+                "value": {
+                  "questions": {
+                    "warm": {
+                      "type": "noul",
+                      "instructions": "Is the lamp warm?"
+                    }
+                  }
+                }
+              },
+              {
+                "id": "record:setting:bulk-answer~sample",
+                "type": "record:setting",
+                "value": {
+                  "layout": "independent",
+                  "dtype": "float32",
+                  "tokens_per_batch": 2048,
+                  "max_state_tokens": 512,
+                  "page_bytes": 4000
+                }
+              },
+              {
+                "id": "record:line:sample~1",
+                "type": "record:line",
+                "value": {
+                  "text": "The warm lamp glowed."
+                }
+              },
+              {
+                "id": "record:line:sample~2",
+                "type": "record:line",
+                "value": {
+                  "text": "The river grew."
+                }
+              }
+            ],
+            "stand_in_programs": {
+              "python3": "req=$(cat)\ncase \" $* \" in\n  *\" get-ready\"*) echo '{\"result\": {\"model\": \"sample-model\", \"classifier\": \"questions-first-decider\", \"identity\": \"1f:0000000000000000000000000000000000000000000000000000000000000000\", \"files\": [{\"name\": \"config.json\", \"bytes\": 2, \"blake3\": \"0000000000000000000000000000000000000000000000000000000000000000\"}], \"ready\": true}}' ;;\n  *\" work\"*) echo '{\"checked\": {\"states\": 2}}'; echo '{\"answered\": [{\"state\": 0, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.25}}}, {\"state\": 1, \"answers\": {\"warm\": {\"type\": \"noul\", \"noul\": 0.75}}}]}'; echo '{\"result\": {\"status\": \"finished\", \"states_done\": 2, \"states\": 2, \"classifier_answers_as\": \"made-up\", \"seconds\": {\"wall\": 0.01}}}' ;;\n  *) echo '{\"error\": \"made-up stand-in\"}'; exit 1 ;;\nesac"
+            }
+          }
+        ]
       }
     },
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        },
         "id": "tool:read-a-bulk-answer-run",
         "label": "Read how far a bulk answer run is, and its answers",
         "job": "How far is my bulk question run, and give me its answers",
-        "description": "Says a run's status (queued, running, finished, cancelled or failed with why), how many states are answered and, once it is finished or cancelled, its answers as byte pages: {total, blake3, offset, length, base64, next_after_byte}. Ask again with after_byte set to next_after_byte until it is null, join the bytes, check the length and BLAKE3, and parse: {model, layout, questions, states, answers: [{state, answers: {question id: answer}}], seconds}. Keep what matters as rows in the person's lists; the run's folder is working space.",
-        "status": "active",
+        "description": "Reads a bulk answer run's row from the person's records, from any computer: its status (running, finished, cancelled, or failed with why; a run whose row stopped being written is failed), how many states are answered and in how many pages, and, given `page`, that page's answers: [{state: the state row's id, index, answers: {question id: answer}}], with next_page until it is null. Pages are readable while the run goes on.",
         "input_schema": {
           "type": "object",
           "required": [
-            "job_id",
-            "jobs_folder"
+            "job_id"
           ],
           "properties": {
             "job_id": {
               "type": "string",
               "pattern": "^1f:[0-9a-f]{64}$",
-              "description": "The job_id start answered: the BLAKE3 content identity of the whole request."
+              "description": "The job_id the run answered: the BLAKE3 identity of the rows it read."
             },
-            "jobs_folder": {
-              "type": "string",
-              "description": "The folder on the person's computer that holds runs while they work and until their answers are read."
-            },
-            "after_byte": {
+            "page": {
               "type": "integer",
-              "minimum": 0
+              "minimum": 0,
+              "description": "Which page of answers to give, from 0 to pages - 1."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "{\"result\": {\"job_id\", \"status\", \"states_done\", \"states\", \"seconds\"?, \"error\"?, \"byte_page\"?}} or {\"error\": \"what to change\"}."
+          "description": "{\"result\": {\"job_id\", \"status\", \"states_done\", \"states\", \"pages\", \"layout\", \"question_ids\", \"classifier_answers_as\"?, \"seconds\"?, \"error\"?, \"page\"?: {\"index\", \"answers\", \"next_page\"}}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          "kind": "container",
+          "workdir": "/opt/answer-questions-about-many-states",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
+            "readABulkAnswerRun"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py read --request {input}",
-          "needs": [
-            "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
-          ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. "
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "bulk-answer-run",
+                "prefix": "bulk-answer-run:",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "bulk-answer-page",
+                "prefix": "bulk-answer-page:",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
         },
-        "result_selector": "$.result",
-        "maker": "maker:answer-questions-about-many-states",
-        "licence_class": "licence:permissive",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
         "placements": [
-          "placement:your-computer"
+          "placement:small-container"
         ],
-        "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
-        }
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "page": 0
+            },
+            "records": [
+              {
+                "id": "bulk-answer-run:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "type": "bulk-answer-run",
+                "value": {
+                  "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "attempt": "sample-attempt",
+                  "status": "finished",
+                  "states_done": 2,
+                  "states": 2,
+                  "pages": 1,
+                  "layout": "independent",
+                  "question_ids": [
+                    "warm"
+                  ],
+                  "classifier_answers_as": "made-up",
+                  "seconds": {
+                    "wall": 0.01
+                  },
+                  "started_at": "2026-11-06T00:00:00.000Z",
+                  "updated_at": "2026-11-06T00:00:01.000Z",
+                  "longest_until": "2026-11-06T04:00:00.000Z"
+                }
+              },
+              {
+                "id": "bulk-answer-page:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa:000000",
+                "type": "bulk-answer-page",
+                "value": {
+                  "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "attempt": "sample-attempt",
+                  "page": 0,
+                  "answers": [
+                    {
+                      "state": "record:line:sample~1",
+                      "index": 0,
+                      "answers": {
+                        "warm": {
+                          "type": "noul",
+                          "noul": 0.25
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "status": "active",
+        "result_selector": "$.result",
+        "maker": "maker:answer-questions-about-many-states",
+        "licence_class": "licence:permissive",
+        "provenance": {
+          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
+        },
         "id": "tool:cancel-a-bulk-answer-run",
         "label": "Stop a bulk answer run",
         "job": "Stop my bulk question run",
-        "description": "Asks a run to stop after the batch in hand. The states it finished keep their answers, which read then returns; a run already finished is left as it is.",
-        "status": "active",
+        "description": "Asks a bulk answer run to stop after the batch in hand, from any computer: it writes the run's bulk-answer-cancel row, which the run reads between batches. The states already answered keep their pages, which tool:read-a-bulk-answer-run then gives. A run already finished, cancelled or failed is left as it is; a run whose row stopped being written is marked cancelled.",
         "input_schema": {
           "type": "object",
           "required": [
-            "job_id",
-            "jobs_folder"
+            "job_id"
           ],
           "properties": {
             "job_id": {
               "type": "string",
               "pattern": "^1f:[0-9a-f]{64}$",
-              "description": "The job_id start answered: the BLAKE3 content identity of the whole request."
-            },
-            "jobs_folder": {
-              "type": "string",
-              "description": "The folder on the person's computer that holds runs while they work and until their answers are read."
+              "description": "The job_id the run answered: the BLAKE3 identity of the rows it read."
             }
           }
         },
         "output_schema": {
           "type": "object",
-          "description": "{\"result\": {\"job_id\", \"status\": \"cancelling\" | \"cancelled\" | \"finished\" | \"failed\", \"states_done\", \"states\"}} or {\"error\": \"what to change\"}."
+          "description": "{\"result\": {\"job_id\", \"status\": \"cancelling\" | \"cancelled\" | \"finished\" | \"failed\", \"states_done\", \"states\", \"pages\"}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          "kind": "container",
+          "workdir": "/opt/answer-questions-about-many-states",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/answer-questions-about-many-states/read-data/bulk-answer.mjs",
+            "cancelABulkAnswerRun"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py cancel --request {input}",
-          "needs": [
-            "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
-          ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. "
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "bulk-answer-run",
+                "prefix": "bulk-answer-run:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "bulk-answer-cancel",
+                "prefix": "bulk-answer-cancel:",
+                "operations": [
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
         },
-        "result_selector": "$.result",
-        "maker": "maker:answer-questions-about-many-states",
-        "licence_class": "licence:permissive",
+        "needs": {
+          "expected_seconds": 1,
+          "network_egress": false
+        },
         "placements": [
-          "placement:your-computer"
+          "placement:small-container"
         ],
-        "provenance": {
-          "source": "This folder's MLX port of the Qwen3.5 hybrid backbone and of the decider's questions-first cache (Mapika/decider-2b, Apache-2.0, snapshot b37f7e1ba3fbc9238004cf531fabbee2619973fd); the Metal gated-delta scan from the decider lane's earlier MLX build. The model's own licence applies to its weights."
-        }
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            },
+            "records": [
+              {
+                "id": "bulk-answer-run:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                "type": "bulk-answer-run",
+                "value": {
+                  "job_id": "1f:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                  "attempt": "sample-attempt",
+                  "status": "running",
+                  "states_done": 0,
+                  "states": 2,
+                  "pages": 0,
+                  "layout": "independent",
+                  "question_ids": [
+                    "warm"
+                  ],
+                  "classifier_answers_as": "made-up",
+                  "seconds": {
+                    "wall": 0.01
+                  },
+                  "started_at": "2026-11-06T00:00:00.000Z",
+                  "updated_at": "2026-11-06T00:00:01.000Z",
+                  "longest_until": "2099-01-01T00:00:00.000Z"
+                }
+              }
+            ]
+          }
+        ]
       }
     }
   ]
