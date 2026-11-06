@@ -3214,6 +3214,22 @@
       "source_identity": "1f:7fd8999d5a6b9806e16c67bc202c34df45deda6d1477cc021e348da3eed8c603",
       "identity": "1f:8893a3d9d9e0671649bb802dd6f1769329964275943dd30087131d854ef32afd",
       "adapted": "the client catalogue and report-progress come from set-up-my-account and run-on-a-persons-computer, and the retired setup answer's command checks read this tool's MCP row; its default-clients check is left out, the row taking the apps from the caller"
+    },
+    {
+      "from": "test/own-ais-full-store-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/own-ais-full-store-recovery.test.mjs",
+      "source_identity": "1f:e49432bb9f256abf3df7c5ec44f586c9cf4107b5d599679138146e2156d5f3f5",
+      "identity": "1f:0a4a63adc1a2ca15f639cc779a0dd766d88f484e2c5b927f70cfa85672d7edf6",
+      "adapted": "the sealedLogPage test over this tool's record-log store and a rows-as-consumed counter; the own-AI routing tests and the retired PersonStore's carry-in and full-store archival tests are left out, as no running code does that work"
+    },
+    {
+      "from": "test/own-ais-wake-person-upgrade.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/own-ais-wake-person-upgrade.test.mjs",
+      "source_identity": "1f:0a5bd32c37ea71ddce089233df6469d70dc959a6d7e7c09169e6d92c58a3adb5",
+      "identity": "1f:e6eee1f56f0f799962bf06e1b354082adb7eac5f3284856fac5a7f713b73b5f8",
+      "adapted": "hand-work-to-ais agentRecordStore's wake index over this tool's record-log store; the retired own-AI routing's answers (runner().nextDue, its pages) are left out, so the first test runs a fixed number of cold wakes"
     }
   ]
 }
