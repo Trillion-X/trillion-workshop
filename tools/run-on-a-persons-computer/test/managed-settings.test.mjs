@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { managedSettingsData, readManagedSettings, turnedOff } from '../managed-settings.mjs';
@@ -25,7 +25,8 @@ test('no profile manages nothing', async () => {
   assert.equal(turnedOff({ settings: {} }, 'local_models'), null);
 });
 
-test('a real property list is read with plutil, typed per DATA, with its source, and wrong or unknown keys are named and ignored', async () => {
+// A real property list is read by /usr/bin/plutil, which only a Mac has; elsewhere this test is skipped and says so.
+test('a real property list is read with plutil, typed per DATA, with its source, and wrong or unknown keys are named and ignored', { skip: existsSync('/usr/bin/plutil') ? false : 'needs a Mac: /usr/bin/plutil reads the property list' }, async () => {
   const home = homeWith({});
   const plist = '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd"><plist version="1.0"><dict><key>local_models</key><false/><key>updates</key><string>no</string><key>allowed_ais</key><array><string>claude-code</string></array><key>mystery</key><true/></dict></plist>';
   mkdirSync(join(home, 'System'), { recursive: true });
