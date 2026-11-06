@@ -16,7 +16,7 @@
 // file on this computer, the environment, a log or the answer.
 //
 // usage: install-a-builder.mjs install REQUEST_FILE | status REQUEST_FILE
-import { readFileSync } from 'node:fs';
+import { createReadStream, existsSync, readFileSync } from 'node:fs';
 import { dirname, isAbsolute, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -25,6 +25,8 @@ import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-
 import { readFeed, settings } from './release-feed.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-builder.sh', import.meta.url));
+const SETUP_DARWIN = fileURLToPath(new URL('./set-up-darwin-builds.sh', import.meta.url));
+const D = settings.darwin;
 const ROOT = fileURLToPath(new URL('../../../', import.meta.url));
 const B = settings.on_builder;
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
@@ -69,6 +71,12 @@ export function checkRequest(request) {
   if (!repository || typeof repository.url !== 'string' || !/^(https:\/\/|ssh:\/\/|git@)/.test(repository.url)) throw refuse('repository.url must be the URL git fetches the engine repository from, like https://github.com/OWNER/REPOSITORY.git.');
   if (typeof repository.branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(repository.branch)) throw refuse('repository.branch must be the branch whose pushes are published, like main.');
   if (request.accept_entries_from !== undefined && (!Array.isArray(request.accept_entries_from) || !request.accept_entries_from.every(key => /^[0-9a-f]{64}$/.test(key)))) throw refuse('accept_entries_from must list the Ed25519 public keys (64 lowercase hex) of the other builders whose signed entries this feed takes, one builder per target (contribute-an-engine-release.mjs public-key prints one).');
+  if (request.darwin !== undefined) {
+    const { targets = D.targets, team_id: team, sdk } = request.darwin ?? {};
+    if (!Array.isArray(targets) || !targets.length || !targets.every(target => D.targets.includes(target))) throw refuse(`darwin.targets must list Mac targets the builder cross-builds: ${D.targets.join(', ')}.`);
+    if (typeof team !== 'string' || !new RegExp(D.team_pattern).test(team)) throw refuse('darwin.team_id must be the Mac app\'s Developer ID team (10 letters and digits, the OU of its certificate).');
+    if (typeof sdk !== 'string' || !/\.tar\.xz$/.test(sdk)) throw refuse('darwin.sdk must name a macOS SDK packed as .tar.xz on this computer, its one top folder the SDK (tar -C "$(xcrun --show-sdk-path)/.." -chJf MacOSX.sdk.tar.xz "$(basename "$(xcrun --show-sdk-path)")" on a Mac with Xcode).');
+  }
   if (request.keep_releases !== undefined && (!Number.isSafeInteger(request.keep_releases) || request.keep_releases < 1 || request.keep_releases > settings.keep_releases)) throw refuse(`keep_releases must be a whole number from 1 to ${settings.keep_releases}.`);
   return request;
 }
@@ -80,9 +88,10 @@ export function builderConfig(request) {
     base_url: `https://${request.builder.host_name}${settings.feed_path}`,
     work_folder: B.work_folder, feed_folder: B.feed_folder, key_file: B.key_file, state_folder: B.state_folder,
     keep_releases: request.keep_releases ?? settings.keep_releases,
-    toolchain: { cargo: `${B.home}/.cargo/bin/cargo`, rustc: `${B.home}/.cargo/bin/rustc` },
+    toolchain: { cargo: `${B.home}/.cargo/bin/cargo`, rustc: `${B.home}/.cargo/bin/rustc`, ...(request.darwin ? { rcodesign: `${B.home}/.cargo/bin/rcodesign`, zig_python: `${D.zig_folder}/bin/python3` } : {}) },
     receiver: { host: '127.0.0.1', port: settings.receiver_port, path: settings.push_path, entry_path: settings.entry_path },
     accept_entries_from: request.accept_entries_from ?? [],
+    ...(request.darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id, sdk_root: D.sdk_folder } } : {}),
   };
 }
 
@@ -94,8 +103,10 @@ const PATH = `${B.home}/.cargo/bin:/usr/local/bin:/usr/bin:/bin`;
 export const overSsh = url => /^(ssh:\/\/|git@)/.test(url);
 const GIT_SSH = `ssh -i ${B.repository_key_file} -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=${B.repository_known_hosts}`;
 
-/** The receiver's systemd unit: its two credentials opened onto descriptors 3 and 4; git uses the builder's read key when `sshKey`. */
-export function receiverUnit({ hasToken, sshKey = false }) {
+/** The receiver's systemd unit: its two credentials opened onto descriptors 3 and 4; git uses the builder's read key when `sshKey`;
+ *  with `darwin`, the Developer ID identity and its password are opened too, as files in $CREDENTIALS_DIRECTORY that
+ *  publish hands rcodesign by path (publish-an-engine-release.mjs `publishDarwin`). */
+export function receiverUnit({ hasToken, sshKey = false, darwin = false }) {
   return `[Unit]
 Description=Publishes a signed engine release for each push it receives
 After=network-online.target
@@ -107,7 +118,7 @@ User=${B.user}
 Group=${B.user}
 Environment=PATH=${PATH}
 Environment=HOME=${B.home}
-${sshKey ? `Environment="GIT_SSH_COMMAND=${GIT_SSH}"\n` : ''}${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
+${sshKey ? `Environment="GIT_SSH_COMMAND=${GIT_SSH}"\n` : ''}${darwin ? Object.values(D.credentials).map(name => `LoadCredentialEncrypted=${name}:${credential(name)}\n`).join('') : ''}${hasToken ? `LoadCredentialEncrypted=repository-token:${credential('repository-token')}\n` : ''}LoadCredentialEncrypted=push-secret:${credential('push-secret')}
 ExecStart=/bin/sh -c 'exec node ${toolFile('receive-pushes.mjs')} serve ${B.config_file} 3<${hasToken ? '"$CREDENTIALS_DIRECTORY/repository-token"' : '/dev/null'} 4<"$CREDENTIALS_DIRECTORY/push-secret"'
 Restart=on-failure
 RestartSec=5
@@ -129,9 +140,11 @@ async function feedStatus(hostName, fetchImpl) {
 }
 
 /** Make the machine the builder and start receiving pushes; answers the public key and where to point the webhook. */
-export async function installBuilder(request, { token = '', secret = '', run = onMachine, tarball = shippedTarball, fetchImpl = fetch } = {}) {
+export async function installBuilder(request, { token = '', secret = '', identity = '', identityPassword = '', run = onMachine, tarball = shippedTarball, sdk = file => createReadStream(file), fetchImpl = fetch } = {}) {
   checkRequest(request);
   if (!secret) throw refuse('Descriptor 4 holds no push secret: hand the webhook secret from the person\'s vault on descriptor 4 (the same secret goes in the repository\'s webhook).');
+  const darwin = request.darwin ? developerIdentity(identity, identityPassword) : null;
+  if (darwin && !existsSync(request.darwin.sdk)) throw refuse(`darwin.sdk ${request.darwin.sdk} is not on this computer.`);
   const machine = { ssh: request.ssh, address: request.builder.address };
   const setup = [request.builder.host_name, settings.receiver_port, settings.feed_path, settings.push_path, B.user, B.home, B.feed_folder, B.state_folder, settings.node_major_at_least, settings.node_dist, settings.rustup_url, settings.entry_path];
   await run(machine, `sh -s -- ${setup.map(q).join(' ')}`, readFileSync(SETUP));
@@ -146,7 +159,16 @@ export async function installBuilder(request, { token = '', secret = '', run = o
   await run(machine, `install -d -m 0700 ${q(B.credentials_folder)} && umask 077 && systemd-creds encrypt --name=push-secret - ${q(credential('push-secret'))}`, secret);
   if (token) await run(machine, `umask 077 && systemd-creds encrypt --name=repository-token - ${q(credential('repository-token'))}`, token);
   else await run(machine, `rm -f ${q(credential('repository-token'))}`);
-  await run(machine, `install -m 0644 /dev/stdin /etc/systemd/system/${q(`${B.service}.service`)}`, receiverUnit({ hasToken: Boolean(token), sshKey }));
+  if (darwin) {
+    const targets = request.darwin.targets ?? D.targets;
+    await run(machine, `sh -s -- ${[B.user, B.home, D.zig_folder, D.zig_wheel.version, D.zig_wheel.sha256.x86_64, D.zig_wheel.sha256.aarch64, D.cargo_zigbuild, D.apple_codesign, ...targets].map(q).join(' ')}`, readFileSync(SETUP_DARWIN));
+    // The SDK, from the person's computer: unpacked beside, checked to be an SDK, then moved to its folder.
+    const S = D.sdk_folder;
+    await run(machine, `rm -rf ${q(`${S}.new`)} && install -d -m 0755 ${q(`${S}.new`)} && tar -C ${q(`${S}.new`)} --strip-components=1 --no-same-owner -xJf - && test -f ${q(`${S}.new/SDKSettings.json`)} && test -d ${q(`${S}.new/System/Library/Frameworks/Security.framework`)} && chmod -R a+rX,go-w ${q(`${S}.new`)} && rm -rf ${q(S)} && mv ${q(`${S}.new`)} ${q(S)}`, sdk(request.darwin.sdk));
+    await run(machine, `umask 077 && systemd-creds encrypt --name=${q(D.credentials.identity)} - ${q(credential(D.credentials.identity))}`, darwin.identity);
+    await run(machine, `umask 077 && systemd-creds encrypt --name=${q(D.credentials.password)} - ${q(credential(D.credentials.password))}`, darwin.password);
+  } else await run(machine, `rm -f ${Object.values(D.credentials).map(name => q(credential(name))).join(' ')}`);
+  await run(machine, `install -m 0644 /dev/stdin /etc/systemd/system/${q(`${B.service}.service`)}`, receiverUnit({ hasToken: Boolean(token), sshKey, darwin: Boolean(darwin) }));
   const active = (await run(machine, `systemctl daemon-reload && systemctl enable ${q(B.service)} >/dev/null 2>&1; systemctl restart ${q(B.service)} && sleep 2 && systemctl is-active ${q(B.service)}`)).trim();
   const host = request.builder.host_name;
   return {
@@ -154,7 +176,20 @@ export async function installBuilder(request, { token = '', secret = '', run = o
     feed_url: `https://${host}${settings.feed_path}${settings.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
     webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
     entries_url: `https://${host}${settings.entry_path}`, accept_entries_from: request.accept_entries_from ?? [],
+    ...(darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id } } : {}),
   };
+}
+
+/** The Developer ID identity handed on descriptor 5 (the PKCS#12 file as base64, as a vault keeps a file) and its
+ *  password on descriptor 6, checked for shape only; the bytes go to the builder on the SSH channel's standard input. */
+export function developerIdentity(identity, password) {
+  if (!identity) throw refuse('darwin needs the Developer ID Application identity: hand its .p12 as base64 on descriptor 5, read from the person\'s vault.');
+  if (!password) throw refuse('darwin needs the .p12\'s password on descriptor 6, read from the person\'s vault.');
+  const compact = identity.replace(/\s+/g, '');
+  if (!/^[A-Za-z0-9+/]+={0,2}$/.test(compact)) throw refuse('Descriptor 5 is not base64: hand the .p12 as base64 (base64 -i identity.p12).');
+  const bytes = Buffer.from(compact, 'base64');
+  if (bytes.length < 64 || bytes.length > D.identity_bytes_at_most || bytes[0] !== 0x30) throw refuse('Descriptor 5 is not a PKCS#12 file: export the Developer ID Application certificate with its private key from Keychain Access as .p12.');
+  return { identity: bytes, password };
 }
 
 /** The receiver's state, the feed's newest release per target and the last run, read from the builder. */
@@ -179,16 +214,17 @@ export async function builderStatus(request, { run = onMachine, fetchImpl = fetc
 export function readRequest(file) {
   const request = JSON.parse(readFileSync(absolute(file, 'REQUEST_FILE'), 'utf8')), here = dirname(file);
   for (const key of ['known_hosts', 'identity_file']) if (typeof request.ssh?.[key] === 'string') request.ssh[key] = resolvePath(here, request.ssh[key]);
+  if (typeof request.darwin?.sdk === 'string') request.darwin.sdk = resolvePath(here, request.darwin.sdk);
   return request;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, ...rest] = process.argv.slice(2);
   try {
-    if (!['install', 'status'].includes(operation) || !first || rest.length) throw refuse('usage: install-a-builder.mjs install REQUEST_FILE (repository token on fd 3, push secret on fd 4) | status REQUEST_FILE');
+    if (!['install', 'status'].includes(operation) || !first || rest.length) throw refuse('usage: install-a-builder.mjs install REQUEST_FILE (repository token on fd 3, push secret on fd 4; with darwin, the Developer ID .p12 as base64 on fd 5 and its password on fd 6) | status REQUEST_FILE');
     const request = readRequest(resolvePath(first));
     const answer = operation === 'install'
-      ? await installBuilder(request, { token: await privateInput(3), secret: await privateInput(4) })
+      ? await installBuilder(request, { token: await privateInput(3), secret: await privateInput(4), ...(request.darwin ? { identity: await privateInput(5), identityPassword: await privateInput(6) } : {}) })
       : await builderStatus(request);
     process.stdout.write(`${JSON.stringify(answer)}\n`);
   } catch (error) {

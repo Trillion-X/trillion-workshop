@@ -1,0 +1,90 @@
+- path: /builder/work/signed/aarch64-apple-darwin/trillion-local
+  file_size: 76756864
+  file_sha256: 4a6868ca9959040c846314086f01c1470786dc5c923b8f068ab12eaaa26603a2
+  entity:
+    mach_o:
+      macho_linkedit_start_offset: 65945600 / 0x3ee4000
+      macho_signature_start_offset: 76155776 / 0x48a0b80
+      macho_signature_end_offset: 76753064 / 0x49328a8
+      macho_linkedit_end_offset: 76756864 / 0x4933780
+      macho_end_offset: 76756864 / 0x4933780
+      linkedit_signature_start_offset: 10210176 / 0x9bcb80
+      linkedit_signature_end_offset: 10807464 / 0xa4e8a8
+      linkedit_bytes_after_signature: 3800 / 0xed8
+      signature:
+        superblob_length: 597288 / 0x91d28
+        blob_count: 3
+        blobs:
+        - slot: CodeDirectory (0)
+          magic: fade0c02
+          length: 595151
+          sha1: 2012749304093f6258d29a110fe09b64b56cd47a
+          sha256: 3c738c5e63f869ed415f84c9f7af46d8883a124e5ece450dfa3736b43ecd16bb
+        - slot: RequirementSet (2)
+          magic: fade0c01
+          length: 92
+          sha1: 7f8f626431a6c742a5ffaf53e34e4ef5ba09d13e
+          sha256: a0460ef92776639894b06d804346b75187705f973a034a9f8bf09d7c2293079c
+        - slot: CMS Signature (65536)
+          magic: fade0b01
+          length: 2009
+          sha1: 50825d0c163d42476d9d4ad88f21db4ca10d64b5
+          sha256: 5dd481e886bed9885247ea5ac11b765e9c92c88ad6f26839c5ea71d5fca2962b
+        code_directory:
+          version: '0x20500'
+          flags: CodeSignatureFlags(RUNTIME)
+          identifier: trillion-local
+          digest_type: sha256
+          platform: 0
+          signed_entity_size: 76155776
+          executable_segment_flags: ExecutableSegmentFlags(MAIN_BINARY)
+          runtime_version: 14.0.0
+          code_digests_count: 18593
+          slot_digests:
+        code_requirements:
+        - 'designated(3): 0: (identifier "trillion-local") and (certificate root = H"6233e7f0cdfb5f9cb589fb4a727404a278cddba0");'
+        cms:
+          certificates:
+          - subject: 'CN=Developer ID Application: Test Builder (ABCDE12345), OU=ABCDE12345, O=Test Builder, C=XX'
+            issuer: 'CN=Developer ID Application: Test Builder (ABCDE12345), OU=ABCDE12345, O=Test Builder, C=XX'
+            key_algorithm: RSA
+            signature_algorithm: SHA-256 with RSA encryption
+            signed_with_algorithm: SHA-256 with RSA encryption
+            is_apple_root_ca: false
+            is_apple_intermediate_ca: false
+            chains_to_apple_root_ca: false
+            apple_extended_key_usages:
+            - Code Signing
+            apple_code_signing_extensions:
+            - Developer ID Application
+            apple_certificate_profile: developer-id-application
+            apple_team_id: ABCDE12345
+          signers:
+          - issuer: 'CN=Developer ID Application: Test Builder (ABCDE12345), OU=ABCDE12345, O=Test Builder, C=XX'
+            digest_algorithm: SHA-256
+            signature_algorithm: SHA-256 with RSA encryption
+            attributes:
+            - 1.2.840.113549.1.9.3
+            - 1.2.840.113549.1.9.4
+            - 1.2.840.113549.1.9.5
+            - 1.2.840.113635.100.9.1
+            - 1.2.840.113635.100.9.2
+            content_type: 1.2.840.113549.1.7.1
+            message_digest: 3c738c5e63f869ed415f84c9f7af46d8883a124e5ece450dfa3736b43ecd16bb
+            signing_time: 2026-11-06T20:29:05Z
+            cdhash_plist:
+            - <?xml version="1.0" encoding="UTF-8"?>
+            - <plist version="1.0">
+            - '  <dict>'
+            - '    <key>cdhashes</key>'
+            - '    <array>'
+            - '      <data>'
+            - "\t\tPHOMXmP4ae1BX4TJ969G2Ig6Ek4="
+            - "\t\t</data>"
+            - '    </array>'
+            - '  </dict>'
+            - </plist>
+            cdhash_digests:
+            - - 2.16.840.1.101.3.4.2.1
+              - 3c738c5e63f869ed415f84c9f7af46d8883a124e5ece450dfa3736b43ecd16bb
+            signature_verifies: true
