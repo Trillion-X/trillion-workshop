@@ -19,7 +19,6 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation, or from loosening the rule it states.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
@@ -28,12 +27,34 @@ import { RECORD_INDEXES, RECORD_MODEL } from '../src/record-engine.mjs';
 const root = new URL('..', import.meta.url).pathname;
 const { records } = JSON.parse(readFileSync(new URL('./fixtures/new-account-own-records.json', import.meta.url), 'utf8'));
 // The earlier owner: the two files as they were before this change, every other source byte the same as the current road.
-const EARLIER_COMMIT = '775166f635cd91daedaa51693ff40fb29b02f762';
-const committed = path => execFileSync('git', ['show', `${EARLIER_COMMIT}:${path}`], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-const EARLIER = ['parts/record-log/do-work/record-log-store.mjs', 'parts/record-log/do-work/record-tables.mjs'];
+// Their bytes are old trillion's at 775166f635cd91daedaa51693ff40fb29b02f762, carried here as fixtures: this checkout
+// does not hold that repository's history, so a test may not read it at run time.
+const EARLIER = {
+  'parts/record-log/do-work/record-log-store.mjs': './fixtures/record-log-store-before-unused-kinds-skipped.mjs',
+  'parts/record-log/do-work/record-tables.mjs': './fixtures/record-tables-before-unused-kinds-skipped.mjs',
+};
+// The only change to those bytes: each relative import old trillion's layout named is moved to where this tool keeps
+// the same file (as parts/record-log/do-work/record-log-store.mjs itself names it), so both roads load one copy.
+const RELOCATED = {
+  "'../../slot-table/do-work/slot-table.mjs'": "'../../../../slot-table/do-work/slot-table.mjs'",
+  "'../../json-expansion.mjs'": "'../../../../json-expansion.mjs'",
+  "'../../sql-statement-execution.mjs'": "'../../../../sql-statement-execution.mjs'",
+  "'./maintenance-pacing.json'": "'../../../../record-log/do-work/maintenance-pacing.json'",
+  "'./record-digest.mjs'": "'../../../../record-log/do-work/record-digest.mjs'",
+  "'./record-stamps.mjs'": "'../../../../record-log/do-work/record-stamps.mjs'",
+  "'./record-model.mjs'": "'../../../../record-log/do-work/record-model.mjs'",
+};
+function relocated(text) {
+  for (const [from, to] of Object.entries(RELOCATED)) {
+    if (!text.includes(from)) continue;
+    assert.equal(text.split(from).length, 2, `${from} is named once`);
+    text = text.replace(from, to);
+  }
+  return text;
+}
 
 async function bundle(road) {
-  const earlier = new Map(EARLIER.map(path => [root + path, committed(path)]));
+  const earlier = new Map(Object.entries(EARLIER).map(([path, fixture]) => [root + path, relocated(readFileSync(new URL(fixture, import.meta.url), 'utf8'))]));
   const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' },
     bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error',
     plugins: road === 'earlier' ? [{ name: 'earlier-record-tables-owner', setup(builder) {
