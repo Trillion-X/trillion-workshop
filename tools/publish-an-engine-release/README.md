@@ -26,7 +26,7 @@ Publish a signed engine release on every merge, so an engine fix reaches every a
 { commit, sequence, target, url, content, bytes, urgent, signature }
 ```
 
-- `sequence`: `git rev-list --count --first-parent <commit>`, for a commit on the branch's first-parent line (anything else is refused).
+- `sequence`: the commit's time in seconds (`git show -s --format=%ct <commit>`), for a commit on the branch's first-parent line (anything else is refused). It is the one numbering every engine build uses: the Mac app stamps the engine it carries the same way (trillion-apps scripts/release-macos-app.sh).
 - `target`: the builder's rust target triple (the host line of `rustc -vV`).
 - `url`: `<base_url><commit>/<target>.tar.gz`; the tar.gz holds `trillion-local`, and `product/` when the commit has one.
 - `content`: `1f:` and the BLAKE3 hex of the tar.gz (`tools/content-identity`), `bytes` its size.
