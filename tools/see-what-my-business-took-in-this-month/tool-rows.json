@@ -1,0 +1,251 @@
+{
+ "kind": "tool-rows",
+ "record_set": "see-what-my-business-took-in-this-month-tool-rows",
+ "what_this_is": "The Workshop rows for tools/see-what-my-business-took-in-this-month: Business's one read (tool:read-business) and the Stripe money read it runs with the person's own connection.",
+ "records": [
+  {
+   "id": "package::see-what-my-business-took-in-this-month::tool::read-business",
+   "address": "package::see-what-my-business-took-in-this-month::tool::read-business",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-business",
+    "status": "active",
+    "maker": "maker:see-what-my-business-took-in-this-month",
+    "licence_class": "licence:maker-own",
+    "label": "Read this account's business this month",
+    "job": "Read what this account's business took in this month on the payment services it connected",
+    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected cannot be read today, so each is read and a failed read says the money could not be read. Reads only.",
+    "input_schema": {
+     "type": "object",
+     "additionalProperties": false,
+     "properties": {
+      "now": {
+       "type": "string",
+       "description": "The time whose month is read (ISO); now when left out"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "since_words",
+      "service_names",
+      "connected"
+     ],
+     "properties": {
+      "since_words": {
+       "type": "string"
+      },
+      "service_names": {
+       "type": "array"
+      },
+      "connected": {
+       "type": "array"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "see-what-my-business-took-in-this-month",
+        "paths": [
+         "do-work",
+         "tool-rows.json"
+        ],
+        "at": "/opt/see-what-my-business-took-in-this-month"
+       },
+       {
+        "package": "money-reads",
+        "paths": [
+         "src"
+        ],
+        "at": "/opt/money-reads"
+       },
+       {
+        "package": "connect-a-service-and-seal-its-key",
+        "paths": [
+         "records.json"
+        ],
+        "at": "/opt/connect-a-service-and-seal-its-key"
+       },
+       {
+        "package": "records-door",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/records-door"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data"
+        ],
+        "at": "/opt/content-identity"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       }
+      ]
+     },
+     "workdir": "/opt/see-what-my-business-took-in-this-month",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/records-door/do-work/run-an-export.mjs",
+      "/opt/see-what-my-business-took-in-this-month/do-work/business-screen.mjs",
+      "readBusinessForScreen"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     },
+     "records": {
+      "fd": 3,
+      "runs": [
+       "tool:stripe-events-read_money_since"
+      ]
+     }
+    },
+    "needs": {
+     "expected_seconds": 10,
+     "network_egress": false
+    },
+    "read_only": true,
+    "placements": [
+     "placement:small-container"
+    ],
+    "provenance": {
+     "source": "trillion src/business-screen.mjs readBusiness (the account action read-business, catalogue row tool:read-business in records/marketplace-screens.json), before 4ffa1dc4a2"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "now": "2026-10-15T00:00:00.000Z"
+      },
+      "tool_runs": {
+       "tool:stripe-events-read_money_since": {
+        "object": "list",
+        "has_more": false,
+        "data": [
+         {
+          "amount": 10000,
+          "fee": 320,
+          "net": 9680,
+          "currency": "usd",
+          "reporting_category": "charge"
+         }
+        ]
+       }
+      },
+      "output_selector": "$.result.since_words",
+      "contains": "October 1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::see-what-my-business-took-in-this-month::tool::stripe-events-read_money_since",
+   "address": "package::see-what-my-business-took-in-this-month::tool::stripe-events-read_money_since",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:stripe-events-read_money_since",
+    "status": "active",
+    "maker": "maker:see-what-my-business-took-in-this-month",
+    "licence_class": "licence:maker-own",
+    "label": "Read the money on my Stripe account since a moment",
+    "job": "List the money that moved on this Stripe account since a moment, newest first, at most 100 entries",
+    "description": "Lists what moved this Stripe account's balance at or after `since` (seconds since 1970, UTC), newest first, at most 100 entries: Stripe's own answer ({ data: [balance transactions, each with amount, fee and net in the currency's smallest unit, currency and reporting_category], has_more }), read with this account's own Stripe connection. Business's read (tool:read-business) sums it. Reads only.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "since"
+     ],
+     "properties": {
+      "since": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "The moment to list from, in seconds since 1970 (UTC)"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "data",
+      "has_more"
+     ],
+     "properties": {
+      "data": {
+       "type": "array"
+      },
+      "has_more": {
+       "type": "boolean"
+      }
+     }
+    },
+    "invoke": {
+     "kind": "http",
+     "connection_id": "service_connection:stripe",
+     "method": "GET",
+     "url": "https://api.stripe.com/v1/balance_transactions?limit=100&created[gte]={since}",
+     "timeout_ms": 30000,
+     "credential_injections": [
+      {
+       "field_id": "secret_key",
+       "placement": {
+        "kind": "header",
+        "name": "Authorization",
+        "prefix": "Bearer "
+       },
+       "hosts": [
+        "api.stripe.com"
+       ]
+      }
+     ],
+     "answer_codes_that_mean_it_worked": {
+      "at_least": 200,
+      "below": 300
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": true
+    },
+    "read_only": true,
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "provenance": {
+     "record": "package::service-connections::how-to-ask-something-else-to-do-things::stripe-events",
+     "source": "old trillion's row of the same id, made from this record's instrument_requests.read_money_since by the tool-row-source source:how-to-ask-something-else-to-do-things (tools/connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json); `hosts` binds the key to Stripe's API host, as the engine requires of every key (F-0803)"
+    }
+   }
+  }
+ ]
+}

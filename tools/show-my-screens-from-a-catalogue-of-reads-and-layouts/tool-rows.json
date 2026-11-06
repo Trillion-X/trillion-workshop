@@ -120,6 +120,2202 @@
           }
         }
       }
+    },
+    {
+      "id": "package::show-my-screens-from-a-catalogue-of-reads-and-layouts::tool::business",
+      "address": "package::show-my-screens-from-a-catalogue-of-reads-and-layouts::tool::business",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:business",
+        "status": "active",
+        "maker": "maker:trillion",
+        "licence_class": "licence:maker-own",
+        "label": "Business",
+        "job": "Show what this account's business took in this month",
+        "description": "A screen: this month's money in, fees, refunds, net and payments on each payment service this account connected, or the way to connect one; the operator also sees Trillion's price tests, paid plans and how people use Trillion. Its one read, tool:read-business (tools/see-what-my-business-took-in-this-month), gathers the facts; the screen host draws this layout from them (GET /work/api/screens/business).",
+        "screen": {
+          "kind": "reads",
+          "label": "Business",
+          "reads": [
+            {
+              "id": "business",
+              "tool": "tool:read-business",
+              "input": {}
+            }
+          ],
+          "layout": {
+            "title": "Business",
+            "lead": "What your business took in this month.",
+            "sections": {
+              "$kind": "join",
+              "of": [
+                {
+                  "$kind": "choose",
+                  "when": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "self",
+                      "path": [
+                        "reads",
+                        "business",
+                        "connected"
+                      ]
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.array_length"
+                      },
+                      {
+                        "op": "op:core.gt",
+                        "args": {
+                          "value": 0
+                        }
+                      }
+                    ]
+                  },
+                  "then": {
+                    "$kind": "each",
+                    "of": {
+                      "$kind": "binding",
+                      "select": {
+                        "from": "self",
+                        "path": [
+                          "reads",
+                          "business",
+                          "connected"
+                        ]
+                      }
+                    },
+                    "as": {
+                      "$kind": "choose",
+                      "when": {
+                        "$kind": "binding",
+                        "select": {
+                          "from": "self",
+                          "path": [
+                            "item",
+                            "state"
+                          ]
+                        },
+                        "transform": [
+                          {
+                            "op": "op:core.eq",
+                            "args": {
+                              "value": "unread"
+                            }
+                          }
+                        ]
+                      },
+                      "then": {
+                        "heading": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "self",
+                            "path": []
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.text_concat",
+                              "args": {
+                                "values": [
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "label"
+                                      ]
+                                    }
+                                  },
+                                  " since ",
+                                  {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "reads",
+                                        "business",
+                                        "since_words"
+                                      ]
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "rows": [
+                          {
+                            "id": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": [
+                                  "item",
+                                  "label"
+                                ]
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.format",
+                                  "args": {
+                                    "prefix": "unread:"
+                                  }
+                                }
+                              ]
+                            },
+                            "title": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": []
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.text_concat",
+                                  "args": {
+                                    "values": [
+                                      "Your ",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "label"
+                                          ]
+                                        }
+                                      },
+                                      " money could not be read just now"
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "else": {
+                        "$kind": "choose",
+                        "when": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "self",
+                            "path": [
+                              "item",
+                              "state"
+                            ]
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.eq",
+                              "args": {
+                                "value": "none"
+                              }
+                            }
+                          ]
+                        },
+                        "then": {
+                          "heading": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": []
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.text_concat",
+                                "args": {
+                                  "values": [
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "item",
+                                          "label"
+                                        ]
+                                      }
+                                    },
+                                    " since ",
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "reads",
+                                          "business",
+                                          "since_words"
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          "rows": [
+                            {
+                              "id": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": [
+                                    "item",
+                                    "label"
+                                  ]
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.format",
+                                    "args": {
+                                      "prefix": "none:"
+                                    }
+                                  }
+                                ]
+                              },
+                              "title": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": [
+                                    "reads",
+                                    "business",
+                                    "since_words"
+                                  ]
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.format",
+                                    "args": {
+                                      "prefix": "No payments since "
+                                    }
+                                  }
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "else": {
+                          "heading": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": []
+                            },
+                            "transform": [
+                              {
+                                "op": "op:core.text_concat",
+                                "args": {
+                                  "values": [
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "item",
+                                          "label"
+                                        ]
+                                      }
+                                    },
+                                    " since ",
+                                    {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "reads",
+                                          "business",
+                                          "since_words"
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          "stats": {
+                            "$kind": "join",
+                            "of": [
+                              {
+                                "$kind": "apply",
+                                "to": {
+                                  "$kind": "each",
+                                  "of": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "currencies"
+                                      ]
+                                    }
+                                  },
+                                  "as": [
+                                    {
+                                      "id": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "currency"
+                                          ]
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.format",
+                                            "args": {
+                                              "prefix": "in:"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "label": {
+                                        "$kind": "choose",
+                                        "when": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "item",
+                                              "multi"
+                                            ]
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.eq",
+                                              "args": {
+                                                "value": true
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "then": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": []
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.text_concat",
+                                              "args": {
+                                                "values": [
+                                                  "Money in",
+                                                  " (",
+                                                  {
+                                                    "$kind": "binding",
+                                                    "select": {
+                                                      "from": "self",
+                                                      "path": [
+                                                        "item",
+                                                        "code"
+                                                      ]
+                                                    }
+                                                  },
+                                                  ")"
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "else": "Money in"
+                                      },
+                                      "value": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "money_in"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "id": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "currency"
+                                          ]
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.format",
+                                            "args": {
+                                              "prefix": "fees:"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "label": {
+                                        "$kind": "choose",
+                                        "when": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "item",
+                                              "multi"
+                                            ]
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.eq",
+                                              "args": {
+                                                "value": true
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "then": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": []
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.text_concat",
+                                              "args": {
+                                                "values": [
+                                                  {
+                                                    "$kind": "binding",
+                                                    "select": {
+                                                      "from": "self",
+                                                      "path": [
+                                                        "item",
+                                                        "service_label"
+                                                      ]
+                                                    },
+                                                    "transform": [
+                                                      {
+                                                        "op": "op:core.format",
+                                                        "args": {
+                                                          "suffix": " fees"
+                                                        }
+                                                      }
+                                                    ]
+                                                  },
+                                                  " (",
+                                                  {
+                                                    "$kind": "binding",
+                                                    "select": {
+                                                      "from": "self",
+                                                      "path": [
+                                                        "item",
+                                                        "code"
+                                                      ]
+                                                    }
+                                                  },
+                                                  ")"
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "else": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "item",
+                                              "service_label"
+                                            ]
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.format",
+                                              "args": {
+                                                "suffix": " fees"
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      },
+                                      "value": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "fees"
+                                          ]
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "$kind": "choose",
+                                      "when": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "refunded"
+                                          ]
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.is_not_null"
+                                          }
+                                        ]
+                                      },
+                                      "then": {
+                                        "id": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "item",
+                                              "currency"
+                                            ]
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.format",
+                                              "args": {
+                                                "prefix": "refunded:"
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "label": {
+                                          "$kind": "choose",
+                                          "when": {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "multi"
+                                              ]
+                                            },
+                                            "transform": [
+                                              {
+                                                "op": "op:core.eq",
+                                                "args": {
+                                                  "value": true
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "then": {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": []
+                                            },
+                                            "transform": [
+                                              {
+                                                "op": "op:core.text_concat",
+                                                "args": {
+                                                  "values": [
+                                                    "Refunded",
+                                                    " (",
+                                                    {
+                                                      "$kind": "binding",
+                                                      "select": {
+                                                        "from": "self",
+                                                        "path": [
+                                                          "item",
+                                                          "code"
+                                                        ]
+                                                      }
+                                                    },
+                                                    ")"
+                                                  ]
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          "else": "Refunded"
+                                        },
+                                        "value": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "item",
+                                              "refunded"
+                                            ]
+                                          }
+                                        }
+                                      }
+                                    },
+                                    {
+                                      "id": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "currency"
+                                          ]
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.format",
+                                            "args": {
+                                              "prefix": "net:"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      "label": {
+                                        "$kind": "choose",
+                                        "when": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "item",
+                                              "multi"
+                                            ]
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.eq",
+                                              "args": {
+                                                "value": true
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "then": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": []
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.text_concat",
+                                              "args": {
+                                                "values": [
+                                                  "Net",
+                                                  " (",
+                                                  {
+                                                    "$kind": "binding",
+                                                    "select": {
+                                                      "from": "self",
+                                                      "path": [
+                                                        "item",
+                                                        "code"
+                                                      ]
+                                                    }
+                                                  },
+                                                  ")"
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        },
+                                        "else": "Net"
+                                      },
+                                      "value": {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "net"
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.array_flatten"
+                                  }
+                                ]
+                              },
+                              [
+                                {
+                                  "id": "payments",
+                                  "label": "Payments",
+                                  "value": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "payments"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.stringify",
+                                        "args": {
+                                          "format": "json"
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            ]
+                          },
+                          "note": {
+                            "$kind": "choose",
+                            "when": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": [
+                                  "item",
+                                  "more"
+                                ]
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.eq",
+                                  "args": {
+                                    "value": true
+                                  }
+                                }
+                              ]
+                            },
+                            "then": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": []
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.text_concat",
+                                  "args": {
+                                    "values": [
+                                      "These figures count the latest ",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "at_most"
+                                          ]
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.stringify",
+                                            "args": {
+                                              "format": "json"
+                                            }
+                                          }
+                                        ]
+                                      },
+                                      " entries on ",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "item",
+                                            "label"
+                                          ]
+                                        }
+                                      },
+                                      "; there were more this month."
+                                    ]
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "else": [
+                    {
+                      "heading": "Money this month",
+                      "rows": [
+                        {
+                          "id": "connect",
+                          "title": {
+                            "$kind": "choose",
+                            "when": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": [
+                                  "reads",
+                                  "business",
+                                  "service_names"
+                                ]
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.array_length"
+                                },
+                                {
+                                  "op": "op:core.gt",
+                                  "args": {
+                                    "value": 0
+                                  }
+                                }
+                              ]
+                            },
+                            "then": {
+                              "$kind": "apply",
+                              "to": {
+                                "$kind": "each",
+                                "of": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "reads",
+                                      "business",
+                                      "service_names"
+                                    ]
+                                  }
+                                },
+                                "as": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "item"
+                                    ]
+                                  }
+                                }
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.join",
+                                  "args": {
+                                    "delimiter": " or "
+                                  }
+                                },
+                                {
+                                  "op": "op:core.format",
+                                  "args": {
+                                    "suffix": " is not connected"
+                                  }
+                                }
+                              ]
+                            },
+                            "else": "No payment service is connected"
+                          },
+                          "actions": [
+                            {
+                              "label": "Open Connections",
+                              "tone": "primary",
+                              "open": "trillion.connections"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$kind": "choose",
+                  "when": {
+                    "$kind": "binding",
+                    "select": {
+                      "from": "self",
+                      "path": [
+                        "reads",
+                        "business",
+                        "operator"
+                      ]
+                    },
+                    "transform": [
+                      {
+                        "op": "op:core.is_not_null"
+                      }
+                    ]
+                  },
+                  "then": {
+                    "$kind": "join",
+                    "of": [
+                      {
+                        "$kind": "choose",
+                        "when": {
+                          "$kind": "binding",
+                          "select": {
+                            "from": "self",
+                            "path": [
+                              "reads",
+                              "business",
+                              "operator",
+                              "price_tests"
+                            ]
+                          },
+                          "transform": [
+                            {
+                              "op": "op:core.is_null"
+                            }
+                          ]
+                        },
+                        "then": [
+                          {
+                            "id": "price-test-0",
+                            "heading": "Price tests",
+                            "note": "Your price tests could not be read just now. Open Business again in a minute."
+                          }
+                        ],
+                        "else": {
+                          "$kind": "each",
+                          "of": {
+                            "$kind": "binding",
+                            "select": {
+                              "from": "self",
+                              "path": [
+                                "reads",
+                                "business",
+                                "operator",
+                                "price_tests"
+                              ]
+                            }
+                          },
+                          "as": {
+                            "id": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": []
+                              },
+                              "transform": [
+                                {
+                                  "op": "op:core.text_concat",
+                                  "args": {
+                                    "values": [
+                                      "price-test-",
+                                      {
+                                        "$kind": "binding",
+                                        "select": {
+                                          "from": "self",
+                                          "path": [
+                                            "index"
+                                          ]
+                                        },
+                                        "transform": [
+                                          {
+                                            "op": "op:core.stringify",
+                                            "args": {
+                                              "format": "json"
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
+                            },
+                            "heading": {
+                              "$kind": "binding",
+                              "select": {
+                                "from": "self",
+                                "path": [
+                                  "item",
+                                  "label"
+                                ]
+                              }
+                            },
+                            "body": {
+                              "$kind": "apply",
+                              "to": [
+                                {
+                                  "$kind": "choose",
+                                  "when": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "state"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.eq",
+                                        "args": {
+                                          "value": "settled"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "then": "Settled: everyone is shown one price.",
+                                  "else": {
+                                    "$kind": "choose",
+                                    "when": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "item",
+                                          "state"
+                                        ]
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.eq",
+                                          "args": {
+                                            "value": "stopped"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "then": "Stopped.",
+                                    "else": "Running: each person sees one of these, the same one every time."
+                                  }
+                                },
+                                {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "item",
+                                      "optimizing_for"
+                                    ]
+                                  }
+                                }
+                              ],
+                              "transform": [
+                                {
+                                  "op": "op:core.join",
+                                  "args": {
+                                    "delimiter": " "
+                                  }
+                                }
+                              ]
+                            },
+                            "rows": {
+                              "$kind": "each",
+                              "of": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": [
+                                    "item",
+                                    "arms"
+                                  ]
+                                }
+                              },
+                              "as": {
+                                "id": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": []
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.text_concat",
+                                      "args": {
+                                        "values": [
+                                          "price-test:",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "test_id"
+                                              ]
+                                            }
+                                          },
+                                          ":",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "arm"
+                                              ]
+                                            }
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "title": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "item",
+                                      "label"
+                                    ]
+                                  }
+                                },
+                                "detail": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": []
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.text_concat",
+                                      "args": {
+                                        "values": [
+                                          {
+                                            "$kind": "choose",
+                                            "when": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": [
+                                                  "item",
+                                                  "shown"
+                                                ]
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.eq",
+                                                  "args": {
+                                                    "value": 1
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "then": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": []
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.text_concat",
+                                                  "args": {
+                                                    "values": [
+                                                      {
+                                                        "$kind": "binding",
+                                                        "select": {
+                                                          "from": "self",
+                                                          "path": [
+                                                            "item",
+                                                            "shown"
+                                                          ]
+                                                        },
+                                                        "transform": [
+                                                          {
+                                                            "op": "op:core.stringify",
+                                                            "args": {
+                                                              "format": "json"
+                                                            }
+                                                          }
+                                                        ]
+                                                      },
+                                                      " person"
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "else": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": []
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.text_concat",
+                                                  "args": {
+                                                    "values": [
+                                                      {
+                                                        "$kind": "binding",
+                                                        "select": {
+                                                          "from": "self",
+                                                          "path": [
+                                                            "item",
+                                                            "shown"
+                                                          ]
+                                                        },
+                                                        "transform": [
+                                                          {
+                                                            "op": "op:core.stringify",
+                                                            "args": {
+                                                              "format": "json"
+                                                            }
+                                                          }
+                                                        ]
+                                                      },
+                                                      " people"
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          " shown · ",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "paid"
+                                              ]
+                                            },
+                                            "transform": [
+                                              {
+                                                "op": "op:core.stringify",
+                                                "args": {
+                                                  "format": "json"
+                                                }
+                                              }
+                                            ]
+                                          },
+                                          " paid · ",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "money"
+                                              ]
+                                            }
+                                          },
+                                          " in · ",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "per_shown"
+                                              ]
+                                            }
+                                          },
+                                          " per person shown",
+                                          {
+                                            "$kind": "choose",
+                                            "when": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": [
+                                                  "item",
+                                                  "waiting_for_link"
+                                                ]
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.eq",
+                                                  "args": {
+                                                    "value": true
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "then": " · waiting for its payment link",
+                                            "else": ""
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "status": {
+                                  "$kind": "choose",
+                                  "when": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "mark"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.eq",
+                                        "args": {
+                                          "value": "winner"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "then": {
+                                    "label": "Shown to everyone",
+                                    "tone": "good"
+                                  },
+                                  "else": {
+                                    "$kind": "choose",
+                                    "when": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "item",
+                                          "mark"
+                                        ]
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.eq",
+                                          "args": {
+                                            "value": "leading"
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "then": {
+                                      "label": "Leading",
+                                      "tone": "good"
+                                    }
+                                  }
+                                },
+                                "actions": {
+                                  "$kind": "choose",
+                                  "when": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "running"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.eq",
+                                        "args": {
+                                          "value": true
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "then": [
+                                    {
+                                      "label": "Show everyone this",
+                                      "tone": "quiet",
+                                      "send": {
+                                        "path": "/work/api/business/price-test",
+                                        "body": {
+                                          "experiment_id": {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "test_id"
+                                              ]
+                                            }
+                                          },
+                                          "winner": {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "item",
+                                                "arm"
+                                              ]
+                                            }
+                                          }
+                                        },
+                                        "confirm": {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": []
+                                          },
+                                          "transform": [
+                                            {
+                                              "op": "op:core.text_concat",
+                                              "args": {
+                                                "values": [
+                                                  "Everyone will be shown ",
+                                                  {
+                                                    "$kind": "binding",
+                                                    "select": {
+                                                      "from": "self",
+                                                      "path": [
+                                                        "item",
+                                                        "label"
+                                                      ]
+                                                    }
+                                                  },
+                                                  " from now on."
+                                                ]
+                                              }
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ]
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      [
+                        {
+                          "heading": "Paid plans",
+                          "steps": [
+                            {
+                              "title": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": []
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.text_concat",
+                                    "args": {
+                                      "values": [
+                                        "Connect your ",
+                                        {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "reads",
+                                              "business",
+                                              "operator",
+                                              "service",
+                                              "label"
+                                            ]
+                                          }
+                                        },
+                                        " account"
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "done": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": [
+                                    "reads",
+                                    "business",
+                                    "operator",
+                                    "service",
+                                    "connected"
+                                  ]
+                                }
+                              },
+                              "body": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": []
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.text_concat",
+                                    "args": {
+                                      "values": [
+                                        "In Connections, open ",
+                                        {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "reads",
+                                              "business",
+                                              "operator",
+                                              "service",
+                                              "label"
+                                            ]
+                                          }
+                                        },
+                                        " and follow its steps with your live key."
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "action": {
+                                "$kind": "choose",
+                                "when": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "reads",
+                                      "business",
+                                      "operator",
+                                      "service",
+                                      "connected"
+                                    ]
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.eq",
+                                      "args": {
+                                        "value": true
+                                      }
+                                    }
+                                  ]
+                                },
+                                "else": {
+                                  "label": "Open Connections",
+                                  "tone": "primary",
+                                  "open": "trillion.connections"
+                                }
+                              }
+                            },
+                            {
+                              "title": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": []
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.text_concat",
+                                    "args": {
+                                      "values": [
+                                        "Set up paid plans on ",
+                                        {
+                                          "$kind": "binding",
+                                          "select": {
+                                            "from": "self",
+                                            "path": [
+                                              "reads",
+                                              "business",
+                                              "operator",
+                                              "service",
+                                              "label"
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                ]
+                              },
+                              "done": {
+                                "$kind": "binding",
+                                "select": {
+                                  "from": "self",
+                                  "path": [
+                                    "reads",
+                                    "business",
+                                    "operator",
+                                    "payments"
+                                  ]
+                                },
+                                "transform": [
+                                  {
+                                    "op": "op:core.is_not_null"
+                                  }
+                                ]
+                              },
+                              "body": {
+                                "$kind": "choose",
+                                "when": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "reads",
+                                      "business",
+                                      "operator",
+                                      "payments"
+                                    ]
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.is_not_null"
+                                    }
+                                  ]
+                                },
+                                "then": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": []
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.text_concat",
+                                      "args": {
+                                        "values": [
+                                          "Set up in ",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "reads",
+                                                "business",
+                                                "operator",
+                                                "payments",
+                                                "mode"
+                                              ]
+                                            }
+                                          },
+                                          " mode with ",
+                                          {
+                                            "$kind": "choose",
+                                            "when": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": [
+                                                  "reads",
+                                                  "business",
+                                                  "operator",
+                                                  "payments",
+                                                  "links"
+                                                ]
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.eq",
+                                                  "args": {
+                                                    "value": 1
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "then": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": []
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.text_concat",
+                                                  "args": {
+                                                    "values": [
+                                                      {
+                                                        "$kind": "binding",
+                                                        "select": {
+                                                          "from": "self",
+                                                          "path": [
+                                                            "reads",
+                                                            "business",
+                                                            "operator",
+                                                            "payments",
+                                                            "links"
+                                                          ]
+                                                        },
+                                                        "transform": [
+                                                          {
+                                                            "op": "op:core.stringify",
+                                                            "args": {
+                                                              "format": "json"
+                                                            }
+                                                          }
+                                                        ]
+                                                      },
+                                                      " payment link"
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            },
+                                            "else": {
+                                              "$kind": "binding",
+                                              "select": {
+                                                "from": "self",
+                                                "path": []
+                                              },
+                                              "transform": [
+                                                {
+                                                  "op": "op:core.text_concat",
+                                                  "args": {
+                                                    "values": [
+                                                      {
+                                                        "$kind": "binding",
+                                                        "select": {
+                                                          "from": "self",
+                                                          "path": [
+                                                            "reads",
+                                                            "business",
+                                                            "operator",
+                                                            "payments",
+                                                            "links"
+                                                          ]
+                                                        },
+                                                        "transform": [
+                                                          {
+                                                            "op": "op:core.stringify",
+                                                            "args": {
+                                                              "format": "json"
+                                                            }
+                                                          }
+                                                        ]
+                                                      },
+                                                      " payment links"
+                                                    ]
+                                                  }
+                                                }
+                                              ]
+                                            }
+                                          },
+                                          ". Run it again after you change a plan or price."
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                },
+                                "else": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": []
+                                  },
+                                  "transform": [
+                                    {
+                                      "op": "op:core.text_concat",
+                                      "args": {
+                                        "values": [
+                                          "Trillion makes a payment link for each plan on your ",
+                                          {
+                                            "$kind": "binding",
+                                            "select": {
+                                              "from": "self",
+                                              "path": [
+                                                "reads",
+                                                "business",
+                                                "operator",
+                                                "service",
+                                                "label"
+                                              ]
+                                            }
+                                          },
+                                          " account and listens for payments."
+                                        ]
+                                      }
+                                    }
+                                  ]
+                                }
+                              },
+                              "action": {
+                                "label": {
+                                  "$kind": "choose",
+                                  "when": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "reads",
+                                        "business",
+                                        "operator",
+                                        "payments"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.is_not_null"
+                                      }
+                                    ]
+                                  },
+                                  "then": "Set up again",
+                                  "else": "Set up paid plans"
+                                },
+                                "tone": {
+                                  "$kind": "choose",
+                                  "when": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "reads",
+                                        "business",
+                                        "operator",
+                                        "payments"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.is_not_null"
+                                      }
+                                    ]
+                                  },
+                                  "then": "quiet",
+                                  "else": "primary"
+                                },
+                                "send": {
+                                  "path": "/work/api/business/paid-plans"
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "heading": "How people use Trillion",
+                          "rows": {
+                            "$kind": "join",
+                            "of": [
+                              [
+                                {
+                                  "id": "calls",
+                                  "title": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": []
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.text_concat",
+                                        "args": {
+                                          "values": [
+                                            {
+                                              "$kind": "choose",
+                                              "when": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": [
+                                                    "reads",
+                                                    "business",
+                                                    "operator",
+                                                    "usage",
+                                                    "calls_7d"
+                                                  ]
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.eq",
+                                                    "args": {
+                                                      "value": 1
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "then": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": []
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.text_concat",
+                                                    "args": {
+                                                      "values": [
+                                                        {
+                                                          "$kind": "binding",
+                                                          "select": {
+                                                            "from": "self",
+                                                            "path": [
+                                                              "reads",
+                                                              "business",
+                                                              "operator",
+                                                              "usage",
+                                                              "calls_7d"
+                                                            ]
+                                                          },
+                                                          "transform": [
+                                                            {
+                                                              "op": "op:core.stringify",
+                                                              "args": {
+                                                                "format": "json"
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        " answer"
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "else": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": []
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.text_concat",
+                                                    "args": {
+                                                      "values": [
+                                                        {
+                                                          "$kind": "binding",
+                                                          "select": {
+                                                            "from": "self",
+                                                            "path": [
+                                                              "reads",
+                                                              "business",
+                                                              "operator",
+                                                              "usage",
+                                                              "calls_7d"
+                                                            ]
+                                                          },
+                                                          "transform": [
+                                                            {
+                                                              "op": "op:core.stringify",
+                                                              "args": {
+                                                                "format": "json"
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        " answers"
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            " from AIs in the last 7 days"
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "detail": {
+                                    "$kind": "choose",
+                                    "when": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": [
+                                          "reads",
+                                          "business",
+                                          "operator",
+                                          "usage",
+                                          "refused_7d"
+                                        ]
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.gt",
+                                          "args": {
+                                            "value": 0
+                                          }
+                                        }
+                                      ]
+                                    },
+                                    "then": {
+                                      "$kind": "binding",
+                                      "select": {
+                                        "from": "self",
+                                        "path": []
+                                      },
+                                      "transform": [
+                                        {
+                                          "op": "op:core.text_concat",
+                                          "args": {
+                                            "values": [
+                                              {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": [
+                                                    "reads",
+                                                    "business",
+                                                    "operator",
+                                                    "usage",
+                                                    "refused_7d"
+                                                  ]
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.stringify",
+                                                    "args": {
+                                                      "format": "json"
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              " were sent back to be redone."
+                                            ]
+                                          }
+                                        }
+                                      ]
+                                    }
+                                  }
+                                }
+                              ],
+                              {
+                                "$kind": "each",
+                                "of": {
+                                  "$kind": "binding",
+                                  "select": {
+                                    "from": "self",
+                                    "path": [
+                                      "reads",
+                                      "business",
+                                      "operator",
+                                      "usage",
+                                      "apps"
+                                    ]
+                                  }
+                                },
+                                "as": {
+                                  "id": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "key"
+                                      ]
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.format",
+                                        "args": {
+                                          "prefix": "app:"
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  "title": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": [
+                                        "item",
+                                        "name"
+                                      ]
+                                    },
+                                    "default": "An unnamed AI app"
+                                  },
+                                  "detail": {
+                                    "$kind": "binding",
+                                    "select": {
+                                      "from": "self",
+                                      "path": []
+                                    },
+                                    "transform": [
+                                      {
+                                        "op": "op:core.text_concat",
+                                        "args": {
+                                          "values": [
+                                            {
+                                              "$kind": "choose",
+                                              "when": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": [
+                                                    "item",
+                                                    "calls"
+                                                  ]
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.eq",
+                                                    "args": {
+                                                      "value": 1
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "then": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": []
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.text_concat",
+                                                    "args": {
+                                                      "values": [
+                                                        {
+                                                          "$kind": "binding",
+                                                          "select": {
+                                                            "from": "self",
+                                                            "path": [
+                                                              "item",
+                                                              "calls"
+                                                            ]
+                                                          },
+                                                          "transform": [
+                                                            {
+                                                              "op": "op:core.stringify",
+                                                              "args": {
+                                                                "format": "json"
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        " answer"
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              },
+                                              "else": {
+                                                "$kind": "binding",
+                                                "select": {
+                                                  "from": "self",
+                                                  "path": []
+                                                },
+                                                "transform": [
+                                                  {
+                                                    "op": "op:core.text_concat",
+                                                    "args": {
+                                                      "values": [
+                                                        {
+                                                          "$kind": "binding",
+                                                          "select": {
+                                                            "from": "self",
+                                                            "path": [
+                                                              "item",
+                                                              "calls"
+                                                            ]
+                                                          },
+                                                          "transform": [
+                                                            {
+                                                              "op": "op:core.stringify",
+                                                              "args": {
+                                                                "format": "json"
+                                                              }
+                                                            }
+                                                          ]
+                                                        },
+                                                        " answers"
+                                                      ]
+                                                    }
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            " since the start"
+                                          ]
+                                        }
+                                      }
+                                    ]
+                                  }
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    ]
+                  },
+                  "else": []
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ]
 }

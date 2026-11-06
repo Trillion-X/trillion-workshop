@@ -1,13 +1,30 @@
-// src/business-screen.mjs
+// tools/see-what-my-business-took-in-this-month/do-work/business-screen.mjs
 //
 // PURPOSE
 //   Business, every signed-in person's screen about their own business: what came in this month on the payment
 //   service they connected (money in, that service's fees, money returned, net, and how many payments), read with their
 //   own connection. The operator account also sees Trillion's paid plans on its payment service, its price tests and how
-//   people use Trillion. Business is a Marketplace catalogue screen (records/marketplace-screens.json tool:business),
-//   drawn by the generic screen host (src/screen-host.mjs) from one read, tool:read-business (the account action
-//   read-business): this file reads the facts (readBusiness) and writes them as the words and figures the layout places
-//   (businessFacts). Nothing here writes markup or a screen description.
+//   people use Trillion. Business is a catalogue screen (tool:business in
+//   tools/show-my-screens-from-a-catalogue-of-reads-and-layouts), drawn by the engine's generic screen host
+//   (GET /work/api/screens/business) from one read, tool:read-business (this folder's row, readBusinessForScreen): this
+//   file reads the facts (readBusiness) and writes them as the words and figures the layout places (businessFacts).
+//   Nothing here writes markup or a screen description.
+//
+//   Ported from old trillion src/business-screen.mjs (Trillion-X/trillion before 4ffa1dc4a2), where the account action
+//   read-business ran it. What changed, and why:
+//     - The money read runs as a nested Workshop run (the row declares tool:stripe-events-read_money_since in
+//       invoke.records.runs), with the person's own Stripe connection held by the engine's vault, as old runTool did.
+//     - Which payment services the person connected has no owner today: old trillion read it from the account's
+//       held-values connection summaries (connectionsNow: held operation `list`, src/connection-summaries.mjs, the
+//       tool:list-connections row). Nothing a Workshop run can reach keeps that list, so `connections` is null
+//       (unknown). An unknown connection is never said to be connected or not: its money is read with the person's own
+//       connection, and a read that fails (no key held, a refusal, too slow) is drawn as old Business drew a failed
+//       read, "could not be read just now", with no number. Given the list (connections), it draws exactly as before.
+//     - The operator's part has no owner today either: whether this account is the operator (env.OPERATOR_ACCOUNT_ID),
+//       the service's payment config (src/payment.mjs readPaymentConfig), its call pool's use (pool.callStats) and the
+//       price tests in the service's book (priceExperimentsState) were the hosted service's own stores. So readBusiness
+//       reads no operator part, and Business is drawn as every other account saw it. operatorFacts and its layout are
+//       kept, drawn from given facts.
 //
 // NON-NEGOTIABLE INVARIANTS
 //   1. Only real figures: every amount is summed from entries the person's own payment service answered. A read that
@@ -24,10 +41,40 @@
 //                price_tests: [results of src/price-experiments.mjs experimentResults, each arm with offer_id and open] | null } }
 //   (price_tests null: the tests could not be read just now.)
 //   tally: { currencies: [{ currency, money_in, fees, refunded, net }], payments, more, at_most }
-import moneyReads from './money-reads.json' with { type: 'json' };
-import { loadWorkshopRows } from './stored-checks.mjs';
-import { priceExperimentsState, readPaymentConfig } from './payment.mjs';
-import { optionalRead } from './optional-read.mjs';
+import { readFileSync } from 'node:fs';
+import moneyReads from '../../money-reads/src/money-reads.json' with { type: 'json' };
+import toolRows from '../tool-rows.json' with { type: 'json' };
+
+// The service-connection descriptors (one per service a person can connect) the old connect rows were made from
+// (tool-row-source source:service-connection-descriptors: id_prefix tool:connect-service-, label from `name`, provider
+// from `vendor`); a service's name comes from its row, as before.
+const SERVICES = new URL('../../connect-a-service-and-seal-its-key/records.json', import.meta.url);
+const CONNECT_ROW_PREFIX = 'tool:connect-service-';
+
+/** The rows moneyServices reads ({ tools }): this folder's rows (the money reads) and each service's connect row. */
+export function workshopRows(services = JSON.parse(readFileSync(SERVICES, 'utf8'))) {
+  const connectRows = services.things.map(thing => thing.payload).filter(payload => payload?.kind === 'service-connection-descriptor')
+    .map(payload => ({ id: `${CONNECT_ROW_PREFIX}${payload.vendor}`, label: payload.name, invoke: { kind: 'held-values', operation: 'connect', provider: payload.vendor, connects: { connection: payload.vendor } } }));
+  return { tools: [...toolRows.records.map(record => record.payload), ...connectRows] };
+}
+
+// old src/optional-read.mjs, unchanged.
+export const OPTIONAL_READ_MS = 8000;
+
+/** `read()`'s value, or `fallback` when it threw or took longer than `waitMs`. */
+export async function optionalRead(read, fallback, waitMs = OPTIONAL_READ_MS) {
+  let timer;
+  try {
+    return await Promise.race([
+      Promise.resolve().then(read),
+      new Promise(resolve => { timer = setTimeout(() => resolve(fallback), waitMs); }),
+    ]);
+  } catch {
+    return fallback;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 /** The first moment of this month, UTC. */
 export const monthStart = now => new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
@@ -43,7 +90,8 @@ export function moneyWords(minor, currency) {
 /**
  * The payment services whose money can be read (src/money-reads.json), each with its name and whether this person
  * connected it. A service's name and vendor come from the read tool's own connection and that service's connect row.
- * rows: the Workshop's tool rows ({ tools }); connections: the person's connections ([{ vendor, ... }]).
+ * rows: the Workshop's tool rows ({ tools }); connections: the person's connections ([{ vendor, ... }]), or null when
+ * they cannot be read (then `connected` is null: unknown).
  */
 export function moneyServices(rows, connections) {
   return moneyReads.reads.flatMap(read => {
@@ -51,7 +99,7 @@ export function moneyServices(rows, connections) {
     if (!tool) return [];
     const vendor = String(tool.invoke?.connection_id ?? '').split(':').pop();
     const service = rows.tools.find(item => item.invoke?.connects && item.invoke.provider === vendor);
-    return [{ read, label: service?.label ?? vendor, connected: connections.some(item => item.vendor === vendor) }];
+    return [{ read, label: service?.label ?? vendor, connected: connections === null ? null : connections.some(item => item.vendor === vendor) }];
   });
 }
 
@@ -79,13 +127,14 @@ export function tallyMoney(read, answer) {
 }
 
 /**
- * Read this month's money on every connected payment service. `run(tool_id, input)` runs a tool with the person's own
+ * Read this month's money on every connected payment service (and on each whose connection is unknown: the read itself
+ * then says whether the person's own connection answers). `run(tool_id, input)` runs a tool with the person's own
  * connection and answers its output, or null when it failed or took too long.
  */
 export async function readMoney({ services, run, since }) {
   const seconds = Math.floor(since.getTime() / 1000);
   return Promise.all(services.map(async ({ read, label, connected }) => {
-    if (!connected) return { label, connected, money: undefined };
+    if (connected === false) return { label, connected, money: undefined };
     const answer = await run(read.tool_id, { [read.since_input]: seconds });
     return { label, connected, money: answer === null ? null : tallyMoney(read, answer) };
   }));
@@ -131,42 +180,30 @@ export function businessFacts(facts) {
   return {
     since_words: new Intl.DateTimeFormat('en-US', { month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(facts.since)),
     service_names: facts.services.map(service => service.label),
-    connected: facts.services.filter(service => service.connected).map(moneyFacts),
+    connected: facts.services.filter(service => service.connected !== false).map(moneyFacts),
     operator: facts.operator ? operatorFacts(facts.operator) : null,
-  };
-}
-
-/** The tool that sets up Trillion's paid plans on the operator's payment service. */
-export const PAID_PLAN_TOOL = 'tool:set-up-paid-plan';
-
-// The operator's part of Business: Trillion's paid plans on its payment service and how people use Trillion. The payment
-// service is whichever service the paid-plan tool's row connects to, and its name is that service's row.
-async function operatorBusiness(env, pool, rows, connections) {
-  const [payments, stats] = await Promise.all([readPaymentConfig(env), pool.callStats()]);
-  // Trillion's own price tests, read from the service's book (src/record-book.mjs), never a person's store.
-  const tests = await optionalRead(() => priceExperimentsState(env, payments), null);
-  const week = (stats.days ?? []).slice(0, 7);
-  const vendor = String(rows.tools.find(tool => tool.id === PAID_PLAN_TOOL)?.invoke?.connection_id ?? '').split(':').pop();
-  const paymentRow = rows.tools.find(tool => tool.invoke?.connects && tool.invoke.provider === vendor);
-  return {
-    payment_service: { label: paymentRow?.label ?? vendor, connected: connections.some(item => item.vendor === vendor) },
-    payments: payments ? { mode: payments.mode ?? null, set_up_by: payments.set_up_by ?? null, links: (payments.links ?? []).length } : null,
-    usage: { calls_7d: week.reduce((sum, row) => sum + Number(row.calls ?? 0), 0), refused_7d: week.reduce((sum, row) => sum + Number(row.refused ?? 0), 0), apps: stats.apps ?? [] },
-    price_tests: tests,
   };
 }
 
 /**
  * Business's facts for one account: this month's money on every payment service it connected, each read with its own
- * connection through `run(tool_id, input)` (the account's tool runner; a failed or slow read is unread), and, when
- * `pool` is given (the operator account only), the operator's part read from the service's call pool.
+ * connection through `run(tool_id, input)` (the account's tool runner; a failed or slow read is unread). `connections`
+ * null: they cannot be read (see PURPOSE). The operator's part is not read (no owner today, see PURPOSE).
  */
-export async function readBusiness({ env, connections, run, pool = null, now = new Date() }) {
-  const rows = await loadWorkshopRows(env);
+export async function readBusiness({ rows = workshopRows(), connections, run, now = new Date() }) {
   const since = monthStart(now);
-  const [services, operator] = await Promise.all([
-    readMoney({ services: moneyServices(rows, connections), since, run: (toolId, input) => optionalRead(() => run(toolId, input), null) }),
-    pool ? operatorBusiness(env, pool, rows, connections) : undefined,
-  ]);
-  return businessFacts({ since: since.toISOString(), services, operator });
+  const services = await readMoney({ services: moneyServices(rows, connections), since, run: (toolId, input) => optionalRead(() => run(toolId, input), null) });
+  return businessFacts({ since: since.toISOString(), services, operator: undefined });
+}
+
+/**
+ * tool:read-business, the one read of the Business screen: { now? } → Business's facts for the page's account. Each
+ * money read is a nested run through this run's door (contract A), keyed by the read and its moment, so a retried read
+ * asks again under the same key. `now` (an ISO time) is only for a sample run; the month is this one otherwise.
+ */
+export async function readBusinessForScreen(input = {}, { door } = {}) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Send one JSON object: { now? }.');
+  const now = input.now === undefined ? new Date() : new Date(input.now);
+  if (!Number.isFinite(now.getTime())) throw new Error('now must be an ISO time, for example 2026-10-15T00:00:00.000Z.');
+  return readBusiness({ connections: null, now, run: (toolId, given) => door.run(toolId, given, { key: `${toolId}:${JSON.stringify(given)}` }) });
 }

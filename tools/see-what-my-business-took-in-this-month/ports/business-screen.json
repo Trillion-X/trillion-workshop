@@ -1,0 +1,61 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SEE-WHAT-MY-BUSINESS-TOOK-IN-THIS-MONTH-BUSINESS-SCREEN",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "cloud job 2026-11-06: route owner port, GET /work/api/screens/business",
+    "message_multihash": "1f:7d467d42f9a792a545fd4819d4051b085834a9b1a05e240245a00a6fce9fd30e",
+    "quote": "Port old trillion's Business screen one to one: find its old owner (src/business-screen.mjs, its catalogue row in records/marketplace-screens.json, and the account-routes screen) and what it read (connections, plus tool runs)."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/business-screen.mjs",
+      "multihash": "1f:35fd911caac0b20893110ba3d63bf17d0859ded4d8e2ac0ba8c58d162b54c350",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T12:00:00Z",
+        "deleted_with": "old trillion 4ffa1dc4a2 (Retire old trillion's Worker and everything only it reached) already removed src/business-screen.mjs from its main line"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/see-what-my-business-took-in-this-month/do-work/business-screen.mjs"
+    }
+  ],
+  "preserve": [
+    "only real figures: every amount is summed from entries the person's own payment service answered; a read that failed or took too long says so and shows no number; a read cut short at its limit says the figures count only the latest entries",
+    "amounts stay in each currency's smallest unit until they are written, and are never added across currencies",
+    "which services can be read, and how, is DATA (tools/money-reads/src/money-reads.json); a new payment service is a row there",
+    "businessFacts writes the words and figures the catalogue layout tool:business places, unchanged"
+  ],
+  "allowed_deltas": [
+    "the money read is a nested Workshop run through the run's door (invoke.records.runs), not the account action's runTool",
+    "the rows moneyServices reads are this folder's rows and the connect rows made from the service-connection descriptors, not loadWorkshopRows(env)",
+    "the person's connections have no owner a run reaches, so they are null (unknown): an unknown connection's money is read and a failed read is drawn as unread; given a list, it draws as before",
+    "the operator's part (payment config, call pool, price-test book: the hosted service's stores) has no owner here, so operatorBusiness and PAID_PLAN_TOOL are not carried; operatorFacts is",
+    "optionalRead (old src/optional-read.mjs) is carried in this file"
+  ],
+  "banned_substitutions": [
+    "a number for a read that failed",
+    "a service said to be connected or not connected without reading it"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-06T12:00:00Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:35fd911caac0b20893110ba3d63bf17d0859ded4d8e2ac0ba8c58d162b54c350",
+    "target_multihash_at_baseline": "1f:35fd911caac0b20893110ba3d63bf17d0859ded4d8e2ac0ba8c58d162b54c350",
+    "commit": "ea37c190a487a7cc0378e762e8bb1465f59cf764"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/see-what-my-business-took-in-this-month/test/business-screen.test.mjs the layout draws every description businessScreen drew",
+      "tools/see-what-my-business-took-in-this-month/test/business-screen.test.mjs a customer's own Stripe money this month is summed per currency, and a read cut short says so",
+      "tools/see-what-my-business-took-in-this-month/test/business-screen.test.mjs with no list of connections, a money read that fails is drawn as a failed read, never as connected or not"
+    ]
+  }
+}
