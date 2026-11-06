@@ -340,7 +340,7 @@ function report(results, said) {
 }
 
 /** The records door of a computer run: the person's door through their MCP client, or a stand-in seeded from a records file. */
-async function openDoor({ mcp, records }) {
+export async function openDoor({ mcp, records }) {
   if (mcp) {
     const { openStdioRecordsDoor } = await import('../../records-door/read-data/stdio-mcp-door.mjs');
     return openStdioRecordsDoor({ argv: JSON.parse(mcp) });

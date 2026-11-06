@@ -1,0 +1,18 @@
+{
+ "text": {
+  "fields": {
+   "wordtext": [
+    "text"
+   ],
+   "callout": [
+    "labels.text"
+   ]
+  },
+  "continued_by_then_types": []
+ },
+ "word_clip": {
+  "spelling_fixes": {
+   "kale-ee": "Kalee"
+  }
+ }
+}
