@@ -42,6 +42,16 @@
    "repository": "trillion-workshop",
    "path": "tools/decide-when-things-show/do-work/show-rules.mjs",
    "why": "The rows of the show rules themselves (PR #101); their keep answer is the person-granted write these rows answer the same way."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/tours-screen/README.md",
+   "why": "This tool's own README, describing tours.mjs (waitingTours among its functions); documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/tours-screen/tool-rows.json",
+   "why": "This tool's own rows, naming waitingTours and dismissWaitingTours as the functions they run; the rows, not a second owner."
   }
  ],
  "proof": {
@@ -61,7 +71,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "a4cad8f"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

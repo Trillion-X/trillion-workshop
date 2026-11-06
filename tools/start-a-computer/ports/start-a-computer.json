@@ -93,6 +93,21 @@
       "repository": "trillion-rust",
       "path": "docs/sign-in-port/G-door-cut-status.md",
       "why": "A status note that says a computer runs with no hosting app; words, not a way to make one."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "test/failed-names.json",
+      "why": "The names that failed the finger-point test, read by test/failed-names.test.mjs; place_key_file is listed there as a name, the engine config key this tool writes. Data about names, not a way to make a computer."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/publish-an-engine-release/README.md",
+      "why": "publish-an-engine-release's README: its builder is reached over SSH the way start-a-computer reaches a machine, and start-a-computer's release_feed reads its feed; words about this tool, not another owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/publish-an-engine-release/do-work/install-a-builder.mjs",
+      "why": "Makes a Linux machine into the builder that publishes signed engine releases, reached over SSH as start-a-computer reaches one; it makes no Trillion computer, key or config."
     }
   ],
   "proof": {
@@ -113,7 +128,7 @@
       "repositories": [
         {
           "repository": "trillion-workshop",
-          "commit": "886da97848b8ec1b26c3c06938f23557529ea4c8"
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
         },
         {
           "repository": "trillion",

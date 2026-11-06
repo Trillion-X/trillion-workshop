@@ -42,6 +42,26 @@
    "repository": "trillion",
    "path": "scripts/retired-paths.json",
    "why": "its gate refuses a deletion of a retired path whose tag does not hold the file; it does not judge deletions of paths no row names."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-deleted-code-names-its-home/",
+   "why": "This tool itself: its README, part, check row, rules, rows and test name this judge and call judgeDeletions."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "This tool's own capability row, whose owner names this folder: the registry entry for this tool, not another owner of the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row. A generated listing of this tool, not another owner of the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "docs/old-trillion-deleted-since-2026-10-10.json",
+   "why": "A report of old trillion's deleted files this tool still finds no home for, read out of this tool's answers; data about the job's findings, not code that judges."
   }
  ],
  "proof": {
@@ -60,7 +80,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "8e93cfff9face5344a4adc16fd0d9f4f9fc26e25"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

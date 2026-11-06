@@ -34,7 +34,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "70be026ffa7aede39468a674698d5b8a597fac8a"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },
@@ -42,5 +42,17 @@
    "tools/check-where-work-is-kept/test/check-where-work-is-kept.test.mjs",
    "tools/check-where-work-is-kept/test/run-by-the-check-list.test.mjs"
   ]
- }
+ },
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-where-work-is-kept/README.md",
+   "why": "This tool's own README, describing writtenPaths and keepInstead; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-where-work-is-kept/test/check-where-work-is-kept.test.mjs",
+   "why": "This file's own test, calling writtenPaths and judgeCall over made-up commands; it tests this job, it does not do it."
+  }
+ ]
 }

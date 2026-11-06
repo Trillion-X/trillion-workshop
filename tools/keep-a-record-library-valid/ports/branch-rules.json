@@ -44,6 +44,26 @@
    "repository": "trillion-workshop",
    "path": "tools/write-from-a-recipe/read-data/evidence-contract.mjs",
    "why": "that checks a recipe's evidence contract has unique verdict ids (unique_verdict_ids); it reads no branch"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "This tool's own capability row (gate a piece's delivery checklist, owner tools/keep-a-record-library-valid/), whose evidence names do-work/branch-rules.mjs; the registry entry for this tool, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-a-record-library-valid/README.md",
+   "why": "This tool's own README, describing branch-rules.mjs and the rulesOfBranch it calls; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-a-record-library-valid/read-data/delivery_gate.py",
+   "why": "The delivery gate, which runs branch-rules.mjs and reads the verdict_ids it answers; a caller, it reads no branch itself."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-a-record-library-valid/test/test_delivery_gate.py",
+   "why": "The delivery gate's tests, which stub the branch helper's answer (verdict_ids) with made-up rows; they test the caller, they do not read a branch."
   }
  ],
  "proof": {
@@ -65,7 +85,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "3691e426bba223300146556c919f56ed044f76f9"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },

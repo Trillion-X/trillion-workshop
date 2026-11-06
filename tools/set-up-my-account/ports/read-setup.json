@@ -44,6 +44,31 @@
    "repository": "trillion",
    "path": "proof/onboarding-prerequisites/onboarding-verification-final.log",
    "why": "A test run log naming readSetupAccessContext (the setup-access recheck), not code."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/test/catalogue-screen-get-started.test.mjs",
+   "why": "A test of the Get started catalogue screen, whose one read is tool:read-setup; its message says a read with no browser facts asks with empty ones, as old readSetup did. It tests the screen, it gathers no facts."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/tool-rows.json",
+   "why": "The Get started screen's row, whose description says its one read, tool:read-setup, gathers the account's setup_facts; the screen that calls this read, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/hold-one-thing-until-done/README.md",
+   "why": "hold-one-thing-until-done's README, saying its turn-on-notices route does not read the files door's setup_facts yet; words, not a read."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/records-door/test/fake-door.mjs",
+   "why": "The made-up records door for tests: it answers any files door operation (setup_facts among them) with what a test gives it; a test double, not this read."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own tool:read-setup row and the Get started screen's row that calls it; a generated listing, not another owner of the job."
   }
  ],
  "proof": {
@@ -62,7 +87,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "5c7565c7f97e0e9efb59ef05f6053e2f78c33bb2"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

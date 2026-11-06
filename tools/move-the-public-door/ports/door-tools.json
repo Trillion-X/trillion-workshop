@@ -10,16 +10,45 @@
   "job": "run the public door's rows as Workshop tool functions: see where the door runs, rent or release a host lease, cut a hostname over, each provider key taken from the row's credential mount by its vault name",
   "sources": [],
   "targets": [
-    { "path": "tools/move-the-public-door/do-work/door-tools.mjs" }
+    {
+      "path": "tools/move-the-public-door/do-work/door-tools.mjs"
+    }
   ],
   "preserve": [],
   "allowed_deltas": [],
   "banned_substitutions": [],
   "baseline": {},
   "distinct_from": [
-    { "repository": "trillion", "path": "scripts/portable-host-lease.mjs", "why": "Its command-line entry read a config file and the key on descriptor 3; tool:rent-a-host-for-the-public-door and tool:release-a-host-of-the-public-door run these functions instead. That file leaves with the older owner's door scripts." },
-    { "repository": "trillion", "path": "scripts/portable-dns-cutover.mjs", "why": "Its command-line entry read a config file and asked the old vault for the token; tool:cut-a-hostname-over-to-a-new-address runs cutAHostnameOver instead. That file leaves with the older owner's door scripts." },
-    { "repository": "trillion", "path": "scripts/move-public-door.mjs", "why": "Its command-line entry wired the old vault and the certificate script's host steps; the move's row comes with the certificate and tunnel tools that own those steps. That file leaves with the older owner's door scripts." }
+    {
+      "repository": "trillion",
+      "path": "scripts/portable-host-lease.mjs",
+      "why": "Its command-line entry read a config file and the key on descriptor 3; tool:rent-a-host-for-the-public-door and tool:release-a-host-of-the-public-door run these functions instead. That file leaves with the older owner's door scripts."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/portable-dns-cutover.mjs",
+      "why": "Its command-line entry read a config file and asked the old vault for the token; tool:cut-a-hostname-over-to-a-new-address runs cutAHostnameOver instead. That file leaves with the older owner's door scripts."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/move-public-door.mjs",
+      "why": "Its command-line entry wired the old vault and the certificate script's host steps; the move's row comes with the certificate and tunnel tools that own those steps. That file leaves with the older owner's door scripts."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/README.md",
+      "why": "This tool's own README, describing door-tools.mjs (seeWhereTheDoorRuns among its functions); documentation, not another owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/test/public-door.test.mjs",
+      "why": "This tool's own test, calling seeWhereTheDoorRuns over a made-up door; it tests this job, it does not do it."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/tool-rows.json",
+      "why": "This tool's own rows, whose argv names door-tools.mjs seeWhereTheDoorRuns as the function to run; the rows, not a second owner."
+    }
   ],
   "proof": {
     "search": {
@@ -30,10 +59,20 @@
         "cut a hostname over to a new address"
       ],
       "capability_rows": [],
-      "code_patterns": ["seeWhereTheDoorRuns", "rentAHost", "cutAHostnameOver"],
+      "code_patterns": [
+        "seeWhereTheDoorRuns",
+        "rentAHost",
+        "cutAHostnameOver"
+      ],
       "repositories": [
-        { "repository": "trillion-workshop", "commit": "6323f8f" },
-        { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381" }
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "9b5614150bf2ff506cb296337b79af328ffc7381"
+        }
       ]
     },
     "test_refs": [

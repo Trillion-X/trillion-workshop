@@ -24,6 +24,11 @@
    "repository": "trillion-workshop",
    "path": "tools/keep-copies-in-step/",
    "why": "This tool itself: the route and its decisions are read-data/catch-up.mjs handleCatchUpRequest and here(), moved byte for byte from trillion src/catch-up.mjs (ports/catch-up.json); this file only hands the page's request to that moved route over an owner that keeps the report through the records door."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row. A generated listing of this tool, not another owner of the job."
   }
  ],
  "proof": {
@@ -42,7 +47,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

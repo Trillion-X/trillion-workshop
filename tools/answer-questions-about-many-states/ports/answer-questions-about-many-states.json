@@ -65,6 +65,16 @@
    "repository": "trillion",
    "path": "records/local-model-records.json",
    "why": "the old trillion's local-model run records (line 140): a run's work kept as account records, with no per-machine job folder. Not a bulk classifier, so not a prior owner of this job; it is the layout read-data/bulk-answer.mjs now follows (inputs read by record id, a run row and answer page rows written through the records door), as the lead's 2026-11-03 lane brief asked. Not readable from the cloud session that made the change"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/answer-questions-about-many-states/README.md",
+   "why": "This tool's own README, describing QuestionsFirst and the questions_first modules; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/answer-questions-about-many-states/test/",
+   "why": "This tool's own tests and benchmark: they import questions_first.engine QuestionsFirst and the backbone over made-up or reference rows; they test and time this job, they do not do it."
   }
  ],
  "proof": {
@@ -85,7 +95,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "d533b90cf77f6834e1f4811ed6e400789b532e36"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },
