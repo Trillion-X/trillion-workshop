@@ -8,7 +8,7 @@ The paths a call writes: a Write or Edit's `file_path`; in a Bash command each o
 
 Each path is placed in this order:
 
-1. In a checkout whose `origin` names one of `source_repositories`: its `scratch` (default `.git/scratch`) passes; a tracked file passes; a new file that the repository ignores is unplaced; a new file matching a `new_files_refused` row (and not its `except`) is refused naming its list; any other new file is new source and passes. Elsewhere under `.git` is unplaced.
+1. In a checkout whose `origin` names one of `source_repositories`, or whose folder a `source_checkouts` row (`{ path, name }`, `~` the home folder) names because it has no origin: its `scratch` (default `.git/scratch`) passes; a tracked file passes; a new file that the repository ignores is unplaced; a new file matching a `new_files_refused` row (and not its `except`) is refused naming its list; any other new file is new source and passes. Elsewhere under `.git` is unplaced.
 2. In a `list_copies` folder: refused, naming that list (write the row; the sync makes the file). A Bash command matching `list_copy_sync` is the sync itself and passes whole.
 3. In a `refused_places` place: refused, naming its list. A place is a path; `~` is the home folder, `*` one folder, `**` any number; the longest matching place wins, so `~/source-folderdata` beats `~`.
 4. Anywhere else: unplaced. The classifier is asked.

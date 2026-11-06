@@ -169,3 +169,26 @@ test('as the Workshop tool: rules and the call on stdin, the refusal a result on
   assert.equal(none.status, 1);
   assert.match(none.stdout, /give rules/);
 });
+
+test('a checkout with no origin that the rules name by its folder holds source: tracked files pass, a new file a row refuses is refused', async (t) => {
+  const { home } = world(t);
+  const plane = join(home, 'code', 'control-plane');
+  mkdirSync(join(plane, 'notes', 'old'), { recursive: true });
+  const git = (...args) => execFileSync('git', ['-C', plane, ...args], { stdio: 'pipe' });
+  git('init', '-q', '-b', 'main');
+  writeFileSync(join(plane, 'hook.py'), 'x\n');
+  writeFileSync(join(plane, 'notes', 'old', 'kept.md'), 'x\n');
+  git('add', '.');
+  const rules = { ...RULES, source_checkouts: [{ path: '~/code/control-plane', name: 'control-plane' }],
+    new_files_refused: [...RULES.new_files_refused, { why: 'note in the notes folder', pattern: '^notes/', list: 'list:notes' }] };
+  for (const call of [write(join(plane, 'hook.py')), write(join(plane, 'src.py')), write(join(plane, 'notes', 'old', 'kept.md'))]) {
+    const result = await judgeCall({ call, root: plane, rules, home });
+    assert.equal(result.valid, true, JSON.stringify(call));
+  }
+  const refused = await judgeCall({ call: write(join(plane, 'notes', 'new.json')), root: plane, rules, home });
+  assert.equal(refused.valid, false);
+  assert.equal(refused.refused[0].list, 'list:notes');
+  assert.match(refused.refused[0].why, /control-plane/);
+  const unnamed = await judgeCall({ call: write(join(plane, 'hook.py')), root: plane, rules: RULES, home });
+  assert.equal(unnamed.valid, false, 'without source_checkouts the same checkout is the home folder');
+});

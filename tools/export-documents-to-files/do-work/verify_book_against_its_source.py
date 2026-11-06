@@ -33,7 +33,7 @@ from pypdf.generic import ByteStringObject, ContentStream, NameObject
 
 PYTHON = Path(sys.executable)
 BUILDER = Path(__file__).with_name("export_markdown_book_to_word.py")
-RUNTIME_PYTHON = Path(os.environ.get("BOOK_READER_PYTHON") or sys.executable)      # the Python this place reports for the builder, else this one
+RUNTIME_PYTHON = Path(os.environ.get("BOOK_READER_PYTHON") or sys.executable)      # the Python this computer reports for the builder, else this one
 
 # These source-text errors were observed in this manuscript's embedded
 # ToUnicode maps. Values are old rendered strings -> intended Unicode text.

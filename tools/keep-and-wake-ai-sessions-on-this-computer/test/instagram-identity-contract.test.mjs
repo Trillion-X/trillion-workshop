@@ -7,14 +7,16 @@ import { selectDeclaredValue } from '../../ui/read-data/declared-selector.ts';
 import { schemaProblems } from '../src/workshop.mjs';
 
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
-const sources = read('../records/workshop-tool-records.json').records.map(row => row.payload)
+// The rows name old trillion's package service-connections, which is tools/connect-a-service-and-seal-its-key here.
+const packageFolder = name => new URL(`../../${name === 'service-connections' ? 'connect-a-service-and-seal-its-key' : name}/`, import.meta.url).pathname;
+const sources = read('../../connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json').records.map(row => row.payload)
   .filter(row => ['source:service-connection-descriptors', 'source:how-to-ask-something-else-to-do-things'].includes(row.id));
 assert.equal(sources.length, 2);
-const derived = sources.map(source => rowsFromList(source, recordsList(source.list.records)
+const derived = sources.map(source => rowsFromList(source, recordsList(source.list.records, packageFolder)
   .filter(entry => /^instagram(-|$)/.test(entry.record_name))));
 assert.deepEqual(derived.flatMap(result => result.refused), []);
 const tool = id => derived.flatMap(result => result.rows).find(row => row.id === id);
-const source = read('../records/workshop-event-source-records.json').records
+const source = read('../../start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json').records
   .find(row => row.payload.id === 'events:instagram').payload;
 const proof = tool(source.route_key_proof.tool_id);
 // Preserve the distinct user_id and id fields observed in the provider response; values are invented.

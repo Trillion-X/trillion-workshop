@@ -5,7 +5,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { calendarRecordingContext, correctedTranscriptJob, follow, heardWords, keptNames, liveStretch, liveWorkJob, meetingTurns, mirroredView, recordingJob, scriptFor, scriptFromWords, scriptSegments, scriptText, scriptWords, START, takeScript, teleprompterAt, teleprompterIsLive, transcriptFileText, transcriptNameBeside, writeScriptJob } from '../src/workspace/recording.mjs';
 import settings from '../src/workspace/recording.json' with { type: 'json' };
-import captureSources from '../parts/record-audio/read-data/capture-sources.json' with { type: 'json' };
+import captureSources from '../../record-voice-and-meetings/read-data/capture-sources.json' with { type: 'json' };
 import queued from '../../turn-a-button-press-like-ask-my-ai/src/queued-work.json' with { type: 'json' };
 import surfaces from '../../shared-code/src/workspace/screens.mjs';
 import { queuedWork } from '../../turn-a-button-press-like-ask-my-ai/src/queued-work.mjs';

@@ -33,7 +33,7 @@
   "top1 and top5 beside chance"
  ],
  "allowed_deltas": [
-  "its fixed paths, model names, prompts and words of the person became request fields, read with the person's list:settings row under them (read-data/place.py request)",
+  "its fixed paths, model names, prompts and words of the person became request fields, read with the person's list:settings row under them (read-data/computer.py request)",
   "one JSON line out ({ result } or { error }) instead of a file written beside the script; print lines kept",
   "the embedder and image model are the request's; without an embedder the first run's public bge-small"
  ],

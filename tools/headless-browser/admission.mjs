@@ -3,8 +3,8 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
 import { createProcessAdmissionQueue, identityOf, UNKNOWN_LIVE } from '../process-session/do-work/process-admission.mjs';
-import { placeCacheFolder } from '../process-session/do-work/place-cache-folder.mjs';
-const QUEUE_ROOT = join(placeCacheFolder(), 'headless-browser-admission');
+import { computerCacheFolder } from '../process-session/do-work/computer-cache-folder.mjs';
+const QUEUE_ROOT = join(computerCacheFolder(), 'headless-browser-admission');
 const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
 const BROWSER_PROGRAM = /(?:Google Chrome|Chromium|chrome-for-testing|chromium_headless_shell|chrome-headless-shell)/i;
 
@@ -25,7 +25,7 @@ export function parseLegacyHeadlessRoots(rows, isLive = () => true) {
 
 export function legacyHeadlessRoots({ run = execFileSync, inspect = identityOf } = {}) {
   try {
-    // Reading every process's argv can hang on a busy place. First inspect only
+    // Reading every process's argv can hang on a busy computer. First inspect only
     // executable names; request arguments only for actual browser candidates.
     const programs = run('ps', ['-axo', 'pid=,comm='], PROBE_OPTIONS);
     const candidates = String(programs).split('\n').flatMap(line => {
@@ -39,7 +39,7 @@ export function legacyHeadlessRoots({ run = execFileSync, inspect = identityOf }
       return current === UNKNOWN_LIVE || current === started;
     }).length > 0;
   } catch (error) {
-    // A place with no process list program has nothing to read; the queue's own probes still decide.
+    // A computer with no process list program has nothing to read; the queue's own probes still decide.
     if (error?.code === 'ENOENT') return false;
     return true; // An inconclusive probe keeps browser admission closed.
   }

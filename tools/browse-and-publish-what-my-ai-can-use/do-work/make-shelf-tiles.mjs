@@ -8,7 +8,7 @@
 //
 // --tools and --workflows are JSON files of { items: [{ id, kind, title, job, steps?, icon? }] } (default data/tools.json
 // and data/workflows.json in the folder it runs in). --icons is the icons folder of an installed lucide-react (default:
-// the one in the Trillion checkout this place reports, TRILLION_CHECKOUT). --out gets `window.<global>=<tiles>;`
+// the one in the Trillion checkout this computer reports, TRILLION_CHECKOUT). --out gets `window.<global>=<tiles>;`
 // (default tiles.js, global TILES). Each tile is { id, kind, title, job (90 characters), steps, icon, svg }.
 // The last line printed is { result: { tiles, counts, written } } or { error }.
 //
@@ -25,7 +25,7 @@ const argv = process.argv.slice(2);
 const arg = name => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined);
 const fail = why => { console.log(JSON.stringify({ error: why })); process.exit(1); };
 if (!arg('--icons') && !process.env.TRILLION_CHECKOUT) fail('give --icons: the dist/esm/icons folder of an installed lucide-react.');
-const L = arg('--icons') ? `${arg('--icons')}/` : `${process.env.TRILLION_CHECKOUT}/node_modules/lucide-react/dist/esm/icons/`;      // in the Trillion checkout this place reports
+const L = arg('--icons') ? `${arg('--icons')}/` : `${process.env.TRILLION_CHECKOUT}/node_modules/lucide-react/dist/esm/icons/`;      // in the Trillion checkout this computer reports
 if (!fs.existsSync(L)) fail(`${L} is not a folder: give --icons, the dist/esm/icons folder of an installed lucide-react.`);
 const kebab = s => s.replace(/([a-z0-9])([A-Z])/g, '$1-$2').replace(/([A-Z])([A-Z][a-z])/g, '$1-$2').toLowerCase();
 const itemsOf = file => { try { return JSON.parse(fs.readFileSync(file)).items; } catch (error) { return fail(`${file}: ${error.message}; give a JSON file of { items: [...] }.`); } };
