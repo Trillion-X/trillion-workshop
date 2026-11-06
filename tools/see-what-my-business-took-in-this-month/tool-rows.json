@@ -18,7 +18,7 @@
     "licence_class": "licence:maker-own",
     "label": "Read this account's business this month",
     "job": "Read what this account's business took in this month on the payment services it connected",
-    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected cannot be read today, so each is read and a failed read says the money could not be read. Reads only.",
+    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections: a service it did not connect is not read and is drawn as not connected; when that list cannot be read, each service is read and a failed read says the money could not be read. Reads only.",
     "input_schema": {
      "type": "object",
      "additionalProperties": false,
@@ -123,6 +123,7 @@
      "records": {
       "fd": 3,
       "runs": [
+       "tool:list-connections",
        "tool:stripe-events-read_money_since"
       ]
      }
@@ -145,6 +146,18 @@
        "now": "2026-10-15T00:00:00.000Z"
       },
       "tool_runs": {
+       "tool:list-connections": {
+        "connections": [
+         {
+          "connection_id": "service_connection:stripe",
+          "service": "Stripe",
+          "vendor": "stripe",
+          "status": "connected",
+          "can_send": true,
+          "grant_scopes_known": false
+         }
+        ]
+       },
        "tool:stripe-events-read_money_since": {
         "object": "list",
         "has_more": false,
