@@ -397,6 +397,15 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
       ]);
     });
     for (const field of step.fields) units.push(() => checkShape(field, answer[field.name], field.name, method, rules));
+    // A field only someone other than the calling AI can truthfully answer (`answered_by` on the field: ask_others) is
+    // taken only with where its answer came from: the person's own words relayed ("person"), or the memory, file or
+    // conversation it was found in. An answer that names no source for it is the AI's own guess, so it is refused with
+    // the exact question to relay.
+    units.push(() => {
+      if (answer.answered_by !== undefined && !object(answer.answered_by)) throw new Error('answered_by must map each field to where its answer came from');
+      const unsourced = step.fields.filter(field => field.answered_by && !nonempty(answer.answered_by?.[field.name]));
+      if (unsourced.length) throw new Error(`These are about the person the decision belongs to. First answer them from what you already know about this person (your memory of them, their files, notes and past conversations) and set answered_by to where it came from; ask the person only what you cannot find, and then set answered_by to "person": ${unsourced.map(field => `${field.name}: "${field.ask ?? step.question}"`).join('; ')}`);
+    });
     gather(units);
   }
 
