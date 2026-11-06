@@ -2,8 +2,6 @@
 config and synthetic weights. Agreement with the decider's PyTorch code is agree_with_reference.py."""
 import os, sys, unittest
 
-import numpy as np
-
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "do-work"))
@@ -13,19 +11,29 @@ import importlib.util  # noqa: E402
 import synthetic as S  # noqa: E402
 from questions_first import prompt as P  # noqa: E402
 
-HAS_MLX = importlib.util.find_spec("mlx") is not None
+HAS_MLX = all(importlib.util.find_spec(m) is not None for m in ("mlx", "numpy"))
 if HAS_MLX:
+    import numpy as np
     import mlx.core as mx
     from questions_first.backbone import Backbone, Config
     from questions_first.engine import QuestionsFirst
     from questions_first.gated_delta import chunk_gated_delta_rule, recurrent_gated_delta_rule, unit_lower_inverse
-needs_mlx = unittest.skipUnless(HAS_MLX, "needs mlx (python3 -m pip install mlx; on Linux mlx[cpu])")
+needs_mlx = unittest.skipUnless(HAS_MLX, "needs mlx and numpy (python3 -m pip install mlx numpy; on Linux mlx[cpu])")
+
+# On Apple's GPU, float32 matmuls and reductions run in a different order than on the CPU; the Mac measured at most
+# 1.2e-3 between two exact forms (M5 Max, 2026-11-05). There every bound is 5e-3, half the 0.01 the decider must be
+# matched within; on the CPU each keeps its own tighter bound.
+ON_GPU = HAS_MLX and mx.default_device() == mx.gpu
+
+
+def tol(cpu):
+    return 5e-3 if ON_GPU else cpu
 
 TINY = {"model_type": "qwen3_5_text", "hidden_size": 64, "intermediate_size": 128, "num_hidden_layers": 4,
         "layer_types": ["linear_attention", "linear_attention", "linear_attention", "full_attention"],
         "rms_norm_eps": 1e-6, "vocab_size": 62000, "num_attention_heads": 4, "num_key_value_heads": 2, "head_dim": 16,
         "rope_parameters": {"rope_theta": 10000000, "partial_rotary_factor": 0.25, "rope_type": "default"},
-        "linear_num_key_heads": 2, "linear_num_value_heads": 2, "linear_key_head_dim": 16, "linear_value_head_dim": 16,
+        "linear_num_key_heads": 2, "linear_num_value_heads": 2, "linear_key_head_dim": 32, "linear_value_head_dim": 32,
         "linear_conv_kernel_dim": 4, "tie_word_embeddings": True, "attention_bias": False}
 
 
@@ -54,15 +62,15 @@ class Kernel(unittest.TestCase):
         a = [mx.array(x) for x in (q, k, v, g, beta, s0)]
         o1, s1 = chunk_gated_delta_rule(*a)
         o2, s2 = recurrent_gated_delta_rule(*a)
-        self.assertLess(float(mx.abs(o1 - o2).max()), 1e-5)
-        self.assertLess(float(mx.abs(s1 - s2).max()), 1e-5)
+        self.assertLess(float(mx.abs(o1 - o2).max()), tol(1e-5))
+        self.assertLess(float(mx.abs(s1 - s2).max()), tol(1e-5))
 
     def test_unit_lower_inverse_with_correlated_entries(self):
         rng = np.random.default_rng(2)
         n = np.tril(0.9 + 0.1 * rng.random((5, 64, 64)), -1).astype(np.float32)
         inv = np.array(unit_lower_inverse(mx.array(n)))
         eye = np.eye(64, dtype=np.float32)
-        self.assertLess(np.abs((eye + n) @ inv - eye).max(), 1e-3)
+        self.assertLess(np.abs((eye + n) @ inv - eye).max(), tol(1e-3))
 
 
 @needs_mlx
@@ -86,7 +94,7 @@ class Cache(unittest.TestCase):
                 suf, slots = P.suffix_ids(self.tok, st, 1, 32768)
                 lg = full_forward_logits(self.bb, self.qf, pre + suf, [len(pre) + x for x in slots])[0][:len(r["options"])]
                 p = np.exp(lg - lg.max()); p /= p.sum()
-                self.assertLess(np.abs(got[s, q, :len(p)] - p).max(), 1e-4, (s, q))
+                self.assertLess(np.abs(got[s, q, :len(p)] - p).max(), tol(1e-4), (s, q))
 
     def test_packed_rows_equal_the_plain_sequence(self):
         h = self.qf.prepare(self.rows, independent=False)
@@ -98,13 +106,13 @@ class Cache(unittest.TestCase):
             for q, r in enumerate(self.rows):
                 z = lg[q][:len(r["options"])]
                 p = np.exp(z - z.max()); p /= p.sum()
-                self.assertLess(np.abs(got[s, q, :len(p)] - p).max(), 1e-4, (s, q))
+                self.assertLess(np.abs(got[s, q, :len(p)] - p).max(), tol(1e-4), (s, q))
 
     def test_batch_size_does_not_change_answers(self):
         wide = QuestionsFirst(self.bb, self.tok, 0, temperature=1.0, tokens_per_batch=1 << 20)
         a = self.qf.score(self.qf.prepare(self.rows, independent=True), self.states)
         b = wide.score(wide.prepare(self.rows, independent=True), self.states)
-        self.assertLess(np.abs(a - b).max(), 1e-5)
+        self.assertLess(np.abs(a - b).max(), tol(1e-5))
 
     def test_stop_and_progress(self):
         h = self.qf.prepare(self.rows, independent=True)
@@ -150,7 +158,7 @@ class MetalPath(unittest.TestCase):
             b = fast.score(fast.prepare(rows), states)
         finally:
             metal_scan.scan = real
-        self.assertLess(np.abs(a - b).max(), 1e-4)
+        self.assertLess(np.abs(a - b).max(), tol(1e-4))
 
     def test_wiring_with_the_kernel_contract(self):
         self.run_with(contract_scan)
