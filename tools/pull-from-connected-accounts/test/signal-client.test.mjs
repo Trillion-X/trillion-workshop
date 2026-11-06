@@ -4,10 +4,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { EventEmitter } from 'node:events';
+import { PassThrough } from 'node:stream';
+import { myDeviceNotices } from '../../tell-the-person/read-data/told.mjs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { envelopesToConversations, readEnvelopeLines } from '../read-data/signal-envelopes.mjs';
-import { clientEnvironment, linkCode, linkedAccount, readSignalOnThisComputer, scrubbed } from '../do-work/signal-client.mjs';
+import { clientEnvironment, linkByNotice, linkCode, linkedAccount, readSignalOnThisComputer, scrubbed } from '../do-work/signal-client.mjs';
+import LINK from '../read-data/signal-link.json' with { type: 'json' };
 import { assemble, readParts } from '../read-data/snapshot.mjs';
 import { openDoor } from './service.mjs';
 import rows from '../tool-rows.json' with { type: 'json' };
@@ -109,7 +113,7 @@ test('read: what arrived is written down first, so a run whose keeping failed ha
 test('read: not linked answers needs_link and starts nothing; a client that cannot start is unreachable and says why without a phone number', async () => {
   const opened = await openDoor();
   const unlinked = standIn();
-  const done = await readSignalOnThisComputer({ client_folder: clientFolder({ linked: false }) }, { door: opened.door, spawnSync: unlinked.spawnSync });
+  const done = await readSignalOnThisComputer({ input: { link: false }, client_folder: clientFolder({ linked: false }) }, { door: opened.door, spawnSync: unlinked.spawnSync });
   assert.equal(done.status, 'needs_link');
   assert.match(done.said, /tool:link-signal-on-this-computer/);
   assert.equal(unlinked.calls.length, 0);
@@ -174,4 +178,110 @@ test('both client rows run on this computer from node, keep one folder between r
     assert.deepEqual(invoke.programs, client[0].invoke.programs, 'both rows declare the same programs');
   }
   assert.ok(client[1].invoke.session, 'linking waits for the scan as a session whose output shows the code');
+});
+
+// ---- Linking with no one running anything: the wake runs the read row, the Mac shows the notice --------------------
+
+const ADDRESS = 'sgnl://linkdevice?uuid=c2FtcGxlLWxpbmstYWRkcmVzcw&pub_key=c2FtcGxlLWtleQ';
+const readRow = rows.records.map(record => record.payload).find(row => row.id === 'tool:read-my-signal-messages-on-this-computer');
+const MAC = { id: 'notification-device:mac-1', type: 'notification-device',
+  value: { device_id: 'mac-1', route: 'live', label: 'Trillion for Mac', can_show: 'allowed', added_at: '2026-11-01T00:00:00.000Z' } };
+
+/** A stand-in for `signal-cli link`: prints the address, then, when `scanned`, keeps the linked account and ends. */
+function linkingClient({ scanned = true, printsAddress = true } = {}) {
+  const started = [];
+  const spawn = (program, args) => {
+    const child = new EventEmitter();
+    child.stdout = new PassThrough();
+    child.stderr = new PassThrough();
+    child.exitCode = null;
+    child.kill = () => { child.exitCode = 143; child.stdout.end(); child.emit('close', 143); return true; };
+    started.push({ program, args, child });
+    const folder = args[args.indexOf('--config') + 1];
+    setImmediate(() => {
+      if (printsAddress) child.stdout.write(`${ADDRESS}\n`);
+      if (!scanned && printsAddress) return;
+      setTimeout(() => {
+        if (scanned) {
+          mkdirSync(join(folder, 'data'), { recursive: true });
+          writeFileSync(join(folder, 'data', 'accounts.json'), JSON.stringify({ accounts: [{ path: 'sample', environment: 'LIVE', uuid: SELF }], version: 2 }));
+        }
+        child.exitCode = scanned ? 0 : 1;
+        child.stdout.end();
+        child.emit('close', child.exitCode);
+      }, 5);
+    });
+    return child;
+  };
+  return { started, spawn };
+}
+
+const quick = { ...LINK, address_wait_ms: 500, scan_wait_ms: 200 };
+const macNotices = async door => (await myDeviceNotices({ device_id: 'mac-1', channel: 'mac-app' }, { door })).notices;
+
+test('an unlinked computer links itself: the code is kept in the person\'s files, the Mac is told to scan it, and the run reads on after the scan', async () => {
+  const opened = await openDoor({ rights: readRow.invoke.records.rights, records: [MAC] });
+  const folder = clientFolder({ linked: false });
+  const linking = linkingClient();
+  const receive = standIn({ status: 0, stdout: PRINTED });
+  const done = await readSignalOnThisComputer({ input: { account: 'sample' }, client_folder: folder },
+    { door: opened.door, now: () => Date.parse(NOW), spawn: linking.spawn, spawnSync: receive.spawnSync });
+  assert.equal(done.status, 'pulled', done.said);
+  assert.equal(done.linked_now, true);
+  assert.equal(done.self_id, SELF);
+  assert.equal(done.new_messages, 6, 'the scan is followed by the first read in the same run');
+  assert.deepEqual(linking.started[0].args, ['--config', folder, 'link', '-n', 'Trillion on this computer']);
+  assert.match(done.said, /^Signal is now linked on this computer\./);
+  // The code is a picture in the person's files under the name the notice opens.
+  const finished = opened.calls.filter(call => JSON.stringify(call).includes('write_file_finish'));
+  assert.equal(finished.length, 1, 'the code is kept in the person\'s files');
+  assert.ok(JSON.stringify(finished[0]).includes(LINK.file));
+  // The Mac app reads its notices with tool:my-device-notices: this one is there, saying what to do and opening the code.
+  const [notice, ...others] = await macNotices(opened.door);
+  assert.equal(others.length, 0);
+  assert.equal(notice.kind, 'needs-you-request');
+  assert.equal(notice.title, 'Scan this with Signal on your phone');
+  assert.match(notice.body, /Settings, Linked devices, Link new device/);
+  assert.equal(notice.open, '/file/Signal/Link this Mac.svg');
+  assert.equal(LINK.notice.open, `/file${LINK.file}`, 'the notice opens the file the code is kept in');
+});
+
+test('not scanned in time: needs_link with the code kept and the Mac told once; the next run renews the code without telling again', async () => {
+  const opened = await openDoor({ rights: readRow.invoke.records.rights, records: [MAC] });
+  const folder = clientFolder({ linked: false });
+  let clock = Date.parse(NOW);
+  const context = () => ({ door: opened.door, now: () => clock });
+  const first = await linkByNotice(folder, { ...context(), spawn: linkingClient({ scanned: false }).spawn }, quick);
+  assert.equal(first.self_id, null);
+  assert.equal(first.told, true);
+  assert.match(first.said, /told on your Mac.*not scanned in time/);
+  clock += 15 * 60 * 1000;
+  const again = linkingClient({ scanned: false });
+  const second = await linkByNotice(folder, { ...context(), spawn: again.spawn }, quick);
+  assert.equal(again.started.length, 1, 'a new code is made');
+  assert.equal(second.told, false, 'but the person is not told again within six hours');
+  assert.equal((await macNotices(opened.door)).length, 1);
+  clock += 6 * 60 * 60 * 1000;
+  const later = await linkByNotice(folder, { ...context(), spawn: linkingClient({ scanned: false }).spawn }, quick);
+  assert.equal(later.told, true, 'six hours on, still not linked, they are told again');
+  assert.equal((await macNotices(opened.door)).length, 2);
+});
+
+test('a client that gives no code tells no one and says why; asked with link false, nothing is started', async () => {
+  const opened = await openDoor({ rights: readRow.invoke.records.rights, records: [MAC] });
+  const silent = await linkByNotice(clientFolder({ linked: false }), { door: opened.door, spawn: linkingClient({ printsAddress: false, scanned: false }).spawn }, quick);
+  assert.equal(silent.self_id, null);
+  assert.equal(silent.told, false);
+  assert.match(silent.said, /gave no code/);
+  assert.equal((await macNotices(opened.door)).length, 0);
+});
+
+test('the read row runs by its own wake every 15 minutes, may keep the code under /Signal and tell the person, and packs the notifications code it calls', () => {
+  assert.deepEqual(readRow.wakes, [{ id: 'keep-signal-current', on: { time: { every_ms: 900000 } }, budget: { steps: 1, wall_ms: 600000 } }]);
+  assert.ok(readRow.invoke.max_run_ms >= LINK.address_wait_ms + LINK.scan_wait_ms, 'a run can wait for the scan');
+  const rights = readRow.invoke.records.rights;
+  assert.ok(rights.some(right => right.files === '/Signal' && right.operations.includes('write_file_finish')));
+  assert.ok(LINK.file.startsWith('/Signal/'));
+  for (const kind of ['notification-event', 'told-the-person', 'notification-device']) assert.ok(rights.some(right => right.kind === kind), kind);
+  assert.ok(readRow.invoke.files.package_files.some(item => item.package === 'notifications'));
 });

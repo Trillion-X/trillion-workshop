@@ -1,0 +1,17 @@
+{
+  "_what": "How tool:read-my-signal-messages-on-this-computer links Signal by itself when it finds this computer not linked (do-work/signal-client.mjs linkByNotice). The run starts `signal-cli link`, keeps the QR code of the address it gives as a picture in the person's files at `file` (the same name every time, so the newest code is always there), tells the person on their devices with a notice of `notice` (tools/notifications: a notification-event record, then sendNotificationToMyDevices, which queues it for every registered device that reads notices, the Mac app among them; `open` is where pressing the notice takes them), and waits `scan_wait_ms` for the phone to scan it. A notice is sent at the first attempt and then at most once every `notice_every_ms` while the computer is still not linked, so the person is not told every time the wake runs; between notices the code in the file is renewed at each run. `address_wait_ms` is how long signal-cli is given to print the address.",
+  "file": "/Signal/Link this Mac.svg",
+  "media_type": "image/svg+xml",
+  "address_wait_ms": 60000,
+  "scan_wait_ms": 480000,
+  "notice_every_ms": 21600000,
+  "notice": {
+    "kind": "needs-you-request",
+    "conversation_ref": "signal-link",
+    "privacy_class": "personal",
+    "audience": "person:me",
+    "title": "Scan this with Signal on your phone",
+    "body": "To bring your Signal messages into Trillion, open Signal on your phone, go to Settings, Linked devices, Link new device, and scan the code this opens. A new code is made every 15 minutes until it is linked.",
+    "open": "/file/Signal/Link this Mac.svg"
+  }
+}
