@@ -64,6 +64,11 @@
    "repository": "trillion-workshop",
    "path": "tools/set-up-my-account/test/setup-checks.test.mjs",
    "why": "tests the setup sub-checks above"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/evaluate-voice.mjs",
+   "why": "A local name checkResults for the voice classifier's per-criterion gold and predicted answers on a challenge set; it scores a model, it judges no recipe step's checks."
   }
  ],
  "proof": {
