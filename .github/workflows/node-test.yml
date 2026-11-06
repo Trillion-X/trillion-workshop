@@ -46,5 +46,9 @@ jobs:
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium
+      # Ubuntu 24.04 runners forbid unprivileged user namespaces (AppArmor), which Chrome's own sandbox is built on, so
+      # the runner's /usr/bin/google-chrome that walk-through-an-app and its kin find first stops at start with a crash
+      # dump. Allowing them lets the browser start with its sandbox on, as it does on a person's computer.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       # --test-force-exit: a test file whose tests have all ended exits, even if one left a timer or a server open.
       - run: node --test --test-force-exit --test-shard=${{ matrix.shard }}/4 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'
