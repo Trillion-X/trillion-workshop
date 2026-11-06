@@ -93,8 +93,29 @@ def reference(args):
     print(json.dumps(dict(ok=True, wrote=os.path.join(args.out, "reference.json"), seconds=round(time.time() - t, 1))))
 
 
+def numpy_projections():
+    """For a CPU-only check: MLX's Linux CPU build multiplies matrices at a few GFLOPS (about 3 on a 4-core box, against
+    400+ for NumPy's BLAS), so a 2B forward takes hours. This computes only the weight projections (the linear layers
+    and the MLP) with NumPy; the kernel, the cache, masks, rope, norms and the answers stay MLX. Never used on a Mac."""
+    import mlx.core as mx
+    import numpy as np
+    from questions_first import backbone
+
+    def linear(x, w):
+        return mx.array(np.asarray(x) @ np.asarray(w).T)
+
+    def mlp(x, wg, wu, wd):
+        xn = np.asarray(x)
+        g = xn @ np.asarray(wg).T
+        return mx.array(((g / (1 + np.exp(-g))) * (xn @ np.asarray(wu).T)) @ np.asarray(wd).T)
+    backbone.linear = linear
+    backbone._mlp_compiled = mlp
+
+
 def mlx_side(args):
     import mlx.core as mx
+    if args.numpy_projections:
+        numpy_projections()
     from questions_first.backbone import Backbone
     from questions_first.engine import QuestionsFirst
     from questions_first import prompt as P
@@ -133,7 +154,7 @@ def mlx_side(args):
     worst = float(worst)
     out = dict(ok=bool(worst <= args.tolerance), pairs=len(ref["questions"]) * len(ref["states"]), rows=n_rows,
                max_abs_diff=worst, worst_at=at, answers_max_abs_diff=float(ans_worst), argmax_agreement=argmax_same / n_rows,
-               tolerance=args.tolerance, dtype=args.dtype or ref["dtype"], packed=ref["packed"], mlx_seconds=round(secs, 1),
+               tolerance=args.tolerance, numpy_projections=args.numpy_projections, dtype=args.dtype or ref["dtype"], packed=ref["packed"], mlx_seconds=round(secs, 1),
                reference_seconds=round(ref["seconds"]["total"], 1), device=str(mx.default_device()))
     print(json.dumps(out))
     return 0 if out["ok"] else 1
@@ -154,6 +175,7 @@ def main():
     ap.add_argument("--packed", action="store_true")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--tolerance", type=float, default=0.01)
+    ap.add_argument("--numpy-projections", action="store_true", help="CPU-only boxes: the linear layers through NumPy's BLAS")
     a = ap.parse_args()
     if a.step == "reference":
         a.dtype = a.dtype or "float32"
