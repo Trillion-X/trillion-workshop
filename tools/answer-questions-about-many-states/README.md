@@ -72,7 +72,7 @@ All data below is synthetic.
 
 - **The decider's own PyTorch code, CPU, float32, random weights, 200 made-up question × state pairs.**
   - Tiny config: the MLX answers agree within 1.9e-7, independent and packed, and every choice is the same.
-  - The full 2B `config.json`: see the pull request.
+  - The full 2B `config.json` (random weights rounded to bfloat16, computed in float32): agree within 9.2e-6 over the 200 pairs (290 rows), every choice the same. On that CPU-only box the large projections ran through NumPy (`--numpy-projections`), because MLX's Linux CPU build multiplies matrices at about 3 GFLOPS.
 - **Still to run on the M5 Max after merge:**
   - `python3 tools/answer-questions-about-many-states/test/benchmark.py --model <decider snapshot folder>` for the 303 × 132 wall time. The target is 60 s. The decider lane's earlier MLX build took 121.0 s on the same set: one question per pass, 5,684 suffix tokens/s.
   - `python3 tools/answer-questions-about-many-states/test/agree_with_reference.py reference --decider-source <snapshot> --model <snapshot> --dtype bfloat16 --out /tmp/agree`, then `... mlx --out /tmp/agree` for agreement on the real weights. The tolerance is 0.01.
