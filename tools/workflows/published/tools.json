@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0cbe18e77f7a9c944d69276886579856018f3d1a29d8b86a168ce254c9c33960"
+  "blake3": "1f:de987e8b605fcc1b2f255db50e7e7060d0037f2a20b61aa002c10f33197887ca"
  },
  "fields": [
   {
@@ -398,7 +398,7 @@
    "values": {
     "title": "Answer the same questions about many states, in bulk, on this Mac",
     "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
-    "description": "Starts a bulk run in the background: every state (text, or JSON written compactly) is asked every question, with the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The job id is the BLAKE3 identity of the whole request, so the same request names the same run and a finished one is not run again. Read it with tool:read-a-bulk-answer-run; stop it with tool:cancel-a-bulk-answer-run.",
+    "description": "Reads, by record id through its records door, the model row, the question set ({questions: {question id: {type: choice|score|noul, instructions, criteria?}}}), the settings row and every state row under a prefix, and asks every state every question on this Mac: the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). As each batch finishes, its answers are written as bulk-answer-page rows of at most the settings' page_bytes, with the run's bulk-answer-run row (status, states done, pages), so tool:read-a-bulk-answer-run reads it and tool:cancel-a-bulk-answer-run stops it from any computer. The job id is the BLAKE3 identity of the rows read, so the same rows name the same run, and a finished or still-running one is not run again. Nothing is kept on this Mac: the states go to the classifier program on a pipe and its answers come back on one.",
     "status": "active",
     "maker": "maker:answer-questions-about-many-states",
     "licence_class": "licence:permissive",
@@ -1138,12 +1138,12 @@
    "values": {
     "title": "Stop a bulk answer run",
     "job": "Stop my bulk question run",
-    "description": "Asks a run to stop after the batch in hand. The states it finished keep their answers, which read then returns; a run already finished is left as it is.",
+    "description": "Asks a bulk answer run to stop after the batch in hand, from any computer: it writes the run's bulk-answer-cancel row, which the run reads between batches. The states already answered keep their pages, which tool:read-a-bulk-answer-run then gives. A run already finished, cancelled or failed is left as it is; a run whose row stopped being written is marked cancelled.",
     "status": "active",
     "maker": "maker:answer-questions-about-many-states",
     "licence_class": "licence:permissive",
     "placements": [
-     "placement:your-computer"
+     "placement:small-container"
     ],
     "folder": "answer-questions-about-many-states"
    }
@@ -4140,7 +4140,7 @@
    "values": {
     "title": "Get a questions-first classifier ready on this Mac",
     "job": "Get my question classifier model ready to run on my Mac",
-    "description": "Fetches the weights a model row names (a pinned Hugging Face revision, or a local folder), checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, to keep beside the model row. A gated model needs the person's own `huggingface-cli login`. Run it once per model row before start.",
+    "description": "Reads the model row the person names (by record id), fetches the weights it names (a pinned Hugging Face revision, or a local folder) on this Mac, checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, kept as a classifier-ready row in the person's records beside the model row, so any computer can see which weights the row was made ready with. A gated model needs the person's own `huggingface-cli login`. Run it once per model row on each Mac that will answer.",
     "status": "active",
     "maker": "maker:answer-questions-about-many-states",
     "licence_class": "licence:permissive",
@@ -8523,12 +8523,12 @@
    "values": {
     "title": "Read how far a bulk answer run is, and its answers",
     "job": "How far is my bulk question run, and give me its answers",
-    "description": "Says a run's status (queued, running, finished, cancelled or failed with why), how many states are answered and, once it is finished or cancelled, its answers as byte pages: {total, blake3, offset, length, base64, next_after_byte}. Ask again with after_byte set to next_after_byte until it is null, join the bytes, check the length and BLAKE3, and parse: {model, layout, questions, states, answers: [{state, answers: {question id: answer}}], seconds}. Keep what matters as rows in the person's lists; the run's folder is working space.",
+    "description": "Reads a bulk answer run's row from the person's records, from any computer: its status (running, finished, cancelled, or failed with why; a run whose row stopped being written is failed), how many states are answered and in how many pages, and, given `page`, that page's answers: [{state: the state row's id, index, answers: {question id: answer}}], with next_page until it is null. Pages are readable while the run goes on.",
     "status": "active",
     "maker": "maker:answer-questions-about-many-states",
     "licence_class": "licence:permissive",
     "placements": [
-     "placement:your-computer"
+     "placement:small-container"
     ],
     "folder": "answer-questions-about-many-states"
    }
