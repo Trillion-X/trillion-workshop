@@ -52,8 +52,18 @@ function originalRead(host, opts = {}) {
 }
 
 test('baseline fixture is exactly 577d3b687 source with only relative import relocation', () => {
-  const original = readFileSync(new URL('./fixtures/record-log-store-before-bucket-directory.mjs', import.meta.url), 'utf8')
-    .replaceAll("from '../../parts/record-log/do-work/", "from '");
+  // Each relative import of the fixture names where the Workshop keeps that file; put back the name 577d3b687 gave it.
+  const relocated = {
+    "from '../../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/": "from './",
+    "from '../../../slot-table/": "from '../../slot-table/",
+    "from '../../../json-expansion.mjs'": "from '../../json-expansion.mjs'",
+    "from '../../do-work/": "from './",
+  };
+  let original = readFileSync(new URL('./fixtures/record-log-store-before-bucket-directory.mjs', import.meta.url), 'utf8');
+  for (const [here, there] of Object.entries(relocated)) {
+    assert.ok(original.includes(here), `the fixture still names ${here}`);
+    original = original.replaceAll(here, there);
+  }
   assert.equal(createHash('sha256').update(original).digest('hex'), '4b039d64ea2850718524d5c9f27ce8099578017ce2859e1d1bd7a19e994a80fa');
 });
 
