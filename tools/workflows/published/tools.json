@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:4c209cd3c918dd9f87ea1aa53198cd0ed7371575b593ea22fb6591edb31e12c9"
+  "blake3": "1f:0cbe18e77f7a9c944d69276886579856018f3d1a29d8b86a168ce254c9c33960"
  },
  "fields": [
   {
@@ -391,6 +391,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:answer-questions-about-many-states",
+   "values": {
+    "title": "Answer the same questions about many states, in bulk, on this Mac",
+    "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
+    "description": "Starts a bulk run in the background: every state (text, or JSON written compactly) is asked every question, with the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The job id is the BLAKE3 identity of the whole request, so the same request names the same run and a finished one is not run again. Read it with tool:read-a-bulk-answer-run; stop it with tool:cancel-a-bulk-answer-run.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -1116,6 +1131,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:cancel-a-bulk-answer-run",
+   "values": {
+    "title": "Stop a bulk answer run",
+    "job": "Stop my bulk question run",
+    "description": "Asks a run to stop after the batch in hand. The states it finished keep their answers, which read then returns; a run already finished is left as it is.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -4103,6 +4133,21 @@
      "placement:your-computer"
     ],
     "folder": "generate-speech"
+   }
+  },
+  {
+   "id": "tool:get-a-classifier-ready-on-this-mac",
+   "values": {
+    "title": "Get a questions-first classifier ready on this Mac",
+    "job": "Get my question classifier model ready to run on my Mac",
+    "description": "Fetches the weights a model row names (a pinned Hugging Face revision, or a local folder), checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, to keep beside the model row. A gated model needs the person's own `huggingface-cli login`. Run it once per model row before start.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -8471,6 +8516,21 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
+   "id": "tool:read-a-bulk-answer-run",
+   "values": {
+    "title": "Read how far a bulk answer run is, and its answers",
+    "job": "How far is my bulk question run, and give me its answers",
+    "description": "Says a run's status (queued, running, finished, cancelled or failed with why), how many states are answered and, once it is finished or cancelled, its answers as byte pages: {total, blake3, offset, length, base64, next_after_byte}. Ask again with after_byte set to next_after_byte until it is null, join the bytes, check the length and BLAKE3, and parse: {model, layout, questions, states, answers: [{state, answers: {question id: answer}}], seconds}. Keep what matters as rows in the person's lists; the run's folder is working space.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
