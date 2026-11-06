@@ -1,13 +1,48 @@
-import json, os, shutil, subprocess, sys
+#!/usr/bin/env python3
+# tools/put-picked-options-into-a-filmcraft-project/do-work/filmcraft_preview.py
+"""Build one picked option on its own copy of a FilmCraft project, with FilmCraft's own commands only, and export its preview.
+
+Never touches the graded original or the live app (no --bridge): every step is a headless filmcraft-cli session on
+projects-round-<n>/<id>.fcproj, a byte copy of the chapter's base project (settings base_project). The .fcproj is only
+ever written by FilmCraft (--save). The preview lands in work-round-<n>/pending/<id>.mp4 (and its still); publish_preview.py
+moves it into the previews folder after ffprobe reads it whole.
+
+The spec's "edit" block (all times in seconds of the person's cut, before any hold or cut in this option):
+  head_extend: [[at, n], ...]            the V1 clip that starts at `at` starts n frames earlier in its own media (ripple, linked
+                                          audio follows): real footage and room tone ahead of a word the cut starts on.
+  a1_mute: [[a, b], ...]                  A1 is cut at a and b (seconds after the hold) and the part between plays no sound.
+  hold:    {"at": s, "seconds": d}       Insert Frame Hold Segment on V1 (ripples), then the grade layer on V2 is trimmed over the
+                                          inserted span so the held frame keeps the grade. A list holds several frames; every `at`
+                                          is a time before any hold, and every later time in the spec counts after all of them.
+  prepend: [[a, b], ...]                  Stitch: each range of the graded cut (all tracks) is copied, in the order listed, to the
+                                          start of the sequence, and everything else ripples later. Runs first, so every other time
+                                          counts from the start of the stitched sequence.
+  cuts:    [[a, b], ...]                  Add Edit to All Tracks at a and b, ripple-delete what lies between.
+  hold_picture: {"image": path, "at": s, "seconds": d}
+                                          a still on its own video track V3, under the overlay, for d seconds from s (the picture on
+                                          screen during a hold when the frame the cut must be made on is a poor one). The overlay then
+                                          goes on V4. A list puts one still per hold on V3. A relative path is read against the film.
+  overlay: {"at": s}                      out-round-<n>/<id>/overlay.mov on V3 (V4 with hold_picture) and its sound.wav on A2 at s.
+  scale:   [[s, percent], ...]            Motion scale keyframes on the V1 clip under each time (push-in / punch-in).
+  gain:    [[a, b, db], ...]              the person's sound (A1) between a and b raised or lowered by db (razor + clip gain).
+  preview: [a, b]                         export range (seconds of the edited sequence), at the settings' export format and scale.
+
+Request (one JSON object; the file named as the first argument, or standard input): film, option, chapter?, options_folder?,
+spec? (else specs-round-<n>/<id>.json), settings_record?, settings?, plan? (true: run nothing that writes; answer the exact
+filmcraft-cli/ffmpeg command list), overlay? ({request, command?}: render out-round-<n>/<id>/overlay.mov and sound.wav first
+with tool:render-a-motion-graphics-overlay, under this build's render lock), how? ("build", the default, or "composite":
+composite_preview.py). Answer: {"result": {option, project, preview, still?, plan?}} or {"error": ...}."""
+import json, os, shutil, subprocess, sys, tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from rounds import OPT, filmcraft_cli as cli, filmcraft_export, odir, rdir, render_lock  # noqa: E402,F401  cli: lanes call fc_preview_r3.cli
+import option_folders as place  # noqa: E402
+from option_folders import filmcraft_cli as cli, filmcraft_export, odir, rdir, render_lock, run_program, spec_of  # noqa: E402,F401  cli: lanes call filmcraft_preview.cli
 T = 254016000000
 
 
 def run(project, cmds):
-    path = f'/tmp/fc-{os.getpid()}.jsonl'
+    path = os.path.join(tempfile.gettempdir(), f'fc-{os.getpid()}.jsonl')
     with open(path, 'w') as f:
         for c in cmds:
             f.write(json.dumps(c) + '\n')
@@ -63,32 +98,79 @@ def prepend(proj, ranges):
     return end / T
 
 
-def main():
+def main(oid=None):
     """Build and export one option. Takes the render lock itself (reentrant), so a caller importing main() cannot skip it."""
     with render_lock():
-        _main()
+        return _main(oid)
 
 
-def _main():
-    oid = sys.argv[1]
-    spec = json.load(open(rdir('specs', oid, oid + '.json')))
+def _main(oid=None):
+    oid = oid or sys.argv[1]
+    spec = spec_of(oid)
     ed = spec['edit']
-    os.makedirs(rdir('projects', oid), exist_ok=True)
+    place.makedirs(rdir('projects', oid))
     proj = rdir('projects', oid, oid + '.fcproj')
-    shutil.copyfile(os.path.join(OPT, 'base-graded-copy.fcproj'), proj)
+    place.copy_project(place.base_project(), proj)
     build_edits(proj, oid, spec)
     a, b = ed['preview']
     raw, dst = export_paths(oid)
-    os.makedirs(os.path.dirname(dst), exist_ok=True)
-    filmcraft_export(proj, raw, a, b)
+    place.makedirs(os.path.dirname(dst))
+    ex = place.PLACE['export']
+    filmcraft_export(proj, raw, a, b, scale=ex['scale'], quality=ex['quality'], fmt=ex['format'])
     master_loudness(raw, dst)
-    os.remove(raw)  # scratch only; the mastered preview is dst (disk is short)
+    remove(raw)  # scratch only; the mastered preview is dst (disk is short)
     st = spec.get('still_preview')
     if st is None and spec.get('still_at') is not None:
         st = spec['still_at'] - a
+    q = str(place.PLACE['still_qscale'])
     if st is not None:
-        subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st:.3f}', '-i', dst, '-frames:v', '1', '-q:v', '3', dst[:-4] + '.jpg'], check=True)
-    print(f'{oid}: {dst} (pending; publish_r3.py moves it into the previews folder after ffprobe; film-qa then measures it there)')
+        run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st:.3f}', '-i', dst, '-frames:v', '1', '-q:v', q, dst[:-4] + '.jpg'], check=True)
+    print(f'{oid}: {dst} (pending; publish_preview.py moves it into the previews folder after ffprobe)', file=sys.stderr)
+    return {'option': oid, 'project': proj, 'preview': dst, **({'still': dst[:-4] + '.jpg'} if st is not None else {})}
+
+
+def remove(path):
+    if place.planning():
+        place.plan_note(remove=path)
+    else:
+        os.remove(path)
+
+
+def render_overlay(oid, overlay):
+    """overlay.mov and sound.wav of the option, rendered by tool:render-a-motion-graphics-overlay into out-round-<n>/<id>/ (its
+    request is the caller's, with `out` set here; no `lock`: this build holds the render lock, and the overlay tool sees it)."""
+    req = dict(overlay['request'], out=odir(oid))
+    req.pop('lock', None)
+    cmd = overlay.get('command') or ['node', os.path.join(HERE, '..', '..', 'render-a-motion-graphics-overlay', 'do-work', 'render-overlay.mjs')]
+    if place.planning():
+        place.plan_note(argv=list(cmd), stdin=req)
+        return None
+    done = subprocess.run(cmd, input=json.dumps(req), capture_output=True, text=True)
+    last = (done.stdout.strip().splitlines() or ['{}'])[-1]
+    try:
+        said = json.loads(last)
+    except json.JSONDecodeError:
+        said = {'error': last[-300:]}
+    if done.returncode or 'error' in said:
+        raise SystemExit(f'{oid}: the overlay tool refused: {said.get("error") or done.stderr[-300:]}')
+    return said.get('result')
+
+
+def build(req):
+    """The request's build: configure the option's place, render its overlay when asked, then main() (or the composite)."""
+    place.configure(req)
+    oid = req['option']
+    if req.get('how', 'build') == 'composite':
+        import composite_preview
+        return composite_preview.main(oid)
+    with render_lock():
+        made = render_overlay(oid, req['overlay']) if req.get('overlay') else None
+        out = main(oid)
+    if made is not None:
+        out['overlay'] = made
+    if place.planning():
+        out['plan'] = place.plan_steps()
+    return out
 
 
 def as_list(v):
@@ -187,18 +269,21 @@ def export_paths(oid):
     return os.path.join(pend, f'_export-{oid}.mp4'), os.path.join(pend, oid + '.mp4')
 
 
+MEASURED_IN_A_PLAN = {k: '{' + k + '}' for k in ('input_i', 'input_tp', 'input_lra', 'input_thresh', 'target_offset')}  # known only after pass 1
+
+
 def master_loudness(src, dst):
-    """Two-pass EBU R128 loudness on the preview's sound (picture copied), to look_r3.json preview_loudness."""
-    L = json.load(open(os.path.join(HERE, 'look_r3.json')))['preview_loudness']
+    """Two-pass EBU R128 loudness on the preview's sound (picture copied), to the settings' loudness {I, TP, LRA}."""
+    L = place.PLACE['loudness']
     tgt = f"I={L['I']}:TP={L['TP']}:LRA={L['LRA']}"
-    err = subprocess.run(['ffmpeg', '-nostdin', '-i', src, '-af', f'loudnorm={tgt}:print_format=json', '-vn', '-f', 'null', '-'],
-                         capture_output=True, text=True).stderr
-    m = json.loads(err[err.rindex('{'):err.rindex('}') + 1])
+    err = run_program(['ffmpeg', '-nostdin', '-i', src, '-af', f'loudnorm={tgt}:print_format=json', '-vn', '-f', 'null', '-'],
+                      capture_output=True, text=True).stderr
+    m = MEASURED_IN_A_PLAN if place.planning() else json.loads(err[err.rindex('{'):err.rindex('}') + 1])
     af = (f"loudnorm={tgt}:measured_I={m['input_i']}:measured_TP={m['input_tp']}:measured_LRA={m['input_lra']}"
           f":measured_thresh={m['input_thresh']}:offset={m['target_offset']},aresample=48000")
-    subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-i', src, '-c:v', 'copy', '-af', af, '-c:a', 'aac', '-b:a', '256k',
-                    '-movflags', '+faststart', dst], check=True)
+    run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-i', src, '-c:v', 'copy', '-af', af, '-c:a', 'aac', '-b:a', '256k',
+                 '-movflags', '+faststart', dst], check=True)
 
 
 if __name__ == '__main__':
-    main()
+    place.answer(build)

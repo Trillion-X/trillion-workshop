@@ -1,35 +1,41 @@
 #!/usr/bin/env python3
-"""Build one chapter-4 option's FilmCraft project and its preview, into work-round-<n>/pending (publish_r3 then moves it).
+# tools/put-picked-options-into-a-filmcraft-project/do-work/composite_preview.py
+"""Build one option's FilmCraft project and its preview, into work-round-<n>/pending (publish_preview then moves it), with
+the preview composited from a FilmCraft export of the base cut instead of a new export: the request's how "composite".
 
-    preview4.py <id> ...
+Project: projects-round-<n>/<id>.fcproj, a byte copy of the chapter's base project, changed only by FilmCraft's own
+commands (the same steps as filmcraft_preview.py): overlay.mov on V3 and sound.wav on A2 at edit.overlay.at, the overlay
+filling the frame. This project is what a pick applies.
 
-Project: projects-round-<n>/<id>.fcproj, a byte copy of options-ch4/base-graded-copy.fcproj (a copy of options-ch1's copy of his graded cut), changed only by
-FilmCraft's own commands (the same steps as fc_preview_r3.py): overlay.mov on V3 and sound.wav on A2 at edit.overlay.at,
-the overlay filling the frame; edit.scale as Motion scale keyframes on V1. This project is what a pick applies.
-
-Preview: a FilmCraft export of a 272 s range here takes about 11 s per film second under the shared render lock, so the
-preview of an overlay-only option is composited from the FilmCraft export of his graded cut (work/ch4-base-1080.mp4,
-690.0-962.0 s) instead of re-exporting it: the same pixels FilmCraft rendered for V1+V2, overlay.mov placed at the same time,
-sound.wav added to his sound, then the same two-pass loudness master (fc_preview_r3.master_loudness). A plain option is the
-base range itself. An option that changes V1 (edit.scale) is exported by FilmCraft (fc_preview_r3.main), so what you see is
-what FilmCraft makes."""
+Preview: a FilmCraft export of a long range can take about 11 s per film second under the shared render lock, so the
+preview of an overlay-only option is composited from the FilmCraft export of the graded cut (the chapter's settings
+composite.base, starting at composite.base_t0 seconds of the cut) instead of re-exporting it: the same pixels FilmCraft rendered for
+V1+V2, overlay.mov placed at the same time, sound.wav added to the cut's sound, then the same two-pass loudness master
+(filmcraft_preview.master_loudness). A plain option (spec `plain`) is the base range itself. An option that changes V1
+(edit.scale) is exported by FilmCraft (filmcraft_preview.main), so what you see is what FilmCraft makes."""
 import json, os, shutil, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import ch4  # noqa: E402
+import filmcraft_preview as fc  # noqa: E402
+import option_folders as rounds  # noqa: E402
 
-ch4.install_rounds()
-fc = ch4.load('fc_preview_r3')
-rounds = sys.modules['rounds']
 T = fc.T
+
+
+def base_export():
+    """(the chapter's FilmCraft export of the graded cut, the second of the cut it starts at): settings composite {base, base_t0}."""
+    c = rounds.PLACE.get('composite') or {}
+    if not c.get('base'):
+        raise SystemExit('how "composite" needs the chapter\'s settings composite {base, base_t0}: the FilmCraft export of the cut to composite onto')
+    return os.path.expanduser(rounds.under(rounds.OPT, c['base'])), float(c.get('base_t0', 0.0))
 
 
 def project(oid, spec):
     ed = spec['edit']
-    os.makedirs(rounds.rdir('projects', oid), exist_ok=True)
+    rounds.makedirs(rounds.rdir('projects', oid))
     proj = rounds.rdir('projects', oid, oid + '.fcproj')
-    shutil.copyfile(os.path.join(ch4.OPT, 'base-graded-copy.fcproj'), proj)
+    rounds.copy_project(rounds.base_project(), proj)
     if ed.get('overlay'):
         out = rounds.odir(oid)
         paths = [p for p in (os.path.join(out, 'overlay.mov'), os.path.join(out, 'sound.wav')) if os.path.exists(p)]
@@ -60,9 +66,10 @@ def placed(proj):
 def composite(oid, spec):
     a, b = spec['edit']['preview']
     pend = rounds.rdir('work', oid, 'pending')
-    os.makedirs(pend, exist_ok=True)
-    raw, dst = os.path.join(pend, '_scratch.mov'), os.path.join(pend, oid + '.mp4')  # one scratch file, overwritten each time
-    cmd = ['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{a - ch4.BASE_T0:.4f}', '-t', f'{b - a:.4f}', '-i', ch4.BASE]
+    rounds.makedirs(pend)
+    raw, dst = os.path.join(pend, f'_scratch-{oid}.mov'), os.path.join(pend, oid + '.mp4')  # per option, so two composites never share a scratch
+    BASE, BASE_T0 = base_export()
+    cmd = ['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{a - BASE_T0:.4f}', '-t', f'{b - a:.4f}', '-i', BASE]
     if spec['edit'].get('overlay'):
         at = placed(rounds.rdir('projects', oid, oid + '.fcproj'))
         out = rounds.odir(oid)
@@ -83,26 +90,29 @@ def composite(oid, spec):
         cmd += ['-map', '0:v', '-map', '0:a']
     cmd += ['-c:v', 'libx264', '-crf', '17', '-preset', 'medium', '-pix_fmt', 'yuv420p', '-color_primaries', 'bt709', '-color_trc', 'bt709',
             '-colorspace', 'bt709', '-r', '24000/1001', '-c:a', 'pcm_s16le', '-t', f'{b - a:.4f}', raw]
-    subprocess.run(['nice', '-n', '10'] + cmd, check=True)
+    rounds.run_program(['nice', '-n', str(rounds.NICE)] + cmd, check=True)
     fc.master_loudness(raw, dst)
     st = spec.get('still_at')
     if st is not None:
-        subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st - a:.3f}', '-i', dst, '-frames:v', '1', '-q:v', '3', dst[:-4] + '.jpg'], check=True)
-    print(f'{oid}: {dst} (pending)')
+        rounds.run_program(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-ss', f'{st - a:.3f}', '-i', dst, '-frames:v', '1', '-q:v', str(rounds.PLACE['still_qscale']), dst[:-4] + '.jpg'], check=True)
+    print(f'{oid}: {dst} (pending)', file=sys.stderr)
+    return {'option': oid, 'preview': dst, **({'still': dst[:-4] + '.jpg'} if st is not None else {})}
 
 
 def main(oid):
-    spec = json.load(open(rounds.rdir('specs', oid, oid + '.json')))
+    spec = rounds.spec_of(oid)
     if spec['edit'].get('scale'):
-        sys.argv = ['fc_preview_r3.py', oid]
         with rounds.render_lock():
-            fc.main()  # builds the project with FilmCraft and exports the preview from it
-        return
-    if not spec.get('plain'):
-        project(oid, spec)
-    composite(oid, spec)
+            out = fc.main(oid)  # builds the project with FilmCraft and exports the preview from it
+    else:
+        out = {}
+        if not spec.get('plain'):
+            out['project'] = project(oid, spec)
+        out.update(composite(oid, spec))
+    if rounds.planning():
+        out['plan'] = rounds.plan_steps()
+    return out
 
 
 if __name__ == '__main__':
-    for oid in sys.argv[1:]:
-        main(oid)
+    rounds.answer(fc.build)

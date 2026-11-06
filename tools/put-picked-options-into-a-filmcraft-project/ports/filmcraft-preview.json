@@ -1,0 +1,61 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FC-PREVIEW-BUILD-ONE-OPTION",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:c8af2142fdc38d10ffadd5c09ab7b7ce3ef00b1840ccc60abdcc5d380c82fc48",
+   "lines": [
+    41,
+    244
+   ],
+   "multihash": "1f:d8d936faab9d19dfed536bc25415be9014b4c74f359501b8a2ffe26e85ab818d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/filmcraft_preview.py"
+  }
+ ],
+ "preserve": [
+  "every edit op of the spec keeps its FilmCraft commands and order: prepend first (frame-snapped, copy+insert of all tracks, overlap refused), cuts latest first, head_extend (ripple in-edge then the V2 out-edge), holds latest first on frames with the V2 grade trimmed over them (also at 0:00), a1_mute, gain, scale keyframes, hold_picture on V3 with the overlay then on V4, overlay.mov on V3 and sound.wav on A2 with fillFrame",
+  "the export is the one locked filmcraft_export into a per-option scratch in work-round-<n>/pending, mastered by two-pass loudnorm (picture copied, aac 256k, faststart), the scratch removed, the still from still_preview or still_at - preview start",
+  "main() takes the render lock itself; the project is a byte copy of the base project and is only written by FilmCraft (--save)"
+ ],
+ "allowed_deltas": [
+  "the option folder, layout, base project, lock, export format/scale/quality, loudness and still quality come from the film's list:settings row (option_folders.configure) where they were the film repository's folders, look_r3.json and literals",
+  "one JSON request in, the answer on the last line; plan mode records every command (FilmCraft's own commands run on a scratch copy) and runs nothing that writes",
+  "an optional overlay step calls tool:render-a-motion-graphics-overlay before the build; a relative hold_picture is read against the film"
+ ],
+ "banned_substitutions": [
+  "a film's folders, option ids, watch-folder names or the person's name written into the code",
+  "a second copy of the overlay renderer (the overlay step calls tool:render-a-motion-graphics-overlay)",
+  "an edit of the person's graded project other than FilmCraft's own headless commands on a copy"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T10:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d8d936faab9d19dfed536bc25415be9014b4c74f359501b8a2ffe26e85ab818d",
+  "target_multihash_at_baseline": "1f:d8d936faab9d19dfed536bc25415be9014b4c74f359501b8a2ffe26e85ab818d",
+  "commit": "7f5967a94af74c5ec1962078cd13c513cc30c9cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_cold_opens.py the stitched opening, the grade under it, the mutes, the hold picture and the overlay tracks",
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_prepend.py copies keep their order, media and length; overlapping ranges refused",
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py plan_is_the_build_and_writes_nothing"
+  ]
+ }
+}
