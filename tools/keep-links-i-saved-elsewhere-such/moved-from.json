@@ -47,6 +47,14 @@
       "to": "tools/keep-links-i-saved-elsewhere-such/from-old-trillion/records/workshop-saved-links-tool-records.json",
       "source_identity": "1f:7689f72bbb30814af55399f7992c001e394a0f771dad1edcfd5b56b21547e770",
       "identity": "1f:7689f72bbb30814af55399f7992c001e394a0f771dad1edcfd5b56b21547e770"
+    },
+    {
+      "from": "test/saved-links.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-links-i-saved-elsewhere-such/test/saved-links.test.mjs",
+      "source_identity": "1f:3bbc769e1483a36095ee828fefbc16fd5040f9c4c660bd5eb42d8af6281dda7e",
+      "identity": "1f:b07d2de5d6b86ceb3d4f2d4df634b305ed7aed1278c2f5fffce39c773c267dac",
+      "adapted": "the Arc tool runs the saved-links account action directly and the MCP tools are read from src/saved-links-tools.mjs; the shared-rows and two X bookmark tests are left out: this tool's Workshop rows are kept, not wired, and old workshop-rows runs nowhere."
     }
   ]
 }

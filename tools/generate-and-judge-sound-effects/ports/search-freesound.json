@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-GENERATE-AND-JUDGE-SOUND-EFFECTS-SEARCH-FREESOUND",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, lane audio-sound (sound effects), 2026-11-05",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:6ed63cd3cb72140f3d6a077964ac7b292636839828729594bca31c323faa46d2",
+   "multihash": "1f:5a35b4576b126ae785a817323c22a09ed7b9d1fd1d7bb06c5fb039d9659addf8",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/generate-and-judge-sound-effects/do-work/search_freesound.py",
+   "baseline_commit_message": "generate-and-judge-sound-effects: byte copies of the sound-effect sourcing, palette and judging scripts"
+  }
+ ],
+ "preserve": [
+  "CC0 and Attribution only, within the category's length, most downloaded first",
+  "each sound once per category",
+  "one request every 1.5 s; pages are parsed as text, a failed page reported and skipped"
+ ],
+ "allowed_deltas": [
+  "paths, the person's words and tuned values come from argv or a request file instead of the source repository's folders and constants",
+  "the last line printed is {\"result\": ...} or {\"error\": ...}"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another Workshop tool",
+  "the person's words or thresholds written into the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:5a35b4576b126ae785a817323c22a09ed7b9d1fd1d7bb06c5fb039d9659addf8",
+  "target_multihash_at_baseline": "1f:5a35b4576b126ae785a817323c22a09ed7b9d1fd1d7bb06c5fb039d9659addf8",
+  "commit": "cfb722c531f682e2403f09320d08c4a985c9a6df",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def parse(page)",
+   "time.sleep(1.5)"
+  ],
+  "test_refs": [
+   "tools/generate-and-judge-sound-effects/test/test_judge_sound_effects.py",
+   "tools/generate-and-judge-sound-effects/test/generate-and-judge-sound-effects.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

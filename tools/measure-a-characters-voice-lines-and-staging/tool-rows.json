@@ -1,0 +1,1030 @@
+{
+  "kind": "package-set-records",
+  "record_set": "measure-a-characters-voice-lines-and-staging-tool-rows",
+  "what_this_is": "The Workshop rows of the measure-a-characters-voice-lines-and-staging folder: scripts the person's AI runs on their computer to find when one character of a show speaks (voice and pitch), list what it says, measure how the show stages it, sum its time per video against the views, count the show's running jokes and code the comments about it. Every show, character, number and word is the person's settings row.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:catalog-a-channels-videos-by-format",
+        "label": "Catalog a channel's videos by format, with views against the channel's rolling baseline (runs on your computer)",
+        "job": "List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format",
+        "description": "Reads <youtube_folder>/flat/<channel>-videos.json and -shorts.json (yt-dlp flat playlist dumps) and, when present, <id>.info.json in captions/, videos/ or comments/ for the exact upload date, likes and comments. A video's format: short for the shorts list; the format of the first of the person's series_prefixes its lower-case title starts with; compilation when the title holds one of compilation_words; members-only with no views; side when side_pattern matches the title or it is under 3 minutes; else episode. Its baseline is the median views of the 10 same-format videos on each side in list order. Writes <data_folder>/catalog.tsv.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "youtube_folder": {
+              "type": "string",
+              "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
+            },
+            "channel": {
+              "type": "string",
+              "description": "The name the flat lists start with: <channel>-videos.json."
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "data_folder",
+            "youtube_folder",
+            "channel"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {catalog, videos}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/catalog_videos.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube",
+              "channel": "lighthouse",
+              "settings": {
+                "series_prefixes": {
+                  "behind the lamp": "extra"
+                },
+                "compilation_words": [
+                  "best of"
+                ],
+                "side_pattern": "parrot|trailer"
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/flat/lighthouse-videos.json",
+                "text": "{\"entries\": [{\"id\": \"vid-a\", \"title\": \"The Lighthouse Hour: Fog\", \"duration\": 1800, \"view_count\": 1000, \"timestamp\": 1893456000}, {\"id\": \"vid-b\", \"title\": \"Behind the lamp: tools\", \"duration\": 600, \"view_count\": 500}, {\"id\": \"vid-c\", \"title\": \"The Lighthouse Hour: Gulls\", \"duration\": 1700, \"view_count\": 3000}]}"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/flat/lighthouse-shorts.json",
+                "text": "{\"entries\": [{\"id\": \"clip-a\", \"title\": \"Parrot!\", \"duration\": 20, \"view_count\": 50}]}"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "show/.keep",
+                "text": ""
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-when-a-character-speaks",
+        "label": "Find when one character speaks in a show's recordings, by voice and pitch (runs on your computer)",
+        "job": "Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up",
+        "description": "step embed: windows of 1.5 s every 0.5 s of a recording, each with a speaker embedding (pyannote wespeaker-voxceleb-resnet34-LM, from the local model cache), its median pitch and loudness, embedding only the windows high enough to be the character. step seed: add the windows inside the stretches the person names (\"a-b,a-b\") to <data_folder>/voice/seeds.npz with a label. step score: a logistic model on the seeds finds this recording's confident windows of the character among those that pass the pitch gate (at least the smaller of gate_max_hz and gate_pitch_ratio x the recording's median pitch); their mean embedding is the character's voice in this recording, and a gated window whose cosine to it is above voice_cosine_min is the character; neighbouring windows become turns, written as <id>.turns.json. step batch: embed and score every catalog video of batch_format_order not yet scored, from <audio_folder>/<audio_file>. step rescore: score every recording again with the current seeds. The label, gates and formats are the person's settings (character_label, embed_min_pitch_hz, embed_pitch_ratio, gate_pitch_ratio, gate_max_hz, voice_cosine_min, batch_format_order, audio_file). do-work/check_seed_model.py and check_voice_finder.py check it on recordings it did not learn from: leave one labelled recording out and count window precision and recall.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "step": {
+              "enum": [
+                "embed",
+                "seed",
+                "score",
+                "batch",
+                "rescore"
+              ]
+            },
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "audio": {
+              "type": "string"
+            },
+            "out": {
+              "type": "string"
+            },
+            "npz": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "ranges": {
+              "type": "string"
+            },
+            "json": {
+              "type": "string"
+            },
+            "audio_folder": {
+              "type": "string"
+            },
+            "reverse": {
+              "type": "boolean"
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "step"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": ...}: embed {embeddings, windows, loud_windows, embedded}; seed {seeds, added, counts}; score {id, duration_s, character_s, turns, json}; batch {scored, failed}; rescore {scored}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice.py < REQUEST.json",
+          "needs": [
+            "python 3 with numpy, scikit-learn, librosa, torch and pyannote.audio",
+            "ffmpeg",
+            "the speaker model pyannote/wespeaker-voxceleb-resnet34-LM in the local Hugging Face cache"
+          ],
+          "say": "This runs on the person's own computer. Read their settings row (records:read record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>) into a file and pass it as settings_record. Ask them for two or three recordings where they know when the character speaks; embed those, seed the character's stretches with character_label and a few stretches of other high voices with another label, then run check_seed_model.py and check_voice_finder.py with the same data_folder and tell them the precision and recall per recording before running batch over the catalog. show/show_turns.py prints each turn with its caption words, to check by reading."
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "python 3 with numpy, scikit-learn, librosa, torch and pyannote.audio, ffmpeg, and the pyannote speaker model in the local cache",
+            "proved_on": null
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:find-high-pitched-stretches-of-a-recording",
+        "label": "Find the stretches of a recording spoken in a character's high pitch band (runs on your computer)",
+        "job": "Find where a recording has speech in a high pitch band, as a first look for a character voiced well above the rest of the cast",
+        "description": "librosa yin pitch every 25 ms with a periodicity voicing test; runs of voiced frames in the person's band (pitch_run_band_low_hz to pitch_run_band_high_hz) of at least 0.5 s, joined across 1.2 s gaps, kept when half their voiced frames are in the band. Writes <out_dir>/<id>.json (the runs with their median pitch) and <id>.f0.npy. Pitch alone also catches every other high voice; find-when-a-character-speaks tells them apart.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "audio": {
+              "type": "string"
+            },
+            "out_dir": {
+              "type": "string"
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "audio",
+            "out_dir"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {id, json, hi_s, runs}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice_by_pitch.py < REQUEST.json",
+          "needs": [
+            "python 3 with numpy and librosa",
+            "ffmpeg"
+          ],
+          "say": "Run it on one recording, then show/show_runs.py <out_dir>/<id>.json <captions.json3> prints each run with its caption words, so the person can say which runs are the character."
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "python 3 with numpy and librosa, and ffmpeg",
+            "proved_on": null
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:count-a-characters-turns-from-caption-marks",
+        "label": "Count a character's turns from the speaker marks in captions and the pitch of each turn (runs on your computer)",
+        "job": "Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high",
+        "description": "For each episode in <data_folder>/catalog.tsv with <youtube_folder>/captions/<id>.en.json3 holding at least five '>>' marks and an <id>.emb.npz (do-work/find_voice.py embed) in <data_folder>/voice or extra_voice_folders: a marked turn (to the next mark, at most 30 s) whose median window pitch is at least ratio (else the settings' caption_turn_pitch_ratio) times the episode's median pitch is the character's. Writes <data_folder>/character-caption-turns.tsv with the turns, seconds and seconds in the first 5 minutes.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "youtube_folder": {
+              "type": "string",
+              "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
+            },
+            "extra_voice_folders": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ratio": {
+              "type": "number"
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "data_folder",
+            "youtube_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {table, videos}}."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 -I trillion-workshop/tools/measure-a-characters-voice-lines-and-staging/do-work/count_caption_turns.py < REQUEST.json",
+          "needs": [
+            "python 3 with numpy"
+          ],
+          "say": "Compare its seconds per episode with those of find-when-a-character-speaks; tell the person where the two disagree most."
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "python 3 with numpy",
+            "proved_on": null
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:list-what-a-character-says",
+        "label": "List every caption line a character says, with the second it starts (runs on your computer)",
+        "job": "List every caption line spoken inside a character's turns, with the video and second, for quoting",
+        "description": "Reads every <data_folder>/voice/<id>.turns.json (find-when-a-character-speaks) and the video's captions (the first of <youtube_folder>/captions or videos/<id>.en.json3, .en-orig.json3, .en*.json3, then <data_folder>/../raw/<id>.en.json3); a caption line counts when at least half of it lies inside a turn. Writes <data_folder>/character-lines.tsv (id, date, format, second, turn, text). Lines are auto-captions: the spelling is YouTube's.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "youtube_folder": {
+              "type": "string",
+              "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
+            }
+          },
+          "required": [
+            "data_folder",
+            "youtube_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {table, lines}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/list_lines_in_turns.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube"
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "show/catalog.tsv",
+                "text": "id\tkind\tformat\tdate\tviews\tbaseline\tx_baseline\tdur\tlikes\tcomments\ttitle\nvid-a\tvideo\tepisode\t20300105\t1000\t1\t1.5\t1800\t\t\tFog\nvid-c\tvideo\tepisode\t20300301~\t3000\t1\t0.5\t1700\t\t\tGulls\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "show/voice/vid-a.turns.json",
+                "text": "{\"id\": \"vid-a\", \"turns\": [[10.0, 14.0]]}"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/captions/vid-a.en.json3",
+                "text": "{\"events\": [{\"tStartMs\": 5000, \"dDurationMs\": 4000, \"segs\": [{\"utf8\": \"the keeper speaks\"}]}, {\"tStartMs\": 9000, \"dDurationMs\": 2000, \"segs\": [{\"utf8\": \">> crackers please\"}]}, {\"tStartMs\": 11500, \"dDurationMs\": 2000, \"segs\": [{\"utf8\": \"and a storm\"}]}]}"
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-how-a-show-stages-a-characters-turns",
+        "label": "Measure how a video stages a character's turns: cuts, shot lengths and music stop-downs (runs on your computer)",
+        "job": "Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before",
+        "description": "For each id: from <youtube_folder>/measure/<id>/rhythm.json (shots) and earshot-timeline.txt (GAP drop lines) and <data_folder>/voice/<id>.turns.json: the share of turns with a picture cut within 0.5 s of their start against chance, the median shot inside the character's exchanges (turns within 8 s, padded 2 s) against elsewhere, and the share of turns with a music stop-down in the 2 s before against chance. Adds or updates one row per id in <data_folder>/staging.tsv.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "youtube_folder": {
+              "type": "string",
+              "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
+            }
+          },
+          "required": [
+            "ids",
+            "data_folder",
+            "youtube_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {table, measured}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/measure_staging.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "ids": [
+                "vid-a"
+              ],
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube"
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "show/voice/vid-a.turns.json",
+                "text": "{\"id\": \"vid-a\", \"duration_s\": 100.0, \"character_s\": 6.0, \"turns\": [[10.0, 12.0], [15.0, 17.0], [40.0, 42.0]]}"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/measure/vid-a/rhythm.json",
+                "text": "{\"seconds\": 60, \"cuts_per_min\": 4, \"shots\": [{\"start\": 0, \"end\": 9.8}, {\"start\": 9.8, \"end\": 11.0}, {\"start\": 11.0, \"end\": 30.0}, {\"start\": 30.0, \"end\": 60.0}]}"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/measure/vid-a/earshot-timeline.txt",
+                "text": "  0:08.50  GAP drop music\n"
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:sum-a-characters-time-per-video",
+        "label": "Sum a character's time in each video and set it against the video's views (runs on your computer)",
+        "job": "Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did",
+        "description": "Per video with <data_folder>/voice/<id>.turns.json: turns, seconds, share, seconds in the opening (opening_seconds) and the close (closing_seconds), exchanges in the body (turns within 8 s) per ten minutes, median gap and turn, and whether it is one the character was stripped from (stripped_ids). Then, over the episodes: medians by year, the rank correlation of character seconds and share with views against the baseline per year and overall, the median against the baseline of the low, middle and high thirds by character seconds within each year, the stripped against the full episodes between compare_from_month and compare_to_month, and the episodes with the least character time from lowest_from_year. Writes <data_folder>/character-per-video.tsv.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "data_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {table, scored, episodes, stripped_median, full_median}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/sum_per_video.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "settings": {
+                "opening_seconds": 20,
+                "closing_seconds": 10,
+                "stripped_ids": [
+                  "vid-c"
+                ],
+                "compare_from_month": "203001",
+                "compare_to_month": "203012",
+                "lowest_from_year": "2030"
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "show/catalog.tsv",
+                "text": "id\tkind\tformat\tdate\tviews\tbaseline\tx_baseline\tdur\tlikes\tcomments\ttitle\nvid-a\tvideo\tepisode\t20300105\t1000\t1\t1.5\t1800\t\t\tFog\nvid-c\tvideo\tepisode\t20300301~\t3000\t1\t0.5\t1700\t\t\tGulls\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "show/voice/vid-a.turns.json",
+                "text": "{\"id\": \"vid-a\", \"duration_s\": 100.0, \"character_s\": 6.0, \"turns\": [[10.0, 12.0], [15.0, 17.0], [40.0, 42.0]]}"
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:count-a-shows-running-jokes-in-its-captions",
+        "label": "Count a show's running jokes, lore names and rituals across its captions (runs on your computer)",
+        "job": "Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example",
+        "description": "Each caption line of each catalog video (<youtube_folder>/captions/<id>.en.json3, else .en*.json3) is judged against the person's terms ({term: regular expression}, any case) by the one word judge, tools/judge-words. Writes <data_folder>/lore-terms.tsv: per term, the mentions, the videos, the first and last upload date and the middle mention by date as an example (id, second, the line with its neighbours).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "youtube_folder": {
+              "type": "string",
+              "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "data_folder",
+            "youtube_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {table, caption_files, terms}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/count_terms.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/judge-words"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube",
+              "settings_record": {
+                "id": "record:setting:measure-a-characters-voice-lines-and-staging~piece~lighthouse-parrot",
+                "type": "record:setting",
+                "value": {
+                  "name": "The parrot of a made-up lighthouse show",
+                  "tool": "tool:count-a-shows-running-jokes-in-its-captions",
+                  "scope_kind": "piece",
+                  "scope_id": "lighthouse-parrot",
+                  "settings": "{\"terms\": {\"cracker\": \"crackers?\", \"storm\": \"\\\\bstorm\\\\b(?! drain)\"}}",
+                  "from": "made-up@0000000",
+                  "status": "active"
+                }
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "show/catalog.tsv",
+                "text": "id\tkind\tformat\tdate\tviews\tbaseline\tx_baseline\tdur\tlikes\tcomments\ttitle\nvid-a\tvideo\tepisode\t20300105\t1000\t1\t1.5\t1800\t\t\tFog\nvid-c\tvideo\tepisode\t20300301~\t3000\t1\t0.5\t1700\t\t\tGulls\n"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/captions/vid-a.en.json3",
+                "text": "{\"events\": [{\"tStartMs\": 1000, \"dDurationMs\": 2000, \"segs\": [{\"utf8\": \"a storm comes\"}]}, {\"tStartMs\": 4000, \"dDurationMs\": 2000, \"segs\": [{\"utf8\": \"CRACKERS!\"}]}, {\"tStartMs\": 7000, \"dDurationMs\": 2000, \"segs\": [{\"utf8\": \"storm drain talk\"}]}]}"
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:collect-the-comments-that-name-a-character",
+        "label": "Collect the comments that name a character, per video, with their likes (runs on your computer)",
+        "job": "Find the viewer comments that talk about a character, per video: how many, their share of the likes, and how many of the most liked ones",
+        "description": "Reads <youtube_folder>/comments/<id>.info.json (yt-dlp --write-comments); a top-level comment names the character when the person's mention_pattern matches it (any case), judged by the one word judge, tools/judge-words. Writes <data_folder>/comments-character.tsv (every such comment, most liked first) and comments-summary.tsv (per video: comments read, mentions, their share, their share of the likes, mentions among the 20 most liked).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "youtube_folder": {
+              "type": "string",
+              "description": "The person's YouTube library folder: flat/, captions/, videos/, comments/ and measure/<id>/."
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "data_folder",
+            "youtube_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {mentions, videos, comments_read, mentioning}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/collect_mentions.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/judge-words"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "youtube_folder": "{grant:change-a-folder}/youtube",
+              "settings": {
+                "mention_pattern": "parrot|\\bpolly\\b"
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "youtube/comments/vid-a.info.json",
+                "text": "{\"id\": \"vid-a\", \"upload_date\": \"20300105\", \"view_count\": 100, \"comment_count\": 3, \"title\": \"Fog\", \"comments\": [{\"id\": \"c1\", \"parent\": \"root\", \"text\": \"The parrot is so funny\", \"like_count\": 9}, {\"id\": \"c2\", \"parent\": \"root\", \"text\": \"Nice fog shots\", \"like_count\": 20}, {\"id\": \"c3\", \"parent\": \"root\", \"text\": \"I missed the parrot\", \"like_count\": 3}]}"
+              },
+              {
+                "grant": "change-a-folder",
+                "path": "show/.keep",
+                "text": ""
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:code-the-comments-that-name-a-character",
+        "label": "Code the comments that name a character with the person's codebook (runs on your computer)",
+        "job": "Sort the viewer comments about a character into the person's codes (what they enjoy, miss, dislike, and so on) and count comments and likes per code",
+        "description": "Reads <data_folder>/comments-character.tsv (collect-the-comments-that-name-a-character); each comment gets every code of the person's codebook ({code: regular expression}, any case) it matches, judged by the one word judge, tools/judge-words, or mention-only. Writes <data_folder>/comments-character-coded.tsv and prints comments and likes per code.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "data_folder": {
+              "type": "string",
+              "description": "The show's folder: catalog.tsv, voice/ (seeds.npz, <id>.emb.npz, <id>.turns.json) and the tables the scripts write."
+            },
+            "settings_record": {
+              "description": "The person's settings row, as records:read answers it ({id: record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, type: record:setting, value}), or the path of a file holding it; read by tools/settings."
+            },
+            "settings": {
+              "type": "object",
+              "description": "Settings keys (read-data/settings-keys.json) laid over the row's."
+            }
+          },
+          "required": [
+            "data_folder"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "{\"result\": {table, comments, codes}}."
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "change-a-folder"
+          ],
+          "workdir": "/opt/measure-a-characters-voice-lines-and-staging",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/measure-a-characters-voice-lines-and-staging/do-work/code_mentions.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "measure-a-characters-voice-lines-and-staging",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/measure-a-characters-voice-lines-and-staging"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/judge-words"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "data_folder": "{grant:change-a-folder}/show",
+              "settings": {
+                "codebook": {
+                  "pleasure": "funny|laugh",
+                  "absence": "miss(ed)? (him|the parrot)"
+                }
+              }
+            },
+            "files": [
+              {
+                "grant": "change-a-folder",
+                "path": "show/comments-character.tsv",
+                "text": "video\tcomment_id\tlikes\ttimestamp\ttext\nvid-a\tc1\t9\t\tThe parrot is so funny\nvid-a\tc3\t3\t\tI missed the parrot\nvid-a\tc5\t0\t\tPolly!\n"
+              }
+            ]
+          }
+        ],
+        "maker": "maker:measure-a-characters-voice-lines-and-staging",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Ported from the character-cast scripts of the private source-repo-a repository (ports/ names each source by the BLAKE3 identity of its path); every show, character and word is the person's settings."
+        }
+      }
+    }
+  ]
+}

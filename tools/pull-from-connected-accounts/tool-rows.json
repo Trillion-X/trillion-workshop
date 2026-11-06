@@ -2036,6 +2036,521 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:read-my-signal-messages-on-this-computer",
+        "label": "Read my Signal messages on this computer into my own records",
+        "job": "Read my Signal messages into my own records",
+        "description": "Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and keeps them in your records the way tool:pull-my-signal-messages does: a message read twice is kept once, an edit replaces the older copy, calls are kept as calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is kept and handed in again if keeping it failed. Give account (a name for this account, default \"default\"), timeout_seconds (how long to wait for messages, default 5), most_messages and most_threads, all optional. Read what was kept with tool:read-what-i-pulled-from-an-account (source signal).",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "account": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 120,
+              "description": "A name that tells this account from your other Signal accounts (for example work). Default: default."
+            },
+            "timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 60,
+              "description": "How long the client waits for messages that have not arrived yet. Default 5."
+            },
+            "most_messages": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5000,
+              "description": "At most this many messages are read in one run. Default 1000."
+            },
+            "most_threads": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200,
+              "description": "At most this many conversations are kept in one run."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "source",
+            "account",
+            "status",
+            "said"
+          ],
+          "properties": {
+            "source": {
+              "type": "string"
+            },
+            "account": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "pulled",
+                "partial",
+                "needs_login",
+                "unreachable",
+                "needs_link"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "threads": {
+              "type": "integer"
+            },
+            "items": {
+              "type": "integer"
+            },
+            "new_messages": {
+              "type": "integer"
+            },
+            "new_items": {
+              "type": "integer"
+            },
+            "received": {
+              "type": "integer"
+            },
+            "left_out": {
+              "type": "integer"
+            },
+            "cursor": {},
+            "errors": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "skipped": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "conversation",
+                  "reason"
+                ],
+                "properties": {
+                  "conversation": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "internet": true,
+          "kept_folder": true,
+          "programs": {
+            "signal-cli": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz",
+                  "version": "0.14.9",
+                  "blake3": "793393034d534bdb4cdfc8e3f212ac1c4271e4139ca5fff9ecc8531e2777ccb2",
+                  "executable": "bin/signal-cli",
+                  "checked_against": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz.asc"
+                },
+                "macos-x86_64": {
+                  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz",
+                  "version": "0.14.9",
+                  "blake3": "793393034d534bdb4cdfc8e3f212ac1c4271e4139ca5fff9ecc8531e2777ccb2",
+                  "executable": "bin/signal-cli",
+                  "checked_against": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz.asc"
+                },
+                "linux-x86_64": {
+                  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz",
+                  "version": "0.14.9",
+                  "blake3": "793393034d534bdb4cdfc8e3f212ac1c4271e4139ca5fff9ecc8531e2777ccb2",
+                  "executable": "bin/signal-cli",
+                  "checked_against": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz.asc"
+                },
+                "linux-aarch64": {
+                  "unverified": "signal-cli 0.14.9's libsignal-client 0.103.0 jar holds no linux aarch64 library (it holds macOS aarch64 and x86_64, linux x86_64 and Windows x86_64), so the client cannot start there."
+                }
+              },
+              "runtime_read_dirs": [
+                ".."
+              ]
+            },
+            "java": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_mac_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "79bfaeedf4bbb12fbfb2272bc29b72405ff6e26fb1c2b7677f5a8d1ec9a25519",
+                  "executable": "Contents/Home/bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_mac_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                },
+                "macos-x86_64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_mac_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "e8f34155b0c809d47677675cc726c2f482148bd8153848e888533aedcb7e0ba0",
+                  "executable": "Contents/Home/bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_mac_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                },
+                "linux-x86_64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_linux_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "c8c0ed9e529756257cab8c317a372a9de7d4e00b4ce794d295d5b2549bea5ecc",
+                  "executable": "bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_linux_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                },
+                "linux-aarch64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_linux_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "69b9e5e2667493893c958591436abf3d7d6808c436ddff8a2c67578500af3afc",
+                  "executable": "bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_linux_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                }
+              },
+              "runtime_read_dirs": [
+                ".."
+              ]
+            }
+          },
+          "max_run_ms": 600000,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/signal-client.mjs",
+            "readSignalOnThisComputer"
+          ],
+          "stdin": {
+            "input": {
+              "fill": {
+                "from": "input"
+              }
+            },
+            "client_folder": {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "uqr",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "dist/index.mjs"
+                ],
+                "at": "/opt/node_modules/uqr"
+              }
+            ]
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "account-snapshot-part",
+                "prefix": "account-snapshot:",
+                "operations": [
+                  "records:list",
+                  "records:write"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "bitfield-packages signal-bot-connector (signal-cli as the client); its listConversations command does not exist in signal-cli, so receive's envelopes are folded instead (read-data/signal-envelopes.mjs)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "account": "sample"
+            },
+            "kept_files": [
+              {
+                "path": "data/accounts.json",
+                "text": "{\"accounts\": [{\"path\": \"sample\", \"environment\": \"LIVE\", \"uuid\": \"11111111-1111-4111-8111-111111111111\"}], \"version\": 2}"
+              }
+            ],
+            "stand_in_programs": {
+              "signal-cli": "case \"$*\" in *receive*) printf '%s\\n' '{\"envelope\": {\"sourceUuid\": \"22222222-2222-4222-8222-222222222222\", \"sourceName\": \"Baker B\", \"timestamp\": 1700000000000, \"dataMessage\": {\"timestamp\": 1700000000000, \"message\": \"Rye is ready\", \"groupInfo\": {\"groupId\": \"c2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA=\", \"groupName\": \"Bakers\"}}}, \"account\": \"sample-account\"}' '{\"envelope\": {\"sourceUuid\": \"11111111-1111-4111-8111-111111111111\", \"sourceName\": \"Me\", \"timestamp\": 1700000001000, \"syncMessage\": {\"sentMessage\": {\"timestamp\": 1700000001000, \"message\": \"On my way\", \"groupInfo\": {\"groupId\": \"c2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA=\", \"groupName\": \"Bakers\"}}}}, \"account\": \"sample-account\"}' ;; *) exit 2 ;; esac"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:link-signal-on-this-computer",
+        "label": "Link Signal on this computer",
+        "job": "Link my Signal account to this computer so my messages can be read here",
+        "description": "Links this computer to your Signal account as one of its devices, once, so tool:read-my-signal-messages-on-this-computer can read your messages here. The computer fetches signal-cli and the Java it needs itself. It runs as a session: as soon as Signal gives the link it prints { state: \"scan\", link, qr_text, qr_svg }, the code to scan, and keeps waiting; on your phone open Signal, Settings, Linked devices, Link new device, and scan it. It then answers { state: \"linked\", self_id }, or not_linked with why (a code is good for about a minute: run it again for a new one). Signal's keys for this device stay in a folder on this computer that only this tool's runs are given. Already linked, it answers linked and asks nothing.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "state",
+            "said"
+          ],
+          "properties": {
+            "state": {
+              "type": "string",
+              "enum": [
+                "linked",
+                "not_linked"
+              ]
+            },
+            "self_id": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "said": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [],
+          "internet": true,
+          "kept_folder": true,
+          "programs": {
+            "signal-cli": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz",
+                  "version": "0.14.9",
+                  "blake3": "793393034d534bdb4cdfc8e3f212ac1c4271e4139ca5fff9ecc8531e2777ccb2",
+                  "executable": "bin/signal-cli",
+                  "checked_against": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz.asc"
+                },
+                "macos-x86_64": {
+                  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz",
+                  "version": "0.14.9",
+                  "blake3": "793393034d534bdb4cdfc8e3f212ac1c4271e4139ca5fff9ecc8531e2777ccb2",
+                  "executable": "bin/signal-cli",
+                  "checked_against": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz.asc"
+                },
+                "linux-x86_64": {
+                  "url": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz",
+                  "version": "0.14.9",
+                  "blake3": "793393034d534bdb4cdfc8e3f212ac1c4271e4139ca5fff9ecc8531e2777ccb2",
+                  "executable": "bin/signal-cli",
+                  "checked_against": "https://github.com/AsamK/signal-cli/releases/download/v0.14.9/signal-cli-0.14.9.tar.gz.asc"
+                },
+                "linux-aarch64": {
+                  "unverified": "signal-cli 0.14.9's libsignal-client 0.103.0 jar holds no linux aarch64 library (it holds macOS aarch64 and x86_64, linux x86_64 and Windows x86_64), so the client cannot start there."
+                }
+              },
+              "runtime_read_dirs": [
+                ".."
+              ]
+            },
+            "java": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_mac_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "79bfaeedf4bbb12fbfb2272bc29b72405ff6e26fb1c2b7677f5a8d1ec9a25519",
+                  "executable": "Contents/Home/bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_mac_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                },
+                "macos-x86_64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_mac_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "e8f34155b0c809d47677675cc726c2f482148bd8153848e888533aedcb7e0ba0",
+                  "executable": "Contents/Home/bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_mac_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                },
+                "linux-x86_64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_linux_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "c8c0ed9e529756257cab8c317a372a9de7d4e00b4ce794d295d5b2549bea5ecc",
+                  "executable": "bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_x64_linux_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                },
+                "linux-aarch64": {
+                  "url": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_linux_hotspot_25.0.5_8.tar.gz",
+                  "version": "25.0.5+8",
+                  "blake3": "69b9e5e2667493893c958591436abf3d7d6808c436ddff8a2c67578500af3afc",
+                  "executable": "bin/java",
+                  "checked_against": "https://github.com/adoptium/temurin25-binaries/releases/download/jdk-25.0.5%2B8/OpenJDK25U-jre_aarch64_linux_hotspot_25.0.5_8.tar.gz.sha256.txt"
+                }
+              },
+              "runtime_read_dirs": [
+                ".."
+              ]
+            }
+          },
+          "session": {},
+          "max_run_ms": 600000,
+          "workdir": "/opt/pull-from-connected-accounts",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/pull-from-connected-accounts/do-work/signal-client.mjs",
+            "linkSignalOnThisComputer"
+          ],
+          "stdin": {
+            "client_folder": {
+              "fill": {
+                "from": "task",
+                "field": "kept_folder"
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "module": "uqr",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "dist/index.mjs"
+                ],
+                "at": "/opt/node_modules/uqr"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 120,
+          "network_egress": true
+        },
+        "maker": "maker:pull-from-connected-accounts",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "signal-cli's own `link` command; the QR code is drawn with uqr"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {},
+            "stand_in_programs": {
+              "signal-cli": "folder=$2; mkdir -p \"$folder/data\"; echo 'sgnl://linkdevice?uuid=c2FtcGxlLWxpbmstYWRkcmVzcw&pub_key=c2FtcGxlLWtleQ'; printf '%s' '{\"accounts\": [{\"path\": \"sample\", \"environment\": \"LIVE\", \"uuid\": \"11111111-1111-4111-8111-111111111111\"}], \"version\": 2}' > \"$folder/data/accounts.json\""
+            }
+          }
+        ]
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:read-what-i-pulled-from-an-account",
         "label": "Read what I pulled from a connected account",
         "job": "Read the conversations, messages and saved items I pulled from a connected account such as Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks or Pinterest",

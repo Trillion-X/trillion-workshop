@@ -1,0 +1,60 @@
+{
+  "kind": "package-set-records",
+  "record_set": "turn-caption-quotes-into-analysis-device-rows-tool-rows",
+  "what_this_is": "The Workshop row for the turn-caption-quotes-into-analysis-device-rows folder: a script the person's AI runs on the person's own computer to check every caption quote a set of device rows rests on, then write the rows as Markdown tables with the second each quote is said.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:turn-caption-quotes-into-analysis-device-rows",
+        "label": "Check the video quotes behind my device rows and write the rows as tables (runs on your computer)",
+        "job": "Check that every quote my device rows cite is really said in the videos' captions, stamp each with the minute and second, and write the rows as tables grouped my way",
+        "description": "A device row says what a creative technique (a device) does for a viewer, how it is built, and where it is seen, as exact quotes from videos ([video id, words]) or as unmeasured evidence (null, text). The script reads the person's settings row for this tool (list:settings, record:setting:turn-caption-quotes-into-analysis-device-rows~<scope_kind>~<scope_id>, one row per batch of rows, scope piece:<family>) through tools/settings: the family name, title and introduction, the channel and title of each video, the group order, the rows, the table columns as templates ({field} and {field|one|many}, a part kept only `when` its field is set), the head lines of the family file, the index marker, how a checked quote is written, and the fields kept in the checked-rows file. It finds each quote in the video's json3 caption file as exact words (ignoring case, white space and curly apostrophes), tells a wrong quote from a missing caption file, and counts the creators (channels) and items (videos) each row's checked quotes come from. Only when every quote holds does it write: the family file (head lines, then one table per group), the family's tables added once under its marker at the end of an index file, and the checked rows with [video, second, quote] for each quote. The tool holds no columns, wording or groups of its own.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settings_record": {
+              "type": "string",
+              "description": "A JSON file on the person's computer holding their list:settings row for this tool as records:read gives it ({id, type, value}; id record:setting:turn-caption-quotes-into-analysis-device-rows~piece~<family>), put where {settings_record} is in the command. Its settings field holds the JSON that read-data/device_rows.py describes. Read it from the person's own records; never invent it. When the file holds several rows, add --scope piece:<family> to pick one."
+            },
+            "captions": {
+              "type": "string",
+              "description": "A glob of the caption files with {video} where the video id goes, for example captions/{video}.*json3, put where {captions} is in the command."
+            },
+            "output": {
+              "type": "string",
+              "description": "The folder to write family.md and checked.json into, put where {output} is in the command. Add --index-file FILE to add the family's tables to an index file."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The last line the script prints: {\"result\": {\"rows\": <count>, \"bad\": [{name, video, quote, reason}], \"written\": [paths], \"index\"?: \"added\" or \"already holds this family\"}}, or {\"result\": {\"error\": \"what to fix\"}}. Exit 1 when a quote failed (nothing is written), 2 when the request could not be used."
+        },
+        "verify": null,
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/turn-caption-quotes-into-analysis-device-rows/do-work/turn_quotes_into_device_rows.py --settings-record {settings_record} --captions '{captions}' --family-file {output}/family.md --checked-file {output}/checked.json",
+          "needs": [
+            "python",
+            "the videos' json3 caption files (for example saved with yt-dlp --write-subs --write-auto-subs --sub-format json3 --skip-download)"
+          ],
+          "say": "This runs on the person's own computer, never on Trillion, and installs nothing beyond Python 3. Read the person's settings row for this family from list:settings (records:read record:setting:turn-caption-quotes-into-analysis-device-rows~piece~<family>) and save it as a file; put its path in place of {settings_record}, the caption glob in place of {captions} and a folder in place of {output}. Run it once without --family-file and --checked-file to see only the check: fix every quote it lists as bad (a wrong quote is not in the captions; a missing caption file needs the captions saved first). Then run it with the files. Tell the person how many rows hold and the second each changed quote is said at. The checked rows are what goes back into their library list."
+        },
+        "maker": "maker:turn-caption-quotes-into-analysis-device-rows",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Written for keeping a library of video devices whose every quote is proved against the captions"
+        }
+      }
+    }
+  ]
+}

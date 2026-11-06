@@ -157,7 +157,8 @@ function heldPipe(path, value) {
 // a granted folder as {grant:<capability>}; it is that folder's path for this run. `laid_files` ([{ path, text }])
 // replaces a file the row packs, at its absolute place, for this run only. `model_server` ({ vector }) starts a stand-in
 // model server (startStandInModelServer) whose address any string names as {model_endpoint}. `task` gives fields of the
-// made-up task (its request_key, its cause); `stdin` replaces the filled standard input, for a refusal test.
+// made-up task (its request_key, its cause); `stdin` replaces the filled standard input, for a refusal test. A row with
+// invoke.kept_folder gets a folder of its own as the task's `kept_folder`, holding the sample's `kept_files` ([{ path, text }]).
 export async function runRow(row, sampleInput, sample = {}) {
   const why = cannotRun(row);
   if (why) return { cannot: why };
@@ -192,6 +193,20 @@ export async function runRow(row, sampleInput, sample = {}) {
     // A sample may give the task fields of its own (`task`, e.g. the request_key a test reads back, or what a changes
     // run's cause names); the granted folders are always this run's.
     const task = { task_id: 'task-sample', request_key: 'sample', cause: { kind: 'sample-run' }, started_at: new Date().toISOString(), ...(sample.task ?? {}), grants };
+    // A row that keeps a folder between its runs (invoke.kept_folder, trillion-rust container.rs `kept_folder`) is
+    // given one of its own here, as the task's `kept_folder`; the sample lays made-up files in it (`kept_files`, each
+    // { path, text }), as an earlier run would have left them.
+    if (invoke.kept_folder === true) {
+      task.kept_folder = mkdtempSync(join(there, 'kept-'));
+      for (const file of sample.kept_files ?? []) {
+        const target = join(task.kept_folder, file.path);
+        if (!target.startsWith(`${task.kept_folder}/`)) return { cannot: `the sample lays a file outside the kept folder: ${file.path}` };
+        mkdirSync(dirname(target), { recursive: true });
+        writeFileSync(target, file.text ?? '');
+      }
+    } else if (sample.kept_files) {
+      return { cannot: 'the sample lays kept files, but the row keeps no folder (invoke.kept_folder)' };
+    }
     for (const file of files) {
       const folder = grants[file.grant]?.folder;
       if (!folder) return { cannot: `the sample lays a file in ${file.grant}, which the row does not ask for` };

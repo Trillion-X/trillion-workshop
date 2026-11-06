@@ -12,6 +12,7 @@
 // kind of file; "video" is a word in the types file, not in this code. Read only: it never builds or changes an index.
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { settingsFor } from '../../settings/read-data/settings.mjs';
 
 const DEFAULT_FIELDS = { path: 'path', display_path: 'display_path', name: 'name', root: 'root', type: 'content_type', tags: 'tags', text: 'text', identity: 'identity', size: 'size' };
 const DEFAULT_WEIGHTS = { name: 5, tag: 4, path: 2, text: 1, phrase: 8, all_terms: 6, book_tag: 10 };
@@ -107,9 +108,26 @@ export function fuse(wordsFinal, lanes, f, wantType, laneWeights) {
     .sort((a, b) => b.score - a.score);
 }
 
+// Where named files are kept (a film's drive lookup, moved here): an exact stem, or a stem prefix ending in '*' (any
+// case); type and root narrow the rows. Each name's paths sorted and once; a name nothing matches is in not_in_index.
+export function namesInIndex({ rows }, request) {
+  const f = { ...DEFAULT_FIELDS, ...(request.fields ?? {}) }, names = request.names;
+  if (!Array.isArray(names) || !names.length || !names.every(name => typeof name === 'string' && name)) refuse('names must be a list of file names to look for; end a name in * to match every file that starts with it.');
+  const found = new Map(names.map(name => [name, new Set()]));
+  for (const row of rows.filter(r => (!request.type || r[f.type] === request.type) && (!request.root || r[f.root] === request.root))) {
+    const fileName = String(row[f.name] ?? ''), dot = fileName.lastIndexOf('.'), stem = dot < 0 ? fileName : fileName.slice(0, dot);
+    for (const name of names) if ((name.endsWith('*') && stem.toLowerCase().startsWith(name.slice(0, -1).toLowerCase())) || stem === name) found.get(name).add(row[f.display_path] || row[f.path]);
+  }
+  return { by_name: Object.fromEntries([...found].map(([name, paths]) => [name, [...paths].sort()])), not_in_index: names.filter(name => !found.get(name).size) };
+}
+
 export function findFilesInAnIndex(request) {
-  if (!request || typeof request !== 'object' || Array.isArray(request)) refuse('The request must be an object with index_dir and query.');
-  const found = searchIndex(readIndex(request), request);
+  if (!request || typeof request !== 'object' || Array.isArray(request)) refuse('The request must be an object with index_dir and query, or index_dir and names.');
+  if (request.names !== undefined && !request.query) {
+    return { query: '', terms: [], candidates_per_root: {}, matched: 0, hits: [], ...namesInIndex(readIndex(request), request) };
+  }
+  const index = readIndex(request);
+  const found = searchIndex(index, request);
   const { f, limit } = found;
   const words = found.final.sort((a, b) => b.score - a.score);
   const lanes = request.other_lanes ?? {};
@@ -124,7 +142,20 @@ export function findFilesInAnIndex(request) {
   return {
     query: String(request.query), terms: found.terms, intent_type: found.wantType,
     candidates_per_root: found.perRoot, matched: ranked.length, hits: ranked.slice(0, limit).map(hit),
+    ...(request.names !== undefined ? namesInIndex(index, request) : {}),
   };
+}
+
+// The keys a person may keep as settings (their list:settings row, or the run's settings); the request's own keys win.
+export const SETTING_KEYS = Object.freeze(['index_dir', 'index_file', 'types_file', 'type', 'root', 'limit', 'fields', 'weights', 'lane_weights']);
+export async function findFilesInAnIndexForARun(request, context = {}) {
+  if (!request || typeof request !== 'object' || Array.isArray(request) || (request.settings_record === undefined && request.settings === undefined)) return findFilesInAnIndex(request);
+  const named = typeof request.settings_record === 'string' && request.settings_record.startsWith('record:setting:');
+  const { settings, from } = await settingsFor(request, { door: named ? context.door : undefined, folder: 'find-files-in-an-index', tool: 'tool:find-files-in-an-index' });
+  const unknown = Object.keys(settings).filter(key => !SETTING_KEYS.includes(key));
+  if (unknown.length) refuse(`These settings are not this tool's: ${unknown.join(', ')}. A setting is one of ${SETTING_KEYS.join(', ')}.`);
+  const { settings_record: _r, settings: _s, ...own } = request;
+  return { ...findFilesInAnIndex({ ...settings, ...Object.fromEntries(Object.entries(own).filter(([, v]) => v !== undefined)) }), ...(from ? { settings_from: from } : {}) };
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

@@ -17,6 +17,14 @@
       "to": "tools/run-several-tool-calls-together-so-the-whole/src/tool-transaction.mjs",
       "source_identity": "1f:a0580fec48c8c518c2a8ffd92b29b1baf4e3069859f9e041e35c63a5c7cce0f0",
       "identity": "1f:7e20056b2595fc582ef5fcf38b9b58dc6feab0bfaba07fd6de4e1881be22d50d"
+    },
+    {
+      "from": "test/tool-transaction.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/run-several-tool-calls-together-so-the-whole/test/tool-transaction.test.mjs",
+      "source_identity": "1f:edd227a8ba0697ccce3e8460a65eb515f6c080e41bcd50017e367093495e1592",
+      "identity": "1f:a2355433c18cf42d2d0fbae4d8738ece9870ceabad910ac757a53dd950cad7e8",
+      "adapted": "the last test makes the tool with src/tool-transaction-tool.mjs over stand-in listed tools and adds its note with list-tools-for-an-ai withBehaviorNotes; the review by old src/mcp-tool-review.mjs is left out: no repository runs it."
     }
   ]
 }

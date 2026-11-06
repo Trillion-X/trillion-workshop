@@ -1,0 +1,97 @@
+{
+  "what_this_is": "Every key a script of this tool reads from the person's settings: the settings object of their list:settings row record:setting:measure-a-characters-voice-lines-and-staging~<scope_kind>~<scope_id>, read by tools/settings (read-data/settings.py), with the request's own settings laid over it. The tool carries no values: the character's voice, the show's formats, the words and the videos are the person's. Each script needs only the keys it names; a run with one missing, or of the wrong type, is refused, naming it.",
+  "keys": {
+    "character_label": {
+      "type": "string",
+      "meaning": "The label the person gave the character's windows when seeding (find_voice seed); every other label is not the character."
+    },
+    "embed_min_pitch_hz": {
+      "type": "number",
+      "meaning": "A window is embedded when its median pitch is at least the smaller of this and embed_pitch_ratio times the recording's median pitch; the seed model's held-out check also counts only windows at least this high."
+    },
+    "embed_pitch_ratio": {
+      "type": "number",
+      "meaning": "See embed_min_pitch_hz: how far above the recording's median pitch the character sits."
+    },
+    "gate_pitch_ratio": {
+      "type": "number",
+      "meaning": "A window can be the character only when its pitch is at least the smaller of gate_max_hz and this times the recording's median pitch."
+    },
+    "gate_max_hz": {
+      "type": "number",
+      "meaning": "See gate_pitch_ratio: the pitch gate never asks more than this (Hz)."
+    },
+    "voice_cosine_min": {
+      "type": "number",
+      "meaning": "Cosine similarity to this recording's voice of the character above which a gated window is the character."
+    },
+    "batch_format_order": {
+      "type": "array",
+      "meaning": "The catalog formats a batch embeds and scores, in this order; other formats are skipped."
+    },
+    "audio_file": {
+      "type": "string",
+      "meaning": "The name of a video's audio file in the audio folder, with {id} for the video id (for example {id}.m4a)."
+    },
+    "pitch_run_band_low_hz": {
+      "type": "number",
+      "meaning": "Lowest pitch of the character's band for the pitch-run finder (Hz)."
+    },
+    "pitch_run_band_high_hz": {
+      "type": "number",
+      "meaning": "Highest pitch of the character's band, and the tracker's ceiling, for the pitch-run finder (Hz)."
+    },
+    "series_prefixes": {
+      "type": "object",
+      "meaning": "{title start: format}: a video whose lower-case title starts so is of that format (a series of its own)."
+    },
+    "compilation_words": {
+      "type": "array",
+      "meaning": "A video whose lower-case title holds one of these words is a compilation."
+    },
+    "side_pattern": {
+      "type": "string",
+      "meaning": "A regular expression: a video whose lower-case title matches it is a side piece (character pieces, songs, promos, channel notes)."
+    },
+    "caption_turn_pitch_ratio": {
+      "type": "number",
+      "meaning": "A caption speaker turn counts as the character's when its median window pitch is at least this times the episode's median pitch (the request's ratio wins)."
+    },
+    "mention_pattern": {
+      "type": "string",
+      "meaning": "A regular expression: a comment names the character when it matches, in any case."
+    },
+    "codebook": {
+      "type": "rules",
+      "meaning": "The codes a comment that names the character may get, in the person's order: {code: regular expression} or [[code, regular expression], ...] (a list keeps the order in a settings row), matched in any case; one that matches none is coded mention-only."
+    },
+    "terms": {
+      "type": "rules",
+      "meaning": "The running jokes, lore names and rituals to count in the captions: {term: regular expression} or [[term, regular expression], ...] (a list keeps the order in a settings row), matched in any case."
+    },
+    "opening_seconds": {
+      "type": "number",
+      "meaning": "The opening of an episode (seconds from its start: cold open, sponsor sketch) whose character time is summed on its own."
+    },
+    "closing_seconds": {
+      "type": "number",
+      "meaning": "The close of an episode (seconds before its end: outro, plugs) whose character time is summed on its own."
+    },
+    "stripped_ids": {
+      "type": "array",
+      "meaning": "The video ids the character was cut from, compared with the full episodes."
+    },
+    "compare_from_month": {
+      "type": "string",
+      "meaning": "First month (YYYYMM) of the stripped against full comparison."
+    },
+    "compare_to_month": {
+      "type": "string",
+      "meaning": "Last month (YYYYMM) of the stripped against full comparison."
+    },
+    "lowest_from_year": {
+      "type": "string",
+      "meaning": "Year (YYYY) from which the episodes with the least character time are listed."
+    }
+  }
+}

@@ -1,0 +1,86 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SAY-A-NARRATION-LINE-IN-A-CLONED-VOICE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported",
+  "case": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4b2e1727e2086423909f2f9e7f2c8dcc2c895ce87735a598a8ef8fea2a8fbe6e",
+   "lines": [
+    4,
+    28
+   ],
+   "multihash": "1f:f379938eb455d0b7188a4f429cac8dadf22e37ed669684c80dbd3cab0162de36",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:4b2e1727e2086423909f2f9e7f2c8dcc2c895ce87735a598a8ef8fea2a8fbe6e",
+   "lines": [
+    30,
+    92
+   ],
+   "multihash": "1f:5bf3249f2cfd458a717efc99635a0bd6cbe481391eb764963f7dffe52a5b3ef0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/compare-voice-and-music-models/do-work/say_a_line_in_a_cloned_voice.py",
+   "baseline_commit_message": "compare-voice-and-music-models: the narration voice A/B take makers, take measure and A/B render move byte for byte from source-repo-a"
+  }
+ ],
+ "preserve": [
+  "each unit is made N times; the take kept has the fewest whisper word errors against the unit's words, then the length nearest the median of the N",
+  "the clone takes the reference audio, and its exact words for an engine that wants them (qwen3)",
+  "the same units, pauses and inner-pause cap as the Kokoro take (kt.join, kt.trim)",
+  "the per-unit log (text, kept_errors, all_errors, seconds, heard) is printed and written to <take>.units.json"
+ ],
+ "allowed_deltas": [
+  "the reference is --ref or the settings' clone_reference instead of a narrator's file in the film folder",
+  "the engines, tries and whisper model are settings; whisper is mlx-whisper or the settings' whisper_here_dir",
+  "the generate-and-choose loop is say_units(line, generate, hear, ...), so it is tested with stand-in models",
+  "refusals before any model loads; a last {result}/{error} line"
+ ],
+ "banned_substitutions": [
+  "keeping the first take of each unit instead of the best of N",
+  "stretching a unit to a target length"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f379938eb455d0b7188a4f429cac8dadf22e37ed669684c80dbd3cab0162de36",
+  "target_multihash_at_baseline": "1f:f379938eb455d0b7188a4f429cac8dadf22e37ed669684c80dbd3cab0162de36",
+  "commit": "7b0b8d21b7c973201a3cef1c55e8e13067f92a35",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "ENGINES = {",
+   "def plain(unit)",
+   "def errors(ref, hyp)",
+   "def best_of(cands)",
+   "kt.join(kept, line, sr"
+  ],
+  "test_refs": [
+   "tools/compare-voice-and-music-models/test/test_voice_ab.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_lines": "The source is the file's lines named, in parts: the lines between them name the film's narrator and stay behind (their job is the line data and settings now)."
+}

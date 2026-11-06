@@ -1,0 +1,75 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-READER-KNOWLEDGE-FROM-LAUNCH-VIDEO-COPY-GATE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
+  "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
+  "quote": "Finish the launch-video port so that repository can be retired: move every job to its Workshop home, port one to one, and turn settings, words and checks into rows read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "job": "copy that gives the reader knowledge only the writer has, checked in reading order",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/reader_knowledge.py",
+   "lines": [
+    32,
+    266
+   ],
+   "multihash": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/reader_knowledge.py",
+   "lines": [
+    1,
+    31
+   ],
+   "multihash": "1f:a732f5967f1e09b78c3a2cde8f00618ede9434f3729eb650d6186fdaf159988c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/reader_knowledge.py"
+  }
+ ],
+ "preserve": [
+  "unintroduced-reference, label-assigned-not-defined, section-opens-with-a-label and label-colon-command, each read with spaCy at the pinned model version, over blocks in reading order",
+  "each rule's outcome, kinds and word classes are DATA; exit 0 no finding, 1 a fail, 3 only uncertain, 2 bad input"
+ ],
+ "allowed_deltas": [
+  "the rules are handed in (--rules, or the run request's rules or settings) from the person's settings row instead of a file beside the code",
+  "a run command: one JSON request in, one JSON answer out"
+ ],
+ "banned_substitutions": [
+  "a rule, word class or person's wording written in the code",
+  "a default rules file beside the code"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
+  "target_multihash_at_baseline": "1f:22c9efcaa11a3332d6cf0d292d8810ba46a3697f67e8f5848f2c72abcdb81234",
+  "commit": "e6bd8ed2ea0570a36d66adfaec17d05e9ad7dfd9"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/test_reader_knowledge.py the five made-up tests of tools/copy-gate/tests/test_reader_knowledge.py, moved, with made-up rules; its cases on the person's book run on their computer (mac-parity)",
+   "tools/check-against-a-persons-rules-and-verdicts/test/check-a-films-copy.test.mjs a request without rules is refused"
+  ]
+ }
+}

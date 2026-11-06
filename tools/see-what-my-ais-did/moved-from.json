@@ -33,6 +33,14 @@
       "to": "tools/see-what-my-ais-did/from-old-trillion/src/work-results.mjs",
       "source_identity": "1f:bbe57684db56b08bb9ab4be9e39fa37749076cce22378fd7509d18d322239339",
       "identity": "1f:bbe57684db56b08bb9ab4be9e39fa37749076cce22378fd7509d18d322239339"
+    },
+    {
+      "from": "test/activity-counts-hot.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/see-what-my-ais-did/test/activity-counts-hot.test.mjs",
+      "source_identity": "1f:c2f80b49cdd2751932697450235483613bad37df1ac2f46c168802c6022e50ec",
+      "identity": "1f:7e5719cb2bd995840b8109fb9e3d3b183b04646884536983958875589aca39eb",
+      "adapted": "imports this tool's activity.mjs and rebuilds the old person-store-reads countingHost over local-store's sqliteHost; every assertion is the old one"
     }
   ]
 }

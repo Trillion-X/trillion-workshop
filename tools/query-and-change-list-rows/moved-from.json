@@ -333,6 +333,22 @@
       "to": "tools/query-and-change-list-rows/test/lists-ordering.test.mjs",
       "source_identity": "1f:1719c4883203deadd6c7ca5aa7f5f9c2ba08b141da8f0e9f0349aa87fb8e84df",
       "identity": "1f:395bbb3a8a4938646e39774cd4e65e53468addce385aefcf65269caa7e88cf56"
+    },
+    {
+      "from": "test/answer-reports.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/test/answer-reports.test.mjs",
+      "source_identity": "1f:6f5681f901c7ecef4485a6a49cebaa3b1762bcf025e6df0c91d4aa71ea7f3a05",
+      "identity": "1f:acd3daa224971612625c26f4c7ed9dce96ba12ede7a3860fb3c693b7cbd8ac72",
+      "adapted": "run over the list routes and list tools here through test/answer-person-for-tests.mjs (old answer-test-person without search); the next-search citation checks are left out: no running code answers a per-kind search lane."
+    },
+    {
+      "from": "test/answer-content-index.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/query-and-change-list-rows/test/answer-content-index.test.mjs",
+      "source_identity": "1f:fecd9fbb904e69a3504ba04c05710856247355db2472809316e847f2eb7d5ee3",
+      "identity": "1f:181182f9fdd8bc2ba94e4c4f32fbc8fa2d9cfabea502a0518f91d8d010de933d",
+      "adapted": "run over the list routes and list tools here through test/answer-person-for-tests.mjs (old answer-test-person without search); the search-answer checks are left out: no running code answers a per-kind search lane."
     }
   ]
 }

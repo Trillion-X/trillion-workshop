@@ -1,0 +1,154 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-FIND-VOICE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the source-repo-a port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dbd335a7eb289f6be45aac89b37f0d9047f3a5e41a5cd3507a205cafb3c534b2",
+   "lines": [
+    110,
+    166
+   ],
+   "multihash": "1f:c9233d367555ccc4cc92c0ff5092b1b3cbc9c954bca6c3359e5a1cbf2a012c81",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dbd335a7eb289f6be45aac89b37f0d9047f3a5e41a5cd3507a205cafb3c534b2",
+   "lines": [
+    19,
+    97
+   ],
+   "multihash": "1f:b9e3fdb180c4727ad10898bca66dd86c4b0ee96bd8080d29fc954a90fd23f1f2",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dbd335a7eb289f6be45aac89b37f0d9047f3a5e41a5cd3507a205cafb3c534b2",
+   "lines": [
+    103,
+    108
+   ],
+   "multihash": "1f:041def55f2af2d115c7d9db312fe43b3408023777adab5be3920bfd352135b2e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dbd335a7eb289f6be45aac89b37f0d9047f3a5e41a5cd3507a205cafb3c534b2",
+   "lines": [
+    8,
+    12
+   ],
+   "multihash": "1f:9a3edf2e04a7d6e3c9f3c6e624d46c4b372dd592c8ef7175e51728a5d7502a83",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dbd335a7eb289f6be45aac89b37f0d9047f3a5e41a5cd3507a205cafb3c534b2",
+   "lines": [
+    4,
+    6
+   ],
+   "multihash": "1f:4286e9a4fb0482f14468994352014d57f34e12cf857bb77b4e813ac966e4b3e6",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:dbd335a7eb289f6be45aac89b37f0d9047f3a5e41a5cd3507a205cafb3c534b2",
+   "lines": [
+    14,
+    16
+   ],
+   "multihash": "1f:408ced1078258f30e12015b679ae507d586ff2da7ffcf1de044bb39790f3c1e1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/find_voice.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of source-repo-a, byte for byte"
+  }
+ ],
+ "preserve": [
+  "windows of 1.5 s every 0.5 s, embedded only when high enough to be the character",
+  "a logistic model on the seeds finds the confident windows; their mean embedding is the recording's voice of the character",
+  "a window is the character when it passes the relative pitch gate and its cosine to that voice is above tau",
+  "windows within 1 s join into turns of at least 0.75 s",
+  "batch skips a video already scored or locked and removes its lock"
+ ],
+ "allowed_deltas": [
+  "the label, pitch gates, cosine, batch formats and audio file name are the person's settings",
+  "the voice folder and seeds are <data_folder>/voice",
+  "one JSON request in (step), one JSON answer out",
+  "<id>.hf.json / hf_s are named <id>.turns.json / character_s"
+ ],
+ "banned_substitutions": [
+  "an absolute pitch gate instead of the relative one",
+  "pitch alone without the speaker embedding"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "'hf_s'",
+    "to": "'character_s'"
+   },
+   {
+    "from": ".hf.json",
+    "to": ".turns.json"
+   }
+  ],
+  "source_multihash": "1f:c9233d367555ccc4cc92c0ff5092b1b3cbc9c954bca6c3359e5a1cbf2a012c81",
+  "target_multihash_at_baseline": "1f:cbc6dcfd6ee8f5b680f27a1a21305e27e7ff83ea985af61bc93edc22608ec1be",
+  "commit": "41041a87ab8ea0e362bea7fdc34c8024d9e16caa",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def embed(path, out):",
+   "def seed(npz, label, spec):",
+   "def model(exclude=None):",
+   "def score(npz, out=None, exclude=None, tau=None, gate=None, ratio=None):",
+   "conf = cand & (p > 0.7)"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}
