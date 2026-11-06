@@ -48,6 +48,14 @@
       "source_identity": "1f:6f8bb787fadbc17bb24b023aa49cdccc7ed29dbf66400eaabf513d833cc105f5",
       "identity": "1f:6f8bb787fadbc17bb24b023aa49cdccc7ed29dbf66400eaabf513d833cc105f5",
       "found_by": "same bytes"
+    },
+    {
+      "from": "test/engine-binding-contracts.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/formula-engine/test/engine-binding-contracts.test.mjs",
+      "source_identity": "1f:c39b0a878216df5295b51e68460d356315a3b605502b0bd9e0b7f54ebe5ef182",
+      "identity": "1f:4f413b13db6f42b44ec16197a839fcd2323a8027af61bd02deb4a4851f6edb85",
+      "adapted": "the two formula tests over this folder's shipped evaluator, unchanged; the two stored-workflow tests are left for trillion-rust crates/workflow-core, whose built module this repository does not hold"
     }
   ]
 }

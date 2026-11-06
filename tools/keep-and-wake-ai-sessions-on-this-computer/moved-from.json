@@ -3238,6 +3238,30 @@
       "source_identity": "1f:55dde81db6d28034552510ae82244c160840b9c3db839260636893a7c361cf09",
       "identity": "1f:67e773af20522032a28732c5fffc92b249c37a00445c951bb477748c1a1f25c2",
       "adapted": "fileInputs and the shared input rules are imported directly (no esbuild bundle) and files.openShared is a stand-in for the retired grant-bound supply; the five tests of that supply itself (old native-workshop-shared-files.mjs, native-share-byte-carrier.mjs) are left out, no running owner."
+    },
+    {
+      "from": "test/own-ais-full-store-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/own-ais-full-store-recovery.test.mjs",
+      "source_identity": "1f:e49432bb9f256abf3df7c5ec44f586c9cf4107b5d599679138146e2156d5f3f5",
+      "identity": "1f:0a4a63adc1a2ca15f639cc779a0dd766d88f484e2c5b927f70cfa85672d7edf6",
+      "adapted": "the sealedLogPage test over this tool's record-log store and a rows-as-consumed counter; the own-AI routing tests and the retired PersonStore's carry-in and full-store archival tests are left out, as no running code does that work"
+    },
+    {
+      "from": "test/own-ais-wake-person-upgrade.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/own-ais-wake-person-upgrade.test.mjs",
+      "source_identity": "1f:0a5bd32c37ea71ddce089233df6469d70dc959a6d7e7c09169e6d92c58a3adb5",
+      "identity": "1f:e6eee1f56f0f799962bf06e1b354082adb7eac5f3284856fac5a7f713b73b5f8",
+      "adapted": "hand-work-to-ais agentRecordStore's wake index over this tool's record-log store; the retired own-AI routing's answers (runner().nextDue, its pages) are left out, so the first test runs a fixed number of cold wakes"
+    },
+    {
+      "from": "test/configuration-sharing.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/configuration-sharing.test.mjs",
+      "source_identity": "1f:153c1c5a98c736edcb69dc6c6b265f3808df333ae377c8377248fe8252fc62e3",
+      "identity": "1f:60af27f5d73d186c4367fcaed9cdfedd1b93054a9639dd445acaca11e2f4042f",
+      "adapted": "the receiver refusal test over this tool's handleConfigurationsRequest with a stand-in receiver, and the connection metadata test over write-public-share-files' shareableCopy with the old connection rule; the eleven record-sharing owner tests are left out, as no running code admits configuration links"
     }
   ]
 }

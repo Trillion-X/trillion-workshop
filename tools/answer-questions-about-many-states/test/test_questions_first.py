@@ -116,13 +116,21 @@ class Cache(unittest.TestCase):
 
     def test_stop_and_progress(self):
         h = self.qf.prepare(self.rows, independent=True)
-        seen = []
-        out = self.qf.score(h, self.states, on_batch=lambda done, n: seen.append(list(done)), should_stop=lambda: len(seen) >= 1)
+        seen, handed = [], {}
+
+        def on_done(fresh, probs):
+            for s in fresh:
+                self.assertNotIn(s, handed)                     # each state is handed on once, when it finishes
+                handed[s] = probs[s].copy()
+        out = self.qf.score(h, self.states, on_batch=lambda done, n: seen.append(list(done)), should_stop=lambda: len(seen) >= 1,
+                            on_done=on_done)
         self.assertGreaterEqual(len(seen), 1)
         finished = set(seen[-1])
         self.assertLess(len(finished), len(self.states))
+        self.assertEqual(set(handed), finished)
         for s in finished:
             self.assertTrue(np.allclose(out[s].sum(axis=-1), 1.0))
+            self.assertTrue(np.array_equal(handed[s], out[s]))   # what was handed on is the state's final answer
 
 
 def contract_scan(q, k, v, decay, beta, state_in, start):
