@@ -99,11 +99,16 @@ test('an exact path catalogue reads only named documents and exclusions work for
   await assert.rejects(readDocumentRows({ root, exclude: 'one.md' }), /array/);
 });
 
-test('explicit UTF-8 source extensions do not change ordinary folder selection or execute the source', async () => {
+test('declared UTF-8 extensions are read as text, never executed, and only when the source declares them', async () => {
   const root = await scratch();
   const code = '# a source file, not executed\nraise RuntimeError("must never run")\n';
   await writeFile(join(root, 'check.py'), code);
-  assert.equal((await readDocumentRows({ root })).rows.length, 0);
+  await writeFile(join(root, 'note.md'), '# a note\n');
+  assert.deepEqual((await readDocumentRows({ root })).rows.map(row => row.id), ['/note.md']);
+  const scanned = await readDocumentRows({ root, text_extensions: ['md', 'py'], content: true });
+  assert.deepEqual(scanned.rows.map(row => row.id), ['/check.py', '/note.md']);
+  assert.equal(scanned.rows[0].values['document.text'], code);
+  assert.match(scanned.rows[0].values['file.identity'], /^1f:[0-9a-f]{64}$/);
   const page = await readDocumentRows({ root, paths: ['/check.py'], text_extensions: ['py'], content: true });
   assert.equal(page.rows[0].values['document.text'], code);
   await assert.rejects(readDocumentRows({ root, paths: ['/check.py'] }), /declared text extensions/);
@@ -127,13 +132,15 @@ test('a catalogue page probes only selected present names and lookahead, without
   assert.match((await entry('/a.md')).identity, /^1f:[0-9a-f]{64}$/, 'ordinary identity reads retain their BLAKE3 proof');
 });
 
-test('extensionless UTF-8 files require an explicit positive path and empty declared extension', async () => {
+test('extensionless UTF-8 files are read only when the source declares the empty extension', async () => {
   const root = await scratch();
   await mkdir(join(root, 'nested'));
   await writeFile(join(root, 'prompt'), 'Keep the full explanation.\n');
   await writeFile(join(root, 'nested', 'LICENSE'), 'Example licence words.\n');
   await writeFile(join(root, 'visible.md'), '# Normal document\n');
-  assert.deepEqual((await readDocumentRows({ root, text_extensions: [''] })).rows.map(row => row.id), ['/visible.md']);
+  assert.deepEqual((await readDocumentRows({ root })).rows.map(row => row.id), ['/visible.md']);
+  assert.deepEqual((await readDocumentRows({ root, text_extensions: [''] })).rows.map(row => row.id), ['/nested/LICENSE', '/prompt']);
+  assert.deepEqual((await readDocumentRows({ root, text_extensions: ['', 'md'] })).rows.map(row => row.id), ['/nested/LICENSE', '/prompt', '/visible.md']);
   await assert.rejects(readDocumentRows({ root, paths: ['/prompt'], content: true }), /declared text extensions/);
   const page = await readDocumentRows({ root, paths: ['/prompt', '/nested/LICENSE'], text_extensions: [''], content: true });
   assert.deepEqual(page.rows.map(row => row.id), ['/nested/LICENSE', '/prompt']);
