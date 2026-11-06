@@ -1074,6 +1074,22 @@
       "source_identity": "1f:445c25e3699fe5585f46426d0facde7677886231dca48ddde3ca11ac05d1a189",
       "identity": "1f:a7d3e13b9368e85c9a489291325416bf0bcff03937f31283e5d8b38d2ae39770",
       "adapted": "only deviceRowConnected's test is kept, the local tool's descriptor read from models-on-this-computer/tool-rows.json (it fails: that row's invoke.kind is computer, the module asks computer-tool); the seventeen ownAisRouting tests are left out: no repository keeps that routing."
+    },
+    {
+      "from": "test/search-source-clock-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/search-source-clock-recovery.test.mjs",
+      "source_identity": "1f:7e64de88c450ac2979dd217e686414d65cd04a65e9aa8518f39e95232543925f",
+      "identity": "1f:5ca6d25ad0b48028e7d53b3171428890bf7393df4c1ef52bdcb4568902fc93b9",
+      "adapted": "this tool's search-feed.mjs on keep-and-wake's sqliteHost, the gone resultsStore stood in by its table, ensureSearchFeed and an upsert keyed by the value's BLAKE3; the three tests that booted the retired PersonStore's constructor ledger are left out"
+    },
+    {
+      "from": "test/handoff-result-source-workerd.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/shared-code/test/handoff-result-source-workerd.test.mjs",
+      "source_identity": "1f:e759aafcaf6a9d96cf4f144e69a97805afc77a22cb2fb46ebb0e43f865647227",
+      "identity": "1f:ae987c22c8b74119e0269c5cceec4042dcae8fb91e1a158049f78444c3a3f52f",
+      "adapted": "the same workerd Durable Object probe bundled from where each owner lives now (keep-and-wake record-engine, shared-code record-identity, agents and handoff-result-source, hand-work-to-ais agent-records), without the compiled Namespace identity module this repository does not hold; every assertion is the old one"
     }
   ]
 }

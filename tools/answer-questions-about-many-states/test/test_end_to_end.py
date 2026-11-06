@@ -1,8 +1,8 @@
-"""The whole command on a made-up model folder: get-ready, start (a real background process), read until finished,
-page the answers. The folder holds a tiny random Qwen3.5-shaped model saved as safetensors, a word-level
+"""The whole classifier program on a made-up model folder: get-ready names it, and work, as its own process, reads the
+request on standard input and prints each batch's answers as JSON lines until its result line. The folder holds a tiny random Qwen3.5-shaped model saved as safetensors, a word-level
 tokenizer.json built here (capital pairs and single characters), and a decider_config.json. Needs mlx, tokenizers
 and blake3."""
-import base64, importlib.util, json, os, string, subprocess, sys, tempfile, time, unittest
+import importlib.util, json, os, string, subprocess, sys, tempfile, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 DO_WORK = os.path.join(HERE, "..", "do-work")
@@ -36,48 +36,43 @@ def made_up_folder(path):
 
 
 def call(action, request):
+    """-> every JSON line the program printed, and its exit code."""
     r = subprocess.run([sys.executable, "-I", os.path.join(DO_WORK, "answer_many_states.py"), action],
                        input=json.dumps(request), capture_output=True, text=True, timeout=600)
-    return json.loads(r.stdout.strip().splitlines()[-1])
+    return [json.loads(line) for line in r.stdout.strip().splitlines()], r.returncode
 
 
 @unittest.skipUnless(READY, "needs mlx, tokenizers and blake3 (the row's get_it commands)")
 class EndToEnd(unittest.TestCase):
-    def test_a_run_from_start_to_its_last_page(self):
+    def test_a_run_from_its_request_to_its_last_answer(self):
         with tempfile.TemporaryDirectory() as tmp:
             folder = os.path.join(tmp, "model")
             os.makedirs(folder)
             made_up_folder(folder)
             model = {"id": "made-up-decider", "classifier": "questions-first-decider", "weights": {"folder": folder}}
-            ready = call("get-ready", {"model": model})["result"]
-            self.assertTrue(ready["identity"].startswith("1f:"))
-            request = {"model": model, "jobs_folder": os.path.join(tmp, "jobs"),
+            said, code = call("get-ready", {"model": model})
+            self.assertEqual(code, 0, said)
+            self.assertTrue(said[-1]["result"]["identity"].startswith("1f:"))
+            request = {"model": model,
                        "questions": {"warm": {"type": "noul", "instructions": "Is the lamp warm?"},
                                      "late": {"type": "choice", "instructions": "Which thing is late?", "criteria": ["parcel", "river", "kettle"]},
                                      "how": {"type": "score", "instructions": "How heavy is it?", "criteria": ["light", "heavy"]}},
                        "states": ["The warm lamp glowed.", {"item": "parcel", "state": "late"}, "The river grew."],
                        "settings": {"layout": "independent", "dtype": "float32", "tokens_per_batch": 2048,
                                     "max_state_tokens": 512, "page_bytes": 400}}
-            job = call("start", request)["result"]["job_id"]
-            for _ in range(600):
-                got = call("read", {"job_id": job, "jobs_folder": request["jobs_folder"]})["result"]
-                if got["status"] not in ("queued", "running"):
-                    break
-                time.sleep(0.5)
-            self.assertEqual(got["status"], "finished", got)
-            parts, page = [], got["byte_page"]
-            while True:
-                parts.append(base64.b64decode(page["base64"]))
-                if page["next_after_byte"] is None:
-                    break
-                page = call("read", {"job_id": job, "jobs_folder": request["jobs_folder"], "after_byte": page["next_after_byte"]})["result"]["byte_page"]
-            answers = json.loads(b"".join(parts))
-            self.assertEqual(len(answers["answers"]), 3)
-            first = answers["answers"][0]["answers"]
+            listed = sorted(os.listdir(tmp))
+            said, code = call("work", request)
+            self.assertEqual(code, 0, said)
+            self.assertEqual(said[0], {"checked": {"states": 3}})
+            result = said[-1]["result"]
+            self.assertEqual((result["status"], result["states_done"], result["classifier_answers_as"]), ("finished", 3, "decider-made-up"))
+            answered = {a["state"]: a["answers"] for line in said[1:-1] for a in line["answered"]}
+            self.assertEqual(sorted(answered), [0, 1, 2])
+            first = answered[0]
             self.assertEqual(set(first), {"warm", "late", "how"})
             self.assertAlmostEqual(sum(first["late"]["probabilities"].values()), 1.0, places=3)
             self.assertIn("level_fit", first["how"])
-            self.assertEqual(answers["classifier_answers_as"], "decider-made-up")
+            self.assertEqual(sorted(os.listdir(tmp)), listed)          # the run left nothing beside the model
 
 
 if __name__ == "__main__":
