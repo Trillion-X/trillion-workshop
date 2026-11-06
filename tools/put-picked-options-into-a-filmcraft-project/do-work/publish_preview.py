@@ -1,48 +1,60 @@
+#!/usr/bin/env python3
+# tools/put-picked-options-into-a-filmcraft-project/do-work/publish_preview.py
+"""Move a finished, checked preview into its round's previews folder, and link it into the watch folder (the person's
+rule: never show an unfinished file). A file the person can open is never written in place.
 
-fc_preview_r3.py renders into work-round-<n>/pending/<id>.mp4.
+filmcraft_preview.py renders into work-round-<n>/pending/<id>.mp4.
 
-    publish_r3.py <id> ...          move pending/<id>.mp4 (and its still) to previews-round-<n>/ once ffprobe reads one
-                                    1920x1080 video stream and one audio stream and the picture's duration matches the
-                                    spec's preview range. The move is a rename: a new file appears whole, and the old
-                                    preview's inode is left to whatever links still point at it. previews-round-<n> is not
-                                    a watch folder; film-qa then measures this shipped file (the gate refuses a pending copy).
-    publish_r3.py --watch <id> ...  put each preview into "ROUND <n> - watch these" under its spec's `watch` name: a hard link
-                                    made beside it under a temporary name, then renamed over the old name (ln -f, atomic).
-                                    Refuses a preview film-qa has not measured. Run it after the content gate passes.
-"""
+    action "publish"  move pending/<id>.mp4 (and its still) to previews-round-<n>/ once ffprobe reads one video stream of the
+                      settings' frame size and one audio stream and the picture's duration matches the spec's preview range
+                      (within duration_tolerance_s). The move is a rename: a new file appears whole, and the old preview's
+                      inode is left to whatever links still point at it. The previews folder is not a watch folder.
+    action "watch"    put the preview into the watch folder (settings layout.watch) under its spec's `watch` name: a hard
+                      link made beside it under a temporary name, then renamed over the old name (ln -f, atomic). Refuses a
+                      preview the rendered-video check has not measured (work-round-<n>/qa/<id>.json, newer than the
+                      preview), and runs the content gate (settings content_gate.command) first: a refusal there refuses it.
+
+Request: film, option (or options: [ids]), action, chapter?, options_folder?, spec?, settings_record?, settings?, plan?.
+Answer: {"result": {"published": [{option, preview, duration_s}]}} or {"result": {"watching": [{option, name, preview}]}}."""
 import json, os, subprocess, sys
 
-import pathlib
-CHECKOUT = str(pathlib.Path(__file__).resolve().parents[5])  # this repository, wherever this place keeps it
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from rounds import OPT, rdir, watch_dir  # noqa: E402
-
-CIS = CHECKOUT + '/tools/content-investigation/cis.py'
-FILM = os.path.normpath(os.path.join(OPT, '..', '..'))
+import option_folders as place  # noqa: E402
+from option_folders import rdir, watch_dir, run_program  # noqa: E402
 
 
 def require_gate(oid):
-    """No route into a watch folder skips the content checklist: this hard link runs `cis.py gate` for the option itself (the guard hook only sees
-    commands that name the folder, not a script that links into it). Unanswered or failed MUST rows refuse it. Delivery stage 'review' (cis.py: review is for a watch folder or PICK file, final for release), where the copy gate's advisory rows do not block."""
-    run = subprocess.run([sys.executable, '-I', CIS, 'gate', FILM, '--stage', 'S5,S6', '--option', oid, '--at', 'review'], capture_output=True, text=True)
+    """No route into a watch folder skips the content checklist: this hard link runs the settings' content gate for the option itself (the guard hook only sees
+    commands that name the folder, not a script that links into it). Unanswered or failed MUST rows refuse it: the gate's command exits
+    non-zero, its JSON answer naming unanswered_must, failed_must or problems. {film}, {option} and {python} in the command are filled in."""
+    gate = place.PLACE.get('content_gate') or {}
+    if not gate.get('command'):
+        if place.PLACE.get('require_content_gate', True):
+            raise SystemExit(f'{oid}: REFUSED, no content gate in the settings (preview.content_gate.command): a watch folder is only for a preview its checklist passed')
+        return
+    argv = [os.path.expanduser(a.format(film=place.PLACE['film'], option=oid, python=sys.executable)) for a in gate['command']]
+    if place.planning():
+        place.plan_note(argv=argv)
+        return
+    run = subprocess.run(argv, capture_output=True, text=True)
     if run.returncode:
         try:
             out = json.loads(run.stdout)
             rows = [f"{r['id']}" for r in out.get('unanswered_must', []) + out.get('failed_must', [])] + out.get('problems', [])
         except ValueError:
             rows = [(run.stderr or run.stdout).strip()[:300]]
-        raise SystemExit(f'{oid}: REFUSED, the content checklist is not answered (cis.py gate): {", ".join(rows[:20])}')
+        raise SystemExit(f'{oid}: REFUSED, the content checklist is not answered (content gate): {", ".join(rows[:20])}')
 
 
 def probe(path):
     out = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'stream=codec_type,width,height,duration', '-of', 'json', path],
                          capture_output=True, text=True, check=True).stdout
-    return json.loads(out)
+    return json.loads(out)  # read even in a plan: it writes nothing
 
 
 def spec_of(oid):
-    return json.load(open(rdir('specs', oid, oid + '.json')))
+    return place.spec_of(oid)
 
 
 def publish(oid):
@@ -54,15 +66,20 @@ def publish(oid):
     v = [s for s in p['streams'] if s['codec_type'] == 'video']
     au = [s for s in p['streams'] if s['codec_type'] == 'audio']
     dur = float(v[0]['duration']) if v else 0.0  # the picture's length (the AAC track pads up to a packet past it)
-    if len(v) != 1 or (v[0]['width'], v[0]['height']) != (1920, 1080) or len(au) != 1 or abs(dur - (b - a)) > 0.1:
+    w, h = place.PLACE['frame']
+    if len(v) != 1 or (v[0]['width'], v[0]['height']) != (w, h) or len(au) != 1 or abs(dur - (b - a)) > place.PLACE['duration_tolerance_s']:
         raise SystemExit(f'{oid}: ffprobe refused: {len(v)} video {v[0]["width"] if v else "-"}x{v[0]["height"] if v else "-"}, '
                          f'{len(au)} audio, {dur:.3f} s against {b - a:.3f} s')
     dst = rdir('previews', oid, oid + '.mp4')
+    if place.planning():
+        place.plan_note(move=[src, dst])
+        return {'option': oid, 'preview': dst, 'duration_s': round(dur, 3)}
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     os.replace(src, dst)
     if os.path.exists(src[:-4] + '.jpg'):
         os.replace(src[:-4] + '.jpg', dst[:-4] + '.jpg')
-    print(f'{oid}: {dst} ({dur:.3f} s)')
+    print(f'{oid}: {dst} ({dur:.3f} s)', file=sys.stderr)
+    return {'option': oid, 'preview': dst, 'duration_s': round(dur, 3)}
 
 
 def watch(oid):
@@ -73,12 +90,16 @@ def watch(oid):
     qa = rdir('work', oid, 'qa', oid + '.json')
     names = [os.path.realpath(k) for k in json.load(open(qa)) if not k.startswith('_')] if os.path.exists(qa) else []
     if os.path.realpath(src) not in names or os.path.getmtime(qa) < os.path.getmtime(src):
-        raise SystemExit(f'{oid}: film-qa has not been run on {src} (expected {qa}, newer than the preview)')
+        raise SystemExit(f'{oid}: the rendered-video check has not been run on {src} (expected {qa}, newer than the preview)')
     require_gate(oid)
     folder = watch_dir(oid)
+    if place.planning():
+        place.plan_note(link=[src, os.path.join(folder, name + '.mp4')])
+        return {'option': oid, 'name': name + '.mp4', 'preview': src}
     os.makedirs(folder, exist_ok=True)
     link_into(src, folder, name + '.mp4', f'.{oid}.linking')
-    print(f'{oid}: "{name}.mp4" -> {src}')
+    print(f'{oid}: "{name}.mp4" -> {src}', file=sys.stderr)
+    return {'option': oid, 'name': name + '.mp4', 'preview': src}
 
 
 def link_into(src, folder, final_name, tmp_name):
@@ -99,11 +120,21 @@ def link_into(src, folder, final_name, tmp_name):
             os.unlink(tmp)
 
 
+def publish_request(req):
+    """The request's action ("publish" or "watch") for its option, or each of its options (one chapter's settings each)."""
+    action = req.get('action', 'publish')
+    if action not in ('publish', 'watch'):
+        raise SystemExit(f'action {action!r}: use publish (pending -> previews folder) or watch (previews folder -> watch folder)')
+    ids = req.get('options') or [req.get('option')]
+    done = []
+    for oid in ids:
+        place.configure({**req, 'option': oid})
+        done.append((publish if action == 'publish' else watch)(oid))
+    out = {'published' if action == 'publish' else 'watching': done}
+    if place.planning():
+        out['plan'] = place.plan_steps()
+    return out
+
+
 if __name__ == '__main__':
-    args = sys.argv[1:]
-    if args and args[0] == '--watch':
-        for oid in args[1:]:
-            watch(oid)
-    else:
-        for oid in args:
-            publish(oid)
+    place.answer(publish_request)

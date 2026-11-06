@@ -1,24 +1,32 @@
 #!/usr/bin/env python3
-"""A WORKING preview of a stitched cold open (edit.prepend, optional edit.hold at 0:00, overlay at 0:00) made with ffmpeg from a render of his
-cut, for judging placement, timing and sound while the FilmCraft export cannot run (the project's source media, on the camera card, CAMERA_CLIPS, is not at this place).
-It is not the delivered preview: the picture has no V2 grade layer, and it is never published (publish_r3.py reads work-round-<n>/pending, this writes
-work-round-<n>/working/<id>.mp4). Same snapping and order as fc_preview_r3.prepend; same loudness mastering as the real export.
-Usage: working_preview.py <id> --cut <the full render of his cut, 1201.2 s>"""
+# tools/put-picked-options-into-a-filmcraft-project/do-work/working_preview.py
+"""A WORKING preview of a stitched cold open (edit.prepend, optional edit.hold at 0:00, overlay at 0:00) made with ffmpeg from a render of the
+person's cut, for judging placement, timing and sound while the FilmCraft export cannot run (the project's source media is not at this place).
+It is not the delivered preview: the picture has no V2 grade layer, and it is never published (publish_preview.py reads work-round-<n>/pending, this writes
+work-round-<n>/working/<id>.mp4). Same snapping and order as filmcraft_preview.prepend; same loudness mastering as the real export.
+Request: film, option, cut (the full render of the person's cut), chapter?, options_folder?, spec?, settings_record?, settings?, plan?.
+Answer: {"result": {"option", "preview", "plan"?}}."""
 import json, os, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-from fc_preview_r3 import master_loudness  # noqa: E402
-from rounds import odir, rdir  # noqa: E402
+import option_folders as place  # noqa: E402
+from filmcraft_preview import master_loudness, remove  # noqa: E402
+from option_folders import odir, rdir, run_program  # noqa: E402
 
 FPS = 24000 / 1001
 
 
-def main():
-    oid = sys.argv[1]
-    cut = os.path.abspath(sys.argv[sys.argv.index('--cut') + 1])
-    spec = json.load(open(rdir('specs', oid, oid + '.json')))
+def main(req):
+    place.configure(req)
+    oid = req['option']
+    if not req.get('cut'):
+        raise SystemExit('give cut: the full render of the person\'s cut the working preview is made from')
+    cut = os.path.abspath(os.path.expanduser(req['cut']))
+    spec = place.spec_of(oid)
     ed = spec['edit']
+    if not ed.get('prepend'):
+        raise SystemExit(f'{oid}: a working preview is of a stitched opening: the spec has no edit.prepend')
     a, b = ed['preview']
     n_total = round((b - a) * FPS)
     parts = []   # (start frame in the cut, frames, held?)
@@ -49,14 +57,15 @@ def main():
     chains.append(f'[{k + 1}:a]aresample=48000,aformat=channel_layouts=stereo[fx]')
     chains.append('[bed][fx]amix=inputs=2:normalize=0:duration=first:dropout_transition=0[aout]')
     out_dir = rdir('work', oid, 'working')
-    os.makedirs(out_dir, exist_ok=True)
+    place.makedirs(out_dir)
     raw, dst = os.path.join(out_dir, f'_raw-{oid}.mp4'), os.path.join(out_dir, oid + '.mp4')
-    subprocess.run(['nice', '-n', '10', 'ffmpeg', '-nostdin', '-v', 'error', '-y'] + inputs + ['-filter_complex', ';'.join(chains), '-map', '[vout]', '-map', '[aout]',
-                    '-t', f'{n_total / FPS:.5f}', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '256k', raw], check=True)
+    run_program(['nice', '-n', str(place.NICE), 'ffmpeg', '-nostdin', '-v', 'error', '-y'] + inputs + ['-filter_complex', ';'.join(chains), '-map', '[vout]', '-map', '[aout]',
+                 '-t', f'{n_total / FPS:.5f}', '-c:v', 'libx264', '-preset', 'veryfast', '-crf', '18', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '256k', raw], check=True)
     master_loudness(raw, dst)
-    os.remove(raw)
-    print(dst)
+    remove(raw)
+    print(dst, file=sys.stderr)
+    return {'option': oid, 'preview': dst, **({'plan': place.plan_steps()} if place.planning() else {})}
 
 
 if __name__ == '__main__':
-    main()
+    place.answer(main)
