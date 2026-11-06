@@ -1,0 +1,72 @@
+#!/bin/sh
+# A stand-in for rcodesign (apple-codesign 0.29), for tools/publish-an-engine-release's darwin tests.
+# `rcodesign sign --p12-file P --p12-password-file W --code-signature-flags runtime --timestamp-url U
+#  --binary-identifier trillion-local IN OUT` refuses unless P and W are readable files, writes IN to OUT with a line
+# naming the team appended, and appends its arguments, one per line, to the file FAKE_RCODESIGN_ARGS names (so a test
+# can see the identity and its password were passed by path only).
+# `rcodesign print-signature-info FILE` prints what rcodesign 0.29 prints for a program signed with an Apple-issued
+# Developer ID Application certificate (its shape measured from a real run on 2026-11-06), with the leaf's team
+# FAKE_RCODESIGN_TEAM (default ABCDE12345). FAKE_RCODESIGN_FLAGS replaces the code directory's flags (RUNTIME),
+# FAKE_RCODESIGN_NOT_APPLE makes a certificate that does not chain to an Apple root, FAKE_RCODESIGN_NO_DEVID one
+# without the Developer ID Application extension.
+TEAM=${FAKE_RCODESIGN_TEAM:-ABCDE12345}
+case "$1" in
+sign)
+  [ -n "$FAKE_RCODESIGN_ARGS" ] && for a in "$@"; do printf '%s\n' "$a"; done >> "$FAKE_RCODESIGN_ARGS"
+  [ "$2" = --p12-file ] && [ -r "$3" ] && [ "$4" = --p12-password-file ] && [ -r "$5" ] || { echo "error: no signing identity" >&2; exit 1; }
+  [ "$6 $7 $8" = "--code-signature-flags runtime --timestamp-url" ] && [ "${10} ${11}" = "--binary-identifier trillion-local" ] && [ "$#" = 13 ] || { echo "fake rcodesign: unexpected arguments: $*" >&2; exit 2; }
+  { cat "${12}"; printf '# signed by fake rcodesign for %s\n' "$TEAM"; } > "${13}"
+  echo "creating cryptographic signature with certificate Developer ID Application: Made Up (${TEAM})" >&2
+  ;;
+print-signature-info)
+  CHAINS=true; [ -n "$FAKE_RCODESIGN_NOT_APPLE" ] && CHAINS=false
+  EXTENSION="Developer ID Application"; [ -n "$FAKE_RCODESIGN_NO_DEVID" ] && EXTENSION="Mac Developer"
+  cat <<YAML
+- path: $2
+  entity:
+    mach_o:
+      signature:
+        blob_count: 4
+        code_directory:
+          version: '0x20500'
+          flags: CodeSignatureFlags(${FAKE_RCODESIGN_FLAGS:-RUNTIME})
+          identifier: trillion-local
+          team_name: ${TEAM}
+          digest_type: sha256
+          platform: 0
+          executable_segment_flags: ExecutableSegmentFlags(MAIN_BINARY)
+          runtime_version: 14.0.0
+        code_requirements:
+        - 'designated(3): 0: (identifier "trillion-local") and anchor apple generic and certificate leaf[subject.OU] = "${TEAM}"'
+        cms:
+          certificates:
+          - subject: 'CN=Developer ID Application: Made Up (${TEAM}), OU=${TEAM}, O=Made Up, C=US'
+            issuer: 'CN=Developer ID Certification Authority, OU=G2, O=Apple Inc., C=US'
+            key_algorithm: RSA
+            is_apple_root_ca: false
+            is_apple_intermediate_ca: false
+            chains_to_apple_root_ca: ${CHAINS}
+            apple_extended_key_usages:
+            - Code Signing
+            apple_code_signing_extensions:
+            - ${EXTENSION}
+            apple_certificate_profile: developer-id-application
+            apple_team_id: ${TEAM}
+          - subject: 'CN=Developer ID Certification Authority, OU=G2, O=Apple Inc., C=US'
+            issuer: 'CN=Apple Root CA, OU=Apple Certification Authority, O=Apple Inc., C=US'
+            is_apple_root_ca: false
+            is_apple_intermediate_ca: true
+            chains_to_apple_root_ca: true
+          - subject: 'CN=Apple Root CA, OU=Apple Certification Authority, O=Apple Inc., C=US'
+            issuer: 'CN=Apple Root CA, OU=Apple Certification Authority, O=Apple Inc., C=US'
+            is_apple_root_ca: true
+            is_apple_intermediate_ca: false
+            chains_to_apple_root_ca: true
+          signers:
+          - issuer: 'CN=Developer ID Certification Authority, OU=G2, O=Apple Inc., C=US'
+            digest_algorithm: SHA-256
+            signature_verifies: true
+YAML
+  ;;
+*) echo "fake rcodesign: unexpected arguments: $*" >&2; exit 2 ;;
+esac
