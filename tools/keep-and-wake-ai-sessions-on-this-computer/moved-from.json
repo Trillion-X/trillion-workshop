@@ -3078,6 +3078,142 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/your-records-tool-input-bound.test.mjs",
       "source_identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43",
       "identity": "1f:b96bf41d93c6f2a2a3ee49898a292350df3b9141b07c12bf123ae6738f522b43"
+    },
+    {
+      "from": "test/blake3-allocation-compat.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/blake3-allocation-compat.test.mjs",
+      "source_identity": "1f:4850085eb556cd8e2e363be81977e43d47b7a846550e34caaa22665e818940e5",
+      "identity": "1f:642ea70dcbebe3c3ace9a23ac3d4a8598c8f802b99f1ab858e0a7bb15de9e4a0",
+      "adapted": "the compiled identity is browse-and-upload-my-files loadChunking's Identity, loaded without the retired restartable wrapper, and readHandoffResultSource is shared-code's; every assertion is the old one"
+    },
+    {
+      "from": "test/caller-run-claim.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/caller-run-claim.test.mjs",
+      "source_identity": "1f:6795bccb362b931d42f1917ac38badafd94ed554c585c0e7eb256beaa4f41401",
+      "identity": "1f:c3644f54179aab000cc33a6e4c6be209179405dd088c9bd375f0f6a06fdd0731",
+      "adapted": "the held workshop-tasks-for-tests taskQuestions is stood in over the same empty task list; every assertion is the old one"
+    },
+    {
+      "from": "test/check-uses.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/check-uses.test.mjs",
+      "source_identity": "1f:73311ab46d766832687657ed05a37dd12d5ea84679b38179c0de48ffe910597d",
+      "identity": "1f:8f051b7baeab7c5eaa950b3fc173391ceee2cd38dd7aba070f09cc0d5f10265c",
+      "adapted": "the three tests over check-uses' own functions run as they were; seven that made decisions through the retired DecisionEngine and routes are left out, decide-with-a-method's work-screen test checking the same view over records"
+    },
+    {
+      "from": "test/eeaf-ids-prefix.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/eeaf-ids-prefix.test.mjs",
+      "source_identity": "1f:2544d39ed7566be5760cb38f1eb4aa2c16e5232dcfe98e46580e3bb0f81ee098",
+      "identity": "1f:f1cd29124e6fb35b5b2be33991e2c59f023cba3f748ccaf89536e05f5443a9b1",
+      "adapted": "countingHost comes from test/counting-host-for-tests.mjs, the old helper without its PersonStore; every assertion is the old one"
+    },
+    {
+      "from": "test/entity-mentions.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/entity-mentions.test.mjs",
+      "source_identity": "1f:652cfdcfaa5d7d604ed08d3ae23f949fb59620375e950e4be51e7ff4e5c9f045",
+      "identity": "1f:5ddaf50eb7ea0269b4484ae8935b506a89a9fd5625e993067b176210af45c652",
+      "adapted": "makeLists is keep-lists-of-rows'; the eight tests that sent words through the retired arrival door (src/inbound.mjs) are left out, as no running code ingests through resolveKeptMessage"
+    },
+    {
+      "from": "test/erasable-fields.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/erasable-fields.test.mjs",
+      "source_identity": "1f:39fcaf0ec5255f48fe56bcc2c74f9698de14bd0892d47ec844c758a048cd99df",
+      "identity": "1f:2f3fe5c5d2031e66a5501259ab3262fd1f8ed99679260804c93f26b38777c325",
+      "adapted": "record-sync comes from tools/record-log; the search-index steps and the kept-history rewrite test are not carried, their owners being trillion-rust record_store search.rs and history_archive.rs"
+    },
+    {
+      "from": "test/erase-record-route.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/erase-record-route.test.mjs",
+      "source_identity": "1f:a349ae4cbd680e80bb39475dbb8417bec77f9e12293e24d2068837aac185449c",
+      "identity": "1f:0680caf24032b290da8f5ac694f82f6347efbf12c5a5d3067ed7b2385c28f8b2",
+      "adapted": "the erase_record tool-row test runs as it was; the PersonStore /records/erase test is not carried, the route being trillion-rust src/record_value/account_routes.rs"
+    },
+    {
+      "from": "test/execution-lookup.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/execution-lookup.test.mjs",
+      "source_identity": "1f:c105758bf965b3c72c7ec465238aa710514996159c73cbf90817653b9fcc88dc",
+      "identity": "1f:4925c8f4985164156e03fb1eb2bef73143f81e04f33b1790db261cc9a160fa50",
+      "adapted": "the PersonStore.activityTrace test is left out, as no running code has that entry point; the other four are the old ones"
+    },
+    {
+      "from": "test/execution-context.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/execution-context.test.mjs",
+      "source_identity": "1f:a43a5195df1fd2c63f3a7fb174195bce5eeb3779e0827f489fe71ee80d2f43bd",
+      "identity": "1f:b3d64b3337c347948aebc4f81c9084bc2bf78ae2cf1e9c13f286b23962b098e9",
+      "adapted": "activity rows come from see-what-my-ais-did; the tests through the retired MCP handler and Spaces route are left out; the other six are the old ones"
+    },
+    {
+      "from": "test/hop-trail.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/hop-trail.test.mjs",
+      "source_identity": "1f:0963bc2afe09857db05ceec2aa2752d623f18964b53bc863b8775109a8ebad18",
+      "identity": "1f:c482e1b7ee3fd4764add90bad4dd05e9788c4c841431483e63329ec9e2a23e26",
+      "adapted": "the assertions that called through the retired Durable Object stub wrapper (resource-host.mjs hostOf) are left out; every other assertion is the old one"
+    },
+    {
+      "from": "test/failure-payload.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/failure-payload.test.mjs",
+      "source_identity": "1f:158b747c6869beada114fa8e6570697426c7969a89a041145ebe1b91c0cdd6db",
+      "identity": "1f:fe9ce210c45eac8016a3e3ea9aa1de66fc6bd397605c36f16b7353c7645202d5",
+      "adapted": "the registry is set-up-my-account's failure-codes.json; the calls through the retired MCP handler are left out, the payloadOf assertions kept"
+    },
+    {
+      "from": "test/decision-read-correction.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/decision-read-correction.test.mjs",
+      "source_identity": "1f:8bc998997fd025e32cad645da3d8d3377e9f326193b6ee8370b66522e422a424",
+      "identity": "1f:82d674e5fee4ad42ce5e596912c75ae74f696972ef7d1fda69470c8904c03842",
+      "adapted": "the outcomeCorrection test runs as it was; three tests through the retired PersonStore's /cases routes are left out, as no running code serves them"
+    },
+    {
+      "from": "test/file-card-offers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
+      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
+      "identity": "1f:e570c52f5c7e66c81976cd1c23a04f8466a4b3bd9dda2bc8225ce8dd5e3a8b4c",
+      "adapted": "the cards are read from this tool's records/workshop-*.json and every tool folder's tool-rows.json, where the Workshop's rows live now; every assertion is the old one"
+    },
+    {
+      "from": "test/kept-range-frontier-recovery.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/kept-range-frontier-recovery.test.mjs",
+      "source_identity": "1f:d740f9dd83cdd7742aa042f37f09eafd7525130b61d42c96a2670447bf885830",
+      "identity": "1f:2d8b21398c5a0afc86e3e037d2712fec65a45086ca19087d423df359400dd0b7",
+      "adapted": "the instrumented kept-runs copy is imported from a scratch folder with its one relative import made absolute, in place of the old in-memory loader; every assertion is the old one"
+    },
+    {
+      "from": "test/hybrid-clock.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/hybrid-clock.test.mjs",
+      "source_identity": "1f:330b986cf5a614cc459f3804993292ee3102f4ba0bef61f7253763bd5ae36968",
+      "identity": "1f:7ea18beeca39ef45fbefa00334035a88214b9956d1706b73d89df3c4e8aa68a4",
+      "adapted": "the retired arrival door is stood in by its one messages.record call, listen.mjs is run-on-a-persons-computer's, and the microphone state lives in a scratch folder; every assertion is the old one"
+    },
+    {
+      "from": "test/instant-wake.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/instant-wake.test.mjs",
+      "source_identity": "1f:c4b520803e0881002c91a0c0cae7b0aced6fa003d2d9de06d4d1cca45d21b909",
+      "identity": "1f:230712d01cb5a22c515052b667313cf971acf002cd9b504b280982eea08732a3",
+      "adapted": "agents and delivery come from shared-code, taskQuestions is stood in, and the test reading the retired person-store.mjs source is left out; every other assertion is the old one"
+    },
+    {
+      "from": "test/harness-guidance-mcp-and-runs.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/harness-guidance-mcp-and-runs.test.mjs",
+      "source_identity": "1f:7fd8999d5a6b9806e16c67bc202c34df45deda6d1477cc021e348da3eed8c603",
+      "identity": "1f:8893a3d9d9e0671649bb802dd6f1769329964275943dd30087131d854ef32afd",
+      "adapted": "the client catalogue and report-progress come from set-up-my-account and run-on-a-persons-computer, and the retired setup answer's command checks read this tool's MCP row; its default-clients check is left out, the row taking the apps from the caller"
     }
   ]
 }

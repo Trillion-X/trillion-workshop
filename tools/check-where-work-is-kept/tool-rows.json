@@ -1,0 +1,351 @@
+{
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:check-where-work-is-kept",
+        "id": "tool:check-where-work-is-kept",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false
+        },
+        "label": "Check that an AI keeps its work in Trillion, not on disk",
+        "job": "Check whether a file an AI is about to write belongs on disk or in the person's Trillion lists, and say which list and which records:write call keeps it instead",
+        "description": "Give rules ({ source_repositories: [owner/name], scratch?: '.git/scratch', new_files_refused?: [{ why, pattern, except?, list? }], list_copies?: [{ folder, list }], list_copy_sync?: regular expression, refused_places: [{ place, why, list? }] (place: a path, ~ the home folder, * one folder, ** any), lists: { <list id>: { type, id_prefix?, value } }, default_list, classifier?: { rubric, providers, timeout_seconds, pass_answers, lists_by_answer? }, says? }) and call: the tool call ({ tool_name, tool_input }: a Write or Edit's file_path, or a Bash command). Every path the call writes is found (redirects, tee, cp, mv, install, ln, mkdir, touch, dd, curl -o/-O, wget, mktemp, tar -x, unzip, git archive -o; a cd earlier in the command moves relative paths) and placed: in a checkout whose origin is a declared source repository it passes when tracked, when it is the scratch, or when new, not ignored and matching no new_files_refused row; a list_copies folder or a refused place (the longest match wins) refuses it naming its list. A path no rule places is asked of the classifier (tools/ask-a-small-model-for-a-verdict ask) with a timeout; a model that fails passes it with a warning. Returns valid, judged, passed [{ path, how, why }], refused [{ path, how, why, list, write: the records:write { records: [{ id, type, value }] } that keeps it instead }] and warnings.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "rules",
+            "call"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "rules": {
+              "type": "object",
+              "required": [
+                "source_repositories",
+                "refused_places",
+                "lists",
+                "default_list"
+              ],
+              "properties": {
+                "source_repositories": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "scratch": {
+                  "type": "string"
+                },
+                "new_files_refused": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "why",
+                      "pattern"
+                    ],
+                    "properties": {
+                      "why": {
+                        "type": "string"
+                      },
+                      "pattern": {
+                        "type": "string"
+                      },
+                      "except": {
+                        "type": "string"
+                      },
+                      "list": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "list_copies": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "folder",
+                      "list"
+                    ],
+                    "properties": {
+                      "folder": {
+                        "type": "string"
+                      },
+                      "list": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "list_copy_sync": {
+                  "type": "string"
+                },
+                "refused_places": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "place",
+                      "why"
+                    ],
+                    "properties": {
+                      "place": {
+                        "type": "string"
+                      },
+                      "why": {
+                        "type": "string"
+                      },
+                      "list": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                },
+                "lists": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "required": [
+                      "type"
+                    ],
+                    "properties": {
+                      "type": {
+                        "type": "string"
+                      },
+                      "id_prefix": {
+                        "type": "string"
+                      },
+                      "value": {}
+                    }
+                  }
+                },
+                "default_list": {
+                  "type": "string"
+                },
+                "classifier": {
+                  "type": "object"
+                },
+                "says": {
+                  "type": "string"
+                }
+              }
+            },
+            "call": {
+              "type": "object",
+              "required": [
+                "tool_input"
+              ],
+              "properties": {
+                "tool_name": {
+                  "type": "string"
+                },
+                "tool_input": {
+                  "type": "object",
+                  "properties": {
+                    "file_path": {
+                      "type": "string"
+                    },
+                    "command": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "valid",
+            "judged",
+            "passed",
+            "refused",
+            "warnings"
+          ],
+          "properties": {
+            "valid": {
+              "type": "boolean"
+            },
+            "judged": {
+              "type": "integer"
+            },
+            "passed": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "why"
+                ]
+              }
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "why",
+                  "list",
+                  "write"
+                ]
+              }
+            },
+            "warnings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "unjudged": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "read-a-folder"
+          ],
+          "workdir": "/opt/check-where-work-is-kept",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/check-where-work-is-kept/do-work/check-where-work-is-kept.mjs",
+            "--root",
+            {
+              "fill": {
+                "from": "task",
+                "field": "grants.read-a-folder.folder"
+              }
+            },
+            "--input-on-stdin"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": {
+              "package": "check-where-work-is-kept",
+              "paths": [
+                "do-work"
+              ],
+              "at": "/opt/check-where-work-is-kept"
+            }
+          }
+        },
+        "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "rules": {
+                "source_repositories": [
+                  "Trillion-X/trillion-workshop",
+                  "Trillion-X/trillion-apps",
+                  "Trillion-X/trillion-rust",
+                  "Trillion-X/trillion"
+                ],
+                "scratch": ".git/scratch",
+                "new_files_refused": [
+                  {
+                    "why": "Markdown note",
+                    "pattern": "\\.md$",
+                    "except": "(^|/)(README|CONTRIBUTING|CHANGELOG|LICENSE|SECURITY|CLAUDE|AGENTS)\\.md$|(^|/)docs/",
+                    "list": "list:notes"
+                  }
+                ],
+                "list_copies": [],
+                "list_copy_sync": "read-list-view\\.mjs[^\\n]*--refresh",
+                "refused_places": [
+                  {
+                    "place": "/tmp",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "/private/tmp",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "/private/var/folders",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "/var/folders",
+                    "why": "a temporary file, outside every repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~",
+                    "why": "a file in the home folder, outside every declared repository",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~/.ai-orchestra",
+                    "why": "the .ai-orchestra folder, which keeps work off the lists",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~/source-folderdata",
+                    "why": "the .ai-orchestra data folder, which keeps work off the lists",
+                    "list": "list:notes"
+                  },
+                  {
+                    "place": "~/.claude/**/memory",
+                    "why": "a Claude memory file, which only that one app reads",
+                    "list": "list:memories"
+                  },
+                  {
+                    "place": "**/.claude/**/memory",
+                    "why": "a Claude memory file, which only that one app reads",
+                    "list": "list:memories"
+                  }
+                ],
+                "lists": {
+                  "list:notes": {
+                    "type": "record:note",
+                    "value": {
+                      "name": "{name}",
+                      "text": "<what you were writing>"
+                    }
+                  },
+                  "list:memories": {
+                    "type": "record:memory",
+                    "value": {
+                      "name": "{name}",
+                      "text": "<what to remember>"
+                    }
+                  }
+                },
+                "default_list": "list:notes"
+              },
+              "call": {
+                "tool_name": "Write",
+                "tool_input": {
+                  "file_path": "/tmp/kept-plan.md"
+                }
+              }
+            },
+            "output_selector": "$.refused[0].list",
+            "contains": "list:notes"
+          }
+        ]
+      }
+    }
+  ]
+}

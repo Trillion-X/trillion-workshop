@@ -1,0 +1,87 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-CODE-MENTIONS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the source-repo-a port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:496da60274500753291017788a44ab6982c4a7b12908e518d0881ad851e80e28",
+   "lines": [
+    18,
+    30
+   ],
+   "multihash": "1f:419255b7e0b7bc55e52c05c56a5ff974d278c2e5d69a7f0a3c53ece9635511dc",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:496da60274500753291017788a44ab6982c4a7b12908e518d0881ad851e80e28",
+   "lines": [
+    5,
+    6
+   ],
+   "multihash": "1f:d2bba0d3ad1c3f4aa29536051e5c7c984ded660aa5b01e6243c3d87de834888d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/code_mentions.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of source-repo-a, byte for byte"
+  }
+ ],
+ "preserve": [
+  "multi-label codes; a comment matching none is mention-only",
+  "counts and likes per code"
+ ],
+ "allowed_deltas": [
+  "the codebook is the person's settings (moved verbatim from the source's lines 8-17), judged by tools/judge-words"
+ ],
+ "banned_substitutions": [
+  "a codebook in the code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "hf-",
+    "to": "character-"
+   },
+   {
+    "from": "-hf",
+    "to": "-character"
+   }
+  ],
+  "source_multihash": "1f:419255b7e0b7bc55e52c05c56a5ff974d278c2e5d69a7f0a3c53ece9635511dc",
+  "target_multihash_at_baseline": "1f:90571e35d105aadc0f413c7a2e44104f949c176899b299503fb78db4f063aba7",
+  "commit": "41041a87ab8ea0e362bea7fdc34c8024d9e16caa",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "o.write('video\\tcomment_id\\tlikes\\tcodes\\ttext\\n')"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

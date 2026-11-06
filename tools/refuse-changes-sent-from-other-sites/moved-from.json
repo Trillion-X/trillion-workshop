@@ -10,6 +10,14 @@
       "to": "tools/refuse-changes-sent-from-other-sites/src/change-from-elsewhere.mjs",
       "source_identity": "1f:a4634566b7e8e4f93d678afdeaa68b86aa226a195fcf7be2c639201ccd728f9d",
       "identity": "1f:a4634566b7e8e4f93d678afdeaa68b86aa226a195fcf7be2c639201ccd728f9d"
+    },
+    {
+      "from": "test/change-from-elsewhere.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/refuse-changes-sent-from-other-sites/test/change-from-elsewhere.test.mjs",
+      "source_identity": "1f:46c3cea5a38d2275a954d67eba85f22ddc08fc081f002343bdff24aeddc61a02",
+      "identity": "1f:e50b2ef053feeeb6de74ebe5419e1fe8034599d53bba1d5fea1cb4af80e4b295",
+      "adapted": "its second test, a read of the retired src/worker.mjs, is left out: trillion-rust src/workspace_domain.rs a_change_from_another_site_is_refused_and_a_read_is_not tests that check at the engine's signed-in entry (the file's header says so)"
     }
   ]
 }

@@ -1,0 +1,101 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-LIST-LINES-IN-TURNS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the source-repo-a port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:88674e1f55a447cf71e5bd693efeacbbf99c2087635588341e7b6511a327c90b",
+   "lines": [
+    9,
+    29
+   ],
+   "multihash": "1f:f4be1ee55126b2cb5c2ebb4ec0e1e3c47dece13279af454311bf606a17c2dcf8",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:88674e1f55a447cf71e5bd693efeacbbf99c2087635588341e7b6511a327c90b",
+   "lines": [
+    4,
+    7
+   ],
+   "multihash": "1f:4a1d2fc2e00d88beb78a91eecd16fcd7f123f1ac9c4874158e9d37d2d223ee6f",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:88674e1f55a447cf71e5bd693efeacbbf99c2087635588341e7b6511a327c90b",
+   "lines": [
+    2,
+    2
+   ],
+   "multihash": "1f:e14c8ae86568a0d71d838fac3a3fbc28fce4dd68c86f285e87382a25b6488bff",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/do-work/list_lines_in_turns.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of source-repo-a, byte for byte"
+  }
+ ],
+ "preserve": [
+  "a caption line counts when half of it lies inside a turn",
+  "captions are looked for in captions, videos, then raw"
+ ],
+ "allowed_deltas": [
+  "the folders come in the request"
+ ],
+ "banned_substitutions": [
+  "word-level timing instead of caption lines"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": ".hf.json",
+    "to": ".turns.json"
+   },
+   {
+    "from": "hf-",
+    "to": "character-"
+   }
+  ],
+  "source_multihash": "1f:f4be1ee55126b2cb5c2ebb4ec0e1e3c47dece13279af454311bf606a17c2dcf8",
+  "target_multihash_at_baseline": "1f:7f65054066860711dfb96ec72150fde8717cd542b3f97bcfad368b27ddcdf40d",
+  "commit": "41041a87ab8ea0e362bea7fdc34c8024d9e16caa",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def capfile(i):"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

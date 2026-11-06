@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-SPANS-OF-A-PLAN-FROM-LAUNCH-VIDEO-COPY-GATE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
+  "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
+  "quote": "Finish the launch-video port so that repository can be retired: move every job to its Workshop home, port one to one, and turn settings, words and checks into rows read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "job": "the recording spans a plan cites, with the words said in each, for the origin of each line",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/check.mjs",
+   "lines": [
+    526,
+    570
+   ],
+   "multihash": "1f:37923263089dd320775aef21284974e8e1a11d2610f5ecc5a4d060a9dab771a0",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/spans-of-a-plan.mjs"
+  }
+ ],
+ "preserve": [
+  "a span's text is the clip's words inside from-to, padded by pad_s, then the moment rows that overlap it; an untimed segment reads the clip's whole words and its untimed rows",
+  "a segment whose speaker matches speaker_unverified gives speaker_verified false",
+  "a segment's also spans follow its own span in order",
+  "the plan a piece cites is named by the first match of cites_plan"
+ ],
+ "allowed_deltas": [
+  "the plan, the word lists by clip and the moment table are handed in by the caller instead of read from the checkout",
+  "planNamed answers the plan name; the caller reads the plan"
+ ],
+ "banned_substitutions": [
+  "a guessed or filled-in word",
+  "reading a transcript or a plan from disk inside the tool",
+  "a film folder or transcript path in the code"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:37923263089dd320775aef21284974e8e1a11d2610f5ecc5a4d060a9dab771a0",
+  "target_multihash_at_baseline": "1f:37923263089dd320775aef21284974e8e1a11d2610f5ecc5a4d060a9dab771a0",
+  "commit": "e6bd8ed2ea0570a36d66adfaec17d05e9ad7dfd9"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/check-a-films-copy.test.mjs the old --plan and also-span tests of tools/copy-gate/tests/check.test.mjs, moved onto made-up plans, word lists and moment rows"
+  ]
+ }
+}

@@ -108,6 +108,14 @@
       "byte_copy_commit": "346dfef2708f664a02a6f4b90493b5f6b317b80c",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "test/community-logic/latest-op.test.ts",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/evaluate-progress/test/community-logic/latest-op.test.ts",
+      "source_identity": "1f:8cac0ece06bc797444e9afadff62b5432049242c1a3ae77bbde587731d490173",
+      "identity": "1f:80e4879dafdad3ba54e04cbd34738a96b70c0e2848106a56434ae5e743c516d5",
+      "adapted": "read-data/measure-ops.ts here asks every latest for its sortBy and keeps no default, so the test's latestDef names recorded_at, the old default, where a case named none (the file's header says so)"
     }
   ]
 }

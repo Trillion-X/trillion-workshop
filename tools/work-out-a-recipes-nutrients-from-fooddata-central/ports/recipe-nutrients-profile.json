@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-RECIPE-NUTRIENTS-PROFILE-SUMS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port lane 2026-11-05: recipe nutrients from FoodData Central",
+  "message_multihash": "1f:91b38540ec246acc6f849e5ea571b3b01faae7d4bce719fe5598ac1c6e3243ce",
+  "quote": "Port every behaviour one to one (unit handling, nutrient id fallbacks, portions, rounding)."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:d1eb0f5cb2e78dd993779609324ad8de2474ad5c2795962fb01333b5156491ea",
+   "lines": [
+    116,
+    152
+   ],
+   "multihash": "1f:0edc0875928eba83386d5b210f38ef3911d7ca6fc10ed532033eff79e075983e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/work-out-a-recipes-nutrients-from-fooddata-central/read-data/recipe_profile.py",
+   "baseline_commit_message": "work-out-a-recipes-nutrients-from-fooddata-central: the byte copy of launch-video's recipe profile reader and summer"
+  }
+ ],
+ "preserve": [
+  "each ingredient's share is per-100 g x grams / 100 x scale, kept to 4 places; totals are summed unrounded",
+  "the mix mass is the grams of every ingredient with an FDC id",
+  "per batch and per 100 g to 3 places, % DRI to 1 place, on the lower of male and female: gap under 10, low under 33, a third or more under 100, else a full day",
+  "sodium is a limit, not a gap; a main ingredient with no value makes the flag unknown_lower_bound_only with the caveat naming every ingredient without data"
+ ],
+ "allowed_deltas": [
+  "per_tub is per_batch (the field no longer names one recipe's container)",
+  "the two main ingredients named in code are the ingredients the request marks base",
+  "the calcium caveat written in code is the request's nutrient_caveats"
+ ],
+ "banned_substitutions": [
+  "a person's recipe, grams, label numbers or words written in code",
+  "a second summing or flagging path"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0edc0875928eba83386d5b210f38ef3911d7ca6fc10ed532033eff79e075983e",
+  "target_multihash_at_baseline": "1f:0edc0875928eba83386d5b210f38ef3911d7ca6fc10ed532033eff79e075983e",
+  "commit": "c59f1ff567fcc09fe0f272e9217003ac0677835e",
+  "recorded_at": "2026-11-05T21:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def work_out(",
+   "totals[key] += v",
+   "DOSE_MAX"
+  ],
+  "test_refs": [
+   "tools/work-out-a-recipes-nutrients-from-fooddata-central/test/work-out-a-recipes-nutrients.test.mjs",
+   "tools/work-out-a-recipes-nutrients-from-fooddata-central/test/test_recipe_nutrients.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines 101-115 and 153-197 of the same file are one person's recipe, evidence and words: they did not move as code, they are the request (README, The request), so they are not a source here."
+}

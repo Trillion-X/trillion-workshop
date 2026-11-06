@@ -10,15 +10,20 @@
 //
 //     node harness/read-cloud-sessions.mjs list <config-folder> <out.json>
 //     node harness/read-cloud-sessions.mjs read <config-folder> <list.json> <out-folder> [at-once]
-//     node harness/read-cloud-sessions.mjs send <config-folder> <session-id> <message-file>
-//     node harness/read-cloud-sessions.mjs start <config-folder> <owner/repo[,owner/repo...]> <title> <message-file>
+//     node harness/read-cloud-sessions.mjs send <config-folder> <session-id> [<brief>]
+//     node harness/read-cloud-sessions.mjs start <config-folder> <owner/repo[,owner/repo...]> <title> [<brief>]
+//
+//   <brief> is where the message comes from, so no one writes a brief file: a record id of the person's Trillion
+//   (`record:brief:release-plan`; read with records:read through the Mac app's local door, its type the id up to its
+//   last `:`, its text the record's value when that is text, else the value's brief, text, body, message or says),
+//   `-` or nothing for standard input, or a file that already exists.
 //
 //   <config-folder> is a CLAUDE_CONFIG_DIR folder name under the home folder (for example .claude-account1).
 //   `read` writes <out-folder>/<session-id>.json per session and skips sessions already written, so a cut-off run
-//   is simply run again. `send` posts the text of <message-file> to the session as the person's next message (the
+//   is simply run again. `send` posts the brief to the session as the person's next message (the
 //   claude.ai/code page's own road, POST /v1/sessions/<id>/events), which starts the session's next turn, and prints
 //   the session's status and its first answer after it. `start` makes a new session with every repository named
-//   cloned from its main (the first is the one it works in), with the text of <message-file> as its first message, in
+//   cloned from its main (the first is the one it works in), with the brief as its first message, in
 //   the environment of that sign-in's latest cloud session: `claude --cloud` attaches only the repository it is run in,
 //   and a session that asks for a second one waits on a permission only the person can give.
 //
@@ -35,7 +40,10 @@ import { createHash, randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import { text as readAll } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
+import { requireAccountKey } from './account-key.mjs';
+import { localDoorAddress } from './local-door.mjs';
 
 const API = 'https://api.anthropic.com';
 const PR_URL = /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/g;
@@ -182,9 +190,9 @@ async function main([command, folderName, ...rest]) {
     return;
   }
   if (command === 'send') {
-    const [id, messageFile] = rest;
-    const text = readFileSync(messageFile, 'utf8').trim();
-    if (!text) throw new Error(`${messageFile}: no message text`);
+    const [id, from] = rest;
+    if (!id) throw new Error('usage: send <config-folder> <session-id> [<record id> | - | <file>]');
+    const text = await briefFrom(from);
     // One uuid per call, kept across retries, so a retried post is the same message.
     const message = { uuid: randomUUID(), session_id: id, type: 'user', parent_tool_use_id: null, message: { role: 'user', content: text } };
     await get(account, `/v1/sessions/${id}/events`, { events: [message] });
@@ -205,10 +213,10 @@ async function main([command, folderName, ...rest]) {
   }
   if (command === 'start') {
     // The first repository is the one the session works in and pushes to; the others are cloned beside it.
-    const [repositories, title, messageFile] = rest;
-    const text = readFileSync(messageFile, 'utf8').trim();
-    const names = repositories.split(',').filter(Boolean);
-    if (!text || !names.length || !title) throw new Error('usage: start <config-folder> <owner/repo[,owner/repo...]> <title> <message-file>');
+    const [repositories, title, from] = rest;
+    const names = (repositories ?? '').split(',').filter(Boolean);
+    if (!names.length || !title) throw new Error('usage: start <config-folder> <owner/repo[,owner/repo...]> <title> [<record id> | - | <file>]');
+    const text = await briefFrom(from);
     // A new session runs where this sign-in's latest cloud session ran.
     const latest = (await get(account, '/v1/sessions?limit=20')).data.find(session => session.environment_kind === 'anthropic_cloud');
     if (!latest) throw new Error(`${folderName}: no earlier cloud session names an environment to start in`);
@@ -226,6 +234,53 @@ async function main([command, folderName, ...rest]) {
     return;
   }
   throw new Error('usage: read-cloud-sessions.mjs list|read|send|start <config-folder> ...');
+}
+
+// A record id of the person's Trillion: a type and a name, `record:brief:release-plan`, never a path.
+const RECORD_ID = /^[a-z][a-z0-9-]*(?::[A-Za-z0-9._~-]+)+$/;
+const BRIEF_FIELDS = ['brief', 'text', 'body', 'message', 'says'];
+
+/** The text a record's value holds: the value itself when it is text, else its first text field of BRIEF_FIELDS. */
+export function briefText(id, value) {
+  if (typeof value === 'string') return value.trim();
+  if (value === null || value === undefined) throw new Error(`${id}: no such record in the person's Trillion`);
+  const field = BRIEF_FIELDS.find(name => typeof value[name] === 'string' && value[name].trim());
+  if (!field) throw new Error(`${id}: its value holds no text in ${BRIEF_FIELDS.join(', ')}`);
+  return value[field].trim();
+}
+
+/** One record's value, read with records:read through the account's door: { id, type } in, the value out. */
+export async function readRecord(id, { url = localDoorAddress(), key = requireAccountKey(), request = fetch } = {}) {
+  const type = id.slice(0, id.lastIndexOf(':'));
+  const response = await request(url, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${key}` },
+    body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: {
+      address: '@own-records', method: 'records:read', request_key: `read-cloud-sessions:brief:${id}`, input: { id, type } } } }),
+    signal: AbortSignal.timeout(15000),
+  });
+  const body = (await response.text()).trim();
+  if (!response.ok) throw new Error(`${id}: the door answered ${response.status}`);
+  let message;
+  try {
+    message = body.startsWith('{') ? JSON.parse(body) : body.split('\n').filter(line => line.startsWith('data:')).map(line => JSON.parse(line.slice(5))).pop();
+  } catch {
+    throw new Error(`${id}: the door's answer is not JSON`);
+  }
+  const result = message?.result;
+  if (!result || result.isError) throw new Error(`${id}: the door refused records:read${result?.content?.[0]?.text ? `: ${result.content[0].text}` : ''}`);
+  const read = result.structuredContent ?? JSON.parse(result.content?.[0]?.text ?? 'null');
+  return read?.value ?? null;
+}
+
+/** The brief's text: from a record id, standard input (`-` or nothing), or a file that already exists. */
+export async function briefFrom(from, { stdin = process.stdin, read = readRecord } = {}) {
+  let text;
+  if (from === undefined || from === '-') text = (await readAll(stdin)).trim();
+  else if (RECORD_ID.test(from) && !existsSync(from)) text = briefText(from, await read(from));
+  else text = readFileSync(from, 'utf8').trim();
+  if (!text) throw new Error(`${from === undefined || from === '-' ? 'standard input' : from}: no brief text`);
+  return text;
 }
 
 const isEntryScript = () => {

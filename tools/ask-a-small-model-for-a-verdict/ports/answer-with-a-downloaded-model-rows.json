@@ -1,0 +1,93 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-ANSWER-WITH-A-DOWNLOADED-MODEL-ROWS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "writing-gate lane 2026-11-04: finish the launch-video move so the repository can be retired",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "Settings, words, methods and checks are rows in the person's lists, read through the door at run time; a tool takes settings_record and reads it with the one shared settings reader."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer a check's model questions and calibrate a person's ask rows, reading their setting row, ask rows and labelled lines through the records door",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/do-work/answer_with_a_downloaded_model.py",
+   "why": "The answering and calibrating themselves, moved from the copy gate; this file only reads the person's rows through the door and hands them to it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/settings/read-data/settings.mjs",
+   "why": "The one settings reader, imported here, not copied."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
+   "why": "Reads a branch's check rows to judge a unit; it lists the questions and never answers them. This reads ask rows by id and labelled-line rows by set to answer and calibrate."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "Index rows only: this tool's own owner row (\"answer copy-rule asks with a person's local models\") and the where-a-person-stands row whose evidence names labelled-line rulings; neither is code that answers asks."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/where-a-person-stands/",
+   "why": "A sibling that WRITES labelled-line rulings (record:check:ruling-<hex>) to the person's list:checks; this tool only reads those rows as calibration examples and answers asks with a model. Writing the rows is not answering asks, so it is not an owner of this job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog: one flat row per tool copied from this folder's tool-rows.json (publish-tool-catalog.mjs); it lists the tool and runs nothing."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/README.md",
+   "why": "This tool's own README, describing the labelled-line rows this entry reads; documentation of this entry, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/tool-rows.json",
+   "why": "This tool's own rows, whose schemas name the labelled-line rows this entry reads; they declare this entry, they own no other job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs",
+   "why": "The test of this entry, seeding made-up labelled-line rows in an in-memory door; it tests this job, it does not do it."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer a check's model questions and calibrate a person's ask rows, reading their setting row, ask rows and labelled lines through the records door",
+    "labelled lines through the records door",
+    "calibrate ask rows"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "labelled-line",
+    "calibrateAsks",
+    "answerAsks"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "7198da3969ce9976f469bab4273b6327c160d693"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/ask-a-small-model-for-a-verdict/test/answer-with-a-downloaded-model.test.mjs"
+  ]
+ }
+}

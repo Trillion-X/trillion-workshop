@@ -1,0 +1,1266 @@
+{
+  "schema": "book-voice-decider-evaluation-v2",
+  "evaluated_at_local": "1/1/2026, 9:00:00 AM MST",
+  "model": "made-up-model",
+  "endpoint": "http://127.0.0.1:8099/v1/systemone",
+  "route": "shared local classifier adapter -> /v1/systemone",
+  "serving": "/fixture/made-up-model-snapshot",
+  "device": "cpu",
+  "data": "/fixture/criteria-challenge.json",
+  "data_blake3": "4f37759d4e1c2af6a72ae6789d5ec12092735c87f0689a03b9b668258e62fd8d",
+  "rubric_blake3": "made-up-rubric",
+  "dataset_role": "evaluation_only",
+  "source_derivative": null,
+  "assembled_docx": null,
+  "split": "eval",
+  "evaluated_items": 12,
+  "expected_items": 12,
+  "question": null,
+  "criteria": [
+    {
+      "id": "voice-flow",
+      "question": "Does this passage keep the made-up writer's rolling, specific reasoning?",
+      "deterministic": false
+    },
+    {
+      "id": "execution-gear",
+      "question": "When this passage turns to action, does it stay in the same voice?",
+      "deterministic": false
+    },
+    {
+      "id": "local-application",
+      "question": "Does the passage give enough local context to apply the idea?",
+      "deterministic": false
+    },
+    {
+      "id": "source-fidelity",
+      "question": "Given the supplied source context, does the passage keep the source's facts?",
+      "deterministic": false
+    },
+    {
+      "id": "authored-em-dash",
+      "question": "Does this newly authored prose contain an em dash? Ignore quoted or referenced text.",
+      "deterministic": true
+    }
+  ],
+  "calibration": "none; held-out challenge outcomes are diagnostic and do not establish a production threshold",
+  "errors": [],
+  "complete": true,
+  "resume_prior_items": 1,
+  "prior_errors": [],
+  "summary": {},
+  "items": [
+    {
+      "id": "MADE-UP-01",
+      "family": "made-up-kettle",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "1-3"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "pass",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": true,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-02",
+      "family": "made-up-kettle",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "5-7"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "fail",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "fail",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-03",
+      "family": "made-up-bread",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "9-11"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "pass",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": true,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-04",
+      "family": "made-up-bread",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "13-15"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "uncertain"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "fail",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "fail",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "decision": "uncertain",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-05",
+      "family": "made-up-bike",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "17-19"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "pass",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": true,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-06",
+      "family": "made-up-bike",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "21-23"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "fail",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "fail",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-07",
+      "family": "made-up-garden",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "25-27"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "pass",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": true,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-08",
+      "family": "made-up-garden",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "29-31"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "fail",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "fail",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-09",
+      "family": "made-up-map",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "33-35"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "pass",
+        "execution-gear": "pass",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "pass",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "pass",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": true,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-10",
+      "family": "made-up-map",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "37-39"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "fail",
+        "execution-gear": "fail",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "fail",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "fail",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-11",
+      "family": "made-up-shoebox",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "41-43"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "uncertain",
+        "execution-gear": "uncertain",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "fail"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": true,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "fail",
+          "predicted": "fail",
+          "decision": "fail",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    },
+    {
+      "id": "MADE-UP-12",
+      "family": "made-up-short",
+      "axes": [
+        "made_up_axis"
+      ],
+      "origin": {
+        "kind": "made-up-fixture",
+        "source_ref": {
+          "file": "made-up-notes.md",
+          "lines": "45-47"
+        }
+      },
+      "gold_checks": {
+        "voice-flow": "uncertain",
+        "execution-gear": "uncertain",
+        "local-application": "uncertain",
+        "source-fidelity": "uncertain",
+        "authored-em-dash": "pass"
+      },
+      "checks": {
+        "voice-flow": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "uncertain",
+          "confidence": 0.45,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.45,
+            "fail": 0.4,
+            "uncertain": 0.15
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "execution-gear": {
+          "gold": "uncertain",
+          "predicted": "pass",
+          "raw_answer": "pass",
+          "decision": "pass",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.7,
+            "fail": 0.2,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "local-application": {
+          "gold": "uncertain",
+          "predicted": "fail",
+          "raw_answer": "fail",
+          "decision": "fail",
+          "confidence": 0.7,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.2,
+            "fail": 0.7,
+            "uncertain": 0.1
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "source-fidelity": {
+          "gold": "uncertain",
+          "predicted": "uncertain",
+          "raw_answer": "uncertain",
+          "decision": "uncertain",
+          "confidence": 0.8,
+          "primitive": "choice",
+          "diagnostic_min_probability": 0.5,
+          "probabilities": {
+            "pass": 0.1,
+            "fail": 0.1,
+            "uncertain": 0.8
+          },
+          "method": "Decider2B shared endpoint",
+          "criterion_context_used": false,
+          "elapsed_ms": 5
+        },
+        "authored-em-dash": {
+          "gold": "pass",
+          "predicted": "pass",
+          "decision": "pass",
+          "confidence": null,
+          "probabilities": null,
+          "method": "deterministic local scan",
+          "criterion_context_used": false,
+          "elapsed_ms": 0
+        }
+      }
+    }
+  ]
+}
