@@ -17,6 +17,9 @@
       "path": "tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs"
     },
     {
+      "path": "tools/publish-an-engine-release/do-work/contribute-an-engine-release.mjs"
+    },
+    {
       "path": "tools/publish-an-engine-release/do-work/receive-pushes.mjs"
     },
     {
@@ -86,7 +89,8 @@
       ]
     },
     "test_refs": [
-      "tools/publish-an-engine-release/test/publish-an-engine-release.test.mjs"
+      "tools/publish-an-engine-release/test/publish-an-engine-release.test.mjs",
+      "tools/publish-an-engine-release/test/every-target.test.mjs"
     ]
   }
 }

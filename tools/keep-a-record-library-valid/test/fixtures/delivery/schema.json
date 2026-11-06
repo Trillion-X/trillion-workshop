@@ -1,0 +1,114 @@
+{
+ "about": "A made-up library of films and their delivery checklist, for the delivery gate tests of keep-a-record-library-valid. Every name in delivery_gate is made up; the render check's reviewed pins are filled in by the tests from the check code on disk.",
+ "lock": "data/.library.lock",
+ "pools": {
+  "questions": {"file": "data/questions.json", "path": "questions", "id": "id"},
+  "groups": {"file": "data/plans.json", "path": "groups", "id": "id"},
+  "profiles": {"file": "data/plans.json", "path": "profiles", "id": "id"},
+  "checklist": {"file": "data/checklist.json", "path": "stages[].checks", "id": "id"},
+  "findings": {"file": "data/findings.json", "path": "", "id": "id"}
+ },
+ "checks": [],
+ "investigation": {
+  "pools": {"questions": "questions", "profiles": "profiles", "groups": "groups", "checks": "checklist", "findings": "findings"},
+  "piece_globs": ["films/*/investigation.json"],
+  "scope_node": {"id": "orient", "question": "Read the piece header and list the files that exist.", "verify_by": "the header and the listing", "stage": "scope", "group": "orient", "tools": ["ls"]},
+  "selection": {"default_limit": 4, "rule": "One question per group in turn.", "skip_stages_by_target_kind": {"own": []}},
+  "prerequisites": {"rule": "Every question depends on the scope node.", "closing_stages": []},
+  "target_kinds": {"default": "own", "rules": []},
+  "piece_header": {"file": "SCRIPT.md", "heading": "Piece header", "tag_fields": ["medium", "source", "shape", "flags"], "implied_tags": {"swipe": ["video"], "data:*": ["data"]}},
+  "statuses": ["open", "asked", "executed", "adapted", "not-applicable"],
+  "done_statuses": ["executed", "adapted", "not-applicable"],
+  "claim_labels": ["Seen", "Guessed"],
+  "authority": "Reading the piece's files only.",
+  "finding_id_prefix": "FN-",
+  "finding_kinds": {"note": {"required": ["what"]}}
+ },
+ "delivery_gate": {
+  "checklist_pool": "checklist",
+  "answers_file": "checklist-answers.jsonl",
+  "film_config_file": "film-gate.json",
+  "films_folder": "films",
+  "film_defaults": {
+   "verdict_file": "option-verdicts.jsonl", "picked_verdicts": ["picked", "picked-with-changes"],
+   "checklist_gate": {"stages": ["S5", "S6"], "option_globs": ["*.mp4", "*/*.mp4", "*/*/*.mp4", "*/*/*/*.mp4", "*.wav", "*/*.wav", "*/*/*.wav", "*/*/*/*.wav"]},
+   "option_ids": "path"
+  },
+  "not_previews_pattern": "(?i)(^|/)(work[^/]*|held-back[^/]*|[^/]*watch[ _-]?these[^/]*|WHOLE FILM[^/]*|ready|[^/]*[ _-]ready|ready[ _-][^/]*)(/|$)",
+  "watch_folder_pattern": "(?i)watch[ _-]?these|^WHOLE FILM|^ready$|[ _-]ready$|^ready[ _-]",
+  "watch_round_pattern": "(?i)ROUND (\\d+) ",
+  "watch_suffixes": [".mp4", ".mov", ".wav"],
+  "held_back_folder": "held-back-from-watch",
+  "compilation_pattern": "^_ALL",
+  "lane_prefix": "options-ch",
+  "preview_round_pattern": "previews-round-(\\d+)",
+  "rebuild_spec_glob": "craft/options-ch*/specs-round-*",
+  "sweep_preview_glob": "*.mp4",
+  "sweep_stages": ["S5", "S6"],
+  "audit_stages": ["S5", "S6"],
+  "audit_at": "review",
+  "phase_id_pattern": "^S\\d+\\.\\d+",
+  "option_moment_patterns": {"with_round": "^(c?\\d*m\\d+)-(?:\\d+-)?r(\\d+)(?:-\\d+)?$", "round_one": "^(c?\\d*m\\d+)-\\d+$"},
+  "moment_aliases": {},
+  "file_pin_cache": ".local/file-pins",
+  "proven_flags": [
+   {"flag": "sfx", "source": "spec", "paths": ["events.sounds"]},
+   {"flag": "voice", "source": "spec", "paths": ["spoken.words", "voice.words"]},
+   {"flag": "people", "source": "film_qa", "check": "face", "absent_when": "data.not_measured", "suffixes": ["mp4", "mov"]}
+  ],
+  "film_qa_report_globs": ["work/{folder}/{name}/render-check.json", "sweep-*-{folder}*.json"],
+  "spec_globs": ["specs-round-*/{name}.json"],
+  "default_profile": "first-look",
+  "min_evidence_chars": 12,
+  "answer_words": {"pass": "passed", "fail": "failed", "n/a": "n.a."},
+  "film_qa_checks": {
+   "in-frame": ["in-frame"],
+   "joins": ["synthetic-a60dff45ac9e"],
+   "text": [
+    {"rule": "synthetic-c6d8973b2edf", "finding_match": "transcript fragment|dangling word"},
+    {"rule": "synthetic-4b111b631333", "finding_match": "contrast"},
+    {"rule": "synthetic-bcc8a5f2f6a9", "finding_match": "outline"},
+    {"rule": "synthetic-7c28b96947fd", "finding_match": "bottom"}
+   ],
+   "face": ["synthetic-73042df8cd3b"],
+   "placement": ["synthetic-a22c9a75dcb4"],
+   "held-face": ["held-frame-eyes-open"],
+   "dwell": ["synthetic-fbd6706137ae"],
+   "type-sync": ["synthetic-99c2095c6735"],
+   "cutout-bottom": ["synthetic-95a047928cc3"],
+   "movement": ["synthetic-9fb8b6e064f4"]
+  },
+  "film_qa_unmapped_rule": {"text": "synthetic-d2b312484419"},
+  "film_qa_check_pins": {},
+  "machine_by": "render-check",
+  "sweep_by": "sweep",
+  "sweep_rule": "system-catches-before-the-person",
+  "not_measured_blip_s": 1.0,
+  "render_check": {"limits": "data/render-check-limits.json"},
+  "copy_check": {"branch": "made-up-content", "settings_record": "record:setting:check-against-a-persons-rules-and-verdicts~person~made-up-person"},
+  "content_gate_roles": {"copy": "copy-gate", "verdict": "verdict-rules", "fact": "fact-gate", "audio": "audio-measure"},
+  "content_gates": {
+   "copy-gate": {"by": "copy-gate"},
+   "verdict-rules": {"by": "verdict-rules"},
+   "fact-gate": {"by": "fact-gate", "tool": "gate-tools/fact_gate.py"},
+   "audio-measure": {"by": "audio-measure"}
+  },
+  "content_gate_lane_previews": "previews-round-*/*.mp4",
+  "fact_round_pattern": "-r(\\d+)-\\d+$",
+  "fact_layouts": [
+   {"root": "{lane}/fact", "ids": ["{option}", "{option_base}"]},
+   {"root": "{piece}/narrator", "ids": ["r{round}-{option}"], "needs_round": true}
+  ],
+  "file_media": {"audition": ["wav", "mp3", "m4a", "flac"]},
+  "audition": {
+   "artifact_kind": "voice-take",
+   "marks": {"loudness_lufs": [-17, -15], "true_peak_dbtp_max": -1.0, "quiet_db": -50, "quiet_min_s": 0.05, "head_s_max": 0.4, "tail_s_max": 0.3, "gap_s_max": 1.0}
+  },
+  "content_gate_spoken_paths": ["spoken.words", "voice.words"],
+  "content_gate_text_keys": ["text", "label", "title", "caption", "words"],
+  "content_gate_artifact_sources": {"option-spec": "spec", "onscreen": "strings", "voiceover": "voice"},
+  "content_gate_fields": {"pullquote": ["lines"], "marker_note": ["lines", "insert.text"], "label_highlight": ["title", "text"], "pictogram": ["caption.text", "caption.source"], "object_cutout": []},
+  "content_gate_text_optional": ["pictogram", "callout"],
+  "judgment_rules": ["synthetic-23338ffa125a"]
+ }
+}

@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "keep-a-record-library-valid-tool-rows",
-  "what_this_is": "The Workshop rows for the tools in tools/keep-a-record-library-valid: checking that a library of record files is valid by the checks its own schema declares, and working one piece through a question bank with evidence. Scripts the person's AI runs on the person's own computer.",
+  "what_this_is": "The Workshop rows for the tools in tools/keep-a-record-library-valid: checking that a library of record files is valid by the checks its own schema declares, and working one piece through a question bank with evidence. Scripts the person's AI runs on the person's own computer, the delivery checklist gate, and measuring a reference video.",
   "records": [
     {
       "payload": {
@@ -191,6 +191,141 @@
         "maker": "maker:keep-a-record-library-valid",
         "provenance": {
           "source": "Adopting reviewed evidence only when it matches the library's declared membership"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:gate-a-pieces-delivery-checklist",
+        "label": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer)",
+        "job": "Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
+        "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read through their records door, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "library",
+            "schema",
+            "command"
+          ],
+          "properties": {
+            "library": {
+              "type": "string",
+              "description": "The folder the library's files are relative to, put where {library} is in the command."
+            },
+            "schema": {
+              "type": "string",
+              "description": "The schema file, or a file holding the person's list:settings row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>, with its delivery_gate; put where {schema} is in the command."
+            },
+            "command": {
+              "type": "string",
+              "description": "One of: gate <piece> --stage S5,S6 [--option IDS] [--at review|final]; answer <piece> --check ID --answer pass|fail|n/a --evidence TEXT --by NAME [--option ID]; answer-from-render-check <piece> --json REPORT; sweep <piece> --previews DIR; content-gates <piece> --lane-dir DIR [--option IDS] [--at STAGE]; audition-gates <piece> --file F [--at STAGE]; audit-watch <piece> [--hold] [--file F]; scope-options <piece> [--lane L]. Put the records door (--door-records FILE or --door-mcp ARGV) before it for the copy and verdict rows. Put it where {command} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "The JSON the script prints. gate: { all_passed, per_option_rule_checks_routed, piece, stages, options, at, tags, flags_unknown, investigation_started, problems, unanswered_must, failed_must, waits_for_the_person_picked_design, advisory, unanswered_optional_count, per_option_checks_not_evaluated }, each item with the command that answers it; answer: the row written; answer-from-render-check: { recorded, checks_not_recorded, rows }; sweep: { faults_by_rule, options_not_fully_measured, review_packs, report, all_passed }; content-gates and audition-gates: { rows, all_passed }; audit-watch: { all_passed, offenders, waits_for_the_person, waits_for_the_person_picked_design, moved_to_held_back, superseded_picks, superseded_not_audited, files_not_matching_any_shipped_preview }; scope-options: a list of option ids. Exit 0 all passed, 1 something open or failed, 2 a refusal with its reason on standard error."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)",
+            "npm ci",
+            "python3 -m pip install -U blake3 numpy   # or have the b3sum command"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py --library {library} --schema {schema} {command}",
+          "needs": [
+            "python",
+            "node",
+            "blake3 (the python module) or the b3sum command",
+            "numpy (the rendered-video check)",
+            "ffmpeg and ffprobe (audition-gates)"
+          ],
+          "say": "This runs on the person's own computer, from the root of the Workshop checkout. Before showing or delivering a piece run `gate` at the delivery stage it is going to (review for a watch folder, final for a release) and read every open, failed and stale item to the person with the command that answers it. Answer a check yourself only with evidence you read, under your own name; never use a machine's name. Run `audit-watch` before linking anything into a watch folder. A copy or verdict row needs the person's records door. If you cannot run commands, give them the command."
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the person's library with a delivery_gate schema, their pieces and previews on disk, node and numpy, and for the copy and verdict rows their records door (an MCP client argv or a records file); test/test_delivery_gate.py runs every command on a made-up library",
+            "proved_on": null
+          }
+        ],
+        "maker": "maker:keep-a-record-library-valid",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from Trillion-X/source-repo-a tools/content-investigation/cis.py (the delivery checklist gate), its literals made the schema's delivery_gate"
+        }
+      }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:measure-a-reference-video",
+        "label": "Measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline (runs on your computer)",
+        "job": "Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+        "description": "Runs the programs the person names (hf-media for frame sheets and the cut scan, a motion-rhythm script, a Python with earshot for the sound timeline, ffprobe) over one video into a new folder, checking every program before any media work. A film longer than 120 seconds gets small labelled review pages instead of one contact sheet. It records evidence; it does not certify viewing or meaning. Answers one JSON line.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "video",
+            "out",
+            "programs"
+          ],
+          "properties": {
+            "video": {
+              "type": "string",
+              "description": "The video file, put where {video} is in the command."
+            },
+            "out": {
+              "type": "string",
+              "description": "A new, empty output folder, put where {out} is in the command."
+            },
+            "programs": {
+              "type": "string",
+              "description": "--hf-media P --motion-tools DIR --earshot-python P [--ffprobe P] [--node P] [--pages-python P] [--earshot-threads N], put where {programs} is in the command."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "One JSON line: { measured: true, video, out, duration_s, files } or { measured: false, failed }. Exit 0 measured, 1 a step failed, 2 a program is missing."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "python3 -I tools/keep-a-record-library-valid/do-work/keep_a_record_library.py measure-reference {video} {out} {programs}",
+          "needs": [
+            "python",
+            "node",
+            "ffprobe",
+            "hf-media",
+            "a Python with earshot",
+            "pillow (the python module) for a film over 120 seconds"
+          ],
+          "say": "This runs on the person's own computer. Ask where their hf-media, motion tools and earshot Python are if you do not know; never guess a folder. Use a new output folder. Tell the person what was written and that it is evidence still to be reviewed: open the sheets before you describe the video."
+        },
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "the hf-media executable, a folder with motion-rhythm.mjs and a Python with earshot on the person's computer; test/test_delivery_gate.py runs the command with stand-in programs",
+            "proved_on": null
+          }
+        ],
+        "maker": "maker:keep-a-record-library-valid",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "Moved from Trillion-X/source-repo-a tools/content-investigation/measure.sh, every program an argument"
         }
       }
     }
