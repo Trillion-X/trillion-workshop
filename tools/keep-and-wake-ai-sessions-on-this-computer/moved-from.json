@@ -2990,7 +2990,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/wake-sessions.test.mjs",
       "source_identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705",
-      "identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705"
+      "identity_at_move": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705",
+      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
+      "changed": true
     },
     {
       "from": "test/wake-stopped-chats.test.mjs",

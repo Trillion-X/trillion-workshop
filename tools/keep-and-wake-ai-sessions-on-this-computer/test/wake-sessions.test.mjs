@@ -6,7 +6,7 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { existsSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { tarGz } from '../src/tar-gz.mjs';
@@ -222,7 +222,9 @@ test('before choosing an AI, the computer and exact chats still connect without 
   } finally { w.done(); }
 });
 
-test('a run of a tool that lives on this computer is run from its own files and answered on the run\'s road', async () => {
+// The run starts under the Mac's /usr/bin/sandbox-exec (harness/wake-handlers/tool-reach.mjs); a computer without it is
+// skipped and says so.
+test('a run of a tool that lives on this computer is run from its own files and answered on the run\'s road', { skip: existsSync('/usr/bin/sandbox-exec') ? false : 'needs a Mac: the tool runs under /usr/bin/sandbox-exec' }, async () => {
   const w = world();
   try {
     const script = "const args = new Map(); for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);\nconst moves = JSON.parse(args.get('moves'));\nconsole.log('working');\nconsole.log(JSON.stringify({ changed: moves.length, projects: args.get('projects') ?? null }));\n";

@@ -21,6 +21,10 @@ jobs:
       matrix:
         shard: [1, 2, 3, 4]
     name: test (shard ${{ matrix.shard }} of 4)
+    # A row's sample run gets its own HOME (test-helpers/run-a-row.mjs), so Playwright's default browser folder
+    # (~/.cache/ms-playwright) is a different, empty one inside it; one fixed folder serves every run.
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/../ms-playwright
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,7 +38,11 @@ jobs:
           python-version: '3.12'
       # The Python tools' request keys and file identities are BLAKE3 (their READMEs' Depends on); without the module
       # their tests fail rather than skip.
-      - run: python -m pip install blake3
+      # Pillow draws the recorded demos (tools/record-a-web-page/do-work/draw-the-demo.py); numpy is what the face,
+      # voice and picture-vector rows' samples import before anything else.
+      - run: python -m pip install blake3 pillow numpy
+      # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg).
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium

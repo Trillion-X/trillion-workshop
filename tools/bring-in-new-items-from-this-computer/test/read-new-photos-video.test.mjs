@@ -18,6 +18,8 @@ const PICTURE = path.join(HERE, 'fixtures', 'photo-with-text.png');
 const EPOCH = 978307200;
 const appleTime = iso => Date.parse(iso) / 1000 - EPOCH;
 const photosRow = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'computer', 'computer-sources.json'), 'utf8')).sources.find(source => source.id === 'photos').read;
+// A still is copied by /usr/bin/sips (computer-sources.json picture_copy), which only a Mac has.
+const MAC_ONLY = process.platform === 'darwin' && fs.existsSync('/usr/bin/sips') ? false : 'needs a Mac: /usr/bin/sips copies the still';
 const T0 = '2026-10-08T12:00:00Z';
 const later = (iso, minutes) => new Date(Date.parse(iso) + minutes * 60_000).toISOString();
 
@@ -75,7 +77,7 @@ test('a video on this Mac is kept whole as its movie, in the month folder, and i
   assert.doesNotMatch(item.text, /not on this Mac/);
 });
 
-test('a video only in iCloud keeps its still and says the video itself is not on this Mac', async () => {
+test('a video only in iCloud keeps its still and says the video itself is not on this Mac', {skip: MAC_ONLY}, async () => {
   const world = setup([{uuid: 'W2000000-0000-0000-0000-000000000002', added: later(T0, 1), original: false, still: true}]);
   await world.reading.tick();
   world.at(later(T0, 3));

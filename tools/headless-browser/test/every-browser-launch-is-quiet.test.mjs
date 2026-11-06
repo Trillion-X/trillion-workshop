@@ -10,12 +10,15 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import test from 'node:test';
 
-const root = resolve(import.meta.dirname, '..');
-// The browser part and the cloud tools that drive Chromium live in the pinned trillion-workshop package now.
-const WORKSHOP = 'node_modules/trillion-workshop/tools/';
+// Here the browser part and the cloud tools that drive Chromium are this repository's own tools/ folders (old trillion
+// read them from its pinned trillion-workshop package), and the code read is every tool's and the repository's tests.
+const root = resolve(import.meta.dirname, '../../..');
+const WORKSHOP = 'tools/';
 const HELPER = `${WORKSHOP}headless-browser/launch.mjs`;
-const SELF = 'test/every-browser-launch-is-quiet.test.mjs';
-const ROOTS = ['scripts', 'test', 'harness', 'src', 'parts', 'extension'];
+// The tests' own launcher puts the same quiet switches first (test-helpers/chromium.mjs), as HELPER does for a tool.
+const TEST_HELPER = 'test-helpers/chromium.mjs';
+const SELF = 'tools/headless-browser/test/every-browser-launch-is-quiet.test.mjs';
+const ROOTS = ['tools', 'test', 'test-helpers'];
 const CODE = /\.(mjs|cjs|js|ts|tsx)$/;
 
 /** What is wrong with one file's launches, or an empty list. */
@@ -28,7 +31,7 @@ export function loudLaunches(text) {
 }
 
 const sourceFiles = () => execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...ROOTS], { cwd: root, encoding: 'utf8' })
-  .split('\n').filter(path => CODE.test(path) && !path.includes('node_modules/') && path !== HELPER && path !== SELF);
+  .split('\n').filter(path => CODE.test(path) && !path.includes('node_modules/') && path !== HELPER && path !== TEST_HELPER && path !== SELF);
 
 test('the quiet switches keep the keychain out of it', () => {
   const { switches } = JSON.parse(readFileSync(resolve(root, `${WORKSHOP}headless-browser/quiet-switches.json`), 'utf8'));
@@ -64,12 +67,13 @@ test('the helpers and the cloud tools really put the switches on the browser', (
   assert.match(devtools, /spawn\(executable, \[\s*\.\.\.quietSwitches,/);
   // Each cloud tool that drives Chromium starts it through devtools.mjs and carries it, with the switch list, beside it.
   for (const [file, script, id] of [
-    ['records/workshop-recording-tool-records.json', `${WORKSHOP}record-a-web-page/do-work/record-a-web-demo.mjs`, 'tool:record-a-web-demo'],
-    ['records/workshop-site-tool-records.json', `${WORKSHOP}copy-a-site/do-work/copy-a-site.mjs`, 'tool:copy-a-site'],
+    [`${WORKSHOP}record-a-web-page/tool-rows.json`, `${WORKSHOP}record-a-web-page/do-work/record-a-web-demo.mjs`, 'tool:record-a-web-demo'],
+    [`${WORKSHOP}copy-a-site/tool-rows.json`, `${WORKSHOP}copy-a-site/do-work/copy-a-site.mjs`, 'tool:copy-a-site'],
   ]) {
     assert.match(readFileSync(resolve(root, script), 'utf8'), /from '\.\.\/\.\.\/headless-browser\/devtools\.mjs'/);
     const row = JSON.parse(readFileSync(resolve(root, file), 'utf8')).records.find(record => record.payload.id === id).payload;
     const carried = row.invoke.files.package_files.find(spec => spec.package === 'headless-browser' && spec.at === '/opt/headless-browser');
-    assert.deepEqual(carried?.paths?.slice().sort(), ['admission.mjs', 'devtools.mjs', 'quiet-switches.json'], `${id} carries the browser part beside it`);
+    // Here devtools.mjs reads quiet-switches.json and browser-places.json beside it (old trillion's read admission.mjs).
+    for (const needed of ['devtools.mjs', 'quiet-switches.json', 'browser-places.json']) assert.ok(carried?.paths?.includes(needed), `${id} carries ${needed} of the browser part beside it`);
   }
 });
