@@ -4,9 +4,9 @@ The drives connected to the person's computer, what is in one folder on one of t
 
 ## Readers
 
-How a place knows its drives is a reader row in `read-data/drives.json`, tried in order. A reader is chosen only when its `at` path exists on the place the run is on; the tool never asks what kind of machine it is, and a place with no reader has no drives it can see.
+How a computer knows its drives is a reader row in `read-data/drives.json`, tried in order. A reader is chosen only when its `at` path exists on the computer the run is on; the tool never asks what kind of machine it is, and a computer with no reader has no drives it can see.
 
-| Reader | Chosen when the place has | Reads | Icon | Eject |
+| Reader | Chosen when the computer has | Reads | Icon | Eject |
 |--------|---------------------------|-------|------|-------|
 | `finder-volumes` | `/usr/sbin/diskutil` | the folders under `/Volumes` that Finder shows, `mount`, `diskutil`'s identity, `/usr/sbin/lsof` | Finder's, through `osascript` | when diskutil says the drive is external |
 | `mount-table` | `/proc/self/mountinfo` | block-device (`/dev/...`) mounts inside `/media`, `/run/media` or `/mnt`, `/usr/bin/lsof` | none: answers `icon: 'none'` | never: every drive answers `ejectable: false` |

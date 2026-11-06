@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FC-PREVIEW-COMPOSITE",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:f44fdf240ec80c6a20aede2e9969964f85e86aaf0ca7c57629d2d08de6d6a700",
+   "lines": [
+    1,
+    108
+   ],
+   "multihash": "1f:d41264de7b993dcf74c2362d5091d2f76d4ac3f6f2f8ea6721b0e25ae2e9d4ff",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/composite_preview.py"
+  }
+ ],
+ "preserve": [
+  "an option that changes V1 (scale) is exported by FilmCraft; otherwise the project gets the overlay on V3 and sound on A2 and the preview is composited from the FilmCraft export of the cut: the overlay placed by -itsoffset where the project puts it, the sound by adelay in samples (never -itsoffset), the same loudness master and still"
+ ],
+ "allowed_deltas": [
+  "the base export and its start are the chapter's settings composite {base, base_t0} where they were the chapter driver's constants; the scratch is per option where one file was shared; one JSON request (how composite)"
+ ],
+ "banned_substitutions": [
+  "a film's folders, option ids, watch-folder names or the person's name written into the code",
+  "a second copy of the overlay renderer (the overlay step calls tool:render-a-motion-graphics-overlay)",
+  "an edit of the person's graded project other than FilmCraft's own headless commands on a copy"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T10:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:d41264de7b993dcf74c2362d5091d2f76d4ac3f6f2f8ea6721b0e25ae2e9d4ff",
+  "target_multihash_at_baseline": "1f:d41264de7b993dcf74c2362d5091d2f76d4ac3f6f2f8ea6721b0e25ae2e9d4ff",
+  "commit": "7f5967a94af74c5ec1962078cd13c513cc30c9cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py the_composite_is_planned_from_the_chapters_base_export"
+  ]
+ }
+}

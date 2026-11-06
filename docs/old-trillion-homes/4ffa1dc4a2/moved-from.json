@@ -1,0 +1,21 @@
+{
+  "about": "Files old trillion deleted in 4ffa1dc4a2 whose exact bytes were already here: each file's bytes at the parent of that commit (commit) are the bytes of `to` here (identity), or were at byte_copy_commit before this repository changed them (identity_at_move). Found by matching git blobs across the four repositories; nothing was copied or rewritten for this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+  "its_words": "Retire old trillion's Worker and everything only it reached: nothing live runs it (the public door is the Hetzner relay, the Mac engine is trillion-rust's trillion-local), and 7fd8838475 had already deleted 110 modules its graph imports, so it could no longer build.",
+  "calls": [],
+  "files": [
+    {
+      "from": "test/file-card-offers.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "deleted_by": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/file-card-offers.test.mjs",
+      "source_identity": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
+      "identity_at_move": "1f:967c565e21af691019619dd571610d5b7fcb082de5aae4650fe1696d9d79a55a",
+      "byte_copy_commit": "5136dae1c8111f86a6a8abb662bc8ecfe0062888",
+      "changed": true,
+      "found_by": "same bytes"
+    }
+  ]
+}

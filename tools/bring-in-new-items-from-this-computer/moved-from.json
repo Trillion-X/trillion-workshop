@@ -204,14 +204,18 @@
       "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
       "to": "tools/bring-in-new-items-from-this-computer/test/read-new-photos-video.test.mjs",
       "source_identity": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55",
-      "identity": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55"
+      "identity_at_move": "1f:4eaa5fff9042f7cef1c13406ea44f75f624d87e97650dbd4b3acbe0f97ed8d55",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/read-new-photos.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/bring-in-new-items-from-this-computer/test/read-new-photos.test.mjs",
       "source_identity": "1f:958318c60eebcd3ccadba923b9fd5283df564879f2e9041e4e2a2d257df8c419",
-      "identity": "1f:5a87deea9f960d5d9df58bc73bd4c2301894ad02e9fbc438901b8124b99fd318"
+      "identity_at_move": "1f:5a87deea9f960d5d9df58bc73bd4c2301894ad02e9fbc438901b8124b99fd318",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     }
   ]
 }

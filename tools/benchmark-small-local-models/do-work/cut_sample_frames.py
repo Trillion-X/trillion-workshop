@@ -11,12 +11,12 @@ import json, subprocess, shutil
 from pathlib import Path
 from collections import defaultdict
 import pathlib, sys
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request()
-H = pathlib.Path(place.need(R, "out_dir")); H.mkdir(parents=True, exist_ok=True)
-LIB = pathlib.Path(place.need(R, "library"))
-HF = pathlib.Path(place.need(R, "frame_tool"))
-S = place.json_of(place.need(R, "shots"), "shots"); S = S["shots"] if isinstance(S, dict) else S
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request()
+H = pathlib.Path(computer.need(R, "out_dir")); H.mkdir(parents=True, exist_ok=True)
+LIB = pathlib.Path(computer.need(R, "library"))
+HF = pathlib.Path(computer.need(R, "frame_tool"))
+S = computer.json_of(computer.need(R, "shots"), "shots"); S = S["shots"] if isinstance(S, dict) else S
 by = defaultdict(list)
 for i,s in enumerate(S): by[s["video"]].append(i)
 fr = H/"frames"; fr.mkdir(exist_ok=True)
@@ -25,7 +25,7 @@ for vid, idx in by.items():
     if out.exists(): shutil.rmtree(out)
     times = [S[i]["t_mid"] for i in idx]
     try: r = subprocess.run([str(HF),"evidence","frames",str(LIB/"videos"/f"{vid}.mp4"),"--out",str(out),"--times",json.dumps(times),"--max-width","768"],capture_output=True,text=True)
-    except FileNotFoundError: place.refuse(f"the frame tool {HF} is not there: fix `frame_tool`")
+    except FileNotFoundError: computer.refuse(f"the frame tool {HF} is not there: fix `frame_tool`")
     if r.returncode: print(vid, r.stderr[-400:]); continue
     pngs = sorted(out.rglob("*.png"))
     pngs = [p for p in pngs if "sheet" not in p.name]
@@ -33,4 +33,4 @@ for vid, idx in by.items():
     for i,p in zip(idx, pngs):
         dst = fr/f"{i:03d}.png"; shutil.copy(p, dst); S[i]["frame"] = str(dst)
 print(sum(1 for s in S if "frame" in s), "frames")
-place.answer({"shots": S, "frames": sum(1 for s in S if "frame" in s)})
+computer.answer({"shots": S, "frames": sum(1 for s in S if "frame" in s)})
