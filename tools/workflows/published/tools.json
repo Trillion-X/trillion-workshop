@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:51e1b3acb9947fd7b7368d19b3349b7e757470cc06f886ead849a422ffaa02fd"
+  "blake3": "1f:ad3c904a435acce0ec4fb53aadecf407818cd420acc9410e92f8473d096bc25d"
  },
  "fields": [
   {
@@ -1085,6 +1085,21 @@
      "placement:your-computer"
     ],
     "folder": "fine-tune-a-small-model-on-a-persons-rules"
+   }
+  },
+  {
+   "id": "tool:business",
+   "values": {
+    "title": "Business",
+    "job": "Show what this account's business took in this month",
+    "description": "A screen: this month's money in, fees, refunds, net and payments on each payment service this account connected, or the way to connect one; the operator also sees Trillion's price tests, paid plans and how people use Trillion. Its one read, tool:read-business (tools/see-what-my-business-took-in-this-month), gathers the facts; the screen host draws this layout from them (GET /work/api/screens/business).",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "folder": "show-my-screens-from-a-catalogue-of-reads-and-layouts",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -8977,6 +8992,24 @@
    }
   },
   {
+   "id": "tool:read-business",
+   "values": {
+    "title": "Read this account's business this month",
+    "job": "Read what this account's business took in this month on the payment services it connected",
+    "description": "The one read of the Business screen (tool:business). Returns since_words (the first of this month), service_names (the payment services whose money can be read), connected ([{label, state: read | none | unread, currencies: [{currency, code, multi, service_label, money_in, fees, refunded, net}] written in each currency, payments, more, at_most}], one per payment service, each read with this account's own connection by running its money read, tool:stripe-events-read_money_since; a read that fails is unread, with no number) and operator (null: the operator's part has no owner here). Which services this account connected is read by running tool:list-connections: a service it did not connect is not read and is drawn as not connected; when that list cannot be read, each service is read and a failed read says the money could not be read. Reads only.",
+    "status": "active",
+    "maker": "maker:see-what-my-business-took-in-this-month",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "see-what-my-business-took-in-this-month",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:read-current-worn-look",
    "values": {
     "title": "Read my current screen look",
@@ -12411,6 +12444,24 @@
      "placement:your-computer"
     ],
     "folder": "assemble-a-plan-into-a-cut"
+   }
+  },
+  {
+   "id": "tool:stripe-events-read_money_since",
+   "values": {
+    "title": "Read the money on my Stripe account since a moment",
+    "job": "List the money that moved on this Stripe account since a moment, newest first, at most 100 entries",
+    "description": "Lists what moved this Stripe account's balance at or after `since` (seconds since 1970, UTC), newest first, at most 100 entries: Stripe's own answer ({ data: [balance transactions, each with amount, fee and net in the currency's smallest unit, currency and reporting_category], has_more }), read with this account's own Stripe connection. Business's read (tool:read-business) sums it. Reads only.",
+    "status": "active",
+    "maker": "maker:see-what-my-business-took-in-this-month",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "folder": "see-what-my-business-took-in-this-month",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
