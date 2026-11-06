@@ -10,8 +10,10 @@
       "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
       "to": "tools/hold-to-it/hold-to-it.mjs",
       "source_identity": "1f:873defc157877bec7222db193c9e057654d8ba801f908a4e19abea687b246331",
-      "identity": "1f:873defc157877bec7222db193c9e057654d8ba801f908a4e19abea687b246331",
-      "found_by": "same bytes"
+      "found_by": "same bytes",
+      "identity_at_move": "1f:873defc157877bec7222db193c9e057654d8ba801f908a4e19abea687b246331",
+      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
+      "changed": true
     },
     {
       "from": "records/workshop-hold-to-it-tool-records.json",

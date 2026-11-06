@@ -20,8 +20,8 @@
 //   5. Trillion pays for no model here: finding agreements in words is done by the person's own AI, which keeps each
 //      one with this tool; this module only schedules, reads evidence and counts.
 //
-import settings from './hold-to-it.json' with { type: 'json' };
-import { instantAt, timeZoneName, wallTimeOf, weekday } from '../parts/timed-action/do-work/wall-time.ts';
+import settings from './from-old-trillion/src/hold-to-it.json' with { type: 'json' };
+import { instantAt, timeZoneName, wallTimeOf, weekday } from '../run-work-later-or-on-a-repeat/do-work/wall-time.ts';
 
 export class HoldToItError extends Error {
   constructor(message) { super(message); this.status = 400; }
