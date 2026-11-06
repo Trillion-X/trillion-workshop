@@ -1,0 +1,91 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-ANSWER-QUESTIONS-ABOUT-MANY-STATES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud lane decider-mlx, Brian 2026-11-04 10:27 PM MST, relayed by the book session",
+  "message_multihash": "1f:493785f9bfb7b99e4f16887df845a344efa040405b3fdbdc6f742e2e1398179b",
+  "quote": "Outcome: one generic Workshop tool, in tools/<name chosen by the decision>/, that runs any classifier that has a questions-first cache, in bulk, with MLX on an Apple-silicon Mac. It takes a set of questions and a set of states. It prepares the questions once and batches the states against them. The model is DATA"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "answer the same questions about many states in bulk with a questions-first classifier on my Mac",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/answer_many_states.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/questions_first/backbone.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/questions_first/engine.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/questions_first/gated_delta.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/questions_first/metal_scan.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/questions_first/prompt.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/questions_first/tokenizer.py"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/ask-a-small-model-for-a-verdict/",
+   "why": "asks a model that is already served (a local chat server or a hosted classifier over HTTP) one request at a time; it runs no model and keeps no questions-first cache"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/models-on-this-computer/",
+   "why": "finds and pulls local chat models through Ollama and names which serves a job; its classify rows point at a served endpoint, it runs no classifier"
+  },
+  {
+   "repository": "ai-command-center",
+   "path": ".claude/hooks/judges/serve_a_local_classifier.py",
+   "why": "the :8099 PyTorch server: one question per request, at most 4 requests per batch, for hooks; not a bulk run, and not on MLX"
+  },
+  {
+   "repository": "ai-command-center",
+   "path": ".claude/hooks/judges/decide_in_batches_on_mlx.py",
+   "why": "an earlier lane's MLX build of the same computation, never committed (so no commit to name as a source); its Metal gated-delta scan is adapted in metal_scan.py with an indexed start. The book session's 2026-11-05 1:30 PM message retires it, and measure_decider_batches.py beside it, once this tool lands"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "answer the same questions about many states in bulk with a questions-first classifier on my Mac",
+    "run a questions-first decider classifier in MLX",
+    "chunked gated delta rule in MLX",
+    "batch many states against cached questions"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "QuestionsFirst",
+    "chunk_gated_delta_rule",
+    "gated_delta_indexed_start",
+    "questions_first"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "d533b90cf77f6834e1f4811ed6e400789b532e36"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/answer-questions-about-many-states/test/test_questions_first.py",
+   "tools/answer-questions-about-many-states/test/test_lifecycle.py",
+   "tools/answer-questions-about-many-states/test/test_end_to_end.py",
+   "tools/answer-questions-about-many-states/test/agree_with_reference.py"
+  ]
+ }
+}
