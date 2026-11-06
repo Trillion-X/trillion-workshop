@@ -3,7 +3,8 @@ times, sprites and how a sprite is drawn, and the coloured-pencil restyle of a r
 
 Imported after look.install(): W, H, FPS and HOLD are read from the settings when this module loads. W and H change when
 a spec gives its own canvas (a still slide), so modules read them as stage.W and stage.H, never by value.
-Every length in the recipe is in canvas pixels of a 1080-line frame; K is that scale (1.0)."""
+Every length in the recipe is in canvas pixels of a 1080-line frame; K is that scale: the look's frame height / 1080 (1.0 for
+a 1080 look, 2.0 for a 2160 one such as a narrator correction). A spec's own canvas does not change it."""
 import json
 
 import cv2
@@ -14,7 +15,7 @@ from overlay import look
 
 R = look.R
 W, H = look.SECTIONS['frame']
-K = 1.0
+K = H / 1080.0
 FPS_N, FPS_D = R['frame']['fps_num'], R['frame']['fps_den']
 FPS = FPS_N / FPS_D
 PAL = R['palette']

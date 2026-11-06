@@ -1,0 +1,114 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-RENDER-AN-OVERLAY-INSERT-FOR-A-CUT",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-04, lane film-tools, the narrator correction renderer",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b41cfaef145ff5e381299d3563c3894fa62404e9e544e9e26866f06227c0ea08",
+   "lines": [
+    730,
+    794
+   ],
+   "multihash": "1f:cffed2b69afabcada032fd4c05d3b2527405d2d38419da6c9f9b946d62cac0ae",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b41cfaef145ff5e381299d3563c3894fa62404e9e544e9e26866f06227c0ea08",
+   "lines": [
+    796,
+    883
+   ],
+   "multihash": "1f:c4fccc469a2b07f1305d87b4879f4c8c936a864531c30d2bb37b51a32a922620",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  },
+  {
+   "repository": "source-repo-a",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:b41cfaef145ff5e381299d3563c3894fa62404e9e544e9e26866f06227c0ea08",
+   "lines": [
+    660,
+    663
+   ],
+   "multihash": "1f:d113d26c7ac4c538e144025da3806ed88215e6696d3715ec94878ef3e1b5bc35",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T23:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/overlay/insert.py",
+   "baseline_commit_message": "render-a-motion-graphics-overlay, media-composition: a film's correction-insert outputs and still matte, moved byte for byte"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/render_an_overlay_insert.py"
+  },
+  {
+   "path": "tools/render-a-motion-graphics-overlay/do-work/render-insert.mjs"
+  }
+ ],
+ "preserve": [
+  "the overlay encode (ProRes 4444, alpha, 16 alpha bits, apl0, bt709), the narrator wav padded by the voice start so 0 s is the overlay's first frame, and the music bed (start, length, fades, exit fade) plus every placed effect mixed into one stem, with the same ffmpeg argv",
+  "the S-Log3 freeze plate (one frame at frame/fps less half a frame, looped to the overlay's frame count, ProRes 422 HQ, its comment) and the graded freeze plate (the export frame scaled to 1920x1080, bt709)",
+  "the preview: 3 s before the insert from the graded export, the frozen frame under the overlay with the two stems, 3 s after (or none when the film ends), 1080p, or 960x540 with the overlay piped in for a quick preview",
+  "a shot is refused before anything is drawn when its claims fail the claim check, and its report is printed",
+  "modes full, quick, audio_only and stills, the timeline file, and a shot without an exit refused; a shot lasts until its exit's light leak and its last word are done",
+  "the batch drivers: shots rendered one after another under one machine-wide lock at low priority; quick previews copied into a picker folder under the picker's names"
+ ],
+ "allowed_deltas": [
+  "the claim check is tool:check-every-claim-against-its-facts-and-sources run on the shot (its request in claim_check, or the look row's insert section) instead of the film's fact_gate module",
+  "the film's recipe, sound files and music bed come from the person's look row in list:settings, shots from piece rows; paths are read against the request's root and assets",
+  "the scratch plate frame is written in the shot's own output folder and removed, not /tmp/narr-plate*.nut shared by every render",
+  "the preview encoder is a request field (default h264_videotoolbox, as before; libx264 off a Mac)",
+  "command-line flags and the shell drivers (render_all.sh, quick_options.sh) became request fields: mode, stills, specs/spec_records, lock {file, wait_while}, copy_previews_to {folder, names}",
+  "the shot's Build is the shared overlay Build (overlay/build.py), whose stage K is again the look's frame height / 1080",
+  "a sound the table lacks, or audio_only without the overlay, is refused in words"
+ ],
+ "banned_substitutions": [
+  "a second claim checker beside tool:check-every-claim-against-its-facts-and-sources",
+  "a film's paths, sound files, shot ids or picker names written into the code",
+  "a renderer rewritten instead of moved"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:cffed2b69afabcada032fd4c05d3b2527405d2d38419da6c9f9b946d62cac0ae",
+  "target_multihash_at_baseline": "1f:cffed2b69afabcada032fd4c05d3b2527405d2d38419da6c9f9b946d62cac0ae",
+  "commit": "5af630d99bbd09276740c5fe7f8d69492d50a2d8",
+  "recorded_at": "2026-11-06T10:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def render_audio",
+   "def render_plate",
+   "def render_plate_graded",
+   "def render_preview",
+   "def check_claims",
+   "render_lock"
+  ],
+  "test_refs": [
+   "tools/render-a-motion-graphics-overlay/test/test_render_an_overlay_insert.py",
+   "tools/render-a-motion-graphics-overlay/test/render-an-overlay-insert.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Line 795 holds a person's name and is left out of the sources (each source names its lines); the first source (lines 730-794) is the byte copy. Lines 660-663 are the build's exit and duration rule."
+}
