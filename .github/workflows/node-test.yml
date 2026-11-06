@@ -38,9 +38,9 @@ jobs:
           python-version: '3.12'
       # The Python tools' request keys and file identities are BLAKE3 (their READMEs' Depends on); without the module
       # their tests fail rather than skip.
-      # Pillow draws the recorded demos (tools/record-a-web-page/do-work/draw-the-demo.py); numpy is what the face,
-      # voice and picture-vector rows' samples import before anything else.
-      - run: python -m pip install blake3 pillow numpy
+      # Pillow draws the recorded demos (tools/record-a-web-page/do-work/draw-the-demo.py); numpy and onnxruntime are what
+      # the face, voice and picture-vector rows' samples import (know-who-is-in-this, words-as-picture-vector, media-composition).
+      - run: python -m pip install blake3 pillow numpy onnxruntime
       # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg).
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm ci
