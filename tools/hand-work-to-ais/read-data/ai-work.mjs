@@ -35,6 +35,11 @@ export function workRules(rules = RULES) {
   const states = statesByKey(rules.states);
   if (!states.has(rules.start)) throw new Error(`The start status "${rules.start}" is not a declared state.`);
   const transitions = transitionsFrom(rules.transitions, states);
+  const readAs = rules.read_as ?? {};
+  for (const [word, state] of Object.entries(readAs)) {
+    if (states.has(word)) throw new Error(`read_as maps "${word}", which is already a declared state.`);
+    if (!states.has(state)) throw new Error(`read_as maps "${word}" to "${state}", which is not a declared state.`);
+  }
   for (const edge of transitions) {
     if (typeof edge.action !== 'string' || !edge.action || edge.action === REMOVE) throw new Error(`A transition needs an action other than "${REMOVE}": ${JSON.stringify(edge)}`);
     for (const [field, source] of Object.entries(edge.set ?? {})) {
@@ -42,10 +47,15 @@ export function workRules(rules = RULES) {
       if (['input', 'note'].includes(source.from) && typeof source.field !== 'string') throw new Error(`${edge.action} sets ${field} from ${source.from} without naming its field.`);
     }
   }
-  return { ...rules, states, transitions, actions: [...new Set(transitions.map(edge => edge.action)), REMOVE] };
+  return { ...rules, read_as: readAs, states, transitions, actions: [...new Set(transitions.map(edge => edge.action)), REMOVE] };
 }
 
 const RULED = workRules();
+
+// The declared state a stored status word means: itself, or what `read_as` maps it to.
+export const stateOf = (status, rules = RULED) => rules.read_as[status] ?? status;
+// Every stored word that means a declared state, so a listing by state finds the jobs written with either.
+const wordsFor = (state, rules) => [state, ...Object.keys(rules.read_as).filter(word => rules.read_as[word] === state)];
 
 function words(value, name, most) {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${name} must be words.`);
@@ -75,7 +85,7 @@ export function signalsOf(job, as, now, rules = RULED) {
     is_taker: job.taker === as,
     is_sender: job.from === as,
     addressed_to_me: job.to === null || job.to === undefined || job.to === as,
-    terminal: rules.states.get(job.status)?.terminal === true,
+    terminal: rules.states.get(stateOf(job.status, rules))?.terminal === true,
   };
   const taken = Date.parse(job.taken_at ?? '');
   if (Number.isFinite(taken)) signals.taken_minutes = (now.getTime() - taken) / 60000;
@@ -89,7 +99,8 @@ export function moveFor(job, action, as, now, rules = RULED) {
   if (action === REMOVE) {
     return conditionHolds(rules.remove_when, signals) ? { edge: null } : { refused: `${as} may not remove a job that is ${job.status}: only its sender may, or anyone once it is finished.` };
   }
-  const edges = rules.transitions.filter(edge => edge.action === action && edge.from === job.status);
+  const status = stateOf(job.status, rules);
+  const edges = rules.transitions.filter(edge => edge.action === action && edge.from === status);
   if (!edges.length) return { refused: `A job that is ${job.status} cannot be given "${action}".` };
   const edge = edges.find(one => conditionHolds(one.when, signals));
   if (!edge) {
@@ -116,7 +127,8 @@ export function movedJob(job, edge, as, input, now, rules = RULED) {
     else if (source.from === 'input') next[field] = given;
     else next[field] = { by: as, at: now.toISOString(), words: given ?? null };
   }
-  next.status = edge.to;
+  // A move that leaves the job in the state it is in keeps the word it was stored with; any other writes the state.
+  if (stateOf(job.status, rules) !== edge.to) next.status = edge.to;
   return next;
 }
 
@@ -157,6 +169,16 @@ async function listed(door, query, most) {
   return found;
 }
 
+// Every job in one declared state, whichever stored word it was written with, at most `most` of them.
+async function listedIn(door, state, query, most, rules) {
+  const found = [];
+  for (const status of wordsFor(state, rules)) {
+    if (found.length >= most) break;
+    found.push(...await listed(door, { ...query, type: rules.job_kind, where: { ...query.where, status } }, most - found.length));
+  }
+  return found;
+}
+
 export async function seeMyAis({ input = {} } = {}, context) {
   const rules = RULED;
   const { door } = context;
@@ -164,7 +186,7 @@ export async function seeMyAis({ input = {} } = {}, context) {
   const needs = input.can ?? [];
   if (!Array.isArray(needs) || needs.some(word => typeof word !== 'string' || !word)) throw new Error('can must be a list of words, such as ["code"].');
   const busy = new Map();
-  for (const job of await listed(door, { type: rules.job_kind, where: { status: 'taken' }, fields: ['taker'] }, rules.most_jobs_read)) {
+  for (const job of await listedIn(door, 'taken', { fields: ['taker'] }, rules.most_jobs_read, rules)) {
     const taker = job.value?.taker;
     if (typeof taker === 'string') busy.set(taker, (busy.get(taker) ?? 0) + 1);
   }
@@ -231,15 +253,17 @@ export async function seeAiWork({ input = {} } = {}, context) {
     return { jobs: [shown(id, job)], more: false };
   }
   const where = {};
+  let state;
   if (input.status !== undefined) {
-    if (!rules.states.has(input.status)) throw new Error(`status must be one of ${[...rules.states.keys()].join(', ')}.`);
-    where.status = input.status;
+    state = stateOf(input.status, rules);
+    if (!rules.states.has(state)) throw new Error(`status must be one of ${[...rules.states.keys()].join(', ')}.`);
   }
   for (const field of ['to', 'from', 'taker']) if (input[field] !== undefined) where[field] = aiId(input[field], field, rules);
   const limit = input.limit ?? rules.jobs_shown.default;
   if (!Number.isInteger(limit) || limit < 1 || limit > rules.jobs_shown.most) throw new Error(`limit must be a whole number from 1 to ${rules.jobs_shown.most}.`);
-  const query = { type: rules.job_kind, ...(Object.keys(where).length ? { where } : {}) };
-  const found = await listed(door, query, rules.most_jobs_read);
+  const found = state === undefined
+    ? await listed(door, { type: rules.job_kind, ...(Object.keys(where).length ? { where } : {}) }, rules.most_jobs_read)
+    : await listedIn(door, state, { where }, rules.most_jobs_read, rules);
   found.sort((a, b) => String(b.value?.sent_at ?? '').localeCompare(String(a.value?.sent_at ?? '')) || (a.id < b.id ? 1 : -1));
   return { jobs: found.slice(0, limit).map(record => shown(record.id, record.value)), more: found.length > limit };
 }
@@ -275,7 +299,7 @@ export async function takeAJob({ input = {}, task = {} } = {}, context) {
   // Every job a take may move: the statuses the take rows leave from, then only those whose rule holds for this caller.
   const candidates = [];
   for (const status of new Set(rules.transitions.filter(edge => edge.action === 'take').map(edge => edge.from))) {
-    for (const record of await listed(door, { type: rules.job_kind, where: { status } }, rules.most_jobs_read)) {
+    for (const record of await listedIn(door, status, {}, rules.most_jobs_read, rules)) {
       if (!record.value || (input.only_mine && record.value.to !== as)) continue;
       if (moveFor(record.value, 'take', as, now, rules).edge) candidates.push(record);
     }
