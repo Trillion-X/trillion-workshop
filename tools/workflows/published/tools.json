@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:0cbe18e77f7a9c944d69276886579856018f3d1a29d8b86a168ce254c9c33960"
+  "blake3": "1f:d534feda7cfc5f91e93f19c82c21a82d0abaec5f4be88a6639b5e71306e375e0"
  },
  "fields": [
   {
@@ -972,6 +972,21 @@
      "placement:small-container"
     ],
     "folder": "decide-with-a-method"
+   }
+  },
+  {
+   "id": "tool:build-a-filmcraft-option-preview",
+   "values": {
+    "title": "Build an option on its own copy of my FilmCraft project and export its preview (runs on your computer)",
+    "job": "Build one picked option on its own copy of my FilmCraft project with filmcraft-cli and export its preview",
+    "description": "Copies the chapter's base FilmCraft project to projects-round-<n>/<id>.fcproj and makes every edit of the option's spec with FilmCraft's own headless commands (filmcraft-cli --save run; never the live app): a stitched opening (prepend), cuts, earlier heads (head_extend), frame holds with the grade kept over them, a still on its own track for a hold, muted and raised or lowered stretches of the cut's sound, scale keyframes and the overlay with its sound. Then exports the preview range at the settings' format and scale under one render lock for the computer, masters its sound to the settings' loudness in two EBU R128 passes and takes its still, into work-round-<n>/pending/ (never a folder the person watches). With plan true it runs nothing that writes and answers the exact command list. With how \"composite\" an overlay-only option is composited onto the chapter's FilmCraft export of the cut instead of a new export. With overlay it first renders the overlay with tool:render-a-motion-graphics-overlay. Every folder, name, level and the lock come from the film's list:settings row.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
    }
   },
   {
@@ -2435,7 +2450,7 @@
    "values": {
     "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
     "job": "Find the real questions people ask in the forums and video comments my audience reads, sort them into my topics, tell me how often each comes up, and find the moments in my own recordings where I answer each one",
-    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
+    "description": "Works on files the person already has: forum posts (tool:keep-forum-posts-from-a-public-archive keeps them) and video comments (tool:keep-channels-latest-videos-and-captions keeps them with also: [\"comments\"], or a yt-dlp info.json). `candidates` keeps every sentence that ends in a question mark, is 6 to 40 words long and is the writer's own question (first person, or a direct how, why or what), with its own link, word for word; nothing is rewritten. `keep_comments` keeps the whole top-level video comments that ask a question or state the writer's own situation, tags each with the person's tag columns (their keep rules and tags are settings), and writes them most-liked first with a page of the most-liked per tag. `rank` gives a first reading order: each candidate in the person's bucket whose patterns hit it most. The person (or their AI, with them) picks the questions worth keeping; `build_library` then measures how often each picked question recurs (how many other sentences of the whole sample mean nearly the same thing, plus its score or likes) and finds the moments of the person's own recordings that answer it (nearest by meaning, then re-ranked by a cross-encoder, a strong match or a possible one). `rematch` matches again against an archive's tagged moments too, each with its reach (whether the recording can be cut now). `embed_moments` makes the moments from word-timed transcripts. `add_package_questions` adds the questions of a research package, keeping a researcher's hypothesis apart from a viewer's own words. `apply_gate` checks every asker line with tool:check-copy and the person's rules. `remap_picks` keeps the picks on their questions after the candidates are found again. `reports` gives the shortlist, answers by reach, a review page, the chosen questions and their brief, comment counts and a vector check. The person's buckets, codes, overrides, inferred questions, package readings, reach rules and words are their list:settings row record:setting:collect-and-rank-viewer-questions~<scope_kind>~<scope_id>, read through tools/settings from a file holding it. The models (sentence-transformers bge-small-en-v1.5 and bge-reranker-v2-m3) run on the person's computer; nothing is sent anywhere and nothing is paid for.",
     "status": "active",
     "maker": "maker:collect-and-rank-viewer-questions",
     "licence_class": "licence:maker-own",
@@ -6270,6 +6285,21 @@
    }
   },
   {
+   "id": "tool:make-a-fresh-viewer-review-pack-of-a-preview",
+   "values": {
+    "title": "Make a fresh-viewer review pack of a preview: contact sheets and a transcript (runs on your computer)",
+    "job": "Make the contact sheets and the timed transcript a fresh viewer reviews a preview from",
+    "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the place's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:make-a-lut-for-log-footage",
    "values": {
     "title": "Make a colour lookup table that fixes flat log footage from any camera (runs on your computer)",
@@ -6421,6 +6451,21 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
+   "id": "tool:make-a-working-preview-of-a-stitched-opening",
+   "values": {
+    "title": "Make a working preview of a stitched opening with ffmpeg (runs on your computer)",
+    "job": "Make a quick working preview of a stitched opening from a render of my cut, to judge its timing and sound while FilmCraft cannot export",
+    "description": "For an option whose spec stitches an opening (edit.prepend, an optional hold at 0:00, the overlay at 0:00): cuts the same frame-snapped ranges, in the same order, out of a render of the person's cut with ffmpeg, holds the first frame for the hold, mutes the cut's sound where edit.a1_mute says, lays the overlay and its sound over it and masters the sound the way the real export is mastered. Not the delivered preview (no grade layer): it goes to work-round-<n>/working/ and is never published.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
    }
   },
   {
@@ -8108,6 +8153,21 @@
    }
   },
   {
+   "id": "tool:publish-a-checked-filmcraft-preview",
+   "values": {
+    "title": "Publish a checked option preview, then put it in my watch folder (runs on your computer)",
+    "job": "Move a finished option preview into its previews folder, and put it in my watch folder only after it was checked",
+    "description": "action publish: moves work-round-<n>/pending/<id>.mp4 and its still into previews-round-<n>/ by a rename (a file the person can open is never written in place), only once ffprobe reads one video stream of the settings' frame size and one audio stream and the picture is as long as the spec's preview range. action watch: hard-links the published preview into the round's watch folder under the spec's watch name (a temporary link renamed over the old one, never left behind), only when the rendered-video check has measured that very file after it was made and the settings' content gate passes for the option; no content gate in the settings refuses it. The person's rule: never show an unfinished preview.",
+    "status": "active",
+    "maker": "maker:put-picked-options-into-a-filmcraft-project",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "put-picked-options-into-a-filmcraft-project"
+   }
+  },
+  {
    "id": "tool:publish-a-list-view-as-a-file",
    "values": {
     "title": "Publish what a saved view of my list shows into a file my site shows (runs on your computer)",
@@ -8549,6 +8609,36 @@
    }
   },
   {
+   "id": "tool:read-a-computer",
+   "values": {
+    "title": "Read a computer",
+    "job": "See whether a computer's machine is running and its sign-up page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
+    "status": "active",
+    "maker": "maker:start-a-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-computer"
+   }
+  },
+  {
+   "id": "tool:read-a-computer-price",
+   "values": {
+    "title": "Read a computer's price",
+    "job": "See what a machine for a computer would cost each month before renting it",
+    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
+    "status": "active",
+    "maker": "maker:start-a-computer",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "start-a-computer"
+   }
+  },
+  {
    "id": "tool:read-a-fields-history",
    "values": {
     "title": "Read a field's history as lines",
@@ -8622,36 +8712,6 @@
      "placement:small-container"
     ],
     "folder": "person-profile"
-   }
-  },
-  {
-   "id": "tool:read-a-computer",
-   "values": {
-    "title": "Read a computer",
-    "job": "See whether a computer's machine is running and its sign-up page answers",
-    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
-    "status": "active",
-    "maker": "maker:start-a-computer",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-computer"
-   }
-  },
-  {
-   "id": "tool:read-a-computer-price",
-   "values": {
-    "title": "Read a computer's price",
-    "job": "See what a machine for a computer would cost each month before renting it",
-    "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
-    "status": "active",
-    "maker": "maker:start-a-computer",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "start-a-computer"
    }
   },
   {
@@ -10190,6 +10250,21 @@
     "flags": [
      "has-a-screen"
     ]
+   }
+  },
+  {
+   "id": "tool:render-an-overlay-insert-for-a-cut",
+   "values": {
+    "title": "Render a correction insert for a film cut: its overlay, the voice and music stems, freeze plates and a preview in context",
+    "job": "Make everything I need to cut a narrated correction into my film: the overlay, the narrator voice and the music and sound stem lined up with it, freeze frames from the camera clip and from my graded export, and a preview with a few seconds of my cut before and after, after checking its claims",
+    "description": "For each shot (a spec with plate {source, frame}, graded_frame {export, cut_frame}, cut_insert_s and optional preview_before_end_s / preview_after_start_s), first runs tool:check-every-claim-against-its-facts-and-sources on it and refuses a shot whose claims fail; then writes into out/<shot id>/: <id>-overlay-prores4444.mov (ProRes 4444 with alpha), <id>-narrator.wav (the voice padded so 0 s is the overlay's first frame), <id>-sfx-music.wav (the music bed from the look's recipe.sound.music and every placed sound effect, same alignment), <id>-plate-slog3-prores422hq.mov (the camera frame held, ungraded), <id>-plate-graded-prores422hq.mov (the same moment from the graded export, held, to sit above the editor's adjustment layer), <id>-preview.mp4 (3 s of the graded export, the insert, 3 s after) and <id>-timeline.json. mode quick writes only the two stems and a 540p preview with the overlay piped in; audio_only re-renders the stems and preview against the existing overlay; stills writes frames over the shot's cut-out picture. A shot without duration_s lasts until its exit's light leak and its last word are done. specs (or spec_records) renders a batch one after another under one lock; copy_previews_to copies each preview into a picker folder under a given name. The look is the person's look row (as for tool:render-a-motion-graphics-overlay); its insert section can give claim_check and preview_encoder.",
+    "status": "active",
+    "maker": "maker:render-a-motion-graphics-overlay",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:deployed-container"
+    ],
+    "folder": "render-a-motion-graphics-overlay"
    }
   },
   {
@@ -12189,21 +12264,6 @@
    }
   },
   {
-   "id": "tool:start-a-decision",
-   "values": {
-    "title": "Start a decision with my method",
-    "job": "Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
-    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and, only when the caller already holds them, at least two options ({id, label}); with no options the method's own steps generate the candidates and rule them out, and what the rule-out step leaves standing are the options, under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
-    "status": "active",
-    "maker": "maker:decide-with-a-method",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:small-container"
-    ],
-    "folder": "decide-with-a-method"
-   }
-  },
-  {
    "id": "tool:start-a-computer",
    "values": {
     "title": "Start a computer",
@@ -12216,6 +12276,21 @@
      "placement:your-computer"
     ],
     "folder": "start-a-computer"
+   }
+  },
+  {
+   "id": "tool:start-a-decision",
+   "values": {
+    "title": "Start a decision with my method",
+    "job": "Start a decision my AI will make with my method: what is being decided, the facts and constraints, and the options only if I already hold them",
+    "description": "Opens a decision in the person's own records from a source_id (the same source always opens the same decision; the same input again is that decision, different input is refused), its goal, its evidence ({ref, claim}, each ref unique: the facts and every non-negotiable constraint) and, only when the caller already holds them, at least two options ({id, label}); with no options the method's own steps generate the candidates and rule them out, and what the rule-out step leaves standing are the options, under the method named or the person's default (their Methods list). The decision keeps the exact method it was opened with. Returns case_id and the first question.",
+    "status": "active",
+    "maker": "maker:decide-with-a-method",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "decide-with-a-method"
    }
   },
   {
