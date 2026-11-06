@@ -25,6 +25,14 @@
       "source_identity": "1f:2e9d0aa11ec866e92350b5ecfe7ce35ae59fe5889345348e2f6338187d6e8c77",
       "identity": "1f:e7342a605e63bf317ce1789e332dff564ca1a611ec6c91752553497f64acba90",
       "adapted": "six tests are the old ones over src/cap-change.mjs; the nine through old NativeResourceSpend setSpendBudget are left out (no repository runs that spend owner), and the confirmOptions check is the engine's (trillion-rust passkeys.rs tests it)."
+    },
+    {
+      "from": "test/paid-ceiling.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/decide-who-may-change-a-cap/test/paid-ceiling.test.mjs",
+      "source_identity": "1f:cf26c9e0ebd2b6fad7c299e961fa7716cfb99772c04972f0737e63722c16c15b",
+      "identity": "1f:1b45d04078f8b81906d44f749f65cb11b50241831a9eef6bb3f9ac89dbd0bc70",
+      "adapted": "Commitment, paid window, carve clamp and the ceiling move run on this tool's cap-change.mjs, the move through allowPaidCeilingChange with confirmationBy instead of the retired account route; the budget owner, Stripe refunds, link quantity, spot room and Plan checkout tests are left out, no running owner of old payment.mjs, resource-budget-owner.mjs or planCheckout."
     }
   ]
 }
