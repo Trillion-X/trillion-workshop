@@ -1,0 +1,66 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VIEWER-QUESTION-KEEP-COMMENTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port 2026-11-06: film-tools lane, sub-lane smalls, film question library",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "2026-11-04 9:20 PM MST: finish the source-repo-a port so the repo can be retired and renamed source-repo-a-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:e7ade1750c06ed141dfa8a1c510709f5bf6be9b742eada17d49d0b6b945f23bb",
+   "multihash": "1f:f5658645607321e0d0e0c34af7cd4a014cd89f3095f251c8fd6e47b8c2bec352",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T09:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/collect-and-rank-viewer-questions/do-work/keep_comments.py",
+   "baseline_commit_message": "collect-and-rank-viewer-questions: the old question_library script, byte copy (first commit of a port)"
+  }
+ ],
+ "preserve": [
+  "a comment is kept when it is top-level, its whitespace-folded length is within min_chars..max_chars, and it matches is_question or is_situation (ignoring case)",
+  "kind is question when is_question matches, else situation",
+  "each tag column lists, in order, every tag whose regex matches, ignoring case",
+  "rows sorted by likes, most first, ties in source then comment order; the evidence is real viewer comment",
+  "by-concept.md: the count line, then for each tag of the grouped column its count and its most-liked 12"
+ ],
+ "allowed_deltas": [
+  "the keep rules and tag columns are the person's settings row (keep_comments, comment_tags, comment_group_by, comment_group_top), read through tools/settings, not a buckets file",
+  "the tag columns are named by the settings instead of two fixed columns",
+  "the header is written when no comment is kept (the old script failed on an empty run); the out folder is made",
+  "the count goes to standard error and the last line is {result}, or {error} with exit 2"
+ ],
+ "banned_substitutions": [
+  "a second copy of this job in another folder",
+  "a person's bucket, concept, framework, path or name written in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:f5658645607321e0d0e0c34af7cd4a014cd89f3095f251c8fd6e47b8c2bec352",
+  "target_multihash_at_baseline": "1f:f5658645607321e0d0e0c34af7cd4a014cd89f3095f251c8fd6e47b8c2bec352",
+  "commit": "ab4819840f7a9ce30bd9fe36f573fb21ba08d095",
+  "recorded_at": "2026-11-06T10:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "rows.sort(key=lambda r: -r['likes'])",
+   "c.get('parent', 'root') != 'root'"
+  ],
+  "test_refs": [
+   "tools/collect-and-rank-viewer-questions/test/viewer-questions.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of source-repo-a beside this one finds it."
+}
