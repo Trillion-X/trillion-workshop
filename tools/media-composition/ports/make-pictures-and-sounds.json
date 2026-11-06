@@ -1,0 +1,68 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-MEDIA-COMPOSITION-MAKE-PICTURES-AND-SOUNDS-LOCAL-MAKERS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, lane audio-sound (sound effects), 2026-11-05",
+  "message_multihash": "1f:bafecf4ace606005d7398c57b896f0b070f8cd2f5db0563747d0bb824cf410ef",
+  "quote": "finish the trillion-launch-video port so the repo can be retired and renamed trillion-launch-video-completely-ported"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+   "path": "parts/media-composition/do-work/make-pictures-and-sounds.mjs",
+   "multihash": "1f:a3440943ab62168661c6098f76094e5d93f713bc2c500ddba055f30961bf2fcf",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T00:00:00Z",
+    "deleted_with": "old trillion 7fd88384 deleted parts/media-composition after the Workshop move"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/media-composition/do-work/make-pictures-and-sounds.mjs",
+   "baseline_commit_message": "Merge pull request #102 from Trillion-X/claude/workshop-file-tools-swcf3k"
+  }
+ ],
+ "preserve": [
+  "one runner turns a style row into files; nothing here names a style, a maker, a service or a model",
+  "a key is read only from the file its connection is placed at and never written",
+  "an http maker answers with base64 bytes; a process maker runs a program",
+  "a style made from others runs them first"
+ ],
+ "allowed_deltas": [
+  "a process maker may say makes_all: one run with output.folder and output.count leaves every result (a local model loaded once); a .json beside a result is kept as its about",
+  "number and list inputs reach the maker; a list fills one argument per item with { each, item }",
+  "the person's settings for this computer (--settings) lay over the maker's and the style's; a value the command needs and nobody gave stops the run by name",
+  "a style that does not look at frames hands its maker the recording itself"
+ ],
+ "banned_substitutions": [
+  "a second runner for local sound-effect models",
+  "a style, maker or model named in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:a3440943ab62168661c6098f76094e5d93f713bc2c500ddba055f30961bf2fcf",
+  "target_multihash_at_baseline": "1f:a3440943ab62168661c6098f76094e5d93f713bc2c500ddba055f30961bf2fcf",
+  "commit": "b2b21d964e11d2a805fbb37046364043844235c0",
+  "recorded_at": "2026-11-05T12:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export async function makeStyle",
+   "export function readMakeRows",
+   "maker.makes_all",
+   "personSettings"
+  ],
+  "test_refs": [
+   "tools/media-composition/test/make-sounds-on-this-computer.test.mjs",
+   "tools/keep-and-wake-ai-sessions-on-this-computer/test/make-pictures-and-sounds.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ }
+}

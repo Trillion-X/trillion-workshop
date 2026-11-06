@@ -1,0 +1,72 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHARACTER-SHOW-SHOW-RUNS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, audio-sound lane: character voice lines and staging",
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:fea28f920b003daf9b9203cadc9412d6917a56f36f169257193766e6ab4b992e",
+   "lines": [
+    1,
+    9
+   ],
+   "multihash": "1f:74905bd6b7c4c92003e14d104c7b1c58589661935a3a802f203802643b0732d4",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T21:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/measure-a-characters-voice-lines-and-staging/show/show_runs.py",
+   "baseline_commit_message": "measure-a-characters-voice-lines-and-staging: the character-cast scripts of trillion-launch-video, byte for byte"
+  }
+ ],
+ "preserve": [
+  "each pitch run with the caption words spoken in it"
+ ],
+ "allowed_deltas": [
+  "reads the shared events reader"
+ ],
+ "banned_substitutions": [
+  "a second caption reader"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "redactions": [
+   {
+    "from": "hf_voice.py",
+    "to": "do-work/find_voice_by_pitch.py"
+   },
+   {
+    "from": "runs_text.py",
+    "to": "show/show_runs.py"
+   }
+  ],
+  "source_multihash": "1f:74905bd6b7c4c92003e14d104c7b1c58589661935a3a802f203802643b0732d4",
+  "target_multihash_at_baseline": "1f:51964105377f67e928c67556402d80fbf6206da0271ce05369ccb641a5277ef3",
+  "commit": "291e392a894c47e16aa60b078a234164898b4571",
+  "recorded_at": "2026-11-05T22:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "for x in r['hi_runs']:"
+  ],
+  "test_refs": [
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_measures.py",
+   "tools/measure-a-characters-voice-lines-and-staging/test/test_word_rules.py"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash) and by line ranges: the lines left out held a show, a character or a person by name, a video id or a private path, and became the person's settings or the request's folders."
+}

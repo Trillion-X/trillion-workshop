@@ -9,6 +9,7 @@ import { existsSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { makeRecord } from '../../settings/read-data/settings.mjs';
 
 const folder = fileURLToPath(new URL('..', import.meta.url));
 const script = join(folder, 'do-work', 'cite_principles.py');
@@ -121,18 +122,14 @@ test('registry merges rows by the person\'s groups, counts evidence by independe
   assert.deepEqual(JSON.parse(readFileSync(join(work, 'map.json'), 'utf8')), { 'R-1': 'P-001', 'R-2': 'P-001', 'R-3': 'P-002', 'R-4': 'P-003' });
 });
 
-test('index writes the registry\'s counts, strongest principles, contradiction pairs, stages, channels and lanes, with the person\'s own prose', () => {
-  const intro = join(work, 'intro.md');
-  writeFileSync(intro, 'Made-up garden principles. The soil rows are {ids:R-2,R-1}; the habit row is {ids:R-4}.\n');
-  const outro = join(work, 'outro.md');
-  writeFileSync(outro, '## Method\n\nA made-up method.\n');
+test('index without a template writes every section: counts, strongest principles, contradiction pairs, stages, channels and lanes', () => {
   const index = join(work, 'INDEX.md');
   const out = tool('index', '--registry', join(work, 'principles.jsonl'), '--corpus', corpus, '--views-table', join(work, 'views.tsv'),
-    '--id-map', join(work, 'map.json'), '--intro', intro, '--outro', outro, '--title', 'Garden principles', '--out', index);
+    '--id-map', join(work, 'map.json'), '--out', index);
   assert.equal(out.status, 0, out.stderr);
   assert.deepEqual({ ...lastLine(out.stdout), lines: undefined }, { principles: 3, index, lines: undefined });
   const text = readFileSync(index, 'utf8');
-  assert.ok(text.startsWith('# Garden principles\n\nMade-up garden principles. The soil rows are P-001; the habit row is P-003.\n'));
+  assert.ok(text.startsWith('# Principles registry: index\n'));
   assert.match(text, /- \*\*3 principles\*\*: 2 stated, 1 demonstrated only, 0 both\./);
   assert.match(text, /- \*\*4 verbatim quotes\*\* and \*\*1 demonstrations\*\*\./);
   assert.match(text, /- \*\*2 contradiction pairs\*\* between principles, plus 1 one-sided/);
@@ -143,15 +140,108 @@ test('index writes the registry\'s counts, strongest principles, contradiction p
   assert.match(text, /^\| P-002 .* \| P-003 .* \| weeds or habit \|$/m);
   assert.match(text, /^\| stage one \| 2 \|$/m);
   assert.match(text, /^\| Channel Alpha \| 3 \| 3 \| 2 \| 1 \|$/m, 'videos read, listed in the catalog, principles stated and demonstrated');
-  assert.match(text, /^### Channels in the catalog with no videos read\n\nNone\.$/m);
+  assert.match(text, /^<!-- cite-principles:silent-channels -->\nNone\.\n<!-- \/cite-principles:silent-channels -->$/m);
+  assert.match(text, /^4 distinct lanes; the 60 most used:$/m);
   assert.match(text, /^soil 1, feeding 1, weeds 1, habit 1\.$/m);
-  assert.ok(text.endsWith('## Method\n\nA made-up method.\n'));
+  const again = join(work, 'INDEX-again.md');
+  assert.equal(tool('index', '--registry', join(work, 'principles.jsonl'), '--corpus', corpus, '--views-table', join(work, 'views.tsv'),
+    '--id-map', join(work, 'map.json'), '--template', index, '--out', again).status, 0);
+  assert.equal(readFileSync(again, 'utf8'), text, 'an index is a template again: filling it with the same registry changes nothing');
+});
+
+test('index fills the person\'s own template: their prose and headers stay, sections are written anew, ids, counts and evidence are filled', () => {
+  const template = join(work, 'template.md');
+  writeFileSync(template, [
+    '# Garden principles', '',
+    'The soil rows are {ids:R-2,R-1}; the habit row is {ids:R-4}. {count:principles} principles, {count:with-demonstrations} shown.',
+    'The soil principle has {evidence:R-1.independent_channels} channels; {evidence:P-002.demonstrations} demonstration backs P-002.',
+    'Braces of their own stay: {channel, video, t}.', '',
+    '<!-- cite-principles:top 1 -->', '| n | id | words | ch | s | from |', '|---|---|---|---|---|---|', '| stale row |', '<!-- /cite-principles:top -->', '',
+    '<!-- cite-principles:channels missing="not listed" -->', '| who | read | listed | said | shown |', '|---|---|---|---|---|', '<!-- /cite-principles:channels -->', '',
+    '<!-- cite-principles:lanes 2 -->', '<!-- /cite-principles:lanes -->', '', '## Method', '', 'A made-up method.', ''].join('\n'));
+  const views = join(work, 'views-one.tsv');
+  writeFileSync(views, 'channel\tkind\tviews\nChannel Alpha\tvideo\t10\n');
+  const index = join(work, 'INDEX-mine.md');
+  const out = tool('index', '--registry', join(work, 'principles.jsonl'), '--corpus', corpus, '--views-table', views,
+    '--id-map', join(work, 'map.json'), '--template', template, '--out', index);
+  assert.equal(out.status, 0, out.stderr);
+  assert.equal(readFileSync(index, 'utf8'), [
+    '# Garden principles', '',
+    'The soil rows are P-001; the habit row is P-003. 3 principles, 1 shown.',
+    'The soil principle has 2 channels; 1 demonstration backs P-002.',
+    'Braces of their own stay: {channel, video, t}.', '',
+    '<!-- cite-principles:top 1 -->', '| n | id | words | ch | s | from |', '|---|---|---|---|---|---|',
+    readFileSync(join(work, 'INDEX.md'), 'utf8').split('\n').find(line => line.startsWith('| 1 | P-001 |')),
+    '<!-- /cite-principles:top -->', '',
+    '<!-- cite-principles:channels missing="not listed" -->', '| who | read | listed | said | shown |', '|---|---|---|---|---|',
+    '| Channel Alpha | 3 | 1 | 2 | 1 |', '| Channel Beta | 2 | not listed | 2 | 0 |', '<!-- /cite-principles:channels -->', '',
+    '<!-- cite-principles:lanes 2 -->', 'soil 1, feeding 1.', '<!-- /cite-principles:lanes -->', '', '## Method', '', 'A made-up method.', ''].join('\n'));
+});
+
+test('index refuses a template it cannot fill, saying what to write instead', () => {
+  const cases = [
+    ['{count:roses}', /\{count:roses\} is no count; use one of/],
+    ['{evidence:R-9.quotes}', /\{evidence:R-9\.quotes\} names no principle's evidence/],
+    ['<!-- cite-principles:weather -->\n<!-- /cite-principles:weather -->', /cite-principles:weather is no section; use one of top, demonstrated/],
+    ['<!-- cite-principles:top 3 -->\n| a |', /needs its closing line <!-- \/cite-principles:top -->/],
+    ['<!-- /cite-principles:lanes -->', /closes a section that was not opened/],
+  ];
+  for (const [words, said] of cases) {
+    const template = join(work, 'bad-template.md');
+    writeFileSync(template, `# Index\n\n${words}\n`);
+    const out = tool('index', '--registry', join(work, 'principles.jsonl'), '--corpus', corpus, '--id-map', join(work, 'map.json'),
+      '--template', template, '--out', join(work, 'bad.md'));
+    assert.equal(out.status, 2, words);
+    assert.match(out.stderr, said);
+  }
 });
 
 test('registry without a lanes or merge file keeps each row on its own with no stages', () => {
   const out = tool('registry', '--corpus', corpus, '--rows', join(work, 'rows', 'a.jsonl'), '--out', join(work, 'plain.jsonl'));
   assert.equal(lastLine(out.stdout).principles, 4);
   assert.ok(lines(join(work, 'plain.jsonl')).every(p => p.stages.length === 0 && !p.merged_from));
+});
+
+test('one list:settings row gives candidates, registry and index the same terms, caps, lanes, merge and template as the files', () => {
+  const read = name => readFileSync(join(work, name), 'utf8');
+  const template = '# Garden principles\n\n{count:principles} principles.\n\n<!-- cite-principles:lanes 2 -->\n<!-- /cite-principles:lanes -->\n';
+  const settings = { terms: JSON.parse(read('terms.json')), caps: { 'Channel Beta': 0 }, lanes: JSON.parse(read('lanes.json')),
+    merge: JSON.parse(read('merge.json')), 'index-template': template };
+  const made = makeRecord('cite-principles-from-captions', 'account', 'main', settings,
+    { name: 'Garden principles', tool: 'tool:cite-principles-from-captions', source: 'made-up/settings.json@0000000' });
+  const film = makeRecord('cite-principles-from-captions', 'film', 'made-up-film', { ...settings, caps: {} },
+    { name: 'One film', tool: 'tool:cite-principles-from-captions', source: 'made-up/film.json@0000000' });
+  const recordFile = join(work, 'settings-record.json');
+  writeFileSync(recordFile, JSON.stringify({ records: [made, film] }));
+  assert.equal(made.id, 'record:setting:cite-principles-from-captions~account~main');
+
+  const capped = tool('candidates', '--corpus', corpus, '--settings-record', recordFile, '--out', join(work, 'from-row-cands'));
+  assert.equal(capped.status, 0, capped.stderr);
+  assert.deepEqual(lastLine(capped.stdout).channels.map(c => c.passages), [1, 0], 'the account row\'s caps');
+  assert.equal(read('from-row-cands/Channel-Alpha.jsonl'), read('cands/Channel-Alpha.jsonl'), 'the row\'s terms score as the file did');
+  const filmScope = tool('candidates', '--corpus', corpus, '--settings-record', recordFile, '--scope', 'film:made-up-film', 'account:main', '--out', join(work, 'film-cands'));
+  assert.deepEqual(lastLine(filmScope.stdout).channels.map(c => c.passages), [1, 1], 'the most specific scope wins');
+  const flagWins = tool('candidates', '--corpus', corpus, '--settings-record', JSON.stringify(made), '--caps', join(work, 'caps.json'), '--out', join(work, 'flag-cands'));
+  assert.deepEqual(lastLine(flagWins.stdout).channels.map(c => c.passages), [1, 0], 'inline JSON is read, and a file flag beside it wins');
+
+  const registryOut = tool('registry', '--corpus', corpus, '--rows', join(work, 'rows', 'a.jsonl'), '--settings-record', recordFile,
+    '--out', join(work, 'from-row.jsonl'), '--id-map', join(work, 'from-row-map.json'));
+  assert.equal(registryOut.status, 0, registryOut.stderr);
+  assert.equal(read('from-row.jsonl'), read('principles.jsonl'), 'the row\'s lanes and merge give the same registry bytes as the files');
+  const index = join(work, 'INDEX-from-row.md');
+  const indexOut = tool('index', '--registry', join(work, 'from-row.jsonl'), '--corpus', corpus, '--settings-record', recordFile, '--out', index);
+  assert.equal(indexOut.status, 0, indexOut.stderr);
+  assert.equal(readFileSync(index, 'utf8'), '# Garden principles\n\n3 principles.\n\n<!-- cite-principles:lanes 2 -->\nsoil 1, feeding 1.\n<!-- /cite-principles:lanes -->\n');
+
+  const retired = makeRecord('cite-principles-from-captions', 'account', 'main', settings,
+    { name: 'Old', tool: 'tool:cite-principles-from-captions', source: 'made-up@0', status: 'retired' });
+  const refused = tool('candidates', '--corpus', corpus, '--settings-record', JSON.stringify(retired), '--out', join(work, 'x'));
+  assert.notEqual(refused.status, 0);
+  assert.match(refused.stderr, /retired/);
+  const none = tool('candidates', '--corpus', corpus, '--settings-record', recordFile, '--scope', 'piece:other', '--out', join(work, 'x'));
+  assert.match(none.stderr, /no cite-principles-from-captions row for the scopes piece:other/);
+  const neither = tool('candidates', '--corpus', corpus, '--out', join(work, 'x'));
+  assert.match(neither.stderr, /give --terms FILE or a --settings-record/);
 });
 
 test('corpus also reads word-timed transcripts from another site, with their info files kept elsewhere', () => {

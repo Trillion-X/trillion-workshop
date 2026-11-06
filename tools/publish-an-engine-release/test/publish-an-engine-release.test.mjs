@@ -261,6 +261,7 @@ test('install sets the builder up over SSH, and the token and secret travel only
   assert.deepEqual(answer, {
     public_key: 'a'.repeat(64), key_made: true, deploy_key: null, feed_url: 'https://releases.example.com/engine-releases/feed.json', receiver_active: true, feed_status: 200,
     webhook: { url: 'https://releases.example.com/engine-release-push', content_type: 'application/json', events: ['push'] },
+    entries_url: 'https://releases.example.com/engine-release-entry', accept_entries_from: [],
   });
   for (const { command } of calls) for (const value of [canary, secret]) assert.ok(!command.includes(value), command);
   assert.equal(calls.find(call => call.command.includes('--name=push-secret')).input, secret);

@@ -1,0 +1,129 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-AGAINST-CHECK-A-FILMS-COPY-FROM-LAUNCH-VIDEO-COPY-GATE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "cloud job 2026-11-05: finish moving the launch-video copy gate into the one judge",
+  "message_multihash": "1f:82c9c2b4372e231eebef3d1ac0b1902ef60f02ab907df936013611cbfe0d7ae0",
+  "quote": "Finish the launch-video port so that repository can be retired: move every job to its Workshop home, port one to one, and turn settings, words and checks into rows read through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "job": "a film's copy checked against the person's branch: read, judged, the questions handed to a model, the report with its identities and the exit code",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/check.mjs",
+   "lines": [
+    711,
+    812
+   ],
+   "multihash": "1f:c73d436c6a2e1f9a38596566d5eeb529ea91a8dd54857c69c1682e706e08887b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/check.mjs",
+   "lines": [
+    700,
+    709
+   ],
+   "multihash": "1f:3de1967aad82c9e2bd07b5227fdd79df1d724da37847e116a85720c218730685",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/check.mjs",
+   "lines": [
+    40,
+    62
+   ],
+   "multihash": "1f:0aab23b4c3b84496a26b776ae6fc073df9b70ae2fb4379b9ac4163ef805e363b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/check.mjs",
+   "lines": [
+    74,
+    94
+   ],
+   "multihash": "1f:afd2516d5697dce5c94bca9e9a4d565baf45a26aa01a8ad47b22e8512507673c",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path": "tools/copy-gate/check.mjs",
+   "lines": [
+    506,
+    512
+   ],
+   "multihash": "1f:caab07e1444dd1d3257c8409471e69a0eff6b1bfecce5dcd062a84461896d52e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T00:00:00Z",
+    "deleted_with": "the launch-video lane lead removes tools/copy-gate on a launch-video branch once this lands (this session may not write there)"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-films-copy.mjs"
+  }
+ ],
+ "preserve": [
+  "the command line of check.mjs: files, --reader, --owner, --kind, --artifact-kind, --stage, --plan, --context, --no-model, --decider, --json, --report, --quiet, with the same refusals",
+  "exit 0 passed, 1 failed, 2 unqualified, 3 uncertain; an input that produces no copy or has a reader issue makes the whole check unqualified and its report keeps none of its text",
+  "the report copy-check-report-v1: reader, owner, checker, rules and verdict rules with their BLAKE3, mode, coverage of every file with its source BLAKE3, results",
+  "a source is read only as a stable regular file within 8 MiB (readSourceBytes)",
+  "the reader-knowledge check over the reading units in order; when it cannot run every line holds reader-knowledge-not-run",
+  "questions go to a decider command and come back as one { option: p } or null each; --no-model never calls it and keeps every question unknown"
+ ],
+ "allowed_deltas": [
+  "the rules come from the person's branch of list:checks through the door (rulesOfBranch), never from copy-rules.json, ask-rules.json or verdict-rules.json",
+  "the layouts, spans, profiles, owners, fields, origin words and reader-knowledge rows come from the person's settings row (tools/settings readSettings)",
+  "the check is checkAFilmsCopy(input, door), the container row tool:check-a-films-copy; the command line is its computer run with --door-mcp or --door-records",
+  "the escalated lines are listed in the report for the person's verdict log instead of appended to a log file here",
+  "BLAKE3 from tools/content-identity instead of the b3sum program"
+ ],
+ "banned_substitutions": [
+  "a frozen copy of the person's rules in a file",
+  "a model called inside the tool",
+  "a write to the person's records or a log file",
+  "a pass on an unanswered question"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-05T20:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:c73d436c6a2e1f9a38596566d5eeb529ea91a8dd54857c69c1682e706e08887b",
+  "target_multihash_at_baseline": "1f:c73d436c6a2e1f9a38596566d5eeb529ea91a8dd54857c69c1682e706e08887b",
+  "commit": "46ea36e9400ad064447e1bf1d1199c73c83733f1"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/check-against-a-persons-rules-and-verdicts/test/check-a-films-copy.test.mjs the old CLI, exit-code, no-model, readback, descriptor, decider-kinds and place-reports tests of tools/copy-gate/tests, moved onto a made-up branch and settings",
+   "tools/check-against-a-persons-rules-and-verdicts/test/rows.test.mjs the row's own sample run with the stand-in door"
+  ]
+ }
+}

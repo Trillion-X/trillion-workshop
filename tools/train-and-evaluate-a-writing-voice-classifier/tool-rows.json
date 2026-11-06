@@ -1,0 +1,605 @@
+{
+  "records": [
+    {
+      "id": "package::train-and-evaluate-a-writing-voice-classifier::tool::evaluate-a-writing-voice-classifier",
+      "address": "package::train-and-evaluate-a-writing-voice-classifier::tool::evaluate-a-writing-voice-classifier",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:evaluate-a-writing-voice-classifier",
+        "label": "Evaluate a writing-voice classifier on labelled passages",
+        "status": "active",
+        "job": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
+        "description": "Give data, a challenge of labelled passages (schema book-voice-decider-challenge-v1, v2 or v3), and an action. validate checks the challenge (unique ids, one split per family, typed blocks, criteria, labels) and counts the model questions; plan returns the exact request each passage would send (the passage and only its criterion-scoped or pinned reference context, never the general context, which can hold labels); evaluate asks the classifier (the endpoint and model in the person's list:settings row for this tool, settings_record, as records:read gave it and tools/settings reads it) and answers the report: every choice with its full probabilities, a decision that is the choice only when its probability is over the criterion's diagnostic minimum (else uncertain), confusion matrices and abstentions by criterion, family and source kind, and errors kept as errors, never passes; a section heading is judged over every source-bound chunk of its section (one fail fails it, all pass passes it). A reply whose model or serving identity differs from the classifier's health is an error. replies plays recorded exchanges in place of the classifier (a stand-in: a request with no recording is refused). check-report checks a stored report against its challenge (identity, request policy, every captured request and raw response). Nothing is trained and nothing is written; the person's passages and labels are input only.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "data"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "action": {
+              "type": "string",
+              "enum": [
+                "evaluate",
+                "validate",
+                "plan",
+                "check-report"
+              ],
+              "default": "evaluate"
+            },
+            "data": {
+              "type": "object",
+              "required": [
+                "schema",
+                "items"
+              ],
+              "description": "A challenge: schema book-voice-decider-challenge-v1, v2 or v3; items each { id, family, split, text, origin.kind or source_kind, gold or checks, block_kind (v3) }; a single question and options (v1) or criteria (v2, v3: each { id, question, primitive one-of | true-or-false, options, reference_context and applies_to in v3, deterministic?, diagnostic_min_probability?, section_chunk_request? })"
+            },
+            "data_name": {
+              "type": "string",
+              "description": "What the report calls the data (default request:data)"
+            },
+            "data_blake3": {
+              "type": "string",
+              "description": "The BLAKE3 of the data's file bytes, when the data was read from a file (default: of the request's data)"
+            },
+            "rubric_blake3": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mode": {
+              "type": "string",
+              "enum": [
+                "evaluation",
+                "scoring-evaluation",
+                "unlabeled"
+              ],
+              "description": "validate only"
+            },
+            "settings_record": {
+              "type": "object",
+              "description": "The person's list:settings row for this tool, record:setting:train-and-evaluate-a-writing-voice-classifier~<scope_kind>~<scope_id>, as records:read gave it ({ id, type, value }), read with tools/settings; its settings are { endpoint, model, attempts?, workers? }"
+            },
+            "replies": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "request",
+                  "status",
+                  "response"
+                ]
+              },
+              "description": "Recorded exchanges { request, status, response } to play in place of the classifier"
+            },
+            "health": {
+              "type": "object",
+              "description": "With replies: the classifier's recorded health ({ serving, device })"
+            },
+            "single_attempt": {
+              "type": "boolean"
+            },
+            "prior_report": {
+              "type": "object",
+              "description": "A report to resume: kept only when everything it was made from is unchanged"
+            },
+            "report": {
+              "type": "object",
+              "description": "check-report: the stored report"
+            },
+            "include_evidence": {
+              "type": "boolean",
+              "description": "Keep every request and raw response in the answer"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "validate: { mode, items, criteria, request_policy, model_questions }; plan: { plans }; check-report: { valid, complete, covered, identity_assurance }; evaluate: the report (schema book-voice-decider-evaluation-v2: summary, items, errors, complete, serving_identity_assurance)"
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/train-and-evaluate-a-writing-voice-classifier",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/train-and-evaluate-a-writing-voice-classifier/do-work/evaluate-voice.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "train-and-evaluate-a-writing-voice-classifier",
+                "paths": [
+                  "do-work/evaluate-voice.mjs",
+                  "read-data"
+                ],
+                "at": "/opt/train-and-evaluate-a-writing-voice-classifier"
+              },
+              {
+                "package": "ask-a-small-model-for-a-verdict",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/ask-a-small-model-for-a-verdict"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 10,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+        "provenance": {
+          "source": "Trillion-X/trillion-launch-video tools/copy-gate evaluate-book-voice.mjs and evaluate-book-voice-integrity.mjs, made generic: the passages, labels, endpoint and model are the person's"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "evaluate",
+              "data": {
+                "schema": "book-voice-decider-challenge-v2",
+                "dataset_role": "source_feedback_controls",
+                "criteria": [
+                  {
+                    "id": "claim-strength",
+                    "primitive": "true-or-false",
+                    "question": "Does the passage state the claim no more strongly than its source?"
+                  }
+                ],
+                "items": [
+                  {
+                    "id": "MADE-UP-01",
+                    "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "1-3"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "pass"
+                    }
+                  },
+                  {
+                    "id": "MADE-UP-02",
+                    "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "5-7"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "fail"
+                    }
+                  }
+                ]
+              },
+              "data_name": "/fixture/binary-challenge.json",
+              "settings_record": {
+                "id": "record:setting:train-and-evaluate-a-writing-voice-classifier~person~made-up-writer",
+                "type": "record:setting",
+                "value": {
+                  "name": "A made-up writer's voice classifier",
+                  "tool": "tool:evaluate-a-writing-voice-classifier",
+                  "scope_kind": "person",
+                  "scope_id": "made-up-writer",
+                  "settings": "{\"endpoint\":\"http://127.0.0.1:8099/v1/systemone\",\"model\":\"made-up-model\",\"workers\":1}",
+                  "from": "made-up",
+                  "status": "active"
+                }
+              },
+              "replies": [
+                {
+                  "request": "{\"state\":\"Passage: We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+                  "status": 200,
+                  "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.8}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+                },
+                {
+                  "request": "{\"state\":\"Passage: Leverage synergies to maximize kettle outcomes across all stakeholders.\",\"questions\":{\"claim-strength\":{\"type\":\"noul\",\"instructions\":\"Does the passage state the claim no more strongly than its source?\"}},\"model\":\"made-up-model\"}",
+                  "status": 200,
+                  "response": "{\"model\":\"made-up-model\",\"served_identity\":\"/fixture/made-up-model-snapshot\",\"answers\":{\"claim-strength\":{\"noul\":0.3}},\"usage\":{\"input_tokens\":12,\"output_tokens\":0}}"
+                }
+              ],
+              "health": {
+                "serving": "/fixture/made-up-model-snapshot",
+                "device": "cpu"
+              }
+            },
+            "output_selector": "$.complete",
+            "equals": true
+          },
+          {
+            "kind": "sample-run",
+            "input": {
+              "action": "validate",
+              "data": {
+                "schema": "book-voice-decider-challenge-v2",
+                "dataset_role": "source_feedback_controls",
+                "criteria": [
+                  {
+                    "id": "claim-strength",
+                    "primitive": "true-or-false",
+                    "question": "Does the passage state the claim no more strongly than its source?"
+                  }
+                ],
+                "items": [
+                  {
+                    "id": "MADE-UP-01",
+                    "text": "We tried the kettle first. It boiled in four minutes, so we stopped guessing and timed the pot instead.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "1-3"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "pass"
+                    }
+                  },
+                  {
+                    "id": "MADE-UP-02",
+                    "text": "Leverage synergies to maximize kettle outcomes across all stakeholders.",
+                    "family": "made-up-kettle",
+                    "split": "eval",
+                    "rationale": "Made-up fixture.",
+                    "axis": [
+                      "made_up_axis"
+                    ],
+                    "origin": {
+                      "kind": "made-up-fixture",
+                      "source_ref": {
+                        "file": "made-up-notes.md",
+                        "lines": "5-7"
+                      }
+                    },
+                    "checks": {
+                      "claim-strength": "fail"
+                    }
+                  }
+                ]
+              }
+            },
+            "output_selector": "$.model_questions",
+            "equals": 2
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::train-and-evaluate-a-writing-voice-classifier::tool::audit-what-a-voice-classifier-was-trained-on",
+      "address": "package::train-and-evaluate-a-writing-voice-classifier::tool::audit-what-a-voice-classifier-was-trained-on",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:audit-what-a-voice-classifier-was-trained-on",
+        "label": "Find where test passages also appear in a classifier's training rows",
+        "status": "active",
+        "job": "Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request",
+        "description": "Give training_rows and target_rows (each a row, or a row with state, whose state holds target_text and may hold reader_context and reference_text), and optionally training_source and target_source ({ source_id, blake3, path, schema }). The answer lists every target whose text appears in a training row's target, reader context or reference (exact, or after NFKC, case and whitespace folding, on word boundaries, for targets of at least 16 characters; shorter ones are named unassessed), every same-family pair and every identical whole state. Source identities come back as safe tokens only, never paths. No match is only absence of these overlaps, never proof of independence.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "training_rows",
+            "target_rows"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "training_rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "target_rows": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "training_source": {
+              "type": "object"
+            },
+            "target_source": {
+              "type": "object"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "schema",
+            "text_matches",
+            "same_family_matches",
+            "complete_state_matches",
+            "text_assessment_status"
+          ],
+          "properties": {
+            "schema": {
+              "const": "training-exposure-audit-v1"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/train-and-evaluate-a-writing-voice-classifier",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "/opt/train-and-evaluate-a-writing-voice-classifier/do-work/exposure_audit.py"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "train-and-evaluate-a-writing-voice-classifier",
+                "paths": [
+                  "do-work/exposure_audit.py"
+                ],
+                "at": "/opt/train-and-evaluate-a-writing-voice-classifier"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 5,
+          "network_egress": false,
+          "memory_mb": 128
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+        "provenance": {
+          "source": "Trillion-X/trillion-launch-video tools/copy-gate/exposure_audit.py"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "training_rows": [
+                {
+                  "family": "made-up-kettle",
+                  "state": {
+                    "target_text": "The kettle boiled in four minutes, so we timed the pot."
+                  }
+                }
+              ],
+              "target_rows": [
+                {
+                  "family": "made-up-kettle",
+                  "state": {
+                    "target_text": "kettle boiled in four minutes"
+                  }
+                }
+              ]
+            },
+            "output_selector": "$.text_matches[0].match",
+            "equals": "exact_substring"
+          }
+        ]
+      }
+    },
+    {
+      "id": "package::train-and-evaluate-a-writing-voice-classifier::tool::train-a-writing-voice-adapter",
+      "address": "package::train-and-evaluate-a-writing-voice-classifier::tool::train-a-writing-voice-adapter",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:train-a-writing-voice-adapter",
+        "label": "Train a writing-voice adapter on labelled rows",
+        "status": "active",
+        "job": "Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages",
+        "description": "Runs on the person's computer that holds the decider model snapshot and its frame (common.py, the folder decider_common_dir names, from the person's settings row for this tool). Only split train rows are taken; gold never enters the prompt; a provenance manifest binds every row to its source passage and criterion through the maintained request plan before the model loads. Writes the adapter and a receipt (BLAKE3 of the DATA, every setting) into a new folder; sends no request.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "data",
+            "out",
+            "decider_common_dir"
+          ],
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "JSONL of training rows (book-voice-adapter-training-row-v1 or v2)"
+            },
+            "out": {
+              "type": "string",
+              "description": "a new folder for the adapter"
+            },
+            "decider_common_dir": {
+              "type": "string",
+              "description": "the folder holding common.py"
+            },
+            "provenance": {
+              "type": "string",
+              "description": "the provenance manifest"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/train-voice-adapter.py --decider-common-dir {decider_common_dir} --data {data} --out {out}",
+          "needs": [
+            "python",
+            "torch",
+            "b3sum",
+            "node",
+            "the decider model snapshot"
+          ],
+          "say": "Runs on the person's computer that holds the decider model snapshot and its frame (common.py, the folder decider_common_dir names, from the person's settings row for this tool). Only split train rows are taken; gold never enters the prompt; a provenance manifest binds every row to its source passage and criterion through the maintained request plan before the model loads. Writes the adapter and a receipt (BLAKE3 of the DATA, every setting) into a new folder; sends no request."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+        "provenance": {
+          "source": "Trillion-X/trillion-launch-video tools/copy-gate/train-book-voice-adapter.py"
+        }
+      }
+    },
+    {
+      "id": "package::train-and-evaluate-a-writing-voice-classifier::tool::score-writing-with-a-voice-adapter",
+      "address": "package::train-and-evaluate-a-writing-voice-classifier::tool::score-writing-with-a-voice-adapter",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:score-writing-with-a-voice-adapter",
+        "label": "Score labelled or unlabeled passages with a writing-voice adapter",
+        "status": "active",
+        "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows",
+        "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "data",
+            "out",
+            "decider_common_dir"
+          ],
+          "properties": {
+            "data": {
+              "type": "string",
+              "description": "the challenge DATA (v3)"
+            },
+            "adapter": {
+              "type": "string",
+              "description": "the adapter folder train wrote"
+            },
+            "out": {
+              "type": "string",
+              "description": "a new report path"
+            },
+            "decider_common_dir": {
+              "type": "string",
+              "description": "the folder holding common.py"
+            },
+            "dataset_role": {
+              "type": "string",
+              "description": "what the run is for"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object"
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/train-and-evaluate-a-writing-voice-classifier/do-work/score-voice-adapter.py --decider-common-dir {decider_common_dir} --data {data} --out {out} --adapter {adapter} --dataset-role {dataset_role}",
+          "needs": [
+            "python",
+            "torch",
+            "b3sum",
+            "node",
+            "the decider model snapshot"
+          ],
+          "say": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows."
+        },
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+        "provenance": {
+          "source": "Trillion-X/trillion-launch-video tools/copy-gate/score-book-voice-adapter.py"
+        }
+      }
+    }
+  ]
+}

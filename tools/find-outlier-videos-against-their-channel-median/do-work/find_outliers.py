@@ -52,7 +52,7 @@ def outliers(lines, columns, min_ratio=5.0, min_views=10000):
         v = int(x[columns['views']])
         if m and v >= min_views and v / m >= min_ratio:
             found.append({'ratio': v / m, 'views': v, 'kind': x[columns['kind']], 'channel': x[columns['channel']],
-                          'source': x[columns['source']], 'median': int(m), 'n': len(by[x[columns['source']]]),
+                          'source': x[columns['source']], 'median': int(m) if m == int(m) else m, 'n': len(by[x[columns['source']]]),
                           'url': x[columns['url']], 'title': x[columns['title']]})
     return found, len(rows)
 
@@ -74,7 +74,7 @@ def main(argv):
         except OSError:
             raise Refusal(f'{a.src} is not there: pass the tab-separated video table')
         with f:
-            r = csv.reader(f, delimiter='\t')
+            r = csv.reader(f, delimiter='\t', quoting=csv.QUOTE_NONE)
             header = next(r, None)
             if header is None:
                 raise Refusal(f'{a.src} is empty: it needs a header line and one row per video')
@@ -84,7 +84,7 @@ def main(argv):
         print(json.dumps({'error': str(e)}))
         return 2
     with open(a.out, 'w', newline='') as f:
-        w = csv.writer(f, delimiter='\t')
+        w = csv.writer(f, delimiter='\t', quoting=csv.QUOTE_NONE, quotechar=None)
         w.writerow(['ratio', 'views', 'kind', 'channel', 'source', 'median', 'n', 'url', 'title'])
         for o in found:
             w.writerow([f"{o['ratio']:.1f}", o['views'], o['kind'], o['channel'], o['source'], o['median'], o['n'], o['url'], o['title']])

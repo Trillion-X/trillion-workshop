@@ -10,6 +10,14 @@
       "to": "tools/show-the-person-one-list-of-what-happened-for-them/src/person-notifications.mjs",
       "source_identity": "1f:f6ae3d4767fa5f1b6cbb793f0565e147275825ace64c699cbf5567737c61bbfd",
       "identity": "1f:737dc9baf668590ddd60e65ebc5432a160cb1eeb8f88d085a1c992c2f0668571"
+    },
+    {
+      "from": "test/person-notifications.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/show-the-person-one-list-of-what-happened-for-them/test/person-notifications.test.mjs",
+      "source_identity": "1f:1cc501f32fac1c6bea438907f79e31c9dce9800fbbdff19d93f3258ddd8fe484",
+      "identity": "1f:59a15202cc29ef6bf458404cc90fd4c552b5772abfef15f9ca7a46f4ab8b7ae2",
+      "adapted": "the old Network Durable Object is a stand-in keeping its request and space records in the shapes the reader reads; answering through the workspace route and the network's own decline are left out: no running code does them."
     }
   ]
 }

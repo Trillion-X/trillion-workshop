@@ -1,0 +1,92 @@
+{
+  "kind": "package-set-records",
+  "record_set": "generate-fill-scripts-for-formats-tool-rows",
+  "what_this_is": "The Workshop row for the generate-fill-scripts-for-formats folder: fill every video format's script template with every capability of a product, count each filled line's words against the format's measured budget, list the facts still missing as holes, and lay out one page per fill plus an index page.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:generate-fill-scripts-for-formats",
+        "status": "active",
+        "label": "Fill video formats with my product's capabilities",
+        "job": "Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it",
+        "description": "Takes one request: formats (each with its template: lines with a measured word budget and seconds, slots with their pictures, shoot and reuse notes, an optional note, and which words count: all words, or only quoted on-screen words), capabilities (the person's own words for each, any fields), the saved catalog listing of each capability (title, job, steps), the page layout, and optionally an index page. Every text is a template: {dotted.path} fills a value; if, each, replace, after and concat pick, repeat and join values. A hole <<n|label|what fills it>> is a fact the script cannot know yet: it shows as [label], counts as n words and is listed with what would fill it. Returns one page per format and capability with its words, budget and number of open holes, and the index page with a matrix of every fill and any counted buckets. Instead of a request it can take the person's list rows (kinds fill-batch, fill-format, fill-capability, catalog-listing, each object as JSON text in `detail`) and the batch to fill; the page layout and over-budget rule can come from the person's settings row in list:settings (settings_record). It invents nothing: it only fills and counts the words it is given.",
+        "placements": ["placement:small-container"],
+        "needs": { "expected_seconds": 2, "network_egress": false },
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "settings": { "type": "object", "description": "fill_page (the page layout, a list of templates), over_budget {ratio, min_words}, standard_holes (hole rows every page lists), and any values the page names (settings.<name>)." },
+            "formats": { "type": "array", "items": { "type": "object", "required": ["id", "template"] }, "description": "Each { id, short, name, path, measured, template: { lines, slots, shoot, reuse, extra?, values?, count?, others?, time_label? } }." },
+            "capabilities": { "type": "array", "items": { "type": "object", "required": ["key", "id"] }, "description": "The person's words for each capability; `id` names its listing." },
+            "listings": { "type": "object", "description": "{ capability id: { file, listing: { title, job, steps, about? } } }." },
+            "index": { "type": "object", "description": "Optional: { file, page, matrix: { row, column, cell }, buckets?, counts? }." },
+            "rows": { "type": "array", "items": { "type": "object" }, "description": "Instead of the above: the person's list rows of a batch." },
+            "batch": { "type": "string", "description": "With rows: the batch row's id, or its end." },
+            "settings_record": { "description": "The person's settings row from list:settings (record:setting:generate-fill-scripts-for-formats~<scope_kind>~<scope_id>, as records:read gives it, its value, or a list of rows), read through tools/settings: it gives every setting the request's own settings leave out." },
+            "settings_scopes": { "type": "array", "items": { "type": "array", "items": { "type": "string" }, "minItems": 2, "maxItems": 2 }, "description": "Which settings row to read: [scope_kind, scope_id] pairs, most specific first. Default [[\"account\", \"main\"]]." }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["fills", "count"],
+          "properties": {
+            "fills": { "type": "array", "items": { "type": "object", "required": ["format", "capability", "file", "words", "budget", "holes"] } },
+            "count": { "type": "integer" },
+            "index": { "type": "object", "required": ["file"] }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "workdir": "/opt/generate-fill-scripts-for-formats",
+          "internet": false,
+          "stdout": "json",
+          "argv": ["python3", "/opt/generate-fill-scripts-for-formats/do-work/generate_fills.py"],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "generate-fill-scripts-for-formats", "paths": ["do-work", "read-data"], "at": "/opt/generate-fill-scripts-for-formats" },
+              { "package": "settings", "paths": ["read-data"], "at": "/opt/settings" }
+            ]
+          }
+        },
+        "result_selector": "$",
+        "verify": [
+          {
+            "kind": "sample-run",
+            "output_selector": "$.fills[0].text",
+            "contains": "Hi, today I'm showing you Steeper.",
+            "input": {
+              "settings": { "fetched": "a made-up morning" },
+              "settings_record": {"id": "record:setting:generate-fill-scripts-for-formats~account~main", "type": "record:setting", "value": {"name": "Tea shop fill pages", "tool": "tool:generate-fill-scripts-for-formats", "scope_kind": "account", "scope_id": "main", "settings": "{\"fill_page\":[\"# Fill: {format.short} x \\\"{listing.title}\\\"\\n\",\"| # | slot | line | budget | words | diff | {format.template.time_label} |\",{\"as\":\"r\",\"each\":\"fill.line_rows\",\"item\":\"{r}\"},{\"else\":\"No line is over budget.\",\"if\":\"fill.over\",\"then\":\"Over budget: {fill.over}.\"},{\"as\":\"r\",\"each\":\"fill.slot_rows\",\"item\":\"{r}\"},{\"as\":\"r\",\"each\":\"fill.hole_rows\",\"item\":\"{r}\"}],\"over_budget\":{\"min_words\":3,\"ratio\":1.2},\"standard_holes\":[\"| [real run of {cap.id}] | every screen | one real run |\"]}", "from": "made-up@0", "status": "active"}},
+              "formats": [
+                {
+                  "id": "counter-chat",
+                  "short": "counter",
+                  "template": {
+                    "time_label": "secs",
+                    "values": { "nm": { "if": "cap.spoken", "then": "{cap.spoken}", "else": "a Lantern {cap.kind}" } },
+                    "lines": [
+                      { "no": 1, "slot": 1, "text": "Hi, today I'm showing you {v.nm}.", "budget": 8, "secs": 2.5 },
+                      { "no": 2, "slot": 2, "text": "{cap.pain}. It got me <<3|the real count|the till roll for one morning>>.", "budget": 12, "secs": 4.0 }
+                    ],
+                    "slots": [{ "slot": "1", "time": "0-3", "line": "L1", "picture": "a pour of {cap.id}", "made": "filmed" }],
+                    "shoot": ["Film {cap.id} at the counter."],
+                    "reuse": []
+                  }
+                }
+              ],
+              "capabilities": [{ "key": "steeper", "id": "tool:steeper", "kind": "tool", "spoken": "Steeper", "pain": "Cups went cold while I waited" }],
+              "listings": { "tool:steeper": { "file": "listings/tool-steeper.json", "listing": { "title": "Steeper", "job": "steep a pot", "steps": [] } } }
+            }
+          }
+        ],
+        "maker": "maker:generate-fill-scripts-for-formats",
+        "licence_class": "licence:maker-own",
+        "provenance": {
+          "source": "Moved from a content library's own fill generator, whose formats and capability words were written as code; here they are the person's rows and the tool only fills and counts"
+        }
+      }
+    }
+  ]
+}

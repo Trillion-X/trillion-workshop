@@ -6,6 +6,10 @@
     "do-work/read-words.mjs",
     "do-work/spoken-origins.mjs",
     "do-work/pieces.mjs",
-    "do-work/piece-sweep.mjs"
+    "do-work/piece-sweep.mjs",
+    "do-work/check-a-films-copy.mjs",
+    "do-work/read-film-copy.mjs",
+    "do-work/spans-of-a-plan.mjs",
+    "do-work/unit-context.mjs"
   ]
 }
