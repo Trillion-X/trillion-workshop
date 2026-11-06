@@ -3222,6 +3222,14 @@
       "source_identity": "1f:0de97eaef9489fa8dd51291495e62a6b58a078189f3b817e4a25663362298d19",
       "identity": "1f:1162d6721452e0ebe712ca90b80dc33763462f0b5463cc3551b8960c316f13df",
       "adapted": "Runs this tool's events.mjs and event-route-listeners.mjs; the retired EVENT_INBOX route object is a harness stand-in over the old members SQL, and event sources come from the start-a-new-account tool's records; every assertion kept."
+    },
+    {
+      "from": "test/native-workshop-shared-files.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/native-workshop-shared-files.test.mjs",
+      "source_identity": "1f:55dde81db6d28034552510ae82244c160840b9c3db839260636893a7c361cf09",
+      "identity": "1f:67e773af20522032a28732c5fffc92b249c37a00445c951bb477748c1a1f25c2",
+      "adapted": "fileInputs and the shared input rules are imported directly (no esbuild bundle) and files.openShared is a stand-in for the retired grant-bound supply; the five tests of that supply itself (old native-workshop-shared-files.mjs, native-share-byte-carrier.mjs) are left out, no running owner."
     }
   ]
 }
