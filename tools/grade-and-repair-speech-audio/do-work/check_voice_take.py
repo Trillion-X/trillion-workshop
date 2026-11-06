@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 """Find TTS artifacts word by word: breathy, noise-like vowels (low periodicity), pitch breaks (octave jumps / warble),
 clicks (sample-level discontinuities) and stretched words (duration per letter far above the take's median).
-Usage: voice_qc.py <voice.wav> <words.json> [offset_s]   (offset = where word 0 s sits in the wav)"""
+Usage: check_voice_take.py <voice.wav> <words.json> [offset_s]   (offset = where word 0 s sits in the wav)
+
+For a generated voice take (text to speech), before it is used. words.json is a list of {text, start, end}, or an object
+whose `words` is one (a whisper read of the take). Writes <voice>.qc.json, one row per word with its measures and flags,
+prints the flagged words and the worst five of each measure, and last {"result": {"qc", "words", "flagged"}}. The lines
+(3 semitones in 5 ms, a click 6 times the local level, 2.6 times the take's median time per letter) are what a human
+voice cannot do, not a person's taste. Needs numpy and librosa."""
 import json, sys
 import numpy as np, librosa
 
@@ -57,3 +63,4 @@ pers = [(r['periodicity'], r['word'], r['start']) for r in rows if r['periodicit
 print('least periodic (breathy) words:', sorted(pers)[:5])
 print('worst jumps:', sorted(((r['max_jump_st'], r['word'], r['start']) for r in rows), reverse=True)[:5])
 print('worst clicks:', sorted(((r['click'], r['word'], r['start']) for r in rows), reverse=True)[:5])
+print(json.dumps({'result': {'qc': wav.rsplit('.', 1)[0] + '.qc.json', 'words': len(rows), 'flagged': sum(1 for r in rows if r['flags'])}}))

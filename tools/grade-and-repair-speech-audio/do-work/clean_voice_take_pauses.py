@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Remove the splice ticks Kokoro leaves inside pauses: every stretch quieter than -50 dBFS (20 ms RMS) for at least
-60 ms becomes digital silence, with 5 ms fades, and a sentence that ends at full level gets a 25 ms fade-out. Usage: voice_clean.py <in.wav> <out.wav>"""
-import sys
+60 ms becomes digital silence, with 5 ms fades, and a sentence that ends at full level gets a 25 ms fade-out. Usage: clean_voice_take_pauses.py <in.wav> <out.wav>
+
+For a generated voice take (any text-to-speech engine that leaves ticks or hiss in its pauses). The take is only read;
+the cleaned copy is <out.wav> (24-bit). The last line is {"result": {"out", "silenced"}}. Needs numpy and soundfile."""
+import json, sys
 import numpy as np, soundfile as sf
 
 src, dst = sys.argv[1], sys.argv[2]
@@ -40,3 +43,4 @@ for a, b in merged:
     gain[b2:b] = np.linspace(0, 1, b - b2)
 sf.write(dst, y * gain[:, None], sr, subtype='PCM_24')
 print(f'{src}: silenced {sum(1 for a, b in merged if b - a >= min_len)} pauses')
+print(json.dumps({'result': {'out': dst, 'silenced': sum(1 for a, b in merged if b - a >= min_len)}}))

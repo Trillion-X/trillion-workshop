@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:5d311b315335a50009f5eed37911ea55466c74037d2854ec8d35214935c838c8"
+  "blake3": "1f:f477536be0387f3225a875420161954e1c74dc1449e08e368ebd942b4e201000"
  },
  "fields": [
   {
@@ -839,6 +839,21 @@
    }
   },
   {
+   "id": "tool:audit-what-a-voice-classifier-was-trained-on",
+   "values": {
+    "title": "Find where test passages also appear in a classifier's training rows",
+    "job": "Find whether the passages a classifier is tested on also appear in the rows it was trained on: the same text, the same family or the same whole request",
+    "description": "Give training_rows and target_rows (each a row, or a row with state, whose state holds target_text and may hold reader_context and reference_text), and optionally training_source and target_source ({ source_id, blake3, path, schema }). The answer lists every target whose text appears in a training row's target, reader context or reference (exact, or after NFKC, case and whitespace folding, on word boundaries, for targets of at least 16 characters; shorter ones are named unassessed), every same-family pair and every identical whole state. Source identities come back as safe tokens only, never paths. No match is only absence of these overlaps, never proof of independence.",
+    "status": "active",
+    "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "train-and-evaluate-a-writing-voice-classifier"
+   }
+  },
+  {
    "id": "tool:blur-faces-not-agreed",
    "values": {
     "title": "Blur and silence everyone who has not agreed to be filmed",
@@ -912,6 +927,21 @@
      "placement:small-container"
     ],
     "folder": "triage-against-priorities"
+   }
+  },
+  {
+   "id": "tool:bring-an-effects-layer-to-a-reference-loudness",
+   "values": {
+    "title": "Give a variant sound palette one gain so its effects track is as loud as the reference (runs on your computer)",
+    "job": "Scale my variant sound palette by one common gain so its effects track has the reference track's loudness",
+    "description": "The variant palette's layer over the cue plan is measured, and every sound in it scaled by the one gain that brings it to the reference layer's integrated loudness, so per-sound balance and cue gains stay and a listener compares the sounds, not the level.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -1166,6 +1196,21 @@
    }
   },
   {
+   "id": "tool:catalog-a-channels-videos-by-format",
+   "values": {
+    "title": "Catalog a channel's videos by format, with views against the channel's rolling baseline (runs on your computer)",
+    "job": "List every video of a YouTube channel with its format (episode, side piece, compilation, members-only, short, or a series of its own) and how its views compare with the nearby videos of the same format",
+    "description": "Reads <youtube_folder>/flat/<channel>-videos.json and -shorts.json (yt-dlp flat playlist dumps) and, when present, <id>.info.json in captions/, videos/ or comments/ for the exact upload date, likes and comments. A video's format: short for the shorts list; the format of the first of the person's series_prefixes its lower-case title starts with; compilation when the title holds one of compilation_words; members-only with no views; side when side_pattern matches the title or it is under 3 minutes; else episode. Its baseline is the median views of the 10 same-format videos on each side in list order. Writes <data_folder>/catalog.tsv.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
+   }
+  },
+  {
    "id": "tool:change-a-booking-status",
    "values": {
     "title": "Change a booking's status",
@@ -1376,6 +1421,21 @@
    }
   },
   {
+   "id": "tool:check-a-films-copy",
+   "values": {
+    "title": "Check a film's copy against a person's rules and verdicts",
+    "job": "Check every line of a film's copy files (a script table, titles, cards, a post, a description, prose or narration) against the person's own branch of their checks, with their film readers and settings",
+    "description": "Reads the person's settings row for this tool (list:settings, by the id given as settings_record) and the rules of one branch of their one Checks list (its own rows and every row of the branches above it; the nearest branch with judge_settings makes their verdict rows), both through their records door, read only. Reads the lines of each file handed in by the layouts their settings name (Markdown table columns by file name, fenced post text, blockquotes, paragraph files, plain lines, JSON lines), or by a declared reader (sectioned prose, cue narration, a JSON owner's paths). Marks a line the person's own recorded words when every word is in a recording span the piece's plan cites, so a row written for added words only holds there; attaches each line's context and the reader-knowledge findings it is handed. Answers per line pass, fail or uncertain with every finding, the questions a model should answer by id (send them back as answers), the report with the BLAKE3 identity of each file, the reader settings, the rules and the checker, and exit_code (0 passed, 1 failed, 2 unqualified, 3 uncertain). Nothing is written.",
+    "status": "active",
+    "maker": "maker:check-against-a-persons-rules-and-verdicts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "check-against-a-persons-rules-and-verdicts"
+   }
+  },
+  {
    "id": "tool:check-a-folder-against-my-rules",
    "values": {
     "title": "Check a folder's files against rules I wrote",
@@ -1555,6 +1615,21 @@
      "placement:your-computer"
     ],
     "folder": "start-a-place"
+   }
+  },
+  {
+   "id": "tool:check-a-sound-effect-palette",
+   "values": {
+    "title": "Check a sound-effect palette against its spec and licences (runs on your computer)",
+    "job": "Check that every sound in my palette has the right format, length, quiet edges and an allowed licence",
+    "description": "Every rendered palette file against PALETTE.json: rate, channels, sample peak, fade edges, length equal to the trim, and a licence entry in the manifest that is not blocked; music files given have the palette's rate and channels and last long enough. Exit 1 on any failure.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -2311,6 +2386,21 @@
    }
   },
   {
+   "id": "tool:code-the-comments-that-name-a-character",
+   "values": {
+    "title": "Code the comments that name a character with the person's codebook (runs on your computer)",
+    "job": "Sort the viewer comments about a character into the person's codes (what they enjoy, miss, dislike, and so on) and count comments and likes per code",
+    "description": "Reads <data_folder>/comments-character.tsv (collect-the-comments-that-name-a-character); each comment gets every code of the person's codebook ({code: regular expression}, any case) it matches, judged by the one word judge, tools/judge-words, or mention-only. Writes <data_folder>/comments-character-coded.tsv and prints comments and likes per code.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
+   }
+  },
+  {
    "id": "tool:collect-and-rank-viewer-questions",
    "values": {
     "title": "Find the questions my viewers really ask and the moments where I already answer them (runs on your computer)",
@@ -2323,6 +2413,21 @@
      "placement:your-computer"
     ],
     "folder": "collect-and-rank-viewer-questions"
+   }
+  },
+  {
+   "id": "tool:collect-the-comments-that-name-a-character",
+   "values": {
+    "title": "Collect the comments that name a character, per video, with their likes (runs on your computer)",
+    "job": "Find the viewer comments that talk about a character, per video: how many, their share of the likes, and how many of the most liked ones",
+    "description": "Reads <youtube_folder>/comments/<id>.info.json (yt-dlp --write-comments); a top-level comment names the character when the person's mention_pattern matches it (any case), judged by the one word judge, tools/judge-words. Writes <data_folder>/comments-character.tsv (every such comment, most liked first) and comments-summary.tsv (per video: comments read, mentions, their share, their share of the likes, mentions among the 20 most liked).",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
    }
   },
   {
@@ -2460,6 +2565,21 @@
    }
   },
   {
+   "id": "tool:count-a-characters-turns-from-caption-marks",
+   "values": {
+    "title": "Count a character's turns from the speaker marks in captions and the pitch of each turn (runs on your computer)",
+    "job": "Count a character's turns in each episode a second, independent way: the captions' speaker-change marks, and whether each marked turn is spoken high",
+    "description": "For each episode in <data_folder>/catalog.tsv with <youtube_folder>/captions/<id>.en.json3 holding at least five '>>' marks and an <id>.emb.npz (do-work/find_voice.py embed) in <data_folder>/voice or extra_voice_folders: a marked turn (to the next mark, at most 30 s) whose median window pitch is at least ratio (else the settings' caption_turn_pitch_ratio) times the episode's median pitch is the character's. Writes <data_folder>/character-caption-turns.tsv with the turns, seconds and seconds in the first 5 minutes.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
+   }
+  },
+  {
    "id": "tool:count-a-paid-installment-in-stripe",
    "values": {
     "title": "Count a paid installment in Stripe",
@@ -2472,6 +2592,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:count-a-shows-running-jokes-in-its-captions",
+   "values": {
+    "title": "Count a show's running jokes, lore names and rituals across its captions (runs on your computer)",
+    "job": "Count how often a show's running jokes, lore names and rituals come up across all its captions, when each first and last appeared, with one example",
+    "description": "Each caption line of each catalog video (<youtube_folder>/captions/<id>.en.json3, else .en*.json3) is judged against the person's terms ({term: regular expression}, any case) by the one word judge, tools/judge-words. Writes <data_folder>/lore-terms.tsv: per term, the mentions, the videos, the first and last upload date and the middle mention by date as an example (id, second, the line with its neighbours).",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
    }
   },
   {
@@ -2957,6 +3092,21 @@
    }
   },
   {
+   "id": "tool:evaluate-a-writing-voice-classifier",
+   "values": {
+    "title": "Evaluate a writing-voice classifier on labelled passages",
+    "job": "Check how well a small classifier judges a writer's voice: validate the labelled challenge passages, plan the questions, ask the classifier each one, and report its choices, probabilities, abstentions and accuracy by criterion, family and source",
+    "description": "Give data, a challenge of labelled passages (schema book-voice-decider-challenge-v1, v2 or v3), and an action. validate checks the challenge (unique ids, one split per family, typed blocks, criteria, labels) and counts the model questions; plan returns the exact request each passage would send (the passage and only its criterion-scoped or pinned reference context, never the general context, which can hold labels); evaluate asks the classifier (the endpoint and model in the person's list:settings row for this tool, settings_record, as records:read gave it and tools/settings reads it) and answers the report: every choice with its full probabilities, a decision that is the choice only when its probability is over the criterion's diagnostic minimum (else uncertain), confusion matrices and abstentions by criterion, family and source kind, and errors kept as errors, never passes; a section heading is judged over every source-bound chunk of its section (one fail fails it, all pass passes it). A reply whose model or serving identity differs from the classifier's health is an error. replies plays recorded exchanges in place of the classifier (a stand-in: a request with no recording is refused). check-report checks a stored report against its challenge (identity, request policy, every captured request and raw response). Nothing is trained and nothing is written; the person's passages and labels are input only.",
+    "status": "active",
+    "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "train-and-evaluate-a-writing-voice-classifier"
+   }
+  },
+  {
    "id": "tool:expand-a-reply-template",
    "values": {
     "title": "Expand a canned reply template",
@@ -3108,6 +3258,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:fetch-free-sound-effects-with-their-licences",
+   "values": {
+    "title": "Download chosen free sound effects with their licences (runs on your computer)",
+    "job": "Download the sound effects I chose, reading each one's licence first and keeping a manifest",
+    "description": "Each selected Freesound item's licence is read on its own page first: only CC0, CC BY 3.0 and CC BY 4.0 are downloaded, the rest recorded as blocked; Mixkit items under its free licence. Every entry (page, author, title, licence as read, description excerpt, date, address, local file) goes to the manifest.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -3339,6 +3504,36 @@
    }
   },
   {
+   "id": "tool:find-glitches-in-a-generated-voice-take",
+   "values": {
+    "title": "Find the glitches in a generated voice take, word by word (runs on your computer)",
+    "job": "Check a voice take made by text to speech for breathy words, pitch breaks, clicks and stretched words before I use it",
+    "description": "Measures every word of a generated voice take: how periodic its voicing is (low is breathy, noise-like), pitch jumps (more than 3 semitones in 5 ms is not a human voice), clicks (sample-level jumps against the local level) and stretched words (time per letter far above the take's own median). Writes <take>.qc.json, one row per word with its measures and flags, and prints the flagged words and the worst five of each measure. The take is only read. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:find-high-pitched-stretches-of-a-recording",
+   "values": {
+    "title": "Find the stretches of a recording spoken in a character's high pitch band (runs on your computer)",
+    "job": "Find where a recording has speech in a high pitch band, as a first look for a character voiced well above the rest of the cast",
+    "description": "librosa yin pitch every 25 ms with a periodicity voicing test; runs of voiced frames in the person's band (pitch_run_band_low_hz to pitch_run_band_high_hz) of at least 0.5 s, joined across 1.2 s gaps, kept when half their voiced frames are in the band. Writes <out_dir>/<id>.json (the runs with their median pitch) and <id>.f0.npy. Pitch alone also catches every other high voice; find-when-a-character-speaks tells them apart.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
+   }
+  },
+  {
    "id": "tool:find-how-records-connect",
    "values": {
     "title": "Find how records connect",
@@ -3366,6 +3561,21 @@
      "placement:your-computer"
     ],
     "folder": "find-media-for-a-description"
+   }
+  },
+  {
+   "id": "tool:find-music-windows-that-follow-a-loudness-arc",
+   "values": {
+    "title": "Find the stretch of each music track that follows my film's loudness arc (runs on your computer)",
+    "job": "Find in each candidate music track the window whose loudness follows my film's arc",
+    "description": "Each track's smoothed loudness curve is compared with the brief's arc (Pearson correlation of dB curves) plus measured constraints (the open below the lift, the swell near the top); the best window of each track is cut as an excerpt.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -3644,6 +3854,21 @@
    }
   },
   {
+   "id": "tool:find-when-a-character-speaks",
+   "values": {
+    "title": "Find when one character speaks in a show's recordings, by voice and pitch (runs on your computer)",
+    "job": "Find every stretch where one character of a show speaks, in all of its recordings, from a few stretches the person labels, even when the character is a cast member's own voice pitched up",
+    "description": "step embed: windows of 1.5 s every 0.5 s of a recording, each with a speaker embedding (pyannote wespeaker-voxceleb-resnet34-LM, from the local model cache), its median pitch and loudness, embedding only the windows high enough to be the character. step seed: add the windows inside the stretches the person names (\"a-b,a-b\") to <data_folder>/voice/seeds.npz with a label. step score: a logistic model on the seeds finds this recording's confident windows of the character among those that pass the pitch gate (at least the smaller of gate_max_hz and gate_pitch_ratio x the recording's median pitch); their mean embedding is the character's voice in this recording, and a gated window whose cosine to it is above voice_cosine_min is the character; neighbouring windows become turns, written as <id>.turns.json. step batch: embed and score every catalog video of batch_format_order not yet scored, from <audio_folder>/<audio_file>. step rescore: score every recording again with the current seeds. The label, gates and formats are the person's settings (character_label, embed_min_pitch_hz, embed_pitch_ratio, gate_pitch_ratio, gate_max_hz, voice_cosine_min, batch_format_order, audio_file). do-work/check_seed_model.py and check_voice_finder.py check it on recordings it did not learn from: leave one labelled recording out and count window precision and recall.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
+   }
+  },
+  {
    "id": "tool:find-where-the-line-should-go",
    "values": {
     "title": "Measure where my confidence line belongs instead of guessing a round number (runs on your computer)",
@@ -3833,6 +4058,21 @@
      "placement:your-computer"
     ],
     "folder": "workflows"
+   }
+  },
+  {
+   "id": "tool:generate-fill-scripts-for-formats",
+   "values": {
+    "title": "Fill video formats with my product's capabilities",
+    "job": "Write a draft script for each of my product's capabilities in each video format I picked: the format's own lines filled with the capability's words, the word count of every line against the format's measured budget, the shots, the filming notes, and every fact still missing listed with what would fill it",
+    "description": "Takes one request: formats (each with its template: lines with a measured word budget and seconds, slots with their pictures, shoot and reuse notes, an optional note, and which words count: all words, or only quoted on-screen words), capabilities (the person's own words for each, any fields), the saved catalog listing of each capability (title, job, steps), the page layout, and optionally an index page. Every text is a template: {dotted.path} fills a value; if, each, replace, after and concat pick, repeat and join values. A hole <<n|label|what fills it>> is a fact the script cannot know yet: it shows as [label], counts as n words and is listed with what would fill it. Returns one page per format and capability with its words, budget and number of open holes, and the index page with a matrix of every fill and any counted buckets. Instead of a request it can take the person's list rows (kinds fill-batch, fill-format, fill-capability, catalog-listing, each object as JSON text in `detail`) and the batch to fill; the page layout and over-budget rule can come from the person's settings row in list:settings (settings_record). It invents nothing: it only fills and counts the words it is given.",
+    "status": "active",
+    "maker": "maker:generate-fill-scripts-for-formats",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "generate-fill-scripts-for-formats"
    }
   },
   {
@@ -4900,6 +5140,36 @@
    }
   },
   {
+   "id": "tool:judge-one-shot-sounds-as-whole-sounds",
+   "values": {
+    "title": "Judge one-shot sounds as whole sounds (runs on your computer)",
+    "job": "Judge these one-shot sound files whole, from first onset to their tail, against a description",
+    "description": "Trim = first onset (-40 dB of peak) less 5 ms to the last sample above -50 dB of peak, then earshot match (against the alternatives), describe, realness and measure on that trim; merged into OUT.json keyed by file and query.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
+   "id": "tool:judge-sound-effect-candidates-and-pick-one-per-sound",
+   "values": {
+    "title": "Judge sound-effect candidates by ear and pick one per sound (runs on your computer)",
+    "job": "Judge the sound effects I generated or found the way my palette was judged, pick the best one for each sound and level it to my real sound",
+    "description": "Every candidate (forged, generated by a local model, or downloaded) is trimmed (an event found by earshot with clean edges, or the whole sound for swells), put in the palette format (rate, channels, fades, peak), and read by earshot: match z for the sound's query, realness, measure. A lead-in (a riser) is cut so its peak sits where the real one peaks. The pick is the highest match z among candidates that are not distorted; a sound may be barred from another sound's source. The pick is scaled to the real sound's active loudness and compared with it (A/B). The tuned values can come from the person's settings record (settings_record).",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
    "id": "tool:keep-a-profile",
    "values": {
     "title": "Keep a profile of how someone does their thing",
@@ -5659,6 +5929,21 @@
    }
   },
   {
+   "id": "tool:list-the-speech-in-my-edit-plans-to-grade",
+   "values": {
+    "title": "Make the spans file to grade from my edit plans (runs on your computer)",
+    "job": "Turn my edit plans into the list of recorded stretches whose speech should be graded, with their words and word times",
+    "description": "Reads a folder of edit plans (JSON files with a segments list; a segment with a clip is a cut of that recording from one second to another, with the words said) and writes the spans file tool:grade-and-repair-speech-audio reads: each cut with its media file (the plan's sources, else the source the clip's word file names) and the words inside it, timed in source seconds from a whisper result for the clip when there is one, else from the clip's word file. It also lists each plan's span ids as groups, so the grade writes one grades file per plan as well. Segments that are not cuts of a recording (a generated voice line) are left out. The plans, word files and recordings are only read. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -5674,6 +5959,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:list-what-a-character-says",
+   "values": {
+    "title": "List every caption line a character says, with the second it starts (runs on your computer)",
+    "job": "List every caption line spoken inside a character's turns, with the video and second, for quoting",
+    "description": "Reads every <data_folder>/voice/<id>.turns.json (find-when-a-character-speaks) and the video's captions (the first of <youtube_folder>/captions or videos/<id>.en.json3, .en-orig.json3, .en*.json3, then <data_folder>/../raw/<id>.en.json3); a caption line counts when at least half of it lies inside a turn. Writes <data_folder>/character-lines.tsv (id, date, format, second, turn, text). Lines are auto-captions: the spelling is YouTube's.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
    }
   },
   {
@@ -5756,6 +6056,51 @@
      "placement:your-computer"
     ],
     "folder": "listen-for-a-while"
+   }
+  },
+  {
+   "id": "tool:listen-to-a-generated-voice-take-word-by-word",
+   "values": {
+    "title": "Listen to a generated voice take word by word (runs on your computer)",
+    "job": "Find the words in a generated voice take that sound least real or most like a glitch",
+    "description": "Asks the local listening package earshot, for every word of the take, how real the voice sounds and how well the word matches a glitch and the voice the person wants (described in their own words), then ranks each word against the take's own median so one odd word stands out. Writes one row per word. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:listen-to-music-windows-against-a-film-brief",
+   "values": {
+    "title": "Listen to music excerpts against my film's sections (runs on your computer)",
+    "job": "Judge each music excerpt by ear against my film's section words and a reference stem",
+    "description": "Per excerpt: per-section mood match against the film's section words (against alternatives), typicality against a reference music stem cut into its sections, realness and the top describe tags.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
+   "id": "tool:listen-to-sound-effects-and-find-clean-trims",
+   "values": {
+    "title": "Rank sound effects in folders by ear and find each one's cleanest trim (runs on your computer)",
+    "job": "Rank my sound-effect folders against a description and find the cleanest trim of the best ones",
+    "description": "Per category (folder, query, kind, top, alternatives: the person's CATEGORIES.json), earshot ranks the folder, finds the best segments of the top candidates, moves each trim edge outward in 5 ms steps until it is at or below -30 dB of the trim's peak, then describes, judges realness and measures that trim. Merges into OUT.json.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -5997,6 +6342,21 @@
      "placement:your-computer"
     ],
     "folder": "email-sending-domains"
+   }
+  },
+  {
+   "id": "tool:make-a-sound-effect-palette",
+   "values": {
+    "title": "Make a sound-effect palette from trimmed sources and read each sound back (runs on your computer)",
+    "job": "Render my sound-effect palette from its sources and trims, and check each finished sound by ear",
+    "description": "Each sound of PALETTE.json: decode its source at the palette's rate and channels, cut the trim, fade in and out, scale to the sample peak, write 24-bit WAV; then earshot reads the final file (match z, describe, realness, measure) into palette_readings.json.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -6352,6 +6712,21 @@
      "placement:deployed-container"
     ],
     "folder": "funnels-and-offers"
+   }
+  },
+  {
+   "id": "tool:measure-how-a-show-stages-a-characters-turns",
+   "values": {
+    "title": "Measure how a video stages a character's turns: cuts, shot lengths and music stop-downs (runs on your computer)",
+    "job": "Measure how a video is cut and scored around a character's turns: whether a cut lands on the turn, how short the shots are inside the exchanges, and whether the music stops just before",
+    "description": "For each id: from <youtube_folder>/measure/<id>/rhythm.json (shots) and earshot-timeline.txt (GAP drop lines) and <data_folder>/voice/<id>.turns.json: the share of turns with a picture cut within 0.5 s of their start against chance, the median shot inside the character's exchanges (turns within 8 s, padded 2 s) against elsewhere, and the share of turns with a music stop-down in the 2 s before against chance. Adds or updates one row per id in <data_folder>/staging.tsv.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
    }
   },
   {
@@ -7212,6 +7587,21 @@
      "placement:small-container"
     ],
     "folder": "place-pursuits-on-a-life-map"
+   }
+  },
+  {
+   "id": "tool:place-sound-effect-cues-into-an-effects-layer",
+   "values": {
+    "title": "Place a cue plan's sound effects into one effects track (runs on your computer)",
+    "job": "Lay every sound-effect cue of my cue plan at its time and gain into one effects-only track",
+    "description": "Every cue [seconds, sound, gain dB] placed at its whole millisecond, with its gain, summed, as a mixer that delays by whole milliseconds places it, with no music and no voice; prints its integrated loudness.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -10469,6 +10859,51 @@
    }
   },
   {
+   "id": "tool:score-soundtrack-variants-by-ear",
+   "values": {
+    "title": "Score soundtrack variants of a film by ear at every cue (runs on your computer)",
+    "job": "Score my film's soundtrack variants with earshot: critique, sync to the picture, and how well each sound effect reads at its cue",
+    "description": "Each variant: earshot critique against the launch profile with the picture, timeline sync to the picture's cuts and the cue frames, realness, and a match z at every cue on the effects layer alone and in the full mix; merged into the scores file.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
+   "id": "tool:score-voice-takes-against-the-voice-i-want",
+   "values": {
+    "title": "Score voice takes against the voice I want and recordings of it (runs on your computer)",
+    "job": "Compare voice takes for pitch, realness, how well they match the voice I want and how close they are to my reference recordings",
+    "description": "For every take in a folder and every reference recording: median pitch and its spread, realness, how well it matches the voice the person wants (in their own words) and, for a take, how typical it is of the references (three nearest), plus words per second when a <take>.words.json lies beside it. Writes one JSON file of scores, to choose a voice and a speed. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
+   "id": "tool:score-writing-with-a-voice-adapter",
+   "values": {
+    "title": "Score labelled or unlabeled passages with a writing-voice adapter",
+    "job": "Score passages with a trained writing-voice adapter and report every probability, with the exposure of the passages to the training rows",
+    "description": "Runs on the person's computer that holds the decider model snapshot. Validates the challenge with the maintained validator before weights load, binds the adapter and its receipt by BLAKE3, keeps every row's probabilities and the audit of what the adapter was trained on, and never invents accuracy for unlabeled rows.",
+    "status": "active",
+    "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "train-and-evaluate-a-writing-voice-classifier"
+   }
+  },
+  {
    "id": "tool:scout-an-opponent",
    "values": {
     "title": "Scout an opponent from the notes on file",
@@ -10545,6 +10980,21 @@
    }
   },
   {
+   "id": "tool:search-freesound-for-free-sound-effects",
+   "values": {
+    "title": "Search Freesound for free-licence sound effects (runs on your computer)",
+    "job": "Find CC0 and CC BY sound effects on Freesound for each kind of sound I need",
+    "description": "Freesound's public search pages, CC0 and Attribution only, within each category's length, most downloaded first; each item once per category. One request every 1.5 s; pages are read as text.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
    "id": "tool:search-internet-archive",
    "values": {
     "title": "Search Internet Archive",
@@ -10560,6 +11010,21 @@
     "flags": [
      "read-only"
     ]
+   }
+  },
+  {
+   "id": "tool:search-mixkit-for-free-sound-effects",
+   "values": {
+    "title": "Search Mixkit for free sound effects (runs on your computer)",
+    "job": "Find Mixkit sound effects on its tag pages for each kind of sound I need",
+    "description": "Mixkit tag pages per category, each item once, within the category's length. One request every 1.5 s; a missing tag page is reported and skipped.",
+    "status": "active",
+    "maker": "maker:generate-and-judge-sound-effects",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "generate-and-judge-sound-effects"
    }
   },
   {
@@ -11563,6 +12028,21 @@
    }
   },
   {
+   "id": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses",
+   "values": {
+    "title": "Silence the ticks and hiss in a generated voice take's pauses (runs on your computer)",
+    "job": "Clean the clicks and hiss a text-to-speech engine leaves in the pauses of a voice take",
+    "description": "Every stretch of the take quieter than -50 dBFS (20 ms windows) for at least 60 ms, bridged across a tick of up to 40 ms, becomes digital silence with 5 ms fades, and a sentence that stops at full level gets a 25 ms fade-out instead of a hard edge. The take is only read; the cleaned copy is written where the person says (24-bit). It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
    "id": "tool:site_addresses",
    "values": {
     "title": "My site addresses",
@@ -11905,6 +12385,21 @@
    }
   },
   {
+   "id": "tool:sum-a-characters-time-per-video",
+   "values": {
+    "title": "Sum a character's time in each video and set it against the video's views (runs on your computer)",
+    "job": "Sum how much a character speaks in each video of a show, in the opening, the body and the close, and see how that goes with how the videos did",
+    "description": "Per video with <data_folder>/voice/<id>.turns.json: turns, seconds, share, seconds in the opening (opening_seconds) and the close (closing_seconds), exchanges in the body (turns within 8 s) per ten minutes, median gap and turn, and whether it is one the character was stripped from (stripped_ids). Then, over the episodes: medians by year, the rank correlation of character seconds and share with views against the baseline per year and overall, the median against the baseline of the low, middle and high thirds by character seconds within each year, the stripped against the full episodes between compare_from_month and compare_to_month, and the episodes with the least character time from lowest_from_year. Writes <data_folder>/character-per-video.tsv.",
+    "status": "active",
+    "maker": "maker:measure-a-characters-voice-lines-and-staging",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "measure-a-characters-voice-lines-and-staging"
+   }
+  },
+  {
    "id": "tool:switch-a-kept-show-type",
    "values": {
     "title": "Switch a kept show type",
@@ -12120,6 +12615,21 @@
    }
   },
   {
+   "id": "tool:time-words-to-where-the-voice-starts",
+   "values": {
+    "title": "Time each word of a voice take to where the voice starts (runs on your computer)",
+    "job": "Move the word start times of a voice take to where the voice really begins, so graphics land on the word",
+    "description": "Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Each word's start moves to the first 10 ms window inside the word whose level is above -45 dBFS; its end stays. With the take's line.json ({\"script\": the words the take was made from}) each word takes the script's spelling when the script and the read have the same number of words. Writes {source, timing, words}. It runs on the person's own computer, never on Trillion.",
+    "status": "active",
+    "maker": "maker:trillion",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "grade-and-repair-speech-audio"
+   }
+  },
+  {
    "id": "tool:total-quote-lines",
    "values": {
     "title": "Total the lines of a quote or invoice",
@@ -12163,6 +12673,21 @@
      "placement:your-computer"
     ],
     "folder": "fine-tune-a-small-model-on-a-persons-rules"
+   }
+  },
+  {
+   "id": "tool:train-a-writing-voice-adapter",
+   "values": {
+    "title": "Train a writing-voice adapter on labelled rows",
+    "job": "Train a small LoRA adapter that judges a writer's voice from labelled training rows bound to their source passages",
+    "description": "Runs on the person's computer that holds the decider model snapshot and its frame (common.py, the folder decider_common_dir names, from the person's settings row for this tool). Only split train rows are taken; gold never enters the prompt; a provenance manifest binds every row to its source passage and criterion through the maintained request plan before the model loads. Writes the adapter and a receipt (BLAKE3 of the DATA, every setting) into a new folder; sends no request.",
+    "status": "active",
+    "maker": "maker:train-and-evaluate-a-writing-voice-classifier",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "train-and-evaluate-a-writing-voice-classifier"
    }
   },
   {

@@ -1,0 +1,81 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-VOICE-TAKE-WORD-STARTS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "case:finish-the-launch-video-port",
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:af907307d2bb4275d73e70c0c831df7d54974325aa99d7f6b3f893b58c425dcc",
+   "lines": [
+    9,
+    55
+   ],
+   "multihash": "1f:ec3fbdafbf140c61640016a81f26a45a445f5f8e7a367aef21811575dc90974b",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/do-work/tighten_word_starts.py",
+   "baseline_commit_message": "grade-and-repair-speech-audio: byte copies of the speech-grading plan reader and the voice-take checks (port baseline)"
+  }
+ ],
+ "preserve": [
+  "each word's start moves to the first 10 ms window inside it above EDGE_DB (-45 dBFS); its end stays",
+  "with line.json the script's spelling replaces the read's when both have the same number of words; a hyphen-split word is joined first",
+  "writes {source, timing, words}"
+ ],
+ "allowed_deltas": [
+  "the module's words say what it is for, without the film it was made for",
+  "a last line {result: {out, words}}"
+ ],
+ "banned_substitutions": [
+  "re-reading the take with a speech model",
+  "moving word ends"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:ec3fbdafbf140c61640016a81f26a45a445f5f8e7a367aef21811575dc90974b",
+  "target_multihash_at_baseline": "1f:76ac772ff17ec73dda287e43cf10eb8067d37ee96acacdbd505adf6b940902cf",
+  "commit": "0cec7d6c1c58fff002796260577f514a18fb8f7f",
+  "recorded_at": "2026-11-06T00:00:00Z",
+  "redactions": [
+   {
+    "from": "(whisper writes \"G",
+    "to": "(whisper may spell a name otherwise"
+   },
+   {
+    "from": "otherwiseibran\" for J",
+    "to": "otherwise"
+   },
+   {
+    "from": "otherwiseibran)",
+    "to": "otherwise)"
+   }
+  ]
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def script_spelling(words, line_json)",
+   "def main(take, words_in, out, line_json=None)",
+   "EDGE_DB = -45"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/plans-records-and-voice-takes.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "The old copy leaves the private repository on its own branch once the Mac parity run (out/speech/mac-parity) says EQUAL."
+}

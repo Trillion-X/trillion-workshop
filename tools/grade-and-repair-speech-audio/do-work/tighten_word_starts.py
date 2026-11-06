@@ -1,3 +1,11 @@
+"""tighten_word_starts.py <take.wav> <whisper.words.json> <out.words.json> [line.json]: word times for on-the-word graphics.
+
+Whisper puts part of a pause into the next word's start ("This" 1.02 s when the voice starts at 1.39 s), so a graphic
+timed to it would land early. Each word's start moves to the first 10 ms window inside the word whose level is above
+EDGE_DB (the silence line a generated take is cut at); its end stays. With the take's line.json ({"script": the words
+the take was made from}) each word takes the script's spelling. Writes {"source", "timing", "words": [{text, start,
+end}]} and last {"result": {"out", "words"}}. Needs numpy and soundfile.
+"""
 import json
 import os
 import sys
@@ -41,6 +49,7 @@ def main(take, words_in, out, line_json=None):
     words = script_spelling(words, line_json)
     json.dump({'source': os.path.basename(take), 'timing': f'whisper words, starts moved to the first level above {EDGE_DB} dBFS',
                'words': words}, open(out, 'w'), indent=1)
+    print(json.dumps({'result': {'out': out, 'words': len(words)}}))
 
 
 if __name__ == '__main__':

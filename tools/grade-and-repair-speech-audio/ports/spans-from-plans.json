@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SPEECH-GRADE-SPANS-FROM-PLANS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "case:finish-the-launch-video-port",
+  "message_multihash": "1f:b9559eed9b7741cd1feedb841b8d19b625d2ce70515d7846b969bf9332e6afaa",
+  "quote": "finish the trillion-launch-video port so the repo can be retired"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:be9d2643cc902930a4376bbaa0ecc208d90bda9d6245178873471f25778e7410",
+   "lines": [
+    26,
+    55
+   ],
+   "multihash": "1f:fbafee3f08ff982443f4296784f58501f7aae56f24a820b853d68045ff881084",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09T00:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/grade-and-repair-speech-audio/do-work/spans_from_plans.py",
+   "baseline_commit_message": "grade-and-repair-speech-audio: byte copies of the speech-grading plan reader and the voice-take checks (port baseline)"
+  }
+ ],
+ "preserve": [
+  "a plan segment with a clip is a cut to grade; one without (a generated line) is not",
+  "a clip's media file is the plan's sources[clip], else the source its <clip>.words.json names",
+  "word times are the clip's whisper result (segments[].words[] word/start/end) first, else the word file's words, in source seconds",
+  "a cut shared by plans is graded once and shown in every plan that uses it"
+ ],
+ "allowed_deltas": [
+  "the plans, word files and whisper-result folders are arguments instead of one film's folders in the repository",
+  "it writes the spans file the grade reads, with groups (one per plan) the grade writes groups/<plan>.json from, instead of the grade reading plans itself"
+ ],
+ "banned_substitutions": [
+  "a second spans-file reader beside read-data/spans.py",
+  "word times read from anything but the plan's own word files"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:fbafee3f08ff982443f4296784f58501f7aae56f24a820b853d68045ff881084",
+  "target_multihash_at_baseline": "1f:fbafee3f08ff982443f4296784f58501f7aae56f24a820b853d68045ff881084",
+  "commit": "0cec7d6c1c58fff002796260577f514a18fb8f7f",
+  "recorded_at": "2026-11-06T00:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def plan_paths",
+   "def load_plan",
+   "def source_for",
+   "def clip_words",
+   "def spans_of_plans"
+  ],
+  "test_refs": [
+   "tools/grade-and-repair-speech-audio/test/plans-records-and-voice-takes.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_old_copy": "The old copy leaves the private repository on its own branch once the Mac parity run (out/speech/mac-parity) says EQUAL."
+}

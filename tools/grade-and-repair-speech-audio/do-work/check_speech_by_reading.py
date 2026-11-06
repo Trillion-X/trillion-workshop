@@ -1,6 +1,6 @@
 """Whisper-read every audio file grades.json points at and count word errors.
 
-  check_speech_by_reading.py --settings settings.json --out DIR
+  check_speech_by_reading.py --settings settings.json|--settings-record row.json --out DIR
 
 The files carry HANDLE seconds either side; the read covers only the part between them. Two counts per span, each a
 word-level edit distance (reading.py):
@@ -35,9 +35,9 @@ def passes(v):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", required=True, help="the folder grade_and_repair_speech.py wrote")
-    ap.add_argument("--settings", required=True, help="the person's settings file, the one the grade was made with")
+    settings_file.add_arguments(ap)
     a = ap.parse_args()
-    t = settings_file.load(a.settings)
+    t = settings_file.from_arguments(a)
     work = grader.work_dir(a.out)
     state = json.load(open(grader.state_path(a.out)))
     results = {}
