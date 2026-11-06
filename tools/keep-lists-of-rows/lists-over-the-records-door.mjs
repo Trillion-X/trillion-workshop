@@ -23,6 +23,8 @@
 //   5. A declared index is not ready here (indexReady false), so the moved code takes its unindexed reads.
 //
 import { writeBatches } from '../records-door/read-data/write-batches.mjs';
+import listsData from '../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
+import { makeLists } from './lists.mjs';
 
 const clone = value => (value === null || value === undefined ? null : structuredClone(value));
 const MOST_PASSES = 64;
@@ -32,9 +34,10 @@ export class UnreadRecordsError extends Error {}
 
 /**
  * `work(eeaf, { newId })` run over the person's records through `door` until every record it reads has been read.
- * `typeOf(id)` names a record's kind from its id. Answers `{ result, written }`; throws the work's own error.
+ * `typeOf(id)` names a record's kind from its id; `mint()` makes each new id once (every pass is handed the same ids in
+ * the same order). Answers `{ result, written }`; throws the work's own error.
  */
-export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST_PASSES, key } = {}) {
+export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST_PASSES, key, mint = () => crypto.randomUUID() } = {}) {
   if (typeof typeOf !== 'function') throw new TypeError('typeOf names each record kind from its id.');
   const held = new Map(); // id -> { type, value } (value null: read and absent)
   const listed = new Set(); // `${type}\u0000${prefix}`
@@ -65,7 +68,13 @@ export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST
           && (before === undefined || id < before)).sort();
         return limit === undefined && before === undefined ? found : found.reverse().slice(0, Math.max(1, Math.floor(Number(limit) || 1000)));
       },
-      typeOf: id => current(id)?.value ? current(id).type : null,
+      // A kind asked of an id not read yet is a read of it, as `read` is: noted, and answered as absent for this pass.
+      typeOf(id) {
+        const one = current(id);
+        if (one) return one.value === null || one.value === undefined ? null : one.type;
+        if (!listedId(id)) unreadIds.add(id);
+        return null;
+      },
       write(rows) {
         for (const row of rows) {
           if (typeof row?.id !== 'string' || !row.id) throw new TypeError('A record needs an id.');
@@ -79,7 +88,7 @@ export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST
       forgetCached() {},
     };
     const newId = () => {
-      if (minting >= minted.length) minted.push(crypto.randomUUID());
+      if (minting >= minted.length) minted.push(mint());
       return minted[minting++];
     };
     let result, failed = null;
@@ -120,3 +129,40 @@ export const kindOfId = (kinds = []) => {
     return longestFirst.find(kind => id.startsWith(`${kind}:`)) ?? id.split(':')[0];
   };
 };
+
+/** Every record kind the lists keep beside a list: the list itself and each `*type` lists.json names. */
+export const listRecordKinds = () => {
+  const kinds = new Set([listsData.record_type]);
+  const walk = value => {
+    if (!value || typeof value !== 'object') return;
+    for (const [key, item] of Object.entries(value)) {
+      if (key.endsWith('type') && typeof item === 'string') kinds.add(item); else walk(item);
+    }
+  };
+  walk(listsData);
+  return [...kinds];
+};
+
+/**
+ * The person's lists (lists.mjs makeLists, unchanged) with every read and write through `door`: each call is one unit
+ * of work run by overTheRecordsDoor, so it reads what it needs, then writes once, each record conditional on what it
+ * read. Every method answers a promise. `options` are makeLists' own (mayWrite, hidden, ...) and `kinds` the record
+ * kinds beyond the lists' own that the calls reach. What a list keeps only in memory between calls on one store (its
+ * write count: revisionOf, openChanges, changes) starts again on each call here, since nothing is kept past a call.
+ */
+export function listsThroughTheDoor(door, { kinds = [], key, newId, ...options } = {}) {
+  const typeOf = kindOfId([...listRecordKinds(), ...kinds]);
+  const sample = makeLists({ ...options, eeaf: { read: () => null, ids: () => [], readMany: ids => new Map(ids.map(id => [id, null])), typeOf: () => null, write() {} } });
+  return new Proxy({}, {
+    get(_target, name) {
+      if (typeof name !== 'string' || name === 'then') return undefined;
+      if (!(name in sample)) return undefined;
+      if (typeof sample[name] !== 'function') return sample[name];
+      return async (...args) => (await overTheRecordsDoor(door, async (eeaf, { newId: minted }) =>
+        makeLists({ ...options, eeaf, newId: minted })[name](...args), { typeOf, ...(newId ? { mint: newId } : {}), ...(key ? { key: `${key}:${name}` } : {}) })).result;
+    },
+    has: (_target, name) => name in sample,
+    ownKeys: () => Reflect.ownKeys(sample),
+    getOwnPropertyDescriptor: (_target, name) => (name in sample ? { enumerable: true, configurable: true } : undefined),
+  });
+}

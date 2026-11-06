@@ -23,26 +23,13 @@
 //
 import calendarSettings from './calendar.json' with { type: 'json' };
 
-import listsData from '../../keep-and-wake-ai-sessions-on-this-computer/src/lists.json' with { type: 'json' };
 import { nativeCalendarOwner } from './native-calendar-owner.mjs';
 import { makeLists } from '../../keep-lists-of-rows/lists.mjs';
-import { overTheRecordsDoor, kindOfId } from '../../keep-lists-of-rows/lists-over-the-records-door.mjs';
+import { overTheRecordsDoor, kindOfId, listRecordKinds } from '../../keep-lists-of-rows/lists-over-the-records-door.mjs';
 
 const NOT_HERE = new Set(['/calendar/actions', '/calendar/availability', '/calendar/connections']);
 
-// Every record kind the lists keep beside a list (lists.json: the list itself and each `*_type` it names).
-const listKinds = () => {
-  const kinds = new Set([listsData.record_type]);
-  const walk = value => {
-    if (!value || typeof value !== 'object') return;
-    for (const [key, item] of Object.entries(value)) {
-      if (key.endsWith('type') && typeof item === 'string') kinds.add(item); else walk(item);
-    }
-  };
-  walk(listsData);
-  return [...kinds];
-};
-const typeOf = kindOfId([...listKinds(), 'workspace-preference']);
+const typeOf = kindOfId([...listRecordKinds(), 'workspace-preference']);
 
 const queryString = query => new URLSearchParams(Object.entries(query && typeof query === 'object' ? query : {})
   .filter(([, value]) => value !== undefined && value !== null).map(([name, value]) => [name, String(value)])).toString();
