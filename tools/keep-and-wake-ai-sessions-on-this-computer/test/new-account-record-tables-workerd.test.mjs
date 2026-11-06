@@ -30,8 +30,8 @@ const { records } = JSON.parse(readFileSync(new URL('./fixtures/new-account-own-
 // Their bytes are old trillion's at 775166f635cd91daedaa51693ff40fb29b02f762, carried here as fixtures: this checkout
 // does not hold that repository's history, so a test may not read it at run time.
 const EARLIER = {
-  'parts/record-log/do-work/record-log-store.mjs': './fixtures/record-log-store-before-unused-kinds-skipped.mjs',
-  'parts/record-log/do-work/record-tables.mjs': './fixtures/record-tables-before-unused-kinds-skipped.mjs',
+  'parts/record-log/do-work/record-log-store.mjs': './fixtures/record-log-store-before-unused-kinds-skipped.mjs.held',
+  'parts/record-log/do-work/record-tables.mjs': './fixtures/record-tables-before-unused-kinds-skipped.mjs.held',
 };
 // The only change to those bytes: each relative import old trillion's layout named is moved to where this tool keeps
 // the same file (as parts/record-log/do-work/record-log-store.mjs itself names it), so both roads load one copy.
