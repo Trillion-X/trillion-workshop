@@ -40,10 +40,12 @@ export class UnreadRecordsError extends Error {}
 export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST_PASSES, key, mint = () => crypto.randomUUID() } = {}) {
   if (typeof typeOf !== 'function') throw new TypeError('typeOf names each record kind from its id.');
   const held = new Map(); // id -> { type, value } (value null: read and absent)
+  const heldAt = new Map(); // `${id}\u0000${at}` -> { type, value, complete, kept_from }, read through records:read with `at`
   const listed = new Set(); // `${type}\u0000${prefix}`
   const minted = [];
   for (let pass = 0; pass < mostPasses; pass += 1) {
     const unreadIds = new Set();
+    const unreadAt = new Map();
     const unlisted = new Map();
     const written = new Map(); // id -> { type, value }
     let minting = 0;
@@ -82,6 +84,16 @@ export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST
           written.set(row.id, { type: row.type ?? typeOf(row.id), value: clone(row.value) });
         }
       },
+      // A record as it was saved at `at` (lists record-at.mjs recordAt asks this): read through the door's records:read
+      // with `at` on the next pass; a record this pass wrote is not part of its past.
+      readAt(id, at) {
+        const ms = typeof at === 'number' ? at : Date.parse(at);
+        if (!Number.isFinite(ms)) throw new Error(`${at} is neither a time nor a log row id.`);
+        const asked = `${id}\u0000${ms}`;
+        if (heldAt.has(asked)) return clone(heldAt.get(asked));
+        unreadAt.set(asked, { id, at: ms });
+        return { type: null, value: null, complete: true, kept_from: null };
+      },
       atomically: change => change(),
       transaction: change => change(),
       indexReady: () => false,
@@ -94,7 +106,7 @@ export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST
     let result, failed = null;
     try { result = await work(eeaf, { newId }); }
     catch (error) { failed = error; }
-    if (!unreadIds.size && !unlisted.size) {
+    if (!unreadIds.size && !unlisted.size && !unreadAt.size) {
       if (failed) throw failed;
       const records = [...written].filter(([id, one]) => JSON.stringify(one.value) !== JSON.stringify(held.get(id)?.value ?? null))
         .map(([id, one]) => {
@@ -107,6 +119,10 @@ export async function overTheRecordsDoor(door, work, { typeOf, mostPasses = MOST
     for (const id of unreadIds) {
       const one = await door.readRecord(typeOf(id), id);
       held.set(id, one ? { type: one.type, value: one.value } : { type: typeOf(id), value: null });
+    }
+    for (const [asked, { id, at }] of unreadAt) {
+      if (typeof door.readAt !== 'function') throw new UnreadRecordsError('This door does not read records as they were.');
+      heldAt.set(asked, await door.readAt(typeOf(id), id, at));
     }
     for (const { type, prefix } of unlisted.values()) {
       let count = 0;

@@ -70,3 +70,18 @@ test('each record kind the lists keep is named from its id', () => {
   assert.equal(typeOf('list-view:ferns:by-name'), 'list-view');
   assert.equal(typeOf('list-key:ferns:name:one'), 'list-key');
 });
+
+test('one field of many rows is read as it was at a moment through the door\'s records:read with `at`', async () => {
+  let clock = Date.parse('2026-03-02T10:00:00.000Z');
+  const book = recordsFake({ now: () => (clock += 1000) });
+  const { door, calls } = doorOverARecordBook(book);
+  const lists = listsThroughTheDoor(door);
+  await lists.save({ id: 'deals', label: 'Deals', fields: [{ id: 'name', label: 'Name' }, { id: 'stage', label: 'Stage' }] });
+  await lists.putRows('deals', { rows: [{ id: 'd1', values: { name: 'One', stage: 'Lead' } }, { id: 'd2', values: { name: 'Two', stage: 'Lead' } }] });
+  const at = new Date((clock += 500)).toISOString();
+  await lists.putRows('deals', { rows: [{ id: 'd1', values: { stage: 'Won' } }, { id: 'd3', values: { name: 'Three', stage: 'Lead' } }] });
+  const then = await lists.fieldAt('deals', { field_id: 'stage', at, row_ids: ['d1', 'd2', 'd3'] });
+  assert.deepEqual(then.values.map(row => [row.row_id, row.value, row.existed, row.complete]), [['d1', 'Lead', true, true], ['d2', 'Lead', true, true], ['d3', null, false, true]]);
+  assert.equal((await lists.row('deals', 'd1')).values.stage, 'Won', 'the present is unchanged');
+  assert.ok(calls.filter(call => call === 'records:read').length > 0);
+});

@@ -155,8 +155,23 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     return body;
   }
 
+  // One record as it was saved at `at` (an ISO time, or whole milliseconds since 1970): records:read with `at`, which the
+  // engine answers from the record store's record_at under the same rights as the plain read. Answers
+  // { type, value, complete, kept_from }: value null when there was no live version then; complete false when the
+  // versions that could answer have left the store, kept_from then the earliest moment the answer is good for.
+  async function readAt(type, id, at) {
+    const record = await call('records:read', { id, type, at }, undefined, resource, true);
+    return {
+      type: record.value === null || record.value === undefined ? null : record.type ?? type,
+      value: record.value ?? null,
+      complete: record.complete !== false,
+      kept_from: record.kept_from ?? null,
+    };
+  }
+
   return {
     readRecord,
+    readAt,
     readWorkspace,
     async read(type, id) {
       return (await readRecord(type, id))?.value ?? null;

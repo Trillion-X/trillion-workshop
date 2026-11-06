@@ -5,7 +5,8 @@
 // test that checks the book directly sees what the door wrote, so a test written for the lists over the book proves
 // the same lists over the door (lists-over-the-records-door.mjs listsThroughTheDoor). It answers the door's
 // records:read, records:list (greatest id first, in pages, after an id) and records:write (each record's `expected`
-// checked before anything is written, all in one atomic step). It is not a store: the book keeps the records.
+// checked before anything is written, all in one atomic step), and records:read with `at` from the book's readAt when it
+// keeps versions (records-fake does). It is not a store: the book keeps the records.
 import { isDeepStrictEqual } from 'node:util';
 import { recordsDoorFromCall, RecordsDoorError } from '../../records-door/read-data/records-door.mjs';
 
@@ -19,6 +20,12 @@ export function doorOverARecordBook(eeaf, { pageRows = 50 } = {}) {
   const atomically = change => (typeof eeaf.atomically === 'function' ? eeaf.atomically(change) : change());
   const door = recordsDoorFromCall(async (method, input) => {
     calls.push(method);
+    if (method === 'records:read' && input.at !== undefined) {
+      if (typeof eeaf.readAt !== 'function') throw new Error('This record book keeps no history.');
+      const then = eeaf.readAt(input.id, input.at);
+      const same = then.value !== null && (then.type === null || then.type === input.type);
+      return { id: input.id, type: input.type, value: same ? structuredClone(then.value) : null, complete: then.complete, kept_from: then.kept_from };
+    }
     if (method === 'records:read') {
       const one = held(input.id);
       return { id: input.id, type: input.type, value: one && (one.type === null || one.type === input.type) ? structuredClone(one.value) : null };
