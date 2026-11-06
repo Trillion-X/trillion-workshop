@@ -193,7 +193,8 @@ const folderOf = name => name.slice(0, name.lastIndexOf('/')) || '/';
 const leafOf = name => name.slice(name.lastIndexOf('/') + 1);
 const extensionOf = name => { const leaf = leafOf(name); const dot = leaf.lastIndexOf('.'); return dot > 0 ? leaf.slice(dot + 1) : ''; };
 const stemOf = name => { const leaf = leafOf(name); const dot = leaf.lastIndexOf('.'); return dot > 0 ? leaf.slice(0, dot) : leaf; };
-const isDocument = name => EXTENSIONS.has(extensionOf(name).toLowerCase()) && leafOf(name) !== data.sidecar_name;
+// A document is a file whose extension is one the source reads: its declared text_extensions, else document_extensions.
+const isDocument = (name, extensions = EXTENSIONS) => extensions.has(extensionOf(name).toLowerCase()) && leafOf(name) !== data.sidecar_name;
 const joinPath = (folder, relative) => {
   const parts = (relative.startsWith('/') ? relative : `${folder}/${relative}`).split('/');
   const out = [];
@@ -283,14 +284,14 @@ export async function saveDocumentTypes(files, folder, { types, formulas, expect
 // ---- documents as rows -------------------------------------------------------------------------------------------------
 
 // Every document name in a folder and the folders under it, in name order: the listing only, no document is read.
-async function names(files, folder) {
+async function names(files, folder, extensions = EXTENSIONS) {
   const folders = [...new Set([folder, ...(await files.foldersUnder(folder))])].sort();
   const found = [];
   for (const at of folders) {
     let after = '';
     do {
       const page = await files.list(at, after, limits.listing_page);
-      for (const row of page.names ?? []) if (isDocument(row.name)) found.push(row);
+      for (const row of page.names ?? []) if (isDocument(row.name, extensions)) found.push(row);
       after = page.next_after ?? null;
     } while (after);
   }
@@ -402,7 +403,7 @@ export async function documentSelection(files, source, { allow_relative_paths = 
   const fits = globTest(source?.match);
   if (source?.exclude !== undefined && (!Array.isArray(source.exclude) || source.exclude.some(pattern => typeof pattern !== 'string'))) throw say('bad_input', { what: 'exclude is an array of document-path glob strings.' });
   const excluded = (source?.exclude ?? []).map(globTest);
-  if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]*$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of lowercase text-file extensions for explicitly named paths; an empty string explicitly admits extensionless text files.' });
+  if (source?.text_extensions !== undefined && (!Array.isArray(source.text_extensions) || source.text_extensions.some(extension => typeof extension !== 'string' || !/^[a-z0-9]*$/.test(extension)))) throw say('bad_input', { what: 'text_extensions is an array of the lowercase text-file extensions the source reads, in its folder or among its named paths, instead of the document extensions; an empty string explicitly admits extensionless text files.' });
   const explicitExtensions = new Set(source?.text_extensions ?? data.document_extensions);
   if (source?.paths !== undefined && (!Array.isArray(source.paths) || source.paths.some(name => typeof name !== 'string' || !name.startsWith('/') ||
       name.slice(1).split('/').some(part => !part || part === '.' || part === '..' || part.includes('\\')) ||
@@ -429,7 +430,7 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
     const excluded = (source?.exclude ?? []).map(globTest);
     // An explicit catalogue reads only its named files, without walking unrelated folders. The files owner still
     // resolves and checks every name against the granted root, including symlinks.
-    const everything = source?.paths ? [...new Set(source.paths)].sort().map(name => ({ name })) : await names(files, folder);
+    const everything = source?.paths ? [...new Set(source.paths)].sort().map(name => ({ name })) : await names(files, folder, source?.text_extensions ? new Set(source.text_extensions) : EXTENSIONS);
     const fitsSource = row => {
       const path = folder === '/' ? row.name.slice(1) : row.name.slice(folder.length + 1);
       return fits(path) && !excluded.some(test => test(path));

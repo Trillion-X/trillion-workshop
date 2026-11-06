@@ -27,6 +27,9 @@ const rows = JSON.parse(fs.readFileSync(path.join(HERE, '..', 'computer', 'compu
 const photosRow = rows.sources.find(source => source.id === 'photos').read;
 const T0 = '2026-10-08T12:00:00Z';
 const later = (iso, minutes) => new Date(Date.parse(iso) + minutes * 60_000).toISOString();
+// The picture is resized and measured by /usr/bin/sips and its words read by Apple Vision, which only a Mac has: on any
+// other computer these tests are skipped and say so, rather than pass on a stand-in.
+const MAC_ONLY = process.platform === 'darwin' && fs.existsSync('/usr/bin/sips') ? false : 'needs a Mac: /usr/bin/sips and Apple Vision read and resize the picture';
 const sizeOf = file => Object.fromEntries(execFileSync('/usr/bin/sips', ['-g', 'pixelWidth', '-g', 'pixelHeight', file]).toString().split('\n').map(line => line.trim().match(/^(pixel\w+): (\d+)/)).filter(Boolean).map(match => [match[1], Number(match[2])]));
 
 // assets: [{uuid, added, taken?, kind?, subtype?, files: ['original' | 'large' | 'small']}]
@@ -72,7 +75,7 @@ function setup(assets, {row = {}, clock = T0, see = null, keepSeen = null, copy 
   return {...state, state, reading, dir, root, at: iso => { state.clock = iso; }, items: () => state.sent.flatMap(body => body.items ?? [body])};
 }
 
-test('each new photo is its own item within minutes, a screenshot is called one, and a picture of text carries its words', async () => {
+test('each new photo is its own item within minutes, a screenshot is called one, and a picture of text carries its words', {skip: MAC_ONLY}, async () => {
   const seen = [];
   const world = setup([
     {uuid: 'A1000000-0000-0000-0000-000000000001', added: later(T0, 1), taken: later(T0, 0), files: ['original']},
@@ -98,7 +101,7 @@ test('each new photo is its own item within minutes, a screenshot is called one,
   assert.equal(seen.length, 3, 'each picture is read once: the two new ones and the one from the past');
 });
 
-test('the picture is kept as a JPEG whose long edge is capped, in the month\'s folder, and what was seen is kept beside it', async () => {
+test('the picture is kept as a JPEG whose long edge is capped, in the month\'s folder, and what was seen is kept beside it', {skip: MAC_ONLY}, async () => {
   const results = [];
   const world = setup([{uuid: 'A1000000-0000-0000-0000-000000000001', added: later(T0, 1), taken: '2026-09-14T08:30:05Z', files: ['original']}], {
     see: async () => ({frames: [{lines: [{text: 'GARAGE SALE'}]}], text: 'GARAGE SALE', confidence: 'ocr-heading', title: 'GARAGE SALE'}),
@@ -120,7 +123,7 @@ test('the picture is kept as a JPEG whose long edge is capped, in the month\'s f
   assert.equal(world.items()[0].files[0].id, 'file:1');
 });
 
-test('a smaller picture is not enlarged, an iCloud-only original keeps its largest local copy and says so, and none keeps nothing', async () => {
+test('a smaller picture is not enlarged, an iCloud-only original keeps its largest local copy and says so, and none keeps nothing', {skip: MAC_ONLY}, async () => {
   const world = setup([
     {uuid: 'A1000000-0000-0000-0000-000000000001', added: later(T0, 1), files: ['original']},
     {uuid: 'B2000000-0000-0000-0000-000000000002', added: later(T0, 1.1), files: ['small']},
@@ -139,7 +142,7 @@ test('a smaller picture is not enlarged, an iCloud-only original keeps its large
   assert.equal(Math.max(kept[1].pixelWidth, kept[1].pixelHeight), 320, 'the 320 px copy is not blown up to the cap');
 });
 
-test('what was read in a picture is kept in the work folder, so a send the account turned away reads nothing twice', async () => {
+test('what was read in a picture is kept in the work folder, so a send the account turned away reads nothing twice', {skip: MAC_ONLY}, async () => {
   let reads = 0, answers = [429];
   const world = setup([{uuid: 'A1000000-0000-0000-0000-000000000001', added: later(T0, 1)}], {see: async () => { reads += 1; return {frames: [], text: 'hello', confidence: 'ocr-heading', title: 'hello'}; }});
   const turned = async (route, {body}) => { world.state.sent.push(body); const status = answers.shift() ?? 200; return {status, body: {message_id: 'm'}}; };
@@ -155,7 +158,7 @@ test('what was read in a picture is kept in the work folder, so a send the accou
   assert.match(world.state.sent[1].text, /Text in it: hello/);
 });
 
-test('a look sends at most most_per_look photos and the rest wait for the next', async () => {
+test('a look sends at most most_per_look photos and the rest wait for the next', {skip: MAC_ONLY}, async () => {
   const assets = Array.from({length: 5}, (_, index) => ({uuid: `A${index}000000-0000-0000-0000-00000000000${index}`, added: later(T0, 1 + index / 10), files: ['small']}));
   const world = setup(assets, {row: {most_per_look: 2, backfill: undefined}});
   await world.reading.tick();
@@ -171,7 +174,7 @@ test('a look sends at most most_per_look photos and the rest wait for the next',
 // The past: ten photos added 3..12 days before the reader first ran, one 2 hours before it.
 const past = Array.from({length: 10}, (_, index) => ({uuid: `D${index}000000-0000-0000-0000-00000000000${index}`, added: later(T0, -(3 + index) * 1440), files: ['small']}));
 
-test('the past is read newest first, a few at a time as one batch, paced by the hour, down to the oldest, and then stops', async () => {
+test('the past is read newest first, a few at a time as one batch, paced by the hour, down to the oldest, and then stops', {skip: MAC_ONLY}, async () => {
   const world = setup([...past, {uuid: 'E0000000-0000-0000-0000-000000000000', added: later(T0, -120), files: ['small']}],
     {row: {backfill: {per_look: 4, every_seconds: 120, most_per_hour: 6}}});
   await world.reading.tick();
@@ -206,7 +209,7 @@ test('the past is read newest first, a few at a time as one batch, paced by the 
   assert.equal(held.backfill_count, 11);
 });
 
-test('what is read from the past arrives as history: old enough that the door brings it in and hands nothing on', async () => {
+test('what is read from the past arrives as history: old enough that the door brings it in and hands nothing on', {skip: MAC_ONLY}, async () => {
   const world = setup(past, {row: {backfill: {...photosRow.backfill, per_look: 6}}});
   await world.reading.tick();
   world.at(later(T0, 5));
@@ -220,7 +223,7 @@ test('what is read from the past arrives as history: old enough that the door br
   assert.ok(bodies.every(body => body.route === 'Photos' && !('from_person' in body && body.from_person === true)));
 });
 
-test('photos added at the same instant are each read once across batches', async () => {
+test('photos added at the same instant are each read once across batches', {skip: MAC_ONLY}, async () => {
   const same = Array.from({length: 7}, (_, index) => ({uuid: `F${index}000000-0000-0000-0000-00000000000${index}`, added: later(T0, -3 * 1440), files: ['small']}));
   const world = setup([...same, {uuid: 'G0000000-0000-0000-0000-000000000000', added: later(T0, -4 * 1440), files: ['small']}], {row: {backfill: {per_look: 3, every_seconds: 1, most_per_hour: 100}}});
   await world.reading.tick();
@@ -231,7 +234,7 @@ test('photos added at the same instant are each read once across batches', async
   assert.equal(ids.length, 8, 'and none missed');
 });
 
-test('a struggling account holds the past back and keeps the cursor where it was', async () => {
+test('a struggling account holds the past back and keeps the cursor where it was', {skip: MAC_ONLY}, async () => {
   const world = setup(past, {});
   world.at(later(T0, 25 * 60));
   let busy = true;
@@ -256,7 +259,7 @@ test('the photos row is data a reader can run: it asks for :since, :before and :
   assert.ok(photosRow.backfill.per_look * Math.ceil(3600 / photosRow.backfill.every_seconds) <= 240 && photosRow.backfill.most_per_hour <= 240, 'the past is read at no more than 240 photos an hour');
 });
 
-test('a look spends at most its budget reading pictures: later ones go without a caption, and the past waits for the next look', async () => {
+test('a look spends at most its budget reading pictures: later ones go without a caption, and the past waits for the next look', {skip: MAC_ONLY}, async () => {
   assert.ok(photosRow.see.caption_timeout_seconds <= 20 && photosRow.see.look_budget_seconds <= 45, 'the limits are data on the row');
   let clock = 0;
   const calls = [];
@@ -278,7 +281,7 @@ test('a look spends at most its budget reading pictures: later ones go without a
   assert.equal(world.items().filter(item => item.source_id[0] === 'L').length, 1, 'the past is read on a look with budget to spare');
 });
 
-test('one photo that cannot be made ready is tried twice and then passed over, and the rest of the past goes on', async () => {
+test('one photo that cannot be made ready is tried twice and then passed over, and the rest of the past goes on', {skip: MAC_ONLY}, async () => {
   const bad = 'K1000000-0000-0000-0000-000000000001';
   const past3 = ['K0', 'K1', 'K2'].map((id, index) => ({uuid: `${id}000000-0000-0000-0000-00000000000${index}`, added: later(T0, -(3 + index) * 1440), files: ['small']}));
   const { makeCopy } = await import('../computer/read-new-items.mjs');
@@ -300,7 +303,7 @@ test('one photo that cannot be made ready is tried twice and then passed over, a
   assert.equal(held().backfill_count, 2);
 });
 
-test('a new backfill round reads again what the live read sent before, then goes on below where the past had got to', async () => {
+test('a new backfill round reads again what the live read sent before, then goes on below where the past had got to', {skip: MAC_ONLY}, async () => {
   const day = 1440;
   const assets = [
     {uuid: 'S1000000-0000-0000-0000-000000000001', added: later(T0, -2 * day), files: ['small']},

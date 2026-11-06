@@ -52,6 +52,14 @@
       "to": "tools/draw-a-diagram/src/diagram-tools.mjs",
       "source_identity": "1f:c818bed271f2e2852957e267ec0ebe74cc049c90409c8e614f33ca27fbfc58fb",
       "identity": "1f:16cd354f02559653896d81ee6cc7d0e4c90f80c08385a672eef3732c953eb1c0"
+    },
+    {
+      "from": "test/diagram-tools.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/draw-a-diagram/test/diagram-tools.test.mjs",
+      "source_identity": "1f:c2b1b094158b50d8d207c1bb6501e5c0e5c3a7a308d99b587b4b58bd9c4ba80c",
+      "identity": "1f:0c2cafdd883824af39ee632fb0b2ea74a3a2a85c67ade1022256f92a63322870",
+      "adapted": "draw_diagram is read from this tool's diagramTools() instead of the retired src/tools.mjs makeTools list; every assertion kept."
     }
   ]
 }

@@ -15,7 +15,7 @@
 //   4. The ranges are DATA (public-address.json, plus the caller's `deny`); nothing here lists a range.
 //
 import settings from './resolved-address.json' with { type: 'json' };
-import { privateHost } from './public-address.mjs';
+import { privateHost } from '../../refuse-requests-to-private-addresses/public-address.mjs';
 
 /** The error a refused or unknown name answers. */
 export class NameNotFound extends Error {

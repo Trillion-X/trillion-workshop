@@ -2921,7 +2921,7 @@
     "id": "tool:see-my-decisions",
     "label": "See my decisions",
     "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
-    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your computer reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
     "status": "active",
     "result_selector": "$.result",
     "input_schema": {
@@ -2943,11 +2943,11 @@
       },
       "access": {
        "type": "object",
-       "description": "What your place reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }"
+       "description": "What your computer reports: { capabilities: [names], limits?: { [access]: [{ count, per }] } }"
       },
       "allowance": {
        "type": "object",
-       "description": "What your place reports of your decision allowance: { count, per, used }"
+       "description": "What your computer reports of your decision allowance: { count, per, used }"
       },
       "space_pursuits": {
        "type": "array",

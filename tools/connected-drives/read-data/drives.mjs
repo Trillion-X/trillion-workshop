@@ -3,7 +3,7 @@
 // PURPOSE
 //   The drives connected to the person's computer, what is in one folder on one of them, what is on one by kind of file,
 //   the icon Finder shows for one, and which programs are using one. Functions run by tools/records-door's
-//   run-an-export as `computer` rows that hold the `see-connected-drives` capability. How a place knows its drives is
+//   run-an-export as `computer` rows that hold the `see-connected-drives` capability. How a computer knows its drives is
 //   a reader row in drives.json, chosen by which reader's `at` path the place has: Finder's volumes (`mount`,
 //   `diskutil`, `osascript` for icons, reads under /Volumes) or a kernel mount table (reads under its mount roots).
 //
@@ -56,8 +56,8 @@ async function statVolume(mount) {
 const finderReader = settings.readers.find(reader => reader.id === 'finder-volumes');
 
 /**
- * The reader this place has: a reader `deps` names, or a pretend /Volumes `root` (Finder's way), or the first row of
- * drives.json whose `at` path exists here. A place with none has no connected drives this tool can see.
+ * The reader this computer has: a reader `deps` names, or a pretend /Volumes `root` (Finder's way), or the first row of
+ * drives.json whose `at` path exists here. A computer with none has no connected drives this tool can see.
  */
 export function chooseReader({ reader, root, exists = fs.existsSync } = {}) {
   if (reader) return reader;

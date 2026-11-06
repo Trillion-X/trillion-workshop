@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-FC-PREVIEW-PUBLISH",
+ "status": "ADAPTED",
+ "directive": {
+  "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+  "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "source-repo-a",
+   "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f",
+   "path_multihash": "1f:5b9093e8d958338bb39162c2ebe7fef53ecd91f96a709cff0f63fef10d0fd2f6",
+   "lines": [
+    3,
+    111
+   ],
+   "multihash": "1f:e3ffbcb33589cd4dd6fe359c7d86e02029c19c5e1bda56fb644daa97114a47c9",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-09"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/put-picked-options-into-a-filmcraft-project/do-work/publish_preview.py"
+  }
+ ],
+ "preserve": [
+  "publish moves pending/<id>.mp4 and its still by rename only after ffprobe reads one video stream of the frame size, one audio stream and the preview range's length",
+  "watch refuses a preview the rendered-video check has not measured after it was made, runs the content gate for the option and refuses on its unanswered or failed rows, then hard-links under the spec's watch name with link_into (never leaving the temporary link)"
+ ],
+ "allowed_deltas": [
+  "the content gate is the settings' command (and its absence refuses watch unless the settings say it is not required) where it was a path in the film repository; the frame size and tolerance are settings; one JSON request (action publish or watch) in place of argv"
+ ],
+ "banned_substitutions": [
+  "a film's folders, option ids, watch-folder names or the person's name written into the code",
+  "a second copy of the overlay renderer (the overlay step calls tool:render-a-motion-graphics-overlay)",
+  "an edit of the person's graded project other than FilmCraft's own headless commands on a copy"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-06T10:00:00Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:e3ffbcb33589cd4dd6fe359c7d86e02029c19c5e1bda56fb644daa97114a47c9",
+  "target_multihash_at_baseline": "1f:e3ffbcb33589cd4dd6fe359c7d86e02029c19c5e1bda56fb644daa97114a47c9",
+  "commit": "2d7c423897c2f9b60a2c3a66b6b53280a281de10"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_publish.py link_into: 5 cases",
+   "tools/put-picked-options-into-a-filmcraft-project/test/test_filmcraft_preview.py watch_needs_the_check_the_gate_and_a_watch_name"
+  ]
+ }
+}

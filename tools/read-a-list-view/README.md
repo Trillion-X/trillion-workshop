@@ -110,7 +110,7 @@ The bounds are this tool's own DATA, `limits` in `read-data/list-view.json`. Rea
 - `read_page_rows` (50): a page when no limit is given, and the most one source tool's page asks for.
 - `door_page_rows` (500): the most one records:list asks for, the records door's own page, so 2,000 rows are a few calls rather than forty.
 - `rows_per_read` (2,000): the most rows one view read gathers. Refreshes stream bounded pages until each source ends.
-- `row_sources_per_list` (5): the most row sources one list may declare.
+- `row_sources_per_list` (8): the most row sources one list may declare.
 - `write_rows` (64) and `write_bytes` (24,000): the most records and bytes one write of a refresh sends.
 
 ## Row sources
@@ -130,7 +130,7 @@ Optional fields on each source declaration:
 | `content` | The source's boolean or JSON object content option, forwarded unchanged to its tool. For documents, this opts into complete bounded text parts. |
 | `exclude` | An array of nonempty glob strings relative to the source folder, forwarded unchanged. The source tool omits matching documents. |
 | `paths` | An array of nonempty exact document paths, forwarded unchanged. The document source validates their containment under its admitted root and can read those files without a broad recursive scan. |
-| `text_extensions` | An array of nonempty extension strings, forwarded unchanged. The document source permits these UTF-8 file extensions only with exact `paths`; this selects text to read and never executes source files. |
+| `text_extensions` | An array of nonempty extension strings, forwarded unchanged. The document source reads files with these UTF-8 extensions instead of its document extensions, in a folder scan or among exact `paths`; this selects text to read and never executes source files. |
 | `values` | Additional destination fields: `{destination: {from: "literal.source.field"}}` copies a source value; `{destination: {row: "title"}}` copies a row property; `{destination: {const: JSON}}` supplies DATA. Original fields are retained, and only explicitly named destination fields are replaced. |
 
 For example, two document folders can feed one Library without deleting each other's rows:
@@ -159,7 +159,7 @@ It is not an engine row. A run the engine starts gets record rights for named re
 |---|---|
 | `read-data/list-view.mjs` | `readListView(input, door)`: one page of a list or a view, from records. `refreshRowSources(input, door)`: a list's row sources written as its records. |
 | `read-data/list-view.json` | The bounds, the row sources and the tool that serves each. |
-| `read-data/door.mjs` | `openDoor(config)`: the person's door over MCP from their computer, with `read`, `list`, `run` (through the door, or on this computer for a tool in `local_tools`) and `write`. An answer that comes as byte pages (a record too big for one message) is joined with `tools/records-door` `wholeAnswer`. |
+| `read-data/door.mjs` | `openDoor(config)`: the person's door over MCP from their computer, with `read`, `list`, `run` (through the door, or on this computer for a tool in `local_tools`) and `write`. An answer that comes as byte pages (a record too big for one message) is joined with `tools/records-door` `wholeAnswer`. A call over the key's rate (`sign_in_too_many_calls`) is sent again with the same request key after the wait the door names, so a refresh of a large list keeps going instead of stopping half read. |
 | `do-work/read-list-view.mjs` | The command line above. |
 | `test/read-a-list-view.test.mjs` | Tests on a made-up bakery: a refresh's writes (only what changed, removals, bounded batches, a refused row), a read that runs no tool, the bounds, a view's rules and sort, a local tool, byte pages, and the door's key handling. |
 | `read-data/list-copy.mjs` | `syncRowSource(input, door)`: the two-way sync of a source declared `original: "list"`, which a refresh of that list runs. |
@@ -167,6 +167,7 @@ It is not an engine row. A run the engine starts gets record rights for named re
 | `test/list-copy.test.mjs` | Tests on a made-up bakery's notes over the real door and the real documents tools: a new folder, a row any AI wrote, a taken name, a row another sync already made into its file, one part of a long document, both sides changed, removals on either side, a restore from an older copy that removes nothing and carries the newer files back, a value only the list changed, `paths` and a dry run. |
 | `read-data/copy-readable.mjs` | `copyReadable({ names, list }, door)`: whether a list's file copy may be read now, read-only: only when the list answers one of `list-view.json` `copies_when_unreachable` codes or the door cannot be reached. A copy guard asks it (`--copy-readable LIST_ID`). |
 | `test/copy-readable.test.mjs` | A list that answers keeps its copy closed with or without its record; an unavailable answer opens it and another refusal does not; a door nothing listens on opens it. |
+| `test/door-rate.test.mjs` | A call over the key's rate waits the time the door names and is sent again with the same request key. |
 | `read-data/joined-copy.mjs` | `writeJoinedCopy(spec, door)`: one file made from many rows' text in order. |
 | `test/joined-copy.test.mjs` | One file from a made-up bakery's rule rows: order and header, nothing written twice, a changed row written, over budget or no rows refused with the file kept, a dry run and a bad spec. |
 

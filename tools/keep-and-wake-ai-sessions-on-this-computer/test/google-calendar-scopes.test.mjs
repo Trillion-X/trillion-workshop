@@ -10,11 +10,13 @@ import { recordsList, rowsFromList } from '../../ai-tool-catalog/do-work/derive-
 import { readServiceConnectionOptions } from '../../connect-a-service-and-seal-its-key/read-data/read-service-connection-options.ts';
 
 const read = path => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
-const services = read('../parts/service-connections/records.json').things;
-const sourceRows = read('../records/workshop-tool-records.json').records.map(row => row.payload)
+// The rows name old trillion's package service-connections, which is tools/connect-a-service-and-seal-its-key here.
+const packageFolder = name => new URL(`../../${name === 'service-connections' ? 'connect-a-service-and-seal-its-key' : name}/`, import.meta.url).pathname;
+const services = read('../../connect-a-service-and-seal-its-key/records.json').things;
+const sourceRows = read('../../connect-a-service-and-seal-its-key/from-old-trillion/records/workshop-tool-records.json').records.map(row => row.payload)
   .filter(row => ['source:service-connection-descriptors', 'source:how-to-ask-something-else-to-do-things'].includes(row.id));
 assert.equal(sourceRows.length, 2);
-const derived = sourceRows.map(source => rowsFromList(source, recordsList(source.list.records)
+const derived = sourceRows.map(source => rowsFromList(source, recordsList(source.list.records, packageFolder)
   .filter(entry => /^(google-calendar|google-account)(-|$)/.test(entry.record_name))));
 assert.deepEqual(derived.flatMap(result => result.refused), []);
 const tool = id => derived.flatMap(result => result.rows).find(row => row.id === id);
@@ -23,7 +25,7 @@ const acquire = calendar.invoke.connects.acquire;
 const metadataScope = 'https://www.googleapis.com/auth/calendar.calendars.readonly';
 
 test('the published Calendar consent authorizes its actual event-source identity proof', () => {
-  const eventSource = read('../records/workshop-event-source-records.json').records
+  const eventSource = read('../../start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json').records
     .find(row => row.payload.id === 'events:google-calendar').payload;
   const proof = tool(eventSource.route_key_proof.tool_id);
   assert.equal(proof.invoke.connection, calendar.invoke.connects.connection);

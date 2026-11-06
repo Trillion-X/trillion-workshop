@@ -10,7 +10,9 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/http-client/do-work/node-public-fetch.mjs",
       "source_identity": "1f:5448d9aa92738a7a3cf650f7299f1341cf01f9b97ee23b43654c801c4cf9b6d4",
-      "identity": "1f:5448d9aa92738a7a3cf650f7299f1341cf01f9b97ee23b43654c801c4cf9b6d4"
+      "identity_at_move": "1f:5448d9aa92738a7a3cf650f7299f1341cf01f9b97ee23b43654c801c4cf9b6d4",
+      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
+      "changed": true
     },
     {
       "from": "parts/http-client/do-work/request-scopes.json",
@@ -38,7 +40,9 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/http-client/do-work/resolved-address.mjs",
       "source_identity": "1f:ede5521df5c1cb618f690ffc2db0833b8436c4ab681153791bc4b738b684f63a",
-      "identity": "1f:ede5521df5c1cb618f690ffc2db0833b8436c4ab681153791bc4b738b684f63a"
+      "identity_at_move": "1f:ede5521df5c1cb618f690ffc2db0833b8436c4ab681153791bc4b738b684f63a",
+      "byte_copy_commit": "bef19358f2b10a16a2be03730aaa4f1ba87d67d1",
+      "changed": true
     },
     {
       "from": "parts/http-client/do-work/same-origin.mjs",

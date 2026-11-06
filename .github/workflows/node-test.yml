@@ -15,12 +15,16 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
         shard: [1, 2, 3, 4]
     name: test (shard ${{ matrix.shard }} of 4)
+    # A row's sample run gets its own HOME (test-helpers/run-a-row.mjs), so Playwright's default browser folder
+    # (~/.cache/ms-playwright) is a different, empty one inside it; one fixed folder serves every run.
+    env:
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/../ms-playwright
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,9 +38,25 @@ jobs:
           python-version: '3.12'
       # The Python tools' request keys and file identities are BLAKE3 (their READMEs' Depends on); without the module
       # their tests fail rather than skip.
-      - run: python -m pip install blake3
+      # Pillow draws the recorded demos (tools/record-a-web-page/do-work/draw-the-demo.py); numpy and onnxruntime are what
+      # the face, voice and picture-vector rows' samples import (know-who-is-in-this, words-as-picture-vector, media-composition);
+      # OpenCV and SciPy are the render check's (tools/check-a-rendered-video's Depends on), which keep-a-record-library-valid's
+      # delivery gate imports; soundfile writes the render check's spoken-tone fixtures (test/fixtures/tone_words.py).
+      - run: python -m pip install blake3 pillow numpy onnxruntime opencv-python-headless scipy soundfile
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium
+      # The walk tools look for a browser in WALK_BROWSER first, then the system's; the runner's Google Chrome calls its
+      # updater (update.googleapis.com) whatever the switches say, which a sample run refuses. Playwright's Chromium,
+      # the one every other browser test here drives, does not.
+      - run: echo "WALK_BROWSER=$(node -e "console.log(require('playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
+      # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg). Installed
+      # after Playwright's --with-deps, which has just read the package lists, so no second apt-get update; skipped where
+      # the runner already has it. The Ubuntu mirror is sometimes slow (28 minutes once), so the job allows 60 minutes.
+      - run: command -v ffmpeg || sudo apt-get install -y --no-install-recommends -o Acquire::Retries=3 ffmpeg
+      # Ubuntu 24.04 runners forbid unprivileged user namespaces (AppArmor), which Chrome's own sandbox is built on, so
+      # the runner's /usr/bin/google-chrome that walk-through-an-app and its kin find first stops at start with a crash
+      # dump. Allowing them lets the browser start with its sandbox on, as it does on a person's computer.
+      - run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
       # --test-force-exit: a test file whose tests have all ended exits, even if one left a timer or a server open.
       - run: node --test --test-force-exit --test-shard=${{ matrix.shard }}/4 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'

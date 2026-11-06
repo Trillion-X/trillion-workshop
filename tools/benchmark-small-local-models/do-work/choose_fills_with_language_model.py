@@ -10,12 +10,12 @@ from pathlib import Path
 import mlx.core as mx
 from mlx_lm import load, generate
 import pathlib
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
-R = place.request()
-LISTING = place.json_of(place.need(R, "listing"), "listing")
-O = place.json_of(place.need(R, "options"), "options")["slots"]
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer
+R = computer.request()
+LISTING = computer.json_of(computer.need(R, "listing"), "listing")
+O = computer.json_of(computer.need(R, "options"), "options")["slots"]
 NONE, ESC = "none of these is a true value for this blank; leave it empty", "escalate to a bigger model"
-REPO = place.need(R, "model"); MAX = place.need(R, "max_tokens")
+REPO = computer.need(R, "model"); MAX = computer.need(R, "max_tokens")
 t0 = time.time(); model, tok = load(REPO); load_s = time.time() - t0
 res = {}; times = []
 for sid, s in O.items():
@@ -33,4 +33,4 @@ for sid, s in O.items():
 meta = {"model": REPO, "load_s": round(load_s,1), "ms_per_request_median": round(1000*sorted(times)[len(times)//2]),
         "peak_mem_GB": round(mx.get_peak_memory()/1e9,2), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
 print(meta)
-place.answer({"meta": meta, "choices": res})
+computer.answer({"meta": meta, "choices": res})
