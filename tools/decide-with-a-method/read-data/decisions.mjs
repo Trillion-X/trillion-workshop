@@ -239,6 +239,19 @@ const ready = (cat, record) => {
   return { ai_instructions: [say(optionsOf(record).length ? 'ready' : 'none_standing')], options: optionsOf(record).map(({ id, label }) => ({ id, label })), how_to_say_it: cat.howToSayIt(record), ...(asked.length ? { decision_fields: asked } : {}) };
 };
 
+// The workflows the decision's accepted plan declares necessary for choosing (required_phase "decision"). A run cannot be
+// read here, so each stays unfinished and the decision waits: readiness names them as its blockers, and
+// tool:make-the-decision refuses with the same list, so the two never disagree.
+const decisionPhaseRuns = record => Object.entries(object(record.workflow_plan?.items) ? record.workflow_plan.items : {})
+  .filter(([, item]) => item?.applicable === true && item.required_phase === 'decision').map(([workflow]) => workflow);
+// With every question answered and no decision yet: what the AI does next, the decision or what it waits on.
+function readyOrBlocked(cat, record) {
+  const waiting = decisionPhaseRuns(record);
+  if (!waiting.length) return ready(cat, record);
+  return { ai_instructions: [say('decision_phase_runs', { workflows: waiting.join(', ') })], decision_blockers: waiting.map(workflow => say('decision_phase_blocker', { workflow })) };
+}
+const readyFor = reply => !reply.question && !reply.decision_blockers?.length;
+
 async function guideReply(door, cat, record) {
   const question = cat.currentQuestion(record);
   // At the moment of choice, what happened in similar earlier decisions.
@@ -250,7 +263,7 @@ async function guideReply(door, cat, record) {
     ...(record.workflow_plan ? { workflow_plan: record.workflow_plan } : {}),
     ...(similar ? { similar_decisions: similar } : {}),
     ...(!record.input.options && question?.fields?.includes(CANDIDATES.field) ? { candidates_note: say('candidates_note', { field: CANDIDATES.field }) } : {}),
-    ...(!question && !record.decision ? ready(cat, record) : {}),
+    ...(!question && !record.decision ? readyOrBlocked(cat, record) : {}),
   };
 }
 
@@ -428,7 +441,7 @@ async function confirmStep(door, methods, record, at) {
   record.change_count = (record.change_count ?? 0) + 1;
   await writeDecision(door, recordsOf(record), `confirm-a-decision-step:${record.id}:${at}:${record.change_count}`);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
-  return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: !reply.question };
+  return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: readyFor(reply) };
 }
 
 // A confirmation with verdicts: the answer stands and the judge's verdicts on its checks are added as a new version of the
@@ -463,7 +476,7 @@ async function confirmWithVerdicts(door, methods, record, at, step, given, now) 
   };
   await writeDecision(door, recordsOf(record, [at], archived), `confirm-a-decision-step:${record.id}:${at}:v${version}`);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
-  return { ...reply, confirmed: { step_id: entry.step_id, version, verdicts_added: added.map(item => item.id) }, ready_for_decision: !reply.question };
+  return { ...reply, confirmed: { step_id: entry.step_id, version, verdicts_added: added.map(item => item.id) }, ready_for_decision: readyFor(reply) };
 }
 
 // A revision of a decided decision's answer reopens it: the decision it had moves to decision_history, marked reopened by
@@ -568,7 +581,7 @@ export async function answerADecisionQuestion(input, { door }) {
     ...reply,
     ...(entry ? { revised: { step_id: step.id, version, previous_version: entry.version ?? 1, needs_recheck: record.guidance.slice(index + 1).filter(item => item.needs_recheck).map(item => item.step_id) } } : {}),
     ...(reopening ? { reopened: { from_generation: decisionGeneration(record), step_id: step.id, because: input.revise.because, at: now, note: say('reopened_note', { step: step.id }) } } : {}),
-    ready_for_decision: !reply.question,
+    ready_for_decision: readyFor(reply),
   };
 }
 
@@ -613,7 +626,7 @@ export async function makeTheDecision(input, { door }) {
   if (record.decision && same(record.decision, decision)) return decidedReply(cat, record, true);
   noRunIds(decision.workflow_runs, 'decision.workflow_runs');
   // Evidence declared necessary for choosing must be finished first; no run can be read here, so such a plan waits.
-  const needsRuns = Object.entries(object(record.workflow_plan?.items) ? record.workflow_plan.items : {}).filter(([, item]) => item?.applicable === true && item.required_phase === 'decision').map(([workflow]) => workflow);
+  const needsRuns = decisionPhaseRuns(record);
   if (needsRuns.length) refuse('decision_phase_runs', { workflows: needsRuns.join(', ') });
   keepCited(record, cited.pursuits, decision.evidence_refs);
   if (record.decision) {

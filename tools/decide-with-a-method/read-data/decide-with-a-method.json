@@ -132,6 +132,7 @@
     "decision_evidence": "Decision must cite existing evidence",
     "new_decision_needs_failure": "A new decision needs a failed result, or a revised answer that reopens the decision.",
     "decision_phase_runs": "This decision planned a workflow run its decision needs ({workflows}); a finished run cannot be checked by this tool yet, so the decision waits.",
+    "decision_phase_blocker": "{workflow} is planned and remains unfinished (decision phase); a finished run cannot be checked by this tool yet, so the decision waits.",
     "decided_note": "This decision was already made with these words; nothing changed.",
     "result_shape": "A result needs result (met, failed or unknown) and a summary",
     "ask_the_person": "Ask your person what happened and set answered_by to \"person\"",
