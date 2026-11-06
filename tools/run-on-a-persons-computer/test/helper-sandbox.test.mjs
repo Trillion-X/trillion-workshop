@@ -28,7 +28,7 @@ test('a helper without a row is refused, a switched-off row runs as before, and 
   assert.deepEqual(confined('image-text', '/usr/bin/swift', ['x'], { settings: off }), { program: '/usr/bin/swift', args: ['x'] });
   assert.throws(() => confined('image-text', '/usr/bin/swift', [], { exists: () => false }), /was not run unconfined/);
   // The helper's own folder is the one path its profile names; a built app keeps it outside the person's home, so the
-  // profile is read as built there (a checkout under the home would put its own folder in). /Applications is that place
+  // profile is read as built there (a checkout under the home would put its own folder in). /Applications is that folder
   // on a Mac; another computer has no /Applications, so a system folder outside the home stands in for it.
   const profile = profileOf('image-text', { here: existsSync('/Applications') ? '/Applications' : '/usr' });
   assert.match(profile, /^\(version 1\)\n\(deny default\)/);
