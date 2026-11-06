@@ -139,10 +139,12 @@ class QuestionsFirst:
             yield pairs[i:j]
             i = j
 
-    def score(self, h, contexts, max_ctx_tokens=32768, on_batch=None, should_stop=None):
+    def score(self, h, contexts, max_ctx_tokens=32768, on_batch=None, should_stop=None, on_done=None):
         """-> [n contexts, nq, max nopts] numpy probabilities (columns past a question's nopts are 0).
-        on_batch(finished state indices, total) is called after each batch is read; should_stop() is asked before each
-        batch is queued, and a stop leaves the states that did not finish at 0 (on_batch names the ones that did).
+        on_batch(finished state indices, total) is called after each batch is read, and on_done(the states that batch
+        finished, the probabilities) beside it, so a caller can hand on each state's answers as soon as it has them;
+        should_stop() is asked before each batch is queued, and a stop leaves the states that did not finish at 0
+        (on_batch names the ones that did).
         One batch is queued on the device while the previous one is read back."""
         suffixes = [self.tokenize(h, c, max_ctx_tokens) for c in contexts]
         n = len(contexts)
@@ -160,10 +162,14 @@ class QuestionsFirst:
                 z = row[:nopts[q]].astype(np.float64) / self.T
                 z = np.exp(z - z.max())
                 out[s, q, :nopts[q]] = z / z.sum()
+            fresh = []
             for s, _ in batch:
                 left[s] -= 1
                 if left[s] == 0:
                     done.append(s)
+                    fresh.append(s)
+            if on_done is not None and fresh:
+                on_done(fresh, out)
             if on_batch is not None:
                 on_batch(sorted(done), n)
 
