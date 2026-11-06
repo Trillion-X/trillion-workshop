@@ -3,7 +3,7 @@
 - device(): DECIDER_DEVICE, else what torch finds here (cuda, then mps, then cpu). Apple's mps is one option, not the rule.
 - hf_hub(): the model cache, HF_HUB_CACHE, else HF_HOME/hub, else the Hugging Face default under the home folder.
 - snapshot(repo): a downloaded model's snapshot folder in that cache, or a plain error naming the repo.
-- reported(name): another checkout or store the place reports (TRILLION_CHECKOUT, TRILLION_SITE, ...);
+- reported(name): another checkout or store the computer reports (TRILLION_CHECKOUT, TRILLION_SITE, ...);
   stops with the name of the missing input instead of guessing a home folder.
 - load_decider(repo): a decider-style choice classifier (decider.infer.Decider) from its snapshot, and the seconds it took.
 
@@ -51,14 +51,14 @@ def snapshot(repo, revision=None):
         return snaps / revision
     found = sorted(snaps.iterdir()) if snaps.is_dir() else []
     if not found:
-        refuse(f"{repo} is not in this place's model cache ({hf_hub()}); download it there (hf download {repo}) or set HF_HUB_CACHE")
+        refuse(f"{repo} is not in this computer's model cache ({hf_hub()}); download it there (hf download {repo}) or set HF_HUB_CACHE")
     return found[-1]
 
 
 def reported(name):
     at = REQUEST.get(name.lower()) or os.environ.get(name)
     if not at:
-        refuse(f"This place has not said where it keeps {name}. Give {name.lower()} in the request, or set {name} to the folder this place holds.")
+        refuse(f"This computer has not said where it keeps {name}. Give {name.lower()} in the request, or set {name} to the folder this place holds.")
     return Path(at)
 
 

@@ -11,8 +11,8 @@ Answer: { result: { meta, scores: { frame: score }, rank: { slot: [frame, best f
 reference): { top1, top1_in_<reference_name>_top3 } } }."""
 import json, sys, time, re, resource
 from pathlib import Path
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place; R = place.request(); DEV = place.device()
-S = place.json_of(place.need(R, "slots"), "slots"); S = S["slots"] if isinstance(S, dict) else S; M = place.need(R, "method"); MODEL = place.need(R, "model")
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer; R = computer.request(); DEV = computer.device()
+S = computer.json_of(computer.need(R, "slots"), "slots"); S = S["slots"] if isinstance(S, dict) else S; M = computer.need(R, "method"); MODEL = computer.need(R, "model")
 ORIG = {s["slot"]: [c.get("frame") for c in s["cands"]] for s in S}  # c<index> names a candidate by its place before frameless ones go
 for s in S: s["cands"] = [c for c in s["cands"] if "frame" in c]
 t0 = time.time(); scores = {}; n = 0; tt = 0
@@ -32,7 +32,7 @@ if M == "siglip":
 elif M == "decider-vision":
     import torch
     from PIL import Image
-    V = place.snapshot(MODEL); sys.path.insert(0, str(V))
+    V = computer.snapshot(MODEL); sys.path.insert(0, str(V))
     from decider.vision import VisionDecisionModel
     from decider.infer import Example, Q
     m = VisionDecisionModel(str(V), grad_ckpt=False).to(DEV).eval()
@@ -44,7 +44,7 @@ elif M == "decider-vision":
             with torch.no_grad(): lg = m.slot_logits(m.prepare([(im, ex)]))
             scores[c["frame"]] = torch.softmax(lg[0, :2], -1)[1].item(); tt += time.time() - t; n += 1
 elif M == "decider-text":
-    d, _ = place.load_decider(MODEL)
+    d, _ = computer.load_decider(MODEL)
     for s in S:
         reqs = [(f"An editor needs a clip for this slot of a launch video: {s['desc']}\nCandidate clip, as labelled in the library: {c['text']}",
                  [{"question": "Does this clip fit the slot?", "options": ["no", "yes"]}]) for c in s["cands"]]
@@ -65,14 +65,14 @@ elif M == "qwen3vl":
         for c in s["cands"]:
             t = time.time(); r = generate(model, proc, prompt, [c["frame"]], max_tokens=4, temperature=0.0, verbose=False); tt += time.time() - t; n += 1
             m_ = re.search(r"\d+", r.text if hasattr(r, "text") else str(r)); scores[c["frame"]] = float(m_.group(0)) if m_ else -1
-else: place.refuse(f"method {M!r} is not siglip, decider-vision, decider-text, bge-text or qwen3vl")
+else: computer.refuse(f"method {M!r} is not siglip, decider-vision, decider-text, bge-text or qwen3vl")
 rank = {s["slot"]: [c["frame"] for c in sorted(s["cands"], key=lambda c: -scores[c["frame"]])] for s in S}
 meta = {"method": M, "model": MODEL, "ms_per_candidate": round(1000*tt/max(n,1)), "n": n, "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2), "wall_s": round(time.time()-t0)}
 print(meta)
 result = {"meta": meta, "scores": scores, "rank": rank}
 if R.get("reference"):
     # each slot's best frame against the reference's first, and within its first three
-    who = place.need(R, "reference_name"); one = within = 0; n = 0
+    who = computer.need(R, "reference_name"); one = within = 0; n = 0
     for s in S:
         ref = R["reference"].get(str(s["slot"]))
         if not ref or not rank.get(s["slot"]): continue
@@ -80,4 +80,4 @@ if R.get("reference"):
         ref = [frames.get(x, x) for x in ref]; best = rank[s["slot"]][0]; n += 1
         one += best == ref[0]; within += best in ref[:3]
     result["agreement"] = {"top1": f"{one}/{n}", f"top1_in_{who}_top3": f"{within}/{n}"}
-place.answer(result)
+computer.answer(result)

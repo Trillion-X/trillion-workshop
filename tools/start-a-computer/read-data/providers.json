@@ -1,5 +1,5 @@
 {
-  "what_this_is": "The providers start-a-place may use. A `machines` row rents and releases one machine (or adopts one the person already runs, when `base` is null); a `names` row points one DNS name at it. Each row's `requests` are the only calls sent to that provider, and its credential is named by vault handle (`vault_key`), never held here. Add a provider by adding a row; the code knows none of them.",
+  "what_this_is": "The providers start-a-computer may use. A `machines` row rents and releases one machine (or adopts one the person already runs, when `base` is null); a `names` row points one DNS name at it. Each row's `requests` are the only calls sent to that provider, and its credential is named by vault handle (`vault_key`), never held here. Add a provider by adding a row; the code knows none of them.",
   "machines": [
     {
       "id": "hetzner",
