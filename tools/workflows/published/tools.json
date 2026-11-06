@@ -1639,12 +1639,12 @@
     "job": "Prove a public address takes a new account end to end: sign up, sign in and read a signed-in page",
     "description": "Signs up one synthetic account at the origin with a software passkey made for this run only, signs in with it under the new account's address, and reads a page only a signed-in person sees, then the same page without the session. Answers each step's HTTP status, the new address and whether the signed-in read answered 200. The passkey leaves with the process, so the synthetic account can never be signed in to again.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -4423,33 +4423,33 @@
    }
   },
   {
-   "id": "tool:give-a-place-a-new-release",
+   "id": "tool:give-a-computer-a-new-release",
    "values": {
-    "title": "Give a place a new release",
-    "job": "Put a new engine release on a running place and restart it",
-    "description": "Installs the request's engine release beside the old ones, points the place at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
+    "title": "Give a computer a new release",
+    "job": "Put a new engine release on a running computer and restart it",
+    "description": "Installs the request's engine release beside the old ones, points the computer at it, restarts the service and reads back the sign-up page. The old release stays on the machine, so going back is the same command with the old release_name.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
-   "id": "tool:give-back-a-place",
+   "id": "tool:give-back-a-computer",
    "values": {
-    "title": "Give back a place",
-    "job": "Stop paying for a place's machine: remove its public name and give the machine back",
-    "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the place's accounts to another place first: this deletes the machine's disk.",
+    "title": "Give back a computer",
+    "job": "Stop paying for a computer's machine: remove its public name and give the machine back",
+    "description": "Removes the public name the lease made, then deletes the machine and the SSH key the lease made, each only after reading it back and finding this lease's own label. A machine the person already runs is only forgotten, never touched. Move the computer's accounts to another computer first: this deletes the machine's disk.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -8625,33 +8625,33 @@
    }
   },
   {
-   "id": "tool:read-a-place",
+   "id": "tool:read-a-computer",
    "values": {
-    "title": "Read a place",
-    "job": "See whether a place's machine is running and its sign-up page answers",
-    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the place's public name.",
+    "title": "Read a computer",
+    "job": "See whether a computer's machine is running and its sign-up page answers",
+    "description": "Reads the saved lease, the machine's state at the provider and the sign-up page's HTTP status at the computer's public name.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
-   "id": "tool:read-a-place-price",
+   "id": "tool:read-a-computer-price",
    "values": {
-    "title": "Read a place's price",
-    "job": "See what a machine for a place would cost each month before renting it",
+    "title": "Read a computer's price",
+    "job": "See what a machine for a computer would cost each month before renting it",
     "description": "Reads the monthly price of the request's machine size at its location from the provider row's price request. Rents nothing.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -10257,14 +10257,14 @@
    "values": {
     "title": "Rent a machine",
     "job": "Rent a machine (or take one I already run) with a public name pointed at it, for another tool to set up",
-    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a place) does that. tool:give-back-a-place gives it back from the same lease file. Running it again resumes from the saved lease.",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, waits until it answers SSH, and answers the lease, the public name, the machine's architecture and the monthly price. It sets nothing up on the machine: another tool (an engine builder, a computer) does that. tool:give-back-a-computer gives it back from the same lease file. Running it again resumes from the saved lease.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -11235,7 +11235,7 @@
    "values": {
     "title": "See my decisions",
     "job": "Show my decisions, what I am working toward, my plans and what has helped me decide",
-    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your place reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
+    "description": "Reads your own rows and answers the Decisions screen: your newest decisions (at most 100) as summaries with the pursuits each cites, where each stands and how far it has got (decided, next action carried out, result checked); your current pursuits as the tree they nest into (from your record-scope choice rows); your newest plans; and what has helped you (which questions changed your answers and how those decisions turned out). With native_collection_page it answers one bounded page instead: the facts what helped is counted from (helped_items, your method check questions and your AIs' recorded work), collection_coverage saying whether more decisions, pursuits or plans exist, and next_before to send as before for the next page. access and allowance are what your computer reports: when your access limits deciding and does not keep decisions, the answer is free with nothing listed; none reported is no limit. metadata_only answers only access, allowance and the words for no pursuits, and reads no row. It changes nothing.",
     "status": "active",
     "maker": "maker:decide-with-a-method",
     "licence_class": "licence:maker-own",
@@ -12204,18 +12204,18 @@
    }
   },
   {
-   "id": "tool:start-a-place",
+   "id": "tool:start-a-computer",
    "values": {
-    "title": "Start a place",
-    "job": "Make a machine into a place that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
-    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the place config with the machine's address and price, starts it, and answers the place id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
+    "title": "Start a computer",
+    "job": "Make a machine into a computer that keeps people's accounts: rent one or use one I already run, set it up, start the engine serving and read back its sign-up page",
+    "description": "Rents a machine from a provider row (or adopts a Linux machine the person runs, at its address), points a public name at it through a names row, prepares it over SSH (a system user, Caddy with its own certificate, a firewall, a service), installs the engine release, writes the computer config with the machine's address and price, starts it, and answers the computer id, the machine's architecture, the monthly price and the sign-up page's HTTP status. Running it again resumes from the saved lease.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {
@@ -12940,14 +12940,14 @@
    "values": {
     "title": "Update a computer",
     "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-    "description": "Reads a running computer's own layout from its service unit (its place config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its place config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
+    "description": "Reads a running computer's own layout from its service unit (its computer config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its computer config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
     "status": "active",
-    "maker": "maker:start-a-place",
+    "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
     "placements": [
      "placement:your-computer"
     ],
-    "folder": "start-a-place"
+    "folder": "start-a-computer"
    }
   },
   {

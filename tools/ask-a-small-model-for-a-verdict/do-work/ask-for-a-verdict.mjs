@@ -716,7 +716,7 @@ const PROCESS_STARTED = new Date(Math.round(Date.now() - process.uptime() * 1000
 
 // A place whose open(2) takes no kernel lock holds the same lock by the name's existence instead. Its file is linked
 // into place whole (marker and holder line together), so it is never empty, and is removed by its holder on release.
-// The holder names its place, so a lock whose process ended on this place is taken, and a lock held from another
+// The holder names its computer, so a lock whose process ended on this computer is taken, and a lock held from another
 // place sharing the folder is never taken. Which way a folder uses is asked of the place, never assumed from its kind.
 const CACHE_HELD_MARKER = Buffer.from('trillion.judge-cache-held-lock/v1\n', 'utf8')
 const heldByName = new Set()
@@ -790,12 +790,12 @@ function namedHolderOf(bytes) {
   } catch { return null }
 }
 
-/** Whether a process on this place is still running: one that cannot be signalled but exists counts as running. */
+/** Whether a process on this computer is still running: one that cannot be signalled but exists counts as running. */
 function processRuns(pid) {
   try { process.kill(pid, 0); return true } catch (error) { return error.code !== 'ESRCH' }
 }
 
-/** Takes away a lock held by name whose holder ended on this place; anything else there stays and counts as busy. */
+/** Takes away a lock held by name whose holder ended on this computer; anything else there stays and counts as busy. */
 function setAsideEndedHolder(path) {
   const name = `${path}.lock`
   let descriptor
@@ -819,7 +819,7 @@ function setAsideEndedHolder(path) {
       return false
     }
     unlinkSync(aside)
-    process.stderr.write(`ask-for-a-verdict: reclaimed ${name}, held by process ${holder.pid} on this place, which has ended\n`)
+    process.stderr.write(`ask-for-a-verdict: reclaimed ${name}, held by process ${holder.pid} on this computer, which has ended\n`)
     return true
   } finally { closeSync(descriptor) }
 }

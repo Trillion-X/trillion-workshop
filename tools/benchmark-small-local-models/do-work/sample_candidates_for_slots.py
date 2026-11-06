@@ -10,17 +10,17 @@ Answer: { result: { slots: [{ ...slot, cands: [{ video, row, t_mid, text }] }] }
 import csv, json, random, subprocess, sys
 from pathlib import Path
 import pathlib
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request()
-LIB = pathlib.Path(place.need(R, "library")); EXCLUDE = place.need(R, "exclude_prefix")
-SLOTS = place.need(R, "slots")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request()
+LIB = pathlib.Path(computer.need(R, "library")); EXCLUDE = computer.need(R, "exclude_prefix")
+SLOTS = computer.need(R, "slots")
 for s_ in SLOTS:
-    if not {"slot", "desc", "kind"} <= set(s_): place.refuse("each of `slots` is { slot, desc, kind: [shots.tsv kind], need_screen: [screen] }")
+    if not {"slot", "desc", "kind"} <= set(s_): computer.refuse("each of `slots` is { slot, desc, kind: [shots.tsv kind], need_screen: [screen] }")
 dur = {}
 def vdur(v):
     if v not in dur:
         try: r = subprocess.run(["ffprobe","-v","error","-show_entries","format=duration","-of","csv=p=0",str(LIB/"videos"/f"{v}.mp4")],capture_output=True,text=True)
-        except FileNotFoundError: place.refuse("ffprobe is not on PATH: install ffmpeg")
+        except FileNotFoundError: computer.refuse("ffprobe is not on PATH: install ffmpeg")
         try: dur[v] = float(r.stdout.strip())
         except: dur[v] = 1e9
     return dur[v]
@@ -45,4 +45,4 @@ for s in SLOTS:
                     cands=[{"video": r["video"], "row": r["row"], "t_mid": round((float(r["t0"])+float(r["t1"]))/2, 3),
                             "text": "; ".join(f"{k}: {r.get(k,'')}" for k in ["kind","shot_size","angle","subject","screen","place","light","action","camera_movement"])} for r in picked]))
 print([len(s["cands"]) for s in out])
-place.answer({"slots": out})
+computer.answer({"slots": out})

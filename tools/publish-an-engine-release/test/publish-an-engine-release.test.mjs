@@ -20,8 +20,11 @@ const canary = 'repository-token-canary-0123456789';
 // Each file's mode, read from its ustar header.
 const modesOf = (tar, modes = {}) => { for (let at = 0; tar[at]; at += 512 + Math.ceil(parseInt(tar.toString('latin1', at + 124, at + 135), 8) / 512) * 512) modes[tar.toString('latin1', at, at + 100).replace(/\0.*$/s, '')] = parseInt(tar.toString('latin1', at + 100, at + 107), 8); return modes; };
 const folder = () => mkdtempSync(join(tmpdir(), 'publish-an-engine-release-'));
+// A release's sequence is its commit's time in seconds; the made-up repository's commit n is made at BASE_TIME + n.
+const BASE_TIME = 1_800_000_000;
 const sh = (cwd, ...args) => {
-  const ran = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: { ...process.env, GIT_AUTHOR_NAME: 'A', GIT_AUTHOR_EMAIL: 'a@example.com', GIT_COMMITTER_NAME: 'A', GIT_COMMITTER_EMAIL: 'a@example.com' } });
+  const extra = typeof args.at(-1) === 'object' ? args.pop().env : {};
+  const ran = spawnSync('git', ['-C', cwd, ...args], { encoding: 'utf8', env: { ...process.env, GIT_AUTHOR_NAME: 'A', GIT_AUTHOR_EMAIL: 'a@example.com', GIT_COMMITTER_NAME: 'A', GIT_COMMITTER_EMAIL: 'a@example.com', ...extra } });
   assert.equal(ran.status, 0, ran.stderr);
   return ran.stdout.trim();
 };
@@ -39,8 +42,10 @@ function repository(count, { trailerAt, product = true } = {}) {
   }
   writeFileSync(join(work, 'Cargo.toml'), '[package]\nname = "made-up"\n');
   sh(work, 'add', '.');
-  sh(work, 'commit', '-q', '-m', 'first');
-  for (let i = 2; i <= count; i++) sh(work, 'commit', '-q', '--allow-empty', '-m', i === trailerAt ? `change ${i}\n\nRelease-Urgent: true` : `change ${i}`);
+  // Commit n is made at second BASE_TIME + n, so its sequence (its commit time) is BASE_TIME + n.
+  const at = n => ({ GIT_COMMITTER_DATE: `${BASE_TIME + n} +0000`, GIT_AUTHOR_DATE: `${BASE_TIME + n} +0000` });
+  sh(work, 'commit', '-q', '-m', 'first', { env: at(1) });
+  for (let i = 2; i <= count; i++) sh(work, 'commit', '-q', '--allow-empty', '-m', i === trailerAt ? `change ${i}\n\nRelease-Urgent: true` : `change ${i}`, { env: at(i) });
   sh(work, 'remote', 'add', 'origin', remote);
   sh(work, 'push', '-q', 'origin', 'main');
   const commits = sh(work, 'rev-list', '--reverse', '--first-parent', 'main').split('\n');
@@ -71,7 +76,7 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
   assert.equal(statSync(request.key_file).mode & 0o777, 0o400);
   assert.match(key.public_key, /^[0-9a-f]{64}$/);
   const answer = await publish(request, { token: canary });
-  assert.deepEqual([answer.commit, answer.sequence, answer.target, answer.urgent, answer.already_published], [commits[2], 3, 'x86_64-unknown-linux-gnu', true, false]);
+  assert.deepEqual([answer.commit, answer.sequence, answer.target, answer.urgent, answer.already_published], [commits[2], BASE_TIME + 3, 'x86_64-unknown-linux-gnu', true, false]);
   assert.equal(answer.url, `https://releases.example.com/engine-releases/${commits[2]}/x86_64-unknown-linux-gnu.tar.gz`);
   assert.equal(answer.public_key, key.public_key);
 
@@ -91,11 +96,11 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
   for (const { name, bytes: body } of untarGz(bytes, { withBytes: true })) { mkdirSync(dirname(join(unpacked, name)), { recursive: true }); writeFileSync(join(unpacked, name), body, { mode: 0o755 }); }
   assert.deepEqual(readdirSync(unpacked).sort(), ['product', 'trillion-local']);
   assert.ok(existsSync(join(unpacked, 'product', 'new-accounts.json')));
-  assert.equal(spawnSync(join(unpacked, 'trillion-local'), { encoding: 'utf8' }).stdout.trim(), `trillion-local ${commits[2]} 3`, 'built with the two release values');
+  assert.equal(spawnSync(join(unpacked, 'trillion-local'), { encoding: 'utf8' }).stdout.trim(), `trillion-local ${commits[2]} ${BASE_TIME + 3}`, 'built with the two release values');
 
   const seen = readFileSync(envFile, 'utf8');
   assert.match(seen, new RegExp(`TRILLION_RELEASE_COMMIT=${commits[2]}`));
-  assert.match(seen, /TRILLION_RELEASE_SEQUENCE=3/);
+  assert.match(seen, new RegExp(`TRILLION_RELEASE_SEQUENCE=${BASE_TIME + 3}`));
   for (const text of [seen, readFileSync(join(request.work_folder, 'build.log'), 'utf8'), JSON.stringify(feed), JSON.stringify(answer)]) assert.ok(!text.includes(canary));
 
   const again = await publish(request, { token: canary });
@@ -107,7 +112,7 @@ test('a commit with no product/ folder publishes a release that holds only trill
   const { remote, commits } = repository(2, { product: false });
   const { key, request } = builder(remote);
   const answer = await publish(request);
-  assert.deepEqual([answer.commit, answer.sequence, answer.already_published], [commits[1], 2, false]);
+  assert.deepEqual([answer.commit, answer.sequence, answer.already_published], [commits[1], BASE_TIME + 2, false]);
   const [entry] = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases;
   assert.ok(verifyEntry(entry, key.public_key));
   const bytes = readFileSync(join(request.feed_folder, commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
@@ -140,10 +145,10 @@ test('a commit older than the feed\'s newest is refused before it is built', asy
   const { request, envFile } = builder(remote);
   await publish(request, { commit: commits[2] });
   writeFileSync(envFile, '');
-  await assert.rejects(publish(request, { commit: commits[1] }), error => error.exit === 3 && /sequence 2, older than the feed's newest/.test(error.message));
+  await assert.rejects(publish(request, { commit: commits[1] }), error => error.exit === 3 && new RegExp(`sequence ${BASE_TIME + 2}, older than the feed's newest`).test(error.message));
   assert.equal(readFileSync(envFile, 'utf8'), '', 'nothing was built');
   const feed = readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
-  assert.deepEqual(feed.releases.map(entry => entry.sequence), [3]);
+  assert.deepEqual(feed.releases.map(entry => entry.sequence), [BASE_TIME + 3]);
   await assert.rejects(publish(request, { commit: 'f'.repeat(40) }), /not on main's first-parent line/);
 });
 
@@ -154,13 +159,13 @@ test('the feed keeps the newest 32 releases, and an older one leaves with its ta
   const seeded = commits.slice(0, 32).map((commit, at) => {
     mkdirSync(join(request.feed_folder, commit), { recursive: true });
     writeFileSync(join(request.feed_folder, commit, `${target}.tar.gz`), 'made-up');
-    return signEntry({ commit, sequence: at + 1, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content: `1f:${'c'.repeat(64)}`, bytes: 7, urgent: false }, privateKey);
+    return signEntry({ commit, sequence: BASE_TIME + at + 1, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content: `1f:${'c'.repeat(64)}`, bytes: 7, urgent: false }, privateKey);
   });
   writeFileSync(join(request.feed_folder, 'feed.json'), JSON.stringify({ releases: seeded }));
   const answer = await publish(request, {});
-  assert.deepEqual([answer.sequence, answer.dropped, answer.releases_held], [33, 1, 32]);
+  assert.deepEqual([answer.sequence, answer.dropped, answer.releases_held], [BASE_TIME + 33, 1, 32]);
   const feed = readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
-  assert.deepEqual(feed.releases.map(entry => entry.sequence), Array.from({ length: 32 }, (_, at) => at + 2), 'newest last');
+  assert.deepEqual(feed.releases.map(entry => entry.sequence), Array.from({ length: 32 }, (_, at) => BASE_TIME + at + 2), 'newest last');
   assert.ok(!existsSync(join(request.feed_folder, commits[0])), 'the dropped release\'s tar.gz is gone');
   assert.ok(existsSync(join(request.feed_folder, commits[1], `${target}.tar.gz`)));
 });
@@ -200,7 +205,7 @@ test('the command reads the token on descriptor 3 and prints the entry on its la
   assert.equal(ran.status, 0, ran.stderr);
   assert.ok(!ran.stdout.includes(canary) && !ran.stderr.includes(canary));
   const last = JSON.parse(ran.stdout.trim().split('\n').at(-1));
-  assert.deepEqual([last.commit, last.sequence], [commits[1], 2]);
+  assert.deepEqual([last.commit, last.sequence], [commits[1], BASE_TIME + 2]);
   const refused = spawnSync(process.execPath, [PUBLISH, 'publish', file, '--commit', commits[0]], { encoding: 'utf8' });
   assert.equal(refused.status, 3);
   assert.match(JSON.parse(refused.stdout.trim().split('\n').at(-1)).error, /older/);
@@ -323,7 +328,7 @@ test('the receiver runs publish for a pushed commit and keeps how it went in las
   writeFileSync(configFile, JSON.stringify(request));
   const run = await runPublish({ configFile, token: canary, stateFolder, log: line => said.push(line) })(commits[1]);
   assert.equal(run.exit, 0, run.error);
-  assert.deepEqual([run.release.commit, run.release.sequence], [commits[1], 2]);
+  assert.deepEqual([run.release.commit, run.release.sequence], [commits[1], BASE_TIME + 2]);
   const kept = readFileSync(join(stateFolder, 'last-run.json'), 'utf8');
   assert.deepEqual(JSON.parse(kept).release.signature, run.release.signature);
   const older = await runPublish({ configFile, token: canary, stateFolder, log: line => said.push(line) })(commits[0]);

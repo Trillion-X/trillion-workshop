@@ -11,12 +11,12 @@ from pathlib import Path
 import torch, open_clip
 from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data"))
-import place; R = place.request()
-FIELDS, values, DEFINE = place.vocabulary(R)
-MODEL = place.need(R, "model")
-TAG = place.need(R, "tag")
-S = place.shots_of(R)
-dev = place.device()
+import computer; R = computer.request()
+FIELDS, values, DEFINE = computer.vocabulary(R)
+MODEL = computer.need(R, "model")
+TAG = computer.need(R, "tag")
+S = computer.shots_of(R)
+dev = computer.device()
 t0 = time.time()
 model, pre = open_clip.create_model_from_pretrained(MODEL)
 tok = open_clip.get_tokenizer(MODEL)
@@ -37,7 +37,7 @@ with torch.no_grad():
     for s in S:
         if "frame" not in s: continue
         im = pre(Image.open(s["frame"]).convert("RGB")).unsqueeze(0).to(dev)
-        t = time.time(); ie = torch.nn.functional.normalize(model.encode_image(im), dim=-1); place.sync(dev); t_img += time.time() - t
+        t = time.time(); ie = torch.nn.functional.normalize(model.encode_image(im), dim=-1); computer.sync(dev); t_img += time.time() - t
         row = {"i": S.index(s)}
         for (f, mode), te in temb.items():
             sc = (ie @ te.T)[0].float().cpu().tolist()
@@ -47,7 +47,7 @@ with torch.no_grad():
         out.append(row)
 n = len(out)
 meta = {"model": MODEL, "tag": TAG, "load_s": round(load_s, 1), "ms_per_image": round(1000*t_img/n, 1), "n": n,
-        "mps_GB": place.mps_gb(dev), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2),
+        "mps_GB": computer.mps_gb(dev), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9, 2),
         "params_M": round(sum(p.numel() for p in model.parameters())/1e6)}
 print(meta)
-place.answer({"meta": meta, "rows": out})
+computer.answer({"meta": meta, "rows": out})

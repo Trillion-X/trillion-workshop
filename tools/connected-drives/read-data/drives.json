@@ -10,7 +10,7 @@
     "most_ms": 90000,
     "largest_kept": 10
   },
-  "_readers": "`readers`: the ways a place may know its connected drives, tried in order. A reader is chosen only when its `at` path exists on the place the run is on; the tool never asks what kind of machine it is. `finder-volumes` lists the folders under `volumes_root` that Finder shows, with diskutil's identity, and can draw Finder's icon. `mount-table` reads a kernel mount table (`at`, mountinfo lines) and lists the block-device mounts inside one of `mount_roots`; it has no icon and no safe eject, so its drives answer `ejectable: false`. `lsof` is where that place keeps the program that names open files.",
+  "_readers": "`readers`: the ways a computer may know its connected drives, tried in order. A reader is chosen only when its `at` path exists on the computer the run is on; the tool never asks what kind of machine it is. `finder-volumes` lists the folders under `volumes_root` that Finder shows, with diskutil's identity, and can draw Finder's icon. `mount-table` reads a kernel mount table (`at`, mountinfo lines) and lists the block-device mounts inside one of `mount_roots`; it has no icon and no safe eject, so its drives answer `ejectable: false`. `lsof` is where that computer keeps the program that names open files.",
   "readers": [
     {
       "id": "finder-volumes",

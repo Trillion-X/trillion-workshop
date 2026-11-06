@@ -1,7 +1,7 @@
 // tools/running-programs/read-data/running-programs.mjs
 //
 // PURPOSE
-//   The programs running on the person's computer (any place that reports them) and how much memory each one uses, for an AI to see what is running, what
+//   The programs running on the person's computer (any computer that reports them) and how much memory each one uses, for an AI to see what is running, what
 //   is growing, or whether one program is still there. A function run by tools/records-door's run-an-export as a
 //   `computer` row holding the `read-processes` capability: the system's list of processes and each one's name and
 //   memory, read-only.
@@ -9,9 +9,9 @@
 // NON-NEGOTIABLE INVARIANTS
 //   1. Nothing is changed: no program is stopped, signalled or started (besides the one reader below).
 //   2. No privileged program is started: ps and top are setuid and a sandboxed run may not start them, so the list comes
-//      from the system's process information, by the first reader in running-programs.json this place has: a process
+//      from the system's process information, by the first reader in running-programs.json this computer has: a process
 //      table folder read directly, or libproc read by read-programs.js through osascript.
-//   3. Memory is the physical footprint the place reports (libproc's phys_footprint, or a process table's private
+//   3. Memory is the physical footprint the computer reports (libproc's phys_footprint, or a process table's private
 //      memory, RssAnon plus VmSwap) and the resident bytes; a program the person may not read (another user's) is
 //      listed with null memory, never a guess.
 //   4. One answer is bounded: at most `most` programs (running-programs.json), the largest first.
@@ -60,7 +60,7 @@ const READERS = {
   'libproc-through-osascript': ({ at }, exec) => readThroughOsascript(at, exec),
 };
 
-/** Every program the first reader this place has saw: the place is known only by which reader's `at` it has. */
+/** Every program the first reader this computer has saw: the place is known only by which reader's `at` it has. */
 export async function readPrograms({ exec = run, readers = settings.readers, has = fs.existsSync } = {}) {
   const reader = readers.find(row => READERS[row.reads] && has(row.at));
   if (!reader) throw cannotRead();

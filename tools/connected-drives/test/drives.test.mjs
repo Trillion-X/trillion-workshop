@@ -147,7 +147,7 @@ test('the second reader lists block-device mounts inside its mount roots from a 
   assert.ok(!place.calls.some(([command]) => command.includes('osascript') || command.includes('diskutil')));
 });
 
-test('the reader is chosen by which reader path the place has, never by what kind of machine it is', async () => {
+test('the reader is chosen by which reader path the computer has, never by what kind of machine it is', async () => {
   const { chooseReader } = await import('../read-data/drives.mjs');
   const settings = JSON.parse(readFileSync(new URL('../read-data/drives.json', import.meta.url), 'utf8'));
   assert.deepEqual(settings.readers.map(reader => reader.id), ['finder-volumes', 'mount-table']);

@@ -58,7 +58,7 @@ ADAPTERS = {}
 MLX_PINS = {}
 SETTINGS = {}
 LINE_SETS = {}
-PLACE_DID_NOT_REPORT = "This place has not said where it keeps {what}. Set {name}, or {setting} in this tool's settings."
+COMPUTER_DID_NOT_REPORT = "This computer has not said where it keeps {what}. Set {name}, or {setting} in this tool's settings."
 
 
 class Refused(Exception):
@@ -95,16 +95,16 @@ def configure(settings, line_sets=None):
 
 def consult_route():
     """The declared hosted-model route (it owns price and budget): the setting's consult_route, else the ai-command-center
-    checkout this place reports (AI_COMMAND_CENTER). A place that reports none is refused in plain words; no home folder is guessed."""
+    checkout this computer reports (AI_COMMAND_CENTER). A computer that reports none is refused in plain words; no home folder is guessed."""
     if SETTINGS.get("consult_route"):
         return Path(SETTINGS["consult_route"]).expanduser()
     if not os.environ.get("AI_COMMAND_CENTER"):
-        raise Refused(PLACE_DID_NOT_REPORT.format(what="ai-command-center", name="AI_COMMAND_CENTER", setting="consult_route"))
+        raise Refused(COMPUTER_DID_NOT_REPORT.format(what="ai-command-center", name="AI_COMMAND_CENTER", setting="consult_route"))
     return Path(os.environ["AI_COMMAND_CENTER"]) / ".claude/hooks/consult-model.py"
 
 
 def device(torch):
-    """The device this place reports for the model: the setting, else DECIDER_DEVICE, else what torch finds here (cuda, then mps, then cpu)."""
+    """The device this computer reports for the model: the setting, else DECIDER_DEVICE, else what torch finds here (cuda, then mps, then cpu)."""
     if SETTINGS.get("device"):
         return SETTINGS["device"]
     if os.environ.get("DECIDER_DEVICE"):

@@ -9,7 +9,7 @@ import {holdCacheLock, releaseCacheLock, kernelOpenLocksIn, rememberedIn} from '
 
 const MARKER = 'trillion.judge-cache-kernel-lock/v1\n'
 const HELD = 'trillion.judge-cache-held-lock/v1\n'
-// Each way is tested where the place reports it: a kernel open lock, or a lock held by its name.
+// Each way is tested where the computer reports it: a kernel open lock, or a lock held by its name.
 const kernel = kernelOpenLocksIn(tmpdir())
 
 function cachePath() { return join(mkdtempSync(join(tmpdir(), 'cache-lock-')), 'remembered.json') }
@@ -110,14 +110,14 @@ test('held by name: the lock names its holder and place, refuses a second holder
   releaseCacheLock(path, holdCacheLock(path))
 })
 
-test('held by name: a lock whose holder ended on this place is taken, with one log line', {skip: kernel}, () => {
+test('held by name: a lock whose holder ended on this computer is taken, with one log line', {skip: kernel}, () => {
   const path = cachePath()
   const ended = Number(spawnSync('sh', ['-c', 'echo $$'], {encoding: 'utf8'}).stdout.trim())
   writeFileSync(`${path}.lock`, `${HELD}${JSON.stringify({pid: ended, started: new Date(0).toISOString(), place: hostname()})}\n`, {mode: 0o600})
   const {value: descriptor, lines} = withStderr(() => holdCacheLock(path))
   try {
     assert.equal(lines.length, 1)
-    assert.match(lines[0], /reclaimed .*remembered\.json\.lock, held by process \d+ on this place, which has ended/)
+    assert.match(lines[0], /reclaimed .*remembered\.json\.lock, held by process \d+ on this computer, which has ended/)
     assert.equal(heldHolderOf(path).pid, process.pid)
   } finally { releaseCacheLock(path, descriptor) }
 })

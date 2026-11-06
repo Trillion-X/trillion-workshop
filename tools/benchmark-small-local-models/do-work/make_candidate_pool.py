@@ -1,5 +1,5 @@
 """Candidate pool of sourced phrases: the catalog listing, gettrillion.ai copy (trillion-site src JSON, read only)
-and git log facts from the Trillion and trillion-site checkouts the place reports (TRILLION_CHECKOUT, TRILLION_SITE). Every phrase keeps a checkable source.
+and git log facts from the Trillion and trillion-site checkouts the computer reports (TRILLION_CHECKOUT, TRILLION_SITE). Every phrase keeps a checkable source.
 (As first run. Here every one of those is the request's: a listing, a site's JSON files, git histories, a product name.)
 
   python3 -I tools/benchmark-small-local-models/do-work/make_candidate_pool.py <request.json>   (or stdin)
@@ -13,12 +13,12 @@ it), repos ([git checkout]: every commit subject, then "<n> commits since <first
 Answer: { result: { pool: [{ text, source, origin }], by_origin } }. Needs git."""
 import json, re, subprocess, sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request(); MOST = place.need(R, "most_words")
-REPOS, AGE_REPOS = [Path(r) for r in place.need(R, "repos")], [Path(r) for r in place.need(R, "age_repos")]
-TLV = Path(place.need(R, "listing_root"))
-LISTING = Path(place.need(R, "listing"))
-SITE = Path(place.need(R, "site")); SITE_LABEL = place.need(R, "site_label")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request(); MOST = computer.need(R, "most_words")
+REPOS, AGE_REPOS = [Path(r) for r in computer.need(R, "repos")], [Path(r) for r in computer.need(R, "age_repos")]
+TLV = Path(computer.need(R, "listing_root"))
+LISTING = Path(computer.need(R, "listing"))
+SITE = Path(computer.need(R, "site")); SITE_LABEL = computer.need(R, "site_label")
 pool = []
 def add(text, src, origin):
     t = re.sub(r"\*\*", "", text).strip().strip(".").strip()
@@ -35,7 +35,7 @@ ls = f"{LISTING.relative_to(TLV)}:1"
 add(L["title"], ls, "listing")
 for st in L["steps"]: add(st, ls, "listing")
 for c in clauses(L["job"]): add(c, ls, "listing")
-for fn in place.need(R, "site_files"):
+for fn in computer.need(R, "site_files"):
     lines = (SITE/fn).read_text().splitlines()
     for n, line in enumerate(lines, 1):
         for s in re.findall(r'"(?:heading|lead|text|title|label|description|job|paragraphs|summary)"\s*:\s*"([^"]{8,400})"', line) + \
@@ -43,7 +43,7 @@ for fn in place.need(R, "site_files"):
             for c in clauses(s): add(c, f"{SITE_LABEL}:src/{fn}:{n}", "site")
 def git(*argv):
     try: return subprocess.run(argv, capture_output=True, text=True).stdout
-    except FileNotFoundError: place.refuse("git is not on PATH: install it")
+    except FileNotFoundError: computer.refuse("git is not on PATH: install it")
 for repo in REPOS:
     out = git("git", "-C", str(repo), "log", "--format=%h\t%ad\t%s", "--date=short")
     rows = [r.split("\t") for r in out.splitlines() if r.count("\t") == 2]
@@ -58,17 +58,17 @@ NUM = r"\b(\d[\d,]*|one|two|three|four|five|six|seven|eight|nine|ten|hundreds|th
 for p in list(pool):
     for m in re.finditer(NUM, p["text"]):
         add(f"{m.group(1)} {m.group(2)}", p["source"], p["origin"] + "-number")
-NAME = place.need(R, "name")
-for fn in place.need(R, "name_files"):
+NAME = computer.need(R, "name")
+for fn in computer.need(R, "name_files"):
     for n, line in enumerate((SITE/fn).read_text().splitlines(), 1):
         if f'"{NAME}' in line or f" {NAME}" in line:
             add(NAME, f"{SITE_LABEL}:src/{fn}:{n}", "site-name"); break
 import datetime
-AS_OF = datetime.date.fromisoformat(place.need(R, "as_of"))
+AS_OF = datetime.date.fromisoformat(computer.need(R, "as_of"))
 for repo in AGE_REPOS:
     out = git("git", "-C", str(repo), "log", "--reverse", "--format=%h\t%ad", "--date=short").splitlines()
     if out:
         h, d = out[0].split("\t"); days = (AS_OF - datetime.date.fromisoformat(d)).days
         add(f"{days} days", f"git:{repo.name}@{h}", "git-fact"); add(f"{round(days/7)} weeks", f"git:{repo.name}@{h}", "git-fact")
 print("with typed:", len(pool), Counter(p["origin"] for p in pool))
-place.answer({"pool": pool, "by_origin": dict(Counter(p["origin"] for p in pool))})
+computer.answer({"pool": pool, "by_origin": dict(Counter(p["origin"] for p in pool))})

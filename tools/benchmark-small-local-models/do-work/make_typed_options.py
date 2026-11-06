@@ -10,10 +10,10 @@ reranker's top 6. Answer: { result: { meta, slots: { slot id: { ...ranked slot, 
 Standard library only."""
 import json, random, sys
 from pathlib import Path
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
-R = place.request()
-pool = place.json_of(place.need(R, "pool"), "pool"); pool = pool["pool"] if isinstance(pool, dict) else pool
-A = place.json_of(place.need(R, "ranked"), "ranked")["slots"]
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer
+R = computer.request()
+pool = computer.json_of(computer.need(R, "pool"), "pool"); pool = pool["pool"] if isinstance(pool, dict) else pool
+A = computer.json_of(computer.need(R, "ranked"), "ranked")["slots"]
 by = lambda pred: [p for p in pool if pred(p)]
 TYPED = {
  "FEATURE": by(lambda p: p["origin"] == "listing"),
@@ -33,4 +33,4 @@ for sid, s in A.items():
     random.Random(sid).shuffle(opts)
     out[sid] = dict(s, options=opts)
     print(sid, s["type"], len(opts))
-place.answer({"meta": {"condition": "typed pools + reranker top 6"}, "slots": out})
+computer.answer({"meta": {"condition": "typed pools + reranker top 6"}, "slots": out})
