@@ -205,7 +205,7 @@
  ],
  "allowed_deltas": [
   "the rows are read through the records door (seeMyDecisions) once, and the moved screen reads them from there",
-  "access and allowance are what the caller's place reports (input), not an account owner this folder has no door to",
+  "access and allowance are what the caller's computer reports (input), not an account owner this folder has no door to",
   "the check questions are the person's own check rows (list:checks, rows with a step), not a checks file",
   "a decision's status and result use decision-outcome.mjs with the decision tools' precedence setting",
   "a checklist kept as { checks } (the decision tools' layout) is read as its list",
@@ -214,7 +214,7 @@
  "banned_substitutions": [
   "a second reader of the person's decisions with its own status or outcome rules",
   "a checks file or a words file copied into this folder in place of the person's rows",
-  "an allowance or limit invented when the place reports none"
+  "an allowance or limit invented when the computer reports none"
  ],
  "baseline": {
   "copied_before_adaptation": true,

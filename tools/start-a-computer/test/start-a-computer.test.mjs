@@ -10,15 +10,15 @@ import {
   forgetName, fingerprintOf,
 } from '../do-work/rent-a-machine.mjs';
 import {
-  rentAMachine, startAPlace, placeConfig, readRequest, updateAComputer, rollBackAComputer, PRODUCT_SETTINGS, productSettings,
+  rentAMachine, startAComputer, computerConfig, readRequest, updateAComputer, rollBackAComputer, PRODUCT_SETTINGS, productSettings,
   parseUnit, readLayout, copiesFor, copiesPolicy,
-} from '../do-work/start-a-place.mjs';
+} from '../do-work/start-a-computer.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 
 const canary = 'provider-credential-canary-0123456789';
 const publicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample0 someone@example.com';
-const folder = () => mkdtempSync(join(tmpdir(), 'start-a-place-'));
+const folder = () => mkdtempSync(join(tmpdir(), 'start-a-computer-'));
 const hetzner = machineProvider('hetzner'), existing = machineProvider('existing-machine'), cloudflare = nameProvider('cloudflare');
 
 // A provider that answers from a table of `METHOD path` -> body (or a function of the request body).
@@ -45,8 +45,8 @@ test('the rows name every provider call and their credentials by vault handle on
 });
 
 test('the client sends only the calls its row declares', async () => {
-  const request = providerClient(hetzner, canary, { fetchImpl: provider(hetzner.base, { 'GET /servers?name=a-place': { servers: [] } }) });
-  assert.deepEqual(await request('GET', '/servers?name=a-place'), { servers: [] });
+  const request = providerClient(hetzner, canary, { fetchImpl: provider(hetzner.base, { 'GET /servers?name=a-computer': { servers: [] } }) });
+  assert.deepEqual(await request('GET', '/servers?name=a-computer'), { servers: [] });
   await assert.rejects(request('DELETE', '/volumes/7'), /operation was refused/);
   await assert.rejects(request('DELETE', '/servers/abc'), /operation was refused/);
   assert.throws(() => providerClient(hetzner, ''), /credential was refused/);
@@ -55,20 +55,20 @@ test('the client sends only the calls its row declares', async () => {
 test('renting stores the key, makes the machine with this lease\'s label, and releases only what it owns', async () => {
   const file = join(folder(), 'lease.json'), calls = [];
   const fetchImpl = provider(hetzner.base, {
-    'GET /servers?name=a-place': { servers: [] },
+    'GET /servers?name=a-computer': { servers: [] },
     [`GET /ssh_keys?fingerprint=${encodeURIComponent(fingerprintOf(publicKey))}`]: { ssh_keys: [] },
     'POST /ssh_keys': body => ({ ssh_key: { id: 11, labels: body.labels } }),
     'POST /servers': body => ({ server: { id: 22, labels: body.labels, public_net: { ipv4: { ip: '192.0.2.10' } } } }),
-    'GET /servers/22': { server: { id: 22, status: 'running', labels: { 'place-lease': 'a-place' }, public_net: { ipv4: { ip: '192.0.2.10' } } } },
+    'GET /servers/22': { server: { id: 22, status: 'running', labels: { 'place-lease': 'a-computer' }, public_net: { ipv4: { ip: '192.0.2.10' } } } },
     'DELETE /servers/22': {},
-    'GET /ssh_keys/11': { ssh_key: { id: 11, labels: { 'place-lease': 'a-place' } } },
+    'GET /ssh_keys/11': { ssh_key: { id: 11, labels: { 'place-lease': 'a-computer' } } },
     'DELETE /ssh_keys/11': {},
   }, calls);
   const request = providerClient(hetzner, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: hetzner, name: 'a-place', publicKey, placement: { size: 'cax11' }, lifetime: 'service' });
+  const lease = await rentMachine({ request, file, provider: hetzner, name: 'a-computer', publicKey, placement: { size: 'cax11' }, lifetime: 'service' });
   assert.deepEqual([lease.state, lease.serverId, lease.sshKeyId, lease.address, lease.serverType, lease.location], ['running', 22, 11, '192.0.2.10', 'cax11', 'hel1']);
   const made = calls.find(([key]) => key === 'POST /servers')[1];
-  assert.deepEqual([made.server_type, made.ssh_keys, made.labels], ['cax11', [11], { 'place-lease': 'a-place' }]);
+  assert.deepEqual([made.server_type, made.ssh_keys, made.labels], ['cax11', [11], { 'place-lease': 'a-computer' }]);
   assert.deepEqual(await readMachine({ request, file, provider: hetzner }), { state: 'running', address: '192.0.2.10' });
   assert.equal((await releaseMachine({ request, file, provider: hetzner })).state, 'removed');
   assert.ok(calls.some(([key]) => key === 'DELETE /servers/22') && calls.some(([key]) => key === 'DELETE /ssh_keys/11'));
@@ -78,14 +78,14 @@ test('renting stores the key, makes the machine with this lease\'s label, and re
 test('a public key the provider already holds is used as it is and never removed', async () => {
   const file = join(folder(), 'lease.json'), calls = [];
   const fetchImpl = provider(hetzner.base, {
-    'GET /servers?name=a-place': { servers: [] },
+    'GET /servers?name=a-computer': { servers: [] },
     [`GET /ssh_keys?fingerprint=${encodeURIComponent(fingerprintOf(publicKey))}`]: { ssh_keys: [{ id: 5, labels: {} }] },
     'POST /servers': body => ({ server: { id: 23, labels: body.labels, public_net: { ipv4: { ip: '192.0.2.11' } } } }),
-    'GET /servers/23': { server: { id: 23, labels: { 'place-lease': 'a-place' } } },
+    'GET /servers/23': { server: { id: 23, labels: { 'place-lease': 'a-computer' } } },
     'DELETE /servers/23': {},
   }, calls);
   const request = providerClient(hetzner, canary, { fetchImpl });
-  const lease = await rentMachine({ request, file, provider: hetzner, name: 'a-place', publicKey, lifetime: 'service' });
+  const lease = await rentMachine({ request, file, provider: hetzner, name: 'a-computer', publicKey, lifetime: 'service' });
   assert.deepEqual([lease.sshKeyId, lease.sharedSshKeyId], [null, 5]);
   assert.deepEqual(calls.find(([key]) => key === 'POST /servers')[1].ssh_keys, [5]);
   await releaseMachine({ request, file, provider: hetzner });
@@ -94,7 +94,7 @@ test('a public key the provider already holds is used as it is and never removed
 
 test('a machine someone else labelled is left untouched', async () => {
   const file = join(folder(), 'lease.json');
-  writeFileSync(file, JSON.stringify({ schema: 'place-lease/1', provider: 'hetzner', name: 'a-place', state: 'running', serverId: 30, sshKeyId: null }));
+  writeFileSync(file, JSON.stringify({ schema: 'place-lease/1', provider: 'hetzner', name: 'a-computer', state: 'running', serverId: 30, sshKeyId: null }));
   const request = providerClient(hetzner, canary, { fetchImpl: provider(hetzner.base, { 'GET /servers/30': { server: { id: 30, labels: { 'place-lease': 'another' } } } }) });
   await assert.rejects(releaseMachine({ request, file, provider: hetzner }), /no longer owned by this lease/);
 });
@@ -119,38 +119,38 @@ test('the price is the size\'s monthly price at the lease\'s location, in cents'
 
 test('the public name points at the machine with this lease\'s mark, and only that record is removed', async () => {
   const file = join(folder(), 'lease.json'), zone = 'a'.repeat(32), record = 'b'.repeat(32), calls = [];
-  writeFileSync(file, JSON.stringify({ schema: 'place-lease/1', provider: 'hetzner', name: 'a-place', state: 'running', address: '192.0.2.10' }));
+  writeFileSync(file, JSON.stringify({ schema: 'place-lease/1', provider: 'hetzner', name: 'a-computer', state: 'running', address: '192.0.2.10' }));
   const fetchImpl = provider(cloudflare.base, {
     'GET /zones?name=example.com': { result: [{ id: zone, name: 'example.com' }] },
-    [`GET /zones/${zone}/dns_records?type=A&name=place.example.com`]: { result: [] },
+    [`GET /zones/${zone}/dns_records?type=A&name=computer.example.com`]: { result: [] },
     [`POST /zones/${zone}/dns_records`]: body => ({ result: { id: record, ...body } }),
-    [`GET /zones/${zone}/dns_records/${record}`]: { result: { id: record, comment: 'place-lease a-place' } },
+    [`GET /zones/${zone}/dns_records/${record}`]: { result: { id: record, comment: 'place-lease a-computer' } },
     [`DELETE /zones/${zone}/dns_records/${record}`]: { result: { id: record } },
   }, calls);
   const request = providerClient(cloudflare, canary, { fetchImpl });
-  const lease = await pointName({ request, file, provider: cloudflare, zone: 'example.com', hostName: 'place.example.com' });
-  assert.deepEqual([lease.recordId, lease.hostName], [record, 'place.example.com']);
-  assert.deepEqual(calls.find(([key]) => key.startsWith('POST'))[1], { type: 'A', name: 'place.example.com', content: '192.0.2.10', ttl: 60, proxied: false, comment: 'place-lease a-place' });
+  const lease = await pointName({ request, file, provider: cloudflare, zone: 'example.com', hostName: 'computer.example.com' });
+  assert.deepEqual([lease.recordId, lease.hostName], [record, 'computer.example.com']);
+  assert.deepEqual(calls.find(([key]) => key.startsWith('POST'))[1], { type: 'A', name: 'computer.example.com', content: '192.0.2.10', ttl: 60, proxied: false, comment: 'place-lease a-computer' });
   assert.equal((await forgetName({ request, file, provider: cloudflare })).recordId, null);
   assert.ok(calls.some(([key]) => key.startsWith('DELETE')));
 });
 
-test('the place config takes the machine\'s own fields and values read from the release', async () => {
+test('the computer config takes the machine\'s own fields and values read from the release', async () => {
   const run = async (_machine, command) => {
     assert.equal(command, "cat '/opt/place/current/data/new-accounts.json'");
     return JSON.stringify({ sign_in_ways: [{ way: 'passkey' }] });
   };
-  const config = await placeConfig({}, {
-    port: 7199, name: { host_name: 'place.example.com' }, place_config: { report: { takes_new_accounts: true }, router: 'router.example.com:443' },
+  const config = await computerConfig({}, {
+    port: 7199, name: { host_name: 'computer.example.com' }, place_config: { report: { takes_new_accounts: true }, router: 'router.example.com:443' },
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
   }, { cents: 699, currency: 'EUR' }, run);
   assert.deepEqual(config, {
-    report: { takes_new_accounts: true, reach: 'https://place.example.com', cost_per_month_cents: 699 }, router: 'router.example.com:443',
-    listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://place.example.com',
+    report: { takes_new_accounts: true, reach: 'https://computer.example.com', cost_per_month_cents: 699 }, router: 'router.example.com:443',
+    listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://computer.example.com',
     new_accounts: { sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } }, release_feed: SETTINGS.release_feed,
   });
-  const behind = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, public_origin: 'https://front.example.com' }, null, run);
-  assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://place.example.com']);
+  const behind = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, public_origin: 'https://front.example.com' }, null, run);
+  assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://computer.example.com']);
 });
 
 test('a request\'s paths are read relative to its own file', () => {
@@ -160,25 +160,25 @@ test('a request\'s paths are read relative to its own file', () => {
   assert.deepEqual([request.lease_file, request.ssh.known_hosts, request.engine.release.tarball], [join(here, 'lease.json'), join(here, 'known_hosts'), join(here, 'r.tar.gz')]);
 });
 
-test('starting a place on an existing machine sets it up, installs the release, serves and reads it back', async () => {
+test('starting a computer on an existing machine sets it up, installs the release, serves and reads it back', async () => {
   const here = folder(), commands = [];
   const run = async (_machine, command, input) => {
     commands.push(command);
     if (command === 'uname -m') return 'aarch64\n';
     if (command.startsWith('cat ')) return JSON.stringify({ sign_in_ways: [] });
-    if (command.startsWith('install -o place') && command.endsWith('/var/lib/place/place.json')) assert.equal(JSON.parse(input).public_origin, 'https://place.example.com');
-    if (command.includes("'place' 'id' '/var/lib/place/place.json'")) return 'f'.repeat(64);
+    if (command.startsWith('install -o place') && command.endsWith('/var/lib/place/place.json')) assert.equal(JSON.parse(input).public_origin, 'https://computer.example.com');
+    if (command.includes("'computer' 'id' '/var/lib/place/place.json'")) return 'f'.repeat(64);
     return '';
   };
-  const answer = await startAPlace({
+  const answer = await startAComputer({
     lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'a-pi', placement: { address: '192.0.2.40' }, lifetime: 'service' },
-    name: { host_name: 'place.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
-    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', id_argv: ['place', 'id'], release_name: 'r1', release: { on_machine: '/opt/build/release' } },
+    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
+    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', id_argv: ['computer', 'id'], release_name: 'r1', release: { on_machine: '/opt/build/release' } },
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
-  }, { run, fetchImpl: async address => ({ status: address === 'https://place.example.com/sign-up' ? 200 : 404 }), wait: async () => {} });
+  }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/sign-up' ? 200 : 404 }), wait: async () => {} });
   assert.deepEqual([answer.arch, answer.place_id, answer.sign_up_status, answer.release, answer.price], ['aarch64', 'f'.repeat(64), 200, '/opt/place/releases/r1', null]);
-  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'place\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases'$/);
-  assert.ok(commands.find(c => c.includes("'place' 'id'")).includes("env PRODUCT_SETTINGS='/var/lib/place/product-settings.json' ENGINE_DATA="), 'the id command reads the product settings too');
+  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'computer\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases'$/);
+  assert.ok(commands.find(c => c.includes("'computer' 'id'")).includes("env PRODUCT_SETTINGS='/var/lib/place/product-settings.json' ENGINE_DATA="), 'the id command reads the product settings too');
   assert.ok(commands.some(c => c.includes('systemctl restart place.service')));
 });
 
@@ -194,29 +194,29 @@ test('renting a machine leases it and waits for SSH, and sets nothing up on it',
   assert.equal(JSON.parse(readFileSync(join(here, 'lease.json'), 'utf8')).address, '192.0.2.41', 'the lease is kept, so remove gives it back');
 });
 
-test('the place config carries the request\'s release feed and default places', async () => {
+test('the computer config carries the request\'s release feed and default computers', async () => {
   const key = 'b'.repeat(64), id = 'e'.repeat(64);
   const release_feed = { urls: ['https://releases.example.com/engine-releases/feed.json'], public_keys: [key], releases: '/opt/place/releases' };
   const default_places = { holders: ['this-place', id], answering: ['this-place'] };
-  const config = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, release_feed, default_places }, null, async () => '');
+  const config = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, release_feed, default_places }, null, async () => '');
   assert.deepEqual([config.release_feed, config.default_places], [release_feed, default_places]);
-  const fixture = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, place_config: { new_accounts: { copies: { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 } } }, default_places: { holders: ['this-place'], answering: ['this-place'] } }, null, async () => '');
+  const fixture = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { new_accounts: { copies: { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 } } }, default_places: { holders: ['this-place'], answering: ['this-place'] } }, null, async () => '');
   assert.deepEqual(fixture.new_accounts.copies, { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, 'a computer alone is never given copies it cannot meet');
-  const product = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' } }, null, async () => '');
+  const product = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, async () => '');
   assert.deepEqual(product.release_feed, SETTINGS.release_feed, 'a request that names no feed follows the product\'s');
   assert.ok(!('default_places' in product));
-  const without = await placeConfig({}, { port: 7199, name: { host_name: 'place.example.com' }, release_feed: null }, null, async () => '');
+  const without = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, release_feed: null }, null, async () => '');
   assert.ok(!('release_feed' in without));
-  await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, public_keys: ['short'] } }, null), /64 lowercase hex/);
-  await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, urls: ['http://insecure.example.com/feed.json'] } }, null), /https addresses/);
-  await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, default_places: { answering: [id] } }, null), /holders must name/);
+  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, public_keys: ['short'] } }, null), /64 lowercase hex/);
+  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, urls: ['http://insecure.example.com/feed.json'] } }, null), /https addresses/);
+  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, default_places: { answering: [id] } }, null), /holders must name/);
   for (const releases of ['/opt/place/../../etc', '/opt/place releases', '/opt/place/releases\nReadWritePaths=/']) {
-    await assert.rejects(placeConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, releases } }, null), /absolute path of letters/);
+    await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'p.example.com' }, release_feed: { ...release_feed, releases } }, null), /absolute path of letters/);
   }
 });
 
-test('the folder a feed adopts releases into is made writable for the place service, which runs with ProtectSystem=strict', async () => {
-  const { adoptFolder } = await import('../do-work/start-a-place.mjs');
+test('the folder a feed adopts releases into is made writable for the `place` service, which runs with ProtectSystem=strict', async () => {
+  const { adoptFolder } = await import('../do-work/start-a-computer.mjs');
   const feed = releases => ({ release_feed: { urls: [], public_keys: [], releases } });
   assert.deepEqual([adoptFolder(feed('/opt/place/releases/')), adoptFolder(feed('/opt/place/releases')), adoptFolder(feed({ keep: 3 })), adoptFolder({}), adoptFolder({ release_feed: null })], ['/opt/place/releases', '/opt/place/releases', null, '/opt/place/releases', null]);
   const script = readFileSync(new URL('../do-work/set-up-the-machine.sh', import.meta.url), 'utf8');
@@ -226,7 +226,7 @@ test('the folder a feed adopts releases into is made writable for the place serv
   assert.match(script, /^ProtectSystem=strict\nReadWritePaths=\$WRITABLE$/m);
 });
 
-test('a start writes both fields into the place config it installs, and a bad feed is refused before anything is rented', async () => {
+test('a start writes both fields into the computer config it installs, and a bad feed is refused before anything is rented', async () => {
   const here = folder(), written = [], setups = [];
   const run = async (_machine, command, input) => {
     if (command === 'uname -m') return 'x86_64\n';
@@ -239,16 +239,16 @@ test('a start writes both fields into the place config it installs, and a bad fe
   const default_places = { holders: ['this-place'], answering: ['this-place'] };
   const request = {
     lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'a-pi', placement: { address: '192.0.2.41' }, lifetime: 'service' },
-    name: { host_name: 'place.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
+    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
     release_feed, default_places,
   };
-  await startAPlace(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
+  await startAComputer(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
   assert.deepEqual(written[0], PRODUCT_SETTINGS, 'the product settings file is written byte for byte, before the config');
   assert.deepEqual([written[1].release_feed, written[1].default_places], [release_feed, default_places]);
   assert.match(setups[0], / 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases'$/, 'set-up is told the folder the engine adopts releases into');
   const lease = join(here, 'second-lease.json');
-  await assert.rejects(startAPlace({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
+  await assert.rejects(startAComputer({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
   assert.throws(() => readFileSync(lease), /ENOENT/);
 });
 
@@ -312,11 +312,11 @@ test('the product settings are the identity the engines compiled in, with only t
 // is told neither: it reads each from the unit.
 const ME = userInfo().username;
 const LAYOUTS = {
-  'start-a-place': { base: '/opt/place', state: '/var/lib/place', unit: 'place.service', release: '/opt/place/releases/old' },
+  'start-a-computer': { base: '/opt/place', state: '/var/lib/place', unit: 'place.service', release: '/opt/place/releases/old' },
   'by hand': { base: '/opt/trillion', state: '/srv/trillion/state', unit: 'trillion-place.service', release: '/opt/trillion/releases/old-engine' },
 };
 const unitOf = l => `[Unit]
-Description=A place that keeps accounts (place.example.com)
+Description=A computer that keeps accounts (computer.example.com)
 
 [Service]
 Type=simple
@@ -330,7 +330,7 @@ ReadWritePaths=${l.state}
 WantedBy=multi-user.target
 `;
 const THREE = { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 };
-const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/x/accounts', public_origin: 'https://place.example.com', new_accounts: { copies: THREE, copies_rules: { rule: 'kept as it is' } } }, null, 1)}\n`;
+const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/x/accounts', public_origin: 'https://computer.example.com', new_accounts: { copies: THREE, copies_rules: { rule: 'kept as it is' } } }, null, 1)}\n`;
 
 function madeUpComputer(l, { units = [] } = {}) {
   const root = folder(), bin = join(root, 'fake-bin'), engine = '#!/bin/sh\nexit 0\n';
@@ -344,7 +344,7 @@ function madeUpComputer(l, { units = [] } = {}) {
   writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT${l.base}/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
   chmodSync(join(bin, 'systemctl'), 0o755);
   const lease = join(root, 'lease.json');
-  writeFileSync(lease, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'place.example.com' }));
+  writeFileSync(lease, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'computer.example.com' }));
   return { root, lease, file: path => join(root, path) };
 }
 
@@ -363,7 +363,7 @@ const runHere = (root, env = {}) => async (_machine, command, input) => {
   });
 };
 
-const updateRequest = { ssh: { known_hosts: '/dev/null' }, name: { host_name: 'place.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
+const updateRequest = { ssh: { known_hosts: '/dev/null' }, name: { host_name: 'computer.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
 const asHere = (root, extra = {}) => ({ root, settle: 0, wait: async () => {}, tries: 1, fetchImpl: async () => ({ status: 200 }), ...extra });
 const read = (file, path) => readFileSync(file(path), 'utf8');
 
@@ -414,7 +414,7 @@ test('the layout is read from the unit, a request\'s layout row wins, and an unc
   assert.deepEqual(parseUnit(unitOf(LAYOUTS['by hand'])), { config: '/srv/trillion/state/place.json', current: '/opt/trillion/current', state: '/srv/trillion/state', owner: ME });
   assert.deepEqual(parseUnit("[Service]\nExecStart=/opt/x/current/engine serve '/etc/x/place.json'\n"), { config: '/etc/x/place.json', current: '/opt/x/current', state: '/etc/x', owner: 'root' });
   const l = LAYOUTS['by hand'];
-  const two = madeUpComputer(l, { units: [['other-place.service', unitOf(LAYOUTS['start-a-place'])]] });
+  const two = madeUpComputer(l, { units: [['other-place.service', unitOf(LAYOUTS['start-a-computer'])]] });
   await assert.rejects(readLayout({}, {}, runHere(two.root), two.root), /Found trillion-place\.service, other-place\.service|Found other-place\.service, trillion-place\.service/);
   const named = await readLayout({}, { layout: { unit: l.unit } }, runHere(two.root), two.root);
   assert.deepEqual([named.unit, named.state, named.releases, named.release_dir], [l.unit, l.state, '/opt/trillion/releases', l.release]);

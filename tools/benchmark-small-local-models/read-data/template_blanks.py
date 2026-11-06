@@ -9,7 +9,7 @@ from pathlib import Path
 H = Path(__file__).parent
 def load(template):
     if not Path(template).is_file():
-        sys.path.insert(0, str(H)); import place; place.refuse(f"template {template} is not there: name a word template JSON file")
+        sys.path.insert(0, str(H)); import computer; computer.refuse(f"template {template} is not there: name a word template JSON file")
     p = json.load(open(template))
     tok = {t["id"]: t for t in p["tokens"]}
     lines = {}
@@ -31,8 +31,8 @@ def load(template):
     slots = {sid: dict(s, lines=where.get(sid, [])) for sid, s in p["slots"].items() if where.get(sid)}
     return p, lines, slots
 if __name__ == "__main__":
-    sys.path.insert(0, str(H)); import place
-    p, lines, slots = load(place.need(place.request(), "template"))
+    sys.path.insert(0, str(H)); import computer
+    p, lines, slots = load(computer.need(computer.request(), "template"))
     for lid, l in lines.items(): print(lid, "|", l["text"])
     for sid, s in slots.items(): print(sid, s["type"], s["lines"], s["note"])
-    place.answer({"lines": lines, "slots": slots})
+    computer.answer({"lines": lines, "slots": slots})

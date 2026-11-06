@@ -8,7 +8,7 @@
   "quote": "The Workshop's last Mac ties go: connected drives get a second reader, export-records-as-list-rows stops starting /usr/bin/python3, keep-measurements-current picks credentials by row, not vendor name."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "read the connected drives from a kernel mount table on a place with no diskutil, and choose the drive reader by which reader path the place has",
+ "job": "read the connected drives from a kernel mount table on a computer with no diskutil, and choose the drive reader by which reader path the computer has",
  "sources": [],
  "targets": [
   {
@@ -48,7 +48,7 @@
  "proof": {
   "search": {
    "phrasings": [
-    "read the connected drives from a kernel mount table on a place with no diskutil, and choose the drive reader by which reader path the place has",
+    "read the connected drives from a kernel mount table on a computer with no diskutil, and choose the drive reader by which reader path the computer has",
     "read the connected drives from a kernel mount table",
     "mount table drive reader",
     "mountinfo"

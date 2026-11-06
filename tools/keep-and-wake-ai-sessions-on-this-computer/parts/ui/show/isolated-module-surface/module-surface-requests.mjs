@@ -217,7 +217,7 @@ function schemaOf(request) {
 function checkedPath(path, surfaceInput, method, allowed) {
   const { scoped } = validateRequestPath(path, method, allowed);
   const hasSpace = surfaceInput && own(surfaceInput, 'space_id') && surfaceInput.space_id !== undefined && surfaceInput.space_id !== null;
-  if (hasSpace && (typeof surfaceInput.space_id !== 'string' || !surfaceInput.space_id.trim() || surfaceInput.space_id.includes('/'))) throw new Error('This screen cannot make that request in this place.');
+  if (hasSpace && (typeof surfaceInput.space_id !== 'string' || !surfaceInput.space_id.trim() || surfaceInput.space_id.includes('/'))) throw new Error('This screen cannot make that request in this computer.');
   if (path.startsWith('/work/api/records?label=')) {
     const label = lessonPracticeLabel(surfaceInput?.space_id, surfaceInput?.course_id, surfaceInput?.lesson_id);
     if (path !== `/work/api/records?label=${encodeURIComponent(label)}`) throw unavailable();
@@ -227,7 +227,7 @@ function checkedPath(path, surfaceInput, method, allowed) {
     lessonPracticeLabel(surfaceInput.space_id, surfaceInput.course_id, surfaceInput.lesson_id);
     return path;
   }
-  if (hasSpace !== scoped) throw new Error('This screen cannot make that request in this place.');
+  if (hasSpace !== scoped) throw new Error('This screen cannot make that request in this computer.');
   return scoped ? path.replace(':space_id', encodeURIComponent(surfaceInput.space_id.trim())) : path;
 }
 

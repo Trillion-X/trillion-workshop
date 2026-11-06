@@ -14,15 +14,15 @@ Answer: { result: { fills, written: { fills, md, piece, drift }, drift, errors: 
 failed] } }."""
 import json, subprocess, sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request()
-H = Path(place.need(R, "out_dir")); TLV = Path(place.need(R, "root")); WT = Path(__file__).resolve().parents[2]/"fill-a-template-without-changing-its-words/do-work"
-TEMPLATE = Path(place.need(R, "template"))
-if not TEMPLATE.is_file(): place.refuse(f"template {TEMPLATE} is not there: name the word template")
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request()
+H = Path(computer.need(R, "out_dir")); TLV = Path(computer.need(R, "root")); WT = Path(__file__).resolve().parents[2]/"fill-a-template-without-changing-its-words/do-work"
+TEMPLATE = Path(computer.need(R, "template"))
+if not TEMPLATE.is_file(): computer.refuse(f"template {TEMPLATE} is not there: name the word template")
 import shutil; H.mkdir(parents=True, exist_ok=True); shutil.copy(TEMPLATE, H/"word.template.json")  # the template beside its fills
 class A: pass
-a = A(); a.tag = place.need(R, "tag"); a.conf_key = R.get("conf_key"); a.abstain = float(R.get("abstain", 0.0))
-C = place.json_of(place.need(R, "choice"), "choice")["choices"]; O = place.json_of(place.need(R, "options"), "options")["slots"]
+a = A(); a.tag = computer.need(R, "tag"); a.conf_key = R.get("conf_key"); a.abstain = float(R.get("abstain", 0.0))
+C = computer.json_of(computer.need(R, "choice"), "choice")["choices"]; O = computer.json_of(computer.need(R, "options"), "options")["slots"]
 fills = {}
 for sid, c in C.items():
     ch = c.get("choice") if isinstance(c, dict) else c
@@ -33,7 +33,7 @@ for sid, c in C.items():
     else:
         fills[sid] = {"needs": "no candidate chosen (none fits, escalated, or below threshold)"}
 fj = H/"out"/f"fills-{a.tag}.json"; fj.parent.mkdir(exist_ok=True)
-json.dump({"title": place.need(R, "title").replace("{tag}", a.tag), "root": str(TLV), "fills": fills}, open(fj, "w"), indent=1)
+json.dump({"title": computer.need(R, "title").replace("{tag}", a.tag), "root": str(TLV), "fills": fills}, open(fj, "w"), indent=1)
 md = H/"out"/f"fill-{a.tag}.md"; piece = H/"out"/f"fill-{a.tag}.piece.json"
 r = subprocess.run([sys.executable, str(WT/"fill.py"), str(H/"word.template.json"), str(fj), str(md), "--piece", str(piece), "--root", str(TLV)], capture_output=True, text=True)
 print(r.stdout[-300:], r.stderr[-500:])
@@ -42,5 +42,5 @@ r = subprocess.run([sys.executable, str(WT/"drift.py"), str(H/"word.template.jso
 print("\n".join(r.stdout.splitlines()[:3]), r.stderr[-300:])
 said += [] if r.returncode == 0 else ["drift: " + r.stderr.strip()[-500:]]
 dj = H/"out"/f"drift-{a.tag}.json"
-place.answer({"fills": fills, "written": {"fills": str(fj), "md": str(md), "piece": str(piece), "drift": str(dj)},
+computer.answer({"fills": fills, "written": {"fills": str(fj), "md": str(md), "piece": str(piece), "drift": str(dj)},
               "drift": json.load(open(dj)) if dj.exists() and not said else None, "errors": said})

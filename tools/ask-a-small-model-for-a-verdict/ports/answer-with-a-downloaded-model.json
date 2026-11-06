@@ -35,7 +35,7 @@
   "examples show the person's ruled lines of a set first, never the judged line nor a line that contains it or that it contains",
   "a line's film context is shown right before it in a fixed order and is part of the cache key",
   "calibrate scores each line by its worst sentence, counts only the split asked for and, when asked, only lines with context, and passes the scores to this folder's fit-lines with the person's bars",
-  "the device is what the place reports, else cuda, then mps, then cpu; no home folder is guessed for the hosted route"
+  "the device is what the computer reports, else cuda, then mps, then cpu; no home folder is guessed for the hosted route"
  ],
  "allowed_deltas": [
   "every model id, snapshot, adapter folder, the model cache root, the answer cache, the frame, the batch sizes, the good sets, the example sources and the fit bars come from the person's setting row (list:settings, read through tools/settings) instead of constants and environment variables; the environment variables stay as the place's fallback",

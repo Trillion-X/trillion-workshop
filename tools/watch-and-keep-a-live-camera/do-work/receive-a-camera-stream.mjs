@@ -38,7 +38,7 @@ import { bearerControl, namespaceClient } from '../../live-namespace/do-work/nam
 import { fetchWithoutCopies } from '../../live-namespace/do-work/send-without-copies.mjs';
 import { endWithTheApp } from '../../../computer/end-with-the-app.mjs';
 import { piecesSender } from './capabilities/file-pieces-into-trillion.mjs';
-import { appDataFolder } from '../../process-session/do-work/place-data-folder.mjs';
+import { appDataFolder } from '../../process-session/do-work/computer-data-folder.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const DEFAULT_SETTINGS = path.join(HERE, '..', 'stream-settings.json');

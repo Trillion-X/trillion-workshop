@@ -318,7 +318,7 @@ test('reader_knowledge.py takes its rules as input and refuses a request without
   assert.match(JSON.parse(refused.stdout.trim()).error, /reader_knowledge block/);
 });
 
-// ---- The place it runs (old place-reports test 'the gate names no home folder...') ------------------------------------
+// ---- The computer it runs on (old place-reports test 'the gate names no home folder...') ------------------------------------
 test('the film check names no home folder, install folder, fixed local port, film folder or person', () => {
   const files = ['do-work/check-a-films-copy.mjs', 'do-work/read-film-copy.mjs', 'do-work/spans-of-a-plan.mjs', 'do-work/unit-context.mjs', 'do-work/reader_knowledge.py', 'read-data/film-copy.json'];
   const tie = /homedir\(\)|Path\.home\(\)|\/opt\/homebrew\/|\/Users\/[^/]+\/|127\.0\.0\.1:\d+|localhost:\d+|device="mps"|films\/[a-z]/;

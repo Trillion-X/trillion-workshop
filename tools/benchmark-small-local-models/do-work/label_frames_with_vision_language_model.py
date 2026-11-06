@@ -11,17 +11,17 @@ from pathlib import Path
 import mlx.core as mx
 from mlx_vlm import load, generate
 from mlx_vlm.prompt_utils import apply_chat_template
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import place
-R = place.request()
-FIELDS, values, DEFINE = place.vocabulary(R)
-REPO = place.need(R, "model"); PHRASES = place.need(R, "phrases"); MAX = place.need(R, "max_tokens")
-S = place.shots_of(R)
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]/"read-data")); import computer
+R = computer.request()
+FIELDS, values, DEFINE = computer.vocabulary(R)
+REPO = computer.need(R, "model"); PHRASES = computer.need(R, "phrases"); MAX = computer.need(R, "max_tokens")
+S = computer.shots_of(R)
 t0 = time.time(); model, proc = load(REPO); load_s = time.time()-t0
 lines = []
 for f in FIELDS:
     lines.append(f'"{f}": one of ' + "; ".join(f'"{v}" ({DEFINE[f][v]})' for v in values(f)))
 for k, said in PHRASES.items(): lines.append(f'"{k}": {said}')
-PROMPT = (place.need(R, "instruction") + "\n" + "\n".join(lines))
+PROMPT = (computer.need(R, "instruction") + "\n" + "\n".join(lines))
 prompt = apply_chat_template(proc, model.config, PROMPT, num_images=1)
 out = []; tt = 0; toks = 0
 for i, s in enumerate(S):
@@ -41,4 +41,4 @@ for i, s in enumerate(S):
 meta = {"model": REPO, "load_s": round(load_s,1), "s_per_frame": round(tt/len(out),2), "gen_tokens_per_frame": round(toks/len(out)), "n": len(out),
         "peak_mem_GB": round(mx.get_peak_memory()/1e9,2), "maxrss_GB": round(resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1e9,2)}
 print(meta)
-place.answer({"meta": meta, "rows": out})
+computer.answer({"meta": meta, "rows": out})

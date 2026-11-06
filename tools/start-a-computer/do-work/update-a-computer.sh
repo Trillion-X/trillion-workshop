@@ -1,22 +1,22 @@
 #!/bin/sh
-# tools/start-a-place/do-work/update-a-computer.sh
+# tools/start-a-computer/do-work/update-a-computer.sh
 #
 # Runs as root on a running computer, sent over SSH on standard input (`ssh root@ADDRESS env ... sh -s -- apply ...
-# < this file`), by start-a-place.mjs `update`. It brings a running computer to what a new one gets now: the product
-# settings file the engine reads since trillion-rust 3b2a4d10 (named by the launch setting SETTINGS_ENV), a place config
+# < this file`), by start-a-computer.mjs `update`. It brings a running computer to what a new one gets now: the product
+# settings file the engine reads since trillion-rust 3b2a4d10 (named by the launch setting SETTINGS_ENV), a computer config
 # that follows the signed release feed (its `release_feed`) with a copies policy the computer can meet, the folder the
 # feed adopts releases into writable for the service, and its `current` link at a release that knows both.
 #
-# It names no layout: every path is the computer's own, read from its service unit by start-a-place.mjs (`readLayout`)
+# It names no layout: every path is the computer's own, read from its service unit by start-a-computer.mjs (`readLayout`)
 # or given by the request, and handed here in the environment:
-#   CONFIG   the place config the unit's `serve` names         UNIT_FILE  the unit's file      UNIT  the unit's name
+#   CONFIG   the computer config the unit's `serve` names         UNIT_FILE  the unit's file      UNIT  the unit's name
 #   CURRENT  the link the unit starts the engine through       STATE      the folder the service owns
 #   OWNER    the user the service runs as (owns CONFIG and the product settings file)
 # Every file it replaces is kept first in BACKUP/old, with these paths, and the change is put back from there when the
 # service is not active SETTLE seconds after its restart (exit 4), or when `rollback BACKUP` is asked.
 #
 # apply BACKUP RELEASE_DIR ENGINE_FILE SETTINGS_ENV SETTINGS_FILE ADOPT_DIR
-#   BACKUP/new/place.json and BACKUP/new/product-settings.json are already there (start-a-place.mjs writes them first).
+#   BACKUP/new/place.json and BACKUP/new/product-settings.json are already there (start-a-computer.mjs writes them first).
 #   RELEASE_DIR is where CURRENT should point: the release just copied, or the one it already names.
 # rollback BACKUP
 #

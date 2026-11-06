@@ -33,7 +33,7 @@
 //   3. Every input file must produce recognized copy with no reader issue, or the whole check is unqualified (exit 2),
 //      its report keeping no text of what it could not place.
 //   4. This file never calls a model inside the tool: the questions go back to the caller by id, and the computer run
-//      hands them to the decider's answer command the place names (`<python> -I <layer> answer --mode live|cache`, the
+//      hands them to the decider's answer command the computer names (`<python> -I <layer> answer --mode live|cache`, the
 //      interface of the copy gate's decider layer, now tools/ask-a-small-model-for-a-verdict: the questions as JSON in,
 //      one { option: p } or null each out) and judges with the answers.
 //      Without a decider, or with --no-model, every question stays unknown and no line passes on it.
@@ -277,7 +277,7 @@ export async function checkAFilmsCopy(input, door) {
 }
 
 // ---- The person's computer: their files on disk, their model there (the copy gate's command, moved) -----------------
-// The Pythons are the ones this place reports (DECIDER_PYTHON with DECIDER_LAYER, the decider's answer command, and
+// The Pythons are the ones this computer reports (DECIDER_PYTHON with DECIDER_LAYER, the decider's answer command, and
 // READER_KNOWLEDGE_PYTHON, a Python with spaCy), or the flags that name them.
 const decider = { python: process.env.DECIDER_PYTHON ?? '', layer: process.env.DECIDER_LAYER ?? '' };
 const readerKnowledge = { python: process.env.READER_KNOWLEDGE_PYTHON || 'python3', tool: join(here, 'reader_knowledge.py') };
