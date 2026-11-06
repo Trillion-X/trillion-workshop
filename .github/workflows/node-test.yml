@@ -41,11 +41,14 @@ jobs:
       # Pillow draws the recorded demos (tools/record-a-web-page/do-work/draw-the-demo.py); numpy and onnxruntime are what
       # the face, voice and picture-vector rows' samples import (know-who-is-in-this, words-as-picture-vector, media-composition).
       - run: python -m pip install blake3 pillow numpy onnxruntime
-      # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg).
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium
+      # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg). Installed
+      # after Playwright's --with-deps, which has just read the package lists, so no second apt-get update (one took 28
+      # minutes on a slow mirror); skipped where the runner already has it.
+      - run: command -v ffmpeg || sudo apt-get install -y --no-install-recommends ffmpeg
+        timeout-minutes: 10
       # Ubuntu 24.04 runners forbid unprivileged user namespaces (AppArmor), which Chrome's own sandbox is built on, so
       # the runner's /usr/bin/google-chrome that walk-through-an-app and its kin find first stops at start with a crash
       # dump. Allowing them lets the browser start with its sandbox on, as it does on a person's computer.
