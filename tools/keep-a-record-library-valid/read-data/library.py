@@ -13,6 +13,7 @@ import fcntl
 import json
 import os
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -69,13 +70,42 @@ def at_path(document: Any, path: str) -> list:
     return [item for n in nodes for item in (n if isinstance(n, list) else [n])]
 
 
+FOLDER = 'keep-a-record-library-valid'
+
+
+def is_setting_record(data: Any) -> bool:
+    """A list:settings row as records:read gives it ({id, type, value}), a list of them, or {records: [...]}."""
+    if isinstance(data, dict) and isinstance(data.get('records'), list):
+        data = data['records']
+    if isinstance(data, list):
+        return bool(data) and all(is_setting_record(item) for item in data)
+    return isinstance(data, dict) and (data.get('type') == 'record:setting' or str(data.get('id', '')).startswith('record:setting:'))
+
+
+def read_schema(path: Path, scopes: list[tuple[str, str]] | None = None) -> dict:
+    """The schema: the file itself, or the person's list:settings row record:setting:keep-a-record-library-valid~<scope_kind>~<scope_id>
+    (a file holding the record as records:read gives it, or several), whose settings are the schema; read with tools/settings
+    `setting` (the first of `scopes` that has a row; with no scopes, the one row given)."""
+    data = read_json(path)
+    if not is_setting_record(data):
+        return data
+    reader = Path(__file__).resolve().parents[2] / 'settings' / 'read-data'
+    if str(reader) not in sys.path:
+        sys.path.insert(0, str(reader))
+    import settings  # noqa: E402  (tools/settings/read-data/settings.py, the one shared reader)
+    held = settings.setting(data, FOLDER, scopes or None, default=None)
+    if not isinstance(held, dict):
+        raise ValueError(f'{path} holds no keep-a-record-library-valid settings row' + (f' for {scopes}' if scopes else ''))
+    return held
+
+
 class Store:
     """The records of one library, read through its schema. Tests point it at a temporary library."""
 
-    def __init__(self, root: Path, schema_path: Path):
+    def __init__(self, root: Path, schema_path: Path, scopes: list[tuple[str, str]] | None = None):
         self.root = Path(root).resolve()
         self.schema_path = Path(schema_path)
-        self.schema = read_json(self.schema_path)
+        self.schema = read_schema(self.schema_path, scopes)
         self._files: dict[str, Any] = {}
 
     def file(self, relative: str) -> Any:
