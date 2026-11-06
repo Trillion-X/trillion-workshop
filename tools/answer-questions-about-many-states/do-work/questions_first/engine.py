@@ -147,6 +147,7 @@ class QuestionsFirst:
         suffixes = [self.tokenize(h, c, max_ctx_tokens) for c in contexts]
         n = len(contexts)
         out = np.zeros((n, h.nq, max(h.nopts)), dtype=np.float64)
+        self.partial = out                                                     # read by on_batch: the finished states so far
         nopts = np.array(h.nopts)
         left = {s: h.P for s in range(n)}
         done = []

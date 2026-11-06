@@ -1,91 +1,130 @@
 # tools/answer-questions-about-many-states/
 
-Asks one fixed set of questions about many states (lines, records, messages), in bulk, with a questions-first classifier on the person's own Mac. The questions are run once as a cached prefix, and the states are batched against that cache on Apple's GPU through MLX. Each state gets, for each question, the classifier's probabilities over the question's options.
+Asks one set of questions about many states (lines, records, messages) in bulk, with a questions-first classifier on the person's own Mac. The questions are run once as a cached prefix, and the states are batched against that cache on Apple's GPU through MLX. Each state gets, for each question, the classifier's probability for each option.
 
-The model is data. A model row from the person's list names the classifier family (`classifier`) and where the weights are (`weights`: a local folder, or a Hugging Face repo at a pinned revision). The settings, the question sets and every measured result are rows in the person's lists too. This folder holds only code: it names no model, person, book or voice.
+The engine runs every row: all four are `computer` rows of one standard-library script. Their inputs and results are rows in the person's own lists, reached through the run's records door:
+- **Read from lists:** the classifier, the question set, the state set and the settings.
+- **Written to lists:** every answer, and the run's own row with its measurements.
 
-The first family is `questions-first-decider`: a Qwen3.5 hybrid (gated delta-net layers plus gated full attention) trained to answer a prefix of questions (`decider.schema(questions).batch(states)`). This folder ports to MLX:
+The only thing kept on the computer is a model's weights, in the tool's kept folder. This folder holds code and list definitions only. It names no model, person, book or voice.
+
+The first classifier family is `questions-first-decider`. It is a Qwen3.5 hybrid (gated delta-net layers plus gated full attention) trained to answer a prefix of questions (`decider.schema(questions).batch(states)`). This folder ports to MLX:
 - the backbone;
 - the decider's own prompt layout and answer shapes;
-- its schema engine: one prefix per question (`independent`, the decider's default) or all in one (`packed`).
+- its schema engine: one prefix per question (`independent`, the decider's default), or all questions in one prefix (`packed`).
 
-The decider's own engine is CUDA-only (CUDA graphs, flash-linear-attention), and its PyTorch fallback is a Python loop over chunks.
-
-## The lifecycle
+## The rows
 
 | Row | Action | What it does |
 |-----|--------|--------------|
-| `tool:get-a-classifier-ready-on-this-mac` | `get-ready` | Fetches the model row's weights (once), checks them, and names every file and the whole set by BLAKE3. |
-| `tool:answer-questions-about-many-states` | `start` | Starts the run in the background. The job id is the BLAKE3 identity of the whole request, so the same request names the same run. |
-| `tool:read-a-bulk-answer-run` | `read` | Gives status and states done. Once the run is finished or cancelled, it also gives the answers as byte pages: `{total, blake3, offset, length, base64, next_after_byte}`, read as `tools/records-door/read-data/byte-pages.mjs` reads a door's pages. |
-| `tool:cancel-a-bulk-answer-run` | `cancel` | Stops the run after the batch in hand. The states already answered keep their answers. |
+| `tool:get-a-classifier-ready-on-this-mac` | `get-ready` | Fetches the weights a Question classifiers row names (a Hugging Face repository at a pinned revision) into the kept folder. It fetches once, and checks each file against the size and SHA-256 the repository lists. It writes the BLAKE3 identity of the set back to the row. This is the only row with `internet: true`. |
+| `tool:answer-questions-about-many-states` | `answer` | `{classifier, questions, states, settings}`: a classifier row, a question set name, a state set name and a settings row. It asks every question of the set about every state of the set. Each state's answers become a Classifier answers row as its batch finishes, and the run's row in Classifier runs keeps how far it is and what it measured. |
+| `tool:read-a-bulk-answer-run` | `read` | Gives the run's row and, with `answers: true`, a page of its answer rows in state order (`after` / `next_after`). |
+| `tool:stop-a-bulk-answer-run` | `stop` | Sets Stop on the run's row. The running run reads that row after every batch, stops its worker and keeps every answer it wrote. |
 
-Every row runs `python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py <action> --request '<json>'` from the Workshop checkout. A run works in `jobs_folder/<job id>/` (`request.json`, `status.json`, `answers.json`, `log.txt`) on the person's computer. That folder is working space: the caller keeps what matters as rows in the person's lists.
+**How a run is named.** Its id is the BLAKE3 identity of everything it asks: the classifier's weights identity, the questions, the states and the settings. The same rows therefore name the same run, and a finished run answers again without running. A stopped or interrupted run, asked again, goes on from the states that have no answer row yet.
 
-## Settings the person gives (no default in code)
+**How a run is split.** `do-work/run_in_engine.py` runs under the engine's `python3` (standard library only) and does every records call (`do-work/records_door.py`). It starts `do-work/worker.py` under the Python the person granted to `start-a-program`: one that imports mlx, numpy and tokenizers. The worker reads one job on standard input and streams its answers back a batch at a time. It touches no records and no network.
 
-| Setting | What it decides |
-|---------|-----------------|
-| `layout` | `independent`: each question in its own row, so no question can change another's answer; a state costs one row per question. `packed`: every question in one prefix; a state costs one row of state plus one slot per question, several times fewer tokens, but later questions see earlier ones. |
-| `dtype` | `bfloat16` (the model's own) or `float32`. |
-| `tokens_per_batch` | How many tokens one GPU pass holds. Larger is faster until memory runs out. |
-| `max_state_tokens` | The most tokens of one state the model reads; a longer state is cut there, as the decider does. |
-| `page_bytes` | How many bytes of answers one `read` returns. |
+## The person's lists (`read-data/answer-many-states.json`)
+
+| List | Row type | Holds |
+|------|----------|-------|
+| Question classifiers | `classifier` | Family, Hugging Face repository, pinned revision. The tool writes back the weights identity, the file count and when it was made ready. |
+| Classifier questions | `classifier-question` | Set, order, type (choice, score, noul), the question, its options as JSON. |
+| States to classify | `classifier-state` | Set, order, the state (text, or JSON). |
+| Classifier settings | `classifier-setting` | Layout, dtype, tokens per GPU pass, most tokens of a state. Every field is required, and none has a default in code. |
+| Classifier runs | `classifier-run` | What the run asked, status, Stop, states answered, decisions, load / prepare / answer / wall seconds, decisions per second, tokens run, the machine, its identity, and why it failed. |
+| Classifier answers | `classifier-answer` | Run, state, and the answers as JSON: `{question id: {type, probabilities, choice \| score \| noul, confidence, …}}`. |
+
+Each list is made the first time a row needs it. An existing list is never rewritten.
+
+## Engine change this needs (trillion-rust)
+
+The answer row runs only once the engine can start an MLX Python with the Apple GPU. Today `start-a-program` picks only from the `programs` rows of `src/runtime/workshop/computer-capabilities.json` (`ai-command`, `headless-browser`, `record-and-hear`). A `computer` run may otherwise start only `/bin` and `/usr/bin`, and `/usr/bin/python3` has no MLX. The engine needs three things:
+
+1. **A program row** in that file:
+   ```json
+   {"id": "run-an-mlx-python", "parameters": {"program": "program"},
+    "sandbox": ["(allow process-exec* file-read* (literal \"{program}\"))",
+                "(allow file-read* (subpath \"{program_folder}\"))",
+                "(allow iokit-open (iokit-user-client-class \"AGXDeviceUserClient\"))",
+                "(allow mach-lookup (global-name \"com.apple.MTLCompilerService\"))"]}
+   ```
+   - `{program_folder}` must be the Python's whole installation: its `sys.prefix` and `sys.base_prefix`, with symlinks resolved, so a venv's site-packages and its base interpreter are both readable.
+   - MLX also writes Metal's shader cache under the user's cache folder (`DARWIN_USER_CACHE_DIR`). The exact Metal rules are unmeasured, as `tools/generate-speech` notes for the same GPU.
+2. **A grant that finds the Python.** When the person grants `start-a-program` for this row, the engine offers the `python3`s on the Mac for which `python3 -I -c "import mlx.core, numpy, tokenizers"` succeeds:
+   - the login shell's `command -v python3`;
+   - `/opt/homebrew/bin/python3` and `/usr/local/bin/python3`;
+   - the person's venvs.
+
+   The chosen path reaches the run as `grants.start-a-program.program`, the row's last argv fill.
+3. **Time and memory.** A run of `max_run_ms` 7,200,000 and about 32 GB is enough for 303 × 132 (184.6 s and 20.3 GB peak measured for the independent layout). The row declares both.
+
+Until then the answer row's `verify` is `needs-a-machine` with exactly that requirement, and a run without the grant answers `no_program` in words. `get-ready`, `read` and `stop` need no engine change. `read` and `stop` prove themselves in sample runs against the repository's stand-in door.
 
 ## What is fixed in code, and why
 
-- **The prompt is the decider's own, token for token.** It runs `Question k: ... Options: (A) ...`, then `\n\nContext:\n<state>`, then the answer slots. The opening `\n\nContext:\n` is tokenized on its own, as the decider does. It is run once at the end of each prefix, so a state's row carries only its own tokens and slots.
-- **Answer shapes and temperature come from the decider and the model folder.**
-  - Labels are A..J, then single-token two-letter labels up to 255 options, read from the tied embedding.
-  - Isolated score levels are on when the folder's `decider_config.json` says so.
-  - The temperature is the folder's `temperature_schema_first`.
-- **Batches cross questions.** Prefixes are run in left-padded batches: a pad's input to every delta-net layer is zeroed and attention masks it, so every prefix ends with the state it would have had alone.
-  - A suffix batch holds rows of many questions. Each row's mask hides its own prefix's padding, and its positions continue from that prefix's length.
-  - Its delta-net layers start from its question's conv and recurrent state, read by index.
-  - On Apple's GPU, the index is read inside one Metal kernel, the decider lane's scan with an indexed start, so no state is copied per row.
-  - Rows are grouped by state length, so a batch is little padding. One batch is queued while the previous one is read back.
-- **The chunked gated-delta rule has a matmul-only solve.** It is ported from transformers' `torch_chunk_gated_delta_rule` and used for prefixes and off Apple's GPU. It solves each chunk's unit lower-triangular system by recursive block inversion: exact, and only matmuls. A Neumann series in powers of the strictly lower part would overflow in float32 when keys are correlated.
-- **Norms run in float32.** Zero-centred norms compute in float32 with `(1 + weight)` in float32, rounded once, as transformers does. Adding 1 to a bfloat16 weight moves P(yes) by up to 0.007, as the decider lane measured.
+- **The prompt is the decider's own, token for token.**
+  - It runs `Question k: ... Options: (A) ...`, then `\n\nContext:\n<state>`, then the answer slots.
+  - The `\n\nContext:\n` opening is tokenized on its own, as the decider does. It is run once at the end of each prefix.
+  - Labels are A..J, then single-token two-letter labels up to 255 options.
+  - Isolated score levels and the temperature come from the model folder's `decider_config.json`.
+- **Prefixes and batches.** Prefixes run in left-padded batches whose pads are zeroed and masked. A suffix batch holds rows of many questions, each starting from its own question's state, read by index. On Apple's GPU that happens inside one Metal kernel: the decider lane's gated-delta scan with an indexed start. Any shape the scan cannot take (key heads not a multiple of 32) runs the chunked rule.
+- **The chunked gated-delta rule** is a port of transformers' `torch_chunk_gated_delta_rule`. It solves each chunk's unit lower-triangular system by recursive block inversion: exact, and only matmuls.
+- **Norms run in float32.** Zero-centred norms compute with `(1 + weight)` in float32, rounded once.
+- **Every write is bounded.** A records write carries at most `most_writes` (128) rows, and its request key is made from what it writes, so a write sent again answers its first receipt. The run's row is merged, conditional on what was read, so a Stop set meanwhile is never overwritten.
+- **Weights are checked.** Each file must match the size and SHA-256 the repository lists. The identity is BLAKE3 over the sorted list of (name, bytes, SHA-256): the engine's `python3` has no blake3 module, and the pure-Python BLAKE3 packed from `tools/conversations` would take hours over 4.5 GB.
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `do-work/answer_many_states.py` | The entry for every row: `get-ready`, `start`, `read`, `cancel`, and `work` (the background run). Holds `FAMILIES`, the classifier families it runs. |
-| `do-work/questions_first/backbone.py` | The Qwen3.5 hybrid text backbone in MLX, read from `config.json` and safetensors; prefix and suffix passes. |
+| `do-work/run_in_engine.py` | The entry for every row (`get-ready`, `answer`, `read`, `stop`), standard library only: the lists, the run, the worker's events, the measurements. |
+| `do-work/records_door.py` | The records door from Python's standard library: the protocol of `tools/records-door/read-data/records-door.mjs` (descriptor 3, `run_resource_operation`, busy retries with the same key, byte pages checked by BLAKE3). |
+| `do-work/worker.py` | The GPU half, under the granted Python: one job in, one JSON line per event out. |
+| `do-work/questions_first/backbone.py` | The Qwen3.5 hybrid text backbone in MLX, read from `config.json` and safetensors. |
 | `do-work/questions_first/gated_delta.py` | The chunked gated-delta rule in MLX, and the token-by-token form the tests hold it to. |
 | `do-work/questions_first/metal_scan.py` | The Metal gated-delta scan with one start state per row, read by index. |
-| `do-work/questions_first/engine.py` | `QuestionsFirst`: `prepare(rows, independent)` once, `score(prepared, states)` in batches, with progress and stop. |
+| `do-work/questions_first/engine.py` | `QuestionsFirst`: `prepare(rows, independent)` once, then `score(prepared, states)` in batches, with progress and stop. |
 | `do-work/questions_first/prompt.py` | The decider's questions-first prompt and its choice, score and noul answers, ported. |
-| `do-work/questions_first/tokenizer.py` | The model folder's `tokenizer.json`, read with `tokenizers`, with no special tokens added. |
-| `test/test_questions_first.py` | The MLX forward on a tiny made-up config: chunked = recurrent kernel, the triangular inverse, the cache equal to the plain uncached sequence (independent and packed), batch size changes nothing, stop and progress, and the Metal path's wiring. On a Mac it also runs the Metal kernel itself. |
-| `test/test_lifecycle.py` | get-ready, start, read in byte pages, cancel and every refusal, with a made-up classifier family. |
-| `test/test_end_to_end.py` | The whole command, through a real background process, on a made-up model folder (tiny random weights, a word-level tokenizer built in the test). |
-| `test/agree_with_reference.py` | Agreement with the decider's own PyTorch code (`Decider.schema` → `SchemaEngine` → `CompiledSchema.batch`), two steps. |
+| `do-work/questions_first/tokenizer.py` | The model folder's `tokenizer.json`, read with `tokenizers`. |
+| `read-data/answer-many-states.json` | DATA: the six list definitions, each family's files, where weights are fetched from, the records per write, every word. |
+| `test/test_engine_rows.py` | The rows' program over a stand-in records door (`test/door_stand_in.py`) and a stand-in worker. It covers: lists made once; inputs from rows; answers and measurements as rows; a run named by what it asks, not run twice, stopped and resumed; read pages; get-ready fetching once and checking each file; byte pages and a busy door; every refusal. Standard library only. |
+| `test/test_worker_end_to_end.py` | A whole run through the real worker under this Python, on a made-up model folder: tiny random weights, and a word-level tokenizer built in the test. |
+| `test/test_questions_first.py` | The MLX forward on a tiny made-up config. It covers: the kernels, the triangular inverse, the cache against the uncached sequence in both layouts, batch size changing nothing, stop and progress, and the Metal path (on a Mac, the kernel itself). On Apple's GPU every bound is 5e-3, half the 0.01 agreement bar. |
+| `test/agree_with_reference.py` | Agreement with the decider's own PyTorch code, two steps (`--numpy-projections` for a CPU-only box). |
 | `test/benchmark.py` | Wall time of 303 questions × 132 states, both layouts. |
-| `test/synthetic.py` | The made-up tokenizer, questions and states (with the decider lane's speed set). No real text. |
-| `test/answer-questions-about-many-states.test.mjs` | Runs the Python tests under `npm test` and checks the rows. |
+| `test/synthetic.py` | The made-up tokenizer, questions and states. No real text. |
+| `test/answer-questions-about-many-states.test.mjs` | Runs the Python tests under `npm test` and checks every row is one the engine runs. |
 
 ## Measured
 
 All data below is synthetic.
 
-- **The decider's own PyTorch code, CPU, float32, random weights, 200 made-up question × state pairs.**
-  - Tiny config: the MLX answers agree within 1.9e-7, independent and packed, and every choice is the same.
-  - The full 2B `config.json` (random weights rounded to bfloat16, computed in float32): agree within 9.2e-6 over the 200 pairs (290 rows), every choice the same. On that CPU-only box the large projections ran through NumPy (`--numpy-projections`), because MLX's Linux CPU build multiplies matrices at about 3 GFLOPS.
-- **Still to run on the M5 Max after merge:**
-  - `python3 tools/answer-questions-about-many-states/test/benchmark.py --model <decider snapshot folder>` for the 303 × 132 wall time. The target is 60 s. The decider lane's earlier MLX build took 121.0 s on the same set: one question per pass, 5,684 suffix tokens/s.
-  - `python3 tools/answer-questions-about-many-states/test/agree_with_reference.py reference --decider-source <snapshot> --model <snapshot> --dtype bfloat16 --out /tmp/agree`, then `... mlx --out /tmp/agree` for agreement on the real weights. The tolerance is 0.01.
+- **The decider's own PyTorch code on 200 made-up pairs.** The MLX answers agree within 1.9e-7 for the tiny config (both layouts), and within 9.2e-6 for the full 2B config (CPU, float32, random weights). Every choice is the same.
+- **Speed.** M5 Max, bf16, real decider-2b weights, 303 questions × 132 lines, Nov 5:
+
+| Layout | Wall | Prepare | Score | Decisions/s | Peak memory |
+|---|---|---|---|---|---|
+| packed | 134.47 s | 16.39 s | 118.08 s | 297.4 | 8.8 GB |
+| independent | 184.63 s | 10.92 s | 173.71 s | 216.6 | 20.3 GB |
+
+The target was 60 s. Brian accepted this speed on Nov 5.
 
 ## Not here yet
 
-- **Only one classifier family.** `questions-first-decider` is the only one. Another family is a new entry in `FAMILIES` with its own `check` and `answer`.
-- **Long states run token by token on the Metal path.** The scan is a recurrence over the state's tokens: right for short lines. A long state (thousands of tokens) would be faster with the chunked rule on the GPU. That needs a chunked kernel that reads its start by index.
-- **A run lives only on the Mac that started it.** It is a process there, with its folder there. The engine has no per-tool state folder kept between runs, so `read` and `cancel` must be run on that same Mac with the same `jobs_folder`.
+- **The answer row waits on trillion-rust's program row** (above).
+- **Gated weights.** No Hugging Face account is sent, so a gated model's weights cannot be fetched (`gated` in words). That needs a credential mount for `huggingface.co`.
+- **Long states on the Metal path.** The scan is a recurrence over each state's tokens: right for short lines. A long state (thousands of tokens) would be faster with a chunked kernel that reads its start by index.
+- **Only one classifier family.** Another family is a new entry in the data's `families` and in the worker.
 
 ## Dependencies
 
-**Depends on:** `mlx`, `numpy`, `tokenizers`, `blake3`, and `huggingface_hub` (for `get-ready` from a repo), all from the rows' `get_it`. Python's standard library otherwise. No other Workshop folder.
+**Depends on:**
+- `tools/conversations` `read-data/content_identity.py` (BLAKE3, packed by every row);
+- the engine's `python3`;
+- for `answer`, the granted Python with `mlx`, `numpy` and `tokenizers`.
 
 **Depended on by:** `tool-rows.json` and the tests here.
 

@@ -12,7 +12,13 @@
  "sources": [],
  "targets": [
   {
-   "path": "tools/answer-questions-about-many-states/do-work/answer_many_states.py"
+   "path": "tools/answer-questions-about-many-states/do-work/run_in_engine.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/records_door.py"
+  },
+  {
+   "path": "tools/answer-questions-about-many-states/do-work/worker.py"
   },
   {
    "path": "tools/answer-questions-about-many-states/do-work/questions_first/backbone.py"
@@ -57,6 +63,11 @@
    "repository": "ai-command-center",
    "path": ".claude/hooks/judges/decide_in_batches_on_mlx.py",
    "why": "an earlier lane's MLX build of the same computation, never committed (so no commit to name as a source); its Metal gated-delta scan is adapted in metal_scan.py with an indexed start. The book session's 2026-11-05 1:30 PM message retires it, and measure_decider_batches.py beside it, once this tool lands"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/records-door/",
+   "why": "the records door's JavaScript client and run-an-export; records_door.py speaks the same protocol from Python's standard library because this tool's entry is the engine's python3, which has no node module to import"
   }
  ],
  "proof": {
@@ -83,8 +94,8 @@
   },
   "test_refs": [
    "tools/answer-questions-about-many-states/test/test_questions_first.py",
-   "tools/answer-questions-about-many-states/test/test_lifecycle.py",
-   "tools/answer-questions-about-many-states/test/test_end_to_end.py",
+   "tools/answer-questions-about-many-states/test/test_engine_rows.py",
+   "tools/answer-questions-about-many-states/test/test_worker_end_to_end.py",
    "tools/answer-questions-about-many-states/test/agree_with_reference.py"
   ]
  }

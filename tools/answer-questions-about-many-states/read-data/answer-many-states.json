@@ -1,0 +1,145 @@
+{
+  "_what": "DATA for the engine rows of answer-questions-about-many-states: the person's lists this tool reads and keeps (each made once, the first time a row runs), the files a classifier family needs, where a model's weights are fetched from, and every word a row answers with. The code names none of these.",
+  "lists": {
+    "classifiers": {
+      "id": "classifiers",
+      "label": "Question classifiers",
+      "icon": "Brain",
+      "about": "The classifier models that answer your question sets on this Mac: which family each is and where its weights come from. Get one ready before its first run; the identity of its weights is written back here.",
+      "row_type": "classifier",
+      "title_field": "label",
+      "fields": [
+        {"id": "label", "label": "Classifier", "kind": "text"},
+        {"id": "classifier", "label": "Family", "kind": "choice", "choices": ["questions-first-decider"]},
+        {"id": "repo", "label": "Hugging Face repository", "kind": "text", "free_text_because": "The repository the weights are fetched from, owner/name, as the model's own page names it."},
+        {"id": "revision", "label": "Revision", "kind": "text", "free_text_because": "The pinned commit of the weights, so they cannot change under the row."},
+        {"id": "identity", "label": "Weights identity", "kind": "text", "free_text_because": "The BLAKE3 identity of the fetched files, written by the tool."},
+        {"id": "files", "label": "Files", "kind": "number"},
+        {"id": "ready_at", "label": "Ready", "kind": "date"}
+      ]
+    },
+    "questions": {
+      "id": "classifier-questions",
+      "label": "Classifier questions",
+      "icon": "ListChecks",
+      "about": "The questions a classifier asks about every state, grouped into sets. A run asks one set, in its order.",
+      "row_type": "classifier-question",
+      "title_field": "instructions",
+      "fields": [
+        {"id": "set", "label": "Set", "kind": "text", "free_text_because": "The name of the question set this question belongs to, chosen by the person."},
+        {"id": "order", "label": "Order", "kind": "number"},
+        {"id": "type", "label": "Type", "kind": "choice", "choices": ["choice", "score", "noul"]},
+        {"id": "instructions", "label": "Question", "kind": "text", "free_text_because": "The question in the person's own words."},
+        {"id": "criteria", "label": "Options", "kind": "text", "free_text_because": "The question's options as JSON: a choice's {option: description or null} (2 to 255), a score's ordered levels (2 to 10), a noul's optional {true, false}."}
+      ]
+    },
+    "states": {
+      "id": "classifier-states",
+      "label": "States to classify",
+      "icon": "Rows3",
+      "about": "The lines, records or messages a classifier is asked about, grouped into sets. A run asks every state of one set.",
+      "row_type": "classifier-state",
+      "title_field": "text",
+      "fields": [
+        {"id": "set", "label": "Set", "kind": "text", "free_text_because": "The name of the state set this state belongs to, chosen by the person."},
+        {"id": "order", "label": "Order", "kind": "number"},
+        {"id": "text", "label": "State", "kind": "text", "free_text_because": "The state itself: text, or JSON the model reads written compactly."}
+      ]
+    },
+    "settings": {
+      "id": "classifier-settings",
+      "label": "Classifier settings",
+      "icon": "SlidersHorizontal",
+      "about": "How a classifier run is done: the layout, the dtype, how much one GPU pass holds and how much of a state the model reads.",
+      "row_type": "classifier-setting",
+      "title_field": "label",
+      "fields": [
+        {"id": "label", "label": "Settings", "kind": "text"},
+        {"id": "layout", "label": "Layout", "kind": "choice", "choices": ["independent", "packed"]},
+        {"id": "dtype", "label": "Dtype", "kind": "choice", "choices": ["bfloat16", "float32"]},
+        {"id": "tokens_per_batch", "label": "Tokens per GPU pass", "kind": "number"},
+        {"id": "max_state_tokens", "label": "Most tokens of a state", "kind": "number"}
+      ]
+    },
+    "runs": {
+      "id": "classifier-runs",
+      "label": "Classifier runs",
+      "icon": "Gauge",
+      "about": "Each run of a question set over a state set: what it asked, how far it is, and what it measured. Set Stop to end a run after the batch in hand.",
+      "row_type": "classifier-run",
+      "title_field": "label",
+      "fields": [
+        {"id": "label", "label": "Run", "kind": "text"},
+        {"id": "classifier", "label": "Classifier", "kind": "link", "links_to": "classifiers"},
+        {"id": "questions_set", "label": "Question set", "kind": "text", "free_text_because": "The question set's name, copied from the questions."},
+        {"id": "states_set", "label": "State set", "kind": "text", "free_text_because": "The state set's name, copied from the states."},
+        {"id": "settings", "label": "Settings", "kind": "link", "links_to": "classifier-settings"},
+        {"id": "status", "label": "Status", "kind": "choice", "choices": ["running", "finished", "stopped", "failed"]},
+        {"id": "stop", "label": "Stop", "kind": "choice", "choices": ["Stop"]},
+        {"id": "questions", "label": "Questions", "kind": "number"},
+        {"id": "states", "label": "States", "kind": "number"},
+        {"id": "states_done", "label": "States answered", "kind": "number"},
+        {"id": "decisions", "label": "Decisions", "kind": "number"},
+        {"id": "load_seconds", "label": "Load (s)", "kind": "number"},
+        {"id": "prepare_seconds", "label": "Prepare (s)", "kind": "number"},
+        {"id": "answer_seconds", "label": "Answer (s)", "kind": "number"},
+        {"id": "wall_seconds", "label": "Wall (s)", "kind": "number"},
+        {"id": "decisions_per_second", "label": "Decisions per second", "kind": "number"},
+        {"id": "padded_suffix_tokens", "label": "Tokens run", "kind": "number"},
+        {"id": "machine", "label": "Machine", "kind": "text", "free_text_because": "What the run measured on (MLX version, device), written by the tool."},
+        {"id": "identity", "label": "Identity", "kind": "text", "free_text_because": "The BLAKE3 identity of everything the run asked, written by the tool."},
+        {"id": "error", "label": "Why it failed", "kind": "text", "free_text_because": "The program's own words when a run fails."},
+        {"id": "started_at", "label": "Started", "kind": "date"},
+        {"id": "finished_at", "label": "Finished", "kind": "date"}
+      ]
+    },
+    "answers": {
+      "id": "classifier-answers",
+      "label": "Classifier answers",
+      "icon": "MessageSquareText",
+      "about": "What a run answered for each state: for every question, the probability of each option.",
+      "row_type": "classifier-answer",
+      "title_field": "state",
+      "fields": [
+        {"id": "run", "label": "Run", "kind": "link", "links_to": "classifier-runs"},
+        {"id": "state", "label": "State", "kind": "link", "links_to": "classifier-states"},
+        {"id": "answers", "label": "Answers", "kind": "text", "free_text_because": "The answers as JSON, {question id: {type, probabilities, choice | score | noul, confidence}}, written by the tool."}
+      ]
+    }
+  },
+  "families": {
+    "questions-first-decider": {
+      "files": ["config.json", "decider_config.json", "tokenizer.json", "tokenizer_config.json"],
+      "weights": ".safetensors",
+      "index": "model.safetensors.index.json"
+    }
+  },
+  "fetch": {
+    "tree": "https://huggingface.co/api/models/{repo}/tree/{revision}?recursive=1",
+    "file": "https://huggingface.co/{repo}/resolve/{revision}/{path}",
+    "timeout_seconds": 600
+  },
+  "most_writes": 128,
+  "words": {
+    "no_door": "This run was not handed the person's records door.",
+    "no_kept_folder": "This run was not handed the tool's kept folder (its row declares invoke.kept_folder).",
+    "no_program": "This run was not handed a Python with MLX: grant start-a-program its program, a python3 on this Mac that imports mlx, tokenizers and numpy.",
+    "no_classifier": "There is no row {id} in the Question classifiers list.",
+    "not_ready": "The classifier {id} is not ready on this Mac yet: run tool:get-a-classifier-ready-on-this-mac for it first.",
+    "no_questions": "The question set {set} has no questions in the Classifier questions list.",
+    "no_states": "The state set {set} has no states in the States to classify list.",
+    "no_settings": "There is no row {id} in the Classifier settings list.",
+    "missing_setting": "The settings row {id} has no {field}: {meaning}",
+    "bad_question": "Question {id} of set {set}: {why}",
+    "gated": "{repo} answered {status}: its weights need a Hugging Face account that accepted the model's terms, and this tool has no way to send one yet.",
+    "fetch_failed": "Could not fetch {repo} at {revision}: {why}",
+    "family_unknown": "This tool runs the classifier families {families}, not {family}.",
+    "no_run": "There is no run {id} in the Classifier runs list."
+  },
+  "settings_meaning": {
+    "layout": "independent (one row per question, no question sees another) or packed (all questions in one prefix, several times fewer tokens)",
+    "dtype": "bfloat16 (the model's own) or float32",
+    "tokens_per_batch": "how many tokens one GPU pass may hold",
+    "max_state_tokens": "the most tokens of one state the model reads"
+  }
+}
