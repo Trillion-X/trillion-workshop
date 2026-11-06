@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, holdingStep, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
@@ -439,7 +439,7 @@ async function confirmStep(door, methods, record, at) {
   delete entry.recheck_of;
   entry.rechecked_at = new Date().toISOString();
   record.change_count = (record.change_count ?? 0) + 1;
-  await writeDecision(door, recordsOf(record), `confirm-a-decision-step:${record.id}:${at}:${record.change_count}`);
+  await writeDecision(door, holdingStep(recordsOf(record), record, at), `confirm-a-decision-step:${record.id}:${at}:${record.change_count}`);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
   return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: readyFor(reply) };
 }
@@ -474,7 +474,7 @@ async function confirmWithVerdicts(door, methods, record, at, step, given, now) 
     ...(entry.from ? { from: entry.from } : {}),
     ...(entry.needs_recheck ? { rechecked_at: now } : {}),
   };
-  await writeDecision(door, recordsOf(record, [at], archived), `confirm-a-decision-step:${record.id}:${at}:v${version}`);
+  await writeDecision(door, holdingStep(recordsOf(record, [at], archived), record, at), `confirm-a-decision-step:${record.id}:${at}:v${version}`);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
   return { ...reply, confirmed: { step_id: entry.step_id, version, verdicts_added: added.map(item => item.id) }, ready_for_decision: readyFor(reply) };
 }
@@ -497,6 +497,15 @@ function reopen(record, { step_id, because, now }) {
  * confirmation of a re-asked step unchanged, or with verdicts added as a new version of the same answer (a decided decision stays
  * decided); `from` answers with another decision's step as it stood. */
 export async function answerADecisionQuestion(input, { door }) {
+  // Each change to a step is written only if the step still holds what was read (holdingStep). One that lost to a change
+  // made meanwhile is read again and answered against it: the same answer replays, a different one is refused.
+  for (let tries = 1; ; tries += 1) {
+    try { return await answerOnce(input, { door }); }
+    catch (error) { if (error?.code !== CHANGED || tries >= settings.step_conflict_tries) throw error; }
+  }
+}
+
+async function answerOnce(input, { door }) {
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
   answerShape(input);
@@ -575,7 +584,7 @@ export async function answerADecisionQuestion(input, { door }) {
     for (const later of record.guidance.slice(index + 1)) { later.needs_recheck = true; later.recheck_of = step.id; }
   } else record.guidance.push(fresh);
   const key = entry ? `answer-a-decision-question:${id}:${index}:v${version}` : `answer-a-decision-question:${id}:${index}`;
-  await writeDecision(door, recordsOf(record, [index], archived), key);
+  await writeDecision(door, holdingStep(recordsOf(record, [index], archived), record, index), key);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
   return {
     ...reply,
