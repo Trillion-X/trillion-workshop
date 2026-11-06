@@ -95,6 +95,14 @@
       "to": "tools/find-and-keep-my-connections/test/tool-effect-signals.test.mjs",
       "source_identity": "1f:12b44d933eb107508cdd04337011f6efb54406b0a0a170db4109f63c1fcef31e",
       "identity": "1f:12b44d933eb107508cdd04337011f6efb54406b0a0a170db4109f63c1fcef31e"
+    },
+    {
+      "from": "test/amie-connect-gate.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/find-and-keep-my-connections/test/amie-connect-gate.test.mjs",
+      "source_identity": "1f:ecbd5e488a4d8ad24a5dc8c76effb349dbe9dbe01d5494752ea5f5abb8381c7f",
+      "identity": "1f:078500fe6033ec9ff8a9b40ab796c272339dd018ae7da52e234c3fe870f45beb",
+      "adapted": "The request-note test runs on this tool's integration-requests.mjs; the plan-gated Connections cards and readConnections plan read are left out, no running owner of old account-screens connectionsFacts or screen-reads readConnections."
     }
   ]
 }
