@@ -73,7 +73,9 @@ test('the helpers and the cloud tools really put the switches on the browser', (
     assert.match(readFileSync(resolve(root, script), 'utf8'), /from '\.\.\/\.\.\/headless-browser\/devtools\.mjs'/);
     const row = JSON.parse(readFileSync(resolve(root, file), 'utf8')).records.find(record => record.payload.id === id).payload;
     const carried = row.invoke.files.package_files.find(spec => spec.package === 'headless-browser' && spec.at === '/opt/headless-browser');
-    // Here devtools.mjs reads quiet-switches.json and browser-places.json beside it (old trillion's read admission.mjs).
-    for (const needed of ['devtools.mjs', 'quiet-switches.json', 'browser-places.json']) assert.ok(carried?.paths?.includes(needed), `${id} carries ${needed} of the browser part beside it`);
+    // The row carries devtools.mjs and every JSON file it reads from its own folder (old trillion's read admission.mjs).
+    const besideIt = [...devtools.matchAll(/join\(dirname\(fileURLToPath\(import\.meta\.url\)\), '([\w.-]+\.json)'\)/g)].map(match => match[1]);
+    assert.ok(besideIt.includes('quiet-switches.json'), 'devtools.mjs reads the quiet switches beside it');
+    for (const needed of ['devtools.mjs', ...besideIt]) assert.ok(carried?.paths?.includes(needed), `${id} carries ${needed} of the browser part beside it`);
   }
 });
