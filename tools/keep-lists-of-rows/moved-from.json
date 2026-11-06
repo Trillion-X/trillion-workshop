@@ -270,6 +270,14 @@
       "byte_copy_commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
       "changed": true,
       "found_by": "same bytes"
+    },
+    {
+      "from": "test/list-field-explanation.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-lists-of-rows/test/list-field-explanation.test.mjs",
+      "source_identity": "1f:7c563e6efade0be8a179816b1488b0ee9be2fc927252a6af7fb246dcaf5b2525",
+      "identity": "1f:d44174aaf9240f4e75e8e291de5c81efbe1018a3fa59ba97c1052fd232434861",
+      "adapted": "makeLists over keep-and-wake's localStore in place of the retired simulated person, each call awaited; every assertion is the old one"
     }
   ]
 }
