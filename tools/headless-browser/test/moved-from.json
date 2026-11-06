@@ -16,7 +16,9 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/headless-browser/test/every-browser-launch-is-quiet.test.mjs",
       "source_identity": "1f:963e39d4e24cc11353a83fec3920962d409ad0f405e5a06f8f2f2aa91d8a6002",
-      "identity": "1f:57237ee9cd0db1535f4db7de2d623674bdf178a75ef02eb3bac3a4c42034a9b6"
+      "identity_at_move": "1f:57237ee9cd0db1535f4db7de2d623674bdf178a75ef02eb3bac3a4c42034a9b6",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/headless-browser-admission.test.mjs",

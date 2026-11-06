@@ -9,7 +9,9 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/run-on-a-persons-computer/test/computer-pace.test.mjs",
       "source_identity": "1f:4b53058ce17ad87f9e391580c9d66900d82eb0622ff66665f9ef2611bd4b6fd1",
-      "identity": "1f:3519c04c2b03d38cd2c10a1820d70a1af254ebbbedbc27ce8c95505ce3ad9518"
+      "identity_at_move": "1f:3519c04c2b03d38cd2c10a1820d70a1af254ebbbedbc27ce8c95505ce3ad9518",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/egress-relay.test.mjs",
@@ -51,7 +53,9 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/run-on-a-persons-computer/test/helper-sandbox.test.mjs",
       "source_identity": "1f:b6fc2fa9ac0371f34665e42d114f58156a623eaccd490594e71169e47f4aea95",
-      "identity": "1f:8540539c06c5837781122cfda7198c87591f85cb6de5a9e24e828c2f7474d45a"
+      "identity_at_move": "1f:8540539c06c5837781122cfda7198c87591f85cb6de5a9e24e828c2f7474d45a",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/host-log.test.mjs",
@@ -114,7 +118,9 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/run-on-a-persons-computer/test/managed-settings.test.mjs",
       "source_identity": "1f:876b866b8d3a7817c94f141f506be0db66eb0d5a10124fa8661ece2657346a12",
-      "identity": "1f:ce65b98dba8d703084944a32612db87039c5f16765ad415f22c358b47866f6c4"
+      "identity_at_move": "1f:ce65b98dba8d703084944a32612db87039c5f16765ad415f22c358b47866f6c4",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/meeting-ledger.test.mjs",

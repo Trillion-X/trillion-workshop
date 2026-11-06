@@ -1963,14 +1963,18 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/google-account-thread-contract.test.mjs",
       "source_identity": "1f:feda5e4b1dd7c75d74a8f9db95a137b35fc9914236ce41884012dc5c0fc4cb79",
-      "identity": "1f:6a8fe1fea091003486329afeb24ee92397b9295dff3700fe97464de9bee83e63"
+      "identity_at_move": "1f:6a8fe1fea091003486329afeb24ee92397b9295dff3700fe97464de9bee83e63",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/google-calendar-scopes.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/google-calendar-scopes.test.mjs",
       "source_identity": "1f:fe5bccf46d85ba6b886b2331c34092a3423b97660673beff214707a426be5191",
-      "identity": "1f:62f364bc916603f0c77170538547590f355f68261f3c94f54ddeee8886ead98c"
+      "identity_at_move": "1f:62f364bc916603f0c77170538547590f355f68261f3c94f54ddeee8886ead98c",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/handoff-result-completion-receipt.test.mjs",
@@ -2019,7 +2023,9 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/instagram-identity-contract.test.mjs",
       "source_identity": "1f:16318bd8b56bf62440429878955bca32344bf1a286f301e640c890faf4c9416a",
-      "identity": "1f:a2ab0fca484acdf92566779f1fed1469c1d73537c9ac967eb896dd66f1c73f5b"
+      "identity_at_move": "1f:a2ab0fca484acdf92566779f1fed1469c1d73537c9ac967eb896dd66f1c73f5b",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/keep-web-chats.test.mjs",
@@ -2990,7 +2996,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/wake-sessions.test.mjs",
       "source_identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705",
-      "identity": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705"
+      "identity_at_move": "1f:c5074b5340d6d7daa51eee5e4dd09f18dbc1c2a58acce5faf06bbcb086707705",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/wake-stopped-chats.test.mjs",

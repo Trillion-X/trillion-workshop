@@ -23,7 +23,9 @@
       "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/tool-reach-fence.test.mjs",
       "source_identity": "1f:a13cfe95d3ac94085540024073f9d6d9f1f291f3ad7cc90ddc57206a8830e5cf",
-      "identity": "1f:a13cfe95d3ac94085540024073f9d6d9f1f291f3ad7cc90ddc57206a8830e5cf"
+      "identity_at_move": "1f:a13cfe95d3ac94085540024073f9d6d9f1f291f3ad7cc90ddc57206a8830e5cf",
+      "byte_copy_commit": "3691e426bba223300146556c919f56ed044f76f9",
+      "changed": true
     },
     {
       "from": "test/agent-receiver-replays-one-at-a-time.test.mjs",
