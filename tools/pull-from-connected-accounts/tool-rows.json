@@ -2039,7 +2039,7 @@
         "id": "tool:read-my-signal-messages-on-this-computer",
         "label": "Read my Signal messages on this computer into my own records",
         "job": "Read my Signal messages into my own records",
-        "description": "Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and keeps them in your records the way tool:pull-my-signal-messages does: a message read twice is kept once, an edit replaces the older copy, calls are kept as calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. It must be linked once first (tool:link-signal-on-this-computer); until then it answers needs_link and starts nothing. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is kept and handed in again if keeping it failed. Give account (a name for this account, default \"default\"), timeout_seconds (how long to wait for messages, default 5), most_messages and most_threads, all optional. Read what was kept with tool:read-what-i-pulled-from-an-account (source signal).",
+        "description": "Runs the Signal client (signal-cli) on your computer, which reads the messages Signal holds for this computer as a linked device, turns them into conversations (a group by its name, a person by the name their messages came with; your own messages sent from your phone are yours) and keeps them in your records the way tool:pull-my-signal-messages does: a message read twice is kept once, an edit replaces the older copy, calls are kept as calls, and receipts, typing, reactions and group changes are left out and counted. The computer fetches signal-cli and the Java it needs itself, the first time, from their publishers, checked against pinned hashes; nothing is installed and you do nothing. Its wake (every 15 minutes, once switched on) runs it, so no one has to. When this computer is not linked yet it links it by itself: it keeps a QR code in your files (/Signal/Link this Mac.svg) and tells you on your Mac to scan it with Signal on your phone (Settings, Linked devices, Link new device), waits for the scan and reads on; it tells you again at most every six hours, and the code is renewed at every run until it is linked. Signal hands each message to a linked device once, so what arrived is written down on this computer before it is kept and handed in again if keeping it failed. Give account (a name for this account, default \"default\"), timeout_seconds (how long to wait for messages, default 5), most_messages and most_threads, all optional. Read what was kept with tool:read-what-i-pulled-from-an-account (source signal).",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -2068,6 +2068,10 @@
               "minimum": 1,
               "maximum": 200,
               "description": "At most this many conversations are kept in one run."
+            },
+            "link": {
+              "type": "boolean",
+              "description": "false: when this computer is not linked yet, answer needs_link and start nothing. Default true: link it by itself, telling you on your Mac to scan the code."
             }
           }
         },
@@ -2150,6 +2154,12 @@
             },
             "said": {
               "type": "string"
+            },
+            "linked_now": {
+              "type": "boolean"
+            },
+            "told": {
+              "type": "boolean"
             }
           }
         },
@@ -2267,6 +2277,13 @@
                 "at": "/opt/records-door"
               },
               {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
+              },
+              {
                 "package": "content-identity",
                 "paths": [
                   "read-data"
@@ -2308,6 +2325,59 @@
                   "records:list",
                   "records:write"
                 ]
+              },
+              {
+                "files": "/Signal",
+                "operations": [
+                  "write_file_start",
+                  "write_file_piece",
+                  "write_file_finish"
+                ]
+              },
+              {
+                "kind": "notification-event",
+                "prefix": "notification-event:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-event-rules",
+                "prefix": "notification-event-rules:",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "operations": [
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "id": "told-the-person",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "told-the-person",
+                "prefix": "told-the-person:",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "notification-device",
+                "prefix": "notification-device:",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
               }
             ]
           }
@@ -2339,6 +2409,20 @@
             ],
             "stand_in_programs": {
               "signal-cli": "case \"$*\" in *receive*) printf '%s\\n' '{\"envelope\": {\"sourceUuid\": \"22222222-2222-4222-8222-222222222222\", \"sourceName\": \"Baker B\", \"timestamp\": 1700000000000, \"dataMessage\": {\"timestamp\": 1700000000000, \"message\": \"Rye is ready\", \"groupInfo\": {\"groupId\": \"c2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA=\", \"groupName\": \"Bakers\"}}}, \"account\": \"sample-account\"}' '{\"envelope\": {\"sourceUuid\": \"11111111-1111-4111-8111-111111111111\", \"sourceName\": \"Me\", \"timestamp\": 1700000001000, \"syncMessage\": {\"sentMessage\": {\"timestamp\": 1700000001000, \"message\": \"On my way\", \"groupInfo\": {\"groupId\": \"c2FtcGxlLWdyb3VwLWlkLW1hZGUtdXA=\", \"groupName\": \"Bakers\"}}}}, \"account\": \"sample-account\"}' ;; *) exit 2 ;; esac"
+            }
+          }
+        ],
+        "wakes": [
+          {
+            "id": "keep-signal-current",
+            "on": {
+              "time": {
+                "every_ms": 900000
+              }
+            },
+            "budget": {
+              "steps": 1,
+              "wall_ms": 600000
             }
           }
         ]
@@ -2490,6 +2574,13 @@
                   "read-data"
                 ],
                 "at": "/opt/records-door"
+              },
+              {
+                "package": "notifications",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/notifications"
               },
               {
                 "package": "content-identity",
