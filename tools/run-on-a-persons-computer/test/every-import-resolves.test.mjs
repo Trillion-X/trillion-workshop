@@ -22,6 +22,9 @@ test('every relative import in tools/run-on-a-persons-computer resolves to a fil
     const text = fs.readFileSync(file, 'utf8');
     for (const match of text.matchAll(request)) {
       if (fs.existsSync(path.resolve(path.dirname(file), match[1]))) continue;
+      // A request inside a double-quoted string or a template (a test's sample of code) is text, not an import.
+      const before = text.slice(text.lastIndexOf('\n', match.index) + 1, match.index).replace(/\\./g, '');
+      if ((before.split('"').length - 1) % 2 === 1 || (before.split('`').length - 1) % 2 === 1) continue;
       const line = text.slice(0, match.index).split('\n').length;
       missing.push(`${path.relative(folder, file)}:${line} ${match[1]}`);
     }

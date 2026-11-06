@@ -7,7 +7,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtempSync, writeFileSync, chmodSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, chmodSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import settings from '../harness/wake-handlers/tool-reach.json' with { type: 'json' };
 import { argumentRefusal, declaredReach, describeRun, sandboxProfile, sandboxed } from '../harness/wake-handlers/tool-reach.mjs';
@@ -45,7 +45,8 @@ test('the description of a run is built from the same rows that build the fence'
   const profile = sandboxProfile({ folder: home, reach: [], home, rules: allowlist, program: '/bin/ls' });
   assert.match(profile, /\(deny process-exec\*\)/);
   assert.match(profile, /\(literal "\/bin\/echo"\)/);
-  assert.match(profile, /\(literal "\/bin\/ls"\)/);
+  // The program is named by its real path: /bin/ls on a Mac, /usr/bin/ls where /bin is a link to /usr/bin.
+  assert.ok(profile.includes(`(literal "${realpathSync('/bin/ls')}")`), profile);
 });
 
 test('the kernel starts the allowed program and refuses another', { skip: !onMac }, async () => {

@@ -47,7 +47,9 @@ test('a paced look waits base x multiplier, follows a change of state and senses
   assert.equal(fire, null);
 });
 
-test('this computer: the real sensing commands answer and give a multiplier', async () => {
+// The real sensing commands are the Mac's pmset and ioreg (computer-sources.json pace.sense); elsewhere this test is
+// skipped and says so.
+test('this computer: the real sensing commands answer and give a multiplier', { skip: process.platform === 'darwin' ? false : 'needs a Mac: pmset and ioreg sense power and idleness' }, async () => {
   const state = await senseState(pace.sense);
   console.log('PACE READBACK this Mac:', JSON.stringify(state), 'multiplier', multiplierFor(state, pace.rows));
   assert.ok(['battery', 'ac'].includes(state.power) && typeof state.idle === 'boolean');

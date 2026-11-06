@@ -107,7 +107,7 @@ def settings(given=None, film=None):
 
 
 def transcriber(cfg):
-    """mlx_whisper where the place has it, else the place's whisper_here (faster-whisper or openai-whisper), whose folder
+    """mlx_whisper where the computer has it, else the computer's whisper_here (faster-whisper or openai-whisper), whose folder
     the settings name in whisper_here_dir. Both answer mlx_whisper.transcribe's shape."""
     if cfg.get('whisper_here_dir'):
         sys.path.insert(0, str(cfg['whisper_here_dir']))

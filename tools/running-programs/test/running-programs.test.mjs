@@ -45,7 +45,7 @@ test('refuses a bad bound and says what to grant when the reader could not list'
   await assert.rejects(listRunningPrograms({ most: 0 }, {}, reader({ listed: true, programs })), /Ask for 1 to 2000/);
   await assert.rejects(listRunningPrograms({}, {}, reader({ listed: false, programs: [] })), /Grant this tool/);
   await assert.rejects(listRunningPrograms({}, {}, { readers: osascriptOnly, has: () => true, exec: async () => ({ ok: false, stdout: '' }) }), /Grant this tool/);
-  await assert.rejects(listRunningPrograms({}, {}, { has: () => false }), /Grant this tool/, 'a place with no reader says what to grant');
+  await assert.rejects(listRunningPrograms({}, {}, { has: () => false }), /Grant this tool/, 'a computer with no reader says what to grant');
 });
 
 test('a process table folder is read without starting a program, memory in bytes, a vanished program left out', async () => {
@@ -63,12 +63,12 @@ test('a process table folder is read without starting a program, memory in bytes
     { pid: 23, name: 'not-mine', footprint_bytes: null, resident_bytes: null },
   ]);
   const listed = await listRunningPrograms({}, {}, { readers: [{ reads: 'process-table-folder', at: folder }, ...osascriptOnly] });
-  assert.deepEqual(listed.programs.map(one => one.pid), [21, 22, 23], 'the first reader the place has is the one used');
+  assert.deepEqual(listed.programs.map(one => one.pid), [21, 22, 23], 'the first reader the computer has is the one used');
 });
 
-test('the real reader this place has names this test\'s own process with its memory', async t => {
+test('the real reader this computer has names this test\'s own process with its memory', async t => {
   let all;
-  try { all = await readPrograms(); } catch { t.skip('this place reports no reader running-programs.json names'); return; }
+  try { all = await readPrograms(); } catch { t.skip('this computer reports no reader running-programs.json names'); return; }
   const seen = all.find(program => program.pid === process.pid);
   assert.ok(seen, 'this process is listed');
   assert.ok(seen.footprint_bytes > 0 && seen.resident_bytes > 0, JSON.stringify(seen));

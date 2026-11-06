@@ -113,6 +113,9 @@ class TLS(unittest.TestCase):
             os.close(fd)
 
     @unittest.skipUnless(hasattr(os, 'memfd_create'), 'Linux retained-host descriptor facility')
+    # The owner runs as root on the server and keeps certbot's logs in /run; a computer where /run cannot be written
+    # (any account but root) skips this and says so.
+    @unittest.skipUnless(os.access('/run', os.W_OK), 'needs root: certbot logs are kept in /run, as on the server')
     def test_failed_provider_diagnostic_cannot_return_the_token(self):
         canary = 'TEST_TOKEN_1234567890_PRIVATE'
         seen = []
@@ -129,6 +132,9 @@ class TLS(unittest.TestCase):
         self.assertIn('--dns-cloudflare', seen[0])
 
     @unittest.skipUnless(hasattr(os, 'memfd_create'), 'Linux retained-host descriptor facility')
+    # The owner runs as root on the server and keeps certbot's logs in /run; a computer where /run cannot be written
+    # (any account but root) skips this and says so.
+    @unittest.skipUnless(os.access('/run', os.W_OK), 'needs root: certbot logs are kept in /run, as on the server')
     def test_a_dry_run_renewal_asks_the_staging_server_and_changes_no_certificate(self):
         seen = []
         def provider(args, **kwargs):

@@ -13,21 +13,21 @@ Answer: { result: { "<system>|<mode>": { meta, fields: { field: { n, agree, top_
 import json, sys, collections
 import math
 from pathlib import Path
-H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import place
-R = place.request()
-FIELDS, values, _ = place.vocabulary(R)
-S = place.shots_of(R); WHO = place.need(R, "reference_name"); UNKNOWN = place.need(R, "unknown"); SEP = place.need(R, "list_separator")
+H = Path(__file__).parent; sys.path.insert(0, str(H.parent/"read-data")); import computer
+R = computer.request()
+FIELDS, values, _ = computer.vocabulary(R)
+S = computer.shots_of(R); WHO = computer.need(R, "reference_name"); UNKNOWN = computer.need(R, "unknown"); SEP = computer.need(R, "list_separator")
 def truth_orientation(w, h):
     r = math.log(w / h)
-    opts = place.need(R, "shape_ratios")
+    opts = computer.need(R, "shape_ratios")
     return min(opts, key=lambda k: abs(math.log(opts[k]) - r))
 def opus_set(s, f):
     """The reference labeller's accepted values of field f for shot s (the name is the first run's: Opus labelled them)."""
     if f == R.get("shape_field"): return {truth_orientation(s["w"], s["h"])}
     return {x.strip() for x in (s["reference"].get(f) or "").split(SEP) if x.strip() and x.strip() != UNKNOWN}
-LABELS = place.need(R, "labels")
+LABELS = computer.need(R, "labels")
 for f in LABELS:
-    if not isinstance(f, str) or not Path(f).is_file(): place.refuse(f"labels names {f!r}, which is not a file: give the files the label answers were written to")
+    if not isinstance(f, str) or not Path(f).is_file(): computer.refuse(f"labels names {f!r}, which is not a file: give the files the label answers were written to")
 def tag_of(f, P): return P.get("meta", {}).get("tag") or Path(f).stem
 def systems():
     for f in LABELS:
@@ -67,7 +67,7 @@ for name, pred, meta in itertools.chain(systems(), centered()):
         base = collections.Counter(v for i in pred for v in [sorted(opus_set(S[i], fl))[0] if opus_set(S[i], fl) else None] if v).most_common(1)
         d = {"n": n, "agree": round(ok / n, 3) if n else None, "top_confusions": [f"{WHO} {a} -> {b} x{c}" for (a, b), c in conf.most_common(4)]}
         if cal:
-            for t in place.need(R, "thresholds"):
+            for t in computer.need(R, "thresholds"):
                 a = [h for c, h in cal if c >= t]
                 d[f"t{t}"] = {"answered": round(len(a)/len(cal), 3), "agree_when_answered": round(sum(a)/len(a), 3) if a else None}
             hi = [h for c, h in cal if c >= 0.5]; lo = [h for c, h in cal if c < 0.5]
@@ -85,4 +85,4 @@ res["majority-baseline"] = {"fields": {fl: {"agree": v["agree"], "value": v["val
 print(f"{'system':34s}" + "".join(f"{fl[:11]:>12s}" for fl in FIELDS))
 for name, r in res.items():
     print(f"{name:34s}" + "".join(f"{(r['fields'][fl]['agree'] or 0):12.3f}" for fl in FIELDS))
-place.answer(res)
+computer.answer(res)

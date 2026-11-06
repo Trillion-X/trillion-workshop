@@ -16,7 +16,7 @@ import shutil
 import subprocess
 import sys
 
-BLENDER = os.environ.get("BLENDER") or shutil.which("blender") or "blender"      # by name on this place's PATH, or where it reports it
+BLENDER = os.environ.get("BLENDER") or shutil.which("blender") or "blender"      # by name on this computer's PATH, or where it reports it
 
 # All tunable numbers live here as data. Lengths are Blender units, 1 unit = 100 card pixels.
 PARAMS = {

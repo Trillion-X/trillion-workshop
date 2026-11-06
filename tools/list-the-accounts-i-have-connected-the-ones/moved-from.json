@@ -10,6 +10,14 @@
       "to": "tools/list-the-accounts-i-have-connected-the-ones/src/native-connection-list.mjs",
       "source_identity": "1f:111ce478e658c019a225ecb95c6b5be74e2eedb19f27e0cfebe90b0aea535cc5",
       "identity": "1f:b565170bb986789146799b3c2c768fdfb32de603d0b34aa4b816c88b3f436681"
+    },
+    {
+      "from": "test/connections-tools.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/list-the-accounts-i-have-connected-the-ones/test/connections-tools.test.mjs",
+      "source_identity": "1f:97f8aef680e8cae04986b7ea8aad76723816cfec0d75e30533e68a8859b825c2",
+      "identity": "1f:9b7ffb984d765b60eb3e821e16e51f5a761be7e35cd780d5b7f7b2f977ee524a",
+      "adapted": "The paging assertions drive nativeConnectionList (the GET /connections route list_connections called) with stand-in owners; the MCP tool definition's inputSchema types and readOnlyHint are left out, no running code declares them."
     }
   ]
 }

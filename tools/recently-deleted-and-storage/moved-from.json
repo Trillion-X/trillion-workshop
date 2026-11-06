@@ -169,6 +169,38 @@
       "to": "tools/recently-deleted-and-storage/from-old-trillion/records/workshop-recently-deleted-tool-records.json",
       "source_identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d",
       "identity": "1f:57077abb990a745996ef4d6b39cc2e36e53a26b4b59a6f815d9e806d23fd3a0d"
+    },
+    {
+      "from": "test/namespace-name-counts.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-name-counts.test.mjs",
+      "source_identity": "1f:df5661245906a29bbbec53b4b14657b343feff1cb3c4fcd6cc85082cfced1706",
+      "identity": "1f:3827353fe0ecb95ca6b4097d2c2a4e34f8d4f0cd32128a75583526dd80a56873",
+      "adapted": "Imports point at this tool's namespace-name-counts.mjs and keep-and-wake's sqliteHost; the Workerd probe bundles from this tool's folder; every assertion kept."
+    },
+    {
+      "from": "test/namespace-name-batch.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-name-batch.test.mjs",
+      "source_identity": "1f:b7aa11ee95317b31baa498c5f7039fe8e18a5fe158c6f8258dac2bfd95821554",
+      "identity": "1f:9375209598804d3c9c29c748f6482e85bc28884f221533279771854969c5e4ce",
+      "adapted": "Imports and the Workerd probe's source path point at this tool's namespace-store.mjs; every assertion kept."
+    },
+    {
+      "from": "test/namespace-move-ownership.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-move-ownership.test.mjs",
+      "source_identity": "1f:d87c7568ac6f4463430a3e3737641ab8b728e28971dcac67e420d702c7a4b43f",
+      "identity": "1f:19b85e9487f15996a8fd23b569732abfe27188bf7707691083207b20cac998c3",
+      "adapted": "The reset test runs against this tool's namespace-store.mjs; the cross-account merge test is left out because src/namespace-account-merge.mjs has no running successor (searched namespaceAccountMerge, move_receipts, account merge in all three repos)."
+    },
+    {
+      "from": "test/namespace-arrival-retries.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/recently-deleted-and-storage/test/namespace-arrival-retries.test.mjs",
+      "source_identity": "1f:346adc280bb52ccbeecabb05fc01dddb892acbccc3c187a860f2c78e8563cfe7",
+      "identity": "1f:cb05baafa31b1fcdeb0c60e859198ed138737a7d9d7675ea29d533b3e750e4ca",
+      "adapted": "The arrival fence is checked on namespace-store.mjs keepWholeFiles/completeWholeFileArrivals with arrival work read as the pending rows the store hands back; the retired person store's organize-into-/Images naming, eeaf file-arrival record, results titles, byte-release refusal and scheduler arm count are left out (searched organizeFileArrival, settleSideFiles, namespaceKeepWholeFiles, file-arrival: in all three repos: only the store and trillion-apps src/side-files.mjs rules, no arrival flow)."
     }
   ]
 }

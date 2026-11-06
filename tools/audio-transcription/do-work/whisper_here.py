@@ -1,9 +1,9 @@
-"""Speech to text with word times on whatever this place has: a second option for the Apple-only mlx_whisper.
+"""Speech to text with word times on whatever this computer has: a second option for the Apple-only mlx_whisper.
 
 Drop-in for `mlx_whisper.transcribe(path, path_or_hf_repo=..., **options)`; returns the same shape
 ({"text", "language", "segments": [{"id", "start", "end", "text", "words": [{"word", "start", "end", "probability"}]}]}).
 
-Which engine runs is what the place has (this folder's README.md, "Whisper on whatever engine the place has"):
+Which engine runs is what the place has (this folder's README.md, "Whisper on whatever engine the computer has"):
   WHISPER_BACKEND=mlx|faster|openai picks one; otherwise the first that imports, in that order:
   - mlx       mlx_whisper (Apple silicon only), the engine the films' numbers were measured with;
   - faster    faster-whisper (CTranslate2: cuda or cpu), same Whisper weights converted;
@@ -30,7 +30,7 @@ def engine():
     for name in ENGINES:
         if importlib.util.find_spec(MODULE[name]) is not None:
             return name
-    raise SystemExit("This place has no speech-to-text engine: install mlx-whisper (Apple), faster-whisper or openai-whisper")
+    raise SystemExit("This computer has no speech-to-text engine: install mlx-whisper (Apple), faster-whisper or openai-whisper")
 
 
 def model_name(repo):

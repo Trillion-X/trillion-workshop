@@ -132,8 +132,8 @@ test('the hosted route: calls bounded by line count and bytes, the prompt, and o
   assert.equal(probe({ probe: 'mlx-prompt', context: 'C', ask: { question: 'Q?', options: ['no', 'yes'] } }).result, 'C\n\nQuestion: Q?\nAnswer with one word: no or yes.');
 });
 
-test('the model is found in the cache this place reports, runs on the device it has, and no route is guessed', () => {
-  const words = 'This place has not said where it keeps ai-command-center. Set AI_COMMAND_CENTER, or consult_route in this tool\'s settings.';
+test('the model is found in the cache this computer reports, runs on the device it has, and no route is guessed', () => {
+  const words = 'This computer has not said where it keeps ai-command-center. Set AI_COMMAND_CENTER, or consult_route in this tool\'s settings.';
   const base = { repo: 'made-up/decider', snapshot: 'abc123' };
   const fromEnv = probe({ probe: 'place', settings: { ...SETTINGS, base_model: base } }, { HF_HUB_CACHE: '/models/hub' }).result;
   assert.equal(fromEnv.model, '/models/hub/models--made-up--decider/snapshots/abc123');

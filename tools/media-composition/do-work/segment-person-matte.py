@@ -9,8 +9,11 @@ this (or any other) producer emits. AI segmentation is a DATA-selected matte sou
 special case baked into the render (L069 / green screen without a screen).
 
 Usage: segment-person-matte.py <input-video> <output-matte-mp4> [model]
+       segment-person-matte.py --still <model> <picture.png> [<picture.png> ...]
   model: a rembg model name. Default 'u2net_human_seg' (people). 'u2netp' = small general
          salient-object model. The model downloads once on first use (onnxruntime).
+  --still: a still-picture mask per picture, written beside it as <picture>.mask-<model>.png, rembg's own mask
+           (only_mask, no post-process; segment_a_still_picture.py), e.g. with birefnet-portrait for a cut-out.
 
 Reads ONLY the explicit input path (no directory scan, no scheduling). Iterates the input's
 frames once and emits a matte at the same dimensions, fps, and frame count so ffmpeg alphamerge
@@ -23,6 +26,12 @@ from rembg import remove, new_session
 
 
 def main() -> int:
+    if len(sys.argv) > 1 and sys.argv[1] == "--still":
+        import os
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import segment_a_still_picture
+        sys.argv = [sys.argv[0]] + sys.argv[2:]
+        return segment_a_still_picture.main()
     if len(sys.argv) < 3:
         sys.stderr.write("usage: segment-person-matte.py <input-video> <output-matte-mp4> [model]\n")
         return 2
