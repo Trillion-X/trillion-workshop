@@ -21,13 +21,16 @@ test('current roots preserve owner keys, side-tree keys, duplicate/absent inputs
     const ids=['arrival:uses-owner','side-only','missing','arrival:uses-owner'];
     const expected=left.records.erasureKeys(ids);assert.deepEqual(right.records.erasureKeys(ids),expected);
     assert.equal(expected['message:owner'],material);assert.equal(expected['side-only'],material);assert.equal('missing' in expected,false);
-    for(const [host,source,item] of [[a,before,left],[b,recordLogStore,right]]) {
+    // The record model declares message's indexed metadata as erase_fields (src/record-model.json): the current store
+    // erases them with the sent fields and keeps them in the tombstone; the store from before key admission knows only the sent ones.
+    const declared=RECORD_MODEL.kinds.find(kind=>kind.type==='message').erase_fields;
+    for(const [host,source,item,erased] of [[a,before,left,['text']],[b,recordLogStore,right,['text',...declared]]]) {
       item.records.takeErasureKeys({'message:owner':{erased:['text']}});item.records.checkpoint();item.records=source(host.sql,item.options);
-      assert.deepEqual(item.records.erasureKeys(['message:owner'])['message:owner'],{erased:['text']});
+      assert.deepEqual(item.records.erasureKeys(['message:owner'])['message:owner'],{erased});
       assert.throws(()=>host.transaction(()=>{item.records.takeErasureKeys({'side-only':{erased:[]}});throw new Error('deliberate rollback');}),/deliberate rollback/);item.records.forgetCached();
       assert.equal(item.records.erasureKeys(['side-only'])['side-only'],material);
     }
-    assert.deepEqual(right.records.erasureKeys(ids),left.records.erasureKeys(ids));
+    assert.deepEqual(right.records.erasureKeys(ids),{...left.records.erasureKeys(ids),'message:owner':{erased:['text',...declared]}});
     // Each independently written message has a distinct generated key. Test logical output size/coverage without falsely equating key bytes.
     const wide=Array.from({length:140},(_,i)=>'message:'+i);
     for(const item of [left,right]) {
