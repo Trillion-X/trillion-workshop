@@ -108,6 +108,58 @@ test('a settings row of another tool, or a retired one, is refused saying what t
   assert.match(lastLine(none).error, /no buckets/);
 });
 
+test('keep_comments keeps top-level questions and own situations of the settings\' length, tags them and writes them most-liked first', () => {
+  mkdirSync(join(root, 'kept-comments'));
+  put('kept-comments/vid0000003.info.json', { title: 'Made-up loaf video', channel: 'Sample Bakery', comments: [
+    { id: 'k1', text: 'How long should   I proof a cold\ndough?', like_count: 40 },
+    { id: 'k2', text: "I'm always too scared to score my loaf deep", like_count: 90 },
+    { id: 'k3', text: 'How long should I proof a cold dough?', like_count: 500, parent: 'k1' },
+    { id: 'k4', text: 'Why?', like_count: 300 },
+    { id: 'k5', text: 'Lovely crumb on that bread there', like_count: 200 },
+    { id: 'k6', text: 'Does my starter need feeding at night?' },
+  ] });
+  put('kept-comments/vid0000004.info.json', { title: 'Second made-up video', channel: 'Sample Bakery', comments: [
+    { id: 'k7', text: 'I keep burning the bottom of the loaf, why?', like_count: 90 },
+  ] });
+  put('comment-sources.tsv', 'source\tkind\turl\nsample\tvideo\thttps://www.youtube.com/watch?v=vid0000003\nsample\tvideo\thttps://www.youtube.com/shorts/vid0000004\nsample\tvideo\thttps://www.youtube.com/watch?v=vid0000009\n');
+  const tags = { keep_comments: { min_chars: 20, max_chars: 120, is_question: '\\?', is_situation: "^(i'?m|i keep)" },
+    comment_tags: [['worries', [['fear', 'scared|burn'], ['time', 'long|night']]], ['topics', [['proofing', 'proof|cold'], ['scoring', 'score'], ['starter', 'starter']]]] };
+  const out = run('keep_comments.py', join(root, 'comment-sources.tsv'), join(root, 'kept-comments'), put('keep.json', settingRow({ ...SETTINGS, ...tags })), join(root, 'kept'));
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(lastLine(out).result, { kept: 4, videos: 2, out: join(root, 'kept') });
+  const written = readFileSync(join(root, 'kept', 'questions.tsv'), 'utf8');
+  assert.ok(written.endsWith('\r\n'), 'rows end the way the csv writer ends them, as the old script wrote them');
+  const rows = written.trim().split('\r\n').map(line => line.split('\t'));
+  assert.deepEqual(rows[0], ['likes', 'kind', 'worries', 'topics', 'text', 'video_title', 'channel', 'url', 'evidence']);
+  assert.deepEqual(rows.slice(1).map(r => r.slice(0, 5)), [
+    ['90', 'situation', 'fear', 'scoring', "I'm always too scared to score my loaf deep"],
+    ['90', 'question', 'fear', '', 'I keep burning the bottom of the loaf, why?'],
+    ['40', 'question', 'time', 'proofing', 'How long should I proof a cold dough?'],
+    ['0', 'question', 'time', 'starter', 'Does my starter need feeding at night?'],
+  ]);
+  assert.equal(rows[2][7], 'https://www.youtube.com/shorts/vid0000004');
+  assert.equal(rows[1][8], 'real viewer comment');
+  const page = readFileSync(join(root, 'kept', 'by-concept.md'), 'utf8');
+  assert.match(page, /^# Real viewer comments per concept \(most-liked first\)\n\n4 kept comments from 2 videos\./);
+  assert.match(page, /## proofing \(1 comments\)\n\n- 40 likes, Sample Bakery "Made-up loaf video": "How long should I proof a cold dough\?"\n/);
+  assert.match(page, /## scoring \(1 comments\)/);
+  const one = run('keep_comments.py', join(root, 'comment-sources.tsv'), join(root, 'kept-comments'), put('keep-one.json', { ...tags, comment_group_by: 'worries', comment_group_top: 1 }), join(root, 'kept-one'));
+  assert.equal(one.status, 0, one.stderr);
+  const worries = readFileSync(join(root, 'kept-one', 'by-concept.md'), 'utf8');
+  assert.match(worries, /## fear \(2 comments\)\n\n- 90 likes, Sample Bakery "Made-up loaf video": "I'm always too scared to score my loaf deep"\n\n## time/);
+});
+
+test('keep_comments refuses settings without keep rules or tags, saying what to give', () => {
+  const sources = join(root, 'comment-sources.tsv');
+  const none = run('keep_comments.py', sources, join(root, 'kept-comments'), put('keep-none.json', settingRow(SETTINGS)), join(root, 'kept-none'));
+  assert.equal(none.status, 2);
+  assert.match(lastLine(none).error, /no keep_comments/);
+  const noTags = run('keep_comments.py', sources, join(root, 'kept-comments'), put('keep-notags.json', { keep_comments: { min_chars: 1, max_chars: 9, is_question: '\\?', is_situation: '^i' } }), join(root, 'kept-none'));
+  assert.match(lastLine(noTags).error, /no comment_tags/);
+  const badGroup = run('keep_comments.py', sources, join(root, 'kept-comments'), put('keep-bad.json', { keep_comments: { min_chars: 1, max_chars: 9, is_question: '\\?', is_situation: '^i' }, comment_tags: { a: { b: 'c' } }, comment_group_by: 'z' }), join(root, 'kept-none'));
+  assert.match(lastLine(badGroup).error, /comment_group_by names z/);
+});
+
 test('embed_moments cuts word-timed transcripts at sentence ends, drops Whisper loops and adds a moments table', { skip: modelSkip }, () => {
   const transcripts = join(root, 'transcripts');
   mkdirSync(transcripts);
