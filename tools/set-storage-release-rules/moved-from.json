@@ -17,6 +17,14 @@
       "to": "tools/set-storage-release-rules/from-old-trillion/records/workshop-storage-release-tool-records.json",
       "source_identity": "1f:05367a7bc8a66a3fb29810183986b4b3836b57b51af8190e6ef030dc984057c8",
       "identity": "1f:05367a7bc8a66a3fb29810183986b4b3836b57b51af8190e6ef030dc984057c8"
+    },
+    {
+      "from": "test/namespace-command-refusals.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/set-storage-release-rules/test/namespace-command-refusals.test.mjs",
+      "source_identity": "1f:d73803234aa0a2293fc28461b4e4f7ddd179ca9407265d53d4cb5dad5584c476",
+      "identity": "1f:65bd67030bfb8d4d17e979557ed3e6a609fe26ee8477f0442532d3084fb5d984",
+      "adapted": "The release-rule tests run on this tool's namespace-release-rules.mjs with Workshop set-aside and decision stores and tools/formula-engine; the hosted /mcp/api/namespace release and voice search route tests are left out, no running owner (the engine's file door runs no release rules and has no voice search)."
     }
   ]
 }

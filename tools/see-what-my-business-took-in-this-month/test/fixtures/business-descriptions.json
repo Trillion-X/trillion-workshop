@@ -1,0 +1,749 @@
+{
+ "_what": "Business as src/business-screen.mjs businessScreen drew it before it became a catalogue row (2026-10-16), with the facts it was drawn from; the reads layout must draw the same.",
+ "cases": [
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": []
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Money this month",
+      "rows": [
+       {
+        "id": "connect",
+        "title": "No payment service is connected",
+        "actions": [
+         {
+          "label": "Open Connections",
+          "tone": "primary",
+          "open": "trillion.connections"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [
+     {
+      "label": "Stripe",
+      "connected": false
+     },
+     {
+      "label": "Paddle",
+      "connected": false
+     }
+    ]
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Money this month",
+      "rows": [
+       {
+        "id": "connect",
+        "title": "Stripe or Paddle is not connected",
+        "actions": [
+         {
+          "label": "Open Connections",
+          "tone": "primary",
+          "open": "trillion.connections"
+         }
+        ]
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [
+     {
+      "label": "Stripe",
+      "connected": true,
+      "money": null
+     },
+     {
+      "label": "Paddle",
+      "connected": false
+     }
+    ]
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Stripe since October 1",
+      "rows": [
+       {
+        "id": "unread:Stripe",
+        "title": "Your Stripe money could not be read just now"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [
+     {
+      "label": "Stripe",
+      "connected": true,
+      "money": {
+       "currencies": [],
+       "payments": 0,
+       "more": false,
+       "at_most": 100
+      }
+     }
+    ]
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Stripe since October 1",
+      "rows": [
+       {
+        "id": "none:Stripe",
+        "title": "No payments since October 1"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [
+     {
+      "label": "Stripe",
+      "connected": true,
+      "money": {
+       "currencies": [
+        {
+         "currency": "usd",
+         "money_in": 10000,
+         "fees": 320,
+         "refunded": 0,
+         "net": 9680
+        }
+       ],
+       "payments": 1,
+       "more": false,
+       "at_most": 100
+      }
+     }
+    ]
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Stripe since October 1",
+      "stats": [
+       {
+        "id": "in:usd",
+        "label": "Money in",
+        "value": "$100"
+       },
+       {
+        "id": "fees:usd",
+        "label": "Stripe fees",
+        "value": "$3.20"
+       },
+       {
+        "id": "net:usd",
+        "label": "Net",
+        "value": "$96.80"
+       },
+       {
+        "id": "payments",
+        "label": "Payments",
+        "value": "1"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [
+     {
+      "label": "Stripe",
+      "connected": true,
+      "money": {
+       "currencies": [
+        {
+         "currency": "usd",
+         "money_in": 15050,
+         "fees": 496,
+         "refunded": 2000,
+         "net": 12554
+        },
+        {
+         "currency": "eur",
+         "money_in": 3000,
+         "fees": 120,
+         "refunded": 0,
+         "net": 2880
+        }
+       ],
+       "payments": 3,
+       "more": true,
+       "at_most": 100
+      }
+     },
+     {
+      "label": "Paddle",
+      "connected": true,
+      "money": null
+     }
+    ]
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Stripe since October 1",
+      "stats": [
+       {
+        "id": "in:usd",
+        "label": "Money in (USD)",
+        "value": "$150.50"
+       },
+       {
+        "id": "fees:usd",
+        "label": "Stripe fees (USD)",
+        "value": "$4.96"
+       },
+       {
+        "id": "refunded:usd",
+        "label": "Refunded (USD)",
+        "value": "$20"
+       },
+       {
+        "id": "net:usd",
+        "label": "Net (USD)",
+        "value": "$125.54"
+       },
+       {
+        "id": "in:eur",
+        "label": "Money in (EUR)",
+        "value": "€30"
+       },
+       {
+        "id": "fees:eur",
+        "label": "Stripe fees (EUR)",
+        "value": "€1.20"
+       },
+       {
+        "id": "net:eur",
+        "label": "Net (EUR)",
+        "value": "€28.80"
+       },
+       {
+        "id": "payments",
+        "label": "Payments",
+        "value": "3"
+       }
+      ],
+      "note": "These figures count the latest 100 entries on Stripe; there were more this month."
+     },
+     {
+      "heading": "Paddle since October 1",
+      "rows": [
+       {
+        "id": "unread:Paddle",
+        "title": "Your Paddle money could not be read just now"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [],
+    "operator": {
+     "payment_service": {
+      "label": "Stripe",
+      "connected": false
+     },
+     "payments": null,
+     "usage": {
+      "calls_7d": 1,
+      "refused_7d": 0,
+      "apps": []
+     },
+     "price_tests": []
+    }
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Money this month",
+      "rows": [
+       {
+        "id": "connect",
+        "title": "No payment service is connected",
+        "actions": [
+         {
+          "label": "Open Connections",
+          "tone": "primary",
+          "open": "trillion.connections"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "heading": "Paid plans",
+      "steps": [
+       {
+        "title": "Connect your Stripe account",
+        "done": false,
+        "body": "In Connections, open Stripe and follow its steps with your live key.",
+        "action": {
+         "label": "Open Connections",
+         "tone": "primary",
+         "open": "trillion.connections"
+        }
+       },
+       {
+        "title": "Set up paid plans on Stripe",
+        "done": false,
+        "body": "Trillion makes a payment link for each plan on your Stripe account and listens for payments.",
+        "action": {
+         "label": "Set up paid plans",
+         "tone": "primary",
+         "send": {
+          "path": "/work/api/business/paid-plans"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "heading": "How people use Trillion",
+      "rows": [
+       {
+        "id": "calls",
+        "title": "1 answer from AIs in the last 7 days"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [
+     {
+      "label": "Stripe",
+      "connected": false
+     }
+    ],
+    "operator": {
+     "payment_service": {
+      "label": "Stripe",
+      "connected": true
+     },
+     "payments": {
+      "mode": null,
+      "set_up_by": "me",
+      "links": 1
+     },
+     "usage": {
+      "calls_7d": 12,
+      "refused_7d": 3,
+      "apps": [
+       {
+        "app": "Claude",
+        "calls": 1
+       },
+       {
+        "app": null,
+        "calls": 4
+       },
+       {
+        "app": "A",
+        "calls": 2
+       },
+       {
+        "app": "B",
+        "calls": 2
+       },
+       {
+        "app": "C",
+        "calls": 2
+       },
+       {
+        "app": "D",
+        "calls": 2
+       }
+      ]
+     },
+     "price_tests": null
+    }
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Money this month",
+      "rows": [
+       {
+        "id": "connect",
+        "title": "Stripe is not connected",
+        "actions": [
+         {
+          "label": "Open Connections",
+          "tone": "primary",
+          "open": "trillion.connections"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "price-test-0",
+      "heading": "Price tests",
+      "note": "Your price tests could not be read just now. Open Business again in a minute."
+     },
+     {
+      "heading": "Paid plans",
+      "steps": [
+       {
+        "title": "Connect your Stripe account",
+        "done": true,
+        "body": "In Connections, open Stripe and follow its steps with your live key."
+       },
+       {
+        "title": "Set up paid plans on Stripe",
+        "done": true,
+        "body": "Set up in live mode with 1 payment link. Run it again after you change a plan or price.",
+        "action": {
+         "label": "Set up again",
+         "tone": "quiet",
+         "send": {
+          "path": "/work/api/business/paid-plans"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "heading": "How people use Trillion",
+      "rows": [
+       {
+        "id": "calls",
+        "title": "12 answers from AIs in the last 7 days",
+        "detail": "3 were sent back to be redone."
+       },
+       {
+        "id": "app:Claude",
+        "title": "Claude",
+        "detail": "1 answer since the start"
+       },
+       {
+        "id": "app:unknown",
+        "title": "An unnamed AI app",
+        "detail": "4 answers since the start"
+       },
+       {
+        "id": "app:A",
+        "title": "A",
+        "detail": "2 answers since the start"
+       },
+       {
+        "id": "app:B",
+        "title": "B",
+        "detail": "2 answers since the start"
+       },
+       {
+        "id": "app:C",
+        "title": "C",
+        "detail": "2 answers since the start"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "facts": {
+    "since": "2026-10-01T00:00:00.000Z",
+    "services": [],
+    "operator": {
+     "payment_service": {
+      "label": "Stripe",
+      "connected": false
+     },
+     "payments": {
+      "mode": "test",
+      "set_up_by": null,
+      "links": 3
+     },
+     "usage": {
+      "calls_7d": 1,
+      "refused_7d": 0,
+      "apps": []
+     },
+     "price_tests": [
+      {
+       "id": "experiment:plan",
+       "label": "Plan price",
+       "state": "running",
+       "optimizing_for": "Money per person shown.",
+       "leading": "offer:b",
+       "arms": [
+        {
+         "arm": "offer:a",
+         "label": "$100 a spot",
+         "shown": 1,
+         "paid": 0,
+         "money_cents": 0,
+         "money_per_shown_cents": 0,
+         "open": true
+        },
+        {
+         "arm": "offer:b",
+         "label": "$150 a spot",
+         "shown": 2,
+         "paid": 1,
+         "money_cents": 15000,
+         "money_per_shown_cents": 7500,
+         "open": false
+        },
+        {
+         "arm": "offer:c",
+         "label": "$9",
+         "shown": 0,
+         "paid": 0,
+         "money_cents": null
+        }
+       ]
+      },
+      {
+       "id": "experiment:settled",
+       "label": "Old test",
+       "state": "settled",
+       "result": {
+        "winner": "offer:x"
+       },
+       "leading": "offer:y",
+       "arms": [
+        {
+         "arm": "offer:x",
+         "label": "X",
+         "shown": 5,
+         "paid": 2,
+         "money_cents": 2000,
+         "money_per_shown_cents": 400
+        },
+        {
+         "arm": "offer:y",
+         "label": "Y",
+         "shown": 5,
+         "paid": 1,
+         "money_cents": 1000,
+         "money_per_shown_cents": 200
+        }
+       ]
+      },
+      {
+       "id": "experiment:stopped",
+       "label": "Stopped test",
+       "state": "stopped",
+       "arms": []
+      }
+     ]
+    }
+   },
+   "description": {
+    "title": "Business",
+    "lead": "What your business took in this month.",
+    "sections": [
+     {
+      "heading": "Money this month",
+      "rows": [
+       {
+        "id": "connect",
+        "title": "No payment service is connected",
+        "actions": [
+         {
+          "label": "Open Connections",
+          "tone": "primary",
+          "open": "trillion.connections"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "price-test-0",
+      "heading": "Plan price",
+      "body": "Running: each person sees one of these, the same one every time. Money per person shown.",
+      "rows": [
+       {
+        "id": "price-test:experiment:plan:offer:a",
+        "title": "$100 a spot",
+        "detail": "1 person shown · 0 paid · $0 in · $0 per person shown",
+        "actions": [
+         {
+          "label": "Show everyone this",
+          "tone": "quiet",
+          "send": {
+           "path": "/work/api/business/price-test",
+           "body": {
+            "experiment_id": "experiment:plan",
+            "winner": "offer:a"
+           },
+           "confirm": "Everyone will be shown $100 a spot from now on."
+          }
+         }
+        ]
+       },
+       {
+        "id": "price-test:experiment:plan:offer:b",
+        "title": "$150 a spot",
+        "detail": "2 people shown · 1 paid · $150 in · $75 per person shown · waiting for its payment link",
+        "status": {
+         "label": "Leading",
+         "tone": "good"
+        },
+        "actions": [
+         {
+          "label": "Show everyone this",
+          "tone": "quiet",
+          "send": {
+           "path": "/work/api/business/price-test",
+           "body": {
+            "experiment_id": "experiment:plan",
+            "winner": "offer:b"
+           },
+           "confirm": "Everyone will be shown $150 a spot from now on."
+          }
+         }
+        ]
+       },
+       {
+        "id": "price-test:experiment:plan:offer:c",
+        "title": "$9",
+        "detail": "0 people shown · 0 paid · - in · - per person shown",
+        "actions": [
+         {
+          "label": "Show everyone this",
+          "tone": "quiet",
+          "send": {
+           "path": "/work/api/business/price-test",
+           "body": {
+            "experiment_id": "experiment:plan",
+            "winner": "offer:c"
+           },
+           "confirm": "Everyone will be shown $9 from now on."
+          }
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "id": "price-test-1",
+      "heading": "Old test",
+      "body": "Settled: everyone is shown one price.",
+      "rows": [
+       {
+        "id": "price-test:experiment:settled:offer:x",
+        "title": "X",
+        "detail": "5 people shown · 2 paid · $20 in · $4 per person shown",
+        "status": {
+         "label": "Shown to everyone",
+         "tone": "good"
+        }
+       },
+       {
+        "id": "price-test:experiment:settled:offer:y",
+        "title": "Y",
+        "detail": "5 people shown · 1 paid · $10 in · $2 per person shown",
+        "status": {
+         "label": "Leading",
+         "tone": "good"
+        }
+       }
+      ]
+     },
+     {
+      "id": "price-test-2",
+      "heading": "Stopped test",
+      "body": "Stopped.",
+      "rows": []
+     },
+     {
+      "heading": "Paid plans",
+      "steps": [
+       {
+        "title": "Connect your Stripe account",
+        "done": false,
+        "body": "In Connections, open Stripe and follow its steps with your live key.",
+        "action": {
+         "label": "Open Connections",
+         "tone": "primary",
+         "open": "trillion.connections"
+        }
+       },
+       {
+        "title": "Set up paid plans on Stripe",
+        "done": true,
+        "body": "Set up in test mode with 3 payment links. Run it again after you change a plan or price.",
+        "action": {
+         "label": "Set up again",
+         "tone": "quiet",
+         "send": {
+          "path": "/work/api/business/paid-plans"
+         }
+        }
+       }
+      ]
+     },
+     {
+      "heading": "How people use Trillion",
+      "rows": [
+       {
+        "id": "calls",
+        "title": "1 answer from AIs in the last 7 days"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

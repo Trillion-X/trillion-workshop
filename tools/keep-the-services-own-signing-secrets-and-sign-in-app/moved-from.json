@@ -11,6 +11,14 @@
       "source_identity": "1f:49cfd4b91506d82fd4227ab98b1adc042ba323a0579cb24c91084b3956c188be",
       "identity": "1f:7540f413102fc3633e30cdb3c0fe79a18b51584305d94c974c0261332ab6ca0b",
       "held": true
+    },
+    {
+      "from": "test/operator-keeps-sign-in-apps.test.mjs",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/keep-the-services-own-signing-secrets-and-sign-in-app/test/operator-keeps-sign-in-apps.test.mjs",
+      "source_identity": "1f:1be2c9dc4359991c3624cf960eccaa18fc70244303384bff1883087b52c2c3ae",
+      "identity": "1f:f60dd2230f5e806142a45671e68aebc6f6dcd04feefb2b12711de6b9abda7ed4",
+      "adapted": "the tool-row test reads keep-and-wake's workshop-account-tool-records.json; the keep/read/remove test is left out, as its owner src/service-values.mjs is held here and no running code keeps these values"
     }
   ]
 }

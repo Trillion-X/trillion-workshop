@@ -1,0 +1,28 @@
+{
+  "about": "Files old trillion deleted in 7fd8838475 whose exact bytes were already here: each file's bytes at the parent of that commit (commit) are the bytes of `to` here (identity), or were at byte_copy_commit before this repository changed them (identity_at_move). Found by matching git blobs across the four repositories; nothing was copied or rewritten for this receipt.",
+  "source": "Trillion-X/trillion",
+  "package": "trillion-workshop",
+  "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+  "its_words": "Old trillion deletes 1028 feature files that now live in the Workshop (trillion-workshop #76, 889a59ca54)",
+  "calls": [],
+  "files": [
+    {
+      "from": "parts/group/read-data/board-votes.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/organize-the-sidebar/read-data/board-votes.ts",
+      "source_identity": "1f:313444101269ca619b37f3b8ad5a33d94ebc816499af2921373f3f81d6d9f5eb",
+      "identity": "1f:313444101269ca619b37f3b8ad5a33d94ebc816499af2921373f3f81d6d9f5eb",
+      "found_by": "same bytes"
+    },
+    {
+      "from": "parts/group/read-data/board-weighted-signals.ts",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "deleted_by": "7fd88384753b34aa9259fca7bc74ed8746f6e32d",
+      "to": "tools/organize-the-sidebar/read-data/board-weighted-signals.ts",
+      "source_identity": "1f:df65c2e3597ba3ad9903e1f1f9f393aa60a972a22443eca35cf60dab8899759f",
+      "identity": "1f:df65c2e3597ba3ad9903e1f1f9f393aa60a972a22443eca35cf60dab8899759f",
+      "found_by": "same bytes"
+    }
+  ]
+}
