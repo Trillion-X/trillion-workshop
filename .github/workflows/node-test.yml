@@ -44,6 +44,10 @@ jobs:
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium
+      # The walk tools look for a browser in WALK_BROWSER first, then the system's; the runner's Google Chrome calls its
+      # updater (update.googleapis.com) whatever the switches say, which a sample run refuses. Playwright's Chromium,
+      # the one every other browser test here drives, does not.
+      - run: echo "WALK_BROWSER=$(node -e "console.log(require('playwright').chromium.executablePath())")" >> "$GITHUB_ENV"
       # ffmpeg and ffprobe make and read the audio and video the media tools' tests work on (spawnSync ffmpeg). Installed
       # after Playwright's --with-deps, which has just read the package lists, so no second apt-get update (one took 28
       # minutes on a slow mirror); skipped where the runner already has it.
