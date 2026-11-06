@@ -93,6 +93,9 @@ function fill(template, sources) {
 // module's from this checkout's node_modules.
 function lay(specs, there) {
   for (const spec of specs) {
+    // A `packages` item names pinned packages (Python wheels) the engine fetches, checks by BLAKE3 and lays itself
+    // (trillion-rust src/tool_runs/tools/package_fetch.rs); a sample runs with what this computer's program already has.
+    if (spec.packages !== undefined) continue;
     const from = spec.module !== undefined ? join(root, 'node_modules', spec.module) : join(tools, spec.package);
     for (const path of spec.paths ?? []) {
       const source = join(from, path);

@@ -49,20 +49,309 @@
           "description": "{\"result\": {\"model\", \"classifier\", \"folder\", \"identity\", \"files\": [{\"name\", \"bytes\", \"blake3\"}], \"ready\"}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          "kind": "container",
+          "workdir": "/opt/answer-questions-about-many-states",
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/answer-questions-about-many-states/do-work/answer_many_states.py",
+            "get-ready"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py get-ready --request {input}",
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "programs": {
+            "python3": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-aarch64-apple-darwin-install_only.tar.gz",
+                  "version": "3.12.16+20261026",
+                  "blake3": "0f7f781e6615560e029797902ac4b869616a0ea137c4a010ff4fec5ab65275de",
+                  "executable": "bin/python3.12",
+                  "checked_against": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/SHA256SUMS"
+                }
+              },
+              "runtime_read_dirs": [
+                "../lib"
+              ]
+            }
+          },
+          "packages": {
+            "anyio": {
+              "version": "4.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/a9/16/7757fb84c819accc7d7e9af5291b261e4abb8627ee040f99e7d35ef2457a/anyio-4.16.0-py3-none-any.whl",
+                  "blake3": "32e80ce1c7143a805543fc617473ce5f1e674a8d9a38ebddd84ba642d9cb6dce",
+                  "checked_against": "https://pypi.org/pypi/anyio/4.16.0/json"
+                }
+              }
+            },
+            "blake3": {
+              "version": "1.0.11",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/e8/03/70046473e34462b83b4a502d0a73e2de1d8f6cc5dba05bdd01473bab2115/blake3-1.0.11-cp312-cp312-macosx_11_0_arm64.whl",
+                  "blake3": "07f15496a012826cda550a1b8a3028b9172678e809539506d2bc44ef0e9818de",
+                  "checked_against": "https://pypi.org/pypi/blake3/1.0.11/json"
+                }
+              }
+            },
+            "click": {
+              "version": "8.5.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
+                  "blake3": "9ff4ad5d7ed5bbbea3e1d135b45570799abfc74231d4174f35995aca816b7b1d",
+                  "checked_against": "https://pypi.org/pypi/click/8.5.0/json"
+                }
+              }
+            },
+            "filelock": {
+              "version": "4.2.9",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/00/05/76184fe08339723d643ab47887a8e4de8f2921ca4e008617ab7490af7857/filelock-4.2.9-py3-none-any.whl",
+                  "blake3": "f51f193a83cefed0516d03c55dea141531ee064e5299ee12b5369919df9620fa",
+                  "checked_against": "https://pypi.org/pypi/filelock/4.2.9/json"
+                }
+              }
+            },
+            "fsspec": {
+              "version": "2026.9.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl",
+                  "blake3": "bd1206dedb3d01b708103a96ad5f838b5698ebc1a91fc68df55966496739ec2f",
+                  "checked_against": "https://pypi.org/pypi/fsspec/2026.9.0/json"
+                }
+              }
+            },
+            "h11": {
+              "version": "0.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl",
+                  "blake3": "720d0d48de594a082a4833943e7c61a01bfb3c45711b37b37bf3ae654230057d",
+                  "checked_against": "https://pypi.org/pypi/h11/0.16.0/json"
+                }
+              }
+            },
+            "hf-xet": {
+              "version": "1.8.0",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/d4/f2/ef25e2085e92dcaeaa675331e443923aed2006f6fe2d984e15d8b8d40766/hf_xet-1.8.0-cp38-abi3-macosx_11_0_arm64.whl",
+                  "blake3": "462217f78cc68712e65dbc2c6a3057d0f681e5aafb4152f6230208836f896c1f",
+                  "checked_against": "https://pypi.org/pypi/hf_xet/1.8.0/json"
+                }
+              }
+            },
+            "httpcore2": {
+              "version": "2.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/af/c2/ce417c397afa5181f0e3c6ff01a4d01639414e1adef08730d97571297151/httpcore2-2.16.0-py3-none-any.whl",
+                  "blake3": "a50c3475f9a7016290c302e2ba32d6d57cea6766cd5e010c672abe0633e61d3a",
+                  "checked_against": "https://pypi.org/pypi/httpcore2/2.16.0/json"
+                }
+              }
+            },
+            "httpx2": {
+              "version": "2.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/7b/3d/2e4bc4fd1ef9770871669adb348d612a6e4786b303a23f9935b81c48dd60/httpx2-2.16.0-py3-none-any.whl",
+                  "blake3": "6a74cb225653252eb67a191e78416447ba3ea1d36cb3af1f83334eabbbcbc60b",
+                  "checked_against": "https://pypi.org/pypi/httpx2/2.16.0/json"
+                }
+              }
+            },
+            "huggingface-hub": {
+              "version": "2.4.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/d4/55/ff47f1b082ecf5f43f4bc1e3b932d68eead171dabbbd1a92666c686301d7/huggingface_hub-2.4.0-py3-none-any.whl",
+                  "blake3": "2483d68c1c62c2f301374456d6660b87001bf78beb583126de3107f6d5d07a6d",
+                  "checked_against": "https://pypi.org/pypi/huggingface_hub/2.4.0/json"
+                }
+              }
+            },
+            "idna": {
+              "version": "3.20",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+                  "blake3": "e94f5e889a392163b97049f1f04d7183396cf9c7be883ae1e990f331574fd13f",
+                  "checked_against": "https://pypi.org/pypi/idna/3.20/json"
+                }
+              }
+            },
+            "mlx": {
+              "version": "0.32.4",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/69/b0/e726ce51e1b445e4ed08c2d0e036a01c7532f4d1a856328da546a6f883bd/mlx-0.32.4-cp312-cp312-macosx_14_0_arm64.whl",
+                  "blake3": "867de7d0dabd8356f7134e37be2684073978a1867cd0a050385095c0570c0291",
+                  "checked_against": "https://pypi.org/pypi/mlx/0.32.4/json"
+                }
+              }
+            },
+            "mlx-metal": {
+              "version": "0.32.4",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/77/24/7e5b7ed5d28abacab4577c7a8dd1fca6e9058504f5f95ae4333c09420e2e/mlx_metal-0.32.4-py3-none-macosx_14_0_arm64.whl",
+                  "blake3": "583e0142e69b1637d3511cef9d25725f34f37ae0ad3cf45d7a6cbb33587ebd3a",
+                  "checked_against": "https://pypi.org/pypi/mlx_metal/0.32.4/json"
+                }
+              }
+            },
+            "numpy": {
+              "version": "2.5.4",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/31/2f/5ea3570fcb8ccd0882bea99436a513b2c85dad8f774a2057849130a8fb99/numpy-2.5.4-cp312-cp312-macosx_14_0_arm64.whl",
+                  "blake3": "ad6a397101fd08fde9695db2ecb168401a2c73f0a0d71fe5d76c84f2f47452f0",
+                  "checked_against": "https://pypi.org/pypi/numpy/2.5.4/json"
+                }
+              }
+            },
+            "packaging": {
+              "version": "26.3",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+                  "blake3": "b82ddfdef14b13731d9ce8c3dfbb94b2a8ffebcffd73743816f2b91599d9aff7",
+                  "checked_against": "https://pypi.org/pypi/packaging/26.3/json"
+                }
+              }
+            },
+            "pyyaml": {
+              "version": "6.0.3",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/89/a0/6cf41a19a1f2f3feab0e9c0b74134aa2ce6849093d5517a0c550fe37a648/pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl",
+                  "blake3": "16ed1e2c9983ec3f787d8944f0936d489414bac909457f1e015392eaf1489123",
+                  "checked_against": "https://pypi.org/pypi/pyyaml/6.0.3/json"
+                }
+              }
+            },
+            "tokenizers": {
+              "version": "0.23.3",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/b2/72/01e49f032bb346e5aaf06c10c74fe8aeec847173adbadd66eb7c53054bf2/tokenizers-0.23.3-cp310-abi3-macosx_11_0_arm64.whl",
+                  "blake3": "e51cbf944ce90a93b614679c56a92aa38d373c7bcbaf9536c5a411cef606186f",
+                  "checked_against": "https://pypi.org/pypi/tokenizers/0.23.3/json"
+                }
+              }
+            },
+            "tqdm": {
+              "version": "4.70.1",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/a7/03/921a3d3c75785aca9ebfbfcabfbc3a1be12e2ab5265deb026d55a5a3f83e/tqdm-4.70.1-py3-none-any.whl",
+                  "blake3": "d13a80f370a3a6fe87f0563a18d14b8b2735a996ee74564fa49074a4127e5f7d",
+                  "checked_against": "https://pypi.org/pypi/tqdm/4.70.1/json"
+                }
+              }
+            },
+            "truststore": {
+              "version": "0.10.5",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/51/e9/3a7820be2bb0fe53b6bc9c3be26d3d1158004e4c3ab953aa6840b955b1e9/truststore-0.10.5-py3-none-any.whl",
+                  "blake3": "02647d495390238c3795790b6e5ccdbb86d1726a46eede1fc139a9e14619ff0f",
+                  "checked_against": "https://pypi.org/pypi/truststore/0.10.5/json"
+                }
+              }
+            },
+            "typing-extensions": {
+              "version": "4.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+                  "blake3": "7d64bb3dbdf88ca32774d5a141fb09b07bf5afa33d2256fe4bf5ef5db836931d",
+                  "checked_against": "https://pypi.org/pypi/typing_extensions/4.16.0/json"
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "packages": [
+                  "anyio",
+                  "blake3",
+                  "click",
+                  "filelock",
+                  "fsspec",
+                  "h11",
+                  "hf-xet",
+                  "httpcore2",
+                  "httpx2",
+                  "huggingface-hub",
+                  "idna",
+                  "mlx",
+                  "mlx-metal",
+                  "numpy",
+                  "packaging",
+                  "pyyaml",
+                  "tokenizers",
+                  "tqdm",
+                  "truststore",
+                  "typing-extensions"
+                ],
+                "at": "/opt/answer-questions-about-many-states/do-work"
+              }
+            ]
+          },
+          "internet": true,
+          "max_run_ms": 3600000,
           "needs": [
-            "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+            "a Mac with Apple silicon: the pinned wheels are published for macOS arm64 only, so tools:list says runs_here false elsewhere"
           ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. The first run downloads the weights (about 4.5 GB for a 2B model)."
+          "say": "The engine runs this on the person's own Mac with the pinned Python and wheels this row names, the request on standard input. The first run downloads the weights (about 4.5 GB for a 2B model), so it may take up to an hour."
         },
         "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a Mac with Apple silicon: the run imports mlx (Metal) from the engine's pinned macOS arm64 wheels and reads or fetches real classifier weights; test/test_end_to_end.py covers get-ready on a made-up model where mlx is present",
+            "proved_on": null
+          }
+        ],
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "placements": [
@@ -199,20 +488,307 @@
           "description": "{\"result\": {\"job_id\", \"status\": \"queued\" | \"running\" | \"finished\" | \"cancelled\", \"states_done\", \"states\", \"already\"?}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          "kind": "container",
+          "workdir": "/opt/answer-questions-about-many-states",
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/answer-questions-about-many-states/do-work/answer_many_states.py",
+            "start"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py start --request {input}",
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "programs": {
+            "python3": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-aarch64-apple-darwin-install_only.tar.gz",
+                  "version": "3.12.16+20261026",
+                  "blake3": "0f7f781e6615560e029797902ac4b869616a0ea137c4a010ff4fec5ab65275de",
+                  "executable": "bin/python3.12",
+                  "checked_against": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/SHA256SUMS"
+                }
+              },
+              "runtime_read_dirs": [
+                "../lib"
+              ]
+            }
+          },
+          "packages": {
+            "anyio": {
+              "version": "4.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/a9/16/7757fb84c819accc7d7e9af5291b261e4abb8627ee040f99e7d35ef2457a/anyio-4.16.0-py3-none-any.whl",
+                  "blake3": "32e80ce1c7143a805543fc617473ce5f1e674a8d9a38ebddd84ba642d9cb6dce",
+                  "checked_against": "https://pypi.org/pypi/anyio/4.16.0/json"
+                }
+              }
+            },
+            "blake3": {
+              "version": "1.0.11",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/e8/03/70046473e34462b83b4a502d0a73e2de1d8f6cc5dba05bdd01473bab2115/blake3-1.0.11-cp312-cp312-macosx_11_0_arm64.whl",
+                  "blake3": "07f15496a012826cda550a1b8a3028b9172678e809539506d2bc44ef0e9818de",
+                  "checked_against": "https://pypi.org/pypi/blake3/1.0.11/json"
+                }
+              }
+            },
+            "click": {
+              "version": "8.5.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/58/50/6c0d534c5f134586a8e1ba4e330569e32f057e33372ae556463212fb4cd3/click-8.5.0-py3-none-any.whl",
+                  "blake3": "9ff4ad5d7ed5bbbea3e1d135b45570799abfc74231d4174f35995aca816b7b1d",
+                  "checked_against": "https://pypi.org/pypi/click/8.5.0/json"
+                }
+              }
+            },
+            "filelock": {
+              "version": "4.2.9",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/00/05/76184fe08339723d643ab47887a8e4de8f2921ca4e008617ab7490af7857/filelock-4.2.9-py3-none-any.whl",
+                  "blake3": "f51f193a83cefed0516d03c55dea141531ee064e5299ee12b5369919df9620fa",
+                  "checked_against": "https://pypi.org/pypi/filelock/4.2.9/json"
+                }
+              }
+            },
+            "fsspec": {
+              "version": "2026.9.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/6c/c0/a98505f18594f1bce828bb159cec0fcf9860562f1a2c85913409fc8f3d9e/fsspec-2026.9.0-py3-none-any.whl",
+                  "blake3": "bd1206dedb3d01b708103a96ad5f838b5698ebc1a91fc68df55966496739ec2f",
+                  "checked_against": "https://pypi.org/pypi/fsspec/2026.9.0/json"
+                }
+              }
+            },
+            "h11": {
+              "version": "0.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/04/4b/29cac41a4d98d144bf5f6d33995617b185d14b22401f75ca86f384e87ff1/h11-0.16.0-py3-none-any.whl",
+                  "blake3": "720d0d48de594a082a4833943e7c61a01bfb3c45711b37b37bf3ae654230057d",
+                  "checked_against": "https://pypi.org/pypi/h11/0.16.0/json"
+                }
+              }
+            },
+            "hf-xet": {
+              "version": "1.8.0",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/d4/f2/ef25e2085e92dcaeaa675331e443923aed2006f6fe2d984e15d8b8d40766/hf_xet-1.8.0-cp38-abi3-macosx_11_0_arm64.whl",
+                  "blake3": "462217f78cc68712e65dbc2c6a3057d0f681e5aafb4152f6230208836f896c1f",
+                  "checked_against": "https://pypi.org/pypi/hf_xet/1.8.0/json"
+                }
+              }
+            },
+            "httpcore2": {
+              "version": "2.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/af/c2/ce417c397afa5181f0e3c6ff01a4d01639414e1adef08730d97571297151/httpcore2-2.16.0-py3-none-any.whl",
+                  "blake3": "a50c3475f9a7016290c302e2ba32d6d57cea6766cd5e010c672abe0633e61d3a",
+                  "checked_against": "https://pypi.org/pypi/httpcore2/2.16.0/json"
+                }
+              }
+            },
+            "httpx2": {
+              "version": "2.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/7b/3d/2e4bc4fd1ef9770871669adb348d612a6e4786b303a23f9935b81c48dd60/httpx2-2.16.0-py3-none-any.whl",
+                  "blake3": "6a74cb225653252eb67a191e78416447ba3ea1d36cb3af1f83334eabbbcbc60b",
+                  "checked_against": "https://pypi.org/pypi/httpx2/2.16.0/json"
+                }
+              }
+            },
+            "huggingface-hub": {
+              "version": "2.4.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/d4/55/ff47f1b082ecf5f43f4bc1e3b932d68eead171dabbbd1a92666c686301d7/huggingface_hub-2.4.0-py3-none-any.whl",
+                  "blake3": "2483d68c1c62c2f301374456d6660b87001bf78beb583126de3107f6d5d07a6d",
+                  "checked_against": "https://pypi.org/pypi/huggingface_hub/2.4.0/json"
+                }
+              }
+            },
+            "idna": {
+              "version": "3.20",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+                  "blake3": "e94f5e889a392163b97049f1f04d7183396cf9c7be883ae1e990f331574fd13f",
+                  "checked_against": "https://pypi.org/pypi/idna/3.20/json"
+                }
+              }
+            },
+            "mlx": {
+              "version": "0.32.4",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/69/b0/e726ce51e1b445e4ed08c2d0e036a01c7532f4d1a856328da546a6f883bd/mlx-0.32.4-cp312-cp312-macosx_14_0_arm64.whl",
+                  "blake3": "867de7d0dabd8356f7134e37be2684073978a1867cd0a050385095c0570c0291",
+                  "checked_against": "https://pypi.org/pypi/mlx/0.32.4/json"
+                }
+              }
+            },
+            "mlx-metal": {
+              "version": "0.32.4",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/77/24/7e5b7ed5d28abacab4577c7a8dd1fca6e9058504f5f95ae4333c09420e2e/mlx_metal-0.32.4-py3-none-macosx_14_0_arm64.whl",
+                  "blake3": "583e0142e69b1637d3511cef9d25725f34f37ae0ad3cf45d7a6cbb33587ebd3a",
+                  "checked_against": "https://pypi.org/pypi/mlx_metal/0.32.4/json"
+                }
+              }
+            },
+            "numpy": {
+              "version": "2.5.4",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/31/2f/5ea3570fcb8ccd0882bea99436a513b2c85dad8f774a2057849130a8fb99/numpy-2.5.4-cp312-cp312-macosx_14_0_arm64.whl",
+                  "blake3": "ad6a397101fd08fde9695db2ecb168401a2c73f0a0d71fe5d76c84f2f47452f0",
+                  "checked_against": "https://pypi.org/pypi/numpy/2.5.4/json"
+                }
+              }
+            },
+            "packaging": {
+              "version": "26.3",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/63/34/ba1c580383c9eada3711951fef0795c80b829a078d72188184bcab9dd527/packaging-26.3-py3-none-any.whl",
+                  "blake3": "b82ddfdef14b13731d9ce8c3dfbb94b2a8ffebcffd73743816f2b91599d9aff7",
+                  "checked_against": "https://pypi.org/pypi/packaging/26.3/json"
+                }
+              }
+            },
+            "pyyaml": {
+              "version": "6.0.3",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/89/a0/6cf41a19a1f2f3feab0e9c0b74134aa2ce6849093d5517a0c550fe37a648/pyyaml-6.0.3-cp312-cp312-macosx_11_0_arm64.whl",
+                  "blake3": "16ed1e2c9983ec3f787d8944f0936d489414bac909457f1e015392eaf1489123",
+                  "checked_against": "https://pypi.org/pypi/pyyaml/6.0.3/json"
+                }
+              }
+            },
+            "tokenizers": {
+              "version": "0.23.3",
+              "archive": "zip",
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://files.pythonhosted.org/packages/b2/72/01e49f032bb346e5aaf06c10c74fe8aeec847173adbadd66eb7c53054bf2/tokenizers-0.23.3-cp310-abi3-macosx_11_0_arm64.whl",
+                  "blake3": "e51cbf944ce90a93b614679c56a92aa38d373c7bcbaf9536c5a411cef606186f",
+                  "checked_against": "https://pypi.org/pypi/tokenizers/0.23.3/json"
+                }
+              }
+            },
+            "tqdm": {
+              "version": "4.70.1",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/a7/03/921a3d3c75785aca9ebfbfcabfbc3a1be12e2ab5265deb026d55a5a3f83e/tqdm-4.70.1-py3-none-any.whl",
+                  "blake3": "d13a80f370a3a6fe87f0563a18d14b8b2735a996ee74564fa49074a4127e5f7d",
+                  "checked_against": "https://pypi.org/pypi/tqdm/4.70.1/json"
+                }
+              }
+            },
+            "truststore": {
+              "version": "0.10.5",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/51/e9/3a7820be2bb0fe53b6bc9c3be26d3d1158004e4c3ab953aa6840b955b1e9/truststore-0.10.5-py3-none-any.whl",
+                  "blake3": "02647d495390238c3795790b6e5ccdbb86d1726a46eede1fc139a9e14619ff0f",
+                  "checked_against": "https://pypi.org/pypi/truststore/0.10.5/json"
+                }
+              }
+            },
+            "typing-extensions": {
+              "version": "4.16.0",
+              "archive": "zip",
+              "fetch": {
+                "any": {
+                  "url": "https://files.pythonhosted.org/packages/49/d3/b8441a820a491ddfc024b0b0cf0393375b75ea13866d9c66727e54c2fc80/typing_extensions-4.16.0-py3-none-any.whl",
+                  "blake3": "7d64bb3dbdf88ca32774d5a141fb09b07bf5afa33d2256fe4bf5ef5db836931d",
+                  "checked_against": "https://pypi.org/pypi/typing_extensions/4.16.0/json"
+                }
+              }
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              },
+              {
+                "packages": [
+                  "anyio",
+                  "blake3",
+                  "click",
+                  "filelock",
+                  "fsspec",
+                  "h11",
+                  "hf-xet",
+                  "httpcore2",
+                  "httpx2",
+                  "huggingface-hub",
+                  "idna",
+                  "mlx",
+                  "mlx-metal",
+                  "numpy",
+                  "packaging",
+                  "pyyaml",
+                  "tokenizers",
+                  "tqdm",
+                  "truststore",
+                  "typing-extensions"
+                ],
+                "at": "/opt/answer-questions-about-many-states/do-work"
+              }
+            ]
+          },
           "needs": [
-            "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+            "a Mac with Apple silicon: the pinned wheels are published for macOS arm64 only, so tools:list says runs_here false elsewhere"
           ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. It answers at once; the run goes on in the background until every state is answered."
+          "say": "The engine runs this on the person's own Mac with the pinned Python and wheels this row names, the request on standard input. It answers at once; the run goes on in the background until every state is answered."
         },
         "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a Mac with Apple silicon: the run imports mlx (Metal) from the engine's pinned macOS arm64 wheels and starts the background worker on real weights; test/test_end_to_end.py and test/test_lifecycle.py cover start on a made-up model where mlx is present",
+            "proved_on": null
+          }
+        ],
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "placements": [
@@ -258,20 +834,60 @@
           "description": "{\"result\": {\"job_id\", \"status\", \"states_done\", \"states\", \"seconds\"?, \"error\"?, \"byte_page\"?}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          "kind": "container",
+          "workdir": "/opt/answer-questions-about-many-states",
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/answer-questions-about-many-states/do-work/answer_many_states.py",
+            "read"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py read --request {input}",
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "programs": {
+            "python3": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-aarch64-apple-darwin-install_only.tar.gz",
+                  "version": "3.12.16+20261026",
+                  "blake3": "0f7f781e6615560e029797902ac4b869616a0ea137c4a010ff4fec5ab65275de",
+                  "executable": "bin/python3.12",
+                  "checked_against": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/SHA256SUMS"
+                }
+              },
+              "runtime_read_dirs": [
+                "../lib"
+              ]
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              }
+            ]
+          },
           "needs": [
-            "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+            "a Mac with Apple silicon: the pinned wheels are published for macOS arm64 only, so tools:list says runs_here false elsewhere"
           ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. "
+          "say": "The engine runs this on the person's own Mac with the pinned Python this row names, the request on standard input. It reads the job folder only, so it needs no wheel."
         },
         "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a job folder a start made on a Mac with Apple silicon (the engine's pinned Python runs it, standard library only); test/test_lifecycle.py covers read on made-up job folders",
+            "proved_on": null
+          }
+        ],
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "placements": [
@@ -313,20 +929,60 @@
           "description": "{\"result\": {\"job_id\", \"status\": \"cancelling\" | \"cancelled\" | \"finished\" | \"failed\", \"states_done\", \"states\"}} or {\"error\": \"what to change\"}."
         },
         "invoke": {
-          "kind": "on-your-computer",
-          "get_it": [
-            "clone the Workshop repository (package.json repository.url)",
-            "python3 -m pip install -U mlx numpy tokenizers blake3 huggingface_hub"
+          "kind": "container",
+          "workdir": "/opt/answer-questions-about-many-states",
+          "stdout": "json",
+          "argv": [
+            "python3",
+            "-I",
+            "/opt/answer-questions-about-many-states/do-work/answer_many_states.py",
+            "cancel"
           ],
-          "run": "python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py cancel --request {input}",
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "programs": {
+            "python3": {
+              "fetch": {
+                "macos-aarch64": {
+                  "url": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/cpython-3.12.16%2B20261026-aarch64-apple-darwin-install_only.tar.gz",
+                  "version": "3.12.16+20261026",
+                  "blake3": "0f7f781e6615560e029797902ac4b869616a0ea137c4a010ff4fec5ab65275de",
+                  "executable": "bin/python3.12",
+                  "checked_against": "https://github.com/astral-sh/python-build-standalone/releases/download/20261026/SHA256SUMS"
+                }
+              },
+              "runtime_read_dirs": [
+                "../lib"
+              ]
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "answer-questions-about-many-states",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/answer-questions-about-many-states"
+              }
+            ]
+          },
           "needs": [
-            "a Mac with Apple silicon",
-            "python",
-            "mlx, numpy, tokenizers, blake3 and huggingface_hub"
+            "a Mac with Apple silicon: the pinned wheels are published for macOS arm64 only, so tools:list says runs_here false elsewhere"
           ],
-          "say": "This runs on the person's own Mac, from the root of the Workshop checkout, with {input} the request as one JSON argument. "
+          "say": "The engine runs this on the person's own Mac with the pinned Python this row names, the request on standard input. It reads and writes the job folder only, so it needs no wheel."
         },
         "result_selector": "$.result",
+        "verify": [
+          {
+            "kind": "needs-a-machine",
+            "requires": "a job folder a start made on a Mac with Apple silicon (the engine's pinned Python runs it, standard library only); test/test_lifecycle.py covers cancel on made-up job folders",
+            "proved_on": null
+          }
+        ],
         "maker": "maker:answer-questions-about-many-states",
         "licence_class": "licence:permissive",
         "placements": [
