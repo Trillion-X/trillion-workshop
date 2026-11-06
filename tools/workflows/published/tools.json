@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:f477536be0387f3225a875420161954e1c74dc1449e08e368ebd942b4e201000"
+  "blake3": "1f:0cbe18e77f7a9c944d69276886579856018f3d1a29d8b86a168ce254c9c33960"
  },
  "fields": [
   {
@@ -391,6 +391,21 @@
      "placement:your-computer"
     ],
     "folder": "ask-a-small-model-for-a-verdict"
+   }
+  },
+  {
+   "id": "tool:answer-questions-about-many-states",
+   "values": {
+    "title": "Answer the same questions about many states, in bulk, on this Mac",
+    "job": "Ask the same set of questions about every one of these lines or records, all at once, with my classifier model",
+    "description": "Starts a bulk run in the background: every state (text, or JSON written compactly) is asked every question, with the questions run once as a cached prefix and the states batched against them on Apple's GPU through MLX. The answer for each state and question is the classifier's probabilities over its options (choice: each option; score: each level, with the expected level; noul: the probability of yes). The job id is the BLAKE3 identity of the whole request, so the same request names the same run and a finished one is not run again. Read it with tool:read-a-bulk-answer-run; stop it with tool:cancel-a-bulk-answer-run.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -1116,6 +1131,21 @@
      "placement:small-container"
     ],
     "folder": "book-time"
+   }
+  },
+  {
+   "id": "tool:cancel-a-bulk-answer-run",
+   "values": {
+    "title": "Stop a bulk answer run",
+    "job": "Stop my bulk question run",
+    "description": "Asks a run to stop after the batch in hand. The states it finished keep their answers, which read then returns; a run already finished is left as it is.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -3504,21 +3534,6 @@
    }
   },
   {
-   "id": "tool:find-glitches-in-a-generated-voice-take",
-   "values": {
-    "title": "Find the glitches in a generated voice take, word by word (runs on your computer)",
-    "job": "Check a voice take made by text to speech for breathy words, pitch breaks, clicks and stretched words before I use it",
-    "description": "Measures every word of a generated voice take: how periodic its voicing is (low is breathy, noise-like), pitch jumps (more than 3 semitones in 5 ms is not a human voice), clicks (sample-level jumps against the local level) and stretched words (time per letter far above the take's own median). Writes <take>.qc.json, one row per word with its measures and flags, and prints the flagged words and the worst five of each measure. The take is only read. It runs on the person's own computer, never on Trillion.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "grade-and-repair-speech-audio"
-   }
-  },
-  {
    "id": "tool:find-high-pitched-stretches-of-a-recording",
    "values": {
     "title": "Find the stretches of a recording spoken in a character's high pitch band (runs on your computer)",
@@ -4027,6 +4042,21 @@
    }
   },
   {
+   "id": "tool:gate-a-pieces-delivery-checklist",
+   "values": {
+    "title": "Hold a piece back until every check of its delivery checklist has a pass with evidence (runs on your computer)",
+    "job": "Before I show or deliver a piece, tell me which checks of my delivery checklist are still open, failed or answered on old bytes, record each answer with its evidence, and hold back anything already linked for me to watch that has not passed",
+    "description": "Reads a person's delivery checklist (stages of checks, each routed by the piece header's tags, some asked once per option) through the schema they give, and holds a piece back until every routed MUST check has a pass row. A person's row carries evidence and a name; a machine's row (the rendered-video check, the sweep, the copy check on the person's own branch of their Checks list read through their records door, their verdict rows, their fact gate, the audio measure of an audition) carries the pin of the code and rules that measured it; every row carries the BLAKE3 of the files it judged, so a row on other bytes is open again. It records render-check reports, runs the sweep and the content gates, audits the files linked into watch folders (moving open ones aside with --hold) and lists the options a whole-lane gate covers. Every file name, folder, pattern, stage and rule id comes from the schema's delivery_gate.",
+    "status": "active",
+    "maker": "maker:keep-a-record-library-valid",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-record-library-valid"
+   }
+  },
+  {
    "id": "tool:gate-telemetry-by-privacy",
    "values": {
     "title": "May telemetry send about this page",
@@ -4103,6 +4133,21 @@
      "placement:your-computer"
     ],
     "folder": "generate-speech"
+   }
+  },
+  {
+   "id": "tool:get-a-classifier-ready-on-this-mac",
+   "values": {
+    "title": "Get a questions-first classifier ready on this Mac",
+    "job": "Get my question classifier model ready to run on my Mac",
+    "description": "Fetches the weights a model row names (a pinned Hugging Face revision, or a local folder), checks they are a classifier family this tool runs (questions-first-decider: config.json, decider_config.json, the tokenizer and safetensors weights), and names them: the BLAKE3 identity of every file and of the whole set, to keep beside the model row. A gated model needs the person's own `huggingface-cli login`. Run it once per model row before start.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -5929,21 +5974,6 @@
    }
   },
   {
-   "id": "tool:list-the-speech-in-my-edit-plans-to-grade",
-   "values": {
-    "title": "Make the spans file to grade from my edit plans (runs on your computer)",
-    "job": "Turn my edit plans into the list of recorded stretches whose speech should be graded, with their words and word times",
-    "description": "Reads a folder of edit plans (JSON files with a segments list; a segment with a clip is a cut of that recording from one second to another, with the words said) and writes the spans file tool:grade-and-repair-speech-audio reads: each cut with its media file (the plan's sources, else the source the clip's word file names) and the words inside it, timed in source seconds from a whisper result for the clip when there is one, else from the clip's word file. It also lists each plan's span ids as groups, so the grade writes one grades file per plan as well. Segments that are not cuts of a recording (a generated voice line) are left out. The plans, word files and recordings are only read. It runs on the person's own computer, never on Trillion.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "grade-and-repair-speech-audio"
-   }
-  },
-  {
    "id": "tool:list-waiting-tours",
    "values": {
     "title": "List the tours waiting to show",
@@ -6056,21 +6086,6 @@
      "placement:your-computer"
     ],
     "folder": "listen-for-a-while"
-   }
-  },
-  {
-   "id": "tool:listen-to-a-generated-voice-take-word-by-word",
-   "values": {
-    "title": "Listen to a generated voice take word by word (runs on your computer)",
-    "job": "Find the words in a generated voice take that sound least real or most like a glitch",
-    "description": "Asks the local listening package earshot, for every word of the take, how real the voice sounds and how well the word matches a glitch and the voice the person wants (described in their own words), then ranks each word against the take's own median so one odd word stands out. Writes one row per word. It runs on the person's own computer, never on Trillion.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "grade-and-repair-speech-audio"
    }
   },
   {
@@ -6682,6 +6697,21 @@
      "placement:small-container"
     ],
     "folder": "plan-trips"
+   }
+  },
+  {
+   "id": "tool:measure-a-reference-video",
+   "values": {
+    "title": "Measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline (runs on your computer)",
+    "job": "Measure a video I want to learn from: its probe, a frame a second, the first five seconds closely, where it cuts, how it moves and what is heard, as files I can review",
+    "description": "Runs the programs the person names (hf-media for frame sheets and the cut scan, a motion-rhythm script, a Python with earshot for the sound timeline, ffprobe) over one video into a new folder, checking every program before any media work. A film longer than 120 seconds gets small labelled review pages instead of one contact sheet. It records evidence; it does not certify viewing or meaning. Answers one JSON line.",
+    "status": "active",
+    "maker": "maker:keep-a-record-library-valid",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-record-library-valid"
    }
   },
   {
@@ -8486,6 +8516,21 @@
      "placement:your-computer"
     ],
     "folder": "fill-a-template-without-changing-its-words"
+   }
+  },
+  {
+   "id": "tool:read-a-bulk-answer-run",
+   "values": {
+    "title": "Read how far a bulk answer run is, and its answers",
+    "job": "How far is my bulk question run, and give me its answers",
+    "description": "Says a run's status (queued, running, finished, cancelled or failed with why), how many states are answered and, once it is finished or cancelled, its answers as byte pages: {total, blake3, offset, length, base64, next_after_byte}. Ask again with after_byte set to next_after_byte until it is null, join the bytes, check the length and BLAKE3, and parse: {model, layout, questions, states, answers: [{state, answers: {question id: answer}}], seconds}. Keep what matters as rows in the person's lists; the run's folder is working space.",
+    "status": "active",
+    "maker": "maker:answer-questions-about-many-states",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "answer-questions-about-many-states"
    }
   },
   {
@@ -10874,21 +10919,6 @@
    }
   },
   {
-   "id": "tool:score-voice-takes-against-the-voice-i-want",
-   "values": {
-    "title": "Score voice takes against the voice I want and recordings of it (runs on your computer)",
-    "job": "Compare voice takes for pitch, realness, how well they match the voice I want and how close they are to my reference recordings",
-    "description": "For every take in a folder and every reference recording: median pitch and its spread, realness, how well it matches the voice the person wants (in their own words) and, for a take, how typical it is of the references (three nearest), plus words per second when a <take>.words.json lies beside it. Writes one JSON file of scores, to choose a voice and a speed. It runs on the person's own computer, never on Trillion.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "grade-and-repair-speech-audio"
-   }
-  },
-  {
    "id": "tool:score-writing-with-a-voice-adapter",
    "values": {
     "title": "Score labelled or unlabeled passages with a writing-voice adapter",
@@ -12028,21 +12058,6 @@
    }
   },
   {
-   "id": "tool:silence-the-ticks-in-a-generated-voice-takes-pauses",
-   "values": {
-    "title": "Silence the ticks and hiss in a generated voice take's pauses (runs on your computer)",
-    "job": "Clean the clicks and hiss a text-to-speech engine leaves in the pauses of a voice take",
-    "description": "Every stretch of the take quieter than -50 dBFS (20 ms windows) for at least 60 ms, bridged across a tick of up to 40 ms, becomes digital silence with 5 ms fades, and a sentence that stops at full level gets a 25 ms fade-out instead of a hard edge. The take is only read; the cleaned copy is written where the person says (24-bit). It runs on the person's own computer, never on Trillion.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "grade-and-repair-speech-audio"
-   }
-  },
-  {
    "id": "tool:site_addresses",
    "values": {
     "title": "My site addresses",
@@ -12612,21 +12627,6 @@
      "placement:your-computer"
     ],
     "folder": "benchmark-small-local-models"
-   }
-  },
-  {
-   "id": "tool:time-words-to-where-the-voice-starts",
-   "values": {
-    "title": "Time each word of a voice take to where the voice starts (runs on your computer)",
-    "job": "Move the word start times of a voice take to where the voice really begins, so graphics land on the word",
-    "description": "Whisper puts part of a pause into the next word's start, so a graphic timed to it lands early. Each word's start moves to the first 10 ms window inside the word whose level is above -45 dBFS; its end stays. With the take's line.json ({\"script\": the words the take was made from}) each word takes the script's spelling when the script and the read have the same number of words. Writes {source, timing, words}. It runs on the person's own computer, never on Trillion.",
-    "status": "active",
-    "maker": "maker:trillion",
-    "licence_class": "licence:maker-own",
-    "placements": [
-     "placement:your-computer"
-    ],
-    "folder": "grade-and-repair-speech-audio"
    }
   },
   {

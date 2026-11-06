@@ -1,0 +1,76 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DELIVERY-GATE-BRANCH-RULES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "launch-video port, slice content-investigation delivery gate, case source:YnJpYW4gMjAyNi0xMS0wNCA5OjIwIFBNIE1TVDogZmluaXNoIHRoZSB0cmlsbGlvbi1sYXVuY2gtdmlkZW8gcG9ydCBzbyB0aGUgcmVwbyBjYW4gYmUgcmV0aXJlZCBhbmQgcmVuYW1lZCB0cmlsbGlvbi1sYXVuY2gtdmlkZW8tY29tcGxldGVseS1wb3J0ZWQ",
+  "message_multihash": "1f:767a743e954f682aba5047e8e1212403092f4fbf7164ae0eab4f44bffab7f089",
+  "quote": "the verdict rule ids are the ids of the branch's verdict rows plus judge_settings stance_rule and novel.rule, read through the same reader the film check uses"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read the rule ids of a person's verdict rows from their branch for the delivery gate's copy and verdict rows",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/keep-a-record-library-valid/do-work/branch-rules.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
+   "why": "that reads a branch and checks units against it (rulesOfBranch, imported here, never repeated); this prints only the verdict row ids and the BLAKE3 of the rows as read, the delivery gate's pin and its one-cause-one-row split"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-films-copy.mjs",
+   "why": "that checks a film's copy files against the branch; this opens the door the same way (openDoor, imported) and checks nothing"
+  },
+  {
+   "repository": "trillion-launch-video",
+   "path": "tools/content-investigation/cis.py",
+   "why": "its his_rule_ids read a frozen verdict-rules.json file; that file is gone (the rows are list:checks), so there is no older code that reads them from a branch"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/",
+   "why": "the folder that owns reading and checking a branch (its README, ports and tests name rulesOfBranch); this helper only reads the verdict ids and the rows' identity for the delivery gate, importing that folder's code"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/write-from-a-recipe/read-data/evidence-contract.mjs",
+   "why": "that checks a recipe's evidence contract has unique verdict ids (unique_verdict_ids); it reads no branch"
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read the rule ids of a person's verdict rows from their branch for the delivery gate's copy and verdict rows",
+    "read the rule ids of a person's verdict rows from their branch",
+    "verdict rule ids of a branch",
+    "branch rules for the delivery gate"
+   ],
+   "capability_rows": [
+    "read a film's copy for the copy check: film readers, unit context and stance reads"
+   ],
+   "code_patterns": [
+    "rulesOfBranch",
+    "verdict_ids",
+    "branch-rules"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "3691e426bba223300146556c919f56ed044f76f9"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/keep-a-record-library-valid/test/test_delivery_gate.py SettingsAndHelpers.test_the_branch_helper_reads_the_verdict_ids_and_writes_the_rows_for_a_review_pack"
+  ]
+ }
+}
