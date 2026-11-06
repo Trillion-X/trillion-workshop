@@ -6,15 +6,15 @@
 # that builds and signs, git, a C toolchain and the OpenSSL headers the engine's TLS crates link against, Node.js (from the official build, checked against its SHASUMS256.txt,
 # when the machine has none new enough), rust through rustup for that user (the repository's own toolchain file picks
 # the version), the feed folder, Caddy answering HOST_NAME with its own certificate (the feed folder at FEED_PATH, push
-# deliveries at PUSH_PATH passed to the receiver on 127.0.0.1:PORT), and a firewall that admits SSH, HTTP and HTTPS.
+# deliveries at PUSH_PATH and other builders' signed entries at ENTRY_PATH passed to the receiver on 127.0.0.1:PORT), and a firewall that admits SSH, HTTP and HTTPS.
 # Debian and Ubuntu (apt) with systemd 250 or later (encrypted service credentials) are supported; another system
 # stops here with exit 3. Names and folders are arguments; this script names no repository and no machine.
 #
-# usage: set-up-the-builder.sh HOST_NAME PORT FEED_PATH PUSH_PATH USER HOME FEED_FOLDER STATE_FOLDER NODE_MAJOR NODE_DIST RUSTUP_URL
+# usage: set-up-the-builder.sh HOST_NAME PORT FEED_PATH PUSH_PATH USER HOME FEED_FOLDER STATE_FOLDER NODE_MAJOR NODE_DIST RUSTUP_URL [ENTRY_PATH]
 set -eu
 HOST_NAME=$1 PORT=$2 FEED_PATH=$3 PUSH_PATH=$4 BUILD_USER=$5 BUILD_HOME=$6 FEED_FOLDER=$7 STATE_FOLDER=$8 NODE_MAJOR=$9
 shift 9
-NODE_DIST=$1 RUSTUP_URL=$2
+NODE_DIST=$1 RUSTUP_URL=$2 ENTRY_PATH=${3:-/engine-release-entry}
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; the builder setup supports Debian and Ubuntu." >&2; exit 3; }
 SYSTEMD=$(systemctl --version | sed -n '1s/^systemd \([0-9]*\).*/\1/p')
 [ "${SYSTEMD:-0}" -ge 250 ] || { echo "This machine's systemd ($SYSTEMD) is older than 250, which keeps the push secret encrypted: use Debian 12 or Ubuntu 24.04 or later." >&2; exit 3; }
@@ -46,8 +46,8 @@ if [ ! -x "$BUILD_HOME/.cargo/bin/cargo" ]; then
   rm -f /tmp/rustup-init.sh
 fi
 
-printf '%s {\n\tencode zstd gzip\n\thandle %s {\n\t\treverse_proxy 127.0.0.1:%s\n\t}\n\thandle_path %s* {\n\t\troot * %s\n\t\theader /feed.json Cache-Control "no-cache"\n\t\tfile_server\n\t}\n\trespond 404\n}\n' \
-  "$HOST_NAME" "$PUSH_PATH" "$PORT" "$FEED_PATH" "$FEED_FOLDER" | install -m 0644 /dev/stdin /etc/caddy/Caddyfile
+printf '%s {\n\tencode zstd gzip\n\thandle %s {\n\t\treverse_proxy 127.0.0.1:%s\n\t}\n\thandle %s {\n\t\treverse_proxy 127.0.0.1:%s\n\t}\n\thandle_path %s* {\n\t\troot * %s\n\t\theader /feed.json Cache-Control "no-cache"\n\t\tfile_server\n\t}\n\trespond 404\n}\n' \
+  "$HOST_NAME" "$PUSH_PATH" "$PORT" "$ENTRY_PATH" "$PORT" "$FEED_PATH" "$FEED_FOLDER" | install -m 0644 /dev/stdin /etc/caddy/Caddyfile
 ufw allow 22/tcp >/dev/null
 ufw allow 80/tcp >/dev/null
 ufw allow 443/tcp >/dev/null

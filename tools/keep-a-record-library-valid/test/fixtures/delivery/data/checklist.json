@@ -1,0 +1,379 @@
+{
+ "about": "A made-up delivery checklist for the tests of keep-a-record-library-valid.",
+ "publish_phase": [
+  "S9.4"
+ ],
+ "after_phase": [],
+ "delivery_stages": {
+  "review": "an option shown to the person so they can pick it",
+  "final": "content placed, released or published"
+ },
+ "default_delivery_stage": "final",
+ "stages": [
+  {
+   "id": "S1",
+   "name": "Capture",
+   "checks": [
+    {
+     "id": "S1.1",
+     "check": "The raw recording is kept unchanged.",
+     "routes": "rec, film",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    }
+   ]
+  },
+  {
+   "id": "S5",
+   "name": "Picture",
+   "checks": [
+    {
+     "id": "S5.1",
+     "check": "The overlay lint has 0 errors.",
+     "routes": "hf",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S5.2",
+     "check": "The picture renders in every aspect the header names.",
+     "routes": "video, long",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S5.R01",
+     "check": "Rule `type-face-matches` holds for this option",
+     "routes": "video,long",
+     "verify": "the type-face-matches evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "type-face-matches",
+     "rule": "The made-up rule type-face-matches."
+    },
+    {
+     "id": "S5.R02",
+     "check": "Rule `move-has-purpose` holds for this option",
+     "routes": "video,long",
+     "verify": "the move-has-purpose evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "move-has-purpose",
+     "rule": "The made-up rule move-has-purpose."
+    },
+    {
+     "id": "S5.R16",
+     "check": "Rule `paper-varies` holds for this option",
+     "routes": "video,long",
+     "verify": "the paper-varies evidence",
+     "kind": "tool output",
+     "must": false,
+     "per_option": true,
+     "rule_id": "paper-varies",
+     "rule": "The made-up rule paper-varies."
+    },
+    {
+     "id": "S5.R19",
+     "check": "Rule `in-frame` holds for this option",
+     "routes": "video,long",
+     "verify": "the render check in-frame",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "in-frame",
+     "rule": "The made-up rule in-frame."
+    },
+    {
+     "id": "S5.R22",
+     "check": "Rule `clean-transitions` holds for this option",
+     "routes": "video,long",
+     "verify": "the render check joins",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "clean-transitions",
+     "rule": "The made-up rule clean-transitions."
+    },
+    {
+     "id": "S5.R30",
+     "check": "Rule `text-must-earn-it` holds for this option",
+     "routes": "video,long",
+     "verify": "the text-must-earn-it evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "text-must-earn-it",
+     "rule": "The made-up rule text-must-earn-it."
+    },
+    {
+     "id": "S5.R31",
+     "check": "Rule `no-transcript-punctuation` holds for this option",
+     "routes": "video,long",
+     "verify": "the no-transcript-punctuation evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "no-transcript-punctuation",
+     "rule": "The made-up rule no-transcript-punctuation."
+    },
+    {
+     "id": "S5.R32",
+     "check": "Rule `text-colour-contrast` holds for this option",
+     "routes": "video,long",
+     "verify": "the text-colour-contrast evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "text-colour-contrast",
+     "rule": "The made-up rule text-colour-contrast."
+    },
+    {
+     "id": "S5.R33",
+     "check": "Rule `text-shadow-no-outline` holds for this option",
+     "routes": "video,long",
+     "verify": "the text-shadow-no-outline evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "text-shadow-no-outline",
+     "rule": "The made-up rule text-shadow-no-outline."
+    },
+    {
+     "id": "S5.R34",
+     "check": "Rule `captions-placement` holds for this option",
+     "routes": "video,long",
+     "verify": "the captions-placement evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "captions-placement",
+     "rule": "The made-up rule captions-placement."
+    },
+    {
+     "id": "S5.R35",
+     "check": "Rule `cutout-sits-on-frame` holds for this option",
+     "routes": "video,long",
+     "verify": "the cutout-sits-on-frame evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "cutout-sits-on-frame",
+     "rule": "The made-up rule cutout-sits-on-frame."
+    },
+    {
+     "id": "S5.R36",
+     "check": "Rule `sound-synced-per-event` holds for this option",
+     "routes": "video,long",
+     "verify": "the sound-synced-per-event evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "sound-synced-per-event",
+     "rule": "The made-up rule sound-synced-per-event."
+    },
+    {
+     "id": "S5.R40",
+     "check": "Rule `clear-of-face` holds for this option",
+     "routes": "video+people,long+people",
+     "verify": "the clear-of-face evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "clear-of-face",
+     "rule": "The made-up rule clear-of-face."
+    },
+    {
+     "id": "S5.R43",
+     "check": "Rule `dwell-by-content` holds for this option",
+     "routes": "video,long",
+     "verify": "the dwell-by-content evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "dwell-by-content",
+     "rule": "The made-up rule dwell-by-content."
+    },
+    {
+     "id": "S5.R53",
+     "check": "Rule `movement-slow-and-small` holds for this option",
+     "routes": "video,long",
+     "verify": "the movement-slow-and-small evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "movement-slow-and-small",
+     "rule": "The made-up rule movement-slow-and-small."
+    },
+    {
+     "id": "S5.R55",
+     "check": "Rule `system-catches-before-the-person` holds for this option",
+     "routes": "video,long",
+     "verify": "the system-catches-before-the-person evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "system-catches-before-the-person",
+     "rule": "The made-up rule system-catches-before-the-person."
+    },
+    {
+     "id": "S5.R62",
+     "check": "Rule `world-class-craft-bar` holds for this option",
+     "routes": "video,long",
+     "verify": "the world-class-craft-bar evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "world-class-craft-bar",
+     "rule": "The made-up rule world-class-craft-bar."
+    },
+    {
+     "id": "S5.R66",
+     "check": "Rule `place-away-from-action` holds for this option",
+     "routes": "video+people,long+people",
+     "verify": "the place-away-from-action evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "place-away-from-action",
+     "rule": "The made-up rule place-away-from-action."
+    },
+    {
+     "id": "S5.Q07",
+     "check": "Rule `held-frame-eyes-open` holds for this option",
+     "routes": "video+people,long+people",
+     "verify": "the held-frame-eyes-open evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "held-frame-eyes-open",
+     "rule": "The made-up rule held-frame-eyes-open."
+    },
+    {
+     "id": "S5.G01",
+     "check": "Rule `copy-gate` holds for this option",
+     "routes": "video,long",
+     "verify": "the copy-gate evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "copy-gate",
+     "rule": "The made-up rule copy-gate.",
+     "gate_run": "copy-gate",
+     "advisory_passes_at": [
+      "review"
+     ]
+    },
+    {
+     "id": "S5.G02",
+     "check": "Rule `fact-gate` holds for this option",
+     "routes": "video,long",
+     "verify": "the fact-gate evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "fact-gate",
+     "rule": "The made-up rule fact-gate.",
+     "gate_run": "fact-gate"
+    },
+    {
+     "id": "S5.G03",
+     "check": "Rule `verdict-rules` holds for this option",
+     "routes": "video,long,audition",
+     "verify": "the verdict-rules evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "verdict-rules",
+     "rule": "The made-up rule verdict-rules.",
+     "gate_run": "verdict-rules",
+     "advisory_passes_at": [
+      "review"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "S6",
+   "name": "Sound",
+   "checks": [
+    {
+     "id": "S6.1",
+     "check": "Integrated loudness is inside the mark.",
+     "routes": "sound (not audition)",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S6.2",
+     "check": "True peak is under the mark.",
+     "routes": "sound (not audition)",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S6.3",
+     "check": "Sound effects land on their picture events.",
+     "routes": "sfx",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    },
+    {
+     "id": "S6.R01",
+     "check": "Rule `sound-per-element` holds for this option",
+     "routes": "sfx",
+     "verify": "the sound-per-element evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "sound-per-element",
+     "rule": "The made-up rule sound-per-element."
+    },
+    {
+     "id": "S6.R07",
+     "check": "Rule `voice-pronunciation` holds for this option",
+     "routes": "voice,clone",
+     "verify": "the voice-pronunciation evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "voice-pronunciation",
+     "rule": "The made-up rule voice-pronunciation."
+    },
+    {
+     "id": "S6.G01",
+     "check": "Rule `audio-measure` holds for this option",
+     "routes": "audition",
+     "verify": "the audio-measure evidence",
+     "kind": "tool output",
+     "must": true,
+     "per_option": true,
+     "rule_id": "audio-measure",
+     "rule": "The made-up rule audio-measure.",
+     "gate_run": "audio-measure"
+    }
+   ]
+  },
+  {
+   "id": "S9",
+   "name": "Publish",
+   "checks": [
+    {
+     "id": "S9.4",
+     "check": "The published page reads back.",
+     "routes": "all",
+     "verify": "a listing",
+     "kind": "tool output",
+     "must": true
+    }
+   ]
+  }
+ ]
+}

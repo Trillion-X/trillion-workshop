@@ -1,0 +1,22 @@
+{
+ "groups": [
+  {
+   "id": "G1",
+   "questions": [
+    "QQ-001",
+    "QQ-002"
+   ],
+   "tools": [
+    "ls"
+   ]
+  }
+ ],
+ "profiles": [
+  {
+   "id": "first-look",
+   "groups": [
+    "G1"
+   ]
+  }
+ ]
+}
