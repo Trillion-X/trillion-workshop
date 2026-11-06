@@ -429,7 +429,8 @@
        {
         "kind": "record:check",
         "operations": [
-         "records:list"
+         "records:list",
+         "records:read"
         ]
        }
       ]
@@ -985,7 +986,8 @@
        {
         "kind": "record:check",
         "operations": [
-         "records:list"
+         "records:list",
+         "records:read"
         ]
        }
       ]
@@ -1306,7 +1308,8 @@
        {
         "kind": "record:check",
         "operations": [
-         "records:list"
+         "records:list",
+         "records:read"
         ]
        }
       ]
@@ -1866,7 +1869,8 @@
        {
         "kind": "record:check",
         "operations": [
-         "records:list"
+         "records:list",
+         "records:read"
         ]
        }
       ]
