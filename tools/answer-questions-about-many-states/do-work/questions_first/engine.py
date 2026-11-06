@@ -34,7 +34,9 @@ class QuestionsFirst:
         self.opening = tok.encode(P.CONTEXT_OPENING)
         self.W = backbone.head_rows(self.labels.ids)                 # [255, hidden]
         self.tokens_per_batch = int(tokens_per_batch)
-        self.use_metal = metal_scan.available() if use_metal is None else bool(use_metal)
+        # the Metal scan takes key heads in multiples of 32 (one simdgroup per head); any other shape runs the chunked rule
+        fits = backbone.cfg.lk_dim % 32 == 0
+        self.use_metal = (metal_scan.available() and fits) if use_metal is None else bool(use_metal)
         self.stats = dict(prefix_tokens=0, suffix_tokens=0, padded_suffix_tokens=0, batches=0)
 
     # ---- prefixes
