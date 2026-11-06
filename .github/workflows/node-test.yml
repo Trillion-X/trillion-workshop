@@ -41,8 +41,8 @@ jobs:
       # Pillow draws the recorded demos (tools/record-a-web-page/do-work/draw-the-demo.py); numpy and onnxruntime are what
       # the face, voice and picture-vector rows' samples import (know-who-is-in-this, words-as-picture-vector, media-composition);
       # OpenCV and SciPy are the render check's (tools/check-a-rendered-video's Depends on), which keep-a-record-library-valid's
-      # delivery gate imports.
-      - run: python -m pip install blake3 pillow numpy onnxruntime opencv-python-headless scipy
+      # delivery gate imports; soundfile writes the render check's spoken-tone fixtures (test/fixtures/tone_words.py).
+      - run: python -m pip install blake3 pillow numpy onnxruntime opencv-python-headless scipy soundfile
       - run: npm ci
       # The browser tools' tests drive Playwright's Chromium (a devDependency); without it they cannot run at all.
       - run: npx playwright install --with-deps chromium
