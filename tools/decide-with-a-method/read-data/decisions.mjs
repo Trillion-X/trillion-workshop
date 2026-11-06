@@ -141,7 +141,9 @@ async function currentPursuits(door, most) {
 async function pursuitsFor(door, question) {
   if (!question || !settings.pursuits.with_steps.includes(question.step_id)) return {};
   const found = await currentPursuits(door, settings.pursuits.carried);
-  const list = found.slice(0, settings.pursuits.carried);
+  // Those carried are sent by id from the least, the order every list of pursuits uses (do-work/answer-the-pursuits-page.mjs
+  // readPursuits, as old trillion's store read them back); the door lists the greatest id first.
+  const list = found.slice(0, settings.pursuits.carried).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   if (!list.length) return { pursuits: [], pursuits_note: WORDS.no_pursuits_note };
   const more = found.length > list.length;
   return { pursuits: list.map(({ id, title, now, after, why_it_matters, status }) => ({ id, title, now, after, why_it_matters, status })), pursuits_note: `${WORDS.pursuits_note}${more ? ` ${say('more_pursuits_note', { count: list.length })}` : ''}` };
