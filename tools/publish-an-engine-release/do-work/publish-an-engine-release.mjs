@@ -17,7 +17,7 @@
 //
 // usage: publish-an-engine-release.mjs publish REQUEST_FILE [--commit COMMIT] | accept REQUEST_FILE ENTRY_FILE BODY_FILE
 //        | make-key KEY_FILE | public-key KEY_FILE
-import { closeSync, createReadStream, createWriteStream, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
+import { chmodSync, closeSync, createReadStream, createWriteStream, existsSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readFileSync, renameSync, rmdirSync, rmSync, statSync, writeFileSync, writeSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -157,7 +157,7 @@ const feedFile = folder => join(folder, settings.feed_file);
 const tarballOf = (feedFolder, commit, target) => join(feedFolder, checkCommit(commit), `${checkTarget(target)}.tar.gz`);
 
 /** Publish one commit: build, pack, sign, and add it to the feed. */
-export async function publish(request, { token = '', commit: asked } = {}) {
+export async function publish(request, { token = '', commit: asked, credentials = process.env.CREDENTIALS_DIRECTORY } = {}) {
   const { repository, branch } = request;
   if (typeof repository !== 'string' || !repository) throw refuse('The request names no repository: send repository, the URL git fetches.', 2);
   if (typeof branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(branch) || branch.includes('..')) throw refuse('The request names no branch git can fetch: send branch, like main.', 2);
@@ -166,13 +166,15 @@ export async function publish(request, { token = '', commit: asked } = {}) {
   const privateKey = readSigningKey(absolute(request.key_file, 'key_file')), publicKey = publicKeyHex(privateKey);
   const source = join(work, 'source'), targetDir = join(work, 'target');
   mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
+  const darwin = darwinOf(request, credentials);
   const tip = await fetchRepository({ repository, branch, source, token });
   const commit = checkCommit(asked ?? tip);
   const sequence = await sequenceOf({ source, branch, commit });
-  const env = { ...process.env, TRILLION_RELEASE_COMMIT: commit, TRILLION_RELEASE_SEQUENCE: String(sequence), CARGO_TARGET_DIR: targetDir };
+  const env = buildEnvironment({ commit, sequence, targetDir });
   const target = await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
-  const before = mayPublish(readFeed(readText(feedFile(feedFolder))), { commit, sequence, target });
-  if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: readFeed(readText(feedFile(feedFolder))).releases.length });
+  const feedNow = () => readFeed(readText(feedFile(feedFolder)));
+  const before = mayPublish(feedNow(), { commit, sequence, target });
+  if (before.already && !darwin) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
 
   await git(source, ['-c', 'advice.detachedHead=false', 'checkout', '-q', '--force', '--detach', commit]);
   await git(source, ['clean', '-q', '-ffdx']);
@@ -180,17 +182,116 @@ export async function publish(request, { token = '', commit: asked } = {}) {
   const urgent = request.urgent === true || trailer.split('\n').includes('true');
   const log = createWriteStream(join(work, 'build.log'));
   try {
-    await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', '--bin', settings.binary], { cwd: source, env, timeout: settings.build_timeout_ms, log });
+    let answer;
+    if (before.already) answer = answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
+    else {
+      await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', '--bin', settings.binary], { cwd: source, env, timeout: settings.build_timeout_ms, log });
+      const program = join(targetDir, 'release', settings.binary);
+      if (!existsSync(program)) throw refuse(`cargo finished but made no ${program}: the repository's package must have a ${settings.binary} binary.`);
+      answer = await packSignAndAdd({ request, feedFolder, source, program, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
+    }
+    if (!darwin) return answer;
+    // Each Mac target is its own entry in this same feed: one that fails (or is older) leaves the others as they are.
+    const also = [];
+    for (const one of darwin.targets) {
+      try { also.push(await publishDarwin({ request, darwin, source, work, targetDir, env, log, feedFolder, feedNow, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })); }
+      catch (error) { also.push({ target: one, error: error.message }); }
+    }
+    return { ...answer, also };
   } finally { log.end(); }
-  const program = join(targetDir, 'release', settings.binary);
-  if (!existsSync(program)) throw refuse(`cargo finished but made no ${program}: the repository's package must have a ${settings.binary} binary.`);
+}
 
+/** The environment a build sees: this process's, less the service's credentials folder (the build runs the
+ *  repository's own build scripts, which have no business with the signing identity), with the release values. */
+export function buildEnvironment({ commit, sequence, targetDir }) {
+  const { CREDENTIALS_DIRECTORY: _credentials, ...rest } = process.env;
+  return { ...rest, TRILLION_RELEASE_COMMIT: commit, TRILLION_RELEASE_SEQUENCE: String(sequence), CARGO_TARGET_DIR: targetDir };
+}
+
+/** Pack a built program, sign its entry and add it to the feed under the lock. */
+async function packSignAndAdd({ request, feedFolder, source, program, privateKey, publicKey, fields }) {
+  const { commit, target } = fields;
   const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
   const { content, bytes } = packRelease({ program, source, file: part });
-  const entry = signEntry({ commit, sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent }, privateKey);
-
+  const entry = signEntry({ commit, sequence: fields.sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent: fields.urgent }, privateKey);
   return addUnderLock({ request, feedFolder, entry, part, file, publicKey });
+}
+
+const D = settings.darwin;
+
+/**
+ * Hold what `rcodesign print-signature-info` read back from a signed program to the requirement trillion-apps
+ * CarriedCode.checkRelease admits a feed release by, clause by clause:
+ *   `anchor apple generic`                              the leaf chains to an Apple root (`chains_to_apple_root_ca`),
+ *   `certificate leaf[field.1.2.840.113635.100.6.1.13]` the leaf has the Developer ID Application extension,
+ *   `certificate leaf[subject.OU] = "<team>"`           the leaf's subject OU (`apple_team_id`) is the app's team;
+ * and, as the app's own engine is signed, every code directory has the hardened runtime flag, the identifier is the
+ * program's name and the team name is the team. Answers nothing; anything else is refused before the entry is signed.
+ */
+export function checkDeveloperId(info, team) {
+  const fail = why => { throw refuse(`The signed ${settings.binary} does not meet the Mac app's Developer ID requirement: ${why}.`); };
+  const values = key => [...info.matchAll(new RegExp(`^\\s*-?\\s*${key}:\\s*(.*?)\\s*$`, 'gm'))].map(match => match[1].replace(/^['"]|['"]$/g, ''));
+  const flags = values('flags');
+  if (!flags.length) fail('it has no code directory');
+  if (!flags.every(one => /\bRUNTIME\b/.test(one))) fail(`a code directory lacks the hardened runtime (flags ${flags.join(', ')})`);
+  if (!values('identifier').every(one => one === settings.binary)) fail(`its identifier is not ${settings.binary}`);
+  const leaf = info.split(/^\s*- subject:/m).slice(1).find(block => new RegExp(`^\\s*apple_team_id:\\s*['"]?${team}['"]?\\s*$`, 'm').test(block));
+  if (!leaf) fail(`no certificate in its signature has the subject OU ${team}`);
+  if (!/^\s*chains_to_apple_root_ca:\s*true\s*$/m.test(leaf)) fail('its leaf certificate does not chain to an Apple root');
+  if (!/^\s*-\s*['"]?Developer ID Application['"]?\s*$/m.test(leaf)) fail(`its leaf certificate has no Developer ID Application extension (${D.developer_id_oid})`);
+  // rcodesign writes the team into the code directory only for an Apple-issued certificate, as codesign does.
+  const teams = values('team_name');
+  if (!teams.length || !teams.every(one => one === team)) fail(`its code directory's team is ${teams.join(', ') || 'none'}, not ${team}`);
+  const verifies = values('signature_verifies');
+  if (!verifies.length || !verifies.every(one => one === 'true')) fail('its CMS signature does not verify');
+}
+
+/**
+ * The config's Mac targets, checked, or null when it names none. `credentials` is the folder systemd opened the
+ * receiver's credentials in ($CREDENTIALS_DIRECTORY); the identity and its password are files there, named by
+ * settings.darwin.credentials, read by rcodesign by path only.
+ */
+export function darwinOf(request, credentials) {
+  const asked = request.darwin;
+  if (asked === undefined || asked === null) return null;
+  if (!Array.isArray(asked.targets) || !asked.targets.length || !asked.targets.every(target => D.targets.includes(target))) throw refuse(`darwin.targets must list Mac targets this builder cross-builds: ${D.targets.join(', ')}.`, 2);
+  if (typeof asked.team_id !== 'string' || !new RegExp(D.team_pattern).test(asked.team_id)) throw refuse('darwin.team_id must be the Mac app\'s Developer ID team (10 letters and digits): CarriedCode.checkRelease admits a release signed by that team only.', 2);
+  const sdk = absolute(asked.sdk_root ?? D.sdk_folder, 'darwin.sdk_root');
+  return { ...asked, sdk, credentials: typeof credentials === 'string' && credentials ? credentials : null };
+}
+
+/**
+ * One Mac target's release of the commit already checked out: cross-built on this Linux builder with cargo-zigbuild
+ * against the macOS SDK, signed Developer ID with the hardened runtime by rcodesign, its signature read back and held
+ * to the requirement the Mac app admits a feed release by (`checkDeveloperId`), then packed, signed and added like
+ * the builder's own target. A sequence older than the feed's for this target is refused before it is built.
+ */
+export async function publishDarwin({ request, darwin, source, work, targetDir, env, log, feedFolder, feedNow, privateKey, publicKey, fields }) {
+  const { target } = fields;
+  const may = mayPublish(feedNow(), fields);
+  if (may.already) return answerOf(may.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
+  if (!darwin.credentials) throw refuse(`No Developer ID identity for ${target}: publish reads it from the receiver service's credentials ($CREDENTIALS_DIRECTORY), which install stores; run it through the service.`);
+  const identity = join(darwin.credentials, D.credentials.identity), password = join(darwin.credentials, D.credentials.password);
+  for (const file of [identity, password]) if (!existsSync(file)) throw refuse(`The credential ${basename(file)} is not in the service's credentials: run install again with the Developer ID identity on descriptor 5 and its password on descriptor 6.`);
+  if (!existsSync(join(darwin.sdk, 'SDKSettings.json'))) throw refuse(`${darwin.sdk} holds no macOS SDK (no SDKSettings.json): run install again with darwin.sdk, the SDK as a tar.xz.`);
+  const toolchain = request.toolchain ?? {};
+  const crossEnv = {
+    ...env, SDKROOT: darwin.sdk, MACOSX_DEPLOYMENT_TARGET: D.deployment_target,
+    ...(toolchain.zig_python ? { CARGO_ZIGBUILD_PYTHON_PATH: toolchain.zig_python } : {}),
+  };
+  await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', '--bin', settings.binary, '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
+  const built = join(targetDir, target, 'release', settings.binary);
+  if (!existsSync(built)) throw refuse(`cargo zigbuild finished but made no ${built}.`);
+  const signed = join(work, 'signed', target, settings.binary);
+  rmSync(dirname(signed), { recursive: true, force: true });
+  mkdirSync(dirname(signed), { recursive: true, mode: 0o700 });
+  const rcodesign = toolchain.rcodesign ?? 'rcodesign';
+  await runProgram(rcodesign, ['sign', '--p12-file', identity, '--p12-password-file', password, '--code-signature-flags', D.code_signature_flags,
+    '--timestamp-url', D.timestamp_url, '--binary-identifier', settings.binary, built, signed], { env, timeout: settings.git_timeout_ms, log });
+  checkDeveloperId(await runProgram(rcodesign, ['print-signature-info', signed], { env }), darwin.team_id);
+  chmodSync(signed, 0o755);
+  return packSignAndAdd({ request, feedFolder, source, program: signed, privateKey, publicKey, fields });
 }
 
 /**
@@ -292,6 +393,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     else if (operation === 'public-key' && first && rest.length === 0) answer = { public_key: existsSync(resolvePath(first)) ? publicKeyHex(readSigningKey(resolvePath(first))) : null };
     else throw refuse(usage, 2);
     process.stdout.write(`${JSON.stringify(answer)}\n`);
+    // A Mac target that failed fails the run (exit 4), with the release that was published still printed above.
+    const failed = (answer.also ?? []).filter(one => one.error);
+    for (const one of failed) process.stderr.write(`${one.target}: ${one.error}\n`);
+    if (failed.length) process.exitCode = 4;
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.stdout.write(`${JSON.stringify({ error: error.message })}\n`);

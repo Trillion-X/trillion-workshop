@@ -71,9 +71,12 @@ export function runPublish({ configFile, token, stateFolder, node = process.exec
     child.on('close', code => {
       let answer = null;
       try { answer = JSON.parse(out.trim().split('\n').at(-1)); } catch { /* nothing printed */ }
-      const run = { commit, started_at: started, finished_at: new Date().toISOString(), exit: code, ...(code === 0 ? { release: answer } : { error: answer?.error ?? err.trim().split('\n').at(-1) ?? null }) };
+      // A run that published one target and failed another (exit 4: a Mac target, publish-an-engine-release.mjs
+      // `also`) keeps both: the release it published and what failed.
+      const failed = (answer?.also ?? []).filter(one => one.error).map(one => `${one.target}: ${one.error}`).join(' | ');
+      const run = { commit, started_at: started, finished_at: new Date().toISOString(), exit: code, ...(answer?.commit ? { release: answer } : {}), ...(code === 0 ? {} : { error: answer?.error ?? (failed || (err.trim().split('\n').at(-1) ?? null)) }) };
       try { mkdirSync(stateFolder, { recursive: true }); writeAtomically(join(stateFolder, 'last-run.json'), `${JSON.stringify(run, null, 1)}\n`); } catch (error) { log(`could not write last-run.json: ${error.message}`); }
-      log(code === 0 ? `published ${commit} (sequence ${answer?.sequence}, ${answer?.target}${answer?.already_published ? ', already in the feed' : ''})` : `publish ${commit} failed: ${run.error}`);
+      log(code === 0 ? `published ${commit} (sequence ${answer?.sequence}, ${[answer?.target, ...(answer?.also ?? []).map(one => one.target)].join(', ')}${answer?.already_published ? ', already in the feed' : ''})` : `publish ${commit} failed: ${run.error}`);
       resolve(run);
     });
   });

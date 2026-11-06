@@ -9,7 +9,7 @@
         "id": "tool:publish-an-engine-release",
         "label": "Publish an engine release",
         "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-        "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+        "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. When the config names darwin, it then cross-builds the same commit for each Mac target in it (cargo zigbuild against the macOS SDK), signs that program Developer ID with the hardened runtime (rcodesign, the identity read by path from the service's credentials), holds the signature to the Mac app's release requirement, and adds it as its own entry in the same feed; a Mac target that fails leaves the others published. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -53,13 +53,13 @@
           "type": "object",
           "required": ["request_file"],
           "additionalProperties": false,
-          "properties": { "request_file": { "type": "string", "description": "A request JSON: builder { address, host_name }, ssh { known_hosts, identity_file? }, repository { url, branch }, keep_releases?. Its paths are read relative to it." } }
+          "properties": { "request_file": { "type": "string", "description": "A request JSON: builder { address, host_name }, ssh { known_hosts, identity_file? }, repository { url, branch }, keep_releases?, darwin? { targets?, team_id, sdk } (the Mac app's Developer ID team and a macOS SDK as .tar.xz on this computer). Its paths are read relative to it." } }
         },
         "output_schema": {
           "type": "object",
           "required": ["public_key", "feed_url", "receiver_active", "webhook"],
           "properties": {
-            "public_key": { "type": "string" }, "key_made": { "type": "boolean" }, "deploy_key": { "type": ["string", "null"] }, "feed_url": { "type": "string" }, "receiver_active": { "type": "boolean" },
+            "public_key": { "type": "string" }, "key_made": { "type": "boolean" }, "deploy_key": { "type": ["string", "null"] }, "feed_url": { "type": "string" }, "receiver_active": { "type": "boolean" }, "darwin": { "type": "object" },
             "feed_status": { "type": ["integer", "null"] }, "webhook": { "type": "object" }
           }
         },
@@ -68,7 +68,7 @@
           "get_it": ["clone the Workshop repository (package.json repository.url) and run npm install"],
           "run": "node tools/publish-an-engine-release/do-work/install-a-builder.mjs install {request_file}",
           "needs": ["node", "ssh", "tar"],
-          "say": "This runs on the person's computer from the root of the Workshop checkout. The builder's public name must already point at it. Hand the repository token (read access to the engine repository) on descriptor 3 and the push secret on descriptor 4, both read from the person's vault, never in argv or a file. Tell the person the public key (it goes in each place's release_feed.public_keys) and ask them to add the webhook it names to the repository themselves, content type application/json, the push event, with the same secret."
+          "say": "This runs on the person's computer from the root of the Workshop checkout. The builder's public name must already point at it. Hand the repository token (read access to the engine repository) on descriptor 3 and the push secret on descriptor 4, both read from the person's vault, never in argv or a file. With darwin in the request, also hand the Developer ID Application identity (its .p12 as base64) on descriptor 5 and its password on descriptor 6, from the vault the same way. Tell the person the public key (it goes in each place's release_feed.public_keys) and ask them to add the webhook it names to the repository themselves, content type application/json, the push event, with the same secret."
         },
         "needs": { "expected_seconds": 600, "network_egress": true },
         "maker": "maker:publish-an-engine-release",
