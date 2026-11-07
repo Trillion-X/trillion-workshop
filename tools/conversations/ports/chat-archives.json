@@ -32,6 +32,7 @@
     "attachment references from metadata.attachments and image_asset_pointer parts, once each"
   ],
   "allowed_deltas": [
+    "Page-shaped exports may carry the original unzoned source_at text separately from at, which remains null when its timezone is unknown.",
     "MAX_TEXT comes from the moved message owner (tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs)",
     "conversationFrom and conversationsFrom take most_text, a smaller part bound an importer names so one kept part fits one records-door write; parts are made the same way under it"
   ],

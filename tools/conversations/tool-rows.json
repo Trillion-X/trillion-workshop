@@ -2,6 +2,59 @@
   "records": [
     {
       "payload": {
+        "kind": "ai-tool-descriptor", "status": "active", "licence_class": "licence:maker-own", "maker": "maker:conversations",
+        "placements": ["placement:your-computer"],
+        "id": "tool:import-conversation-exports-from-my-files",
+        "label": "Import conversation exports already in my files",
+        "job": "Keep every message of an exported conversation already stored in my account files, including Markdown individual chats, without needing access to a computer folder",
+        "description": "Reads only named account files through find_file/read_file, pins their immutable content identity, checks the complete BLAKE3 bytes, then reuses the canonical conversation importer and message source keys. JSON, zipped JSON and individual ChatGPT Markdown exports share one message owner. Repeated words in distinct occurrences stay distinct. Completed unchanged files are skipped; interrupted writes safely resume by stable source refs. Local timestamps with no zone stay source text. No host folder grant is requested. Imports are private. Missing message attachments are reported, not invented. Each file is bounded to32MiB; use the streaming source importer for larger exports.",
+        "needs": {"expected_seconds": 60, "network_egress": false},
+        "input_schema": {
+          "type": "object", "additionalProperties": false, "required": ["files"],
+          "properties": {
+            "files": {"type": "array", "minItems": 1, "maxItems": 100, "items": {"type": "string", "minLength": 1}},
+            "app": {"type": "string", "minLength": 1},
+            "time_box_seconds": {"type": "integer", "minimum": 1, "maximum": 3000}
+          }
+        },
+        "output_schema": {"type": "object", "required": ["files", "done", "more"], "properties": {
+          "files": {"type": "array"}, "done": {"type": "boolean"}, "more": {"type": "boolean"},
+          "messages_added": {"type": "integer"}, "messages_already_kept": {"type": "integer"}, "conversations_kept": {"type": "integer"}
+        }},
+        "invoke": {
+          "kind": "computer", "capabilities": [], "workdir": "/opt/conversations", "internet": false, "stdout": "json",
+          "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/conversations/read-data/chat-import.mjs", "importNamespaceExports"],
+          "stdin": {"input": {"fill": {"from": "input"}}},
+          "files": {"package_files": [
+            {"package": "conversations", "paths": ["read-data"], "at": "/opt/conversations"},
+            {"package": "keep-and-wake-ai-sessions-on-this-computer", "paths": ["src/messages.mjs", "src/responses.mjs", "src/reactions.json", "src/harnesses.mjs", "src/claimed-time.mjs", "src/claimed-time.json", "src/hybrid-clock.mjs", "src/voice-sessions.mjs", "src/waiting-on-you.json", "harness/record-every-message.mjs", "harness/record-every-message.json", "harness/hook-run-receipt.mjs", "harness/setup.json", "harness/source-return-pending.mjs", "harness/account-key.mjs", "harness/account-key.json"], "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"},
+            {"package": "decide-with-a-method", "paths": ["read-data/decision-records.mjs", "read-data/decide-with-a-method.json"], "at": "/opt/decide-with-a-method"},
+            {"package": "set-up-my-account", "paths": ["read-data/harnesses.json"], "at": "/opt/set-up-my-account"},
+            {"package": "take-pictures-out-of-a-zip-archive", "paths": ["src/archive-entries.mjs", "src/archive-entries.json"], "at": "/opt/take-pictures-out-of-a-zip-archive"},
+            {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
+            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
+            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"},
+            {"module": "fflate", "paths": ["LICENSE", "package.json", "esm", "lib"], "at": "/opt/node_modules/fflate"}
+          ]},
+          "records": {"fd": 3, "most_writes": 100, "rights": [
+            {"files": "/", "operations": ["find_file", "read_file"]},
+            {"kind": "message", "operations": ["records:read", "records:list", "records:write"]},
+            {"kind": "message-source-key", "operations": ["records:read", "records:write"]},
+            {"kind": "message-resend-key", "operations": ["records:read", "records:write"]},
+            {"kind": "message-content-key", "operations": ["records:read", "records:write"]},
+            {"kind": "setting", "id": "setting:hybrid-clock-state", "operations": ["records:read", "records:write"]},
+            {"kind": "list", "id": "list:ai-conversations", "operations": ["records:read", "records:write"]},
+            {"kind": "record:ai-conversation", "operations": ["records:read", "records:list", "records:write"]},
+            {"kind": "conversation-import-cursor", "operations": ["records:read", "records:write"]},
+            {"kind": "conversation-import-source", "operations": ["records:read", "records:write"]}
+          ]}
+        },
+        "result_selector": "$.result",
+        "verify": [{"kind": "sample-run", "input": {"files": ["/exports/bread.json"]}, "door_files": {"/exports/bread.json": "{\"conversation_id\":\"bread-sample\",\"title\":\"Bread\",\"messages\":[{\"id\":\"one\",\"speaker\":\"person\",\"text\":\"More rye.\"},{\"id\":\"two\",\"speaker\":\"ai\",\"text\":\"Use fresh flour.\"}]}"}, "output_selector": "$", "contains": "bread-sample"}]
+      }
+    },
+    {
+      "payload": {
         "kind": "ai-tool-descriptor",
         "status": "active",
         "licence_class": "licence:maker-own",

@@ -32,6 +32,8 @@
     "exportedConversations reads a JSON export or the conversations*.json of an export zip through the one archive reader"
   ],
   "allowed_deltas": [
+    "The hosted-file importChatExport seam is restored over the granted records/files door as importNamespaceExports: immutable identity reads, 8 KiB transport windows, canonical message import, exact message consumer readback and bounded provenance rows.",
+    "Individual ChatGPT Markdown exports decode through the format-only reader; the same canonical importer keeps their source occurrences and source timestamps.",
     "the Worker's store becomes the records door: eeaf is stagedRecords(door).eeaf and commit its commit (reads first, then the step's writes in door-sized batches); lists are listsOverDoor(door)",
     "importChatExport (the Worker reading an export from hosted files in pages) becomes the resumable run over files on this computer, with a cursor row per file and per source",
     "writes and reads are sent again after a growing wait on 503, timeouts and unknown outcomes, with the same request key",
