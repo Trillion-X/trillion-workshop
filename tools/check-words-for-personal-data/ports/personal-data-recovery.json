@@ -67,7 +67,8 @@
       "model_checked"
     ],
     "test_refs": [
-      "tools/check-words-for-personal-data/test/personal-data.test.mjs"
+      "tools/check-words-for-personal-data/test/personal-data.test.mjs",
+      "tools/check-words-for-personal-data/test/personal-data-facade.test.mjs"
     ],
     "active_target": {
       "path": "tools/check-words-for-personal-data/read-data/personal-data-core.mjs",

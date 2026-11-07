@@ -67,7 +67,8 @@
       "auditApp"
     ],
     "test_refs": [
-      "tools/check-how-an-installed-app-is-hardened/test/app-hardening.test.mjs"
+      "tools/check-how-an-installed-app-is-hardened/test/app-hardening.test.mjs",
+      "tools/check-how-an-installed-app-is-hardened/test/app-hardening-facade.test.mjs"
     ],
     "active_target": {
       "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening-core.mjs",

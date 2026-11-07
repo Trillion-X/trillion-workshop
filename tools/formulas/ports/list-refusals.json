@@ -51,10 +51,11 @@
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
     "test_refs": [
-      "tools/formulas/test/value-history.test.mjs"
+      "tools/formulas/test/value-history.test.mjs",
+      "tools/formulas/test/list-refusals-facade.test.mjs"
     ],
     "active_retention": {
-      "target": "tools/formulas/read-data/list-refusals.mjs",
+      "target": "tools/formulas/read-data/list-refusals-core.mjs",
       "source_meaningful_lines": 15,
       "retained_meaningful_lines": 11,
       "ratio": 0.7333333333333333,
