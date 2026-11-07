@@ -43,6 +43,10 @@ async function withProxy(run) {
     if (url.hostname !== HOST) return answer.writeHead(403).end('not this site');
     const onward = httpRequest({ host: '127.0.0.1', port: sitePort, path: url.pathname + url.search, method: request.method,
       headers: { ...request.headers, 'x-came': 'proxied' } }, reply => { answer.writeHead(reply.statusCode, reply.headers); reply.pipe(answer); });
+    // A browser may drop a load it no longer wants; the onward request then fails with ECONNRESET, which is that one
+    // load's end, never the test's (the tunnel below ends the same way).
+    onward.on('error', () => answer.destroy());
+    request.on('error', () => onward.destroy());
     request.pipe(onward);
   });
   proxy.on('connect', (request, client, head) => {
