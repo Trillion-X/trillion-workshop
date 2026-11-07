@@ -12,6 +12,9 @@
     "read-data/read-service-connection-options.ts",
     "read-data/grant-requirements.ts",
     "records.json",
-    "read-data/calendar-connection-options.ts"
+    "read-data/calendar-connection-options.ts",
+    "read-data/ask-the-vault-for-one-secret.mjs",
+    "read-data/list-the-vault-names.mjs",
+    "do-work/put-one-secret-in-the-vault.mjs"
   ]
 }

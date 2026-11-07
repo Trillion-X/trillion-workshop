@@ -2,6 +2,8 @@
 
 Every service a person can connect to Trillion as DATA (one descriptor per service in `records.json`), plus the connect, rename and disconnect request builders and the connect dialog that read those descriptors.
 
+Vault access belongs to this tool. `read-data/ask-the-vault-for-one-secret.mjs` exposes the sole secret reader, `read-data/list-the-vault-names.mjs` lists names without values, and `do-work/put-one-secret-in-the-vault.mjs` writes one secret. They use only the native vault command named by product DATA; a read value travels through a private pipe. Synthetic behavior is covered by `tests/names-held-by-the-vault.test.mjs` and its stand-in command fixture.
+
 ## Tools
 
 | Tool | What it does | Runs |
@@ -30,6 +32,9 @@ Every service a person can connect to Trillion as DATA (one descriptor per servi
 | `read-data/owner-record-work-contract.ts` | Interpreter for the generic record work contract (records, columns, facts, actions, secrets). |
 | `read-data/read-service-connection-options.ts` | Decodes the service descriptors from the published records. |
 | `read-data/calendar-connection-options.ts` | Discovers provider-declared calendars and binds reads/writes to the exact current connected account; provider tools, role names and response paths come from each calendar source's `calendar_connection` data. |
+| `read-data/ask-the-vault-for-one-secret.mjs` | `credentialHome()`, `namesHeldByTheVault()`, `fieldNamesHeldByTheVault()` and `heldByTheVault()` resolve credential names and values through the native vault command. |
+| `read-data/list-the-vault-names.mjs` | Lists vault names without printing secret values. |
+| `do-work/put-one-secret-in-the-vault.mjs` | `putOneSecretInTheVault()` stores one secret through the native vault command. |
 | `read-data/read-service-connections.ts` | Reads a person's connected accounts through the work contract's columns. |
 | `show/ServiceConnectionDialog.tsx` | The connect dialog, drawn entirely from a service's descriptor. |
 | `show/ConnectedAccountsSection.tsx` | The connected-accounts list inside the connect dialog. |
