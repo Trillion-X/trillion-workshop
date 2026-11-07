@@ -56,6 +56,7 @@ test('namespace exports use immutable bytes and the canonical message owner; rep
   assert.equal(two.files[0].skipped, true);
   assert.equal(two.messages_already_kept, 3);
   assert.equal(fileCalls.filter(c => c.method === 'read_file').length, 2);
+  assert.equal(fake.calls.filter(c => c.method === 'records:write' && c.input?.records?.some(r => r.type === 'conversation-import-cursor')).length, 1, 'a recheck does not reuse a completion key with a changed timestamp');
 });
 
 test('a lost cursor write resumes without duplicate messages', async t => {

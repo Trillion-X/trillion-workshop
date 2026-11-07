@@ -987,14 +987,15 @@ export async function importNamespaceExports({ input = {} } = {}, context = {}) 
         const value = { file: name, identity: found.identity, ...summary, part: start / 32 + 1,
           occurrences: occurrences.slice(start, start + 32),
           ...(spans ? { provenance: { ...spans, source_spans: spans.source_spans?.slice(start, start + 32), occurrences: spans.occurrences?.slice(start, start + 32) } } : {}) };
-        await door.write([{ id: `${id}:${makeHashCodeHexFromBytes(Buffer.from(kept.conversation_id))}:${start}`, type: 'conversation-import-source', value }], { key: `${id}:${found.identity}:${kept.conversation_id}:${start}` });
+        const sourceId = id.replace(/^conversation-import-cursor:/, 'conversation-import-source:');
+        await door.write([{ id: `${sourceId}:${found.identity}:${makeHashCodeHexFromBytes(Buffer.from(kept.conversation_id))}:${start}`, type: 'conversation-import-source', value }], { key: `conversation-source:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(value)))}` });
       }
       provenance.push(summary);
     }
     if (!result.done) break;
     const value = { source: 'namespace-export', file: name, identity: found.identity, bytes: file.bytes.length,
       done: true, conversations_kept: provenance.length, updated_at: now().toISOString() };
-    await door.write([{ id, type: 'conversation-import-cursor', value }], { key: `${id}:${found.identity}` });
+    if (!before?.done || before.identity !== found.identity) await door.write([{ id, type: 'conversation-import-cursor', value }], { key: `conversation-cursor:${makeHashCodeHexFromBytes(Buffer.from(JSON.stringify(value)))}` });
     result.files.push({ name, identity: found.identity, done: true, skipped: before?.done && before.identity === found.identity, conversations: provenance });
   }
   return result;
