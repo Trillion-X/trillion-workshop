@@ -18,6 +18,42 @@
   ],
   "capabilities": [
     {
+      "capability": "keep lists of rows with my own fields and look at them as a table, board, gallery, outline, timeline or tree; edit a cell in place, paste rows from a spreadsheet, see a field's history, and approve or decline changes my AI proposed",
+      "owner": ["tools/keep-lists-of-rows/"],
+      "entry": "tools/keep-lists-of-rows/part.json",
+      "evidence": "The existing source capability's moves_to names this same owner. Its part.json exposes the shared list components, write operations and row-address resolver; moved-from.json records the list and proposal source files.",
+      "distinct_from": [
+        { "job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort", "why": "That row reads a list view for a tool run; this one keeps and edits lists and provides their shared address resolver." },
+        { "job": "read office files (spreadsheets, documents, presentations) and rewrite their cells or text from declared edits", "why": "Lists of rows with fields and table, board and gallery views; the other reads and rewrites spreadsheet, document and slide files." }
+      ]
+    },
+    {
+      "capability": "organize the sidebar: lists of screens and rows, rules that fill or hide a list by facts and time, colours and places for rows, notes my AI left on rows, and a tree of my files",
+      "owner": ["tools/organize-the-sidebar/"],
+      "entry": "tools/organize-the-sidebar/sidebar/part.json",
+      "evidence": "The existing source capability's moves_to names this same owner. Its moved-from.json records the original sidebar and group sources; sidebar/part.json and group/part.json expose the shared components and reducers.",
+      "distinct_from": [
+        { "job": "open any tool as a screen: what it does, a box for each input (files taken from my files), run it and see the result with the files it kept, and build a screen from shared parts as an AI describes it", "why": "Arranges the sidebar of screens and rows; the other draws one tool as a screen with its inputs." },
+        { "job": "share a record, a file or one list row with people by email, phone or link with a role, see who has access, stop sharing, and see everything shared with me and what I shared before", "why": "Arranges the sidebar of screens and rows; the other shares one thing with people and shows who has access." }
+      ]
+    },
+    {
+      "capability": "find anything from one box: jump to a screen, a calendar event, an AI, an action or a search hit across what I said, saw, named and noted",
+      "owner": ["tools/find-anything-from-one-box/"],
+      "entry": "tools/find-anything-from-one-box/part.json",
+      "evidence": "The existing source capability's moves_to names this owner. Its moved-from.json records the command-palette source files; part.json exposes the current palette components.",
+      "distinct_from": [
+        {
+          "job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps",
+          "why": "That row searches a computer's file index; this one searches across screens, events and records."
+        },
+        {
+          "job": "judge a public page against saved craft rules at every width, with each finding boxed on a picture",
+          "why": "This owner provides the workspace search and jump box; the other tool critiques a public page against craft rules."
+        }
+      ]
+    },
+    {
       "capability": "reconcile generic execution receipts with source, meter and provider-price revisions so missing evidence makes forecast coverage visibly incomplete or stale",
       "owner": [
         "tools/keep-measurements-current/"
@@ -926,7 +962,7 @@
     },
     {
       "capability": "keep shared step-by-step playbooks any person's AI can follow",
-      "owner": ["tools/workflows/"],
+      "owner": ["tools/workflows/", "tools/turn-the-decision-methods-own-sources-into-workflows/read-data/source-coverage.mjs", "tools/turn-the-decision-methods-own-sources-into-workflows/do-work/measure-source-coverage.mjs", "tools/turn-the-decision-methods-own-sources-into-workflows/test/", "tools/turn-the-decision-methods-own-sources-into-workflows/part.json", "tools/turn-the-decision-methods-own-sources-into-workflows/README.md", "tools/turn-the-decision-methods-own-sources-into-workflows/tool-rows.json"],
       "entry": "tools/workflows/tool-rows.json",
       "evidence": "README.md:3 shared playbooks that any person's AI can follow step by step, each a row of the person's list of workflows; workflow:out-launch-a-new-launch (launch monitors over the places the person watches with tool:watch-my-sources, reverse engineered within hours and handed to workflow:plan-a-launch-as-a-content-campaign within 24) and workflow:build-a-best-x-for-y-comparison (proof-scored comparison tables answer engines cite, sponsored placement kept apart) are recipe rows; the outreach recipes (open job posts, local businesses by zip code, a LinkedIn content system) join existing tools step by step, and host-tools.json names tools that live outside this repository, such as the phone call exchange, by their job"
     },
