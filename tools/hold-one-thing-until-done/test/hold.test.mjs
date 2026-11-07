@@ -133,8 +133,8 @@ test('the same change sent again with its request key changes nothing twice', as
 });
 
 test('the rows reach only the records they name, and the sample run answers what it says', async () => {
-  assert.deepEqual(CHANGE.invoke.records.rights.filter(right => right.operations.includes('records:write')).map(right => right.id), ['setting:needs_you_hold']);
-  assert.ok(SEE.invoke.records.rights.every(right => !right.operations.includes('records:write')), 'seeing changes nothing');
+  assert.deepEqual(CHANGE.invoke.records.rights.filter(right => right.operations.includes('records:write')).map(right => right.id ?? right.prefix), ['setting:needs_you_hold', 'ai-job:hold-']);
+  assert.deepEqual(SEE.invoke.records.rights.filter(right => right.operations.includes('records:write')).map(right => right.id ?? right.prefix), ['ai-job:hold-', 'setting:needs_you_held']);
   for (const row of [SEE, CHANGE]) {
     for (const sample of row.verify ?? []) {
       const { status, result } = await answerOf(row, sample.input);
@@ -143,6 +143,69 @@ test('the rows reach only the records they name, and the sample run answers what
       assert.ok(JSON.stringify(value).includes(sample.contains));
     }
   }
+});
+
+test('a hand-back atomically publishes its real producer job with the setting, and repeats create no second job', async () => {
+  const fake = await startFakeDoor({ rights: CHANGE.invoke.records.rights, records: PERSON });
+  try {
+    const door = openRecordsDoor({ descriptor: fake.descriptor });
+    const input = { change: 'hand-back', request_key: 'sample-return', key: 'sample-form', title: 'Sample form',
+      way: 'done', reason: 'I signed it', now: NOW };
+    const result = await changeWhatHoldsMe(input, { door });
+    assert.equal(result.published, true);
+    const job = [...fake.kept.values()].find(row => row.type === 'ai-job');
+    assert.equal(job.value.from, null);
+    assert.equal(job.value.producer.kind, 'record');
+    assert.equal(job.value.producer.ref, 'setting:needs_you_hold');
+    assert.equal(job.value.source_job, 'hold-hand-back:sample-form');
+    const publication = fake.calls.find(call => call.method === 'records:write');
+    assert.equal(publication.input.records.length, 2, 'setting and job use the same records transaction');
+    await changeWhatHoldsMe(input, { door });
+    assert.equal([...fake.kept.values()].filter(row => row.type === 'ai-job').length, 1);
+  } finally { await fake.close(); }
+});
+
+test('a refused job write leaves the hold unchanged rather than releasing work that was never published', async () => {
+  const fake = await startFakeDoor({ rights: CHANGE.invoke.records.rights.filter(right => right.kind !== 'ai-job'), records: PERSON });
+  try {
+    const door = openRecordsDoor({ descriptor: fake.descriptor });
+    // The preparation read is granted, the following combined write is not.
+    const preparing = { ...door, readRecord: async (type, id) => type === 'ai-job' ? null : door.readRecord(type, id) };
+    await assert.rejects(changeWhatHoldsMe({ change: 'hand-back', request_key: 'sample-refused', key: 'sample-form',
+      title: 'Sample form', way: 'done', reason: 'I signed it', now: NOW }, { door: preparing }));
+    assert.equal(fake.kept.has('setting:needs_you_hold'), false);
+    assert.equal([...fake.kept.values()].filter(row => row.type === 'ai-job').length, 0);
+  } finally { await fake.close(); }
+});
+
+test('the canonical read preserves non-ask sections and their finish controls through the full shared lifecycle', async () => {
+  const things = { complete: true, finishes: [{ choice: 'pick', press: { tool: 'sample:choose' } }], sections: [
+    { id: 'decide', finish: 'pick', cards: [{ id: 'decision:sample', title: 'Choose the sample option' }] },
+    { id: 'stuck', step: { already_ais: true, needs: 'write a draft' }, cards: [{ id: 'ai-job:sample', title: 'An AI already owns this' }] },
+  ] };
+  const run = await answerOf(SEE, { now: NOW, rules: RULES, setup: { ready: true }, gate: {}, state: {}, things });
+  assert.equal(run.status, 0, run.error);
+  assert.equal(run.result.hold.held.key, 'decision:sample');
+  assert.equal(run.result.hold.held.section.id, 'decide');
+  assert.deepEqual(run.result.hold.finishes, things.finishes);
+  assert.deepEqual(run.result.hold.waiting_sources, { from: 'caller', complete: true });
+  assert.equal(run.kept.filter(record => record.type === 'ai-job').length, 0, 'a section already owned by AIs does not create a helper job');
+});
+
+test('AI work removed by the canonical read is published once with the original source and structured input', async () => {
+  const input = { now: NOW, rules: RULES, setup: { ready: true }, gate: {}, state: {}, things: { sections: [
+    { id: 'asks', cards: [{ id: 'asks:sample-draft', title: 'Write the sample draft', needs: 'write a draft' }] },
+  ] } };
+  const first = await answerOf(SEE, input);
+  assert.equal(first.status, 0, first.error);
+  assert.equal(first.result.hold.held, null);
+  const job = first.kept.find(record => record.type === 'ai-job');
+  assert.equal(job.value.source_job, 'weighed:asks:sample-draft');
+  assert.equal(job.value.input.card_id, 'asks:sample-draft');
+  assert.equal(job.value.from, null);
+  const again = await answerOf(SEE, input, { records: first.kept });
+  assert.equal(again.status, 0, again.error);
+  assert.equal(again.kept.filter(record => record.type === 'ai-job').length, 1);
 });
 
 test('a request that is not one the rows describe is refused with what to send', async () => {

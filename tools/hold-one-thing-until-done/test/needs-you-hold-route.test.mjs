@@ -7,6 +7,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { answerOf, rowOf } from '../../../test-helpers/run-a-row.mjs';
+import { answerHoldWithTools } from './hold-tools-door.mjs';
 import { answerNeedsYouHoldRoute } from '../do-work/needs-you-hold-route.mjs';
 import { makeTellThePerson } from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs';
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
@@ -66,7 +67,9 @@ test('setting the held thing aside writes the setting, hands its job once and an
   const jobs = run.kept.filter(record => record.type === 'ai-job');
   assert.equal(jobs.length, 1);
   assert.equal(jobs[0].value.status, 'waiting');
-  assert.equal(jobs[0].value.from, 'ai:trillion-waiting');
+  assert.equal(jobs[0].value.from, null);
+  assert.equal(jobs[0].value.producer.ref, 'setting:needs_you_hold');
+  assert.match(jobs[0].value.source_job, /^hold-aside:/);
   assert.match(jobs[0].value.job, /the sample service is down today/);
 });
 
@@ -107,26 +110,26 @@ test('a new thing held starts the when_held device tools, nothing held any more 
     when_free: [{ tool_id: 'tool:release-a-device', input: { id: 'needs-you-hold' } }],
   };
   const records = [setting('setting:needs_you_hold_rules', { ...RULES, devices }), ...PERSON.slice(1)];
-  const run = await answerOf(ROUTE, page('GET'), { records });
+  const run = await answerHoldWithTools(ROUTE, page('GET'), { records });
   assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
   assert.deepEqual(run.runs.map(({ tool, input }) => ({ tool, input })), [
     { tool: 'tool:hold-a-device-quiet', input: { id: 'needs-you-hold', only: ['Trillion'] } },
     { tool: 'tool:take-me-there', input: { thing: 'record:waiting-on-you:sign-in', say: { title: 'Sign in to the sample service' }, key: 'hold:record:waiting-on-you:sign-in' } },
   ]);
   assert.match(run.runs[0].key, /^native-hold-devices:tool:hold-a-device-quiet:record:waiting-on-you:sign-in:\d+$/);
-  const again = await answerOf(ROUTE, page('GET'), { records: run.kept });
+  const again = await answerHoldWithTools(ROUTE, page('GET'), { records: run.kept });
   assert.deepEqual(again.runs, [], 'the same thing held starts nothing');
   const done = run.kept.filter(record => record.type !== 'record:waiting-on-you');
-  const free = await answerOf(ROUTE, page('GET'), { records: done });
+  const free = await answerHoldWithTools(ROUTE, page('GET'), { records: done });
   assert.deepEqual(free.runs.map(({ tool, input }) => ({ tool, input })), [{ tool: 'tool:release-a-device', input: { id: 'needs-you-hold' } }]);
-  const never = await answerOf(ROUTE, page('GET'), { records: [setting('setting:needs_you_hold_rules', { ...RULES, devices })] });
+  const never = await answerHoldWithTools(ROUTE, page('GET'), { records: [setting('setting:needs_you_hold_rules', { ...RULES, devices })] });
   assert.deepEqual(never.runs, [], 'nothing held before and nothing now starts nothing');
 });
 
 test('a device tool that fails or is refused is let go: the read still answers', async () => {
   const devices = { when_held: [{ tool_id: 'tool:hold-a-device-quiet', input: {} }, { tool_id: 'tool:not-declared', input: {} }, { tool_id: 'tool:take-me-there', input: { thing: '{key}' } }] };
   const records = [setting('setting:needs_you_hold_rules', { ...RULES, devices }), ...PERSON.slice(1)];
-  const run = await answerOf(ROUTE, page('GET'), { records, tool_runs: { 'tool:hold-a-device-quiet': new Error('tool_unavailable') } });
+  const run = await answerHoldWithTools(ROUTE, page('GET'), { records, tool_runs: { 'tool:hold-a-device-quiet': new Error('tool_unavailable') } });
   assert.equal(run.result.status, 200);
   assert.deepEqual(run.runs.map(item => item.tool), ['tool:hold-a-device-quiet', 'tool:take-me-there'], 'an undeclared tool is refused by the door');
 });
@@ -144,7 +147,7 @@ test('a waiting row Trillion can do, or with nothing to press, is not held; one 
   assert.equal(run.result.status, 200, JSON.stringify(run.result.body));
   assert.equal(run.result.body.held.key, 'record:waiting-on-you:body');
   assert.deepEqual(run.result.body.ranked.map(thing => thing.key), ['record:waiting-on-you:body'], 'the AI-doable and the uncontrollable rows are left out');
-  assert.deepEqual(run.kept.filter(record => record.type === 'ai-job'), [], 'the read hands nothing the reader already left out');
+  assert.equal(run.kept.filter(record => record.type === 'ai-job').length, 2, 'removed cards are published before leaving the person\'s view');
 });
 
 test('prepareForHold hands what it weighs to the AIs once per card, and the hold is weighed over the rest', async () => {

@@ -70,6 +70,13 @@ test('the agent asks for an offered tool, is given its answer, and its words are
   } finally { await counted.close(); }
 });
 
+test('an AG-UI agent can return a structured result and consumer check receipt', async () => {
+  const receipt = { outcome: handoff.job, checked_at: '2026-11-07T12:00:00Z', evidence: [{ ref: 'consumer://lists', observation: 'The list page shows both names.' }], obligations: [] };
+  const withReceipt = await agent(input => [...say('m1', JSON.stringify({ result: 'Two lists: Groceries and Reading.', check: receipt })), finished(input)]);
+  try { assert.deepEqual(await runOnAgUi(withReceipt.url, handoff, { client: client(), rules: settings }), { ok: true, output: 'Two lists: Groceries and Reading.', check: receipt }); }
+  finally { await withReceipt.close(); }
+});
+
 test('a tool the agent was not offered is never run, and an interrupt keeps the job with what is in the way', async () => {
   const pushy = await agent(input => (input.messages.at(-1).role === 'tool'
     ? [{ type: 'RUN_FINISHED', threadId: input.threadId, runId: input.runId, outcome: { type: 'interrupt', interrupts: [{ id: 'i1', reason: 'approval', message: 'May I delete the old drafts?' }] } }]
@@ -83,17 +90,26 @@ test('a tool the agent was not offered is never run, and an interrupt keeps the 
   } finally { await pushy.close(); }
 });
 
-test('serveOnce records each way a run ends with tool:change-an-ai-job', async () => {
+test('serveOnce refuses unverified success and blocks behind an owned recovery continuation', async () => {
   const calls = [];
-  const fake = { op: async (address, method, input) => { calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, status: 'taken' }, tried: 1 } : { moved: true } }; } };
+  const receipt = { outcome: handoff.job, checked_at: '2026-11-07T12:00:00Z', evidence: [{ ref: 'consumer://lists', observation: 'Two list names are visible.' }], obligations: [] };
+  const acceptance = { outcome: handoff.job, target: { type: 'list', id: 'list:1' }, rules: [{ id: 'outcome', path: '$.value.name', equals: 'Groceries' }] };
+  const fake = { op: async (address, method, input) => { calls.push([input.tool, input.input]); return { result: input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:abc', job: handoff.job, acceptance, status: 'taken', taken_at: '2026-11-07T11:00:00Z' }, tried: 1 } : { moved: true } }; } };
   const state = { hold: () => {}, letGo: () => {} };
-  for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'stuck'], [{ ok: true, output: 'Done' }, 'finish'], [{ ok: false, output: 'It failed' }, 'release']]) {
+  for (const [ran, action] of [[{ ok: true, output: 'Done', stuck: 'Which bank?' }, 'wait'], [{ ok: true, output: 'Done' }, 'wait'], [{ ok: true, output: 'Done', check: receipt }, 'finish'], [{ ok: false, output: 'It failed' }, 'wait']]) {
     calls.length = 0;
     await serveOnce({ client: fake, me: { agent_id: 'ag-ui-mac', ai_id: 'ai:ag-ui-mac' }, command: [], state, log: () => {}, runImpl: async () => ran });
-    assert.equal(calls.at(-1)[0], settings.work.tools.change);
-    assert.deepEqual([calls.at(-1)[1].action, calls.at(-1)[1].id, calls.at(-1)[1].as], [action, 'ai-job:abc', 'ai:ag-ui-mac']);
+    assert.equal(calls.at(-1)[0], action === 'finish' ? settings.work.tools.finish : settings.work.tools.change);
+    assert.deepEqual([calls.at(-1)[1].id, calls.at(-1)[1].as], ['ai-job:abc', 'ai:ag-ui-mac']);
+    if (action === 'finish') {
+      assert.deepEqual(calls.at(-1)[1].check, { ...receipt, target: acceptance.target });
+      assert.equal(calls.at(-1)[1].taken_at, '2026-11-07T11:00:00Z');
+    } else {
+      assert.equal(calls.at(-1)[1].action, action);
+      assert.deepEqual(calls.at(-1)[1].continuation.owner, 'ai:ag-ui-mac');
+    }
   }
-  assert.equal(calls.at(-1)[1].because, 'It failed');
+  assert.equal(calls.at(-1)[1].continuation.reason, 'It failed');
 });
 
 test('a run that never finishes, an agent that refuses, or too many tool runs give the job back with why', async () => {
@@ -119,6 +135,15 @@ test('the wire reads frames split anywhere, skips comments and folds a run into 
   assert.equal(run.text, 'héllo');
   assert.deepEqual(run.messages, [{ id: 'm', role: 'assistant', content: 'héllo' }]);
   assert.deepEqual(jobMessages({ handoff_id: 'h', job: 'j' }), [{ id: 'job:h', role: 'user', content: 'j' }]);
+});
+
+test('the next AG-UI run receives saved acceptance, obligations, provenance and its owned continuation', () => {
+  const messages = jobMessages({ handoff_id: 'h', job: 'j', acceptance: { outcome: 'done', target: { type: 'list', id: 'list:1' }, rules: [] }, obligations: [{ id: 'one', outcome: 'visible' }], source: { kind: 'repository', ref: 'repo@commit:path' }, continuation: { owner: 'ai:codex', action: 'Inspect current consumer state', after: '2026-11-07T13:00:00Z', reason: 'No acceptance was saved.' } });
+  assert.match(messages[1].content, /Saved acceptance/);
+  assert.match(messages[2].content, /Saved obligations/);
+  assert.match(messages[3].content, /repo@commit:path/);
+  assert.match(messages[4].content, /Inspect current consumer state/);
+  assert.match(messages[4].content, /before repeating an action/);
 });
 
 test('the wire bounds complete frames even when the frame and delimiter arrive in one read', async () => {

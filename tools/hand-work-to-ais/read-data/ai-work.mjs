@@ -23,6 +23,8 @@
 // are the record's own version history in the person's account, so no second copy of them is kept in the value.
 import { readFileSync } from 'node:fs';
 import { conditionHolds, statesByKey, transitionsFrom } from '../../move-records-through-declared-states/do-work/move-records-through-declared-states.mjs';
+import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
+import { makeJudge, ruleApplies, TEST_NAMES } from '../../judge-words/do-work/judge-words.mjs';
 
 const RULES = JSON.parse(readFileSync(new URL('./ai-work.json', import.meta.url), 'utf8'));
 const CHANGED = 'original_command_conflict';
@@ -35,17 +37,24 @@ export function workRules(rules = RULES) {
   const states = statesByKey(rules.states);
   if (!states.has(rules.start)) throw new Error(`The start status "${rules.start}" is not a declared state.`);
   const transitions = transitionsFrom(rules.transitions, states);
+  const readAs = rules.read_as ?? {};
+  for (const [word, state] of Object.entries(readAs)) {
+    if (states.has(word)) throw new Error(`read_as maps "${word}", which is already a declared state.`);
+    if (!states.has(state)) throw new Error(`read_as maps "${word}" to "${state}", which is not a declared state.`);
+  }
   for (const edge of transitions) {
     if (typeof edge.action !== 'string' || !edge.action || edge.action === REMOVE) throw new Error(`A transition needs an action other than "${REMOVE}": ${JSON.stringify(edge)}`);
     for (const [field, source] of Object.entries(edge.set ?? {})) {
-      if (!['as', 'now', 'input', 'note'].includes(source?.from)) throw new Error(`${edge.action} sets ${field} from "${source?.from}", which is not as, now, input or note.`);
+      if (!['as', 'now', 'input', 'note', 'job'].includes(source?.from)) throw new Error(`${edge.action} sets ${field} from "${source?.from}", which is not as, now, input or note (or the current job).`);
       if (['input', 'note'].includes(source.from) && typeof source.field !== 'string') throw new Error(`${edge.action} sets ${field} from ${source.from} without naming its field.`);
     }
   }
-  return { ...rules, states, transitions, actions: [...new Set(transitions.map(edge => edge.action)), REMOVE] };
+  return { ...rules, read_as: readAs, states, transitions, actions: [...new Set(transitions.map(edge => edge.action)), REMOVE] };
 }
 
 const RULED = workRules();
+export const stateOf = (status, rules = RULED) => rules.read_as[status] ?? status;
+const wordsFor = (state, rules) => [state, ...Object.keys(rules.read_as).filter(word => rules.read_as[word] === state)];
 
 function words(value, name, most) {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${name} must be words.`);
@@ -75,7 +84,10 @@ export function signalsOf(job, as, now, rules = RULED) {
     is_taker: job.taker === as,
     is_sender: job.from === as,
     addressed_to_me: job.to === null || job.to === undefined || job.to === as,
-    terminal: rules.states.get(job.status)?.terminal === true,
+    terminal: rules.states.get(stateOf(job.status, rules))?.terminal === true,
+    is_continuation_owner: job.continuation?.owner === as,
+    is_releaser: job.released?.by === as,
+    resume_due: !job.continuation || Date.parse(job.continuation.after) <= now.getTime(),
   };
   const taken = Date.parse(job.taken_at ?? '');
   if (Number.isFinite(taken)) signals.taken_minutes = (now.getTime() - taken) / 60000;
@@ -89,7 +101,7 @@ export function moveFor(job, action, as, now, rules = RULED) {
   if (action === REMOVE) {
     return conditionHolds(rules.remove_when, signals) ? { edge: null } : { refused: `${as} may not remove a job that is ${job.status}: only its sender may, or anyone once it is finished.` };
   }
-  const edges = rules.transitions.filter(edge => edge.action === action && edge.from === job.status);
+  const edges = rules.transitions.filter(edge => edge.action === action && edge.from === stateOf(job.status, rules));
   if (!edges.length) return { refused: `A job that is ${job.status} cannot be given "${action}".` };
   const edge = edges.find(one => conditionHolds(one.when, signals));
   if (!edge) {
@@ -101,23 +113,118 @@ export function moveFor(job, action, as, now, rules = RULED) {
 
 // The whole job after a move: the declared fields cleared, then set, and the status the move goes to.
 export function movedJob(job, edge, as, input, now, rules = RULED) {
+  if (edge.needs_any && !edge.needs_any.some(field => Object.hasOwn(input, field))) throw new Error(`"${edge.action}" needs one of ${edge.needs_any.join(', ')}.`);
   const next = { ...job };
   for (const field of edge.clear ?? []) delete next[field];
   for (const [field, source] of Object.entries(edge.set ?? {})) {
     const given = source.field === undefined ? undefined : input[source.field];
-    if (given === undefined || given === null) {
+    if (given === undefined || (given === null && !source.nullable)) {
       if (source.required) throw new Error(`"${edge.action}" needs ${source.field}.`);
       if (source.from === 'input') continue;
     } else {
-      words(given, source.field, source.most_chars ?? rules.limits.words_chars);
+      if (source.format === 'check') checkOutcome(given, job, now, rules);
+      else if (source.format === 'continuation') checkContinuation(given, now, rules);
+      else if (source.format === 'source') sourceOf(given, rules);
+      else if (source.format === 'obligations') obligationsOf(given, rules);
+      else if (source.format === 'ai-or-any') { if (given !== null) aiId(given, source.field, rules); }
+      else if (source.format === 'priority') { if (!Number.isInteger(given) || given < 0 || given > 9) throw new Error('priority must be a whole number from 0 to 9.'); }
+      else if (source.format === 'acceptance') acceptanceOf(given, { ...job, ...input }, rules);
+      else words(given, source.field, source.most_chars ?? rules.limits.words_chars);
     }
     if (source.from === 'as') next[field] = as;
     else if (source.from === 'now') next[field] = now.toISOString();
+    else if (source.from === 'job') next[field] = job[source.field];
     else if (source.from === 'input') next[field] = given;
     else next[field] = { by: as, at: now.toISOString(), words: given ?? null };
   }
-  next.status = edge.to;
+  if (stateOf(job.status, rules) !== edge.to) next.status = edge.to;
   return next;
+}
+
+const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+function sourceOf(value, rules) {
+  if (!object(value)) throw new Error('source needs kind and ref.');
+  return { kind: words(value.kind, 'source.kind', rules.limits.id_chars), ref: words(value.ref, 'source.ref', rules.limits.words_chars) };
+}
+function obligationsOf(value, rules) {
+  if (!Array.isArray(value) || !value.length || value.length > rules.completion.max_obligations) throw new Error('obligations must be a bounded nonempty list.');
+  const ids = new Set();
+  return value.map(part => {
+    if (!object(part)) throw new Error('Each obligation needs id and outcome.');
+    const id = words(part.id, 'obligation.id', rules.limits.id_chars);
+    if (id === 'outcome') throw new Error('The obligation id outcome is reserved for the whole requested outcome.');
+    if (ids.has(id)) throw new Error('Each obligation id must be unique.');
+    ids.add(id);
+    return { id, outcome: words(part.outcome, 'obligation.outcome', rules.limits.words_chars) };
+  });
+}
+function acceptanceOf(value, job, rules) {
+  if (!object(value) || value.outcome !== (job.outcome ?? job.job) || !object(value.target)) throw new Error('acceptance must bind the saved outcome to an actual record target and checks.');
+  words(value.target.type, 'acceptance.target.type', rules.limits.id_chars);
+  words(value.target.id, 'acceptance.target.id', rules.limits.id_chars);
+  const expected = new Set(['outcome', ...(job.obligations ?? []).map(part => part.id)]);
+  if (!Array.isArray(value.rules) || value.rules.length !== expected.size) throw new Error('acceptance.rules must check the outcome and each obligation.');
+  for (const rule of value.rules) {
+    if (!object(rule) || !expected.delete(rule.id) || typeof rule.path !== 'string' || rule.ask || rule.at_most || rule.kinds || rule.when || !TEST_NAMES.some(name => rule[name] !== undefined && rule[name] !== false)) throw new Error('Each acceptance rule must directly check its saved part against consumer data.');
+    makeJudge([rule]);
+  }
+  return value;
+}
+
+async function checkedConsumer(door, job, input, now, rules) {
+  const acceptance = acceptanceOf(job.acceptance, job, rules);
+  if (makeHashCodeHexFromJson(input.check?.target ?? null) !== makeHashCodeHexFromJson(acceptance.target)) throw new Error('check.target must be the saved acceptance target; use tool:finish-an-ai-job for its scoped read.');
+  const observed = await door.read(acceptance.target.type, acceptance.target.id);
+  if (observed === null || observed === undefined) throw new Error('The requested consumer record is unavailable; the job remains unfinished.');
+  const item = { value: observed };
+  if (!acceptance.rules.every(rule => ruleApplies(rule, item))) throw new Error('Every saved acceptance rule must apply to the observed consumer.');
+  const findings = makeJudge(acceptance.rules)([item]);
+  if (findings.length) throw new Error(`The requested outcome is not checked: ${JSON.stringify(findings)}`);
+  return { ...input.check, checked_at: now.toISOString(), consumer: { ...acceptance.target, identity: makeHashCodeHexFromJson(observed) }, acceptance_identity: makeHashCodeHexFromJson(acceptance), taken_at: job.taken_at };
+}
+function timestamp(value, name) {
+  if (typeof value !== 'string' || !/^\d{4}-\d\d-\d\dT/.test(value) || !Number.isFinite(Date.parse(value))) throw new Error(`${name} must be an ISO timestamp.`);
+  return Date.parse(value);
+}
+
+function evidenceOf(evidence, name, rules) {
+  if (!Array.isArray(evidence) || !evidence.length || evidence.length > rules.completion.max_evidence) throw new Error(`${name} needs observed evidence (1 to ${rules.completion.max_evidence} entries).`);
+  for (const item of evidence) {
+    if (!object(item)) throw new Error(`${name} evidence needs a ref and observation.`);
+    words(item.ref, `${name}.ref`, rules.limits.words_chars);
+    words(item.observation, `${name}.observation`, rules.limits.result_chars);
+  }
+}
+
+// This contract preserves an accountable observation, not a semantic oracle. The executing AI must actually inspect
+// the requested consumer; a path, commit, exit code or an asserted observation is not independently verified here.
+export function checkOutcome(check, job, now, rules = RULED) {
+  if (!object(check)) throw new Error('finish needs check: the requested outcome, checked_at and observed consumer evidence.');
+  if (check.outcome !== (job.outcome ?? job.job)) throw new Error('check.outcome must match the job\'s saved requested outcome.');
+  const checked = timestamp(check.checked_at, 'check.checked_at');
+  if (checked > now.getTime() || checked < Date.parse(job.taken_at ?? job.sent_at ?? '')) throw new Error('check.checked_at must be during this take, not before it or in the future.');
+  evidenceOf(check.evidence, 'check', rules);
+  const obligations = job.obligations ?? [];
+  const checkedParts = check.obligations ?? [];
+  if (!Array.isArray(checkedParts) || checkedParts.length !== obligations.length) throw new Error('check.obligations must cover every saved obligation exactly once.');
+  const ids = new Set();
+  for (const part of checkedParts) {
+    const expected = obligations.find(one => one.id === part?.id);
+    if (!expected || ids.has(part.id) || part.outcome !== expected.outcome) throw new Error('check.obligations must match each saved id and outcome exactly once.');
+    ids.add(part.id);
+    evidenceOf(part.evidence, `check.obligations.${part.id}`, rules);
+  }
+  return check;
+}
+
+export function checkContinuation(value, now, rules = RULED) {
+  if (!object(value)) throw new Error('continuation needs an owner, action, after and reason.');
+  aiId(value.owner, 'continuation.owner', rules);
+  words(value.action, 'continuation.action', rules.limits.words_chars);
+  words(value.reason, 'continuation.reason', rules.limits.words_chars);
+  const after = timestamp(value.after, 'continuation.after');
+  if (after < now.getTime() || after > now.getTime() + rules.completion.max_resume_minutes * 60000) throw new Error(`continuation.after must be now or within ${rules.completion.max_resume_minutes} minutes for owned review.`);
+  return value;
 }
 
 const readJob = (door, id, rules) => door.read(rules.job_kind, id);
@@ -126,7 +233,10 @@ const readJob = (door, id, rules) => door.read(rules.job_kind, id);
 async function writeIfUnchanged(door, id, before, after, key, rules) {
   try {
     await door.write([{ id, type: rules.job_kind, value: after, expected: { type: rules.job_kind, value: before } }], { key });
-    return true;
+    // A retried write may replay an old door receipt after this job moved again. Only the current persisted value can
+    // establish that this attempted transition owns the job now. Never launch an effect from a historical receipt.
+    const current = await readJob(door, id, rules);
+    return makeHashCodeHexFromJson(current ?? null) === makeHashCodeHexFromJson(after ?? null);
   } catch (error) {
     if (isChanged(error)) return false;
     throw error;
@@ -137,9 +247,24 @@ async function writeIfUnchanged(door, id, before, after, key, rules) {
 const writeKey = (task, id, action) => (typeof task.request_key === 'string' && task.request_key ? `${task.request_key}:${action}:${id}` : undefined);
 
 async function moveRead(door, id, before, action, as, input, now, task, rules) {
+  const key = writeKey(task, id, action);
+  const signature = key ? makeHashCodeHexFromJson({ action, as, input }) : null;
+  if (key && before.last_move?.key === key) {
+    if (before.last_move.signature !== signature) throw new Error('The same move request key cannot name different input.');
+    return { job_id: id, moved: true, from: before.last_move.from, to: before.status, job: shown(id, before), replayed: true };
+  }
   const { edge, refused } = moveFor(before, action, as, now, rules);
   if (refused) throw new Error(refused);
+  if (rules.holder_actions.includes(action) && before.taker === as && input.taken_at !== before.taken_at) throw new Error('taken_at must name this exact current claim; an old run may not move a newer take.');
+  if (action === 'wait' && before.status === 'waiting' && before.released?.by === as && input.taken_at !== before.released_taken_at) throw new Error('taken_at must name the claim that released this job.');
   const after = edge ? movedJob(before, edge, as, input, now, rules) : null;
+  if (action === 'edit' && after.acceptance) acceptanceOf(after.acceptance, after, rules);
+  const checked = action === 'finish' ? await checkedConsumer(door, before, input, now, rules) : null;
+  if (checked) after.check = checked;
+  if (input.continuation && !(await door.read(rules.ai_kind, input.continuation.owner))) throw new Error('continuation.owner must be one of this person\'s existing AIs.');
+  if (action === 'edit' && input.to && !(await door.read(rules.ai_kind, input.to))) throw new Error('to must name one of this person\'s existing AIs.');
+  if (after && key) after.last_move = { key, signature, from: before.status };
+  else if (after) delete after.last_move;
   if (await writeIfUnchanged(door, id, before, after, writeKey(task, id, action), rules)) {
     return { job_id: id, moved: true, from: before.status, to: after?.status ?? null, job: shown(id, after) };
   }
@@ -157,6 +282,15 @@ async function listed(door, query, most) {
   return found;
 }
 
+async function listedIn(door, state, query, most, rules) {
+  const found = [];
+  for (const status of wordsFor(state, rules)) {
+    if (found.length >= most) break;
+    found.push(...await listed(door, { ...query, type: rules.job_kind, where: { ...query.where, status } }, most - found.length));
+  }
+  return found;
+}
+
 export async function seeMyAis({ input = {} } = {}, context) {
   const rules = RULED;
   const { door } = context;
@@ -164,7 +298,7 @@ export async function seeMyAis({ input = {} } = {}, context) {
   const needs = input.can ?? [];
   if (!Array.isArray(needs) || needs.some(word => typeof word !== 'string' || !word)) throw new Error('can must be a list of words, such as ["code"].');
   const busy = new Map();
-  for (const job of await listed(door, { type: rules.job_kind, where: { status: 'taken' }, fields: ['taker'] }, rules.most_jobs_read)) {
+  for (const job of await listedIn(door, 'taken', { fields: ['taker'] }, rules.most_jobs_read, rules)) {
     const taker = job.value?.taker;
     if (typeof taker === 'string') busy.set(taker, (busy.get(taker) ?? 0) + 1);
   }
@@ -209,6 +343,9 @@ export async function handAJob({ input = {}, task = {} } = {}, context) {
   const value = { kind: rules.job_kind, status: rules.start, job, to, from, priority, sent_at: now.toISOString() };
   if (input.label !== undefined) value.label = words(input.label, 'label', rules.limits.words_chars);
   if (input.outcome !== undefined) value.outcome = words(input.outcome, 'outcome', rules.limits.words_chars);
+  if (input.source !== undefined) value.source = sourceOf(input.source, rules);
+  if (input.obligations !== undefined) value.obligations = obligationsOf(input.obligations, rules);
+  if (input.acceptance !== undefined) value.acceptance = acceptanceOf(input.acceptance, value, rules);
   const id = `${rules.job_kind}:${key}`;
   // The write's own key is the run's: a retried run is answered the receipt it already has, while another run with the
   // same job key meets the job already there (the condition of absence), never a receipt that is not its own.
@@ -218,8 +355,33 @@ export async function handAJob({ input = {}, task = {} } = {}, context) {
     if (!isChanged(error)) throw error;
     return { job_id: id, status: 'already-there', job: shown(id, await readJob(door, id, rules)) };
   }
-  return { job_id: id, status: 'written', job: shown(id, value) };
+  const current = await readJob(door, id, rules);
+  return { job_id: id, status: current ? 'written' : 'gone', job: shown(id, current) };
 }
+
+// System producers preserve their actual record origin. A hold/workflow is not a fictional AI. Its action owner
+// includes this absence-conditioned job in the same transaction as the source transition, and reuses the stable key.
+export function prepareProducedJob(input, now = new Date()) {
+  const rules = RULED;
+  if (typeof input.key !== 'string' || !KEY.test(input.key) || input.key.length > rules.limits.id_chars) throw new Error('A produced job needs a stable key.');
+  const source = sourceOf(input.source, rules);
+  const priority = input.priority ?? rules.default_priority;
+  if (!Number.isInteger(priority) || priority < 0 || priority > 9) throw new Error('priority must be a whole number from 0 to 9.');
+  const value = { kind: rules.job_kind, status: rules.start, job: words(input.job, 'job', rules.limits.job_chars), to: null, from: null, producer: source, source, priority, sent_at: now.toISOString() };
+  if (input.source_job !== undefined) value.source_job = words(input.source_job, 'source_job', rules.limits.words_chars);
+  if (input.input !== undefined) {
+    if (!object(input.input)) throw new Error('A produced job input is an object.');
+    value.input = input.input;
+  }
+  for (const field of ['outcome', 'label']) if (input[field] !== undefined) value[field] = words(input[field], field, rules.limits.words_chars);
+  if (input.obligations !== undefined) value.obligations = obligationsOf(input.obligations, rules);
+  if (input.acceptance !== undefined) value.acceptance = acceptanceOf(input.acceptance, value, rules);
+  return { id: `${rules.job_kind}:${input.key}`, type: rules.job_kind, value, expected: null };
+}
+
+// A distinct descriptor grants only the saved target's exact kind/id, intersected with the caller's authority by the
+// engine. It uses the same move, ownership, attempt fence and CAS as every other action; it is not another lifecycle.
+export const finishAJob = ({ input = {}, task = {} } = {}, context) => moveAJob({ input: { ...input, action: 'finish' }, task }, context);
 
 export async function seeAiWork({ input = {} } = {}, context) {
   const rules = RULED;
@@ -231,15 +393,16 @@ export async function seeAiWork({ input = {} } = {}, context) {
     return { jobs: [shown(id, job)], more: false };
   }
   const where = {};
+  let state;
   if (input.status !== undefined) {
-    if (!rules.states.has(input.status)) throw new Error(`status must be one of ${[...rules.states.keys()].join(', ')}.`);
-    where.status = input.status;
+    state = stateOf(input.status, rules);
+    if (!rules.states.has(state)) throw new Error(`status must be one of ${[...rules.states.keys()].join(', ')}.`);
   }
   for (const field of ['to', 'from', 'taker']) if (input[field] !== undefined) where[field] = aiId(input[field], field, rules);
   const limit = input.limit ?? rules.jobs_shown.default;
   if (!Number.isInteger(limit) || limit < 1 || limit > rules.jobs_shown.most) throw new Error(`limit must be a whole number from 1 to ${rules.jobs_shown.most}.`);
   const query = { type: rules.job_kind, ...(Object.keys(where).length ? { where } : {}) };
-  const found = await listed(door, query, rules.most_jobs_read);
+  const found = state === undefined ? await listed(door, query, rules.most_jobs_read) : await listedIn(door, state, { where }, rules.most_jobs_read, rules);
   found.sort((a, b) => String(b.value?.sent_at ?? '').localeCompare(String(a.value?.sent_at ?? '')) || (a.id < b.id ? 1 : -1));
   return { jobs: found.slice(0, limit).map(record => shown(record.id, record.value)), more: found.length > limit };
 }
@@ -275,9 +438,10 @@ export async function takeAJob({ input = {}, task = {} } = {}, context) {
   // Every job a take may move: the statuses the take rows leave from, then only those whose rule holds for this caller.
   const candidates = [];
   for (const status of new Set(rules.transitions.filter(edge => edge.action === 'take').map(edge => edge.from))) {
-    for (const record of await listed(door, { type: rules.job_kind, where: { status } }, rules.most_jobs_read)) {
+    for (const record of await listedIn(door, status, {}, rules.most_jobs_read, rules)) {
       if (!record.value || (input.only_mine && record.value.to !== as)) continue;
-      if (moveFor(record.value, 'take', as, now, rules).edge) candidates.push(record);
+      const key = writeKey(task, record.id, 'take');
+      if ((key && record.value.last_move?.key === key) || moveFor(record.value, 'take', as, now, rules).edge) candidates.push(record);
     }
   }
   candidates.sort(takeOrder(rules));

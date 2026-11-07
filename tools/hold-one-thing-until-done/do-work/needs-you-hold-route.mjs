@@ -41,12 +41,12 @@
 //
 import ROWS from '../read-data/hold-rows.json' with { type: 'json' };
 import WAITING from '../read-data/waiting-on-you.json' with { type: 'json' };
-import { askOff, chooseStake, handBack, heldInput, holdView, setAside, turnOn, withoutHanded } from '../read-data/needs-you-hold.mjs';
+import { heldInput, holdView, withoutHanded } from '../read-data/needs-you-hold.mjs';
 import { makeWaitingNudge } from '../read-data/waiting-nudge.mjs';
-import { sameOnce, weighCards } from '../read-data/waiting-weigh.mjs';
+import { inOrder, sameOnce, weighCards } from '../read-data/waiting-weigh.mjs';
 import { whoDoesEachStep } from '../../who-does-each-step/read-data/who-does.mjs';
 import WHO from '../../shared-code/src/who-does-it.json' with { type: 'json' };
-import { answerOfRows } from './hold.mjs';
+import { answerOfRows, changeWhatHoldsMe, publishHoldJobs } from './hold.mjs';
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
 import { makeTellThePerson } from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs';
 
@@ -55,11 +55,11 @@ const text = value => (typeof value === 'string' ? value.trim() : '');
 const settingValue = value => (object(value) && object(value.value) ? value.value : null);
 const CONFLICT = 'original_command_conflict';
 const BUSY = { error: 'Busy for a moment. Try again.', busy: true };
-const HELD = { type: 'setting', id: 'setting:needs_you_held' };
-const TOLD = 'told-the-person';
-// Who hands the hold's jobs to the person's AIs: old trillion handed them `from_agent: 'trillion-waiting'`.
-const JOBS = { kind: 'ai-job', start: 'waiting', from: 'ai:trillion-waiting', priority: 5, key: /[^A-Za-z0-9._:-]/g };
+const HELD = ROWS.held;
 const fill = (template, values) => String(template ?? '').replace(/\{(\w+)\}/g, (_, key) => String(values[key] ?? ''));
+const opensScreenOf = prefixes => (Array.isArray(prefixes) ? address => prefixes.some(prefix => address.startsWith(prefix)) : undefined);
+const projectionOf = input => Object.fromEntries(['things', 'opens_screens', 'given'].filter(key => input[key] !== undefined).map(key => [key, input[key]]));
+const TOLD = 'told-the-person';
 const refusalStatus = error => (Number.isInteger(error?.status) && error.status >= 400 && error.status < 500 ? error.status : null);
 
 class Refused extends Error { constructor(message, status) { super(message); this.status = status; } }
@@ -75,47 +75,57 @@ async function rulesOf(door) {
   return value;
 }
 
-async function cardsOf(door) {
+async function cardsOf(door, input = {}) {
+  if (input.things !== undefined) return input.things;
   const rows = [];
   for await (const record of door.list({ type: ROWS.must_do.type, limit: ROWS.page_rows })) {
     rows.push(record);
     if (rows.length > ROWS.most_rows) throw new Error(`More than ${ROWS.most_rows} ${ROWS.must_do.type} rows: the hold reads at most that many.`);
   }
-  return answerOfRows(rows);
+  return answerOfRows(rows, input.section);
 }
 
 // The doer gate (old src/who-does-it.mjs over src/who-does-it.json): who does each waiting thing.
 const weigh = input => whoDoesEachStep({ ...WHO, ...input });
 // The Waiting on you DATA under the person's own hold rules (old src/waiting-on-you.json, its `hold` the person's row).
-const settingsOf = rules => ({ ...WAITING, hold: { ...WAITING.hold, ...rules } });
+const settingsOf = (rules, input = {}) => ({ ...WAITING, ...(input.things?.finishes ? { finishes: input.things.finishes } : {}), hold: { ...WAITING.hold, ...rules } });
 
 /** What old trillion's Waiting on you reader answered, over what the route can read (the person's Waiting on you rows):
  *  each section's cards with the same thing said twice kept once (sameOnce), and every card the doer gate sends to the
  *  AIs left out of the person's view (old reader's `sift`, src/native-waiting-account-owner.mjs reader). */
-async function waitingAnswer(door, settings) {
-  const answer = await cardsOf(door);
-  return { ...answer, sections: answer.sections.map(section => {
-    const cards = weighCards([{ section, cards: sameOnce(section.cards) }], { settings, weigh, given: {} }).rows[0].cards;
-    return cards.length === section.cards.length ? section : { ...section, total: cards.length, cards };
-  }) };
+async function waitingAnswer(door, settings, input = {}) {
+  const answer = await cardsOf(door, input);
+  if (!object(answer) || !Array.isArray(answer.sections)) throw new Error('things must be { sections: [{ id, cards: [...] }] }.');
+  const opensScreen = opensScreenOf(input.opens_screens);
+  const decided = weighCards(answer.sections.map(section => ({ section, cards: sameOnce(section.cards ?? []) })), {
+    settings, weigh, given: input.given ?? {}, ...(opensScreen ? { opensScreen } : {}),
+  });
+  return { ...answer, toAis: [...(answer.toAis ?? []), ...decided.toAis], sections: decided.rows.map(row => ({ ...row.section,
+    total: row.cards.length === row.section.cards?.length ? row.section.total ?? row.cards.length : row.cards.length, cards: row.cards })) };
 }
 
 /** The read, as old needsYouHold answered op read: the view, what it says and the words. */
-async function read(door, now, rules) {
+export async function read(door, now, rules, input = {}) {
   const settings = rules ?? await rulesOf(door);
-  const state = (await readSetting(door, ROWS.state)).value ?? {};
-  const waiting = settingsOf(settings);
-  const answer = await waitingAnswer(door, waiting);
+  const state = input.state !== undefined ? input.state : (await readSetting(door, ROWS.state)).value ?? {};
+  const waiting = settingsOf(settings, input);
+  const answer = await waitingAnswer(door, waiting, input);
+  // The doer gate's work must be published before its cards leave the human view.
+  for (const item of inOrder(answer.toAis)) if (item.handOff) await handOff(door, item.handOff, now);
+  const opensScreen = opensScreenOf(input.opens_screens);
   // The walk-away nudge's prepareForHold (old src/waiting-nudge.mjs): what waited long enough and Trillion can do is
   // handed to the AIs, once per card, and the hold is weighed over the rest.
   const nudge = makeWaitingNudge({ read: async () => answer, tell: async () => null, weigh, handOff: job => handOff(door, job, now),
-    kept: { read: () => null, write: () => {} }, alongside: async () => null, settings: waiting, now: () => now });
+    kept: { read: () => null, write: () => {} }, alongside: async () => null, settings: waiting, now: () => now, ...(opensScreen ? { opensScreen } : {}) });
   const prepared = await nudge.prepareForHold(answer, settings.after_minutes);
-  const view = holdView(withoutHanded(answer, prepared.handed), state, settings, now);
+  let view = holdView(withoutHanded(answer, prepared.handed), state, settings, now, { opensScreen });
+  if (input.covered) view = { ...view, held: null, ranked: [] };
   await keepHeld(door, view.held, settings, now);
   const said = view.held ? fill(settings.words?.held, { title: view.held.card.title ?? '' })
     : view.on ? settings.words?.free : fill(settings.words?.off, view);
-  return { ...view, said, words: settings.words };
+  return { ...view, said, words: settings.words,
+    waiting_sources: input.things !== undefined ? { from: 'caller', complete: input.things.complete === true }
+      : { from: 'records', complete: false, read: [ROWS.must_do.type] } };
 }
 
 /** What the hold holds now, kept as setting:needs_you_held when it changed, and a new thing held, or nothing held any
@@ -185,42 +195,23 @@ async function seen(door, body, now) {
   return { seen: key, read };
 }
 
-const CHANGES = {
-  aside: (state, rules, body, now) => setAside(state, rules, { key: text(body.key), title: text(body.title), reason: text(body.reason) }, now),
-  hand_back: (state, rules, body, now) => handBack(state, rules, { key: text(body.key), title: text(body.title), way: text(body.way), reason: text(body.reason) }, now),
-  stake: (state, rules, body, now) => chooseStake(state, rules, { stake: text(body.stake), values: body.values ?? {} }, now),
-  off: (state, rules, body, now) => askOff(state, rules, now),
-  on: state => turnOn(state),
-};
+const CHANGES = { aside: 'set-aside', hand_back: 'hand-back', stake: 'choose-stake', off: 'turn-off', on: 'turn-on' };
 
-/** A job the change hands to the person's AIs, kept as an ai-job they take (tools/hand-work-to-ais), once per once_per. */
 async function handOff(door, job, now) {
-  const id = `${JOBS.kind}:${String(job.once_per ?? '').replace(JOBS.key, '-')}`;
-  const value = { kind: JOBS.kind, status: JOBS.start, job: String(job.job ?? ''), to: null, from: JOBS.from, priority: JOBS.priority,
-    sent_at: new Date(now).toISOString(), ...(job.said ? { label: String(job.said) } : {}), ...(object(job.input) ? { input: job.input } : {}) };
-  try { await door.write([{ id, type: JOBS.kind, value, expected: null }], { key: `needs-you-hold-job:${id}` }); }
-  catch (error) { if (error?.code !== CONFLICT) throw error; }
+  return publishHoldJobs(door, [job], now);
 }
 
-async function change(door, body, now) {
+async function change(door, body, now, input = {}) {
   if (body?.op === 'seen') return seen(door, body, now);
-  if (!body?.op || body.op === 'read') return read(door, now);
+  if (!body?.op || body.op === 'read') return read(door, now, undefined, projectionOf({ ...input, ...body }));
   const operation = CHANGES[body.op];
   if (!operation) throw new Error('Say what to do: read, aside, hand_back, stake, off or on.');
-  const rules = await rulesOf(door);
-  const { held, value } = await readSetting(door, ROWS.state);
-  const { state, jobs = [], ...result } = operation(value ?? {}, rules, body, now);
-  const next = JSON.parse(JSON.stringify(state));
-  const expected = held ? { type: ROWS.state.type, value: held.value } : null;
-  try {
-    await door.write([{ id: ROWS.state.id, type: ROWS.state.type, value: { ...(object(held?.value) ? held.value : {}), value: next }, expected }],
-      { key: `needs-you-hold-change:${body.op}:${now}` });
-  } catch (error) {
-    if (error?.code === CONFLICT) throw new Refused('The hold changed meanwhile. Read it again.', 409);
-    throw error;
-  }
-  for (const job of jobs) await handOff(door, job, now);
-  return { ...result, ...(await read(door, now, rules)) };
+  const fields = Object.fromEntries(['key', 'title', 'reason', 'way', 'stake', 'values'].filter(key => body[key] !== undefined).map(key => [key, body[key]]));
+  const changed = await changeWhatHoldsMe({ ...fields, change: operation,
+    request_key: body.request_key ?? `needs-you-hold-change:${body.op}:${now}`, now: new Date(now).toISOString() }, { door });
+  if (changed.conflict) throw new Refused('The hold changed meanwhile. Read it again.', 409);
+  const { changed: _, state, jobs, published, ...result } = changed;
+  return { ...result, ...(await read(door, now, undefined, projectionOf({ ...input, ...body }))) };
 }
 
 /** tool:answer-the-needs-you-hold-route */
@@ -229,12 +220,12 @@ export async function answerNeedsYouHoldRoute(input = {}, { door, now = () => Da
   const method = String(input?.method ?? 'GET').toUpperCase();
   if (path !== '/needs-you-hold' || !['GET', 'POST'].includes(method)) return { status: 404, body: { error: 'Not found' } };
   if (method === 'GET') {
-    try { return { status: 200, body: await read(door, now()) }; }
+    try { return { status: 200, body: await read(door, now(), undefined, projectionOf(input)) }; }
     catch (error) { const status = refusalStatus(error); return status === null ? { status: 503, body: BUSY } : { status, body: { error: error.message } }; }
   }
   try {
     const body = typeof input.body === 'string' ? JSON.parse(input.body || '{}') : object(input.body) ? input.body : {};
-    return { status: 200, body: await change(door, body, now()) };
+    return { status: 200, body: await change(door, body, now(), input) };
   } catch (error) {
     return { status: refusalStatus(error) ?? 400, body: { error: error.message } };
   }

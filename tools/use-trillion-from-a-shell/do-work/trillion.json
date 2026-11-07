@@ -258,20 +258,24 @@
     "write": "records:write"
   },
   "work": {
-    "_what": "Each AI-job command runs one Workshop work tool (trillion-workshop tools/hand-work-to-ais) with tools:run at @workshop-tools: `tools` names the tool for who (ais), send, work (see), take and every move (change); `actions` maps a move command to the action tool:change-an-ai-job takes; `publish_after` are the commands after which this AI writes its own ai record again (what it holds changed, or it just sent work).",
+    "_what": "Each AI-job command runs the shared work tool named by tools through tools:run at @workshop-tools. Actions map commands to the shared job lifecycle; finish uses scoped consumer checks, and blocked work retains an owned bounded continuation. publish_after names commands that refresh the AI record.",
     "tools": {
       "ais": "tool:see-my-ais",
       "send": "tool:hand-a-job-to-an-ai",
       "see": "tool:see-ai-work",
       "take": "tool:take-an-ai-job",
-      "change": "tool:change-an-ai-job"
+      "change": "tool:change-an-ai-job",
+      "finish": "tool:finish-an-ai-job"
     },
     "actions": {
-      "finish": "finish",
       "fail": "fail",
       "stuck": "stuck",
       "unstuck": "unstuck",
       "release": "release",
+      "wait": "wait",
+      "resume": "resume",
+      "plan": "plan",
+      "edit": "edit",
       "withdraw": "withdraw",
       "remove": "remove"
     },
@@ -280,7 +284,8 @@
       "take",
       "finish",
       "fail",
-      "release"
+      "release",
+      "wait"
     ]
   },
   "work_list_limit": 20,

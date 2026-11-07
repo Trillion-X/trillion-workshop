@@ -50,6 +50,7 @@
               { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -201,12 +202,54 @@
         "label": "Hand a job to one of my AIs, or to whichever takes it first",
         "status": "active",
         "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-        "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records.",
+        "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work.",
         "input_schema": {
           "type": "object",
           "required": ["as", "job"],
           "additionalProperties": false,
           "properties": {
+            "acceptance": {"type": "object", "required": ["outcome", "target", "rules"], "additionalProperties": false, "properties": {"outcome": {"type": "string", "minLength": 1}, "target": {"type": "object", "required": ["type", "id"], "additionalProperties": false, "properties": {"type": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}}}, "rules": {"type": "array", "minItems": 1, "maxItems": 65, "items": {"type": "object", "required": ["id", "path"], "description": "A shared judge-words rule directly testing persisted consumer data; id outcome or a saved obligation id."}}}},
+            "obligations": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "outcome": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+            "source": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "ref"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
             "as": { "type": "string", "pattern": "^ai:", "description": "The sending AI's record id" },
             "job": { "type": "string", "minLength": 1, "description": "What the AI is to do, in plain words" },
             "to": { "type": ["string", "null"], "pattern": "^ai:", "description": "The AI it is for; left out or null, any AI" },
@@ -238,6 +281,7 @@
               { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -1400,6 +1444,7 @@
               { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -1462,6 +1507,7 @@
               { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -1490,15 +1536,202 @@
         "label": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
         "status": "active",
         "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-        "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (the taker; needs words) and unstuck clears that; withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+        "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job.",
         "input_schema": {
           "type": "object",
           "required": ["as", "id", "action"],
           "additionalProperties": false,
           "properties": {
+            "acceptance": {"type": "object", "required": ["outcome", "target", "rules"], "additionalProperties": false, "properties": {"outcome": {"type": "string", "minLength": 1}, "target": {"type": "object", "required": ["type", "id"], "additionalProperties": false, "properties": {"type": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}}}, "rules": {"type": "array", "minItems": 1, "maxItems": 65, "items": {"type": "object", "required": ["id", "path"], "description": "A shared judge-words rule directly testing persisted consumer data; id outcome or a saved obligation id."}}}},
+            "taken_at": { "type": "string", "description": "The exact timestamp of the claim whose holder is acting" },
+            "job": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What the AI is to do, in plain words"
+              },
+              "outcome": {
+                "type": "string",
+                "minLength": 1,
+                "description": "What done looks like"
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "description": "A short name for the job"
+              },
+              "source": {
+                "type": "object",
+                "required": [
+                  "kind",
+                  "ref"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "ref": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+              "obligations": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "outcome"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "outcome": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "to": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "description": "An existing ai record id, or null for any AI"
+              },
+              "priority": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9
+              },
+            "continuation": {
+                "type": "object",
+                "required": [
+                  "owner",
+                  "action",
+                  "after",
+                  "reason"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "owner": {
+                    "type": "string",
+                    "pattern": "^ai:"
+                  },
+                  "action": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "after": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "reason": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              },
+            "check": {
+                "type": "object",
+                "required": [
+                  "outcome",
+                  "checked_at",
+                  "evidence"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "target": {"type": "object", "required": ["type", "id"], "properties": {"type": {"type": "string"}, "id": {"type": "string"}}},
+                  "outcome": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "checked_at": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 32,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "ref",
+                        "observation"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "ref": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "observation": {
+                          "type": "string",
+                          "minLength": 1
+                        }
+                      }
+                    }
+                  },
+                  "obligations": {
+                    "type": "array",
+                    "maxItems": 64,
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "id",
+                        "outcome",
+                        "evidence"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "outcome": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "evidence": {
+                          "type": "array",
+                          "minItems": 1,
+                          "maxItems": 32,
+                          "items": {
+                            "type": "object",
+                            "required": [
+                              "ref",
+                              "observation"
+                            ],
+                            "additionalProperties": false,
+                            "properties": {
+                              "ref": {
+                                "type": "string",
+                                "minLength": 1
+                              },
+                              "observation": {
+                                "type": "string",
+                                "minLength": 1
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
             "as": { "type": "string", "pattern": "^ai:", "description": "The acting AI's record id" },
             "id": { "type": "string", "pattern": "^ai-job:", "description": "The job's record id" },
-            "action": { "type": "string", "enum": ["take", "release", "finish", "fail", "stuck", "unstuck", "withdraw", "remove"] },
+            "action": { "type": "string", "enum": ["take", "release", "finish", "fail", "stuck", "unstuck", "withdraw", "remove", "wait", "resume", "edit", "plan"] },
             "result": { "type": "string", "minLength": 1, "description": "What was done (finish) or why it could not be (fail)" },
             "summary": { "type": "string", "minLength": 1, "description": "One line about the result" },
             "because": { "type": "string", "minLength": 1, "description": "Why it is given back or withdrawn" },
@@ -1530,6 +1763,7 @@
               { "package": "move-records-through-declared-states", "paths": ["do-work/move-records-through-declared-states.mjs"], "at": "/opt/move-records-through-declared-states" },
               { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
               { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words" },
               { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
             ]
           },
@@ -1537,7 +1771,19 @@
             "fd": 3,
             "most_writes": 1,
             "rights": [
-              { "kind": "ai-job", "operations": ["records:read", "records:write"] }
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "ai",
+                "operations": [
+                  "records:read"
+                ]
+              }
             ]
           }
         },
@@ -1547,9 +1793,321 @@
         "placements": ["placement:small-container"],
         "maker": "maker:hand-work-to-ais",
     "verify": [
-     {"kind":"sample-run","input":{"as":"ai:sample-taker","id":"ai-job:sample-1","action":"finish","result":"A made-up sample report.","summary":"Made-up summary"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
+     {"kind":"sample-run","input":{"as":"ai:sample-taker","id":"ai-job:sample-1","action":"release","taken_at":"2026-11-03T00:05:00.000Z","because":"Synthetic sample returns its claim"},"records":[{"id":"ai-job:sample-1","type":"ai-job","value":{"kind":"ai-job","status":"taken","job":"Write a made-up sample report","to":null,"from":"ai:sample-sender","priority":5,"sent_at":"2026-11-03T00:00:00.000Z","taker":"ai:sample-taker","taken_at":"2026-11-03T00:05:00.000Z"}}]}
     ]
    }
-    }
+    },
+    { "payload": {
+      "kind": "ai-tool-descriptor",
+      "id": "tool:finish-an-ai-job",
+      "label": "Check the saved consumer and finish an AI job",
+      "status": "active",
+      "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
+      "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access.",
+      "input_schema": {
+        "type": "object",
+        "required": [
+          "as",
+          "id",
+          "taken_at",
+          "result",
+          "check"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "as": {
+            "type": "string",
+            "pattern": "^ai:",
+            "description": "The acting AI's record id"
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^ai-job:",
+            "description": "The job's record id"
+          },
+          "taken_at": {
+            "type": "string",
+            "description": "The exact timestamp of the claim whose holder is acting"
+          },
+          "result": {
+            "type": "string",
+            "minLength": 1,
+            "description": "What was done (finish) or why it could not be (fail)"
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1,
+            "description": "One line about the result"
+          },
+          "check": {
+            "type": "object",
+            "required": [
+              "outcome",
+              "checked_at",
+              "evidence",
+              "target"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "outcome": {
+                "type": "string",
+                "minLength": 1
+              },
+              "checked_at": {
+                "type": "string",
+                "minLength": 1
+              },
+              "evidence": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 32,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "ref",
+                    "observation"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "ref": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "observation": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  }
+                }
+              },
+              "obligations": {
+                "type": "array",
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "id",
+                    "outcome",
+                    "evidence"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "outcome": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "evidence": {
+                      "type": "array",
+                      "minItems": 1,
+                      "maxItems": 32,
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "ref",
+                          "observation"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1
+                          },
+                          "observation": {
+                            "type": "string",
+                            "minLength": 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "target": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "id"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "output_schema": {
+        "type": "object",
+        "required": [
+          "job_id",
+          "moved",
+          "from",
+          "to",
+          "job"
+        ],
+        "properties": {
+          "job_id": {
+            "type": "string"
+          },
+          "moved": {
+            "type": "boolean"
+          },
+          "from": {
+            "type": "string"
+          },
+          "to": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "changed",
+              "gone"
+            ]
+          },
+          "job": {
+            "type": [
+              "object",
+              "null"
+            ]
+          }
+        }
+      },
+      "invoke": {
+        "kind": "container",
+        "internet": false,
+        "workdir": "/opt/hand-work-to-ais",
+        "stdout": "json",
+        "argv": [
+          "node",
+          "/opt/records-door/do-work/run-an-export.mjs",
+          "/opt/hand-work-to-ais/read-data/ai-work.mjs",
+          "finishAJob"
+        ],
+        "stdin": {
+          "input": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "task": {
+            "fill": {
+              "from": "task"
+            }
+          }
+        },
+        "files": {
+          "package_files": [
+            {"package": "judge-words", "paths": ["do-work/judge-words.mjs", "do-work/evidence-checks.mjs"], "at": "/opt/judge-words"},
+            {
+              "package": "hand-work-to-ais",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/hand-work-to-ais"
+            },
+            {
+              "package": "move-records-through-declared-states",
+              "paths": [
+                "do-work/move-records-through-declared-states.mjs"
+              ],
+              "at": "/opt/move-records-through-declared-states"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            }
+          ]
+        },
+        "records": {
+          "fd": 3,
+          "most_writes": 1,
+          "rights": [
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": {
+                  "fill": {
+                    "from": "input",
+                    "field": "check.target.type"
+                  }
+                },
+                "id": {
+                  "fill": {
+                    "from": "input",
+                    "field": "check.target.id"
+                  }
+                },
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "ai",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+        }
+      },
+      "result_selector": "$.result",
+      "needs": {
+        "expected_seconds": 5,
+        "network_egress": false,
+        "memory_mb": 256
+      },
+      "licence_class": "licence:maker-own",
+      "placements": [
+        "placement:small-container"
+      ],
+      "maker": "maker:hand-work-to-ais",
+      "verify": [{"kind": "sample-run", "input": {"as": "ai:sample-taker", "id": "ai-job:sample-finish", "taken_at": "2026-11-03T00:05:00.000Z", "result": "Observed the readable sample consumer", "check": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "checked_at": "2026-11-03T00:06:00.000Z", "evidence": [{"ref": "sample-consumer:one", "observation": "The consumer is readable."}]}}, "records": [{"id": "ai-job:sample-finish", "type": "ai-job", "value": {"kind": "ai-job", "status": "taken", "job": "Read the sample consumer", "outcome": "The sample consumer is readable", "acceptance": {"outcome": "The sample consumer is readable", "target": {"type": "sample-consumer", "id": "sample-consumer:one"}, "rules": [{"id": "outcome", "path": "readable", "equals": [true], "says": "The consumer must be readable."}]}, "from": "ai:sample-sender", "to": null, "sent_at": "2026-11-03T00:00:00.000Z", "taker": "ai:sample-taker", "taken_at": "2026-11-03T00:05:00.000Z"}}, {"id": "sample-consumer:one", "type": "sample-consumer", "value": {"readable": true}}]}]
+    } }
   ]
 }

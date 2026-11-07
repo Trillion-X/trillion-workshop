@@ -51,7 +51,7 @@ export function weighCards(rows, { settings, weigh = null, opensScreen = () => t
   for (const row of rows) {
     const cards = [];
     for (const card of row.cards) {
-      if (!controlOf(settings, row, card, opensScreen)) {
+      if (!controlOf(settings, row.section, card, opensScreen)) {
         const words = settings.hold.no_control;
         toAis.push({ card, section: row.section, handOff: { job: fill(words.job, { title: card.title ?? '', detail: card.detail ?? '' }), said: fill(words.said, { title: card.title ?? '' }).slice(0, 300), once_per: `no-control:${card.id}`, input: { card_id: card.id } } });
         continue;

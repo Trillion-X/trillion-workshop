@@ -42,6 +42,10 @@ const answerWords = (answer, most) => {
 /** The run's user messages: the job, then each steer kept on it, in order. */
 export const jobMessages = handoff => [
   { id: `job:${handoff.handoff_id}`, role: 'user', content: handoff.job },
+  ...(handoff.acceptance ? [{ id: `acceptance:${handoff.handoff_id}`, role: 'user', content: `Saved acceptance: ${JSON.stringify(handoff.acceptance)}. Inspect this exact target and satisfy every saved rule before claiming completion.` }] : []),
+  ...(handoff.obligations?.length ? [{ id: `obligations:${handoff.handoff_id}`, role: 'user', content: `Saved obligations: ${JSON.stringify(handoff.obligations)}. Check each one against its saved acceptance rule.` }] : []),
+  ...((handoff.source_job ?? handoff.source) ? [{ id: `source:${handoff.handoff_id}`, role: 'user', content: `This job continues source ${(handoff.source_job ?? handoff.source).kind}: ${(handoff.source_job ?? handoff.source).ref}. Preserve that provenance.` }] : []),
+  ...(handoff.continuation ? [{ id: `continuation:${handoff.handoff_id}`, role: 'user', content: `Owned continuation due ${handoff.continuation.after} for ${handoff.continuation.owner}: ${handoff.continuation.action}. Reason: ${handoff.continuation.reason}. Inspect the existing consumer state before repeating an action.` }] : []),
   ...(handoff.steers ?? []).map((steer, index) => ({ id: `steer:${handoff.handoff_id}:${index}`, role: 'user', content: steer.job })),
 ];
 
@@ -75,7 +79,16 @@ export async function runOnAgUi(url, handoff, { client, rules, fetchImpl = fetch
       return { ok: true, stuck: said || rules.ag_ui.words.interrupted, output: said };
     }
     if (run.outcome?.type === 'cancelled') return { ok: false, output: rules.ag_ui.words.cancelled };
-    if (!run.pending.length) return { ok: true, output: run.text || (typeof run.result === 'string' ? run.result : rules.ag_ui.words.no_words) };
+    if (!run.pending.length) {
+      const output = run.text || (typeof run.result === 'string' ? run.result : rules.ag_ui.words.no_words);
+      // A successful run carries a receipt only when its final answer is structured JSON with both fields.
+      // Plain prose remains a result, never proof that the requested consumer outcome was observed.
+      try {
+        const envelope = JSON.parse(output);
+        if (envelope && typeof envelope.result === 'string' && envelope.check && typeof envelope.check === 'object') return { ok: true, output: envelope.result, check: envelope.check };
+      } catch { /* ordinary agent prose has no receipt */ }
+      return { ok: true, output };
+    }
     for (const call of run.pending) {
       let content;
       if (!offered.has(call.name)) content = fill(rules.ag_ui.words.not_offered, { tool: call.name });

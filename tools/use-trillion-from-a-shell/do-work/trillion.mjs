@@ -6,7 +6,7 @@
 // Purpose
 //   The `trillion` command: any AI that can run a shell (Claude Code, Codex, Cursor, Gemini CLI, opencode, a script) sees
 //   the person's AIs and their AI jobs, hands and takes work, lists and runs Workshop tools and runs any engine
-//   operation, with no MCP connection of its own. Every command is ONE call of the engine's one MCP tool,
+//   operation, with no MCP connection of its own. Each engine request is one call of the engine's MCP tool,
 //   run_resource_operation {address, method, request_key, input} (trillion.json `engine`), at the account's door: the Mac
 //   app's local door when this computer has one (./local-door.mjs), else the public origin. The engine's own
 //   checks and the Workshop work tools (tools/hand-work-to-ais) decide; nothing here decides, stores or routes work.
@@ -125,7 +125,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['as', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
+const VALUE_FLAGS = new Set(['as', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'request-key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory', 'check-file', 'continuation-file', 'source-file', 'obligations-file', 'acceptance-file', 'job', 'taken-at']);
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -151,7 +151,67 @@ const wholeNumber = (value, name) => {
   return number;
 };
 const need = (value, words) => { if (value === undefined || value === '') throw new TrillionError(words, { status: 2 }); return value; };
+const requestKeyOf = value => {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,199}$/.test(value))
+    throw new TrillionError('--request-key must be 1-200 letters, numbers, dots, underscores, colons or hyphens.', { status: 2 });
+  return value;
+};
+const retryAdvice = (error, requestKey) => {
+  error.requestKey = requestKey;
+  error.message = `${error.message} Retry the exact request with --request-key ${requestKey}.`;
+  return error;
+};
 const joined = list => (list.length ? list.join(' ') : undefined);
+const readJsonFile = (file, name, example) => {
+  let value;
+  try { value = JSON.parse(readFileSync(String(file), 'utf8')); } catch (error) { throw new TrillionError(`Could not read ${name} JSON from ${file}: ${error.message}`, { status: 2 }); }
+  if (!object(value) && !(name === 'obligations' && Array.isArray(value))) throw new TrillionError(`${name} is one JSON object${name === 'obligations' ? ' or array' : ''}, for example ${example}.`, { status: 2 });
+  return value;
+};
+const validTime = value => typeof value === 'string' && Number.isFinite(Date.parse(value)) && /^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(value);
+const validateEvidence = rows => Array.isArray(rows) && rows.length > 0 && rows.every(row => object(row) && typeof row.ref === 'string' && row.ref.trim() && typeof row.observation === 'string' && row.observation.trim());
+export function validateCheck(check) {
+  if (!object(check) || typeof check.outcome !== 'string' || !check.outcome.trim() || !validTime(check.checked_at) || !validateEvidence(check.evidence) || !Array.isArray(check.obligations))
+    throw new TrillionError('A check receipt needs outcome, an ISO checked_at time, evidence rows with ref and observation, and obligations (an empty array when none were requested).', { status: 2 });
+  if (check.obligations !== undefined && (!Array.isArray(check.obligations) || check.obligations.some(row => !object(row) || typeof row.id !== 'string' || !row.id.trim() || typeof row.outcome !== 'string' || !row.outcome.trim() || !validateEvidence(row.evidence))))
+    throw new TrillionError('Each obligation check needs its id, outcome, and evidence rows with ref and observation.', { status: 2 });
+  return check;
+}
+export function validateContinuation(value) {
+  if (!object(value) || typeof value.owner !== 'string' || !/^ai:[A-Za-z0-9._:-]+$/.test(value.owner) || typeof value.action !== 'string' || !value.action.trim() || !validTime(value.after) || typeof value.reason !== 'string' || !value.reason.trim())
+    throw new TrillionError('A continuation needs owner ai:NAME, action, ISO after time, and reason.', { status: 2 });
+  return value;
+}
+const validateSource = value => {
+  if (!object(value) || typeof value.kind !== 'string' || !value.kind.trim() || typeof value.ref !== 'string' || !value.ref.trim()) throw new TrillionError('A source needs kind and ref.', { status: 2 });
+  return value;
+};
+const validateObligations = value => {
+  if (!Array.isArray(value) || value.some(row => !object(row) || typeof row.id !== 'string' || !row.id.trim() || typeof row.outcome !== 'string' || !row.outcome.trim()) || new Set(value.map(row => row.id)).size !== value.length)
+    throw new TrillionError('Obligations are unique rows with id and outcome.', { status: 2 });
+  return value;
+};
+export function validateAcceptance(value) {
+  if (!object(value) || typeof value.outcome !== 'string' || !value.outcome.trim() || !object(value.target) || typeof value.target.type !== 'string' || !value.target.type.trim() || typeof value.target.id !== 'string' || !value.target.id.trim() || !Array.isArray(value.rules))
+    throw new TrillionError('Acceptance needs outcome, target type and id, and a rules array.', { status: 2 });
+  return value;
+}
+export function checkForJob(check, job) {
+  try { validateCheck(check); } catch { return false; }
+  if (!job.acceptance) return false;
+  const expected = job.acceptance.outcome;
+  if (check.outcome !== expected) return false;
+  const obligations = job.obligations ?? [];
+  if (check.obligations.length !== obligations.length) return false;
+  const byId = new Map(check.obligations.map(row => [row.id, row]));
+  if (byId.size !== obligations.length) return false;
+  for (const required of obligations) {
+    const got = byId.get(required.id);
+    if (!got || got.outcome !== required.outcome) return false;
+  }
+  return true;
+}
 
 /** Which of this AI's ids holds job `id`: its own, else an id it held work under before (held.json), else its own. */
 export const holderOf = (me, held, id) => [me.agent_id, ...(me.held_as ?? [])].find(agent => held[`${agent} ${id}`] !== undefined) ?? me.agent_id;
@@ -164,11 +224,12 @@ export const holdingOf = (me, held) => Object.entries(held).flatMap(([key, kept]
 
 /** The work commands, each answered by the Workshop work tool its trillion.json `work` row names, and serve, which takes
  *  and moves jobs through the same rows. `work.actions` are the commands that move a job with tool:change-an-ai-job. */
-export const WORK_COMMANDS = new Set(['send', 'work', 'take', 'serve', ...Object.keys(settings.work.actions)]);
+export const WORK_COMMANDS = new Set(['send', 'work', 'take', 'serve', 'finish', ...Object.keys(settings.work.actions)]);
 
 /** Runs one work tool (`work.tools[name]`) with `input`: tools:run at the door. Answers the tool's own answer. */
-export async function workCall(client, name, input, { idempotent = false, rules = settings } = {}) {
-  const answer = await client.op(rules.engine.tools, rules.engine.tools_run, { tool: rules.work.tools[name], input }, { idempotent });
+export async function workCall(client, name, input, { idempotent = false, requestKey, rules = settings } = {}) {
+  const options = { idempotent, ...(requestKey === undefined ? {} : { requestKey }) };
+  const answer = await client.op(rules.engine.tools, rules.engine.tools_run, { tool: rules.work.tools[name], input }, options);
   return object(answer) && Object.hasOwn(answer, 'result') ? answer.result : answer;
 }
 
@@ -177,16 +238,21 @@ export async function workCall(client, name, input, { idempotent = false, rules 
 export function argumentsFor(command, { words, flags }, { me, held = {}, requestKey = randomUUID(), rules = settings } = {}) {
   const [first, ...more] = words;
   const as = id => aiIdOf(holderOf(me, held, id), rules);
-  const move = (action, extra) => ({ work: 'change', input: { as: as(first), id: first, action, ...extra } });
+  const move = (action, extra) => ({ work: 'change', input: { as: as(first), id: first, ...(flags['taken-at'] ? { taken_at: flags['taken-at'] } : {}), action, ...extra } });
   switch (command) {
     case 'send': {
       const to = need(first, 'Say who: trillion send any "JOB", or trillion send AI "JOB" with an id from trillion who.');
       const job = need(joined(more), 'Say the job: trillion send any "JOB".');
+      const acceptance = flags['acceptance-file'] ? validateAcceptance(readJsonFile(flags['acceptance-file'], 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}')) : null;
+      if (acceptance && flags.outcome !== undefined && flags.outcome !== acceptance.outcome) throw new TrillionError('--outcome must exactly match acceptance.outcome.', { status: 2 });
       return { work: 'send', input: {
         as: me.ai_id, job, key: flags.key ?? requestKey, to: to === 'any' ? null : aiIdOf(to, rules),
         ...(flags.priority !== undefined ? { priority: wholeNumber(flags.priority, 'priority') } : {}),
-        ...(flags.outcome ? { outcome: flags.outcome } : {}),
+        ...(flags.outcome !== undefined ? { outcome: flags.outcome } : acceptance ? { outcome: acceptance.outcome } : {}),
         ...(flags.label ? { label: flags.label } : {}),
+        ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
+        ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
+        ...(acceptance ? { acceptance } : {}),
       } };
     }
     case 'work': return { work: 'see', input: first ? { id: first } : {
@@ -199,15 +265,40 @@ export function argumentsFor(command, { words, flags }, { me, held = {}, request
     case 'fail': {
       need(first, `Name the job: trillion ${command} ID "RESULT".`);
       const result = need(joined(more), `Say what came of it: trillion ${command} ID "RESULT".`);
-      return move(rules.work.actions[command], { result, ...(command === 'finish' ? { summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } : {}) });
+      if (command === 'finish' && !flags['check-file']) throw new TrillionError('A job can be finished only with a consumer check receipt: pass --check-file JSON.', { status: 2 });
+      if (command === 'finish') return { work: 'finish', input: { as: as(first), id: first, ...(flags['taken-at'] ? { taken_at: flags['taken-at'] } : {}), result,
+        check: validateCheck(readJsonFile(flags['check-file'], 'check', '{"outcome":"...","checked_at":"...","evidence":[{"ref":"...","observation":"..."}],"obligations":[]}')),
+        summary: flags.summary ?? result.split('\n')[0].slice(0, 300) } };
+      return move(rules.work.actions[command], { result });
     }
     case 'stuck': {
       need(first, 'Name the job: trillion stuck ID "WHAT IS IN THE WAY".');
       return flags.clear ? move(rules.work.actions.unstuck, {}) : move(rules.work.actions.stuck, { words: need(joined(more), 'Say what is in the way, or pass --clear.') });
     }
-    case 'release': need(first, 'Name the job: trillion release ID --because "WHY".'); return move(rules.work.actions.release, flags.because ? { because: flags.because } : {});
-    case 'withdraw': need(first, 'Name the job: trillion withdraw ID --reason "WHY".'); return move(rules.work.actions.withdraw, { because: need(flags.reason, 'Say why: --reason "WHY".') });
-    case 'remove': need(first, 'Name the job: trillion remove ID.'); return move(rules.work.actions.remove, {});
+    case 'release': need(first, `Name the job: ${basename(settings.install.link)} release ID --because "WHY".`); return move(rules.work.actions.release, { ...(flags.because ? { because: flags.because } : {}), ...(flags['continuation-file'] ? { continuation: validateContinuation(readJsonFile(flags['continuation-file'], 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) } : {}) });
+    case 'wait': need(first, `Name the job: ${basename(settings.install.link)} wait ID --continuation-file JSON.`); return move(rules.work.actions.wait, { continuation: validateContinuation(readJsonFile(need(flags['continuation-file'], 'Say who owns the next step and when: --continuation-file JSON.'), 'continuation', '{"owner":"ai:...","action":"...","after":"...","reason":"..."}')) });
+    case 'resume': need(first, `Name the job: ${basename(settings.install.link)} resume ID.`); return move(rules.work.actions.resume, { because: need(flags.because, 'Say what changed after reviewing the existing effects: --because WORDS.') });
+    case 'plan': {
+      need(first, `Name the job: ${basename(settings.install.link)} plan ID --acceptance-file JSON.`);
+      const acceptance = validateAcceptance(readJsonFile(need(flags['acceptance-file'], 'Name the saved consumer acceptance: --acceptance-file JSON.'), 'acceptance', '{"outcome":"...","target":{"type":"...","id":"..."},"rules":[...]}'));
+      return move(rules.work.actions.plan, { acceptance });
+    }
+    case 'edit': {
+      need(first, `Name the job: ${basename(settings.install.link)} edit ID [--job WORDS].`);
+      const input = {
+        ...(flags.job !== undefined ? { job: flags.job } : {}),
+        ...(flags.outcome !== undefined ? { outcome: flags.outcome } : {}),
+        ...(flags.label !== undefined ? { label: flags.label } : {}),
+        ...(flags['source-file'] ? { source: validateSource(readJsonFile(flags['source-file'], 'source', '{"kind":"repository","ref":"..."}')) } : {}),
+        ...(flags['obligations-file'] ? { obligations: validateObligations(readJsonFile(flags['obligations-file'], 'obligations', '[{"id":"...","outcome":"..."}]')) } : {}),
+        ...(flags.to !== undefined ? { to: flags.to === 'any' ? null : aiIdOf(flags.to, rules) } : {}),
+        ...(flags.priority !== undefined ? { priority: wholeNumber(flags.priority, 'priority') } : {}),
+      };
+      if (!Object.keys(input).length) throw new TrillionError('Name at least one field to change with --job, --outcome, --label, --source-file, --obligations-file, --to, or --priority.', { status: 2 });
+      return move(rules.work.actions.edit, input);
+    }
+    case 'withdraw': need(first, `Name the job: ${basename(settings.install.link)} withdraw ID --reason "WHY".`); return move(rules.work.actions.withdraw, { because: need(flags.reason, 'Say why: --reason "WHY".') });
+    case 'remove': need(first, `Name the job: ${basename(settings.install.link)} remove ID.`); return move(rules.work.actions.remove, {});
     default: throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
   }
 }
@@ -406,7 +497,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
   const refused = () => new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
     ? fill(rules.words.refused_key_at_door, { door: door.name, local: door.localMcp ? fill(rules.words.local_door_named, { mcp: door.localMcp }) : '' })
     : fill(rules.words.refused, { door: door.name }), { status: 3 });
-  async function send(body, { idempotent }) {
+  async function send(body, { idempotent, requestKey = null }) {
     for (let attempt = 0; ; attempt += 1) {
       let response = null, failure = null;
       try { response = await fetchImpl(door.mcp, { method: 'POST', headers, body, signal: signal() }); } catch (error) { failure = error; }
@@ -416,27 +507,44 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       const timedOut = failure?.name === 'TimeoutError';
       if (passing && !timedOut && later !== undefined) { await wait(later * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
-      if (timedOut) throw new TrillionError(`${door.name} did not answer within ${rules.call_timeout_seconds} seconds.${maybe}`, { status: 4 });
-      if (failure) throw new TrillionError(fill(rules.words.unreachable, { door: door.name, why: failure.cause?.code ?? failure.message }) + maybe, { status: 4 });
+      if (timedOut) {
+        const error = new TrillionError(`${door.name} did not answer within ${rules.call_timeout_seconds} seconds.${maybe}`, { status: 4 });
+        if (!idempotent && requestKey) error.outcomeUnknown = true;
+        throw error;
+      }
+      if (failure) {
+        const error = new TrillionError(fill(rules.words.unreachable, { door: door.name, why: failure.cause?.code ?? failure.message }) + maybe, { status: 4 });
+        if (!idempotent && requestKey) error.outcomeUnknown = true;
+        throw error;
+      }
       if (response.status === 401) throw refused();
       if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { door: door.name, route: new URL(door.mcp).pathname }), { status: 4 });
-      if (passing || !response.ok) throw new TrillionError(`${door.name} answered ${response.status}.${maybe}`, { status: 4 });
+      if (passing || !response.ok) {
+        const error = new TrillionError(`${door.name} answered ${response.status}.${maybe}`, { status: 4 });
+        if (!idempotent && requestKey && (response.status >= 500 || response.status === 408)) error.outcomeUnknown = true;
+        throw error;
+      }
       return response;
     }
   }
-  async function rpc(method, params, { idempotent = true } = {}) {
+  async function rpc(method, params, { idempotent = true, requestKey = null } = {}) {
     const id = (next += 1);
-    const response = await send(JSON.stringify({ jsonrpc: '2.0', id, method, params }), { idempotent });
+    const response = await send(JSON.stringify({ jsonrpc: '2.0', id, method, params }), { idempotent, requestKey });
     const text = await response.text();
     let reply;
     try { reply = repliesOf(text).find(item => item?.id === id); } catch { reply = null; }
-    if (!reply) throw new TrillionError(`${door.name} answered ${response.status} with no reply to ${method}.`, { status: 4 });
+    if (!reply) {
+      const error = new TrillionError(`${door.name} answered ${response.status} with no reply to ${method}.`, { status: 4 });
+      if (!idempotent && requestKey) error.outcomeUnknown = true;
+      throw error;
+    }
     if (reply.error) throw new TrillionError(reply.error.message ?? `${door.name} refused ${method}.`, { answer: reply.error });
     return reply.result;
   }
   async function tool(name, args, { idempotent = false } = {}) {
     for (let attempt = 0; ; attempt += 1) {
-      const result = await rpc('tools/call', { name, arguments: args }, { idempotent });
+      const requestKey = args?.request_key ?? null;
+      const result = await rpc('tools/call', { name, arguments: args }, { idempotent, requestKey });
       const answer = answerOf(result);
       if (!result?.isError) return answer;
       const error = answer?.error ?? {};
@@ -446,11 +554,18 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       // The engine names why in a code (structuredContent.code); its words say which door refused what.
       const code = answer?.code ?? error.code ?? null;
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code : null;
-      throw Object.assign(new TrillionError(error.message ?? answer?.text ?? (words ? fill(words, { door: door.name, code, tool: args?.input?.tool ?? name }) : `${name} was refused.`), { answer }), { code });
+      const refused = Object.assign(new TrillionError(error.message ?? answer?.text ?? (words ? fill(words, { door: door.name, code, tool: args?.input?.tool ?? name }) : `${name} was refused.`), { answer }), { code });
+      if (code === 'outcome_unknown') refused.outcomeUnknown = true;
+      throw refused;
     }
   }
-  const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
-    tool(rules.engine.tool, { address, method, request_key: requestKey, input }, { idempotent });
+  const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) => {
+    const key = requestKey;
+    return tool(rules.engine.tool, { address, method, request_key: key, input }, { idempotent }).catch(error => {
+      if (!idempotent && error.outcomeUnknown) throw retryAdvice(error, key);
+      throw error;
+    });
+  };
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } });
     const account = result?._meta?.[rules.engine.account_meta]?.account_id;
@@ -545,7 +660,7 @@ export function stateOf({ rules = settings, home = homedir() } = {}) {
     // Kept per agent and job, so a job is moved as the id that took it, and this AI's record can say what it is doing.
     hold(agentId, job) {
       const held = read(rules.held_file)?.held ?? {};
-      held[`${agentId} ${job.id}`] = { said: short(job.job ?? '', rules.agent_card.doing_chars) };
+      held[`${agentId} ${job.id}`] = { said: short(job.job ?? '', rules.agent_card.doing_chars), ...(job.taken_at ? { taken_at: job.taken_at } : {}) };
       write(rules.held_file, { held: Object.fromEntries(Object.entries(held).slice(-200)) });
     },
     letGo(agentId, jobId) {
@@ -702,7 +817,7 @@ export function render(command, answer, rules = settings) {
   if (command === 'send' && object(value.job)) return [fill(value.status === 'already-there' ? rules.words.sent_before : rules.words.sent, { id: value.job_id }), ...jobLines(value.job), ...(value.note ? [value.note] : [])].join('\n');
   if (command === 'take') return object(value.taken) ? [fill(rules.words.took, { id: value.taken.id }), ...jobLines(value.taken)].join('\n')
     : [value.reason === 'changed' ? fill(rules.words.take_lost, { id: value.job_id, taker: value.job?.taker ?? rules.words.another_ai }) : value.reason === 'gone' ? fill(rules.words.take_gone, { id: value.job_id }) : rules.words.nothing_to_take, ...(object(value.job) ? jobLines(value.job) : [])].join('\n');
-  if (Object.hasOwn(rules.work.actions, command) && typeof value.moved === 'boolean') return [value.moved ? fill(rules.words.moved, { id: value.job_id, from: value.from, to: value.to })
+  if ((command === 'finish' || Object.hasOwn(rules.work.actions, command)) && typeof value.moved === 'boolean') return [value.moved ? fill(rules.words.moved, { id: value.job_id, from: value.from, to: value.to })
     : fill(rules.words.not_moved, { id: value.job_id, reason: value.reason ?? 'refused' }), ...(object(value.job) ? jobLines(value.job) : [])].join('\n');
   if (command === 'publish' && object(value.record)) return fill(rules.words.published, { id: value.record.id });
   if (typeof value.text === 'string' && Object.keys(value).length === 1) return value.text;
@@ -728,14 +843,27 @@ export async function waitFor(check, { seconds, pollSeconds = settings.wait.poll
 /** Runs `command` with the job's words on standard input; answers { ok, output }. */
 export function runJob(command, job, { rules = settings, me, spawnImpl = spawn } = {}) {
   return new Promise(resolve => {
-    const child = spawnImpl(command[0], command.slice(1), { stdio: ['pipe', 'pipe', 'pipe'],
+    const launch = (program, args, options) => spawnImpl(program, args, { ...options,
+      env: { ...options.env, AI_JOB_CONTEXT: JSON.stringify({ taken_at: job.taken_at, outcome: job.outcome,
+        obligations: job.obligations, acceptance: job.acceptance, source_job: job.source_job ?? job.source,
+        continuation: job.continuation }) } });
+    const child = launch(command[0], command.slice(1), { stdio: ['pipe', 'pipe', 'pipe'],
       env: { ...process.env, TRILLION_JOB_ID: job.id, TRILLION_AGENT: me.agent_id } });
     let output = '', errors = '';
     const timer = setTimeout(() => child.kill('SIGTERM'), rules.serve.run_timeout_minutes * 60_000);
     child.stdout.on('data', chunk => { output = (output + chunk).slice(-rules.serve.result_chars); });
     child.stderr.on('data', chunk => { errors = (errors + chunk).slice(-2000); });
     child.on('error', error => { clearTimeout(timer); resolve({ ok: false, output: `${command[0]} could not start: ${error.message}` }); });
-    child.on('close', code => { clearTimeout(timer); resolve(code === 0 ? { ok: true, output: output.trim() || '(the command printed nothing)' } : { ok: false, output: (errors || output).trim().slice(-500) || `${command[0]} stopped with ${code}.` }); });
+    child.on('close', code => {
+      clearTimeout(timer);
+      const words = output.trim() || '(the command printed nothing)';
+      if (code !== 0) return resolve({ ok: false, output: (errors || output).trim().slice(-500) || `${command[0]} stopped with ${code}.` });
+      try {
+        const envelope = JSON.parse(words);
+        if (object(envelope) && typeof envelope.result === 'string' && object(envelope.check)) return resolve({ ok: true, output: envelope.result, check: envelope.check });
+      } catch { /* plain output carries no check receipt */ }
+      resolve({ ok: true, output: words });
+    });
     child.stdin.on('error', () => {});
     child.stdin.end(`${job.job}\n`);
   });
@@ -751,11 +879,22 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
   state.hold(me.agent_id, job);
   log({ event: 'took', job_id: job.id });
   await refresh();
-  const { ok, output, stuck = null } = await runImpl(command, job, { rules, me, client });
-  const [action, extra] = stuck ? ['stuck', { words: stuck }] : ok ? ['finish', { result: output, summary: output.split('\n')[0].slice(0, 300) }] : ['release', { because: output }];
-  const moved = await workCall(client, 'change', { as: me.ai_id, id: job.id, action: rules.work.actions[action], ...extra }, { rules });
-  // A job that says what is in the way stays taken (an AG-UI agent's interrupt); any other move ends this AI's hold.
-  if (!stuck) state.letGo(me.agent_id, job.id);
+  const { ok, output = '', stuck = null, check } = await runImpl(command, job, { rules, me, client });
+  const continuation = (reason, action = 'Inspect the existing consumer result and requested outcome before deciding whether to execute anything again') => ({ owner: me.ai_id, action, after: new Date(Date.now() + 15 * 60_000).toISOString(), reason });
+  const checked = checkForJob(check, job);
+  let action, extra;
+  if (stuck) { action = 'wait'; extra = { continuation: continuation(stuck, 'Resolve the stated blocker, then inspect the consumer result before deciding whether to continue') }; }
+  else if (ok && checked) { action = 'finish'; extra = { result: output, summary: output.split('\n')[0].slice(0, 300), check: { ...check, target: job.acceptance.target } }; }
+  else {
+    action = 'wait';
+    const because = !job.acceptance ? 'This job has no saved consumer acceptance, so its requested outcome cannot be checked yet.' : ok ? 'The command returned successfully but supplied no complete consumer check receipt.' : (output || 'The command did not complete; partial effects are unknown.');
+    extra = { continuation: continuation(because, !job.acceptance ? 'Ask the sender to add a saved consumer acceptance, then inspect existing consumer state before deciding whether to continue' : undefined) };
+  }
+  const input = action === 'finish'
+    ? { as: me.ai_id, id: job.id, taken_at: job.taken_at, result: extra.result, summary: extra.summary, check: extra.check }
+    : { as: me.ai_id, id: job.id, taken_at: job.taken_at, action: rules.work.actions[action], ...extra };
+  const moved = await workCall(client, action === 'finish' ? 'finish' : 'change', input, { rules });
+  state.letGo(me.agent_id, job.id);
   await refresh();
   log({ event: moved?.moved === false ? `not_${action}` : action, job_id: job.id, ...(moved?.moved === false ? { reason: moved.reason } : {}) });
   return true;
@@ -765,27 +904,34 @@ export async function serveOnce({ client, me, command, state, rules = settings, 
 
 const HELP = `trillion: see your AIs and their work, and run your Trillion's tools, from any shell.
 
-  trillion setup [--harness claude-code,codex,cursor]   sign in once, put trillion on PATH, write each app's skill
-  trillion login | logout | whoami                       this computer's credential, the account and the door it reaches
-  trillion connection [--write]                          the address and key source local bridges read, with a command per app
-  trillion who [--all]                                   your AIs seen lately (--all: every one): ready or away
-  trillion publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
-  trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
-  trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation)
-  trillion update                                        who updates this command (it never updates itself)
+  ${basename(settings.install.link)} setup [--harness claude-code,codex,cursor]   sign in once, put the command on PATH, write each app's skill
+  ${basename(settings.install.link)} login | logout | whoami                       this computer's credential, the account and the door it reaches
+  ${basename(settings.install.link)} connection [--write]                          the address and key source local bridges read, with a command per app
+  ${basename(settings.install.link)} who [--all]                                   your AIs seen lately (--all: every one): ready or away
+  ${basename(settings.install.link)} publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
+  ${basename(settings.install.link)} tools | call TOOL JSON|- [--request-key KEY] your Workshop tools, and run one by its id
+  ${basename(settings.install.link)} op ADDRESS METHOD JSON|- [--request-key KEY] any engine operation (run_resource_operation)
+  ${basename(settings.install.link)} update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
   ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
 
   AI jobs (each runs the Workshop work tool trillion.json names for it):
-  trillion work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
-  trillion events ID                                     one job's versions, newest first
-  trillion send any "JOB" | send AI "JOB"                hand off a job (--wait SECONDS, --priority 0-9, --outcome "DONE WHEN", --label)
-  trillion take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
-  trillion finish ID "RESULT" | fail ID "WHY"            record what came of a job you took
-  trillion stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
-  trillion release ID [--because WHY]                    give a job back
-  trillion withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
-  trillion serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
+  ${basename(settings.install.link)} work [ID] [--status S --to AI --from AI --taker AI --limit N]   the newest jobs, or one with its result
+  ${basename(settings.install.link)} events ID                                     one job's versions, newest first
+  ${basename(settings.install.link)} send any "JOB" | send AI "JOB"                hand off a job (--acceptance-file JSON, --source-file JSON, --obligations-file JSON, --wait SECONDS, --priority 0-9, --label)
+  ${basename(settings.install.link)} take [ID] [--mine]                            take the oldest waiting job you may take (or that one)
+  ${basename(settings.install.link)} finish ID "RESULT" --check-file JSON           finish only after the saved consumer acceptance is checked (--taken-at only if the saved take record is missing)
+  ${basename(settings.install.link)} fail ID "WHY"                                  record an unsuccessful terminal result
+  ${basename(settings.install.link)} stuck ID "WORDS" | stuck ID --clear           say what is in the way, or that nothing is now
+  ${basename(settings.install.link)} release ID [--because WHY] [--continuation-file JSON] give a job back with an owned next step
+  ${basename(settings.install.link)} wait ID --continuation-file JSON               block on a bounded next step; resume it when due
+  ${basename(settings.install.link)} resume ID --because "WHAT CHANGED"             resume after reviewing existing effects and the dependency
+  ${basename(settings.install.link)} plan ID --acceptance-file JSON                 save the consumer outcome and rules for work you took (--taken-at if needed)
+  ${basename(settings.install.link)} edit ID [--job WORDS --outcome TEXT --label TEXT --source-file JSON --obligations-file JSON --to AI|any --priority 0-9] edit a job you sent
+  ${basename(settings.install.link)} withdraw ID --reason "WHY" | remove ID        take back a job you sent; delete a finished one
+  ${basename(settings.install.link)} serve -- COMMAND ARGS | serve --ag-ui URL     stay ready: run COMMAND (or an AG-UI agent) for each job taken
+
+  --request-key KEY retries the same engine operation; reusing it with changed input is refused.
 
   AI ids are ai:NAME (the ai: may be left off); job ids are ai-job:KEY. --as AI acts as another AI id (default: from
   TRILLION_AGENT or the AI running this). --json prints the answer.`;
@@ -890,7 +1036,7 @@ async function logout(context) {
 
 async function serve(context) {
   const agUi = context.flags['ag-ui'] ?? null;
-  if (!context.rest.length && !agUi) throw new TrillionError('Say what runs each job: trillion serve -- COMMAND ARGS (the job arrives on its standard input), or trillion serve --ag-ui URL (an AG-UI agent).', { status: 2 });
+  if (!context.rest.length && !agUi) throw new TrillionError(`Say what runs each job: ${basename(settings.install.link)} serve -- COMMAND ARGS (the job arrives on its standard input), or ${basename(settings.install.link)} serve --ag-ui URL (an AG-UI agent).`, { status: 2 });
   if (agUi && !/^https?:\/\//.test(agUi)) throw new TrillionError('--ag-ui is the address of an AG-UI agent, starting http:// or https://.', { status: 2 });
   // An AG-UI agent keeps one thread per job: the job's id is its thread.
   const runImpl = agUi ? (_command, job, options) => runOnAgUi(agUi, { ...job, handoff_id: job.id }, { ...options, fetchImpl: context.fetchImpl }) : runJob;
@@ -955,6 +1101,11 @@ export async function main(argv, seams = {}) {
   const parsed = parseArgs(argv);
   const [command = 'help', ...words] = parsed.words;
   const flags = parsed.flags;
+  if (flags['request-key'] !== undefined && command !== 'op' && command !== 'call' && !WORK_COMMANDS.has(command))
+    throw new TrillionError('--request-key is for op, call, or an AI-job command.', { status: 2 });
+  // One stable key is both the engine retry key and, for a send without --key, its generated job key.
+  // This makes the command printed after an unknown result sufficient to replay the exact request.
+  const requestKey = requestKeyOf(flags['request-key']) ?? randomUUID();
   const env = seams.env ?? process.env;
   const asked = (flags.origin ?? env.TRILLION_ORIGIN)?.replace(/\/$/, '') || null;
   const context = { asked, flags, env, rest: parsed.rest, fetchImpl: seams.fetchImpl ?? fetch, wait: seams.wait ?? pause,
@@ -987,12 +1138,24 @@ export async function main(argv, seams = {}) {
   if (command === 'serve') return serve(context);
   if (!WORK_COMMANDS.has(command) && !['whoami', 'tools', 'call', 'op', 'who', 'events', 'publish'].includes(command)) throw new TrillionError(`Unknown command ${command}. Run trillion help.`, { status: 2 });
   // A work command's words are checked before anything is sent.
-  const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held() }) : null;
+  const call = WORK_COMMANDS.has(command) ? argumentsFor(command, { words, flags }, { me: context.me, held: context.state.held(), requestKey }) : null;
   const client = await signedInClient(context);
   if (call) {
-    let answer = await workCall(client, call.work, call.input);
+    if (['finish', 'fail', 'release', 'stuck', 'wait', 'plan'].includes(command)) {
+      const current = await workCall(client, 'see', { id: call.input.id }, { idempotent: true });
+      const heldAs = holderOf(context.me, context.state.held(), call.input.id);
+      const held = context.state.held()[`${heldAs} ${call.input.id}`];
+      call.input.taken_at ??= held?.taken_at;
+      if (!call.input.taken_at) throw new TrillionError(`This computer did not keep the timestamp of this take. Pass --taken-at with the timestamp you received from ${basename(settings.install.link)} take; it will not adopt a newer take.`, { status: 2 });
+      if (command === 'finish') {
+        const acceptance = current?.jobs?.[0]?.acceptance;
+        if (!acceptance) throw new TrillionError('This job has no saved consumer acceptance yet; ask its sender to add one before finishing.', { status: 2 });
+        call.input.check.target = acceptance.target;
+      }
+    }
+    let answer = await workCall(client, call.work, call.input, { requestKey });
     if (command === 'take' && object(answer?.taken)) context.state.hold(context.me.agent_id, answer.taken);
-    if (['finish', 'fail', 'release', 'withdraw', 'remove'].includes(command) && answer?.moved) context.state.letGo(holderOf(context.me, context.state.held(), call.input.id), call.input.id);
+    if (['finish', 'fail', 'release', 'wait', 'withdraw', 'remove'].includes(command) && answer?.moved) context.state.letGo(holderOf(context.me, context.state.held(), call.input.id), call.input.id);
     // What this AI holds changed, or it just sent work: its record says so (the move already stands, so a refusal is a note).
     if (settings.work.publish_after.includes(command)) {
       const note = await ensurePublished(client, context);
@@ -1025,12 +1188,12 @@ export async function main(argv, seams = {}) {
   if (command === 'tools') return print('tools', { tools: await allPages(client, engine.tools, engine.tools_list, {}, 'tools') });
   if (command === 'call') {
     const tool = need(words[0], 'Name the tool: trillion call TOOL JSON, with an id from trillion tools.');
-    return JSON.stringify(await client.op(engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }), null, 2);
+    return JSON.stringify(await client.op(engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }, { requestKey }), null, 2);
   }
   if (command === 'op') {
     const address = need(words[0], 'Name the address: trillion op ADDRESS METHOD JSON, for example trillion op @own-records records:read \'{"id":"..."}\'.');
     const method = need(words[1], 'Name the method: trillion op ADDRESS METHOD JSON.');
-    return JSON.stringify(await client.op(address, method, await readJson(words[2], '{"id": "..."}')), null, 2);
+    return JSON.stringify(await client.op(address, method, await readJson(words[2], '{"id": "..."}'), { requestKey }), null, 2);
   }
   if (command === 'who') {
     const now = Date.now();

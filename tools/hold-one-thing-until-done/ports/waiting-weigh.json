@@ -30,7 +30,8 @@
   "every decision of the source: which waiting things are the person's, what goes to the AIs once per card, and the nudge's rungs, keys and board"
  ],
  "allowed_deltas": [
-  "import path: controlOf is this folder's own read-data/needs-you-hold.mjs, where old trillion imported it from the trillion-workshop package"
+  "import path: controlOf is this folder's own read-data/needs-you-hold.mjs, where the previous caller imported it from the shared package",
+  "2026-11-07: pass row.section to controlOf, preserving a section's finish and batch controls rather than incorrectly treating the {section,cards} wrapper as a section"
  ],
  "banned_substitutions": [
   "a rewrite of the moved decisions",

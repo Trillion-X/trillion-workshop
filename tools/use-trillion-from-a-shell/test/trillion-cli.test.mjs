@@ -17,6 +17,7 @@ const ACCOUNT = 'f'.repeat(64);
 const me = { agent_id: 'claude-code-on-mac', ai_id: 'ai:claude-code-on-mac', held_as: [], harness: 'Claude Code', app: 'Claude Code', model: null, provider: 'Anthropic', computer: 'Mac' };
 const place = () => ({ repository: 'trillion', branch: 'main' });
 const home = () => mkdtempSync(join(tmpdir(), 'trillion-cli-test-'));
+const checkFile = () => { const file = join(home(), 'check.json'); writeFileSync(file, JSON.stringify({ outcome: 'done when', checked_at: '2026-11-07T12:00:00Z', evidence: [{ ref: 'consumer://result', observation: 'The consumer shows the requested state.' }], obligations: [] })); return file; };
 const quick = { ...settings, retry_seconds: [0, 0, 0] };
 const noWait = async () => {};
 const noGrants = { where: 'test sign-in', read: () => null, write: () => {}, forget: () => {} };
@@ -74,22 +75,47 @@ test('each work command is one row of the work table, with the input its Worksho
     { as: me.ai_id, job: 'review', key: 'k1', to: 'ai:codex-on-mac', priority: 5, outcome: 'tests pass', label: 'Review' });
   assert.equal(call(['send', 'ai:codex-on-mac', 'x']).input.to, 'ai:codex-on-mac', 'an id that is already an ai id is kept');
   assert.equal(call(['send', 'any', 'x', '--key', 'mine']).input.key, 'mine');
+  assert.throws(() => call(['finish', 'ai-job:1', 'done']), /consumer check receipt/);
+  const checkDir = home();
+  const checkPath = join(checkDir, 'check.json');
+  writeFileSync(checkPath, JSON.stringify({ outcome: 'done when', checked_at: '2026-11-07T12:00:00Z', evidence: [{ ref: 'consumer://result', observation: 'The consumer shows the requested state.' }], obligations: [] }));
+  assert.deepEqual(call(['finish', 'ai-job:1', 'done.', '--check-file', checkPath]).input,
+    { as: me.ai_id, id: 'ai-job:1', result: 'done.', check: JSON.parse(readFileSync(checkPath, 'utf8')), summary: 'done.' });
+  assert.throws(() => call(['finish', 'ai-job:1', 'done', '--check-file', checkDir]), /Could not read check JSON/);
   assert.throws(() => call(['send', 'any']), /Say the job/);
   assert.deepEqual(call(['work']), { work: 'see', input: { limit: settings.work_list_limit } });
   assert.deepEqual(call(['work', 'ai-job:1']), { work: 'see', input: { id: 'ai-job:1' } });
   assert.deepEqual(call(['work', '--status', 'waiting', '--to', 'codex', '--limit', '5']).input, { status: 'waiting', to: 'ai:codex', limit: 5 });
   assert.deepEqual(call(['take']), { work: 'take', input: { as: me.ai_id } });
   assert.deepEqual(call(['take', 'ai-job:1', '--mine']).input, { as: me.ai_id, id: 'ai-job:1', only_mine: true });
-  assert.deepEqual(call(['finish', 'ai-job:1', 'done.', 'All', 'green.']), { work: 'change', input: { as: me.ai_id, id: 'ai-job:1', action: 'finish', result: 'done. All green.', summary: 'done. All green.' } });
+  const finishFile = checkFile();
+  assert.deepEqual(call(['finish', 'ai-job:1', 'done.', 'All', 'green.', '--check-file', finishFile]), { work: 'finish', input: { as: me.ai_id, id: 'ai-job:1', result: 'done. All green.', check: JSON.parse(readFileSync(finishFile, 'utf8')), summary: 'done. All green.' } });
   assert.deepEqual(call(['fail', 'ai-job:1', 'no', 'access']).input, { as: me.ai_id, id: 'ai-job:1', action: 'fail', result: 'no access' });
   assert.deepEqual(call(['stuck', 'ai-job:1', '--clear']).input, { as: me.ai_id, id: 'ai-job:1', action: 'unstuck' });
   assert.deepEqual(call(['stuck', 'ai-job:1', 'needs', 'a', 'sign-in']).input, { as: me.ai_id, id: 'ai-job:1', action: 'stuck', words: 'needs a sign-in' });
   assert.deepEqual(call(['release', 'ai-job:1', '--because', 'busy']).input, { as: me.ai_id, id: 'ai-job:1', action: 'release', because: 'busy' });
+  assert.deepEqual(call(['wait', 'ai-job:1', '--continuation-file', (() => { const f = join(checkDir, 'continuation.json'); writeFileSync(f, JSON.stringify({ owner: me.ai_id, action: 'retry', after: '2026-11-07T13:00:00Z', reason: 'Waiting for input.' })); return f; })()]).input,
+    { as: me.ai_id, id: 'ai-job:1', action: 'wait', continuation: { owner: me.ai_id, action: 'retry', after: '2026-11-07T13:00:00Z', reason: 'Waiting for input.' } });
+  assert.deepEqual(call(['resume', 'ai-job:1', '--because', 'Dependency and retained effects reviewed']).input, { as: me.ai_id, id: 'ai-job:1', action: 'resume', because: 'Dependency and retained effects reviewed' });
+  const sourceFile = join(checkDir, 'source.json');
+  const obligationsFile = join(checkDir, 'obligations.json');
+  const acceptanceFile = join(checkDir, 'acceptance.json');
+  writeFileSync(sourceFile, JSON.stringify({ kind: 'repository', ref: 'repo@commit:path' }));
+  writeFileSync(obligationsFile, JSON.stringify([{ id: 'build', outcome: 'Build passes' }]));
+  writeFileSync(acceptanceFile, JSON.stringify({ outcome: 'Build is visible', target: { type: 'dashboard', id: 'board:build' }, rules: [{ id: 'outcome', path: '$.value.status', equals: 'visible' }] }));
+  assert.deepEqual(call(['send', 'any', 'Build it', '--source-file', sourceFile, '--obligations-file', obligationsFile]).input,
+    { as: me.ai_id, job: 'Build it', key: 'k1', to: null, source: { kind: 'repository', ref: 'repo@commit:path' }, obligations: [{ id: 'build', outcome: 'Build passes' }] });
+  assert.deepEqual(call(['edit', 'ai-job:1', '--outcome', 'Build passes', '--priority', '8']).input,
+    { as: me.ai_id, id: 'ai-job:1', action: 'edit', outcome: 'Build passes', priority: 8 });
+  assert.deepEqual(call(['send', 'any', 'Show the build', '--acceptance-file', acceptanceFile]).input.acceptance, JSON.parse(readFileSync(acceptanceFile, 'utf8')));
+  assert.deepEqual(call(['plan', 'ai-job:1', '--acceptance-file', acceptanceFile]).input,
+    { as: me.ai_id, id: 'ai-job:1', action: 'plan', acceptance: JSON.parse(readFileSync(acceptanceFile, 'utf8')) });
+  assert.throws(() => call(['edit', 'ai-job:1']), /at least one field/);
   assert.throws(() => call(['withdraw', 'ai-job:1']), /--reason/);
   assert.deepEqual(call(['withdraw', 'ai-job:1', '--reason', 'not needed']).input, { as: me.ai_id, id: 'ai-job:1', action: 'withdraw', because: 'not needed' });
   assert.deepEqual(call(['remove', 'ai-job:1']).input, { as: me.ai_id, id: 'ai-job:1', action: 'remove' });
   assert.throws(() => call(['dance']), error => error instanceof TrillionError && error.status === 2);
-  assert.deepEqual(Object.values(settings.work.tools).sort(), ['tool:change-an-ai-job', 'tool:hand-a-job-to-an-ai', 'tool:see-ai-work', 'tool:see-my-ais', 'tool:take-an-ai-job']);
+  assert.deepEqual(Object.values(settings.work.tools).sort(), ['tool:change-an-ai-job', 'tool:finish-an-ai-job', 'tool:hand-a-job-to-an-ai', 'tool:see-ai-work', 'tool:see-my-ais', 'tool:take-an-ai-job']);
 });
 
 test('the agent id comes from --as, TRILLION_AGENT, or the AI app running the command', () => {
@@ -146,11 +172,11 @@ test('a job taken under the computer id before the upgrade is moved as that id',
   const session = { ...me, agent_id: 'claude-code-7d2e6f4a9b10-on-mac', ai_id: 'ai:claude-code-7d2e6f4a9b10-on-mac', held_as: ['claude-code-on-mac'] };
   const call = (line, held) => argumentsFor(line[0], parseArgs(line.slice(1)), { me: session, held });
   const old = { 'claude-code-on-mac ai-job:old': { said: '' } }, both = { ...old, 'claude-code-7d2e6f4a9b10-on-mac ai-job:new': { said: 'Fix the build' } };
-  assert.equal(call(['finish', 'ai-job:old', 'done'], old).input.as, 'ai:claude-code-on-mac');
+  assert.equal(argumentsFor('finish', { words: ['ai-job:old', 'done'], flags: { 'check-file': checkFile() } }, { me: session, held: old }).input.as, 'ai:claude-code-on-mac');
   assert.equal(call(['release', 'ai-job:old'], old).input.as, 'ai:claude-code-on-mac');
   assert.equal(call(['stuck', 'ai-job:old', 'a', 'sign-in'], old).input.as, 'ai:claude-code-on-mac');
-  assert.equal(call(['finish', 'ai-job:new', 'done'], both).input.as, session.ai_id);
-  assert.equal(call(['finish', 'ai-job:other', 'done'], both).input.as, session.ai_id, 'a job held nowhere here is this session\'s');
+  assert.equal(argumentsFor('finish', { words: ['ai-job:new', 'done'], flags: { 'check-file': checkFile() } }, { me: session, held: both }).input.as, session.ai_id);
+  assert.equal(argumentsFor('finish', { words: ['ai-job:other', 'done'], flags: { 'check-file': checkFile() } }, { me: session, held: both }).input.as, session.ai_id, 'a job held nowhere here is this session\'s');
   assert.equal(call(['take'], both).input.as, session.ai_id, 'new work is always taken as this session');
   assert.deepEqual(holdingOf(session, { ...both, 'codex-on-mac ai-job:x': { said: '' } }), [{ id: 'ai-job:old', said: '' }, { id: 'ai-job:new', said: 'Fix the build' }]);
 });
@@ -281,6 +307,52 @@ test('the engine road: replies in JSON or events, one request key on every retry
   await assert.rejects(gone.whoami(), error => error.status === 4 && /could not be reached/.test(error.message) && !/log ?in/i.test(error.message));
 });
 
+test('ambiguous op and call outcomes print the original retry key; exact retries reuse it and changed input remains refused', async () => {
+  const operations = new Map();
+  let unknownResponses = settings.retry_seconds.length + 1;
+  const fake = await fakeDoor({ ops: {
+    '@own-records records:write': (_input, args) => {
+      const signature = JSON.stringify({ address: args.address, method: args.method, input: args.input });
+      const previous = operations.get(args.request_key);
+      if (previous && previous.signature !== signature) return { code: 'original_command_conflict' };
+      const answer = previous?.answer ?? { changed: true, write_count: 1 };
+      if (!previous) operations.set(args.request_key, { signature, answer });
+      if (unknownResponses > 0) { unknownResponses -= 1; return { status: 503 }; }
+      return answer;
+    },
+    '@workshop-tools tools:run': (_input, args) => ({ tool: args.input.tool, ran: true }),
+  } });
+  try {
+    const seams = seamsFor(home(), { localDoor: () => fake.mcp, wait: noWait });
+    const key = 'retry-2026-11-07-a';
+    const write = ['op', '@own-records', 'records:write', '{"records":[{"id":"note:1","value":{"text":"safe"}}]}', '--request-key', key];
+    await assert.rejects(main(write, seams), error => error.message.includes(`Retry the exact request with --request-key ${key}.`)
+      && !error.message.includes('safe') && !error.message.includes(KEY));
+    assert.deepEqual(JSON.parse(await main(write, seams)), { changed: true, write_count: 1 }, 'a retry returns the result saved by the owner');
+    assert.deepEqual(fake.calls.filter(call => call.method === 'records:write').map(call => call.request_key), Array(settings.retry_seconds.length + 2).fill(key));
+    await assert.rejects(main(['op', '@own-records', 'records:write', '{"records":[{"id":"note:1","value":{"text":"changed"}}]}', '--request-key', key], seams),
+      error => error.code === 'original_command_conflict' && !error.message.includes('--request-key'));
+    const callKey = 'retry-call-2026-11-07';
+    assert.deepEqual(JSON.parse(await main(['call', 'tool:example', '{"x":1}', '--request-key', callKey], seams)), { tool: 'tool:example', ran: true });
+    assert.equal(fake.calls.at(-1).request_key, callKey, 'call also accepts the explicit retry key');
+    await assert.rejects(main(['op', '@own-records', 'records:write', '{}', '--request-key', 'bad key'], seams), /--request-key must be/);
+  } finally { await fake.close(); }
+
+  let pending = true;
+  const unknown = await fakeDoor({ ops: { '@own-records records:write': () => {
+    if (pending) { pending = false; return { code: 'outcome_unknown' }; }
+    return { changed: true };
+  } } });
+  try {
+    const seams = seamsFor(home(), { localDoor: () => unknown.mcp, wait: noWait });
+    const key = 'retry-unknown-outcome';
+    const request = ['op', '@own-records', 'records:write', '{"records":[]}', '--request-key', key];
+    await assert.rejects(main(request, seams), error => error.code === 'outcome_unknown' && error.message.includes(`--request-key ${key}.`));
+    assert.deepEqual(JSON.parse(await main(request, seams)), { changed: true });
+    assert.deepEqual(unknown.calls.map(call => call.request_key), [key, key]);
+  } finally { await unknown.close(); }
+});
+
 test('whoami: the account from MCP initialize, this AI\'s id and facts, and the door that answered', async () => {
   const fake = await fakeDoor();
   try {
@@ -301,6 +373,8 @@ test('tools: every page of the Workshop list until next is null, and a pager tha
   } });
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
+    const checkedPath = join(home(), 'check.json');
+    writeFileSync(checkedPath, JSON.stringify({ outcome: 'Fix the build', checked_at: new Date().toISOString(), evidence: [{ ref: 'consumer://build', observation: 'The consumer shows the build passing.' }] }));
     assert.equal(await main(['tools'], seams), 'tool:a  Does a\ntool:b  Does b\ntool:c  Does c');
     assert.deepEqual(fake.calls.filter(call => call.method === 'tools:list').map(call => call.input), [{}, { after: 'p2' }, { after: 'p3' }]);
     assert.deepEqual(JSON.parse(await main(['call', 'tool:b', '{"x":1}'], seams)), { ran: 'tool:b', with: { x: 1 } });
@@ -374,17 +448,20 @@ test('who: the AIs tool:see-my-ais answers, named by the list:ais formula in one
   } finally { await bare.close(); }
 });
 
-test('send, work, take and every move are one Workshop work tool each; a job another AI moved first is shown, never retried', async () => {
-  const job = { id: 'ai-job:k1', status: 'waiting', job: 'Fix the build', from: 'ai:claude-code-on-mac', to: null };
+test('send, work, take and moves use Workshop tools; finish reads the accepted consumer through its scoped tool', async () => {
+  const acceptance = { outcome: 'Build is visible', target: { type: 'dashboard', id: 'board:build' }, rules: [{ id: 'outcome', path: '$.value.status', equals: 'visible' }] };
+  const job = { id: 'ai-job:k1', status: 'waiting', job: 'Fix the build', outcome: acceptance.outcome, acceptance, from: 'ai:claude-code-on-mac', to: null, taken_at: '2026-11-07T11:00:00Z' };
   const writes = [];
   let race = false;
   const tools = {
-    'tool:hand-a-job-to-an-ai': input => ({ job_id: `ai-job:${input.key}`, status: 'written', job: { ...job, id: `ai-job:${input.key}`, job: input.job, to: input.to } }),
-    'tool:see-ai-work': input => (input.id ? { jobs: [{ ...job, id: input.id, status: 'done', result: 'Built.' }], more: false } : { jobs: [job], more: true }),
+    'tool:hand-a-job-to-an-ai': input => ({ job_id: `ai-job:${input.key}`, status: 'written', job: { ...job, id: `ai-job:${input.key}`, job: input.job, to: input.to, acceptance: input.acceptance } }),
+    'tool:see-ai-work': input => (input.id ? { jobs: [{ ...job, id: input.id, status: 'done', taken_at: '2026-11-07T12:00:00Z', result: 'Built.' }], more: false } : { jobs: [job], more: true }),
     'tool:take-an-ai-job': input => (race ? { taken: null, tried: 1, job_id: 'ai-job:k1', reason: 'changed', job: { ...job, status: 'taken', taker: 'ai:codex-on-mac' } }
       : { taken: { ...job, status: 'taken', taker: input.as }, tried: 1 }),
     'tool:change-an-ai-job': input => (race ? { job_id: input.id, moved: false, from: 'taken', to: null, reason: 'changed', job: { ...job, status: 'done', taker: 'ai:codex-on-mac' } }
-      : { job_id: input.id, moved: true, from: 'taken', to: input.action === 'finish' ? 'done' : 'waiting', job: { ...job, status: 'done', result: input.result } }),
+      : { job_id: input.id, moved: true, from: 'taken', to: 'waiting', job: { ...job, status: 'waiting' } }),
+    'tool:finish-an-ai-job': input => (race ? { job_id: input.id, moved: false, from: 'taken', to: null, reason: 'changed', job: { ...job, status: 'done', taker: 'ai:codex-on-mac' } }
+      : { job_id: input.id, moved: true, from: 'taken', to: 'done', job: { ...job, status: 'done', result: input.result, check: input.check } }),
   };
   const fake = await fakeDoor({ ops: {
     '@workshop-tools tools:run': input => ran(tools[input.tool](input.input)),
@@ -393,9 +470,13 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
   } });
   try {
     const seams = seamsFor(home(), { localDoor: () => fake.mcp });
-    const sent = await main(['send', 'any', 'Fix', 'the', 'build', '--key', 'k1'], seams);
+    const checkedPath = checkFile();
+    writeFileSync(checkedPath, JSON.stringify({ outcome: acceptance.outcome, checked_at: new Date().toISOString(), evidence: [{ ref: 'consumer://board', observation: 'The consumer shows the build as visible.' }], obligations: [] }));
+    const acceptancePath = join(home(), 'acceptance.json');
+    writeFileSync(acceptancePath, JSON.stringify(acceptance));
+    const sent = await main(['send', 'any', 'Fix', 'the', 'build', '--key', 'k1', '--acceptance-file', acceptancePath], seams);
     assert.match(sent, /^Sent ai-job:k1\.\nai-job:k1 {2}waiting {2}for any AI {2}from ai:claude-code-on-mac\n {2}job: Fix the build\nAny of your AIs can take it\./);
-    assert.deepEqual(fake.calls.find(call => call.method === 'tools:run').input, { tool: 'tool:hand-a-job-to-an-ai', input: { as: `ai:claude-code-on-${computerOf()}`, job: 'Fix the build', key: 'k1', to: null } });
+    assert.deepEqual(fake.calls.find(call => call.method === 'tools:run').input, { tool: 'tool:hand-a-job-to-an-ai', input: { as: `ai:claude-code-on-${computerOf()}`, job: 'Fix the build', key: 'k1', to: null, outcome: acceptance.outcome, acceptance } });
     assert.equal(writes.length, 1, 'sending writes this AI\'s own record once');
     assert.deepEqual([writes[0].id, writes[0].expected, writes[0].value.owner], [`ai:claude-code-on-${computerOf()}`, null, ACCOUNT], 'a new record is written on condition it is absent, its owner the door\'s account');
     assert.equal(await main(['work'], seams), `ai-job:k1  waiting  for any AI  from ai:claude-code-on-mac\n  job: Fix the build\n${settings.words.more_jobs}`);
@@ -403,16 +484,23 @@ test('send, work, take and every move are one Workshop work tool each; a job ano
     assert.match(await main(['take'], seams), /^Took ai-job:k1\.\nai-job:k1 {2}taken {2}taken by ai:claude-code-on-/);
     assert.deepEqual(Object.keys(seams.state.held()), [`claude-code-on-${computerOf()} ai-job:k1`], 'the job taken is held here');
     assert.equal(writes.at(-1).value.working_on, 'Fix the build', 'this AI\'s record says what it is working on');
-    assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1: taken -> done\./);
+    seams.state.letGo(`claude-code-on-${computerOf()}`, 'ai-job:k1');
+    await assert.rejects(main(['finish', 'ai-job:k1', 'Built.', '--check-file', checkedPath], seams), /did not keep the timestamp/);
+    seams.state.hold(`claude-code-on-${computerOf()}`, { ...job, status: 'taken' });
+    assert.match(await main(['finish', 'ai-job:k1', 'Built.', '--check-file', checkedPath], seams), /^ai-job:k1: taken -> done\./);
+    const finishCall = fake.calls.filter(call => call.method === 'tools:run').map(call => call.input).find(call => call.tool === 'tool:finish-an-ai-job');
+    assert.deepEqual(finishCall.input.check.target, acceptance.target, 'the finish tool reads the exact saved consumer target');
+    assert.equal(finishCall.input.taken_at, job.taken_at, 'the CLI uses the take timestamp it originally saved, not the newer current take');
     assert.deepEqual(seams.state.held(), {}, 'a finished job is let go');
     assert.equal(writes.at(-1).value.working_on, null);
     const sentWithWait = await main(['send', 'any', 'x', '--key', 'k2', '--wait', '5'], seams);
     assert.match(sentWithWait, /^ai-job:k2 {2}done/, '--wait reads the job with tool:see-ai-work until it is finished');
     race = true;
     assert.match(await main(['take'], seams), /^Another AI \(ai:codex-on-mac\) moved ai-job:k1 first\.\nai-job:k1 {2}taken {2}taken by ai:codex-on-mac/);
-    assert.match(await main(['finish', 'ai-job:k1', 'Built.'], seams), /^ai-job:k1 was not moved \(changed\); here it is as it now is\.\nai-job:k1 {2}done/);
-    const changes = fake.calls.filter(call => call.input?.tool === 'tool:change-an-ai-job');
-    assert.equal(changes.length, 2, 'a move another AI made first is reported, never tried again');
+    seams.state.hold(`claude-code-on-${computerOf()}`, { ...job, id: 'ai-job:k1' });
+    assert.match(await main(['finish', 'ai-job:k1', 'Built.', '--check-file', checkedPath], seams), /^ai-job:k1 was not moved \(changed\); here it is as it now is\.\nai-job:k1 {2}done/);
+    const finishes = fake.calls.filter(call => call.input?.tool === 'tool:finish-an-ai-job');
+    assert.equal(finishes.length, 2, 'a refused finish is reported, never retried blindly');
   } finally { await fake.close(); }
 });
 
@@ -453,17 +541,24 @@ test('publish: this AI\'s own record, written on condition of the value just rea
   assert.equal(client.tries, 3);
 });
 
-test('serve: a job taken is run, then finished, given back when its command fails, or said stuck, each with tool:change-an-ai-job', async () => {
+test('serve requires a complete consumer check, otherwise blocks with an owned inspection continuation', async () => {
   const calls = [];
-  const client = { op: async (address, method, input) => { calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken: { id: 'ai-job:1', job: 'say hi', status: 'taken' }, tried: 1 } : { moved: true }); } };
+  const acceptance = { outcome: 'say hi', target: { type: 'page', id: 'page:home' }, rules: [{ id: 'outcome', path: '$.value.greeting', equals: 'hello' }, { id: 'one', path: '$.value.visible', equals: true }] };
+  const taken = { id: 'ai-job:1', job: 'say hi', status: 'taken', taken_at: '2026-11-07T11:00:00Z', acceptance, obligations: [{ id: 'one', outcome: 'Visible to user' }] };
+  const client = { op: async (address, method, input) => { calls.push(input); return ran(input.tool === 'tool:take-an-ai-job' ? { taken, tried: 1 } : { moved: true }); } };
   const held = [];
   const state = { hold: (agent, job) => held.push(['hold', job.id]), letGo: (agent, id) => held.push(['let go', id]) };
-  for (const [result, action] of [[{ ok: true, output: 'hi' }, 'finish'], [{ ok: false, output: 'failed' }, 'release'], [{ ok: true, output: 'x', stuck: 'Which bank?' }, 'stuck']]) {
+  const checked = { outcome: 'say hi', checked_at: new Date().toISOString(), evidence: [{ ref: 'consumer://screen', observation: 'The consumer displays the greeting.' }], obligations: [{ id: 'one', outcome: 'Visible to user', evidence: [{ ref: 'consumer://screen', observation: 'The greeting is visible.' }] }] };
+  const missingObligation = { ...checked, obligations: [] };
+  for (const [result, action] of [[{ ok: true, output: 'hi', check: checked }, 'finish'], [{ ok: true, output: 'hi' }, 'wait'], [{ ok: true, output: 'hi', check: missingObligation }, 'wait'], [{ ok: false, output: 'failed' }, 'wait'], [{ ok: true, output: 'x', stuck: 'Which bank?' }, 'wait']]) {
     calls.length = 0; held.length = 0;
     assert.equal(await serveOnce({ client, me, command: ['cat'], state, log: () => {}, runImpl: async () => result }), true);
     assert.deepEqual(calls[0], { tool: 'tool:take-an-ai-job', input: { as: me.ai_id } });
-    assert.deepEqual([calls.at(-1).tool, calls.at(-1).input.action, calls.at(-1).input.id, calls.at(-1).input.as], ['tool:change-an-ai-job', action, 'ai-job:1', me.ai_id]);
-    assert.deepEqual(held, action === 'stuck' ? [['hold', 'ai-job:1']] : [['hold', 'ai-job:1'], ['let go', 'ai-job:1']], 'a stuck job stays held');
+    assert.deepEqual([calls.at(-1).tool, calls.at(-1).input.id, calls.at(-1).input.as], [action === 'finish' ? 'tool:finish-an-ai-job' : 'tool:change-an-ai-job', 'ai-job:1', me.ai_id]);
+    assert.equal(calls.at(-1).input.taken_at, taken.taken_at, 'the original take timestamp fences every move');
+    assert.deepEqual(held, [['hold', 'ai-job:1'], ['let go', 'ai-job:1']]);
+    if (action === 'finish') assert.deepEqual(calls.at(-1).input.check, { ...checked, target: acceptance.target });
+    else { assert.equal(calls.at(-1).input.action, action); assert.deepEqual(calls.at(-1).input.continuation.owner, me.ai_id); }
   }
   const none = { op: async () => ran({ taken: null, tried: 0 }) };
   assert.equal(await serveOnce({ client: none, me, command: ['cat'], state, log: () => {} }), false);
@@ -472,6 +567,8 @@ test('serve: a job taken is run, then finished, given back when its command fail
   const workClient = { op: async (address, method, input, options) => ({ address, method, input, options }) };
   assert.deepEqual(await workCall(workClient, 'see', { id: 'ai-job:1' }, { idempotent: true }),
     { address: '@workshop-tools', method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: true } }, 'an answer with no result is the answer itself');
+  assert.deepEqual(await workCall(workClient, 'see', { id: 'ai-job:1' }, { requestKey: 'work-retry-key' }),
+    { address: '@workshop-tools', method: 'tools:run', input: { tool: 'tool:see-ai-work', input: { id: 'ai-job:1' } }, options: { idempotent: false, requestKey: 'work-retry-key' } });
 });
 
 test('login: the browser sign-in with PKCE keeps the sign-in itself, and no key route is asked', async () => {
