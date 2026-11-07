@@ -110,14 +110,6 @@
       "adapted": "makeAgents over this tool's agentRecordStore on a counting host, reopened before the measured calls, with the agents' reconciler and wake step as the store's alarm; every assertion is the old one"
     },
     {
-      "from": "test/pending-for-reader-bounded.test.mjs",
-      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/hand-work-to-ais/test/pending-for-reader-bounded.test.mjs",
-      "source_identity": "1f:c51fd419eb118799c9059947266db4103a695c4d215d45a0455cfba1e6347d14",
-      "identity": "1f:601f55b5fe57ecc47a877295418ced976e8171592048e4554182b99bd734dbe2",
-      "adapted": "makeAgents over this tool's agentRecordStore on keep-and-wake's record-log store and a rebuilt countingHost, the log checkpointed before the cold start, in place of the retired PersonStore; every assertion is the old one"
-    },
-    {
       "from": "test/source-activity-write-batch-flat.test.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/hand-work-to-ais/test/source-activity-write-batch-flat.test.mjs",

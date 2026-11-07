@@ -2283,13 +2283,6 @@
       "identity": "1f:8ae235c513c30012e7f4d6b8e8664f152301897153d11da53046d0677a35ed1f"
     },
     {
-      "from": "test/list-pages-browser.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
-      "source_identity": "1f:197a408276a318369eb0b1ef7c4cda4f5181be3ec027219adcf0173bd606ecc0",
-      "identity": "1f:8921d4812dc2bd0a12af87f58a50775b2af1618ce0b2806787ed113384c73d68"
-    },
-    {
       "from": "test/list-paired-links.test.mjs",
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-paired-links.test.mjs",
@@ -2365,13 +2358,6 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/mcp-registration-loopback.test.mjs",
       "source_identity": "1f:ef01fddee69754c22f2917a464ecfcbe2251d00ee6667ef1b3eb3d81eabbc220",
       "identity": "1f:ef01fddee69754c22f2917a464ecfcbe2251d00ee6667ef1b3eb3d81eabbc220"
-    },
-    {
-      "from": "test/media-edit-screen.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
-      "source_identity": "1f:6d407e0f5e671bda4e5ee84be1f48e50381922810daac04524056e0d1bfa3a64",
-      "identity": "1f:0acf5fc42897ffa383c55a2f22b4618065d45eddb76994386c69123abd6d2e9d"
     },
     {
       "from": "test/messages-batch-order.test.mjs",
@@ -2505,13 +2491,6 @@
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-analytics.test.mjs",
       "source_identity": "1f:82fa55717be59dfbe0c17a151f52cce0ac931e739a43a40269853f272602d8d4",
       "identity": "1f:2d4a98d24ecd463bc758f9dd858d2056a15af3a682d9e8896402044b19f2397b"
-    },
-    {
-      "from": "test/public-app-indexed-collaboration-browser.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
-      "source_identity": "1f:b7b40a871d076711b843fee5082fb110ac67f2b1ec36eebaa8ec71b5ef0b8373",
-      "identity": "1f:1ace855bddf5c5986b9953b4b10b1a35a931450a94a7578cd5b708bc0be7514b"
     },
     {
       "from": "test/public-app-run-permission.test.mjs",

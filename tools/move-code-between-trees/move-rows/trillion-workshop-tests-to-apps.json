@@ -1,0 +1,116 @@
+{
+  "id": "move:trillion-workshop-tests-to-apps",
+  "about": "Tests carried into trillion-workshop from Trillion-X/trillion (PR #243 deleted them there) whose subject is a trillion-apps screen or test help, so they cannot run here: each bundles an app screen that only trillion-apps web/ holds, or holds a bound the app's store answers. Retired from this repository at d18ac1922346f133c7a9b8bd3dd0fdf422122126 (tag retired/workshop-tests-of-trillion-apps-2026-11-07 holds them) by the owner's decision quoted in retired-paths.json; another lane lands them in trillion-apps web/test/ under their old trillion name, beside the screens they mount. Each test names its old trillion source (from, commit, source_identity: the receipt it had here) and its bytes here (identity).",
+  "source": {
+    "name": "Trillion-X/trillion-workshop",
+    "commit": "d18ac1922346f133c7a9b8bd3dd0fdf422122126",
+    "test_folders": [
+      "tools/hand-work-to-ais/test",
+      "tools/keep-and-wake-ai-sessions-on-this-computer/test",
+      "tools/refuse-a-change-made-from-an-open-page/test",
+      "tools/turn-a-button-press-like-ask-my-ai/test"
+    ]
+  },
+  "destination": {
+    "name": "Trillion-X/trillion-apps",
+    "package": "trillion-apps",
+    "shared_folder": "web"
+  },
+  "groups": [
+    {
+      "id": "tests-of-app-screens",
+      "owner": [
+        "tools/hand-work-to-ais/test/pending-for-reader-bounded.test.mjs",
+        "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
+        "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
+        "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
+        "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs",
+        "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs"
+      ],
+      "to": "web"
+    }
+  ],
+  "leave_tests": [],
+  "tests": [
+    {
+      "path": "tools/hand-work-to-ais/test/pending-for-reader-bounded.test.mjs",
+      "home": "trillion-apps:web/test/pending-for-reader-bounded.test.mjs",
+      "why": "Its subject is trillion-apps web/test/import-source-for-tests.mjs (the ledger's subject_owner). It fails here: the greeting's reads grow with the record-log store's unmerged sorted runs (58 rows at N, about 150 at 4N, record_keys_run_* probed once per run), a bound the app's store answers.",
+      "old_trillion": {
+        "from": "test/pending-for-reader-bounded.test.mjs",
+        "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+        "source_identity": "1f:c51fd419eb118799c9059947266db4103a695c4d215d45a0455cfba1e6347d14"
+      },
+      "identity": "1f:601f55b5fe57ecc47a877295418ced976e8171592048e4554182b99bd734dbe2",
+      "receipt_was": "tools/hand-work-to-ais/moved-from.json"
+    },
+    {
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
+      "home": "trillion-apps:web/test/list-pages-browser.test.mjs",
+      "why": "It bundles and mounts the app screen src/workspace/lists-screen (mountListScreen) and src/workspace/records; no file of this repository holds either, they are trillion-apps web/ screens.",
+      "old_trillion": {
+        "from": "test/list-pages-browser.test.mjs",
+        "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+        "source_identity": "1f:197a408276a318369eb0b1ef7c4cda4f5181be3ec027219adcf0173bd606ecc0"
+      },
+      "identity": "1f:8921d4812dc2bd0a12af87f58a50775b2af1618ce0b2806787ed113384c73d68",
+      "receipt_was": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
+      "home": "trillion-apps:web/test/media-edit-screen.test.mjs",
+      "why": "It bundles and mounts the app screen src/workspace/media-edit-screen (mountMediaEditScreen); no file of this repository holds it, it is a trillion-apps web/ screen.",
+      "old_trillion": {
+        "from": "test/media-edit-screen.test.mjs",
+        "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+        "source_identity": "1f:6d407e0f5e671bda4e5ee84be1f48e50381922810daac04524056e0d1bfa3a64"
+      },
+      "identity": "1f:0acf5fc42897ffa383c55a2f22b4618065d45eddb76994386c69123abd6d2e9d",
+      "receipt_was": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
+      "home": "trillion-apps:web/test/public-app-indexed-collaboration-browser.test.mjs",
+      "why": "It bundles and mounts the app screen src/workspace/public-apps-screen (mountPublicAppsScreen); no file of this repository holds it, it is a trillion-apps web/ screen.",
+      "old_trillion": {
+        "from": "test/public-app-indexed-collaboration-browser.test.mjs",
+        "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+        "source_identity": "1f:b7b40a871d076711b843fee5082fb110ac67f2b1ec36eebaa8ec71b5ef0b8373"
+      },
+      "identity": "1f:1ace855bddf5c5986b9953b4b10b1a35a931450a94a7578cd5b708bc0be7514b",
+      "receipt_was": "tools/keep-and-wake-ai-sessions-on-this-computer/moved-from.json"
+    },
+    {
+      "path": "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs",
+      "home": "trillion-apps:web/test/tray-screen-browser.test.mjs",
+      "why": "It bundles and mounts the app screens src/workspace/tray-screen, tray and sharing-sheet and the app's parts/ui/show record-views and placeable-surface-intent; no file of this repository holds any of them, they are trillion-apps web/ screens.",
+      "old_trillion": {
+        "from": "test/tray-screen-browser.test.mjs",
+        "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+        "source_identity": "1f:0b396107260a9070da85365ad3ed61da1842268ce522ae3b5fb85542412b2283"
+      },
+      "identity": "1f:0bd3cbdcb7e141f6fb819d7bbe9cb5a2ce6caf0a1e9be99627c08c605bdd77d4",
+      "receipt_was": "tools/refuse-a-change-made-from-an-open-page/moved-from.json"
+    },
+    {
+      "path": "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs",
+      "home": "trillion-apps:web/test/queue-job-button.test.mjs",
+      "why": "It bundles and mounts the app screen src/workspace/home-screen (mountHomeCard) and src/workspace/person-notifications; its subject src/queued-work.json is trillion-apps web/src/queued-work.json (the ledger's subject_home).",
+      "old_trillion": {
+        "from": "test/queue-job-button.test.mjs",
+        "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+        "source_identity": "1f:2f4e9527f1e3021cfb379c43efd1970a26bb24b66ed7d3f5edf39cf6d7d9e555"
+      },
+      "identity": "1f:6f77d85bfae381989fc13ec34256dbb8815b9fc603cab755f0833473976a8fed",
+      "receipt_was": "tools/turn-a-button-press-like-ask-my-ai/moved-from.json"
+    }
+  ],
+  "test_cases": [
+    {
+      "path": "tools/choose-and-publish-screen-looks/test/screen-look-design-tokens.test.mjs",
+      "test": "a loading block waits the look's reveal delay, then shows; reduced motion only shortens the animation",
+      "home": "trillion-apps:web/test/screen-look-design-tokens.test.mjs",
+      "why": "It mounts the app's placeholder, parts/ui/show/screen-state (mountScreenState), whose home is trillion-apps web/parts/ui/show/screen-state/ScreenState.tsx (docs/worker-retirement-port-backlog.json); no file of this repository holds it. The file's other tests read this repository's look resolver and view transition and stay; the case is in the file at d18ac1922346f133c7a9b8bd3dd0fdf422122126."
+    }
+  ]
+}
