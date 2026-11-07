@@ -90,11 +90,16 @@ export async function serveConnection(c, credential, { spawnImpl = spawn, agentO
   }
   } finally { agent.close(); }
 }
-// The launch agent's own command: bash reads the held key with the vault command the configuration names (which writes
-// a value only to its descriptor 3) and hands it to this file on keyDescriptor, the configuration on standard input.
-export function connectionLaunchArguments({ nodeExecutable, script, configFile, credentialCommand }) {
-  if ([nodeExecutable, script, configFile].some(value => typeof value !== 'string' || !value.startsWith('/')) || !Array.isArray(credentialCommand) || !credentialCommand.length || !credentialCommand[0].startsWith('/') || credentialCommand.some(value => typeof value !== 'string')) throw new Error('The connection supervisor configuration was refused.');
-  return ['/bin/bash', '-c', `config=$1 node=$2 script=$3; shift 3; exec "$node" "$script" serve <"$config" ${keyDescriptor}< <(exec "$@" 3>&1 >/dev/null)`, 'keep-a-door-tunnel-open', configFile, nodeExecutable, script, ...credentialCommand];
+// This file's path inside a Workshop copy (tools/<tool>/do-work/<file>), so the launch agent finds it in whichever copy is current.
+export const workshopPath = fileURLToPath(import.meta.url).split('/').slice(-4).join('/');
+// The launch agent's own command: at each start it runs this file from the engine's current installed Workshop copy
+// (`installs`, the folder whose state.json names the current commit; the engine keeps only the current and previous
+// copies, so a path to one commit's copy is soon gone), reads the held key with the vault command (which writes a value
+// only to its descriptor 3) and hands it to this file on keyDescriptor, the configuration on standard input.
+export function connectionLaunchArguments({ nodeExecutable, installs, configFile, credentialCommand }) {
+  if ([nodeExecutable, installs, configFile].some(value => typeof value !== 'string' || !value.startsWith('/')) || !Array.isArray(credentialCommand) || !credentialCommand.length || !credentialCommand[0].startsWith('/') || credentialCommand.some(value => typeof value !== 'string')) throw new Error('The connection supervisor configuration was refused.');
+  const current = `"$node" -p 'JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")).current' "$installs/state.json"`;
+  return ['/bin/bash', '-c', `config=$1 node=$2 installs=$3; shift 3; current=$(${current}) && [[ $current =~ ^[0-9a-f]{40}$ ]] || { echo "No current Workshop copy is named in $installs/state.json." >&2; exit 1; }; exec "$node" "$installs/$current/${workshopPath}" serve <"$config" ${keyDescriptor}< <(exec "$@" 3>&1 >/dev/null)`, 'keep-a-door-tunnel-open', configFile, nodeExecutable, installs, ...credentialCommand];
 }
 export function connectionLaunchAgent({ label, programArguments, environment = {}, logFile }) {
   if (!/^[a-z][a-z0-9.-]+$/.test(label) || typeof logFile !== 'string' || !logFile.startsWith('/') || !Array.isArray(programArguments) || !programArguments.length || [...programArguments, ...Object.values(environment)].some(value => typeof value !== 'string') || Object.keys(environment).some(name => !/^[A-Z_][A-Z0-9_]*$/.test(name))) throw new Error('The connection supervisor configuration was refused.');
@@ -102,23 +107,27 @@ export function connectionLaunchAgent({ label, programArguments, environment = {
   const variables = Object.entries(environment).map(([name, value]) => `<key>${name}</key><string>${xml(value)}</string>`).join('');
   return `<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>Label</key><string>${xml(label)}</string><key>ProgramArguments</key><array>${programArguments.map(value => `<string>${xml(value)}</string>`).join('')}</array>${variables ? `<key>EnvironmentVariables</key><dict>${variables}</dict>` : ''}<key>RunAtLoad</key><true/><key>KeepAlive</key><true/><key>ThrottleInterval</key><integer>10</integer><key>StandardOutPath</key><string>${xml(logFile)}</string><key>StandardErrorPath</key><string>${xml(logFile)}</string></dict></plist>\n`;
 }
-export function installConnection(configFile, { label, credentialCommand, environment, nodeExecutable, uid, home = homedir(), run = execFileSync } = {}) {
+export function installConnection(configFile, { installs, label, credentialCommand, environment, nodeExecutable, uid, home = homedir(), run = execFileSync, pause = ms => Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms) } = {}) {
   checked(JSON.parse(readFileSync(configFile, 'utf8')));
   const folder = `${home}/Library/LaunchAgents`, file = `${folder}/${label}.plist`;
-  const definition = connectionLaunchAgent({ label, programArguments: connectionLaunchArguments({ nodeExecutable, script: fileURLToPath(import.meta.url), configFile, credentialCommand }), environment, logFile: `${dirname(configFile)}/${basename(configFile, '.json')}.log` });
+  const definition = connectionLaunchAgent({ label, programArguments: connectionLaunchArguments({ nodeExecutable, installs, configFile, credentialCommand }), environment, logFile: `${dirname(configFile)}/${basename(configFile, '.json')}.log` });
   mkdirSync(folder, { recursive: true }); writeFileSync(file, definition, { mode: 0o600 });
-  try { run('/bin/launchctl', ['bootout', `gui/${uid}/${label}`], { stdio: 'pipe' }); } catch (error) { if (!/No such process|Could not find service/.test(String(error.stderr))) throw error; }
+  let running = true;
+  try { run('/bin/launchctl', ['bootout', `gui/${uid}/${label}`], { stdio: 'pipe' }); } catch (error) { if (!/No such process|Could not find service/.test(String(error.stderr))) throw error; running = false; }
+  // bootout answers before launchd has removed the job, and a bootstrap of the same label until then fails with
+  // "5: Input/output error" (seen 2026-11-07), so wait, at most ten seconds, until launchd no longer knows the label.
+  for (let n = 0; running && n < 100; n++) { try { run('/bin/launchctl', ['print', `gui/${uid}/${label}`], { stdio: 'pipe' }); pause(100); } catch { running = false; } }
   run('/bin/launchctl', ['bootstrap', `gui/${uid}`, file], { stdio: 'pipe' });
   return { label, supervisor: 'launchd', definition: file };
 }
 if (typeof process !== 'undefined' && process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  if (process.argv[2] === 'install' && process.argv.length >= 6) {
-    const [configFile, label, ...credentialCommand] = process.argv.slice(3);
-    process.stdout.write(`${JSON.stringify(installConnection(resolve(configFile), { label, credentialCommand, nodeExecutable: process.execPath, uid: process.getuid() }))}\n`);
+  if (process.argv[2] === 'install' && process.argv.length >= 7) {
+    const [configFile, installs, label, ...credentialCommand] = process.argv.slice(3);
+    process.stdout.write(`${JSON.stringify(installConnection(resolve(configFile), { installs: resolve(installs), label, credentialCommand, nodeExecutable: process.execPath, uid: process.getuid() }))}\n`);
   } else if (process.argv[2] === 'prepare' && process.argv.length === 4) {
     process.stdout.write(`${JSON.stringify(prepareFromRequest(JSON.parse(readFileSync(0, 'utf8')), process.argv[3]))}\n`);
   } else {
-  if (process.argv[2] !== 'serve' || process.argv.length !== 3) throw new Error(`usage: keep-a-door-tunnel-open.mjs install CONFIG_FILE LABEL CREDENTIAL_COMMAND [ARGUMENTS...] | prepare ADMIN_KEY_FILE | serve (the configuration on standard input, the held key on descriptor ${keyDescriptor})`);
+  if (process.argv[2] !== 'serve' || process.argv.length !== 3) throw new Error(`usage: keep-a-door-tunnel-open.mjs install CONFIG_FILE WORKSHOP_INSTALLS LABEL CREDENTIAL_COMMAND [ARGUMENTS...] | prepare ADMIN_KEY_FILE | serve (the configuration on standard input, the held key on descriptor ${keyDescriptor})`);
   const config = JSON.parse(readFileSync(0, 'utf8'));
   const key = readFileSync(keyDescriptor, 'utf8');
   const stop = new AbortController();

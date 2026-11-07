@@ -6,7 +6,7 @@ Keeps one door on this computer reachable from a server: one SSH reverse forward
 
 | File | Purpose |
 |------|---------|
-| `do-work/keep-a-door-tunnel-open.mjs` | The tunnel, the host pin, the host setup and the launch agent, and the same as a command (`serve`, `prepare ADMIN_KEY_FILE`, `install CONFIG_FILE LABEL CREDENTIAL_COMMAND...`). |
+| `do-work/keep-a-door-tunnel-open.mjs` | The tunnel, the host pin, the host setup and the launch agent, and the same as a command (`serve`, `prepare ADMIN_KEY_FILE`, `install CONFIG_FILE WORKSHOP_INSTALLS LABEL CREDENTIAL_COMMAND...`). |
 | `do-work/prepare-a-tunnel-host.sh` | Run as root on the server by `prepareConnectionHost`: the service user, its one `permitlisten` key and an sshd `Match User` block that allows a remote forward to that port only (no shell, no session, no other forwarding). |
 | `part.json` | Both files are public. |
 | `tool-rows.json` | `tool:prepare-a-server-for-a-door-tunnel`: a container row with `internet: true` that runs `prepare` with the request on standard input and the administration key the engine mounts (`server-administration-ssh-key`), and packs `tools/administer-a-rented-host`. |
@@ -25,15 +25,15 @@ Keeps one door on this computer reachable from a server: one SSH reverse forward
 | `prepareFromRequest` | `(request, adminKeyFile, { run?, proxy? }) -> { prepared, said }` | The row's work: pins `request.host_key` in a private folder of the run (`knownHostsLine`), gives the mounted key its last newline (`heldKeyFile`), and prepares the server through the run's proxy. |
 | `serveConnection` | `(c, credential, { spawnImpl?, agentOwner?, wait?, stopped?, signal?, report? })` | The loop: asks `credential()` for the key, checks it is RSA, puts it in the private agent, runs SSH, reports why it ended, waits two seconds, again; abort ends the child and the agent. |
 | `keyDescriptor` | `4` | The descriptor `serve` reads the held key on: a row's `credential_mounts` fd, or the launch agent's pipe. |
-| `connectionLaunchArguments` | `({ nodeExecutable, script, configFile, credentialCommand }) -> argv` | `bash -c` that runs `serve` with the configuration on standard input and the vault command's descriptor 3 on `keyDescriptor`, so the key is never in argv, a file or the log. |
-| `connectionLaunchAgent` / `installConnection` | `({ label, programArguments, environment?, logFile }) -> plist` / `(configFile, { label, credentialCommand, environment?, nodeExecutable, uid, home?, run? })` | A launchd agent that keeps the command running (`KeepAlive`, `ThrottleInterval` 10), and installing it: written to `~/Library/LaunchAgents/<label>.plist`, the old one booted out, the new one bootstrapped, the log beside the configuration. `credentialCommand` is the vault command, by the held value's name, that writes the value only on its descriptor 3; the label and that command are the installer's input, never a file in a repository. |
+| `connectionLaunchArguments` / `workshopPath` | `({ nodeExecutable, installs, configFile, credentialCommand }) -> argv` / this file's path inside a Workshop copy | `bash -c` that, at each start, reads the current commit from `<installs>/state.json` (the engine's installed copies; it keeps only the current and previous one, so a path to one commit's copy is soon gone), runs `serve` from that copy with the configuration on standard input and the vault command's descriptor 3 on `keyDescriptor`, so the key is never in argv, a file or the log; a state that names no commit starts nothing. |
+| `connectionLaunchAgent` / `installConnection` | `({ label, programArguments, environment?, logFile }) -> plist` / `(configFile, { installs, label, credentialCommand, environment?, nodeExecutable, uid, home?, run? })` | A launchd agent that keeps the command running (`KeepAlive`, `ThrottleInterval` 10), and installing it: written to `~/Library/LaunchAgents/<label>.plist`, the old one booted out, launchd waited on (at most ten seconds) until it no longer knows the label, the new one bootstrapped, the log beside the configuration. `credentialCommand` is the vault command, by the held value's name, that writes the value only on its descriptor 3; the label and that command are the installer's input, never a file in a repository. |
 
 ## Running it
 
-The engine runs a Workshop row only inside its sandbox, where a run ends at its ceiling, reaches a server only through the engine's proxy and cannot reach the door it would forward to. Until it can (the waiting AI job `ai-job:engine-kept-run-for-door-tunnel-2026-11-03` names the three gaps), a launch agent runs this file from the engine's installed Workshop copy, never from a working checkout:
+The engine runs a Workshop row only inside its sandbox, where a run ends at its ceiling, reaches a server only through the engine's proxy and cannot reach the door it would forward to. Until it can (the waiting AI job `ai-job:engine-kept-run-for-door-tunnel-2026-11-03` names the three gaps), a launch agent runs this file from the engine's current installed Workshop copy (never from a working checkout), found again at each start. Install it once, from any copy of this file, naming the installs folder (`workshop-installs` in the account's state folder):
 
 ```
-node <installed workshop>/tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs install <configuration file> <label> <vault command> <its arguments...>
+node tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs install <configuration file> <workshop installs folder> <label> <vault command> <its arguments...>
 ```
 
 ## Dependencies
