@@ -18,6 +18,29 @@
   ],
   "capabilities": [
     {
+      "capability": "generate selected listing and reviewer copies from supplied sentences, field rules and permission reasons",
+      "owner": ["tools/generate-copy-from-selected-sentences/"],
+      "entry": "tools/generate-copy-from-selected-sentences/part.json",
+      "evidence": "The original committed compiler excerpt at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04, lines 28–119, renders fields, blocks, text and JSON with output limits and manifest permission reasons. Its exact source artifact is source-baselines/generator.mjs.held; the reusable module takes the source, reader and selected outputs from its caller.",
+      "distinct_from": [
+        { "job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite", "why": "That owner measures word-level typed slots and detects rewrite drift; this compiler assembles selected sentences into destination fields, blocks, text and JSON and checks manifest permission explanations." },
+        { "job": "refuse untrusted nested input that is too deep, too large or refers back to itself, before it is rendered or stored", "why": "That owner guards arbitrary nested input; this compiler renders explicit destination rules, checks output length and requires each requested permission's explanation." }
+      ]
+    },
+    {
+      "capability": "read account setup facts and rules to compose its Get started requirements, readiness and AI connection guides",
+      "owner": ["tools/set-up-my-account/"],
+      "entry": "tools/set-up-my-account/README.md",
+      "evidence": "The existing setupSteps, getStartedFacts, setup-checks and AI guide modules are recorded in moved-from.json with their original committed source identities. The current read-setup and see-what-is-left-to-set-up entries compose those facts and rules into the account's setup answer.",
+      "distinct_from": [
+        { "job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "That owner keeps reported device facts; this owner reads the account's setup facts and rules and composes the requirements, readiness and connection guides that consume them." },
+        { "job": "cover a person's workspace until every required setup step is done, then hold the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs", "why": "That owner holds the setup overlay and the current required action; this owner computes the setup answer from facts and rules without holding the workspace." },
+        { "job": "keep each AI session on this computer as the person's records, take the open work handed to this computer's AIs, wake their stopped sessions, and set up this computer's AI apps with the account's key, hooks and connection", "why": "That owner installs and runs the local AI harness and sessions; this owner composes account setup requirements and connection-guide data and starts no local session." },
+        { "job": "know which record indexes have finished building from one stored row, so a cold start answers readiness without reading each index", "why": "That owner tracks SQL index-build signatures in schema_version and writes their completion state; this owner computes a person's setup steps and screen from device, account and policy facts, without building or marking database indexes." },
+        { "job": "confirm a person's workspace is ready from its current setup requirements before creating any proof records", "why": "That preflight reads the canonical setup owner's answer and refuses fixture creation when it is incomplete; this owner produces that setup answer from facts and rules and creates no proof records." }
+      ]
+    },
+    {
       "capability": "provide shared rendering and interaction primitives for screens, including controls, loading marks, record views and reusable motion",
       "owner": ["tools/ui/"],
       "entry": "tools/ui/part.json",
