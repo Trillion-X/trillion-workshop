@@ -1,0 +1,123 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
+
+import {
+  credentialHome,
+  fieldNamesHeldByTheVault,
+  heldByTheVault,
+  namesHeldByTheVault,
+} from '../read-data/ask-the-vault-for-one-secret.mjs';
+
+const standIn = fileURLToPath(new URL('./fixtures/stand-in-vault-command.mjs', import.meta.url));
+const ACCOUNT = 'a'.repeat(64);
+const HOME = {
+  command: standIn, command_setting: 'STAND_IN_VAULT_COMMAND', store: '/stand-in/held.sqlite',
+  state_from: { home_file: 'App Settings/runtime.json', field: 'state' },
+  account_from: { state_file: 'restore-receipt.json', pointer: '/account/ownerId' },
+};
+
+/**
+ * A product DATA folder whose credential-home.json points at the stand-in command, named by PRODUCT_DATA_ROOT, and a
+ * user home whose app settings name a state folder holding the selected account's owner id.
+ */
+function withStandIn(run, home = HOME) {
+  const folder = mkdtempSync(join(tmpdir(), 'vault-reader-'));
+  writeFileSync(join(folder, 'credential-home.json'), JSON.stringify(home));
+  const user = join(folder, 'user');
+  const state = join(folder, 'state');
+  mkdirSync(join(user, 'App Settings'), { recursive: true });
+  mkdirSync(state);
+  writeFileSync(join(user, 'App Settings', 'runtime.json'), JSON.stringify({ state }));
+  writeFileSync(join(state, 'restore-receipt.json'), JSON.stringify({ account: { ownerId: ACCOUNT } }));
+  const asked = join(folder, 'asked.txt');
+  const keys = ['HOME', 'PRODUCT_DATA_ROOT', 'STAND_IN_VAULT_ASKED', HOME.command_setting];
+  const before = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
+  process.env.HOME = user;
+  process.env.PRODUCT_DATA_ROOT = folder;
+  process.env.STAND_IN_VAULT_ASKED = asked;
+  delete process.env[HOME.command_setting];
+  const operations = () => readFileSync(asked, 'utf8').trim().split('\n').map((line) => line.split(' ').slice(1, 4));
+  return Promise.resolve(run({ operations, folder, user, state })).finally(() => {
+    for (const key of keys) {
+      if (before[key] === undefined) delete process.env[key];
+      else process.env[key] = before[key];
+    }
+  });
+}
+
+test('the home comes from the product DATA folder, and a launch setting can name another command', () => withStandIn(({ folder }) => {
+  assert.deepEqual(credentialHome(), {
+    command: standIn, commandFrom: `${join(folder, 'credential-home.json')} command`, commandSetting: 'STAND_IN_VAULT_COMMAND',
+    store: HOME.store, account: ACCOUNT, verb: undefined, settings: undefined,
+  });
+  process.env.STAND_IN_VAULT_COMMAND = '/another/build';
+  assert.equal(credentialHome().command, '/another/build');
+  assert.equal(credentialHome().commandFrom, 'the launch setting STAND_IN_VAULT_COMMAND');
+}));
+
+test('a bare store name is that file in the state folder the app names inside the user\'s home', () => withStandIn(async ({ operations, user, state }) => {
+  assert.equal(credentialHome().store, join(state, 'held.sqlite'));
+  assert.deepEqual(await namesHeldByTheVault(), ['bare-token', 'service-a']);
+  assert.deepEqual(operations(), [[join(state, 'held.sqlite'), ACCOUNT, 'names-only']]);
+  writeFileSync(join(user, 'App Settings', 'runtime.json'), JSON.stringify({ state: 'relative' }));
+  assert.throws(() => credentialHome(), /names the store held\.sqlite in a state folder, and .*runtime\.json names none/);
+}, { ...HOME, store: 'held.sqlite' }));
+
+test('the account is the owner id at the pointer in the state folder, and no product DATA names a person', () => withStandIn(({ state }) => {
+  assert.equal(credentialHome().account, ACCOUNT);
+  writeFileSync(join(state, 'restore-receipt.json'), JSON.stringify({ account: {} }));
+  assert.throws(() => credentialHome(), /restore-receipt\.json holds no account at \/account\/ownerId/);
+}));
+
+test('a home that names no account_from is refused', () => withStandIn(() => {
+  assert.throws(() => credentialHome(), /does not name the account \(account_from: \{state_file, pointer\}\)/);
+}, { ...HOME, account_from: undefined }));
+
+test('names come from the names answer alone, with no read of any value', () => withStandIn(async ({ operations }) => {
+  assert.deepEqual(await namesHeldByTheVault(), ['bare-token', 'service-a']);
+  assert.deepEqual(operations(), [[HOME.store, ACCOUNT, 'names-only']]);
+}));
+
+test('field names carry no value, and a bare value keeps no fields', () => withStandIn(async ({ operations }) => {
+  const fields = await fieldNamesHeldByTheVault('service-a');
+  assert.deepEqual(fields, ['application-key', 'key-id']);
+  assert.equal(JSON.stringify(fields).includes('private'), false);
+  assert.deepEqual(await fieldNamesHeldByTheVault('bare-token'), []);
+  assert.deepEqual(operations().map((asked) => asked[2]), ['describe', 'describe']);
+}));
+
+test('the CLI filters the metadata names before inspecting any holder', () => withStandIn(({ folder }) => {
+  const command = fileURLToPath(new URL('../read-data/list-the-vault-names.mjs', import.meta.url));
+  const result = spawnSync(process.execPath, [command, '^service-a$'], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout, 'service-a: key-id, application-key\n');
+  const asked = readFileSync(join(folder, 'asked.txt'), 'utf8').trim().split('\n');
+  assert.equal(asked.length, 2);
+  assert.ok(asked[0].endsWith(' names-only'));
+  assert.ok(asked[1].endsWith(' describe service-a'));
+  assert.equal(asked.some((line) => line.endsWith(' bare-token')), false);
+}));
+
+test('a value arrives only through the private pipe', () => withStandIn(async ({ operations }) => {
+  assert.deepEqual(await heldByTheVault('service-a'), { 'key-id': 'public', 'application-key': 'private' });
+  assert.equal(await heldByTheVault('bare-token'), 'private');
+  assert.deepEqual(operations().map((asked) => asked[2]), ['read', 'read']);
+}));
+
+test('a failure names what it checked', () => withStandIn(async () => {
+  await assert.rejects(heldByTheVault('not-held'), (error) => {
+    for (const part of [standIn, HOME.store, ACCOUNT, 'no value is held under not-held']) assert.ok(error.message.includes(part), part);
+    return true;
+  });
+  process.env.STAND_IN_VAULT_COMMAND = '/nonexistent/vault-command';
+  await assert.rejects(namesHeldByTheVault(), /checked the command \/nonexistent\/vault-command \(from the launch setting STAND_IN_VAULT_COMMAND\).*it did not start: ENOENT/);
+  delete process.env.PRODUCT_DATA_ROOT;
+  await assert.rejects(namesHeldByTheVault(), /the launch setting PRODUCT_DATA_ROOT names no product DATA folder holding credential-home\.json/);
+  process.env.PRODUCT_DATA_ROOT = '/nonexistent/product';
+  await assert.rejects(namesHeldByTheVault(), /\/nonexistent\/product\/credential-home\.json \(from PRODUCT_DATA_ROOT\) could not be read: ENOENT/);
+}));
