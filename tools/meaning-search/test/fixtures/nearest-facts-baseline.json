@@ -1,0 +1,135 @@
+{
+  "source": {
+    "repository": "trillion-workshop",
+    "commit": "09678de5",
+    "path": "tools/meaning-search/do-work/process-scripts/nearest-embedding-facts.mjs"
+  },
+  "cases": [
+    {
+      "name": "ties, floor, malformed metadata and JSON",
+      "embedding": {
+        "vector": [
+          1,
+          0
+        ]
+      },
+      "input": {
+        "limit": 3
+      },
+      "descriptor": {
+        "index_id": "synthetic",
+        "model_id": "synthetic-model",
+        "model_version": "1",
+        "descriptor_revision": "1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014",
+        "model_provenance_ref": "model:synthetic@1",
+        "result_limit": 3,
+        "min_score": 0.5
+      },
+      "facts": [
+        {
+          "subject_id": "synthetic:z",
+          "value_json": "{\"vector\":[1,0],\"canonical_address\":\"synthetic:z\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+        },
+        {
+          "subject_id": "synthetic:",
+          "value_json": "{\"vector\":[1,0],\"canonical_address\":\"synthetic:\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+        },
+        {
+          "subject_id": "synthetic:𐀀",
+          "value_json": "{\"vector\":[1,0],\"canonical_address\":\"synthetic:𐀀\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+        },
+        {
+          "subject_id": "synthetic:below",
+          "value_json": "{\"vector\":[0,1],\"canonical_address\":\"synthetic:below\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+        },
+        {
+          "subject_id": "synthetic:bad",
+          "value_json": "{\"vector\":[1,0],\"canonical_address\":\"synthetic:bad\",\"canonical_revision\":\"not-a-canonical-id\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+        },
+        {
+          "subject_id": "synthetic:json",
+          "value_json": "bad json"
+        },
+        null
+      ],
+      "result_text": "{\"items\":[{\"address\":\"synthetic:z\",\"score\":1.0,\"index_id\":\"synthetic\",\"model_id\":\"synthetic-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"model_provenance_ref\":\"model:synthetic@1\",\"revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"},{\"address\":\"synthetic:\\ue000\",\"score\":1.0,\"index_id\":\"synthetic\",\"model_id\":\"synthetic-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"model_provenance_ref\":\"model:synthetic@1\",\"revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"},{\"address\":\"synthetic:\\ud800\\udc00\",\"score\":1.0,\"index_id\":\"synthetic\",\"model_id\":\"synthetic-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"model_provenance_ref\":\"model:synthetic@1\",\"revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}],\"considered\":7,\"skipped\":3,\"min_score\":0.5}",
+      "stdout": "[nearest-embedding-facts] ranked 3 of 7 rows, returned 3\n"
+    },
+    {
+      "name": "string limit, wrapped collection and vector qualification",
+      "embedding": {
+        "vector": [
+          1,
+          0
+        ]
+      },
+      "input": {
+        "limit": "1"
+      },
+      "descriptor": {
+        "index_id": "synthetic",
+        "model_id": "synthetic-model",
+        "model_version": "1",
+        "descriptor_revision": "1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014",
+        "model_provenance_ref": "model:synthetic@1",
+        "result_limit": 3,
+        "min_score": 0.5
+      },
+      "facts": {
+        "items": [
+          {
+            "subject_id": "synthetic:a",
+            "value_json": "{\"vector\":[0.8,0.2],\"canonical_address\":\"synthetic:a\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+          },
+          {
+            "subject_id": "synthetic:b",
+            "value_json": "{\"vector\":[1,0],\"canonical_address\":\"synthetic:b\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+          },
+          {
+            "subject_id": "synthetic:wrong-dims",
+            "value_json": "{\"vector\":[1],\"canonical_address\":\"synthetic:wrong-dims\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+          },
+          {
+            "subject_id": "synthetic:zero",
+            "value_json": "{\"vector\":[0,0],\"canonical_address\":\"synthetic:zero\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+          },
+          {
+            "subject_id": "synthetic:bad-vector",
+            "value_json": "{\"vector\":[\"bad\",0],\"canonical_address\":\"synthetic:bad-vector\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+          }
+        ]
+      },
+      "result_text": "{\"items\":[{\"address\":\"synthetic:b\",\"score\":1.0,\"index_id\":\"synthetic\",\"model_id\":\"synthetic-model\",\"model_version\":\"1\",\"descriptor_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"model_provenance_ref\":\"model:synthetic@1\",\"revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}],\"considered\":5,\"skipped\":1,\"min_score\":0.5}",
+      "stdout": "[nearest-embedding-facts] ranked 2 of 5 rows, returned 1\n"
+    },
+    {
+      "name": "threshold never pads a result",
+      "embedding": {
+        "vector": [
+          1,
+          0
+        ]
+      },
+      "input": {
+        "limit": 2
+      },
+      "descriptor": {
+        "index_id": "synthetic",
+        "model_id": "synthetic-model",
+        "model_version": "1",
+        "descriptor_revision": "1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014",
+        "model_provenance_ref": "model:synthetic@1",
+        "result_limit": 3,
+        "min_score": 1.01
+      },
+      "facts": [
+        {
+          "subject_id": "synthetic:a",
+          "value_json": "{\"vector\":[1,0],\"canonical_address\":\"synthetic:a\",\"canonical_revision\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"canonical_payload_hash\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\",\"source_snapshot_ref\":\"1f:be174356b185e0ff96c55e68771140e2df0284331d87d90049c2098d8d12f014\"}"
+        }
+      ],
+      "result_text": "{\"items\":[],\"considered\":1,\"skipped\":0,\"min_score\":1.01}",
+      "stdout": "[nearest-embedding-facts] ranked 0 of 1 rows, returned 0\n"
+    }
+  ]
+}

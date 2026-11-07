@@ -43,6 +43,8 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { mintCanonicalMultihashOfBytes } from '../do-work/process-scripts/canonical_multihash.mjs';
+import { rankRows } from '../do-work/process-scripts/nearest-embedding-facts.mjs';
+import { pyDumps } from '../do-work/process-scripts/pyjson.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('./meaning-search.json', import.meta.url), 'utf8'));
 const SCRIPTS = fileURLToPath(new URL('../do-work/process-scripts/', import.meta.url));
@@ -134,8 +136,10 @@ function* planBatches(upserts) {
   yield { upserts: batch };
 }
 
-// The package's ordered, bounded index plans, and what each address points to.
-async function planOf(descriptor, door) {
+// The same canonical rows feed bounded index plans or exact search. Vectors
+// stay in their .npy bytes until one row is read; exact search never encodes them
+// as a whole-index JSON plan.
+async function vectorRowsOf(descriptor, door) {
   const set = descriptor.vector_set;
   if (!set?.items?.file || !set.points_to?.file) {
     throw new Error(`Descriptor ${descriptor.index_id} needs vector_set: { items: { file }, vectors?: { file }, points_to: { file, start?, end?, text? } }.`);
@@ -149,21 +153,32 @@ async function planOf(descriptor, door) {
   const at = new Date().toISOString();
   const field = set.points_to;
   const pointsTo = new Map();
-  function* upserts() {
+  function* rows() {
     for (const [index, line] of lines.entries()) {
       const item = JSON.parse(line);
       const address = `${set.items.file}#${index}`;
       const lineBytes = Buffer.from(line, 'utf8');
       const vector = matrix?.row(index);
       pointsTo.set(address, pointOf(item, field));
-      yield {
+      const mutation = {
         index_id: descriptor.index_id, content_address: address, canonical_address: address,
         canonical_revision: mintCanonicalMultihashOfBytes(vector ? Buffer.concat([lineBytes, vector.bytes]) : lineBytes),
         canonical_payload_hash: mintCanonicalMultihashOfBytes(lineBytes), source_snapshot_ref: snapshot, at,
         content_text: String(item[field.text] ?? ''),
-        ...(vector ? { content_vector_base64: Buffer.from(JSON.stringify({ vector: vector.values })).toString('base64') } : {}),
       };
+      yield { mutation, vector: vector?.values };
     }
+  }
+  return { rows: rows(), pointsTo };
+}
+
+async function planOf(descriptor, door) {
+  const { rows, pointsTo } = await vectorRowsOf(descriptor, door);
+  function* upserts() {
+    for (const { mutation, vector } of rows) yield {
+      ...mutation,
+      ...(vector ? { content_vector_base64: Buffer.from(JSON.stringify({ vector })).toString('base64') } : {}),
+    };
   }
   return { plans: planBatches(upserts()), pointsTo };
 }
@@ -207,7 +222,31 @@ export function spreadItems(items, pointsTo, { per_file: perFile, seconds_apart:
 
 // action:index-content-vector and the batch plan for the whole set, then the find actions' preparation, ANN query,
 // facts and rank. `query(work, descriptor)` writes embedding.json and vector.json the way each find action did.
-async function run(input, door, query) {
+function searchAnswer(input, index, descriptor, result, pointsTo) {
+  if (input.spread) {
+    const limit = Math.min(Number.isInteger(input.limit) ? input.limit : descriptor.result_limit, descriptor.result_limit);
+    const { kept, setAside } = spreadItems(result.items, pointsTo, input.spread, limit);
+    result.items = kept;
+    result.spread = { per_file: input.spread.per_file, seconds_apart: input.spread.seconds_apart ?? 0, set_aside: setAside };
+  }
+  return {
+    index_id: index, result, model_id: descriptor.model_id, model_version: descriptor.model_version,
+    points_to: Object.fromEntries(result.items.map(item => [item.address, pointsTo.get(item.address)])),
+  };
+}
+
+function rankedResult(embedding, input, descriptor, rows, representationOf, collect) {
+  const { spread, ...asked } = input;
+  const actionInput = spread ? { ...asked, limit: descriptor.result_limit } : asked;
+  const ranked = rankRows({ embedding, input: actionInput, descriptor, rows, ...(representationOf ? { representationOf } : {}) });
+  // The aggregate collector receives qualified canonical metadata, not vectors.
+  // Preserve the ranker's six-decimal scores without serializing its full pool.
+  if (collect) collect(ranked.candidates.map(item => ({ ...item, score: item.score.value })));
+  // The seam consumes the same JSON numbers as the existing command consumer.
+  return JSON.parse(pyDumps(ranked.result, { ensureAscii: true }));
+}
+
+async function run(input, door, query, onExactCandidates) {
   checkSpread(input.spread, input.limit);
   const work = mkdtempSync(join(tmpdir(), 'meaning-search-'));
   try {
@@ -216,6 +255,18 @@ async function run(input, door, query) {
     put(work, 'empty.json', { items: [] });
     await step('node', 'prepare-semantic-index-process-input.mjs', ['--index-id', index, '--descriptor-reply-json', reply, '--ann-state-reply-json', join(work, 'empty.json'), '--output-state-json', join(work, 'none.json'), '--output-json', join(work, 'described.json')], work);
     const { descriptor } = take(work, 'described.json');
+    const mode = descriptor.search_mode ?? 'approximate';
+    if (!['approximate', 'exact'].includes(mode)) throw new Error('Descriptor search_mode must be exact or approximate.');
+    const collector = pointsTo => onExactCandidates ? items => onExactCandidates({ items, pointsTo, resultLimit: descriptor.result_limit }) : undefined;
+    if (mode === 'exact' && descriptor.vector_set?.vectors?.file) {
+      const { rows, pointsTo } = await vectorRowsOf(descriptor, door);
+      function* representations() {
+        for (const { mutation, vector } of rows) yield { ...mutation, subject_id: mutation.content_address, vector };
+      }
+      await query(work, descriptor);
+      const result = rankedResult(take(work, 'embedding.json'), input, descriptor, representations(), row => row, collector(pointsTo));
+      return searchAnswer(input, index, descriptor, result, pointsTo);
+    }
     const { plans, pointsTo } = await planOf(descriptor, door);
     put(work, 'descriptor.json', descriptor);
     put(work, 'params.json', descriptor.ann_params ?? {});
@@ -234,6 +285,17 @@ async function run(input, door, query) {
       await step('python3', 'make-embedding-facts-from-command-output.py', ['--plan-json', planPath, '--command-output-json', join(work, 'embedded.json'), '--descriptor-json', join(work, 'descriptor.json'), '--output-json', join(work, facts), '--output-vectors-json', vectorsPath], work);
       factBatches.push(facts);
       indexBatches.push({ plan_json: planPath, vectors_json: vectorsPath });
+    }
+    if (mode === 'exact') {
+      function* facts() {
+        for (const name of factBatches) for (const row of take(work, name)) {
+          const fact = row.payload;
+          if (fact.table === settings.attribute_table && fact.property_id === `${settings.embedding_property}${index}`) yield fact;
+        }
+      }
+      await query(work, descriptor);
+      const result = rankedResult(take(work, 'embedding.json'), input, descriptor, facts(), undefined, collector(pointsTo));
+      return searchAnswer(input, index, descriptor, result, pointsTo);
     }
     put(work, 'batches.json', { batches: indexBatches });
     await step('node', 'ann-index.mjs', ['--mode', 'apply-batches', '--index-id', index, '--state-json', join(work, 'none.json'), '--plan-json', join(work, 'batches.json'), '--params-json', join(work, 'params.json'), '--output-state-json', join(work, 'built-state.json'), '--output-facts-json', join(work, 'ann-facts.json')], work);
@@ -259,23 +321,14 @@ async function run(input, door, query) {
     put(work, 'input.json', spread ? { ...asked, limit: prepared.result_limit } : asked);
     await step('node', 'nearest-embedding-facts.mjs', ['--embedding-json', join(work, 'embedding.json'), '--input-json', join(work, 'input.json'), '--descriptor-json', join(work, 'descriptor.json'), '--facts-json', join(work, 'facts.json'), '--output-json', join(work, 'nearest.json')], work);
     const result = take(work, 'nearest.json');
-    if (spread) {
-      const limit = Math.min(Number.isInteger(input.limit) ? input.limit : prepared.result_limit, prepared.result_limit);
-      const { kept, setAside } = spreadItems(result.items, pointsTo, spread, limit);
-      result.items = kept;
-      result.spread = { per_file: spread.per_file, seconds_apart: spread.seconds_apart ?? 0, set_aside: setAside };
-    }
-    return {
-      index_id: index, result, model_id: prepared.model_id, model_version: prepared.model_version,
-      points_to: Object.fromEntries(result.items.map(item => [item.address, pointsTo.get(item.address)])),
-    };
+    return searchAnswer(input, index, prepared, result, pointsTo);
   } finally {
     rmSync(work, { recursive: true, force: true });
   }
 }
 
 /** action:find-similar: the query words embedded by the descriptor's model, then ranked. */
-export async function findSimilar(input, { door }) {
+export async function findSimilar(input, { door, onExactCandidates }) {
   if (typeof input?.index_id !== 'string' || typeof input.query_text !== 'string' || !input.query_text.trim()) {
     throw new Error('Send index_id (the id of one of your semantic-index-descriptor records) and query_text (the words to look for).');
   }
@@ -283,11 +336,11 @@ export async function findSimilar(input, { door }) {
     put(work, 'request.json', input);
     await step('node', 'embed-text-ollama.mjs', ['--request-json', join(work, 'request.json'), '--output-json', join(work, 'embedding.json'), '--model', descriptor.model_id, '--endpoint', descriptor.model_endpoint], work);
     put(work, 'vector.json', take(work, 'embedding.json').vector);
-  });
+  }, onExactCandidates);
 }
 
 /** action:find-similar-vector: a query vector made by the descriptor's model, ranked without embedding. */
-export async function findSimilarVector(input, { door }) {
+export async function findSimilarVector(input, { door, onExactCandidates }) {
   if (typeof input?.index_id !== 'string' || typeof input.query_vector_base64 !== 'string' || !input.query_vector_base64) {
     throw new Error('Send index_id (the id of one of your semantic-index-descriptor records) and query_vector_base64 (base64 of JSON {"vector": [...]}, made by the model the descriptor names).');
   }
@@ -295,7 +348,7 @@ export async function findSimilarVector(input, { door }) {
     const embedding = Buffer.from(input.query_vector_base64, 'base64');
     put(work, 'embedding.json', embedding.toString('utf8'));
     put(work, 'vector.json', JSON.parse(embedding.toString('utf8')).vector);
-  });
+  }, onExactCandidates);
 }
 
 const ACROSS = 'Send index_ids: the ids of one or more of your semantic-index-descriptor records.';
@@ -309,7 +362,9 @@ function indexIds(input) {
 
 /**
  * The same query vector over several of the person's descriptors at once, best first across all of them. Each
- * descriptor is ranked by the package exactly as findSimilarVector ranks one; their answers are then merged by score and the optional spread and the limit are applied to the merged list. Scores compare
+ * descriptor uses the package's scorer. Exact mode collects its full qualified pool before its direct result cap;
+ * approximate mode retains its existing pool. Their candidates are merged by score, then spread and the final
+ * aggregate limit apply. Scores compare
  * only vectors of one model, so descriptors of different models are refused, never merged.
  */
 export async function findSimilarAcross(input, { door }) {
@@ -323,12 +378,22 @@ export async function findSimilarAcross(input, { door }) {
   // so clustered top hits do not hide distinct files before the final limit.
   if (spread) delete asked.limit;
   const answers = [];
-  for (const id of ids) answers.push(await findSimilarVector({ ...asked, index_id: id }, { door }));
+  const exactPools = [];
+  for (const id of ids) {
+    let pool;
+    answers.push(await findSimilarVector({ ...asked, index_id: id }, { door, onExactCandidates: value => { pool = value; } }));
+    exactPools.push(pool);
+  }
   const models = new Set(answers.map(answer => `${answer.model_id}@${answer.model_version}`));
   if (models.size > 1) throw new Error(`These indexes were made by different models (${[...models].join(', ')}); their scores cannot be compared. Search them one at a time.`);
-  const items = answers.flatMap(answer => answer.result.items).sort((a, b) => b.score - a.score);
-  const pointsTo = new Map(answers.flatMap(answer => Object.entries(answer.points_to)));
-  const limit = Number.isInteger(input.limit) ? input.limit : Math.max(...answers.map(answer => answer.result.items.length), 1);
+  // Exact mode supplies the full qualified pool before the direct-search cap;
+  // approximate mode keeps its existing pool. Limit the aggregate only after
+  // merging and spreading. The descriptor cap is still its default result size.
+  const items = answers.flatMap((answer, at) => exactPools[at]?.items ?? answer.result.items).sort((a, b) => b.score - a.score);
+  const pointsTo = new Map(answers.flatMap((answer, at) => exactPools[at]
+    ? exactPools[at].items.map(item => [item.address, exactPools[at].pointsTo.get(item.address)])
+    : Object.entries(answer.points_to)));
+  const limit = Number.isInteger(input.limit) ? input.limit : Math.max(...answers.map((answer, at) => exactPools[at]?.resultLimit ?? answer.result.items.length), 1);
   const result = { items, considered: answers.reduce((sum, a) => sum + (a.result.considered ?? 0), 0), skipped: answers.reduce((sum, a) => sum + (a.result.skipped ?? 0), 0), min_score: answers[0].result.min_score };
   if (spread) {
     const { kept, setAside } = spreadItems(items, pointsTo, spread, limit);

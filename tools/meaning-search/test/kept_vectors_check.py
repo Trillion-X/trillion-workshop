@@ -82,6 +82,7 @@ class AssetIndex(unittest.TestCase):
             self.assertEqual(vectors.dtype, np.float16)
             self.assertTrue(np.allclose(vectors[0].astype(np.float32), [0.6, 0.8], atol=1e-3))
             made = json.load(open(os.path.join(video, "vector-set.json")))
+            self.assertEqual(made["search_mode"], "exact", "the source full-scan search mode travels with its descriptor data")
             self.assertEqual(made["vector_set"]["points_to"], {"file": "path", "start": "t", "carry": ["kind", "name"]})
 
     def test_kind_image_reads_only_the_images(self):
@@ -100,6 +101,7 @@ class Frames(unittest.TestCase):
             self.assertEqual((code, answer["result"]["sets"]), (0, {"clip-index-ssd": 2}), err)
             items = lines(os.path.join(work, "sets", "clip-index-ssd", "items.jsonl"))
             self.assertEqual([(i["path"], i["t"]) for i in items], [("/made/up/clip.mp4", 0), ("/made/up/clip.mp4", 2)])
+            self.assertEqual(json.load(open(os.path.join(work, "sets", "clip-index-ssd", "vector-set.json")))["search_mode"], "exact")
 
 
 class ResultsStore(unittest.TestCase):
@@ -112,6 +114,7 @@ class ResultsStore(unittest.TestCase):
             self.assertEqual([(i["path"], i["t"], i["id"], i["b2"]) for i in items],
                              [("/made/up/three.mp4", 0, "12:v1", "made-up-stored-id"), ("/made/up/three.mp4", 6, "12:v1", "made-up-stored-id"), ("12:v2", 0.0, "12:v2", None)])
             self.assertEqual(np.load(os.path.join(out, "vectors.npy")).shape, (3, 2))
+            self.assertEqual(json.load(open(os.path.join(out, "vector-set.json")))["search_mode"], "exact")
             self.assertEqual(json.load(open(os.path.join(out, "vector-set.json")))["vector_set"]["points_to"]["carry"], ["kind", "id", "b2"])
 
     def test_the_stores_are_only_read(self):

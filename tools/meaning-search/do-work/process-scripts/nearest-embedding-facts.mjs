@@ -11,6 +11,7 @@
 // Fail-closed: results below min_score are dropped (never padded); malformed fact
 // rows are skipped and counted, never guessed at.
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import { pyDumps, pyFloat } from "./pyjson.mjs";
 import { requireCanonicalMultihash, ValueError } from "./canonical_multihash.mjs";
 
@@ -175,31 +176,20 @@ function pyInt(x) {
   throw new TypeError("int() argument must be a number or string");
 }
 
-function main() {
-  const args = parseArgs(process.argv.slice(2), {
-    embedding_json: "--embedding-json",
-    input_json: "--input-json",
-    descriptor_json: "--descriptor-json",
-    facts_json: "--facts-json",
-    output_json: "--output-json",
-  });
-
-  const embedding = load(args.embedding_json);
+// One scorer for stored EEAF facts and directly read vector-set rows. Iterables
+// are consumed once; only qualified canonical results remain for the existing
+// total-order sort. The default adapter keeps the command's fact-row semantics.
+export function rankRows({ embedding, input: actionInput, descriptor, rows, representationOf = row => JSON.parse(row.value_json || "null") }) {
   let query = embedding.vector;
   if (!Array.isArray(query) || query.length === 0) {
-    process.stderr.write("[nearest-embedding-facts] embedding output has no numeric vector\n");
-    return 1;
+    throw new ValueError("embedding output has no numeric vector");
   }
   query = query.map((v) => floatOf(v));
-  const actionInput = load(args.input_json);
-  const descriptor = load(args.descriptor_json);
   if (!Number.isInteger(descriptor.result_limit) || descriptor.result_limit < 1) {
-    process.stderr.write("[nearest-embedding-facts] descriptor result_limit must be a positive integer\n");
-    return 1;
+    throw new ValueError("descriptor result_limit must be a positive integer");
   }
   if (typeof descriptor.min_score !== "number") {
-    process.stderr.write("[nearest-embedding-facts] descriptor min_score must be numeric\n");
-    return 1;
+    throw new ValueError("descriptor min_score must be numeric");
   }
   const descriptorLimit = descriptor.result_limit;
   const requestedLimit = pyGet(actionInput, "limit", descriptorLimit);
@@ -208,23 +198,21 @@ function main() {
     limit = Math.min(pyInt(requestedLimit), descriptorLimit);
   } catch (e) {
     if (e instanceof TypeError || e instanceof ValueError) {
-      process.stderr.write("[nearest-embedding-facts] limit must be an integer\n");
-      return 1;
+      throw new ValueError("limit must be an integer");
     }
     throw e;
   }
   if (limit < 1) {
-    process.stderr.write("[nearest-embedding-facts] limit must be positive\n");
-    return 1;
+    throw new ValueError("limit must be positive");
   }
   const minScore = descriptor.min_score;
 
-  const facts = load(args.facts_json);
-  const rows = isDict(facts) ? pyGet(facts, "items", facts) : facts;
   const scored = [];
   let skipped = 0;
-  const iterable = Array.isArray(rows) ? rows : [];
+  let considered = 0;
+  const iterable = rows?.[Symbol.iterator] ? rows : [];
   for (let row of iterable) {
+    considered += 1;
     if (!isDict(row)) {
       skipped += 1;
       continue;
@@ -232,7 +220,7 @@ function main() {
     const subject = row.subject_id;
     let score;
     try {
-      const representation = JSON.parse(row.value_json || "null");
+      const representation = representationOf(row);
       if (!isDict(representation)) throw new ValueError("assert");
       const vector = representation.vector;
       if (!Array.isArray(vector) || vector.length === 0) throw new ValueError("assert");
@@ -269,15 +257,42 @@ function main() {
   });
   const output = {
     items: scored.slice(0, limit),
-    considered: Array.isArray(rows) ? rows.length : 0,
+    considered,
     skipped,
     min_score: pyFloat(minScore),
   };
-  fs.writeFileSync(args.output_json, pyDumps(output, { ensureAscii: true }), "utf-8");
+  // Canonical candidates contain scores/provenance only, never input vectors.
+  // A global collector may spread these before applying its own output limit.
+  return { result: output, ranked_count: scored.length, candidates: scored };
+}
+
+function main() {
+  const args = parseArgs(process.argv.slice(2), {
+    embedding_json: "--embedding-json",
+    input_json: "--input-json",
+    descriptor_json: "--descriptor-json",
+    facts_json: "--facts-json",
+    output_json: "--output-json",
+  });
+
+  const embedding = load(args.embedding_json);
+  const actionInput = load(args.input_json);
+  const descriptor = load(args.descriptor_json);
+  const facts = load(args.facts_json);
+  const rows = isDict(facts) ? pyGet(facts, "items", facts) : facts;
+  let ranked;
+  try {
+    ranked = rankRows({ embedding, input: actionInput, descriptor, rows: Array.isArray(rows) ? rows : [] });
+  } catch (error) {
+    if (!(error instanceof ValueError)) throw error;
+    process.stderr.write(`[nearest-embedding-facts] ${error.message}\n`);
+    return 1;
+  }
+  fs.writeFileSync(args.output_json, pyDumps(ranked.result, { ensureAscii: true }), "utf-8");
   process.stdout.write(
-    `[nearest-embedding-facts] ranked ${scored.length} of ${output.considered} rows, returned ${output.items.length}\n`,
+    `[nearest-embedding-facts] ranked ${ranked.ranked_count} of ${ranked.result.considered} rows, returned ${ranked.result.items.length}\n`,
   );
   return 0;
 }
 
-process.exit(main());
+if (process.argv[1] && fs.existsSync(process.argv[1]) && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) process.exit(main());

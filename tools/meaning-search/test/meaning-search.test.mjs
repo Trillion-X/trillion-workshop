@@ -182,6 +182,28 @@ test('ANN mutations reuse private dictionaries and ordered bucket membership wit
   for (const table of restored.buckets) assert.deepEqual([...table.values()][0], [...upserts.map(one => one.content_address), seed.content_address], 'delete then resurrection preserves original ordered-array behavior');
 });
 
+test('exact mode scans every stored vector with the existing ranker and no ANN preparation', async () => {
+  const items = [{ clip: 'near-first.mp4', t: 0 }, { clip: 'best-later.mp4', t: 0 }];
+  const files = { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy([[0.9, 0.1, 0, 0], [1, 0, 0, 0]]) };
+  const d = descriptor(SET, { search_mode: 'exact', result_limit: 2 });
+  delete d.ann_params;
+  const before = structuredClone(d);
+  const query = { index_id: d.index_id, query_vector_base64: asQuery([1, 0, 0, 0]), limit: 1 };
+  const stringify = JSON.stringify;
+  let planWrites = 0;
+  JSON.stringify = function(value, ...args) { if (Array.isArray(value?.upserts)) planWrites += 1; return stringify.call(this, value, ...args); };
+  let answer;
+  try { answer = await findSimilarVector(query, { door: standInDoor({ descriptors: [d], files, span: 4096 }) }); }
+  finally { JSON.stringify = stringify; }
+  assert.equal(planWrites, 0, 'precomputed exact search must not make an indexing plan');
+  assert.equal(answer.result.considered, 2);
+  assert.deepEqual(answer.result.items.map(item => [answer.points_to[item.address].file, item.score]), [['best-later.mp4', 1]]);
+  assert.deepEqual(d, before, 'exact mode must not modify descriptor settings');
+  const floor = await findSimilarVector(query, { door: standInDoor({ descriptors: [{ ...d, min_score: 1.01 }], files, span: 4096 }) });
+  assert.deepEqual(floor.result.items, [], 'exact search never pads below the floor');
+  await assert.rejects(findSimilarVector(query, { door: standInDoor({ descriptors: [{ ...d, search_mode: 'invented' }], files }) }), /search_mode must be exact or approximate/);
+});
+
 test('half-precision vectors are read as their numbers, and a smaller limit asks for fewer', async () => {
   const halves = [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1], [-1, 0, 0, 0], [0, -1, 0, 0]];
   const door = standInDoor({ descriptors: [descriptor(SET)], files: { '/Sets/frames.jsonl': lines(ITEMS), '/Sets/frames.npy': npy(halves, '<f2') } });
@@ -240,6 +262,20 @@ test('a set of spoken lines with no vectors is embedded by the descriptor model,
     assert.deepEqual(answer.points_to[top.address], { file: 'zorblax-b.mp4', start: 0, end: 2, text: 'A frumple on the table.' });
     assert.deepEqual(embedder.asked.map(call => call.path), ['/api/embed', '/api/embeddings'], 'the lines in one batch, then the query');
     assert.ok(embedder.asked.every(call => call.model === 'synthetic-words-model'));
+  } finally { await embedder.close(); }
+});
+
+test('exact mode also ranks embedded text batches with the same query model', async () => {
+  const embedder = await standInEmbedder();
+  try {
+    const said = [{ clip: 'first.mp4', text: 'zorblax' }, { clip: 'answer.mp4', text: 'frumple' }];
+    const set = { items: { file: '/Sets/said.jsonl' }, points_to: { file: 'clip', text: 'text' } };
+    const d = descriptor(set, { search_mode: 'exact', model_endpoint: embedder.url });
+    delete d.ann_params;
+    const answer = await findSimilar({ index_id: d.index_id, query_text: 'frumple', limit: 1 }, { door: standInDoor({ descriptors: [d], files: { '/Sets/said.jsonl': lines(said) }, span: 4096 }) });
+    assert.equal(answer.result.considered, 2);
+    assert.equal(answer.points_to[answer.result.items[0].address].file, 'answer.mp4');
+    assert.deepEqual(embedder.asked.map(call => call.path), ['/api/embed', '/api/embeddings']);
   } finally { await embedder.close(); }
 });
 
@@ -388,6 +424,30 @@ test('one index with a spread keeps the direct search result before its final li
   }
   const plain = await findSimilarAcross({ index_ids: ['synthetic-pictures'], query_vector_base64: input.query_vector_base64, limit: 3 }, { door: standInDoor({ descriptors: [descriptor(SET, { result_limit: 6 })], files, span: 4096 }) });
   assert.deepEqual(plain.result.items.map(item => item.address), [0, 1, 2].map(at => `/Sets/frames.jsonl#${at}`), 'without a spread the requested limit still applies to each descriptor');
+});
+
+test('exact aggregation spreads the global qualified pool before its final limit', async () => {
+  const items = [
+    { clip: 'cluster.mp4', t: 0 }, { clip: 'cluster.mp4', t: 2 }, { clip: 'cluster.mp4', t: 4 },
+    { clip: 'next-distinct.mp4', t: 0 },
+  ];
+  const files = { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy([[1, 0, 0, 0], [1, 0, 0, 0], [1, 0, 0, 0], [0.8, 0.2, 0, 0]]) };
+  const exact = descriptor(SET, { search_mode: 'exact', result_limit: 3 });
+  const before = structuredClone(exact);
+  const world = d => standInDoor({ descriptors: [d], files, span: 4096 });
+  const query = { query_vector_base64: asQuery([1, 0, 0, 0]), limit: 2, spread: { per_file: 1, seconds_apart: 10 } };
+  const direct = await findSimilarVector({ ...query, index_id: exact.index_id }, { door: world(exact) });
+  assert.equal(direct.result.items.length, 1, 'the direct-search result_limit still bounds its result');
+  const global = await findSimilarAcross({ ...query, index_ids: [exact.index_id] }, { door: world(exact) });
+  assert.deepEqual(global.result.items.map(item => global.points_to[item.address].file), ['cluster.mp4', 'next-distinct.mp4'], 'the result cap is not an exact aggregate candidate-pool cap');
+  assert.deepEqual(global.result.items.map(item => item.score), [1, 0.970143]);
+  const plain = await findSimilarAcross({ index_ids: [exact.index_id], query_vector_base64: query.query_vector_base64, limit: 4 }, { door: world(exact) });
+  assert.equal(plain.result.items.length, 4, 'the explicit aggregate limit applies after global ranking');
+  const defaulted = await findSimilarAcross({ index_ids: [exact.index_id], query_vector_base64: query.query_vector_base64 }, { door: world(exact) });
+  assert.equal(defaulted.result.items.length, 3, 'the descriptor cap remains the aggregate default when no limit is asked');
+  const approximate = await findSimilarAcross({ ...query, index_ids: [exact.index_id] }, { door: world({ ...exact, search_mode: 'approximate' }) });
+  assert.equal(approximate.result.items.length, 1, 'approximate aggregation retains its existing descriptor pool semantics');
+  assert.deepEqual(exact, before, 'collecting candidates must not change descriptor limits or ANN settings');
 });
 
 test('across indexes the spread applies to the merged answer and an untimed picture counts once', async () => {

@@ -30,7 +30,8 @@
     "findWordsSaid: the lines of the descriptors' sets that say every word of query_text longer than two letters",
     "points_to.carry: item fields passed through to an answer",
     "Bound vector-bearing preparation and fact-generation inputs by index_batch_bytes; apply the ordered batches to one ANN state through the original mutation function, query once, and collect selected facts from bounded batches. No ranking, candidate order or descriptor limits change.",
-    "With a spread across indexes, rank each descriptor to its existing result_limit before the merge, then apply the unchanged spread and requested final limit. Without a spread the requested per-descriptor limit remains unchanged."
+    "With a spread, approximate aggregation retains its existing descriptor result_limit pool before the merge. Exact aggregation instead collects the full qualified canonical pool from the shared scorer, then applies global ranking, spread and the requested final limit. The descriptor result_limit continues to cap direct results and supply an unasked aggregate default; it does not discard exact aggregate candidates.",
+    "Descriptor search_mode exact reuses the existing nearest-embedding-facts iterable scorer over every canonical vector-set row, without LSH or whole-vector plan JSON for precomputed matrices. Exact text inputs reuse bounded embedding/fact batches. The default approximate mode, scorer, score floor, total order, canonical qualification, model provenance and existing limits remain intact."
   ],
   "banned_substitutions": [
     "a second ranking beside the package's: each descriptor is still ranked by findSimilarVector",
@@ -49,7 +50,10 @@
       "tools/meaning-search/test/meaning-search.test.mjs one query over two indexes is ranked together, best first, and carries the fields the descriptor names",
       "tools/meaning-search/test/meaning-search.test.mjs words said: every word longer than two letters, case ignored, in the order the sets hold them, up to the limit",
       "tools/meaning-search/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches",
-      "tools/meaning-search/test/meaning-search.test.mjs one index with a spread keeps the direct search result before its final limit"
+      "tools/meaning-search/test/meaning-search.test.mjs one index with a spread keeps the direct search result before its final limit",
+      "tools/meaning-search/test/meaning-search.test.mjs exact mode scans every stored vector with the existing ranker and no ANN preparation",
+      "tools/meaning-search/test/meaning-search.test.mjs exact mode also ranks embedded text batches with the same query model",
+      "tools/meaning-search/test/meaning-search.test.mjs exact aggregation spreads the global qualified pool before its final limit"
     ]
   }
 }

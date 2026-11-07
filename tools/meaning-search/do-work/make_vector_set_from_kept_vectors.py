@@ -22,7 +22,7 @@ expansion-picture-vectors):
   vectors.npy      float16, one L2-normalised row per item, in the order of items.jsonl
   vector-set.json  the `vector_set` member for the person's semantic-index-descriptor record, its `carry` naming the
                    extra fields
-Every source is opened read-only. The last line is {"result": {"sets": {index: items}}} or {"error": ...}. Needs numpy.
+The descriptor fields include search_mode="exact": the source searched every vector, so callers keep this with vector_set when making its descriptor. Every source is opened read-only. The last line is {"result": {"sets": {index: items}}} or {"error": ...}. Needs numpy.
 """
 import argparse, base64, json, os, sqlite3, sys
 import numpy as np
@@ -121,6 +121,6 @@ for vectors, owners, index in stores:
     os.replace(vectors_path + ".tmp.npy", vectors_path)
     with open(os.path.join(out, "vector-set.json"), "w") as f:
         json.dump({"vector_set": {"items": {"file": items_path}, "vectors": {"file": vectors_path},
-                                  "points_to": {"file": "path", "start": "t", "carry": CARRY[index]}}, "items": len(owners)}, f, indent=1)
+                                  "points_to": {"file": "path", "start": "t", "carry": CARRY[index]}}, "search_mode": "exact", "items": len(owners)}, f, indent=1)
     written[name] = len(owners)
 print(json.dumps({"result": {"sets": written}}))
