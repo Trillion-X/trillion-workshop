@@ -76,6 +76,16 @@ def fill(template, values, side=None):
     return out
 
 
+def stdin_json(row, values):
+    """The command row's optional JSON stdin template, filled once; argv-only rows send no input."""
+    if 'stdin_json' not in row:
+        return None
+    try:
+        return json.dumps(fill(row['stdin_json'], values), allow_nan=False)
+    except (TypeError, ValueError) as error:
+        raise Refused(f'command stdin_json must fill to a JSON value: {error}') from error
+
+
 def repository_of(base):
     """the root of the git repository holding the folder base: the nearest folder upward with a .git"""
     if base is None:

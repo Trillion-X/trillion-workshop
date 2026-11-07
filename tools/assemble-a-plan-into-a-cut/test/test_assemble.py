@@ -10,11 +10,12 @@ HERE = Path(__file__).resolve().parent
 sys.path[:0] = [str(HERE), str(HERE.parent / 'do-work'), str(HERE.parent / 'read-data')]
 
 import cut  # noqa: E402
+import assemble  # noqa: E402
 import graphics  # noqa: E402
 import media  # noqa: E402
 import plans  # noqa: E402
-from fill import Refused, bind, fill  # noqa: E402
-from fixture_world import FIX, PY, make_world, pieces, request, run_tool  # noqa: E402
+from fill import Refused, bind, fill, stdin_json  # noqa: E402
+from fixture_world import FIX, PY, fake_renderer_row, make_world, pieces, request, run_tool  # noqa: E402
 import spans  # noqa: E402
 from plan_pieces import aspects_of, is_slides, pieces_of, span_key  # noqa: E402
 from timing import caption_chunks, shifted, times_of, word_times  # noqa: E402
@@ -76,6 +77,15 @@ class Templates(unittest.TestCase):
         with self.assertRaisesRegex(Refused, 'names "nothing"'):
             fill({'a': {'fill': 'nothing'}}, {'x': 1})
 
+    def test_command_json_stdin_is_optional_and_uses_the_existing_templates(self):
+        self.assertIsNone(stdin_json({'argv': ['a-command']}, {}))
+        payload = {'value': {'fill': 'measured'}, 'args': [{'each': 'numbers'}], 'why': 'not command input'}
+        self.assertEqual(json.loads(stdin_json({'stdin_json': payload}, {'measured': {'text': 'café'}, 'numbers': [1, 2]})),
+                         {'value': {'text': 'café'}, 'args': [1, 2]})
+        self.assertEqual(stdin_json({'stdin_json': None}, {}), 'null')
+        with self.assertRaisesRegex(Refused, 'JSON value'):
+            stdin_json({'stdin_json': {'fill': 'not_json'}}, {'not_json': float('nan')})
+
     def test_bind_reads_paths_and_values_from_their_owners(self):
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
@@ -92,6 +102,121 @@ class Templates(unittest.TestCase):
             self.assertEqual(out['whole']['checker']['file'], str(base / 'sub' / 'f.txt'))
             with self.assertRaisesRegex(Refused, r'has no \[.checker., .nope.\]'):
                 bind({'n': {'read_json': {'repository': 'owner.json'}, 'at': ['checker', 'nope']}}, str(base / 'sub'), '/w')
+
+
+class CommandChecks(unittest.TestCase):
+    """Real command transport and verdicts on made-up requests, without media, models or ffmpeg."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.work = Path(self.temp.name)
+
+    def row(self, payload, **settings):
+        return {'id': 'json-check', 'argv': [PY, str(FIX / 'json_command.py')], 'stdin_json': payload,
+                'result_exit_path': ['result', 'exit'], **settings}
+
+    def check(self, payload, **settings):
+        return cut.run_checks([self.row(payload, **settings)], {}, self.work)[0]
+
+    def test_process_zero_with_a_failed_semantic_result_cannot_pass(self):
+        failed = self.check({'response': {'result': {'exit': 1}}})
+        self.assertEqual((failed['process_exit'], failed['exit'], failed['passed'], failed['advisory']), (0, 1, False, False))
+        good = self.check({'response': {'result': {'exit': 0}}})
+        self.assertTrue(good['passed'])
+        self.assertIsNone(good['response_error'])
+
+    def test_held_semantic_result_uses_the_rows_codes_and_final_advisory_policy(self):
+        plan_file = self.work / 'plan.json'
+        plan_file.write_text(json.dumps({'slug': 'made-up', 'segments': []}))
+        row = self.row({'response': {'answer': {'status_code': 73}}}, result_exit_path=['answer', 'status_code'], advisory_exit_codes=[73])
+        req = {'plan_checks': [row]}
+        go, (result,) = assemble.plan_checks(req, plan_file, self.work)
+        self.assertEqual((go, result['passed'], result['advisory'], result['exit']), (True, False, True, 73))
+        self.assertFalse(assemble.plan_checks({**req, 'advisory_stops': True}, plan_file, self.work)[0])
+        self.assertFalse(assemble.plan_checks({'plan_checks': [{**row, 'advisory_exit_codes': []}]}, plan_file, self.work)[0])
+
+    def test_broken_response_or_nonzero_process_never_passes_or_becomes_advisory(self):
+        payloads = [
+            {'raw_stdout': 'not JSON'}, {'raw_stdout': ''}, {'response': {}},
+            {'response': {'error': 'made-up refusal', 'result': {'exit': 0}}},
+            {'response': {'result': {}}}, {'response': []},
+            *({'response': {'result': {'exit': value}}} for value in (None, '0', 0.0, True)),
+            {'response': {'result': {'exit': 0}}, 'process_exit': 9},
+        ]
+        for payload in payloads:
+            with self.subTest(payload=payload):
+                result = self.check(payload, pass_exit_codes=[0, 9, None], advisory_exit_codes=[0, 9, None])
+                self.assertFalse(result['passed'])
+                self.assertFalse(result['advisory'])
+                self.assertTrue(result['response_error'])
+
+    def test_invalid_declared_exit_path_cannot_fall_back_to_process_zero(self):
+        for path in ([], 'result.exit', [True]):
+            with self.subTest(path=path):
+                result = self.check({}, result_exit_path=path)
+                self.assertFalse(result['passed'])
+                self.assertTrue(result['response_error'])
+
+    def test_default_argv_rows_keep_their_existing_process_exit_behavior(self):
+        file = self.work / 'given.txt'
+        file.write_text('made-up')
+        row = {'id': 'argv-check', 'argv': [PY, str(FIX / 'fake_checker.py'), '2', 'made-up hold', str(file)],
+               'pass_exit_codes': [2], 'advisory_exit_codes': [2]}
+        result = cut.run_checks([row], {}, self.work)[0]
+        self.assertEqual((result['exit'], result['passed'], result['advisory']), (2, True, True))
+        self.assertNotIn('response_error', result)
+
+    def test_two_plan_checks_receive_their_own_actual_plan_json(self):
+        row = self.row({'actual_plan': {'fill': 'plan'}, 'plan_text': {'fill': 'plan_text'},
+                        'capture': {'join': [{'fill': 'work'}, '/received.json']}})
+        for slug in ('first-made-up', 'second-made-up'):
+            plan = {'slug': slug, 'segments': [{'kind': 'note', 'text': slug}], 'why': 'actual plan data stays intact'}
+            file = self.work / f'{slug}.json'
+            file.write_text(json.dumps(plan))
+            work = self.work / slug
+            self.assertTrue(assemble.plan_checks({'plan_checks': [row]}, file, work)[0])
+            received = json.loads((work / 'received.json').read_text())
+            self.assertEqual(received['actual_plan'], plan)
+            self.assertEqual(json.loads(received['plan_text']), plan)
+
+    def test_renderer_json_gets_the_actual_spec_paths_and_numeric_still_seconds(self):
+        capture = self.work / 'renderer-input.json'
+        row = {**fake_renderer_row(), 'argv': [PY, str(FIX / 'json_command.py')], 'stills_argv': [],
+               'stdin_json': {'spec': {'fill': 'spec'}, 'spec_file': {'fill': 'spec_file'}, 'out': {'fill': 'out'},
+                              'stills': {'fill': 'stills_seconds'}, 'legacy_stills': {'fill': 'stills'}, 'capture': str(capture)}}
+        renderer = graphics.Renderer(row, cut.rules_of({}, (640, 360)))
+        spec = {'id': 'actual-spec', 'duration_s': 2, 'events': []}
+        out = renderer.render(self.work, spec, spec['id'], stills=[0.25, 1])
+        sent = json.loads(capture.read_text())
+        self.assertEqual(sent['spec'], spec)
+        self.assertEqual(json.loads(Path(sent['spec_file']).read_text()), spec)
+        self.assertEqual(sent['out'], str(out))
+        self.assertEqual(sent['stills'], [0.25, 1.0])
+        self.assertTrue(all(type(t) is float for t in sent['stills']))
+        self.assertEqual(sent['legacy_stills'], ['0.25', '1'])
+
+    def test_check_plans_cli_checks_actual_files_and_stops_on_semantic_failure(self):
+        plans_folder = self.work / 'plans'
+        plans_folder.mkdir()
+        for slug in ('first', 'second'):
+            (plans_folder / f'{slug}.json').write_text(json.dumps({'slug': slug, 'segments': [{'kind': 'note', 'text': slug}]}))
+        row = self.row({'actual_plan': {'fill': 'plan'}, 'capture': {'join': [{'fill': 'work'}, '/received.json']}})
+        req = {'plans': {'folder': str(plans_folder)}, 'folders': {'work': str(self.work / 'work')}, 'plan_checks': [row],
+               'voice': {'say': [{'argv': ['/must-not-run-a-speaker']}]}, 'overlay_renderer': {'argv': ['/must-not-render']}}
+        code, output = run_tool('check-plans', req)
+        self.assertEqual(code, 0, output)
+        self.assertTrue(output['result']['all_allowed'])
+        for slug in ('first', 'second'):
+            received = json.loads((self.work / 'work' / slug / 'plan-checks' / 'received.json').read_text())
+            self.assertEqual(received['actual_plan']['slug'], slug)
+        row['stdin_json']['response'] = {'result': {'exit': 1}}
+        code, output = run_tool('check-plans', req, 'second')
+        self.assertEqual(code, 1, output)
+        self.assertFalse(output['result']['all_allowed'])
+        (checked,) = output['result']['plans'][0]['plan_checks']
+        self.assertEqual((checked['process_exit'], checked['exit'], checked['passed']), (0, 1, False))
+        self.assertEqual(output['result']['plans'][0]['slug'], 'second')
 
 
 class Times(unittest.TestCase):

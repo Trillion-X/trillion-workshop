@@ -8,6 +8,7 @@ steps
   timeline         a plan's timeline and length, without making anything (request.plan_file)
   lay-out          the timeline and the overlay spec, with held frames and graphics placed, nothing encoded (request.plan_file)
   build            the cut of one plan: made in its work folder, moved to the seen folder once every check row passes (request.plan_file)
+  check-plans      the existing plan checks on the selected plans, without voice generation or a build (request.plans)
   run              voice-lines, then for every plan of request.plans (or the slugs named): its plan checks, then build
   voice-lines      a take of every voiced line of the plans that has none (request.plans)
   regroup          rebuild plans as groups of a lead segment and members (request.shapes)
@@ -59,7 +60,9 @@ def plan_checks(req, plan_file, work):
     exit code in advisory_exit_codes lets the cut go on with its output shown (a review), unless the request sets advisory_stops
     (the final cut: an advisory result stops it too); any other result stops this plan."""
     work.mkdir(parents=True, exist_ok=True)
-    results = cut.run_checks(req.get('plan_checks', []), {'plan_file': str(plan_file), 'work': str(work)}, work)
+    plan = json.loads(Path(plan_file).read_text())
+    results = cut.run_checks(req.get('plan_checks', []),
+                             {'plan_file': str(plan_file), 'plan': plan, 'plan_text': json.dumps(plan), 'work': str(work)}, work)
     final = bool(req.get('advisory_stops'))
     return all(r['passed'] or (r['advisory'] and not final) for r in results), results
 
@@ -85,6 +88,18 @@ def run(req, slugs):
         except Refused as e:
             done.append({'slug': f.stem, 'status': 'refused', 'why': str(e), 'plan_checks': checked})
     return {'voice_lines': voiced, 'plans': done, 'all_made': all(d['status'] in ('built', 'slides', 'format not renderable') for d in done)}
+
+
+def check_plans(req, slugs):
+    """Run the same pre-build checks without building or making voice takes; retain the request's advisory policy."""
+    files = plan_files(req, slugs)
+    if not files:
+        raise Refused('no plan with segments was selected for check-plans')
+    done = []
+    for file in files:
+        allowed, checks = plan_checks(req, file, Path(req['folders']['work']) / file.stem / 'plan-checks')
+        done.append({'slug': file.stem, 'allowed': allowed, 'plan_checks': checks})
+    return {'plans': done, 'all_allowed': all(row['allowed'] for row in done)}
 
 
 def read_request(rest):
@@ -119,6 +134,8 @@ def main(argv):
         return cut.build(req, req['plan_file'], make=step == 'build')
     if step == 'run':
         return run(req, rest)
+    if step == 'check-plans':
+        return check_plans(req, rest)
     if step == 'voice-lines':
         return voice.voice_lines(req, plan_files(req, rest))
     if step == 'regroup':
@@ -131,12 +148,15 @@ def main(argv):
         return plans.titles_table(req)
     if step == 'string-together':
         return reel.string_together(req)
-    raise Refused(f'unknown step {step}; the steps are timeline, lay-out, build, run, voice-lines, regroup, retitle, outline, titles-table, string-together')
+    raise Refused(f'unknown step {step}; the steps are timeline, lay-out, build, check-plans, run, voice-lines, regroup, retitle, outline, titles-table, string-together')
 
 
 if __name__ == '__main__':
     try:
-        print(json.dumps({'result': main(sys.argv[1:])}))
+        result = main(sys.argv[1:])
+        print(json.dumps({'result': result}))
+        if sys.argv[1] == 'check-plans' and not result['all_allowed']:
+            sys.exit(1)
     except Refused as e:
         print(json.dumps({'error': str(e)}))
         sys.exit(1)
