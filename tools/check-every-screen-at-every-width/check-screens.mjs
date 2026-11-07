@@ -196,8 +196,9 @@ async function readScreen({ page, decoder, width, mode, screen, views, fontsAllo
   const t = views.thresholds;
   const failures = [];
   // A control-name finding carries two paths: the structural one it is bound by, and displaySelector, the short human
-  // path (with the control's class) that every other probe here reports. The report names it by the human one.
-  const add = (probe, item, detail) => failures.push({ probe, selector: item?.displaySelector ?? item?.selector ?? null, text: item?.text ?? null, detail, mark: item?.mark ?? null });
+  // path (with the control's class) that every other probe here reports. The report names it by the human one, unless
+  // that path names more than one shown control on the page (displayShared): then by the structural one, which is unique.
+  const add = (probe, item, detail) => failures.push({ probe, selector: (item?.displayShared ? item?.selector : item?.displaySelector ?? item?.selector) ?? null, text: item?.text ?? null, detail, mark: item?.mark ?? null });
   // Contrast on a decided colour: its own bar for its words, and what still fails is reported, never refused.
   const judge = (item, ratio, need, colours, detail) => {
     const decided = decidedOf(views, colours);
