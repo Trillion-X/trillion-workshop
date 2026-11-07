@@ -254,6 +254,16 @@ class ParserFidelityTests(unittest.TestCase):
         self.assertEqual(parsed.blocks[1].items,
                          [(0, "Outer", False), (1, "Middle", False), (2, "Inner", False)])
 
+    def test_original_list_markers_survive_and_are_independently_checked(self):
+        source = "# Fixture\n\n3) Outer\n  + Middle\n    7. Inner\n"
+        parsed = self.check(source)
+        self.assertEqual(parsed.blocks[0].list_markers, ["3)", "+", "7."])
+        self.assertEqual(parsed.blocks[0].items,
+                         [(0, "Outer", True), (1, "Middle", False), (2, "Inner", True)])
+        parsed.blocks[0].list_markers[2] = "1."
+        with self.assertRaisesRegex(ValueError, "List markers"):
+            self.check(source, parsed)
+
     def test_soft_line_wrap_does_not_break_inline_emphasis(self):
         parsed = self.check("# Fixture\n\nA **wrapped\nlabel** with field_name.\n")
         self.assertEqual(builder._plain_inline(parsed.blocks[0].text), "A wrapped label with field_name.")

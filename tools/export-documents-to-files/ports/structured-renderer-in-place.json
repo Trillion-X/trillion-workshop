@@ -1,0 +1,58 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-STRUCTURED-FILE-RENDERER-IN-PLACE",
+  "status": "VERIFIED",
+  "directive": {
+    "thread_id": "source:Y29kZXg6MDFhMWI3ZGUtMTgyNi03NDUxLTg1ZDktOTczM2Q3ODBjODA2OnJldmlzaW9uMTA3LXByaXZhdGUtZGVsaXZlcnk",
+    "message_multihash": "1f:41f10cf64e18e1fcf097bfa64e97f7db6a96f9edf0be5e6cd035503d605eb854",
+    "quote": "Need final truthful helper contract + normal scoped commit now.",
+    "speaker": "coordinator assignment within the existing authorized case; not a new person message"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "af619211afe962c17e5083e7ba71a420b32a1b26",
+      "path": "tools/export-documents-to-files/do-work/render-structured-file-export.py",
+      "multihash": "1f:94654ddbf42d7c10f45520ceae6d4d4879af62b8958575107eb9ea01dd4a461a",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    { "path": "tools/export-documents-to-files/do-work/render-structured-file-export.py" }
+  ],
+  "preserve": [
+    "The existing caller-DATA-selected tree walk and text/table projection, ordered section blocks, format templates, native stdlib DOCX writer and embedded-font ReportLab PDF writer.",
+    "The bounded regular-file JSON reader, heading-level/style validation, table boundaries, font-glyph coverage checks and actual saved-byte readback.",
+    "The original source and target are the same existing renderer at its real pre-policy snapshot; no archival byte-copy artifact or later reconstructed baseline is substituted."
+  ],
+  "allowed_deltas": [
+    "Allow DATA-selected literal whitespace and nesting metadata; preserve native DOCX tabs/newlines and use a readable monospace PDF literal style.",
+    "Refuse ragged tables and unsupported literal/indent targets rather than flattening them.",
+    "Keep oversized literal lines refused by default; permit explicit caller-DATA soft wrapping with source-hardline character ranges, separate continuation prefixes and selected-boundary refusal.",
+    "Offer an optional intended-payload identity through the existing content-identity owner and emit source-bound literal layout provenance for the private consumer."
+  ],
+  "banned_substitutions": [
+    "A second file renderer, Markdown parser or identity algorithm.",
+    "Clipping, silent truncation, lost indentation/tabs/table cells or unreadable font shrinking.",
+    "Using projection or artifact-layout evidence as voice, author or final-delivery approval."
+  ],
+  "baseline": {
+    "commit": "af619211afe962c17e5083e7ba71a420b32a1b26",
+    "recorded_at": "2026-10-30T22:34:29-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:94654ddbf42d7c10f45520ceae6d4d4879af62b8958575107eb9ea01dd4a461a",
+    "target_multihash_at_baseline": "1f:94654ddbf42d7c10f45520ceae6d4d4879af62b8958575107eb9ea01dd4a461a"
+  },
+  "proof": {
+    "verification_scope": "Seven local synthetic source-to-renderer tests and the existing synthetic DOCX/PDF suites passed. Actual private artifacts and whole-book page review are outside this evidence.",
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": ["def project(", "def render_docx(", "def render_pdf(", "def read_json_file(", "if written_data != data:"],
+    "test_refs": [
+      "tools/export-documents-to-files/test/test_markdown_source_projection.py",
+      "tools/export-documents-to-files/test/test-structured-file-export-docx.py",
+      "tools/export-documents-to-files/test/test-structured-file-export-pdf.py"
+    ]
+  }
+}

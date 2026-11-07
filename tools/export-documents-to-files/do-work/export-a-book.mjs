@@ -10,8 +10,8 @@
 // On the person's computer, with their door:
 //   node tools/records-door/do-work/run-with-stdio-mcp.mjs CLIENT.json \
 //     tools/export-documents-to-files/do-work/export-a-book.mjs exportABook REQUEST.json
-// REQUEST: { book_id, settings_record?, manuscript?, template?, output?, page_map?, answers?, python? }
-// Answer: { status: "exported", written, gate, checks } or { status: "blocked", reason, checks? }.
+// REQUEST: { book_id, settings_record?, manuscript?, template?, output?, page_map?, answers?, purpose?, job_file?, python? }
+// Answer: exported, blocked, or an explicitly admitted private_layout_proof with delivery_eligible=false.
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -58,9 +58,17 @@ export async function exportABook(input, { door } = {}) {
   if (!settings || typeof settings !== 'object') return { status: 'blocked', reason: 'The settings row holds no settings object.' };
   const manuscript = input.manuscript ?? settings.manuscript;
   if (typeof manuscript !== 'string') return { status: 'blocked', reason: 'Name the manuscript (manuscript in the request or the settings).' };
-  const bytes = readFileSync(manuscript);
+  const purpose = input.purpose ?? 'final_delivery';
+  if (!['final_delivery', 'private_layout_proof'].includes(purpose)) return { status: 'blocked', reason: 'Unknown export purpose.' };
+  const privateProof = purpose === 'private_layout_proof';
+  if (privateProof && (settings.role !== 'current_prose' || !settings.export_purposes?.private_layout_proof ||
+      typeof input.job_file !== 'string' || input.output || input.template || input.page_map)) {
+    return { status: 'blocked', reason: 'Private layout proof requires explicit settings admission, job_file and policy-owned output.' };
+  }
+  if (!privateProof && input.job_file) return { status: 'blocked', reason: 'job_file belongs only to private_layout_proof.' };
+  const bytes = privateProof ? null : readFileSync(manuscript);
   let checks = null;
-  if (settings.role === 'current_prose') {
+  if (settings.role === 'current_prose' && !privateProof) {
     if (typeof settings.checks_branch !== 'string') return { status: 'blocked', reason: 'Current prose needs checks_branch in its settings: the branch of list:checks for this book.' };
     checks = await bookChecks(door, { branch: settings.checks_branch, bytes, answers: input.answers ?? {}, reading: settings.checks_reading ?? {} });
     if (!checks.passed) return { status: 'blocked', reason: `The book's checks answered ${checks.status}; no DOCX was created.`, checks };
@@ -69,15 +77,26 @@ export async function exportABook(input, { door } = {}) {
   try {
     writeFileSync(join(work, 'settings.json'), JSON.stringify(settings));
     const argv = [EXPORTER, manuscript, '--settings', join(work, 'settings.json')];
+    if (privateProof) argv.push('--purpose', purpose, '--job-file', input.job_file);
     if (checks) { writeFileSync(join(work, 'checks.json'), JSON.stringify(checks)); argv.push('--checks-receipt', join(work, 'checks.json')); }
-    const template = input.template ?? settings.template;
-    const output = input.output ?? (settings.output_folder && input.book_id ? join(settings.output_folder, `${input.book_id}.docx`) : undefined);
+    const template = privateProof ? undefined : input.template ?? settings.template;
+    const output = privateProof ? undefined : input.output ?? (settings.output_folder && input.book_id ? join(settings.output_folder, `${input.book_id}.docx`) : undefined);
     if (template) argv.push('--template', template);
     if (output) argv.push('--output', output);
     if (input.page_map) argv.push('--page-map', input.page_map);
     const run = spawnSync(input.python ?? 'python3', argv, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
     if (run.status !== 0) return { status: 'blocked', reason: (run.stderr.trim().split('\n').at(-1) ?? 'the exporter failed').replace(/^.*?error: /u, ''), checks };
     const answer = JSON.parse(run.stdout.trim().split('\n').at(-1));
+    if (privateProof) {
+      if (answer.status !== 'private_layout_proof' || answer.delivery_eligible !== false ||
+          answer.gate?.schema !== 'private-layout-proof-result-v1' ||
+          answer.gate?.purpose !== purpose || answer.gate?.delivery_eligible !== false ||
+          answer.gate?.voice_qualification !== 'not_established' || answer.gate?.unfinished_label_readback !== true ||
+          typeof answer.written !== 'string' || answer.gate?.artifact?.path !== answer.written) {
+        return { status: 'blocked', reason: 'The exporter did not return a private non-delivery receipt.', checks };
+      }
+      return { ...answer, checks };
+    }
     return { status: 'exported', written: answer.written, headings: answer.headings, tables: answer.tables, gate: answer.gate, checks };
   } finally {
     rmSync(work, { recursive: true, force: true });

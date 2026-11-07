@@ -12,10 +12,12 @@ branch of list:checks through tools/check-against-a-persons-rules-and-verdicts
 Moved from trillion-launch-video tools/private-book-reader/writing_gate.py.
 """
 from __future__ import annotations
+from contextlib import contextmanager
 import json
 import os
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import uuid
@@ -33,6 +35,111 @@ VOICE_CLASSIFIER = (WORKSHOP_TOOLS / "train-and-evaluate-a-writing-voice-classif
 VOICE_CAPTURE_BRIDGE = Path(__file__).resolve().with_name("check-a-voice-capture.mjs")
 TOOL_FOLDER = "export-documents-to-files"
 ROLES = ("current_prose", "comparison", "historical_reference")
+
+
+class _PrivateInput:
+    """Hold private regular bytes and every named ancestor through the effect."""
+    def __init__(self, path: Path, owner_root: Path, *, max_bytes: int = 16 * 1024 * 1024):
+        self.path = Path(path)
+        self.opened = []
+        self.fd = None
+        try:
+            if (not self.path.is_absolute() or any(p in (".", "..") for p in str(path).split("/"))
+                    or not self.path.is_relative_to(owner_root)):
+                raise ValueError("Private layout inputs must stay inside their explicit input_root")
+            if not all(hasattr(os, flag) for flag in ("O_NOFOLLOW", "O_NONBLOCK", "O_DIRECTORY")):
+                raise ValueError("Safe private layout snapshots are unsupported on this host")
+            parent = os.open("/", os.O_RDONLY | os.O_DIRECTORY)
+            self.opened.append((parent, None, None, os.fstat(parent)))
+            for part in self.path.parts[1:-1]:
+                child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=parent)
+                self.opened.append((child, parent, part, os.fstat(child)))
+                parent = child
+            self.fd = os.open(self.path.name, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK, dir_fd=parent)
+            self.info = os.fstat(self.fd)
+            if (not stat.S_ISREG(self.info.st_mode) or self.info.st_uid != os.getuid()
+                    or stat.S_IMODE(self.info.st_mode) & 0o077 or self.info.st_size > max_bytes):
+                raise ValueError("Private layout inputs must be bounded, private, user-owned regular files")
+            chunks = []
+            remaining = max_bytes + 1
+            while remaining:
+                chunk = os.read(self.fd, min(65536, remaining))
+                if not chunk:
+                    break
+                chunks.append(chunk)
+                remaining -= len(chunk)
+            self.content = b"".join(chunks)
+            if len(self.content) != self.info.st_size or len(self.content) > max_bytes:
+                raise ValueError("Private layout input changed during its bounded read")
+            self.validate()
+            self.identity = _snapshot_hash(self.content)
+        except Exception:
+            self.close()
+            raise
+
+    @staticmethod
+    def _state(info):
+        return (info.st_dev, info.st_ino, info.st_mode, info.st_uid, info.st_size,
+                info.st_mtime_ns, info.st_ctime_ns)
+
+    def validate(self):
+        for fd, parent, name, before in self.opened:
+            # Directory contents may grow when the admitted proof is created;
+            # their identity, owner, mode and named edge must remain unchanged.
+            identity = lambda s: (s.st_dev, s.st_ino, s.st_mode, s.st_uid)
+            if identity(os.fstat(fd)) != identity(before):
+                raise ValueError("Private layout input directory changed")
+            if parent is not None and identity(os.stat(name, dir_fd=parent, follow_symlinks=False)) != identity(before):
+                raise ValueError("Private layout input directory was replaced")
+        parent = self.opened[-1][0]
+        if (self._state(os.fstat(self.fd)) != self._state(self.info)
+                or self._state(os.stat(self.path.name, dir_fd=parent, follow_symlinks=False)) != self._state(self.info)):
+            raise ValueError("Private layout input changed or was replaced")
+
+    def json(self):
+        return json.loads(self.content.decode("utf-8"))
+
+    def close(self):
+        if self.fd is not None:
+            os.close(self.fd)
+            self.fd = None
+        for fd, *_ in reversed(self.opened):
+            os.close(fd)
+        self.opened.clear()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.close()
+
+
+def _exact_absolute(value, label):
+    if (not isinstance(value, str) or not value.startswith("/")
+            or any(part in ("", ".", "..") for part in value.split("/")[1:])):
+        raise ValueError(f"Private layout {label} must be an exact absolute path")
+    return Path(value)
+
+
+def _private_layout_core():
+    """Load the one active, source-baselined private-purpose core."""
+    import importlib.util
+    name = "_workshop_private_layout_proof"
+    if name not in sys.modules:
+        spec = importlib.util.spec_from_file_location(name, Path(__file__).with_name("private-layout-proof.py"))
+        if spec is None or spec.loader is None:
+            raise ValueError("The maintained private layout core is unavailable")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        sys.modules[name] = module
+    return sys.modules[name]
+
+
+@contextmanager
+def private_layout_admission(source: Path, settings: dict, job_file: Path):
+    """The existing gate delegates private-purpose admission to its sole core."""
+    with _private_layout_core().private_layout_admission(source, settings, job_file) as admission:
+        yield admission
 
 
 def _node() -> str | None:

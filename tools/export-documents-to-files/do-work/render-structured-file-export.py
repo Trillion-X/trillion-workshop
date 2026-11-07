@@ -11,6 +11,8 @@ from html import escape
 from io import BytesIO
 import json
 import os
+import re
+import runpy
 import stat
 import sys
 import unicodedata
@@ -23,12 +25,12 @@ from zipfile import ZIP_DEFLATED, ZipFile
 MAX_JSON_INPUT_BYTES = 4 * 1024 * 1024
 
 
-def first_text(node, text_properties):
+def first_text(node, text_properties, preserve=False):
     props = node.get("props") or {}
     for key in text_properties:
         value = props.get(key)
-        if isinstance(value, str) and value.strip():
-            return value.strip()
+        if isinstance(value, str) and (preserve or value.strip()):
+            return value if preserve else value.strip()
     return None
 
 
@@ -63,7 +65,7 @@ def row_cells(node, rules):
         return None
     cells = []
     for kid in kids:
-        text = first_text(kid, rules["text_properties"])
+        text = first_text(kid, rules["text_properties"], preserve=True)
         if text is None or visible_children(kid):
             return None
         cells.append(text)
@@ -75,11 +77,20 @@ def table_rows(node, rules):
     if len(kids) < rules["table"]["min_rows"]:
         return None
     rows = []
+    shape = [visible_children(kid) for kid in kids]
+    if (any(len(row) >= rules["table"]["min_cells"] for row in shape)
+            and all(row and all(not visible_children(cell)
+                              and first_text(cell, rules["text_properties"], preserve=True) is not None
+                              for cell in row) for row in shape)
+            and len({len(row) for row in shape}) != 1):
+        raise ValueError("Structured tables must have equal cell counts in every row")
     for kid in kids:
         cells = row_cells(kid, rules)
         if not cells:
             return None
         rows.append(cells)
+    if len({len(row) for row in rows}) != 1:
+        raise ValueError("Structured tables must have equal cell counts in every row")
     return rows
 
 
@@ -107,12 +118,20 @@ def project(node, rules, title=None):
             current["blocks"].append({"type": "table", "rows": rows})
             return
         kids = visible_children(item)
-        own_text = first_text(item, rules["text_properties"])
+        literal_rule = rules.get("literal_text") or {}
+        literal = (bool(literal_rule) and value_at_path(item, literal_rule.get("path"))
+                   == literal_rule.get("equals"))
+        own_text = first_text(item, rules["text_properties"], preserve=literal)
+        indent = value_at_path(item, rules.get("indent_level_path"))
+        if indent is _MISSING:
+            indent = 0
+        if type(indent) is not int or not 0 <= indent <= 32:
+            raise ValueError("Projected indent level must be an integer from 0 through 32")
         source_heading_level = value_at_path(item, rules.get("heading_level_path"))
         has_source_heading_level = source_heading_level is not _MISSING
         if item_depth == 0 and skip_title_echo and own_text is not None and own_text == title:
             own_text = None
-        if item_depth > 0 and own_text is not None and (kids or has_source_heading_level):
+        if item_depth > 0 and own_text is not None and (kids or has_source_heading_level) and not literal:
             flush()
             current["heading"] = own_text
             if has_source_heading_level:
@@ -123,7 +142,12 @@ def project(node, rules, title=None):
             return
         if own_text is not None:
             current["lines"].append(own_text)
-            current["blocks"].append({"type": "paragraph", "text": own_text})
+            block = {"type": "paragraph", "text": own_text}
+            if literal:
+                block["text_mode"] = "literal"
+            if indent:
+                block["indent_level"] = indent
+            current["blocks"].append(block)
         for kid in kids:
             visit(kid, item_depth + 1)
 
@@ -148,12 +172,65 @@ def apply_escapes(value, escapes):
     return value
 
 
-def render(title, sections, fmt):
+def layout_literal_text(text, available_width, measure, tab_size=4, wrap=None):
+    """Lay out exact hard lines; offsets always address original source chars.
+
+    Tab expansion and continuation prefixes are display geometry only. Joining
+    each hard line's source slices recovers its exact characters, including tabs.
+    """
+    if wrap is not None:
+        if not isinstance(wrap, dict) or wrap.get("mode") != "soft":
+            raise ValueError("PDF literal_wrap must declare mode soft")
+        break_after = wrap.get("break_after")
+        continuation = wrap.get("continuation_indent", 2)
+        fallback = wrap.get("fallback", "refuse")
+        if (not isinstance(break_after, list) or not break_after or len(break_after) > 64
+                or any(not isinstance(char, str) or len(char) != 1 or char in "\r\n\t" for char in break_after)
+                or type(continuation) is not int or not 0 <= continuation <= 16
+                or fallback not in {"refuse", "character"}):
+            raise ValueError("PDF literal_wrap requires bounded break characters, continuation indent and fallback")
+        break_after = set(break_after)
+    lines, mapping = [], []
+    for line_index, source in enumerate(text.split("\n")):
+        expanded = source.expandtabs(tab_size)
+        columns, column = [0], 0
+        for char in source:
+            column += tab_size - column % tab_size if char == "\t" else 1
+            columns.append(column)
+        start = 0
+        while True:
+            prefix = " " * continuation if wrap is not None and start else ""
+            if wrap is None and measure(expanded) <= available_width:
+                end = len(source)
+            elif wrap is None:
+                raise ValueError("PDF literal line exceeds printable width; choose a wider layout or revise caller layout DATA")
+            else:
+                end, candidate = start, None
+                while end < len(source) and measure(prefix + expanded[columns[start]:columns[end + 1]]) <= available_width:
+                    end += 1
+                    if source[end - 1] in break_after:
+                        candidate = end
+                if end == len(source):
+                    pass
+                elif candidate is not None:
+                    end = candidate
+                elif fallback != "character" or end == start:
+                    raise ValueError("PDF literal segment cannot wrap at the caller-selected boundaries")
+            lines.append(prefix + expanded[columns[start]:columns[end]])
+            mapping.append({"source_line_index": line_index, "start_char": start, "end_char": end,
+                            "continuation_prefix": prefix})
+            if end == len(source):
+                break
+            start = end
+    return {"lines": lines, "mapping": mapping}
+
+
+def render(title, sections, fmt, layout_receipt=None):
     """Assemble the body purely from the format's DATA templates."""
     if fmt.get("renderer") == "docx":
         return render_docx(title, sections, fmt)
     if fmt.get("renderer") == "pdf":
-        return render_pdf(title, sections, fmt)
+        return render_pdf(title, sections, fmt, layout_receipt=layout_receipt)
     parts = []
     if fmt.get("title_template"):
         parts.append(fmt["title_template"].replace("{title}", title))
@@ -162,6 +239,8 @@ def render(title, sections, fmt):
             parts.append(fmt["heading_template"].replace("{heading}", section["heading"]))
         for block in section_blocks(section):
             if block.get("type") == "paragraph":
+                if block.get("text_mode") == "literal" or block.get("indent_level", 0):
+                    raise ValueError("Literal text and paragraph indentation require a native DOCX or PDF renderer")
                 parts.append(fmt["line_template"].replace("{line}", block["text"]))
                 continue
             if block.get("type") != "table":
@@ -232,7 +311,7 @@ def render_docx(title, sections, fmt):
 
     heading_styles = fmt.get("heading_styles") or {}
     heading_levels = {}
-    used_style_ids = {"Normal", "Title"} | ({"TableText"} if "table_style" in fmt else set())
+    used_style_ids = {"Normal", "Title", "LiteralText"} | ({"TableText"} if "table_style" in fmt else set())
     for raw_level, config in heading_styles.items():
         level = positive_heading_level(int(raw_level), "configured heading level")
         if not isinstance(config, dict) or not isinstance(config.get("style_id"), str):
@@ -278,7 +357,7 @@ def render_docx(title, sections, fmt):
                 output.append("\u2060")
         return "".join(output)
 
-    def paragraph(text, style=None, space_before=None):
+    def paragraph(text, style=None, space_before=None, indent=0, literal=False):
         if style in {config["style_id"] for config in heading_levels.values()}:
             # Keep the heading with its first following paragraph, and prevent
             # Word from splitting the heading itself across pages.
@@ -288,7 +367,19 @@ def render_docx(title, sections, fmt):
         if space_before is not None:
             spacing = f'<w:spacing w:before="{space_before}"/>'
             ppr = ppr.replace("</w:pPr>", spacing + "</w:pPr>") if ppr else f'<w:pPr>{spacing}</w:pPr>'
-        return f'<w:p>{ppr}<w:r><w:t xml:space="preserve">{escape(protect_breaks(text))}</w:t></w:r></w:p>'
+        if indent:
+            step = fmt.get("indent_twips_per_level", 360)
+            if type(step) is not int or not 1 <= step <= 1440 or indent * step > 8640:
+                raise ValueError("DOCX indent exceeds printable width")
+            ind = f'<w:ind w:left="{indent * step}"/>'
+            ppr = ppr.replace("</w:pPr>", ind + "</w:pPr>") if ppr else f'<w:pPr>{ind}</w:pPr>'
+        text = text if literal else protect_breaks(text)
+        # OOXML text nodes cannot encode native line breaks or tabs themselves.
+        runs = []
+        for part in re.split(r"(\n|\t)", text):
+            runs.append('<w:br/>' if part == "\n" else '<w:tab/>' if part == "\t"
+                        else f'<w:t xml:space="preserve">{escape(part)}</w:t>')
+        return f'<w:p>{ppr}<w:r>{"".join(runs)}</w:r></w:p>'
 
     def table(rows):
         width = max([1] + [len(row) for row in rows])
@@ -327,7 +418,10 @@ def render_docx(title, sections, fmt):
             previous_table = False
         for block in section_blocks(section):
             if block.get("type") == "paragraph":
-                body.append(paragraph(block["text"], space_before=after_table if previous_table else None))
+                literal = block.get("text_mode") == "literal"
+                body.append(paragraph(block["text"], "LiteralText" if literal else None,
+                                      space_before=after_table if previous_table else None,
+                                      indent=block.get("indent_level", 0), literal=literal))
                 previous_table = False
             elif block.get("type") == "table":
                 body.append(table(block["rows"]))
@@ -355,10 +449,13 @@ def render_docx(title, sections, fmt):
         table_ppr, table_rpr = style_properties(fmt["table_style"])
         table_style = ('<w:style w:type="paragraph" w:styleId="TableText"><w:name w:val="Table Text"/>'
                        f'<w:basedOn w:val="Normal"/><w:pPr>{table_ppr}</w:pPr><w:rPr>{table_rpr}</w:rPr></w:style>')
+    literal_ppr, literal_rpr = style_properties(fmt.get("literal_style", {"font_family": "Courier New", "size_half_points": 18}))
+    literal_style = ('<w:style w:type="paragraph" w:styleId="LiteralText"><w:name w:val="Literal Text"/>'
+                     f'<w:basedOn w:val="Normal"/><w:pPr>{literal_ppr}</w:pPr><w:rPr>{literal_rpr}</w:rPr></w:style>')
     styles = (f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="{word}">'
               f'<w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:pPr>{normal_ppr}</w:pPr><w:rPr>{normal_rpr}</w:rPr></w:style>'
               f'<w:style w:type="paragraph" w:styleId="Title"><w:name w:val="Title"/><w:basedOn w:val="Normal"/><w:pPr>{title_ppr}</w:pPr><w:rPr>{title_rpr}</w:rPr></w:style>'
-              + table_style + "".join(heading_style_xml) + "</w:styles>")
+              + table_style + literal_style + "".join(heading_style_xml) + "</w:styles>")
     document = f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="{word}" xmlns:r="{word_rel}"><w:body>{"".join(body)}</w:body></w:document>'
     content_types = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>'
     root_rels = f'<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="{package_rel}"><Relationship Id="rId1" Type="{word_rel}/officeDocument" Target="word/document.xml"/></Relationships>'
@@ -398,7 +495,7 @@ def resolve_pdf_font(font_file):
     raise FileNotFoundError(f"configured PDF font {font_file!r} was not found in a supported font directory")
 
 
-def render_pdf(title, sections, fmt):
+def render_pdf(title, sections, fmt, layout_receipt=None):
     """Render a paginated Unicode PDF with an embedded DATA-selected font."""
     from reportlab.lib import colors
     from reportlab.lib.pagesizes import letter
@@ -406,14 +503,14 @@ def render_pdf(title, sections, fmt):
     from reportlab.lib.units import inch
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
+    from reportlab.platypus import Paragraph, Preformatted, SimpleDocTemplate, Spacer, Table, TableStyle
 
     font_file = resolve_pdf_font(fmt.get("font_file"))
     family = fmt.get("font_family", "StructuredOutputUnicode")
     regular = TTFont(f"{family}-Regular", font_file, validate=1)
     all_text = title + "".join(
         (section.get("heading") or "") + "".join(
-            block.get("text", "") if block.get("type") == "paragraph"
+            ("" if block.get("text_mode") == "literal" else block.get("text", "")) if block.get("type") == "paragraph"
             else "".join("".join(row) for row in block.get("rows", []))
             for block in section_blocks(section)
         )
@@ -423,6 +520,16 @@ def render_pdf(title, sections, fmt):
     if missing:
         raise ValueError(f"configured PDF font {fmt.get('font_file')!r} lacks glyph coverage for: {''.join(missing[:16])!r}")
     pdfmetrics.registerFont(regular)
+    literal_blocks = [block for section in sections for block in section_blocks(section)
+                      if block.get("text_mode") == "literal"]
+    literal_font = regular
+    if literal_blocks:
+        literal_font = TTFont(f"{family}-Literal", resolve_pdf_font(fmt.get("literal_font_file", "Courier New.ttf")), validate=1)
+        missing_literal = sorted({char for block in literal_blocks for char in block["text"]
+                                  if not char.isspace() and ord(char) not in literal_font.face.charWidths})
+        if missing_literal:
+            raise ValueError(f"configured PDF literal font lacks glyph coverage for: {''.join(missing_literal[:16])!r}")
+        pdfmetrics.registerFont(literal_font)
 
     sample = getSampleStyleSheet()
     body = ParagraphStyle("StructuredBody", parent=sample["BodyText"], fontName=regular.fontName,
@@ -463,14 +570,60 @@ def render_pdf(title, sections, fmt):
     def para(value, style=body):
         return Paragraph(xml.sax.saxutils.escape(value), style)
 
+    class LiteralPreformatted(Preformatted):
+        """Keep caller edge blanks when ReportLab splits a literal over pages."""
+        def __init__(self, lines, style):
+            super().__init__("\n".join(lines), style, dedent=0)
+            self.lines = list(lines)
+
+        def split(self, availWidth, availHeight):
+            count = int(availHeight / self.style.leading)
+            if count <= 0:
+                return []
+            if count >= len(self.lines):
+                return [self]
+            return [LiteralPreformatted(self.lines[:count], self.style),
+                    LiteralPreformatted(self.lines[count:], self.style)]
+
+    def paragraph_block(block, section_index, block_index):
+        indent_level = block.get("indent_level", 0)
+        step = fmt.get("indent_points_per_level", 18)
+        if isinstance(step, bool) or not isinstance(step, (int, float)) or not 0 < step <= 72:
+            raise ValueError("PDF indent_points_per_level must be positive and at most 72")
+        indent = indent_level * step
+        available = document.width - 12 - indent
+        if available <= 36:
+            raise ValueError("PDF indent leaves insufficient printable width")
+        if block.get("text_mode") != "literal":
+            return para(block["text"], ParagraphStyle("IndentedBody", parent=body, leftIndent=indent))
+        size = fmt.get("literal_font_size", 9)
+        leading = fmt.get("literal_leading", 12)
+        tab_size = fmt.get("literal_tab_size", 4)
+        if (type(tab_size) is not int or not 1 <= tab_size <= 16
+                or isinstance(size, bool) or not isinstance(size, (int, float)) or not 8 <= size <= 24
+                or isinstance(leading, bool) or not isinstance(leading, (int, float)) or leading < size):
+            raise ValueError("PDF literal typography must be readable with bounded tab stops")
+        layout = layout_literal_text(block["text"], available,
+                                     lambda line: pdfmetrics.stringWidth(line, literal_font.fontName, size),
+                                     tab_size, fmt.get("literal_wrap"))
+        if layout_receipt is not None:
+            layout_receipt.append({"section_index": section_index, "block_index": block_index,
+                                   "source_hard_line_count": len(block["text"].split("\n")),
+                                   "display_lines": layout["mapping"]})
+        style = ParagraphStyle("LiteralBody", parent=body, fontName=literal_font.fontName,
+                               fontSize=size, leading=leading, leftIndent=indent)
+        # ReportLab's constructor trims empty edge lines even with dedent=0.
+        # Its page splitter also reconstructs through that constructor.
+        return LiteralPreformatted(layout["lines"], style)
+
     story = [para(title, title_style)] if title else []
-    for section in sections:
+    for section_index, section in enumerate(sections):
         if section.get("heading"):
             level = section.get("heading_level") if section.get("heading_level") is not None else default_heading_level
             story.append(para(section["heading"], heading_style(level)))
-        for block in section_blocks(section):
+        for block_index, block in enumerate(section_blocks(section)):
             if block.get("type") == "paragraph":
-                story.append(para(block["text"]))
+                story.append(paragraph_block(block, section_index, block_index))
                 continue
             if block.get("type") != "table":
                 continue
@@ -584,6 +737,8 @@ def main():
         help="emit the DATA-driven projection without rendering or writing an export",
     )
     parser.add_argument("--result-path", default=None)
+    parser.add_argument("--content-identity", action="store_true",
+                        help="bind the original rendered bytes through the Workshop BLAKE3 owner")
     args = parser.parse_args()
 
     try:
@@ -617,7 +772,12 @@ def main():
         print(json.dumps(projection, ensure_ascii=False))
         return
 
-    body = render(job.get("title", ""), sections, fmt)
+    literal_layout = []
+    body = render(job.get("title", ""), sections, fmt, layout_receipt=literal_layout)
+    layout_source_identity = (job.get("source") or {}).get("candidate_content_identity") if literal_layout else None
+    if layout_source_identity is not None and (not isinstance(layout_source_identity, str)
+            or not re.fullmatch(r"1f:[0-9a-f]{64}", layout_source_identity)):
+        raise ValueError("Literal layout source identity must be a canonical caller binding")
 
     destination_dir = descriptor["destination_dir"]
     if not destination_dir.startswith("/"):
@@ -628,6 +788,10 @@ def main():
         print(json.dumps({"error": "file_stem must be a plain file name without a folder"}))
         sys.exit(1)
     data = body if isinstance(body, bytes) else body.encode("utf-8")
+    payload_hash = None
+    if args.content_identity:
+        owner = runpy.run_path(os.path.join(os.path.dirname(__file__), "writing_gate.py"))
+        payload_hash = "1f:" + owner["_snapshot_hash"](data)
 
     os.makedirs(destination_dir, exist_ok=True)
     path = os.path.join(destination_dir, f"{descriptor['file_stem']}.{fmt['extension']}")
@@ -660,6 +824,12 @@ def main():
         "byte_length": len(data),
         "format_id": descriptor["format_id"],
     }
+    if payload_hash is not None:
+        result["payload_hash"] = payload_hash
+    if literal_layout:
+        result["literal_layout"] = literal_layout
+        if layout_source_identity is not None:
+            result["literal_layout_source_identity"] = layout_source_identity
     if args.result_path is not None:
         with open(args.result_path, "w") as handle:
             json.dump(result, handle)

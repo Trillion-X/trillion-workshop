@@ -138,6 +138,16 @@
       "answers": {
        "type": "object",
        "description": "Answers to the checks branch's reading questions, by question id"
+      },
+      "purpose": {
+       "type": "string",
+       "enum": ["final_delivery", "private_layout_proof"],
+       "default": "final_delivery",
+       "description": "Final delivery keeps every existing writing check. Private layout proof requires explicit pinned settings and policy admission and never grants delivery or voice qualification."
+      },
+      "job_file": {
+       "type": "string",
+       "description": "Exact source-bound structured job for private_layout_proof only. The pinned policy owns its Word/PDF format, unfinished label and private destination."
       }
      }
     },
@@ -151,7 +161,8 @@
        "type": "string",
        "enum": [
         "exported",
-        "blocked"
+        "blocked",
+        "private_layout_proof"
        ]
       },
       "written": {
@@ -162,6 +173,12 @@
       },
       "gate": {
        "type": "object"
+      },
+      "purpose": {
+       "type": "string"
+      },
+      "delivery_eligible": {
+       "type": "boolean"
       },
       "checks": {
        "type": [

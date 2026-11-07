@@ -1,0 +1,64 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-EXPLICIT-PRIVATE-LAYOUT-PROOF",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "source:Y29kZXg6MDFhMWI3ZGUtMTgyNi03NDUxLTg1ZDktOTczM2Q3ODBjODA2OnJldmlzaW9uMTA3LXByaXZhdGUtZGVsaXZlcnk",
+  "message_multihash": "1f:0a48cb6da5070240f5f344dde006c91180a6f8a1540e039a04b97178249e6cc1",
+  "quote": "Yes perform honest bytecopy baseline attempt normal path-only commit, no qualification claim."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "ai-command-center",
+   "commit": "57f0f50ae5c9b4b4f23a9e8db052b99189f8b069",
+   "path": ".claude/hooks/judges/export_private_layout_proof.py",
+   "multihash": "1f:3dbfb95e42c5ef337eb3fe376f8a6b45f5c10b59f530b052e71729b2271d3a79",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T19:00:00Z",
+    "deleted_with": "Coupled migration of live callers and recoverable retirement after verification. Git and the exact BLAKE3 preserve the original source. This ADAPTED record does not claim retirement has occurred."
+   }
+  }
+ ],
+ "targets": [
+  { "path": "tools/export-documents-to-files/do-work/private-layout-proof.py" }
+ ],
+ "preserve": [
+  "The original proof_rule and inspect_inputs enforce default-deny exact current-prose document and purpose admission, source identity, source-bound projection/tree equality, exact projection/mechanical-gate/rules pins and a passed scoped mechanical gate.",
+  "The purpose is private_layout_proof only, requires no voice qualification and is never delivery eligible; current prose is never reclassified as a reference.",
+  "Policy-owned file stem, private user-owned output directories outside deliverables, private exclusive JSON files and an unfinished visible title.",
+  "Held private regular input snapshots are revalidated before and after rendering, and intended renderer payload identity is compared with actual saved bytes.",
+  "The canonical private-layout-proof-result-v1 receipt retains exact input/artifact identities and explicitly makes no author-voice, final-delivery or all-page-review claim.",
+  "Existing default final-export checks, writing-profile checks, source evidence and model qualification remain in their existing owners."
+ ],
+ "allowed_deltas": [
+  "The book's settings explicitly name and pin the original policy and input_root; no adjacent policy discovery or executable path comes from settings.",
+  "The original snapshot interface delegates to the current writing gate's bounded no-follow/nonblocking private regular-file reader and current content-identity owner, never the historical hook or retired package runtime.",
+  "The current structured renderer is selected beside this core; opt-in --content-identity provides the intended rendered payload identity through the current BLAKE3 owner.",
+  "The snapshot descriptor budget is bounded below the host's soft descriptor limit with a reserve, and its actual peak is reported; deeply nested legitimate private paths do not acquire a source-specific exception.",
+  "File-backed renderer logs bound collection memory; prepared inputs, saved result and artifact are held through verification. Native artifact readback verifies the visible unfinished label.",
+  "The existing normal book entry and CLI accept purpose/job_file and delegate to this active core; final output arguments cannot redirect private proofs, and private receipts cannot serve as final receipts.",
+  "Renderer literal_layout metadata remains inside the artifact receipt for independent layout review; the core does not certify that review."
+ ],
+ "banned_substitutions": [
+  "Request-only admission, changed or unpinned source/projection/gate/rules, fabricated mechanical-gate success, implicit adjacent-policy discovery or current-prose reference relabeling.",
+  "The historical native hook, Bitfield renderer, old hash helper or an executable selected by policy/settings DATA.",
+  "Delivery-eligible or voice-qualified private receipts, a finished title, final-deliverables output, or claiming that an internal proof passed final-delivery checks.",
+  "A retrospective byte-copy claim, an invented earlier baseline, deadline reset or VERIFIED status before live-caller migration and old-copy retirement are actually checked."
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-07T17:11:17-06:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:3dbfb95e42c5ef337eb3fe376f8a6b45f5c10b59f530b052e71729b2271d3a79",
+  "target_multihash_at_baseline": "1f:3dbfb95e42c5ef337eb3fe376f8a6b45f5c10b59f530b052e71729b2271d3a79",
+  "commit": "b0c81963768739587b55775395a3af02edf67418"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "test_refs": [
+   "tools/export-documents-to-files/test/test_private_layout_proof.py",
+   "tools/export-documents-to-files/test/private-layout-proof.test.mjs"
+  ]
+ }
+}

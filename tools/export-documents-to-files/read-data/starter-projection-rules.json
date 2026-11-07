@@ -11,6 +11,11 @@
       "props",
       "heading_level"
     ],
+    "literal_text": {
+      "path": ["props", "text_mode"],
+      "equals": "literal"
+    },
+    "indent_level_path": ["props", "indent_level"],
     "table": {
       "min_cells": 2,
       "min_rows": 2
@@ -22,6 +27,11 @@
         "mime_type": "application/pdf",
         "font_family": "StructuredOutputUnicode",
         "font_file": "Vera.ttf",
+        "literal_font_file": "Courier New.ttf",
+        "literal_font_size": 9,
+        "literal_leading": 12,
+        "literal_tab_size": 4,
+        "indent_points_per_level": 18,
         "default_heading_level": 2,
         "heading_styles": {
           "1": {
@@ -85,6 +95,11 @@
         "renderer": "docx",
         "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "default_heading_level": 1,
+        "indent_twips_per_level": 360,
+        "literal_style": {
+          "font_family": "Courier New",
+          "size_half_points": 18
+        },
         "heading_styles": {
           "1": {
             "style_id": "Heading1",

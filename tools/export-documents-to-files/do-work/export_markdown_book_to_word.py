@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import subprocess
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -36,6 +37,7 @@ class Block:
     rows: list[list[str]] = field(default_factory=list)
     ordered: bool = False
     items: list[tuple[int, str, bool]] = field(default_factory=list)
+    list_markers: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -158,6 +160,7 @@ def parse_markdown(text: str) -> ParsedBook:
             continue
         if re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", line):
             items: list[tuple[int, str, bool]] = []
+            markers: list[str] = []
             while i < len(lines):
                 current = lines[i]
                 match = re.match(r"^(\s*)([-*+]\s+|\d+[.)]\s+)(.*)$", current)
@@ -166,8 +169,9 @@ def parse_markdown(text: str) -> ParsedBook:
                 indent = len(match.group(1).expandtabs(4))
                 is_ordered = bool(re.match(r"\d", match.group(2)))
                 items.append((indent // 2, match.group(3).strip(), is_ordered))
+                markers.append(match.group(2).rstrip())
                 i += 1
-            blocks.append(Block("list", items=items))
+            blocks.append(Block("list", items=items, list_markers=markers))
             continue
         if line.startswith("> ") or line == ">":
             quote_lines = []
@@ -626,6 +630,7 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
     source_headings: list[str] = []
     source_tables: list[list[list[str]]] = []
     source_code: list[str] = []
+    source_list_markers: list[list[str]] = []
     has_title = False
     lines = source.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     prose: list[str] = []
@@ -704,13 +709,16 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
             expected.append(_plain_inline(heading_match[2]))
         elif re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", stripped):
             flush()
+            markers = [re.match(r"^([-*+]|\d+[.)])\s+", stripped)[1]]
             expected.append(_plain_inline(re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)))
             # A nested item belongs to the uninterrupted list, even at four
             # spaces. At a new block boundary that same indent remains code.
             while i < len(lines) and re.match(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)", lines[i]):
+                markers.append(re.match(r"^\s*([-*+]|\d+[.)])\s+", lines[i])[1])
                 value = re.sub(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)", "", lines[i]).strip()
                 expected.append(_plain_inline(value))
                 i += 1
+            source_list_markers.append(markers)
         elif stripped.startswith("> ") or stripped == ">":
             flush()
             quote = [re.sub(r"^\s*> ?", "", line).strip()]
@@ -729,6 +737,8 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
         raise ValueError("Heading text or order differs from Markdown source")
     if source_tables != [table.rows for table in parsed.tables]:
         raise ValueError("Table count, row count, or cell boundaries differ from Markdown source")
+    if source_list_markers != [block.list_markers for block in parsed.blocks if block.kind == "list"]:
+        raise ValueError("List markers or list boundaries differ from Markdown source")
     if source_code != [block.text for block in parsed.blocks if block.kind == "code"]:
         raise ValueError("Literal code text or indentation differs from Markdown source")
     expected_text = " ".join(expected)
@@ -777,6 +787,14 @@ def _json_file(path: Path | None):
     return json.loads(path.read_text(encoding="utf-8")) if path else None
 
 
+def render_private_layout_proof(source: Path, settings: dict, job_file: Path) -> dict:
+    """Delegate the admitted private purpose to its source-baselined core."""
+    from writing_gate import _private_layout_core
+    receipt = _private_layout_core().export_proof(source, settings, job_file)
+    return {"status": "private_layout_proof", "purpose": "private_layout_proof", "delivery_eligible": False,
+            "written": receipt["artifact"]["path"], "gate": receipt}
+
+
 def main(argv: Iterable[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("markdown", type=Path, nargs="?", help="Markdown source book (else the settings' manuscript)")
@@ -788,6 +806,8 @@ def main(argv: Iterable[str] | None = None) -> int:
     parser.add_argument("--settings-record", type=Path, help="The book's settings row as records:read gave it (a JSON file)")
     parser.add_argument("--settings", type=Path, help="The already-read settings object (a JSON file); for tests and the node wrapper")
     parser.add_argument("--checks-receipt", type=Path, help="The book's checks branch result for these bytes (export-a-book.mjs writes it)")
+    parser.add_argument("--purpose", choices=("final_delivery", "private_layout_proof"), default="final_delivery")
+    parser.add_argument("--job-file", type=Path, help="Exact source-bound structured job for an explicitly admitted private layout proof")
     args = parser.parse_args(argv)
     try:
         settings = _json_file(args.settings) if args.settings else read_settings(args.settings_record, args.book_id)
@@ -797,6 +817,17 @@ def main(argv: Iterable[str] | None = None) -> int:
     markdown = args.markdown or (Path(settings_view["manuscript"]) if settings_view.get("manuscript") else None)
     if markdown is None:
         parser.error("the Markdown source is required (an argument or the settings' manuscript)")
+    if args.purpose == "private_layout_proof":
+        if args.check or args.output or args.template or args.page_map or args.checks_receipt or not args.job_file:
+            parser.error("Private layout proof requires --job-file and its policy-owned output; final export arguments are refused")
+        try:
+            answer = render_private_layout_proof(markdown, settings, args.job_file)
+        except (ValueError, OSError, KeyError, TypeError, json.JSONDecodeError, subprocess.TimeoutExpired) as error:
+            parser.error(str(error))
+        print(json.dumps(answer, ensure_ascii=False))
+        return 0
+    if args.job_file:
+        parser.error("--job-file belongs only to an explicitly admitted private_layout_proof purpose")
     source_bytes = markdown.read_bytes()
     source_text = source_bytes.decode("utf-8")
     parsed = parse_markdown(source_text)
