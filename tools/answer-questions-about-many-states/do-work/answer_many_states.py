@@ -1,6 +1,6 @@
 """Answer a fixed set of questions about many states with a questions-first classifier, in bulk, on the person's Mac.
 
-    python3 -I tools/answer-questions-about-many-states/do-work/answer_many_states.py <action> [--request '<json>'] < request.json
+    python3 -I -B tools/answer-questions-about-many-states/do-work/answer_many_states.py <action> [--request '<json>'] < request.json
 
 The program `read-data/bulk-answer.mjs` starts for a row's run. It never reaches the person's records itself: the run
 reads the model row, the question set, the settings and the states through its records door and hands their values
