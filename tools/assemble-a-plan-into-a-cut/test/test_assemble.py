@@ -79,12 +79,33 @@ class Templates(unittest.TestCase):
 
     def test_command_json_stdin_is_optional_and_uses_the_existing_templates(self):
         self.assertIsNone(stdin_json({'argv': ['a-command']}, {}))
-        payload = {'value': {'fill': 'measured'}, 'args': [{'each': 'numbers'}], 'why': 'not command input'}
-        self.assertEqual(json.loads(stdin_json({'stdin_json': payload}, {'measured': {'text': 'café'}, 'numbers': [1, 2]})),
-                         {'value': {'text': 'café'}, 'args': [1, 2]})
+        payload = {'value': {'fill': 'measured'}, 'args': [{'each': 'numbers'}], 'why': 'semantic command input',
+                   'stands': [{'why': 'literal nested reason', 'artifact': {'fill': 'artifact'}}],
+                   'selected': {'if': 'enabled', 'then': {'why': 'conditional reason', 'array': [{'why': 'array reason'}]}}}
+        values = {'measured': {'text': 'café'}, 'numbers': [1, 2], 'artifact': 'made-up-ref', 'enabled': True}
+        self.assertEqual(json.loads(stdin_json({'stdin_json': payload}, values)),
+                         {'value': {'text': 'café'}, 'args': [1, 2], 'why': 'semantic command input',
+                          'stands': [{'why': 'literal nested reason', 'artifact': 'made-up-ref'}],
+                          'selected': {'why': 'conditional reason', 'array': [{'why': 'array reason'}]}})
         self.assertEqual(stdin_json({'stdin_json': None}, {}), 'null')
         with self.assertRaisesRegex(Refused, 'JSON value'):
             stdin_json({'stdin_json': {'fill': 'not_json'}}, {'not_json': float('nan')})
+
+    def test_keep_why_propagates_through_selected_branches_arrays_and_on_side(self):
+        template = {'branch': {'by_side': {'left': {'why': 'selected side', 'array': [{'why': 'inside array'}]},
+                                         'right': {'why': 'other side'}}},
+                    'on_side': {'left': {'why': 'merged side'}, 'right': {'why': 'other merge'}},
+                    'conditional': {'if': 'enabled', 'then': {'why': 'selected conditional'}},
+                    'joined': {'join': ['prefix ', {'by_side': {'left': {'why': 'joined value'}, 'right': 'other'}}]}}
+        kept = fill(template, {'enabled': True}, 'left', keep_why=True)
+        self.assertEqual(kept['branch'], {'why': 'selected side', 'array': [{'why': 'inside array'}]})
+        self.assertEqual(kept['why'], 'merged side')
+        self.assertEqual(kept['conditional'], {'why': 'selected conditional'})
+        self.assertIn('joined value', kept['joined'])
+        stripped = fill(template, {'enabled': True}, 'left')
+        self.assertEqual(stripped['branch'], {'array': [{}]})
+        self.assertNotIn('why', stripped)
+        self.assertEqual(stripped['conditional'], {})
 
     def test_bind_reads_paths_and_values_from_their_owners(self):
         with tempfile.TemporaryDirectory() as tmp:
