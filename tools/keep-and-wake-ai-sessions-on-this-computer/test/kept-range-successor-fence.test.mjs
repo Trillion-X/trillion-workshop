@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
 import { sqliteHost } from '../src/local-store.mjs';
@@ -67,12 +68,15 @@ test('ranges retain half-open bounds, newest tombstones, JS Unicode ordering, re
 
 test('real Workerd successor rejection removes exactly the unnecessary body read with equal answers', { timeout: 120000 }, async () => {
   const source = readFileSync(new URL('../parts/record-log/do-work/kept-runs.mjs', import.meta.url), 'utf8');
-  const correction = "        const nextPage = page + (reverse ? -1 : 1);\n        if (!reverse && nextFences.has(nextPage) && nextFences.get(nextPage) >= hi) {\n          // The immutable next page begins outside this range. Keep this\n          // value-free proof for a later seek that changes the group bounds.\n          head = null; headAt = index;\n          return;\n        }\n        page = nextPage;\n";
+  // The next page is the next sparse page in a format-1 run, else the page beside it; the correction is the fence check
+  // between finding it and moving to it, and the source without it is the same step with the check taken out.
+  const step = "        const nextPage = run.pageFormat === 1 ? neighbor?.page ?? (reverse ? -1 : run.pages) : page + (reverse ? -1 : 1);\n";
+  const correction = step + "        if (!reverse && nextFences.has(nextPage) && nextFences.get(nextPage) >= hi) {\n          // The immutable next page begins outside this range. Keep this\n          // value-free proof for a later seek that changes the group bounds.\n          head = null; headAt = index;\n          return;\n        }\n        page = nextPage;\n";
   assert.equal(source.split(correction).length, 2, 'unique actual corrected range boundary');
-  const before = source.replace(correction, '        page += reverse ? -1 : 1;\n');
+  const before = source.replace(correction, step + '        page = nextPage;\n');
   const modules = {};
   for (const [kind, contents] of [['before', before], ['after', source]]) {
-    const bundle = await build({ stdin: { contents, loader: 'js' }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
+    const bundle = await build({ stdin: { contents, loader: 'js', resolveDir: fileURLToPath(new URL('../parts/record-log/do-work/', import.meta.url)) }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
     modules[kind + '.mjs'] = { type: 'esm', contents: bundle.outputFiles[0].text };
   }
   const worker = `
