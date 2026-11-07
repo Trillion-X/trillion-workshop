@@ -4,7 +4,11 @@
   "status": "ADAPTED",
   "mode": "NO_PRIOR_OWNER",
   "job": "Decode individual ChatGPT Markdown exports as ordered source occurrences and exact source spans for the canonical conversation importer",
-  "directive": {"thread_id": "01a1b7de-2fce-7412-a6a9-4b091acf90cd", "quote": "Own importing Brian's four newest ChatGPT transcripts and their synthesis into actual offers, messaging, website and internal-team work through delivery."},
+  "directive": {
+    "thread_id": "01a1b7de-2fce-7412-a6a9-4b091acf90cd", "speaker": "agent",
+    "message_multihash": "1f:23b0e68bbe140c2d654e44b5a8e66caf635133841c8414cc511a8771059160df",
+    "quote": "Verify the current Markdown export reader against the four named sources: keep every prompt and response occurrence distinct, preserve exact source spans, keep unzoned timestamps as source text, and reuse the existing canonical message owner without publishing private material."
+  },
   "sources": [],
   "targets": [{"path": "tools/conversations/read-data/markdown-chat-export.mjs"}],
   "allowed_deltas": [],

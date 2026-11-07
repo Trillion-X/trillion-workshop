@@ -4,7 +4,9 @@
   "status": "ADAPTED",
   "directive": {
     "thread_id": "01a1b7de-2fce-7412-a6a9-4b091acf90cd",
-    "quote": "Recover the existing c9fbccd8 grant writer in its paid-access owner and carry its source, descriptor and tests through normal checks."
+    "speaker": "agent",
+    "message_multihash": "1f:f04d8dd6a3deb108e866de7f11713183fdec20aa728f1effff30c4d7bc4896ba",
+    "quote": "Restore and verify the existing c9fbccd8 paid-access grant writer in the declared paid-access owner, retaining immutable grant/revoke behavior while supporting revoke-only requests and admitted byte-bounded writes; use only synthetic checks and normal commit gates."
   },
   "mode": "SOURCE_FIRST_PORT",
   "sources": [{
