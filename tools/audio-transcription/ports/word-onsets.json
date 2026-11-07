@@ -1,0 +1,84 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-WORD-ONSETS-FROM-A-FILMS-NARRATOR-TOOLS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "film repository port 2026-11-05, lane film-tools: the narrator tools of a film",
+  "message_multihash": "1f:aeb8f995522699ddea5e955e3f76fbf2b1e15ce54fb42d728de86b36cdcfaafe",
+  "quote": "Finish the port of the film repository so it can be retired: move each job to its correct home, porting the correct parts one to one and never rebuilding from scratch what already worked; move the code byte for byte, then make what it fixed arguments and settings."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:af907307d2bb4275d73e70c0c831df7d54974325aa99d7f6b3f893b58c425dcc",
+   "lines": [
+    21,
+    55
+   ],
+   "multihash": "1f:aad1c7dd8e7dc61667e20b4dfbde84e7d920591cbe4047ce4c70a33850e2b09d",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  },
+  {
+   "repository": "trillion-launch-video",
+   "commit": "5a9ba3988a4d700c35ac705f3ea3c477e6e791da",
+   "path_multihash": "1f:af907307d2bb4275d73e70c0c831df7d54974325aa99d7f6b3f893b58c425dcc",
+   "lines": [
+    3,
+    19
+   ],
+   "multihash": "1f:fb90ab4d780603276070abbc38eba0eecdd7d6fc86cd5030ce58e76daf2b9867",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-08T20:00:00Z"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/audio-transcription/do-work/word_onsets.py",
+   "baseline_commit_message": "audio-transcription: a film's word_onsets.py, moved byte for byte"
+  }
+ ],
+ "preserve": [
+  "each word's start moves to the first 10 ms window inside the word whose level is above the silence line; its end stays",
+  "with the take's line file, the script's spelling when the counts agree, a hyphen split joined into one word; otherwise whisper's spelling and a note on stderr",
+  "the output {source, timing, words}",
+  "the old command line take words out [line] still works"
+ ],
+ "allowed_deltas": [
+  "one JSON request on standard input and one JSON answer as the last line",
+  "the silence line is a request field (edge_db) with the old -45 dBFS as its default",
+  "the answer counts the words that moved and says whose spelling they carry"
+ ],
+ "banned_substitutions": [
+  "a second word-timing engine beside audio-transcription",
+  "a silence line written into the code with no field"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:aad1c7dd8e7dc61667e20b4dfbde84e7d920591cbe4047ce4c70a33850e2b09d",
+  "target_multihash_at_baseline": "1f:aad1c7dd8e7dc61667e20b4dfbde84e7d920591cbe4047ce4c70a33850e2b09d",
+  "commit": "39b3e32535d9f1f90c7d127590ecac71e5114622",
+  "recorded_at": "2026-11-05T22:30:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "def script_spelling",
+   "def main(take, words_in, out, line_json=None, edge_db=EDGE_DB)",
+   "np.where(db[a:b] > edge_db)"
+  ],
+  "test_refs": [
+   "tools/audio-transcription/test/test_word_onsets.py",
+   "tools/audio-transcription/test/word-onsets.test.mjs"
+  ],
+  "render_refs": [],
+  "originality_ref": null
+ },
+ "_paths": "The source lives in a private repository, so it is named by the BLAKE3 identity of its path (path_multihash); a checkout of that repository beside this one finds it. Lines holding a person's name or a private path are left out of the sources (each source names its lines), so they never reach this public repository; the first source is the byte copy."
+}

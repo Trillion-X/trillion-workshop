@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import runpy
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(os.path.dirname(HERE), 'do-work', 'word_onsets.py')
@@ -84,6 +85,23 @@ class WordOnsets(unittest.TestCase):
         code, answer, _ = self.run_it(take=os.path.join(self.dir, 'missing.wav'))
         self.assertEqual(code, 2)
         self.assertIn('error', answer)
+
+    def test_original_positional_command_matches_the_json_request(self):
+        line = self.json('line.json', {'script': 'Hello John.'})
+        code, answer, expected = self.run_it(line=line)
+        self.assertEqual(code, 0, answer)
+        positional = os.path.join(self.dir, 'positional.json')
+        done = subprocess.run([sys.executable, '-I', SCRIPT, self.take, self.words, positional, line], capture_output=True, text=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertEqual(json.load(open(positional)), expected)
+
+    def test_original_python_entry_point_keeps_the_threshold_argument(self):
+        output = os.path.join(self.dir, 'python-api.json')
+        module = runpy.run_path(SCRIPT)
+        module['main'](self.take, self.words, output, edge_db=0)
+        with open(output) as f:
+            result = json.load(f)
+        self.assertEqual([w['start'] for w in result['words']], [0.30, 1.02])
 
 
 if __name__ == '__main__':
