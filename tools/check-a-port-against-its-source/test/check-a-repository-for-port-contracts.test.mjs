@@ -110,6 +110,31 @@ test('the copy commit itself passes with no baseline commit yet', (t) => {
   assert.equal(result.valid, true, JSON.stringify(result, null, 2));
 });
 
+test('the exact first copy can be committed into a genuinely unborn repository', (t) => {
+  const { base, oldCommit } = checkouts(t);
+  const tools = join(base, 'fresh-tools');
+  mkdirSync(tools);
+  git(tools, 'init', '-q', '-b', 'main');
+  const contract = portContract({ oldCommit, status: 'BASELINED' });
+  write(tools, { [contract.targets[0].path]: OLD_SOURCE, 'tools/order-rows/ports/order-rows.json': contract });
+  git(tools, 'add', '-A');
+  const result = judgeRepository({ root: tools, span: { staged: true }, rules: { ...RULES, since: null }, now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, true, JSON.stringify(result));
+});
+
+test('an uncommitted raw copy cannot qualify a grouped preexisting adapted target', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const contract = portContract({ oldCommit, status: 'BASELINED' });
+  const adapted = contract.targets[0].path;
+  commit(tools, { [adapted]: `${OLD_SOURCE.trimEnd().split('\n').slice(0, 10).join('\n')}\n` });
+  contract.targets.unshift({ path: 'tools/order-rows/do-work/raw-copy.mjs' });
+  write(tools, { [contract.targets[0].path]: OLD_SOURCE, 'tools/order-rows/ports/order-rows.json': contract });
+  git(tools, 'add', '-A');
+  const result = judgeRepository({ root: tools, span: { staged: true }, rules: { ...RULES, since }, now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, false, JSON.stringify(result));
+  assert.match(result.judged[0].errors.join('\n'), /must precede active adaptation/);
+});
+
 test('a renamed byte-copy baseline proves active targets without claiming the historical path', (t) => {
   const { tools, old, since, oldCommit } = checkouts(t);
   const baselinePath = 'proofs/order-rows-original.mjs';
@@ -128,6 +153,38 @@ test('a renamed byte-copy baseline proves active targets without claiming the hi
   const command = spawnSync(process.execPath, [JUDGE, '--root', tools, '--range', `${since}..HEAD`], { encoding: 'utf8' });
   assert.equal(command.status, 0, command.stdout);
   assert.equal(JSON.parse(command.stdout).valid, true);
+});
+
+test('Git rename records preserve a real baseline while tracing earlier adaptation', (t) => {
+  for (const adaptedBefore of [false, true]) {
+    const { tools, since, oldCommit } = checkouts(t);
+    const contract = portContract({ oldCommit });
+    const current = contract.targets[0].path;
+    const original = 'tools/order-rows/do-work/original-name.mjs';
+    if (adaptedBefore) commit(tools, { [original]: `${OLD_SOURCE.trimEnd().split('\n').slice(0, 10).join('\n')}\n` });
+    const copy = commit(tools, { [original]: OLD_SOURCE });
+    contract.baseline.commit = copy;
+    git(tools, 'mv', original, current);
+    commit(tools, { [current]: `${OLD_SOURCE}export const adaptedRowsAfterRename = true;\n`, 'tools/order-rows/ports/order-rows.json': contract });
+    const readers = gitReaders({ root: tools, tree: 'HEAD' });
+    assert.equal(readers.targetAtCommit(copy, current)?.toString(), OLD_SOURCE);
+    assert.equal(readers.targetAtCommit(copy, current, { followRenames: false }), null, 'an explicit baseline path still requires that exact path');
+    assert.equal(gitReaders({ root: tools, tree: copy }).targetAtCommit(copy, current), null, 'future rename records do not apply to an earlier judged tree');
+    const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+    assert.equal(result.valid, !adaptedBefore, JSON.stringify({ adaptedBefore, result }));
+    if (adaptedBefore) assert.match(result.judged[0].errors.join('\n'), /must precede active adaptation/);
+  }
+});
+
+test('an unrelated new path cannot borrow a baseline from a similar file without a Git rename record', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const contract = portContract({ oldCommit });
+  contract.baseline.commit = commit(tools, { 'tools/order-rows/do-work/original-name.mjs': OLD_SOURCE });
+  commit(tools, { [contract.targets[0].path]: `${OLD_SOURCE}export const independentlyAddedRows = true;\n`, 'tools/order-rows/ports/order-rows.json': contract });
+  assert.equal(gitReaders({ root: tools, tree: 'HEAD' }).targetAtCommit(contract.baseline.commit, contract.targets[0].path), null);
+  const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, false);
+  assert.match(result.judged.find((one) => one.path === contract.targets[0].path).errors.join('\n'), /does not hold/);
 });
 
 test('a separate retained baseline artifact cannot inflate active targets retention', (t) => {
@@ -197,7 +254,31 @@ test('an explicit baseline path must exist with exact source bytes at its real c
   }
 });
 
-test('recovery from an explicit baseline retains grouped sources across active targets only', (t) => {
+test('a source commit must be a real commit rather than a tree with matching bytes', (t) => {
+  const { tools, old, since, oldCommit } = checkouts(t);
+  const contract = portContract({ oldCommit });
+  contract.sources[0].commit = git(old, 'rev-parse', `${oldCommit}^{tree}`);
+  contract.baseline.commit = commit(tools, { [contract.targets[0].path]: OLD_SOURCE });
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': contract });
+  const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, false, JSON.stringify(result));
+  assert.match(result.judged[0].errors.join('\n'), /source .* is not in that commit/);
+});
+
+test('source code must be a regular Git file rather than source-looking symlink text', (t) => {
+  const { tools, old, since } = checkouts(t);
+  git(old, 'rm', 'src/order-rows.mjs');
+  symlinkSync(OLD_SOURCE, join(old, 'src/order-rows.mjs'));
+  const sourceCommit = commit(old, {});
+  const contract = portContract({ oldCommit: sourceCommit });
+  contract.baseline.commit = commit(tools, { [contract.targets[0].path]: OLD_SOURCE });
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': contract });
+  const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, false, JSON.stringify(result));
+  assert.match(result.judged[0].errors.join('\n'), /source .* is not in that commit/);
+});
+
+test('a separate baseline retains grouped sources across active targets only', (t) => {
   const { tools, old, since, oldCommit } = checkouts(t);
   const extra = 'export const keepSupplementaryRowsInOrder = (rows) => rows.slice();\n';
   const extraCommit = commit(old, { 'src/supplement.mjs': extra });
@@ -225,7 +306,116 @@ test('recovery from an explicit baseline retains grouped sources across active t
     'tools/order-rows/ports/order-rows.json': contract,
   });
   const legacy = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
-  assert.equal(legacy.valid, true, JSON.stringify(legacy, null, 2));
+  assert.equal(legacy.valid, false, 'omitting baseline.path cannot qualify a later raw revert as source-first');
+  assert.match(legacy.judged[0].errors.join('\n'), /must precede active adaptation/);
+});
+
+test('legacy archive-first targets fail and only active feature DATA supplies retention', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const contract = portContract({ oldCommit });
+  const active = contract.targets[0].path;
+  const archive = 'proofs/order-rows-original.held';
+  const rewritten = `${OLD_SOURCE.trimEnd().split('\n').slice(0, 10).join('\n')}\nexport const adaptedRows = true;\n`;
+  commit(tools, { [active]: rewritten });
+  contract.baseline.commit = commit(tools, { [archive]: OLD_SOURCE });
+  contract.targets.unshift({ path: archive });
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': contract });
+  const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, false, JSON.stringify(result));
+  assert.match(result.judged[0].errors.join('\n'), /separate artifact belongs in baseline.path/);
+  assert.match(result.judged[0].errors.join('\n'), /must precede active adaptation/);
+  const options = { stage: 'pre-edit', readers: gitReaders({ root: tools, tree: 'HEAD' }), repository: 'tools-repo', now: NOW_BEFORE_DUE };
+  const ambiguous = validateReferenceAdaptationContract(contract, options);
+  assert.equal(ambiguous.valid, false);
+  assert.equal(ambiguous.measurements, null);
+  assert.match(ambiguous.errors.join('\n'), /baseline.path or activeTargetPaths/);
+  const scoped = validateReferenceAdaptationContract(contract, { ...options, activeTargetPaths: [active] });
+  assert.equal(scoped.valid, false);
+  assert.equal(scoped.measurements.meaningfulLineRetention, 10 / 12);
+});
+
+test('grouped active ports include unchanged helpers from all feature DATA paths', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const contract = portContract({ oldCommit });
+  const active = contract.targets[0].path;
+  const helper = 'tools/order-rows/do-work/remaining-rows.mjs';
+  const lines = OLD_SOURCE.trimEnd().split('\n');
+  contract.baseline.commit = commit(tools, { [active]: OLD_SOURCE });
+  contract.targets.push({ path: helper });
+  const helperCommit = commit(tools, { [helper]: `${lines.slice(6).join('\n')}\n` });
+  commit(tools, { [active]: `${lines.slice(0, 6).join('\n')}\nexport const additionalOrderingAdapter = true;\n`, 'tools/order-rows/ports/order-rows.json': contract });
+  const rules = { ...RULES, since, feature_files: [{ ...RULES.feature_files[0], grown_lines_over: 0 }] };
+  const result = judgeRepository({ root: tools, span: { from: helperCommit, to: 'HEAD' }, rules, now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, true, JSON.stringify(result));
+  assert.deepEqual(result.judged.map((one) => one.path), [active]);
+  const measured = validateReferenceAdaptationContract(contract, { stage: 'pre-edit', readers: gitReaders({ root: tools, tree: 'HEAD' }), repository: 'tools-repo', activeTargetPaths: [active, helper], now: NOW_BEFORE_DUE });
+  assert.equal(measured.valid, true, JSON.stringify(measured));
+  assert.equal(measured.measurements.meaningfulLineRetention, 1);
+});
+
+test('a genuine same-file source snapshot preserves its earlier development history', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const contract = portContract({ oldCommit });
+  const active = contract.targets[0].path;
+  commit(tools, { [active]: 'export const earlierImplementationBeforeTheSourceSnapshot = true;\n' });
+  const sourceSnapshot = commit(tools, { [active]: OLD_SOURCE });
+  contract.sources = [{ ...contract.sources[0], repository: 'tools-repo', commit: sourceSnapshot, path: active, old_copy: 'same-file' }];
+  contract.baseline.commit = sourceSnapshot;
+  commit(tools, { [active]: `${OLD_SOURCE}export const currentAdaptationKeepsTheSource = true;\n`, 'tools/order-rows/ports/order-rows.json': contract });
+  const rules = { ...RULES, since: sourceSnapshot, feature_files: [{ ...RULES.feature_files[0], grown_lines_over: 0 }] };
+  const result = judgeRepository({ root: tools, span: { from: sourceSnapshot, to: 'HEAD' }, rules, now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, true, JSON.stringify(result));
+  assert.equal(result.judged.length, 1);
+});
+
+test('supplementary or post-policy self-sources cannot launder already-adapted imports', (t) => {
+  for (const mixed of [true, false]) {
+    const { tools, since, oldCommit } = checkouts(t);
+    const contract = portContract({ oldCommit });
+    const active = contract.targets[0].path;
+    const adapted = `${OLD_SOURCE.trimEnd().split('\n').slice(0, 10).join('\n')}\n`;
+    commit(tools, { [active]: adapted });
+    contract.baseline.path = 'proofs/order-rows-original.held';
+    const copy = commit(tools, { [contract.baseline.path]: mixed ? OLD_SOURCE : adapted });
+    contract.baseline.commit = copy;
+    const self = { repository: 'tools-repo', commit: copy, path: active, multihash: identity(adapted), ownership: 'repository-owned', old_copy: 'same-file' };
+    if (mixed) contract.sources.push(self);
+    else {
+      contract.sources = [self];
+      contract.baseline.source_multihash = self.multihash;
+      contract.baseline.target_multihash_at_baseline = self.multihash;
+    }
+    commit(tools, { 'tools/order-rows/ports/order-rows.json': contract });
+    const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+    assert.equal(result.valid, false, JSON.stringify({ mixed, result }));
+    assert.match(result.judged[0].errors.join('\n'), /same-file provenance requires the complete original source\/target set/);
+  }
+});
+
+test('rename lineage checks both current and older names before and after the baseline', (t) => {
+  for (const scenario of ['deleted-current', 'adapted-old-name', 'raw-old-name']) {
+    const { tools, since, oldCommit } = checkouts(t);
+    const contract = portContract({ oldCommit });
+    const active = contract.targets[0].path;
+    const earlier = 'tools/order-rows/do-work/earlier-name.mjs';
+    const adapted = `${OLD_SOURCE.trimEnd().split('\n').slice(0, 10).join('\n')}\n`;
+    contract.baseline.path = 'proofs/order-rows-original.held';
+    if (scenario === 'deleted-current') {
+      commit(tools, { [active]: adapted });
+      git(tools, 'rm', active);
+      contract.baseline.commit = commit(tools, { [contract.baseline.path]: OLD_SOURCE });
+      mkdirSync(dirname(join(tools, active)), { recursive: true });
+      git(tools, 'mv', contract.baseline.path, active);
+    } else {
+      commit(tools, { [earlier]: scenario === 'raw-old-name' ? OLD_SOURCE : adapted });
+      git(tools, 'mv', earlier, active);
+      contract.baseline.commit = commit(tools, { [active]: OLD_SOURCE, [contract.baseline.path]: OLD_SOURCE });
+    }
+    commit(tools, { [active]: `${OLD_SOURCE}export const adaptedRowsAfterRename = true;\n`, 'tools/order-rows/ports/order-rows.json': contract });
+    const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+    assert.equal(result.valid, scenario === 'raw-old-name', JSON.stringify({ scenario, result }));
+    if (scenario !== 'raw-old-name') assert.match(result.judged[0].errors.join('\n'), /must precede active adaptation/);
+  }
 });
 
 test('a separate baseline still verifies literal redactions and the original source identity', (t) => {
@@ -262,7 +452,7 @@ test('a separate baseline cannot retroactively qualify an adapted, deleted or re
     commit(tools, { [active]: rewritten, 'tools/order-rows/ports/order-rows.json': contract });
     const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
     assert.equal(result.valid, false, JSON.stringify({ state, result }));
-    assert.match(result.judged[0].errors.join('\n'), /baseline.path must precede active adaptation/);
+    assert.match(result.judged[0].errors.join('\n'), /baseline must precede active adaptation/);
   }
 });
 
@@ -278,7 +468,7 @@ test('every active target must follow the copy, even if another target held an e
   commit(tools, { 'tools/order-rows/ports/order-rows.json': contract });
   const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
   assert.equal(result.valid, false);
-  assert.match(result.judged[0].errors.join('\n'), /baseline.path must precede active adaptation/);
+  assert.match(result.judged[0].errors.join('\n'), /baseline must precede active adaptation/);
 });
 
 test('a source copy at an active path followed by adaptation and new helpers is valid', (t) => {
@@ -321,7 +511,7 @@ test('an active target introduced on a sibling branch before the copy cannot qua
   git(tools, 'update-ref', 'refs/heads/main', merged);
   const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
   assert.equal(result.valid, false, JSON.stringify(result));
-  assert.match(result.judged[0].errors.join('\n'), /baseline.path must precede active adaptation/);
+  assert.match(result.judged[0].errors.join('\n'), /baseline must precede active adaptation/);
 });
 
 test('a Git symlink blob is never a source-copy baseline even when its link text has the source identity', (t) => {
@@ -365,12 +555,26 @@ test('Git replacement commits cannot hide adaptation before the immutable baseli
   git(tools, '-c', 'user.name=t', '-c', 'user.email=t@example.test', 'replace', '--graft', contract.baseline.commit, since);
   const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
   assert.equal(result.valid, false, JSON.stringify(result));
-  assert.match(result.judged[0].errors.join('\n'), /baseline.path must precede active adaptation/);
+  assert.match(result.judged[0].errors.join('\n'), /baseline must precede active adaptation/);
   git(tools, 'replace', '-d', contract.baseline.commit);
   write(tools, { '.git/info/grafts': `${contract.baseline.commit} ${since}\n` });
   const grafted = validateReferenceAdaptationContract(contract, { stage: 'pre-edit', readers: gitReaders({ root: tools, tree: 'HEAD' }), repository: 'tools-repo', now: NOW_BEFORE_DUE });
   assert.equal(grafted.valid, false, JSON.stringify(grafted));
   assert.match(grafted.errors.join('\n'), /requires repository history proof/);
+});
+
+test('a replacement tree cannot hide changed feature files from the judge or its command', (t) => {
+  const { tools, since } = checkouts(t);
+  const head = commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': 'export const rewrittenRowsWithoutAPort = true;\n' });
+  const replacement = git(tools, '-c', 'user.name=t', '-c', 'user.email=t@example.test', 'commit-tree', git(tools, 'rev-parse', `${since}^{tree}`), '-p', since, '-m', 'hide changed feature');
+  git(tools, 'replace', head, replacement);
+  const result = judgeRepository({ root: tools, span: range(since) });
+  assert.equal(result.valid, false, JSON.stringify(result));
+  assert.equal(result.judged.length, 1);
+  assert.match(result.judged[0].errors.join('\n'), /no contract/);
+  const command = spawnSync(process.execPath, [JUDGE, '--root', tools, '--range', `${since}..HEAD`], { encoding: 'utf8' });
+  assert.equal(command.status, 1, command.stdout);
+  assert.equal(JSON.parse(command.stdout).judged.length, 1);
 });
 
 test('a rewrite is refused: its first commit is not the byte copy, and it keeps too few of the source lines', (t) => {

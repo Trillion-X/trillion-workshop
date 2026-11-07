@@ -41,11 +41,11 @@ const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 const IS_CONTRACT = /(^|\/)ports\/.+\.json$/;
 
 function git(root, args) {
-  return execFileSync('git', ['-C', root, ...args], { maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8');
+  return execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8');
 }
 
 function hasCommit(root, ref) {
-  return spawnSync('git', ['-C', root, 'rev-parse', '--verify', '-q', `${ref}^{commit}`]).status === 0;
+  return spawnSync('git', ['--no-replace-objects', '-C', root, 'rev-parse', '--verify', '-q', `${ref}^{commit}`]).status === 0;
 }
 
 // [{ path, added: boolean, lines_added }] for the files a span adds or changes, renames counted as added.
@@ -62,9 +62,13 @@ export function changesOf(root, span) {
   });
 }
 
+function featurePath(rule, path) {
+  return new RegExp(rule.matches).test(path) && !(rule.ignore && new RegExp(rule.ignore).test(path));
+}
+
 function featureRule(rules, change) {
   for (const rule of rules.feature_files ?? []) {
-    if (!new RegExp(rule.matches).test(change.path) || (rule.ignore && new RegExp(rule.ignore).test(change.path))) continue;
+    if (!featurePath(rule, change.path)) continue;
     if (change.added && rule.added !== false) return 'added';
     if (!change.added && Number.isFinite(rule.grown_lines_over) && change.lines_added > rule.grown_lines_over) return 'grown';
   }
@@ -107,7 +111,7 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   if (rules.since && !hasCommit(here, rules.since)) throw new Error(`the rules' since commit ${rules.since} is not in this checkout's history`);
   // Nothing before the rules began is judged: a range that starts earlier (or at the empty tree) starts at `since`.
   const startsEarlier = (from) => rules.since && (!hasCommit(here, from)
-    || spawnSync('git', ['-C', here, 'merge-base', '--is-ancestor', from, rules.since]).status === 0);
+    || spawnSync('git', ['--no-replace-objects', '-C', here, 'merge-base', '--is-ancestor', from, rules.since]).status === 0);
   const resolved = span.since ? { from: rules.since, to: span.to }
     : span.from !== undefined && startsEarlier(span.from) ? { from: rules.since, to: span.to } : span;
 
@@ -132,7 +136,10 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
 
   const options = {
     readers,
+    activeTargetPaths: (tree === ':' ? git(here, ['ls-files', '-z']) : git(here, ['ls-tree', '-r', '-z', '--name-only', tree]))
+      .split('\0').filter((path) => path && (rules.feature_files ?? []).some((rule) => featurePath(rule, path))),
     repository: readers.self,
+    policySince: rules.since,
     searchRepositories,
     searchCapabilities: capabilitySearch(capabilitySearchArgv),
     isContract: (path) => IS_CONTRACT.test(path),
@@ -170,7 +177,7 @@ export function spanForCommand(root, command) {
   const git = String(command).split(/&&|\|\||;|\n/).map((part) => part.trim()).filter((part) => /^git(\s+-C\s+\S+)?\s/.test(part));
   if (git.some((part) => /\scommit(\s|$)/.test(part))) return { staged: true };
   if (git.some((part) => /\spush(\s|$)/.test(part))) {
-    const base = spawnSync('git', ['-C', root, 'merge-base', 'HEAD', 'refs/remotes/origin/main'], { encoding: 'utf8' });
+    const base = spawnSync('git', ['--no-replace-objects', '-C', root, 'merge-base', 'HEAD', 'refs/remotes/origin/main'], { encoding: 'utf8' });
     return { from: base.status === 0 ? base.stdout.trim() : EMPTY_TREE, to: 'HEAD' };
   }
   return null;

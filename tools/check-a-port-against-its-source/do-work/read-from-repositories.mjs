@@ -62,13 +62,37 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     return main;
   };
   const show = (folder, spec) => (folder ? git(folder, ['show', spec], { bytes: true }) : null);
-  const targetAtCommit = (commit, path) => /^100(?:644|755) blob /.test(git(here, ['--literal-pathspecs', 'ls-tree', `${commit}^{commit}`, '--', path]) ?? '')
-    ? show(here, `${commit}^{commit}:${path}`) : null;
+  const regularAtCommit = (commit, path, folder = here) => /^100(?:644|755) blob /.test(git(folder, ['--literal-pathspecs', 'ls-tree', `${commit}^{commit}`, '--', path]) ?? '')
+    ? show(folder, `${commit}^{commit}:${path}`) : null;
   const ancestor = (before, after) => git(here, ['merge-base', '--is-ancestor', before, after]) !== null;
+  const judgedCommit = () => git(here, ['rev-parse', '--verify', `${tree === undefined || tree === ':' ? 'HEAD' : tree}^{commit}`])?.trim();
+  const renameLineage = (commit, path) => {
+    const judged = judgedCommit();
+    if (!judged || !ancestor(commit, judged)) return { then: path, names: [path] };
+    const renames = git(here, ['--literal-pathspecs', 'log', '--follow', '--full-history', '-m', '--find-renames', '--diff-filter=R', '--name-status', '-z', '--format=%x00@%H%x00', judged, '--', path]);
+    let current = path, then = path, revision = null;
+    const names = new Set([path]), fields = (renames ?? '').split('\0');
+    for (let index = 0; index < fields.length; index += 1) {
+      const field = fields[index].trim();
+      if (/^@[0-9a-f]+$/.test(field)) revision = field.slice(1);
+      else if (/^R\d+$/.test(field)) {
+        const from = fields[++index], to = fields[++index];
+        if (names.has(to) && from) {
+          names.add(from);
+          if (to === current) {
+            current = from;
+            if (revision && !ancestor(revision, commit)) then = from;
+          }
+        }
+      }
+    }
+    return { then, names: [...names] };
+  };
+  const targetAtCommit = (commit, path, { followRenames = true } = {}) => regularAtCommit(commit, followRenames ? renameLineage(commit, path).then : path);
   const pathOf = (source) => {
     if (source?.path) return source.path;
     const folder = source?.repository && source?.commit && source?.path_multihash ? checkout(source.repository) : null;
-    const listed = folder ? git(folder, ['ls-tree', '-r', '--name-only', source.commit]) : null;
+    const listed = folder ? git(folder, ['ls-tree', '-r', '--name-only', `${source.commit}^{commit}`]) : null;
     return listed?.split('\n').find((path) => path && makeHashCodeHexFromBytes(Buffer.from(path)) === source.path_multihash) ?? null;
   };
   return {
@@ -76,9 +100,10 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     checkout,
     mainOf,
     pathOf,
+    isAncestor: ancestor,
     readSource(source) {
       const path = source?.repository && source?.commit ? pathOf(source) : null;
-      return path ? show(checkout(source.repository), `${source.commit}:${path}`) : null;
+      return path ? regularAtCommit(source.commit, path, checkout(source.repository)) : null;
     },
     readTarget(path) {
       if (tree === undefined) {
@@ -87,7 +112,7 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
         // into another target (in particular an archival baseline). Allow an OS alias of the checkout root itself.
         return existsSync(file) && realpathSync(file) === resolve(realpathSync(here), path) ? readFileSync(file) : null;
       }
-      if (tree !== ':') return targetAtCommit(tree, path);
+      if (tree !== ':') return regularAtCommit(tree, path);
       return /^100(?:644|755) [0-9a-f]+ 0\t/.test(git(here, ['--literal-pathspecs', 'ls-files', '--stage', '--', path]) ?? '') ? show(here, `:${path}`) : null;
     },
     targetAtCommit,
@@ -96,16 +121,23 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       const grafts = git(here, ['rev-parse', '--git-path', 'info/grafts'])?.trim();
       if (!grafts || (existsSync(resolve(here, grafts)) && readFileSync(resolve(here, grafts), 'utf8').trim())) return null;
       const base = git(here, ['rev-parse', '--verify', `${commit}^{commit}`])?.trim();
-      const judged = git(here, ['rev-parse', '--verify', `${tree === undefined || tree === ':' ? 'HEAD' : tree}^{commit}`])?.trim();
+      const judged = judgedCommit();
+      if (!base && !judged && commit === 'HEAD' && (tree === undefined || tree === ':') && git(here, ['symbolic-ref', '--quiet', 'HEAD'])) {
+        return { ancestor: true, targets: paths.map((path) => ({ path, atBaseline: null, before: [], introductionsOrdered: true })) };
+      }
       if (!base || !judged) return null;
       const targets = paths.map((path) => {
-        const earlier = git(here, ['--literal-pathspecs', 'log', '--full-history', '--format=%H', base, '--', path]);
-        const added = git(here, ['--literal-pathspecs', 'log', '--full-history', '--diff-filter=A', '--format=%H', judged, '--', path]);
-        if (earlier === null || added === null) return null;
+        const { then, names } = renameLineage(base, path);
+        const earlier = names.map((name) => {
+          const revisions = git(here, ['--literal-pathspecs', 'log', '--full-history', '--no-renames', '--diff-filter=AMT', '--format=%H', base, '--', name]);
+          return revisions === null ? null : revisions.trim().split('\n').filter(Boolean).map((one) => regularAtCommit(one, name));
+        });
+        const added = git(here, ['--literal-pathspecs', 'log', '--full-history', '--no-renames', '--diff-filter=A', '--format=%H', judged, '--', ...names]);
+        if (earlier.some((one) => one === null) || added === null) return null;
         return {
           path,
-          atBaseline: targetAtCommit(base, path),
-          before: earlier.trim().split('\n').filter(Boolean).map((one) => targetAtCommit(one, path)),
+          atBaseline: regularAtCommit(base, then),
+          before: earlier.flat(),
           introductionsOrdered: added.trim().split('\n').filter(Boolean).every((one) => ancestor(one, base) || ancestor(base, one)),
         };
       });
