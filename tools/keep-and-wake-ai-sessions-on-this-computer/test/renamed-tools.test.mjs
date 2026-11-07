@@ -8,6 +8,7 @@ import { agentForTool } from '../../hand-off-jobs-between-agents/src/agent-tool-
 import { cardSkillFor, currentToolId, formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
+const COMPUTER = fileURLToPath(new URL('../../run-on-a-persons-computer/', import.meta.url));
 const formerNames = [...Object.keys(renamed.tools), ...Object.keys(renamed.agents), ...Object.keys(renamed.agent_prefixes), ...Object.keys(renamed.configurations)];
 
 function filesUnder(dir, keep) {
@@ -23,7 +24,8 @@ test('no former tool, agent, prefix or configuration id remains in records, src 
   const scanned = [
     ...filesUnder(join(ROOT, 'records'), path => /\.(json|mjs)$/.test(path)),
     ...filesUnder(join(ROOT, 'src'), path => /\.(json|mjs)$/.test(path) && path !== table),
-    ...readdirSync(join(ROOT, 'computer')).filter(name => name.endsWith('.json')).map(name => join(ROOT, 'computer', name)),
+    // Old trillion's computer/*.json moved into tools/run-on-a-persons-computer (a9ee2580).
+    ...readdirSync(COMPUTER).filter(name => name.endsWith('.json')).map(name => join(COMPUTER, name)),
   ];
   const hits = [];
   for (const path of scanned) {

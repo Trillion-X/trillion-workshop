@@ -111,6 +111,12 @@
       "test": "a loading block waits the look's reveal delay, then shows; reduced motion only shortens the animation",
       "home": "trillion-apps:web/test/screen-look-design-tokens.test.mjs",
       "why": "It mounts the app's placeholder, parts/ui/show/screen-state (mountScreenState), whose home is trillion-apps web/parts/ui/show/screen-state/ScreenState.tsx (docs/worker-retirement-port-backlog.json); no file of this repository holds it. The file's other tests read this repository's look resolver and view transition and stay; the case is in the file at d18ac1922346f133c7a9b8bd3dd0fdf422122126."
+    },
+    {
+      "path": "tools/organize-my-files/test/thread-cover.test.mjs",
+      "test": "the iPhone app carries the current cover and needle",
+      "home": "trillion-apps:web/test/thread-cover.test.mjs",
+      "why": "It reads the iPhone app's copies of the cover and needle under ios/App (openingCoverFiles in tools/draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs writes them there); the iPhone app is a trillion-apps tree and no ios/ folder is in this repository. The file's other tests read this repository's cover and stay; the case is in the file at 3b41c0aecb54838e71ace08afe0a42d2fd76cd96."
     }
   ]
 }
