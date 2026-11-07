@@ -84,7 +84,8 @@ test('source decode yield cannot bypass a changed generation or newly unsettled 
 test('failure after actual field rewrite rolls back root, payload, receipt and pending owner cache',async t=>{
  const f=fixture(t),before=meta(f),source=sourceOf(f.result),rewrite=f.records.rewriteOwnFieldJsonIfEqual;
  f.records.rewriteOwnFieldJsonIfEqual=(...args)=>{assert.equal(rewrite(...args),true);throw Error('Synthetic failure after rewrite');};
- assert.equal((await post(f,source)).status,400);assert.deepEqual(meta(f),before);assert.equal(f.records.read(f.payload),null);assert.equal(f.records.matchesOwnField(f.key,'agent-handoff','result',f.result),true);assert.equal(f.effects,0);
+ // A backend failure is not a refused request: the handler keeps its cause for the host's failure owner (handleAgentsRequest).
+ await assert.rejects(post(f,source),/Synthetic failure after rewrite/);assert.deepEqual(meta(f),before);assert.equal(f.records.read(f.payload),null);assert.equal(f.records.matchesOwnField(f.key,'agent-handoff','result',f.result),true);assert.equal(f.effects,0);
  f.records.rewriteOwnFieldJsonIfEqual=rewrite;assert.equal((await post(f,source)).status,200);assert.equal(source.opens,2);
 });
 
@@ -123,7 +124,7 @@ test('taken oversized correction history is normalized losslessly before source 
 test('history normalization rollback removes the sealed history and preserves original current history after an owner failure',async t=>{
  const f=fixture(t,{seed:false}),corrections=seedInlineHistory(f),before=meta(f),source=sourceOf(f.result),rewrite=f.records.rewriteOwnFieldJsonIfEqual;
  f.records.rewriteOwnFieldJsonIfEqual=(...args)=>{assert.equal(rewrite(...args),true);throw Error('Synthetic post-history rewrite failure');};
- assert.equal((await post(f,source)).status,400);assert.deepEqual(meta(f),before);assert.equal(f.records.read(f.payload+':corrections'),null);assert.equal(f.records.read(f.payload),null);assert.equal(f.effects,0);
+ await assert.rejects(post(f,source),/Synthetic post-history rewrite failure/);assert.deepEqual(meta(f),before);assert.equal(f.records.read(f.payload+':corrections'),null);assert.equal(f.records.read(f.payload),null);assert.equal(f.effects,0);
  assert.equal(f.records.matchesOwnField(f.key,'agent-handoff','corrections',corrections),true);
  f.records.rewriteOwnFieldJsonIfEqual=rewrite;assert.equal((await post(f,source)).status,200);assert.equal(f.effects,1);
 });
