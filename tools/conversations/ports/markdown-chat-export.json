@@ -17,14 +17,23 @@
   "proof": {"test_refs": ["tools/conversations/test/markdown-chat-export.test.mjs"], "search": {
     "phrasings": ["Decode individual Markdown chat exports as ordered source occurrences and exact source spans, and inspect or import them through the canonical owner using a configured native MCP client", "Markdown conversation export", "Prompt Response source occurrences"],
     "capability_rows": [], "code_patterns": ["markdownChatExport", "## Prompt:"],
-    "repositories": [{"repository": "trillion", "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"}],
-    "scope": "Bounded code-owner search; comprehensive cross-repository capability absence is not claimed. Further owner searches were pending during review."
+    "repositories": [
+      {"repository": "trillion", "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"},
+      {"repository": "trillion-workshop", "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"},
+      {"repository": "trillion-launch-video", "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"}
+    ],
+    "scope": "Bounded code search at the recorded origin/main commits using the two recorded patterns; all returned paths were inspected and distinguished below. The capability search could not be re-run, so comprehensive capability absence is not claimed."
   }},
   "distinct_from": [
     {"repository": "trillion", "path": "src/chat-archives.mjs", "why": "The inspected archive owner reads JSON conversation trees and page-shaped messages; the new format reader supplies that same page shape from Markdown."},
     {"repository": "trillion-workshop", "path": "tools/conversations/read-data/chat-import.mjs", "why": "The existing message and file importer consumes the new reader; it is not replaced or duplicated."},
     {"repository": "trillion-workshop", "path": "tools/records-door/read-data/stdio-mcp-door.mjs", "why": "The native entry reuses this existing configured MCP transport and credential owner rather than implementing either."},
-    {"repository": "trillion-workshop", "path": "tools/records-door/do-work/run-an-export.mjs", "why": "The existing tool-run entry receives an admitted file descriptor. The native conversation entry composes the same import owner with an already-configured host MCP bridge and also supports read-only inspection."}
+    {"repository": "trillion-workshop", "path": "tools/records-door/do-work/run-an-export.mjs", "why": "The existing tool-run entry receives an admitted file descriptor. The native conversation entry composes the same import owner with an already-configured host MCP bridge and also supports read-only inspection."},
+    {"repository": "trillion-workshop", "path": "tools/write-public-share-files/from-old-trillion/test/record-share-pages.test.mjs.held", "why": "The Prompt marker occurs in a synthetic Markdown fixture testing shared-file HTML rendering, including headings, tables and escaped scripts. This is a display test, not a reader of ordered conversation occurrences or exact source spans."},
+    {"repository": "trillion-launch-video", "path": "consolidation/characters-and-lore-2026-10-21/work/modular-0905.md", "why": "This is a content extraction note with attributed turns and source line references. Its header explains the Prompt and Response markers; it does not implement conversation decoding or canonical message import."},
+    {"repository": "trillion-launch-video", "path": "library/world/sources/icp-audience-summaries-2026-10-28.md", "why": "This is a saved Markdown conversation source containing Prompt headings, not executable format-reading or message-import code."},
+    {"repository": "trillion-launch-video", "path": "library/world/staging/EXTRACT-BRIEF.md", "why": "This brief instructs fact extraction from the person's own Prompt turns with exact quotations and source lines. Fact selection and attribution are a different job from retaining every conversation occurrence and its source spans."},
+    {"repository": "trillion-launch-video", "path": "tools/copy-gate/taste/sources.json", "why": "This DATA records marked-turn source settings for a retired taste collector: the person's reaction and preceding context for stance backfill. It names Prompt and Response markers but does not implement exact-span conversation decoding or canonical message import; the new reader does not replace the stance owner."}
   ],
   "preserve": [
     "Identity is the ChatGPT /c/<UUID> plus ordered occurrence number.",
