@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:57fb262b693bf14970c19ce3e808ea51a9f25da4727c3690819e94d4a10fe760"
+  "blake3": "1f:b42e5f3cf4c4c8d083cfd2dcf6f8c11d1cb1a3b85750224a2a4c79e26bbd56ab"
  },
  "fields": [
   {
@@ -1170,7 +1170,7 @@
    "values": {
     "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
     "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (the taker; needs words) and unstuck clears that; withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why. A finish also needs check: the exact saved outcome, checked_at during this take, consumer evidence ({ref, observation}), and one matching check per saved obligation. This records accountable observation and does not itself prove its truth. wait keeps recoverable work blocked on this same job with continuation {owner, action, after, reason}. resume returns it to waiting when due for its taker, sender or continuation owner. release may retain that same bounded continuation, which delays the next take. No completion automatically creates another job.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -1230,7 +1230,7 @@
    "values": {
     "title": "Change what holds me",
     "job": "Set the one thing I must do aside with a reason, hand it back to my AIs, choose what turning the hold off costs me, ask to turn it off, or turn it back on",
-    "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Answers the jobs to hand to your AIs (it sends nothing) and the setting as written.",
+    "description": "Changes your hold setting (setting:needs_you_hold) by your hold rules: set-aside needs a reason of the rules' length and lasts the rules' minutes, a few times a day; hand-back gives the rest of the thing to your AIs by one of the rules' ways and leaves the hold; choose-stake picks what turning off costs, in force once the stake before it has run its delay; turn-off takes effect only after the stake's delay and comes back by itself; turn-on is at once. One write of the whole setting, only while it is still what was read: a setting changed meanwhile answers conflict and changes nothing, and the same request_key sent again changes nothing twice. Keeps the setting and generated AI jobs in one conditional records write, with real producer provenance and stable source_job identity; answers the jobs already published and the setting as written.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -3206,7 +3206,7 @@
    "values": {
     "title": "Find what is closest to a vector across several of my indexes",
     "job": "Find the moments across all my recordings and pictures, kept in several indexes, closest in meaning to a query vector, best first across all of them, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name).",
+    "description": "Runs meaning-search's find-similar-vector on each of several of the person's semantic-index-descriptor records (index_ids) and merges their answers by score, best first. The indexes must come from one model (a picture index and a speech index, or two models, are refused: their scores do not compare). With spread ({per_file, seconds_apart}) the merged answer holds at most per_file items of one file, that far apart. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptors name (tool:words-as-picture-vector gives one for words). Returns index_ids, model_id, model_version, result (items with address, score, revision and payload_hash; considered and skipped summed over the indexes, min_score) and points_to (each address's file, start, end, text and any field the descriptor's points_to.carry names, such as a readable name). Each descriptor's search_mode chooses exact full-vector ranking or approximate LSH candidates (the default). Exact mode collects every qualified canonical candidate before the shared spread and requested final limit; the direct result_limit is not a pool cap. It still supplies the default aggregate size. Approximate mode retains its existing pool limits.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
@@ -3498,7 +3498,7 @@
    "values": {
     "title": "Find what is closest in meaning to some words",
     "job": "Find the moments in my recordings or documents whose words or transcript are closest in meaning to what I ask, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar on one of the person's semantic-index-descriptor records: query_text and any item of the vector set without a vector are embedded by the descriptor's model at its model_endpoint (the package's Ollama embedder), the set is indexed for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
+    "description": "Embeds query_text with the descriptor's model, then uses the same meaning-search cosine ranker, floor and limits. The descriptor's search_mode is exact to score every vector, or approximate (the default) to score LSH candidates. Exact search reads precomputed vectors directly; text without stored vectors uses the existing bounded embedding batches. Answers include file/time points_to, model and canonical provenance; optional spread is applied before the requested final limit.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
@@ -3513,7 +3513,7 @@
    "values": {
     "title": "Find what is closest to a vector",
     "job": "Find the moments in my recordings, pictures or documents closest in meaning to a query vector, such as the picture vector of some words, and say the file and time of each",
-    "description": "Runs meaning-search's find-similar-vector on one of the person's semantic-index-descriptor records: the descriptor's vector set (items and their vectors, two of the person's files) is indexed by the package's own scripts for the run, the ANN index narrows the candidates and the exact cosine ranks them, best first, never padded below the descriptor's min_score. query_vector_base64 is base64 of JSON {\"vector\": [...]} made by the model the descriptor names (tool:words-as-picture-vector gives one for words when the set holds picture vectors). Returns index_id, model_id, model_version, result (items with address, score, revision and payload_hash; considered, skipped, min_score) and points_to (each address's file, start, end and text). With spread ({per_file, seconds_apart}) the answer holds at most per_file items of one file, that far apart, so many neighbouring frames of one take do not fill it.",
+    "description": "Finds the closest items in the descriptor's vector set with the package's existing cosine ranker, floor and limits. The descriptor's search_mode is exact to score every vector, or approximate (the default) to score LSH candidates. Exact precomputed-vector search reads its .npy matrix directly without building an index. query_vector_base64 is base64 JSON {\"vector\": [...]} from the descriptor's model. Answers include file/time points_to, model and canonical provenance. With spread, the existing descriptor result_limit applies before spreading, and the requested final limit applies afterwards.",
     "status": "active",
     "maker": "maker:meaning-search",
     "licence_class": "licence:maker-own",
@@ -3611,6 +3611,21 @@
      "placement:small-container"
     ],
     "folder": "meaning-search"
+   }
+  },
+  {
+   "id": "tool:finish-an-ai-job",
+   "values": {
+    "title": "Check the saved consumer and finish an AI job",
+    "job": "Finish an AI job only after its saved acceptance checks pass on the actual persisted consumer",
+    "description": "Reads the exact record target saved in the job acceptance and applies the existing judge-words rules to its current value. Missing target, failed or unavailable checks, mismatched target, stale claim and changed job refuse completion. Receipt strings do not prove success. Keeps the actual consumer content identity and acceptance identity bound to this take. Rights are intersected by the engine with the caller authority; this tool grants no new account access.",
+    "status": "active",
+    "maker": "maker:hand-work-to-ais",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "hand-work-to-ais"
    }
   },
   {
@@ -4483,11 +4498,26 @@
    }
   },
   {
+   "id": "tool:grant-paid-access-to-people",
+   "values": {
+    "title": "Grant paid access to people",
+    "job": "Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
+    "description": "Writes one access-grant record for each grant: the person (subject, named the way your access rules name a buyer), the access ref they now hold, an optional grant_ref that names the grant (left out, it is \"grant:\" and the access ref), an optional window (valid_from_ms and expires_at_ms together, whole milliseconds since 1970, the end after the start) and an optional note. Each revoke (subject and grant_ref) writes the record that ends that grant. A record's id comes from the subject and the grant's reference, so running the same request again writes nothing and counts it as already. A grant whose window the access check would never hold (one end only, not whole numbers, the end not after the start), one kept with different terms under the same reference, and one that was ended already are refused with the reason and are not written. Answers written, already and refused (each with its index: grants count from 0, revokes carry on after the last grant). It reads and writes only your access-grant records; it moves no money and writes no payments. tool:see-who-holds-paid-access then shows the access held.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "paid-access"
+   }
+  },
+  {
    "id": "tool:hand-a-job-to-an-ai",
    "values": {
     "title": "Hand a job to one of my AIs, or to whichever takes it first",
     "job": "Give a job to another of my AIs (a named one, or any of them) so it is waiting for that AI to take",
-    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records.",
+    "description": "Writes one ai-job record, id ai-job:<key>, status waiting, holding the job in plain words, who sent it (`as`), the AI it is for (`to`, an ai record id; left out, any AI may take it), its priority (0 to 9, higher first; read-data/ai-work.json default_priority when left out), what done looks like (`outcome`) and when it was sent. The write is conditioned on the record being absent, so the same key sends the job once: sending it again answers already-there with the job as it is. `key` defaults to the run's request key. An AI named in `to` must be one of the person's ai records. source {kind, ref} preserves incoming provenance; obligations [{id, outcome}] declare independently checked parts. Reuse the incoming stable key and existing source job; do not enqueue duplicate work.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -4648,6 +4678,21 @@
      "placement:small-container"
     ],
     "folder": "learn-from-everyones-results"
+   }
+  },
+  {
+   "id": "tool:import-conversation-exports-from-my-files",
+   "values": {
+    "title": "Import conversation exports already in my files",
+    "job": "Keep every message of an exported conversation already stored in my account files, including Markdown individual chats, without needing access to a computer folder",
+    "description": "Reads only named account files through find_file/read_file, pins their immutable content identity, checks the complete BLAKE3 bytes, then reuses the canonical conversation importer and message source keys. JSON, zipped JSON and individual ChatGPT Markdown exports share one message owner. Repeated words in distinct occurrences stay distinct. Completed exports are rechecked without adding messages; interrupted writes safely resume by stable source refs. Local timestamps with no zone stay source text. No host folder grant is requested. Imports are private. Missing JSON attachment references are reported; Markdown file references remain in their source text. Each file is bounded to 32 MiB; use the streaming source importer for larger exports.",
+    "status": "active",
+    "maker": "maker:conversations",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "conversations"
    }
   },
   {
@@ -7549,6 +7594,21 @@
      "placement:small-container"
     ],
     "folder": "reservations"
+   }
+  },
+  {
+   "id": "tool:publish-a-download",
+   "values": {
+    "title": "Publish a download from my computer",
+    "job": "Publish one file from a folder I choose on my computer at my server's download address",
+    "description": "Reads one relative file path inside the folder I grant, sends it to my rented server over pinned SSH through this run's proxy, and moves the public download pointer only after the server confirms that the kept bytes match. The administration key is mounted for this run; no DNS key is used. Repeating an identical publish is safe; a kept name with different bytes is refused.",
+    "status": "active",
+    "maker": "maker:renew-a-tls-certificate",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "renew-a-tls-certificate"
    }
   },
   {
@@ -10529,7 +10589,7 @@
    "values": {
     "title": "See what holds me",
     "job": "Tell me whether my setup still has to be finished before anything else opens, and which one thing I must do now",
-    "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. It reads and changes nothing.",
+    "description": "Reads your setup steps (record:setup-steps rows, or the Get started answer you send as setup), your must-do list (record:waiting-on-you rows) and your hold setting, and answers cover { covered, key }: true while any required step is not done (the page draws only setup until then), null when nothing says, and key, the name your gate row gives the cover (required-setup when it gives none, so a missing key never leaves everything open). Beside it, hold: the one row that unblocks the most by your rank rules, every row that may hold in that order, how many times it can still be set aside today, the ways to hand it back and the stakes for turning the hold off. While the cover stands nothing else is held. The shared read lifecycle hands AI-doable work to the existing AI job owner before removing it from the hold, keeps the held fact and starts the declared device tools on transitions. Full source sections can be supplied as things; default record reads explicitly report partial source coverage.",
     "status": "active",
     "maker": "maker:hold-one-thing-until-done",
     "licence_class": "licence:maker-own",
@@ -12201,11 +12261,29 @@
    }
   },
   {
+   "id": "tool:use-an-app-on-this-computer",
+   "values": {
+    "title": "Work in an app on your computer",
+    "job": "On the person's own computer, edit a video timeline in DaVinci Resolve and do anything else its scripting allows (projects, media pool, clips, markers, colour, Fusion, Fairlight audio, rendering), or write DaVinci Resolve project, timeline and grade files that import into any edition, or reverse engineer an app or binary, decompile it and explain how a feature works under the hood (native computer, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware, websites), through the app's own tool server",
+    "description": "Runs on the computer where the app is. Leave out operation to see every operation the app offers with the input each takes, then call again with one operation and its arguments. Which apps it can use are the rows of apps-here.json (app: davinci-resolve works in the open Resolve project in every edition, Studio through External scripting set to Local and the free edition through a helper this tool puts in Resolve's scripts folder, which Resolve runs when it opens; davinci-resolve-files writes and reads Resolve's .drp, .drt and .drx files without Resolve open; rea reverse engineers, inspects, decompiles and explains programs and files on this computer, using Hopper, Ghidra or IDA for native code where one is installed and a Chrome-family browser to watch a website or Electron app run). The app's own answer comes back as it said it. An app that must be running is opened in the background without taking focus; never file a Waiting on you row asking the person to open it.",
+    "status": "active",
+    "maker": "maker:media-composition",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "media-composition",
+    "flags": [
+     "has-a-screen"
+    ]
+   }
+  },
+  {
    "id": "tool:use-trillion-from-a-shell",
    "values": {
     "title": "Use Trillion from any AI's shell: the trillion command (runs on your computer)",
     "job": "Let an AI that can run shell commands see my AIs and their jobs, hand and take work, and run my Workshop tools, with no MCP connection of its own",
-    "description": "The `trillion` command. Every command is ONE call of the engine's one MCP tool (run_resource_operation) at the account's door: the Trillion Mac app's local door when this computer has one, else the public origin. setup signs in once, puts `trillion` on the PATH and writes the skill for each AI app here; whoami, who, publish, send, work, take, finish, fail, stuck, release, withdraw, remove and serve move AI jobs through tools/hand-work-to-ais; tools and call list and run Workshop tools; op runs any engine operation; records replay-from-transcripts brings back the rows this computer's AIs wrote, from their own transcripts (a dry run lists them, --write writes them back in batches and reads a sample back). The credential is the account's existing key or the sign-in login kept, read into memory only, never printed or put on a command line. Every call carries one request key reused on every retry. A copy an owner installed (its install-owner.json marker beside it) is never rewritten by a bare copy, and `trillion update` names who updates it: the command never updates itself.",
+    "description": "The installed command line client uses the account door and the shared work tools. setup installs its program and AI instructions; whoami, who and publish read identity and report current availability; send, work, take, plan, edit, finish, fail, stuck, release, wait, resume, withdraw, remove and serve use the shared job lifecycle. finish reads the saved consumer acceptance through its scoped action and requires a check receipt; process exit and result text alone leave work unfinished. Protected moves reuse the original take timestamp. tools and call discover and run tools; op uses declared engine operations; records replay-from-transcripts explicitly imports prior writes. Credentials stay in memory or their existing protected store and never appear in command arguments or logs. Each request reuses its retry key. An installed copy keeps its existing update owner.",
     "status": "active",
     "maker": "maker:use-trillion-from-a-shell",
     "licence_class": "licence:maker-own",
@@ -12588,7 +12666,7 @@
    "values": {
     "title": "Write a public host's paths",
     "job": "Set which addresses my public server answers itself and send everything else to my engine",
-    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
+    "description": "Writes the server's public ingress (nginx) for `hostname` with its certificate: /healthz, the downloads folder by GET and HEAD, the receptionist's paths (host.receptionist.paths, to host.receptionist.listen over verified TLS) and the site's pages (host.site.paths, handed to host.site.hostname by GET and HEAD), optional declared public export trees (host.static_files) by GET and HEAD with their current manifest media types, and every other path to the engine's connection on 127.0.0.1:remotePort. With `connectionDiagnostics` it logs only time, path and statuses of host.ingress.diagnostics_paths. The candidate is tested by nginx before it replaces the live one; with `receptionistBinary` (matching host.receptionist.binary_pattern, readable and executable by others) the receptionist's service is written too, and a build that cannot start is refused before anything is switched. No DNS or traffic cut-over happens here.",
     "status": "active",
     "maker": "maker:renew-a-tls-certificate",
     "licence_class": "licence:maker-own",
