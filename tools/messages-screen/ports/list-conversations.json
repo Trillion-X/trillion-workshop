@@ -34,6 +34,51 @@
    "repository": "trillion-workshop",
    "path": "tools/keep-and-wake-ai-sessions-on-this-computer/src/messages.mjs",
    "why": "its listConversations (line 1121) pages a person's message threads from their store by app; this file sorts, filters and groups chat conversation rows handed in, as the Messages sidebar does"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "This tool's own capability row, whose owner names this folder: the registry entry for this tool, not another owner of the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row. A generated listing of this tool, not another owner of the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/read-data/chat-import.mjs",
+   "why": "Its listConversationSourcesHere lists the chat apps on this computer that conversations can be imported from; it imports, it does not order conversation rows for the messages screen."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/test/import-conversations.test.mjs",
+   "why": "The conversations tool's import tests, calling listConversationSourcesHere; they test the import, not this job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/tool-rows.json",
+   "why": "The conversations tool's rows, one naming listConversationSourcesHere; the import's row, not this job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/read-data/signal-envelopes.mjs",
+   "why": "A comment that the old Signal connector asked signal-cli for a listConversations command that does not exist; it folds a connected account's envelopes, it orders no conversation rows."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/tool-rows.json",
+   "why": "That tool's row source note, saying the same of signal-cli's missing listConversations; words about a connector."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-the-signed-in-persons-message-inbox-and-tell/from-old-trillion/src/work-messages.mjs.held",
+   "why": "A held old-trillion inbox route: its listConversations is the storage bridge that pages a person's message threads by app (as keep-and-wake's messages.mjs, named above); it does not sort, filter and group chat conversation rows handed in."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-the-signed-in-persons-message-inbox-and-tell/from-old-trillion/test/work-messages.test.mjs.held",
+   "why": "The held test of that inbox route, with a made-up listConversations bridge; it tests the inbox route, not this job."
   }
  ],
  "proof": {
@@ -51,7 +96,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

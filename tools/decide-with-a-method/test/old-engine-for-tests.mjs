@@ -39,7 +39,7 @@ export function fill(question, { refs, switches = {} } = {}) {
       decision_context[check.id] = switches[check.id] ?? false;
       if (!decision_context[check.id]) {
         const reason = { evidence_refs: refs };
-        for (const spec of check.skip_requires ?? []) reason[spec.name] = spec.kind === 'list' ? [words(`${spec.name} place`)] : words(spec.name);
+        for (const spec of check.skip_requires ?? []) reason[spec.name] = spec.kind === 'list' ? [words(`${spec.name} entry`)] : words(spec.name);
         omission_reasons[check.id] = reason;
       }
     }

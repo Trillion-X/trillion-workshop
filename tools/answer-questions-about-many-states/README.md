@@ -20,7 +20,7 @@ The decider's own engine is CUDA-only (CUDA graphs, flash-linear-attention), and
 | `tool:read-a-bulk-answer-run` | any computer (a small container) | Gives the run's status, states done and pages; given `page`, that page's answers, with `next_page`. Pages are readable while the run goes on. |
 | `tool:cancel-a-bulk-answer-run` | any computer (a small container) | Writes the run's `bulk-answer-cancel` row. The run reads it between batches and stops after the batch in hand; the states already answered keep their pages. |
 
-Every row runs `node /opt/records-door/do-work/run-an-export.mjs /opt/answer-questions-about-many-states/read-data/bulk-answer.mjs <export>`, which calls the function with the run's input and its records door. On the Mac, `bulk-answer.mjs` starts `python3 -I do-work/answer_many_states.py work` and hands it the values it read on standard input; the program answers on standard output, one JSON line per batch, and never touches the records or the disk. A stop is SIGTERM to that program, which ends after its batch.
+Every row runs `node /opt/records-door/do-work/run-an-export.mjs /opt/answer-questions-about-many-states/read-data/bulk-answer.mjs <export>`, which calls the function with the run's input and its records door. On the Mac, `bulk-answer.mjs` starts `python3 -I -B do-work/answer_many_states.py work` and hands it the values it read on standard input; the program answers on standard output, one JSON line per batch, and never touches the records or the disk. A stop is SIGTERM to that program, which ends after its batch.
 
 The start call answers when its run has ended (finished, cancelled or failed), within the row's longest run of four hours; meanwhile `read` shows how far it is, from any computer.
 

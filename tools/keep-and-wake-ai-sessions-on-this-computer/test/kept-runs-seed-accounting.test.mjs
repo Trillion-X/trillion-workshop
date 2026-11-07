@@ -42,6 +42,10 @@ function exercise(keptRuns, host, meter = () => {}) {
   };
   const open = decoder => keptRuns(sql, { ...settings, cache_bytes: capacity, parseJson: decoder });
   space = open(parseJson);
+  // A keys-only read first leaves each page resident as its head alone (PageHead). The grouped read then reads every
+  // page whole and seeds it over that head: the cache must release the head's bytes as it replaces it. (A grouped read
+  // seeds its pages before any value is decoded, so the decoder's re-entry alone no longer seeds a page twice.)
+  space.ranges([{ lo: 'k', hi: 'l' }], { keys_only: true });
   const grouped = space.ranges([{ lo: 'k', hi: 'l' }]);
   const seededBytes = space.held().cache_bytes;
   meter(true);

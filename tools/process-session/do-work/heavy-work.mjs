@@ -60,7 +60,7 @@ export function verifiedHeavyWorkClaim(owner, { env = process.env, pid = process
 
 /** Isolated fixture factory only. Production uses the fixed cache root below. */
 export function createHeavyWorkOwner(root, { inspect = identityOf, relation = inspectProcessRelation } = {}) {
-  const queue = createProcessAdmissionQueue(root, { inspectProcess: inspect, ownerIsLive: heavyWorkOwnerIsLive, resource: 'the build/test slot of this place' });
+  const queue = createProcessAdmissionQueue(root, { inspectProcess: inspect, ownerIsLive: heavyWorkOwnerIsLive, resource: 'the build/test slot of this computer' });
   const inherited = env => verifiedHeavyWorkClaim(queue.readOwner(), { env, inspect, relation });
   return {
     inherited,

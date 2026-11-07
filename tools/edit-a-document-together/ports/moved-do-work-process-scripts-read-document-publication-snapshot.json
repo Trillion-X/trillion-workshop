@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MOVED-EDIT-A-DOCUMENT-TOGETHER-DO-WORK-PROCESS-SCRIPTS-READ-DOCUMENT-PUBLICATION-SNAPSHOT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:b1a76351ca568a8824a010661b7afbfe3c36be7317d3386ec03ebefe433e614c",
+    "quote": "Carry old parts feature files and tests into their Workshop tools"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "5dc302be373027de2185edcf1d6137fd4cca3552",
+      "path": "parts/documents/do-work/process-scripts/read-document-publication-snapshot.mjs",
+      "multihash": "1f:70eda8cd72ce352ea3bdfbcd7db9d6e5fc14e129ed6c1373c5521043451daaea",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T20:59:20Z",
+        "deleted_with": "the move 1b9c99d15f took this file out of trillion into the Workshop; the old copy leaves trillion's main line with that move"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/edit-a-document-together/do-work/process-scripts/read-document-publication-snapshot.mjs"
+    }
+  ],
+  "preserve": [
+    "the moved code itself: tools/edit-a-document-together/do-work/process-scripts/read-document-publication-snapshot.mjs kept 100.0% of the copy's meaningful lines when this contract was written"
+  ],
+  "allowed_deltas": [
+    "import paths and the calls the tool's wiring needs here, after the byte copy"
+  ],
+  "banned_substitutions": [
+    "a rewrite of the moved code in place of the byte copy",
+    "a second live copy of this job in another folder"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T20:59:20Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:70eda8cd72ce352ea3bdfbcd7db9d6e5fc14e129ed6c1373c5521043451daaea",
+    "target_multihash_at_baseline": "1f:70eda8cd72ce352ea3bdfbcd7db9d6e5fc14e129ed6c1373c5521043451daaea",
+    "commit": "1b9c99d15f48c5488b10cde063c971cdbc466453"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/edit-a-document-together/do-work/process-scripts/moved-from.json names its source and the identity of the source bytes",
+    "test_refs": []
+  }
+}

@@ -112,8 +112,8 @@ def main():
             filmcraft_preview._main = real
         assert seen == [os.path.realpath(lock)], 'main() takes the lock when imported and called'; n += 1
         rounds.OPT = d
-        rounds.PLACE.clear()
-        rounds.PLACE.update(layout={})
+        rounds.PREVIEW.clear()
+        rounds.PREVIEW.update(layout={})
         a, b = filmcraft_preview.export_paths('m09-r7-1'), filmcraft_preview.export_paths('m09-r7-2')
         assert a[0] != b[0] and a[0].endswith('_export-m09-r7-1.mp4'), 'two ids never share an export scratch'; n += 1
         del os.environ['TEST_LOCK']

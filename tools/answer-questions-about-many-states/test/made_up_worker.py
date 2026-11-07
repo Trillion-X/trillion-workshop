@@ -1,4 +1,4 @@
-"""answer_many_states.py with a made-up classifier family in place of a model, for the lifecycle tests: no weights, no
+"""answer_many_states.py with a made-up classifier family instead of a model, for the lifecycle tests: no weights, no
 MLX, no network. `python3 -I made_up_worker.py work` reads a work request as the real program does; the model row's
 `classifier` is `made-up`. Each batch is two states, and every answer is a made-up probability. A settings row's
 `made_up_seconds` holds each batch back that long, so a test can stop a run while it is going."""

@@ -25,13 +25,6 @@
       "to": "tools/turn-a-button-press-like-ask-my-ai/src/queued-work.mjs",
       "source_identity": "1f:2a1bf6aeec3289cc33b7a07294259780eded70aafbccdc05f50bdd79e7ac8683",
       "identity": "1f:7554ca01a8b5bf6e691a2a2eccbf91951221dec665188a5fc64b887ec5c19949"
-    },
-    {
-      "from": "test/queue-job-button.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs",
-      "source_identity": "1f:2f4e9527f1e3021cfb379c43efd1970a26bb24b66ed7d3f5edf39cf6d7d9e555",
-      "identity": "1f:6f77d85bfae381989fc13ec34256dbb8815b9fc603cab755f0833473976a8fed"
     }
   ]
 }

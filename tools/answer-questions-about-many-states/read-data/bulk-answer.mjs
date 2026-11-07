@@ -104,8 +104,9 @@ export async function readInputs(input, door) {
 // ---- the programs this starts
 
 // The worker as a child: standard input the request, standard output its JSON lines. Tests hand in their own `start`.
+// -B: Python writes no compiled copy (__pycache__) of the modules it imports, so a run leaves the tool's folder as it was.
 export function startWorker(action, request, { python = 'python3', worker = WORKER } = {}) {
-  const child = spawn(python, ['-I', worker, action], { stdio: ['pipe', 'pipe', 'inherit'] });
+  const child = spawn(python, ['-I', '-B', worker, action], { stdio: ['pipe', 'pipe', 'inherit'] });
   child.stdin.on('error', () => {});
   child.stdin.end(JSON.stringify(request));
   return child;

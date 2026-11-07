@@ -58,7 +58,7 @@ def main():
         for t in (0, 100 * T, 397 * T, 1000 * T, total(before) - FT):
             for tr in ('V1', 'A1', 'V2'):
                 assert source_of(after, tr, t + length) == source_of(before, tr, t), (tr, t / T)
-        # V1 and A1 are cut at the same places in the stitched part
+        # V1 and A1 are cut at the same points in the stitched part
         cuts = lambda s, k: [c['start'] for c in s[k][0]['items'] if c['start'] < length]
         assert cuts(after, 'video') == cuts(after, 'audio'), (cuts(after, 'video'), cuts(after, 'audio'))
         try:

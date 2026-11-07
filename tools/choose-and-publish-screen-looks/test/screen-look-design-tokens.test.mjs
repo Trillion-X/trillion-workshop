@@ -15,7 +15,7 @@ const root = new URL('..', import.meta.url).pathname;
 const proof = process.env.TRILLION_LOOK_PROOF_DIR;
 const theme = id => looks.themes.find(row => row.payload.id === id).payload;
 const withToken = (payload, key, value) => ({ ...payload, tokens: payload.tokens.map(token => (token.key === key ? { ...token, value } : token)) });
-const css = name => readFileSync(join(root, 'parts/screen-look/show', name), 'utf8');
+const css = name => readFileSync(join(root, '../screen-look/show', name), 'utf8');
 
 test('density is one multiplier over every space, control height and icon', () => {
   const standard = resolveScreenLookPalette(theme('trillion'));
@@ -55,17 +55,15 @@ async function inPage(check) {
   const { outputFiles } = await build({
     absWorkingDir: root,
     stdin: { resolveDir: root, loader: 'tsx', contents: `
-      import { resolveScreenLookPalette } from './parts/screen-look/read-data/resolve-screen-look-palette.js';
+      import { resolveScreenLookPalette } from '../screen-look/read-data/resolve-screen-look-palette.js';
       import looks from './src/workspace/looks.json';
-      import { mountScreenState } from './parts/ui/show/screen-state';
-      import { withViewTransition } from './src/workspace/view-transition.mjs';
+      import { withViewTransition } from '../hand-off-jobs-between-agents/src/workspace/view-transition.mjs';
       window.wear = (id, overrides = {}) => {
         const payload = looks.themes.find(row => row.payload.id === id).payload;
         const tokens = payload.tokens.map(token => (token.key in overrides ? { ...token, value: overrides[token.key] } : token));
         const palette = resolveScreenLookPalette({ ...payload, tokens });
         for (const [name, value] of Object.entries(palette)) document.documentElement.style.setProperty(name, value);
       };
-      window.loading = () => { document.getElementById('host').replaceChildren(); const host = document.createElement('div'); document.getElementById('host').append(host); mountScreenState(host, { status: 'loading', label: 'Loading the things', layout: 'rows' }); };
       window.crossfade = change => withViewTransition(change);
     ` },
     bundle: true, write: false, format: 'iife', platform: 'browser', target: 'es2022', jsx: 'automatic',
@@ -125,28 +123,16 @@ test('density changes the real controls, and the corner scale moves the ladder',
   });
 });
 
-test('a loading block waits the look\'s reveal delay, then shows; reduced motion only shortens the animation', { timeout: 60000 }, async () => {
+// The loading block itself is the app's placeholder (parts/ui/show/screen-state, mountScreenState), whose home is
+// trillion-apps web/parts/ui/show/screen-state: the case that mounts it and watches it wait the reveal delay is retired
+// here for trillion-apps (tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json, test_cases). What
+// this repository owns stays: the look's reveal delay and the reduced-motion scale its resolver and CSS set.
+test('the look carries the placeholder reveal delay, and reduced motion scales motion down', { timeout: 60000 }, async () => {
   await inPage(async page => {
     await ask(page, 'page step', () => window.wear('trillion'));
     assert.equal(await ask(page, 'page step', () => getComputedStyle(document.documentElement).getPropertyValue('--placeholder-reveal-delay').trim()), '300ms');
-    await ask(page, 'page step', () => window.loading());
-    const opacityAt = ms => ask(page, `opacity at ${ms}ms`, wait => new Promise(done => setTimeout(() => {
-      const block = document.querySelector('.shared-media-loading');
-      done(block ? Number(getComputedStyle(block).opacity) : -1);
-    }, wait)), ms);
-    const early = await opacityAt(60);
-    await shot(page, 'placeholder-at-60ms-before-reveal');
-    const late = await opacityAt(900);
-    await shot(page, 'placeholder-at-960ms-after-reveal');
-    assert.equal(early, 0, 'nothing shows before the reveal delay');
-    assert.ok(late > 0.5, `the block has appeared (${late})`);
-    // A slower look reveals later: the delay is the look's, not a literal.
-    await ask(page, 'slower look', () => { document.documentElement.style.setProperty('--placeholder-reveal-delay', '2s'); window.loading(); });
-    assert.equal(await opacityAt(700), 0, 'a look with a 2s delay still shows nothing at 700ms');
-    console.log('placeholder readback', JSON.stringify({ early, late }));
     await page.emulateMedia({ reducedMotion: 'reduce' });
     assert.equal(await ask(page, 'page step', () => getComputedStyle(document.documentElement).getPropertyValue('--motion-scale').trim()), '0.001');
-    assert.equal(await ask(page, 'page step', () => (document.querySelector('[data-slot=skeleton]') ? getComputedStyle(document.querySelector('[data-slot=skeleton]')).animationName : 'missing')), 'none');
   });
 });
 

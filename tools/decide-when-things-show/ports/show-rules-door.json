@@ -29,6 +29,16 @@
    "repository": "trillion",
    "path": "src/workspace/show-rules-admin-screen.tsx",
    "why": "a2e1365f33 lines 123-145 and 170: sharing a kept preset is its copy show-types-shared:<id> = { label, types } and its grant sharing:<that label> = { record, people: [{ principal, key_blake3 }], changed_at }, a shr_ key whose BLAKE3 alone is kept, a person already named refused, and stop sharing taking the person out of the grant. That screen draws the page; these rows answer the same records for an AI and a wake."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-when-things-show/README.md",
+   "why": "This tool's own README, listing tool:see-when-things-show and its function seeWhenThingsShow; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-when-things-show/tool-rows.json",
+   "why": "This tool's own rows: tool:see-when-things-show names seeWhenThingsShow as the function it runs; the row, not a second owner."
   }
  ],
  "proof": {
@@ -49,7 +59,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "6f84ed4"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

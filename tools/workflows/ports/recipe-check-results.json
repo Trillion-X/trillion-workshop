@@ -69,6 +69,21 @@
    "repository": "trillion-workshop",
    "path": "tools/train-and-evaluate-a-writing-voice-classifier/do-work/evaluate-voice.mjs",
    "why": "A local name checkResults for the voice classifier's per-criterion gold and predicted answers on a challenge set; it scores a model, it judges no recipe step's checks."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/README.md",
+   "why": "This tool's own README, describing recipe-check-results.mjs checkResults; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/test/recipe-check-results.test.mjs",
+   "why": "This file's own test, calling checkResults over made-up steps; it tests this job, it does not do it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/shared-code/test/handoff-result-source-workerd.test.mjs",
+   "why": "Matched by checkResultSourceAccess, a made-up access check on a handoff result's source in a worker test; it judges no recipe step's checks."
   }
  ],
  "proof": {
@@ -87,7 +102,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "7abcba000242a8f04086eeb0b930257c49da8827"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ],
    "not_searched": "The trillion repository (crates/workflow-engine, which tools/workflows/README.md names as the engine) was outside this session's reach. A gate that searches it re-runs this claim; if the engine already judges step checks, this file is to become a port of it."

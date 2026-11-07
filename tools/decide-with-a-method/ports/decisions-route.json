@@ -24,6 +24,11 @@
    "repository": "trillion-workshop",
    "path": "tools/decide-with-a-method/",
    "why": "This tool itself: the screen read is read-data/work-screen.mjs seeMyDecisions, moved from trillion src/native-work-screen.mjs (ports/work-screen.json); this file only hands the page's request to it and answers { status, body }."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row. A generated listing of this tool, not another owner of the job."
   }
  ],
  "proof": {
@@ -41,7 +46,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

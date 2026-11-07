@@ -39,13 +39,6 @@
       "to": "tools/refuse-a-change-made-from-an-open-page/test/page-account.test.mjs",
       "source_identity": "1f:2a396bbe0cab83ae5d49022b33caa7c68f006e0404451ee0039e14165efad7d7",
       "identity": "1f:2a396bbe0cab83ae5d49022b33caa7c68f006e0404451ee0039e14165efad7d7"
-    },
-    {
-      "from": "test/tray-screen-browser.test.mjs",
-      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
-      "to": "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs",
-      "source_identity": "1f:0b396107260a9070da85365ad3ed61da1842268ce522ae3b5fb85542412b2283",
-      "identity": "1f:0bd3cbdcb7e141f6fb819d7bbe9cb5a2ce6caf0a1e9be99627c08c605bdd77d4"
     }
   ]
 }

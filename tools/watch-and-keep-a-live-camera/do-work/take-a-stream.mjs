@@ -15,8 +15,8 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import path from 'node:path';
 
-/** The program `name` in the first folder of `searchPath` that has it, then in the place's own PATH, or null. The folders a
- *  settings row names come first (an app started by its host may have a short PATH); a place that keeps the program
+/** The program `name` in the first folder of `searchPath` that has it, then in the computer's own PATH, or null. The folders a
+ *  settings row names come first (an app started by its host may have a short PATH); a computer that keeps the program
  *  anywhere else on its PATH still has it. */
 export const programIn = (searchPath, name, env = process.env) => [...searchPath, ...String(env.PATH ?? '').split(path.delimiter).filter(Boolean)]
   .map(folder => path.join(folder, name)).find(file => existsSync(file)) ?? null;

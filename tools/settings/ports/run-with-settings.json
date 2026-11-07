@@ -29,6 +29,56 @@
    "repository": "trillion-workshop",
    "path": "tools/settings/",
    "why": "the folder's own readers take a record already handed in; this command is what hands it in, so the program never holds the door"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-a-rendered-video/",
+   "why": "The rendered-video check runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-every-claim-against-its-facts-and-sources/",
+   "why": "The claim check runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/compose-thumbnails-from-layout-templates/",
+   "why": "The thumbnail composer runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/fill-a-template-without-changing-its-words/",
+   "why": "The template filler runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/find-a-spoken-passage-in-word-times/",
+   "why": "The spoken-passage finder runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/motion-film-template/",
+   "why": "The soundtrack premix (its test also calls runWithSettings) runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/name-the-recording-behind-transcript-lines/",
+   "why": "The recording namer runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-a-time-window-from-a-stored-camera-file/",
+   "why": "The camera-file window puller runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/rank-library-formats-against-concepts/",
+   "why": "The format ranker runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/render-a-motion-graphics-overlay/",
+   "why": "The overlay renderer (render-overlay.mjs and render-insert.mjs import runWithSettings and call it) runs under tools/settings do-work/run-with-settings.mjs: its row, README, code and tests name that command, which reads the person's settings row through the records door and hands it in; this folder reads the row it is handed and never holds the door. A caller, not a second owner."
   }
  ],
  "proof": {
@@ -47,7 +97,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "6a8d69dafb08b51516af5b9dd748ce845540d35c"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

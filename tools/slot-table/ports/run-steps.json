@@ -29,6 +29,16 @@
    "repository": "trillion-workshop",
    "path": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
    "why": "the record-log store calls slotTable (line 693) for its own cache; it uses the job's code, it does not own a second copy of it"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/fixtures/",
+   "why": "Frozen earlier versions of the record-log store kept as test fixtures; they import slotTable from tools/slot-table and call it for their cache, as the store does. Callers, not a second copy."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/record-log/test/fixtures/",
+   "why": "Frozen earlier versions of the record-log store kept as test fixtures; they import slotTable from tools/slot-table and call it for their cache, as the store does. Callers, not a second copy."
   }
  ],
  "proof": {
@@ -45,7 +55,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

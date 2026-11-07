@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MOVED-SCREEN-LOOK-READ-DATA-WHERE-LOOKS-APPLY",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:edde1758f8c400dcb9ecb6da259a7d687d3b56991ab276a0e9e3854d01e7eeba",
+    "quote": "The remaining old trillion features move into the Workshop in one move: parts/, computer/ and the src files the capability list sends here"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "parts/screen-look/read-data/where-looks-apply.ts",
+      "multihash": "1f:3b853db2e433965c79d82e90393c993a586afd9c711e3fbc5c0d135b5a93e787",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:03:22Z",
+        "deleted_with": "the move a9ee2580ee took this file out of trillion into the Workshop; the old copy leaves trillion's main line with that move"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/screen-look/read-data/where-looks-apply.ts"
+    }
+  ],
+  "preserve": [
+    "the moved code itself: tools/screen-look/read-data/where-looks-apply.ts kept 100.0% of the copy's meaningful lines when this contract was written"
+  ],
+  "allowed_deltas": [
+    "import paths and the calls the tool's wiring needs here, after the byte copy"
+  ],
+  "banned_substitutions": [
+    "a rewrite of the moved code in place of the byte copy",
+    "a second live copy of this job in another folder"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T00:03:22Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3b853db2e433965c79d82e90393c993a586afd9c711e3fbc5c0d135b5a93e787",
+    "target_multihash_at_baseline": "1f:3b853db2e433965c79d82e90393c993a586afd9c711e3fbc5c0d135b5a93e787",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/screen-look/moved-from.json names its source and the identity of the source bytes",
+    "test_refs": []
+  }
+}

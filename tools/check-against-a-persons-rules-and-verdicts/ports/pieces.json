@@ -34,6 +34,36 @@
    "repository": "trillion",
    "path": "scripts/method-sources.mjs",
    "why": "Holds a file's pieces as a { key: { identity, no_check } } map in methods/sources.json, not as rows; its sweepAtoms moved to do-work/piece-sweep.mjs (ports/piece-sweep.json)."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/README.md",
+   "why": "This tool's own README, describing pieceRow and pieceRows; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/piece-sweep.mjs",
+   "why": "The piece sweep: it reads the piece rows a person keeps (the rows pieceRow makes) in place of a sources file and sweeps each source file's pieces; it makes no piece rows."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/at-the-size-of-a-real-list.test.mjs",
+   "why": "A test calling pieceRows over made-up text to hold the size of a real list; it tests this job, it does not do it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
+   "why": "The branch tests, calling pieceRow and pieceRows over made-up text to check no piece row names a judge-words selector; they test this job, they do not do it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/piece-sweep.test.mjs",
+   "why": "The piece sweep's tests, making their made-up piece rows with pieceRows; they test, they do not do this job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/pieces.test.mjs",
+   "why": "This file's own tests, calling pieceRow, pieceRows and keepPieces over made-up text."
   }
  ],
  "proof": {
@@ -53,7 +83,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "9251986b31ea90b175d19e5dcf70205fdf31cd20"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

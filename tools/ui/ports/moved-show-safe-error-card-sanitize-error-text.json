@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MOVED-UI-SHOW-SAFE-ERROR-CARD-SANITIZE-ERROR-TEXT",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:43cd9adfc86dc04eabbe8d316425e15d7ef3e843b9f4adc800f46418c037329c",
+    "quote": "keep-lists-of-rows: its screens go to trillion-apps; its data side reads the shared modules' homes here"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "parts/ui/show/safe-error-card/sanitize-error-text.ts",
+      "multihash": "1f:81eaa3d42a76a7faf19ea33b06d579b600f73b97ca44c95997f5e7b6690ce28d",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T04:07:16Z",
+        "deleted_with": "the move 5998eb5471 took this file out of trillion into the Workshop; the old copy leaves trillion's main line with that move"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/ui/show/safe-error-card/sanitize-error-text.ts"
+    }
+  ],
+  "preserve": [
+    "the moved code itself: tools/ui/show/safe-error-card/sanitize-error-text.ts kept 100.0% of the copy's meaningful lines when this contract was written"
+  ],
+  "allowed_deltas": [
+    "import paths and the calls the tool's wiring needs here, after the byte copy"
+  ],
+  "banned_substitutions": [
+    "a rewrite of the moved code in place of the byte copy",
+    "a second live copy of this job in another folder"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T04:07:16Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:81eaa3d42a76a7faf19ea33b06d579b600f73b97ca44c95997f5e7b6690ce28d",
+    "target_multihash_at_baseline": "1f:81eaa3d42a76a7faf19ea33b06d579b600f73b97ca44c95997f5e7b6690ce28d",
+    "commit": "5998eb5471c0f560a48b1de2dd390fc63526f39d"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/ui/show/safe-error-card/moved-from.json names its source and the identity of the source bytes",
+    "test_refs": []
+  }
+}

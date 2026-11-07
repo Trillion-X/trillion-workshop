@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # tools/put-picked-options-into-a-filmcraft-project/do-work/publish_preview.py
 """Move a finished, checked preview into its round's previews folder, and link it into the watch folder (the person's
-rule: never show an unfinished file). A file the person can open is never written in place.
+rule: never show an unfinished file). A file the person can open is never written over where it lies.
 
 filmcraft_preview.py renders into work-round-<n>/pending/<id>.mp4.
 
@@ -20,7 +20,7 @@ import json, os, subprocess, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import option_folders as place  # noqa: E402
+import option_folders as rounds  # noqa: E402
 from option_folders import rdir, watch_dir, run_program  # noqa: E402
 
 
@@ -28,14 +28,14 @@ def require_gate(oid):
     """No route into a watch folder skips the content checklist: this hard link runs the settings' content gate for the option itself (the guard hook only sees
     commands that name the folder, not a script that links into it). Unanswered or failed MUST rows refuse it: the gate's command exits
     non-zero, its JSON answer naming unanswered_must, failed_must or problems. {film}, {option} and {python} in the command are filled in."""
-    gate = place.PLACE.get('content_gate') or {}
+    gate = rounds.PREVIEW.get('content_gate') or {}
     if not gate.get('command'):
-        if place.PLACE.get('require_content_gate', True):
+        if rounds.PREVIEW.get('require_content_gate', True):
             raise SystemExit(f'{oid}: REFUSED, no content gate in the settings (preview.content_gate.command): a watch folder is only for a preview its checklist passed')
         return
-    argv = [os.path.expanduser(a.format(film=place.PLACE['film'], option=oid, python=sys.executable)) for a in gate['command']]
-    if place.planning():
-        place.plan_note(argv=argv)
+    argv = [os.path.expanduser(a.format(film=rounds.PREVIEW['film'], option=oid, python=sys.executable)) for a in gate['command']]
+    if rounds.planning():
+        rounds.plan_note(argv=argv)
         return
     run = subprocess.run(argv, capture_output=True, text=True)
     if run.returncode:
@@ -54,7 +54,7 @@ def probe(path):
 
 
 def spec_of(oid):
-    return place.spec_of(oid)
+    return rounds.spec_of(oid)
 
 
 def publish(oid):
@@ -66,13 +66,13 @@ def publish(oid):
     v = [s for s in p['streams'] if s['codec_type'] == 'video']
     au = [s for s in p['streams'] if s['codec_type'] == 'audio']
     dur = float(v[0]['duration']) if v else 0.0  # the picture's length (the AAC track pads up to a packet past it)
-    w, h = place.PLACE['frame']
-    if len(v) != 1 or (v[0]['width'], v[0]['height']) != (w, h) or len(au) != 1 or abs(dur - (b - a)) > place.PLACE['duration_tolerance_s']:
+    w, h = rounds.PREVIEW['frame']
+    if len(v) != 1 or (v[0]['width'], v[0]['height']) != (w, h) or len(au) != 1 or abs(dur - (b - a)) > rounds.PREVIEW['duration_tolerance_s']:
         raise SystemExit(f'{oid}: ffprobe refused: {len(v)} video {v[0]["width"] if v else "-"}x{v[0]["height"] if v else "-"}, '
                          f'{len(au)} audio, {dur:.3f} s against {b - a:.3f} s')
     dst = rdir('previews', oid, oid + '.mp4')
-    if place.planning():
-        place.plan_note(move=[src, dst])
+    if rounds.planning():
+        rounds.plan_note(move=[src, dst])
         return {'option': oid, 'preview': dst, 'duration_s': round(dur, 3)}
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     os.replace(src, dst)
@@ -93,8 +93,8 @@ def watch(oid):
         raise SystemExit(f'{oid}: the rendered-video check has not been run on {src} (expected {qa}, newer than the preview)')
     require_gate(oid)
     folder = watch_dir(oid)
-    if place.planning():
-        place.plan_note(link=[src, os.path.join(folder, name + '.mp4')])
+    if rounds.planning():
+        rounds.plan_note(link=[src, os.path.join(folder, name + '.mp4')])
         return {'option': oid, 'name': name + '.mp4', 'preview': src}
     os.makedirs(folder, exist_ok=True)
     link_into(src, folder, name + '.mp4', f'.{oid}.linking')
@@ -128,13 +128,13 @@ def publish_request(req):
     ids = req.get('options') or [req.get('option')]
     done = []
     for oid in ids:
-        place.configure({**req, 'option': oid})
+        rounds.configure({**req, 'option': oid})
         done.append((publish if action == 'publish' else watch)(oid))
     out = {'published' if action == 'publish' else 'watching': done}
-    if place.planning():
-        out['plan'] = place.plan_steps()
+    if rounds.planning():
+        out['plan'] = rounds.plan_steps()
     return out
 
 
 if __name__ == '__main__':
-    place.answer(publish_request)
+    rounds.answer(publish_request)

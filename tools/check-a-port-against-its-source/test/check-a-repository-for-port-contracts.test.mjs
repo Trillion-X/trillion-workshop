@@ -96,6 +96,26 @@ test('a byte copy committed first, then adapted, passes while the old copy has d
   assert.equal(result.valid, true, JSON.stringify(result, null, 2));
 });
 
+test('a byte copy a later commit renamed is read at its baseline under the name git records it had', (t) => {
+  const { tools, since, oldCommit } = checkouts(t);
+  const copy = commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': OLD_SOURCE });
+  git(tools, 'mv', 'tools/order-rows/do-work/order-rows.mjs', 'tools/order-rows/do-work/keep-rows-in-order.mjs');
+  const contract = portContract({ oldCommit, baselineCommit: copy });
+  contract.targets = [{ path: 'tools/order-rows/do-work/keep-rows-in-order.mjs' }];
+  commit(tools, { 'tools/order-rows/ports/order-rows.json': contract }, 'rename');
+  const result = judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE });
+  assert.equal(result.valid, true, JSON.stringify(result, null, 2));
+  // A file at the new name that git does not record as renamed from the copy is not read at the old name.
+  const other = checkouts(t);
+  const otherCopy = commit(other.tools, { 'tools/order-rows/do-work/order-rows.mjs': OLD_SOURCE });
+  const unrelated = portContract({ oldCommit: other.oldCommit, baselineCommit: otherCopy });
+  unrelated.targets = [{ path: 'tools/order-rows/do-work/keep-rows-in-order.mjs' }];
+  commit(other.tools, { 'tools/order-rows/do-work/keep-rows-in-order.mjs': 'export const kept = [];\n', 'tools/order-rows/ports/order-rows.json': unrelated });
+  const refused = judgeRepository({ root: other.tools, span: range(other.since), now: NOW_BEFORE_DUE });
+  assert.equal(refused.valid, false);
+  assert.match(JSON.stringify(refused.judged), /does not hold tools\/order-rows\/do-work\/keep-rows-in-order\.mjs/);
+});
+
 test('the copy commit itself passes with no baseline commit yet', (t) => {
   const { tools, since, oldCommit } = checkouts(t);
   write(tools, {

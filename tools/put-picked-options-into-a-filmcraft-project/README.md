@@ -30,7 +30,7 @@ Every command reads one JSON request (a file named as the first argument, or sta
 | `do-work/publish_preview.py` | `tool:publish-a-checked-filmcraft-preview` | `action: "publish"`: pending -> `previews-round-<n>/` by rename, once ffprobe reads one `frame`-sized video, one audio stream and the preview's length (within `duration_tolerance_s`). `action: "watch"`: a hard link into the round's watch folder under the spec's `watch` name, only after the rendered-video check measured that file (`work-round-<n>/qa/<id>.json`, newer than it) and `content_gate.command` passes for the option. With no content gate in the settings, watch refuses (`require_content_gate`). `options: [...]` does several. |
 | `do-work/working_preview.py` | `tool:make-a-working-preview-of-a-stitched-opening` | For a stitched opening: the same frame-snapped ranges cut with ffmpeg from `cut` (a render of the person's cut), the hold, the mutes, the overlay and its sound, the same master; into `work-round-<n>/working/`, never published. |
 | `do-work/review_pack.py` | `tool:make-a-fresh-viewer-review-pack-of-a-preview` | Contact sheets (`tools/make-a-contact-sheet-of-pictures-or-video-frames` `frames_at_times.py`) and `transcript.txt` (`tools/audio-transcription` `whisper_here`) of the working preview (or `video`) into `work-round-<n>/review-pack/<id>/`. |
-| `do-work/option_folders.py` | | The option's place (chapter, layout, round), the render lock, the one road to `filmcraft-cli`, the plan recorder, the request and settings reader. |
+| `do-work/option_folders.py` | | Where the option's files live (chapter, layout, round), the render lock, the one road to `filmcraft-cli`, the plan recorder, the request and settings reader. |
 
 ### The settings
 

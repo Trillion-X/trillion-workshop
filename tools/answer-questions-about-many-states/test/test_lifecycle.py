@@ -1,4 +1,4 @@
-"""The classifier program's two actions and its refusals, with a made-up classifier family in place of a model (no
+"""The classifier program's two actions and its refusals, with a made-up classifier family instead of a model (no
 weights, no MLX, no network): get-ready names the weights; work reads one request on standard input, says it was
 checked, prints each batch's answers as a JSON line as soon as they are known, and ends with its result line; a stop,
 asked by the run or by SIGTERM from the run that started it, keeps what finished. It never writes a file. Needs the

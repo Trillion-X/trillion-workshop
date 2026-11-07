@@ -37,6 +37,102 @@
       "reference_patterns": [
         "records-door/test/run-row\\.mjs"
       ]
+    },
+    {
+      "path": "tools/hand-work-to-ais/test/pending-for-reader-bounded.test.mjs",
+      "replaced_by": "trillion-apps:web/test/pending-for-reader-bounded.test.mjs, beside the app screen it tests (move row tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json)",
+      "retired_at": "2026-11-07",
+      "tag": "retired/workshop-tests-of-trillion-apps-2026-11-07",
+      "reason": "Owner decision, 2026-11-07: the tests that belong to trillion-apps are retired here with a move row naming trillion-apps as their home, and the ledger updated; another session lands them in trillion-apps. Its subject is trillion-apps web/test/import-source-for-tests.mjs (the ledger's subject_owner). It fails here: the greeting's reads grow with the record-log store's unmerged sorted runs (58 rows at N, about 150 at 4N, record_keys_run_* probed once per run), a bound the app's store answers.",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "retire those tests here with a move row naming trillion-apps as their home and update the ledger. Another session lands them in trillion-apps.",
+        "source": "the lane brief for workshop-test-suite-repairs, 2026-11-07, answering the question the previous session stopped on at pending-for-reader-bounded (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/hand-work-to-ais/test/pending-for-reader-bounded\\.test\\.mjs"
+      ]
+    },
+    {
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
+      "replaced_by": "trillion-apps:web/test/list-pages-browser.test.mjs, beside the app screen it tests (move row tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json)",
+      "retired_at": "2026-11-07",
+      "tag": "retired/workshop-tests-of-trillion-apps-2026-11-07",
+      "reason": "Owner decision, 2026-11-07: the tests that belong to trillion-apps are retired here with a move row naming trillion-apps as their home, and the ledger updated; another session lands them in trillion-apps. It bundles and mounts the app screen src/workspace/lists-screen (mountListScreen) and src/workspace/records; no file of this repository holds either, they are trillion-apps web/ screens.",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "retire those tests here with a move row naming trillion-apps as their home and update the ledger. Another session lands them in trillion-apps.",
+        "source": "the lane brief for workshop-test-suite-repairs, 2026-11-07, answering the question the previous session stopped on at pending-for-reader-bounded (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser\\.test\\.mjs"
+      ]
+    },
+    {
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
+      "replaced_by": "trillion-apps:web/test/media-edit-screen.test.mjs, beside the app screen it tests (move row tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json)",
+      "retired_at": "2026-11-07",
+      "tag": "retired/workshop-tests-of-trillion-apps-2026-11-07",
+      "reason": "Owner decision, 2026-11-07: the tests that belong to trillion-apps are retired here with a move row naming trillion-apps as their home, and the ledger updated; another session lands them in trillion-apps. It bundles and mounts the app screen src/workspace/media-edit-screen (mountMediaEditScreen); no file of this repository holds it, it is a trillion-apps web/ screen.",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "retire those tests here with a move row naming trillion-apps as their home and update the ledger. Another session lands them in trillion-apps.",
+        "source": "the lane brief for workshop-test-suite-repairs, 2026-11-07, answering the question the previous session stopped on at pending-for-reader-bounded (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen\\.test\\.mjs"
+      ]
+    },
+    {
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
+      "replaced_by": "trillion-apps:web/test/public-app-indexed-collaboration-browser.test.mjs, beside the app screen it tests (move row tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json)",
+      "retired_at": "2026-11-07",
+      "tag": "retired/workshop-tests-of-trillion-apps-2026-11-07",
+      "reason": "Owner decision, 2026-11-07: the tests that belong to trillion-apps are retired here with a move row naming trillion-apps as their home, and the ledger updated; another session lands them in trillion-apps. It bundles and mounts the app screen src/workspace/public-apps-screen (mountPublicAppsScreen); no file of this repository holds it, it is a trillion-apps web/ screen.",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "retire those tests here with a move row naming trillion-apps as their home and update the ledger. Another session lands them in trillion-apps.",
+        "source": "the lane brief for workshop-test-suite-repairs, 2026-11-07, answering the question the previous session stopped on at pending-for-reader-bounded (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser\\.test\\.mjs"
+      ]
+    },
+    {
+      "path": "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs",
+      "replaced_by": "trillion-apps:web/test/tray-screen-browser.test.mjs, beside the app screen it tests (move row tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json)",
+      "retired_at": "2026-11-07",
+      "tag": "retired/workshop-tests-of-trillion-apps-2026-11-07",
+      "reason": "Owner decision, 2026-11-07: the tests that belong to trillion-apps are retired here with a move row naming trillion-apps as their home, and the ledger updated; another session lands them in trillion-apps. It bundles and mounts the app screens src/workspace/tray-screen, tray and sharing-sheet and the app's parts/ui/show record-views and placeable-surface-intent; no file of this repository holds any of them, they are trillion-apps web/ screens.",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "retire those tests here with a move row naming trillion-apps as their home and update the ledger. Another session lands them in trillion-apps.",
+        "source": "the lane brief for workshop-test-suite-repairs, 2026-11-07, answering the question the previous session stopped on at pending-for-reader-bounded (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser\\.test\\.mjs"
+      ]
+    },
+    {
+      "path": "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs",
+      "replaced_by": "trillion-apps:web/test/queue-job-button.test.mjs, beside the app screen it tests (move row tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json)",
+      "retired_at": "2026-11-07",
+      "tag": "retired/workshop-tests-of-trillion-apps-2026-11-07",
+      "reason": "Owner decision, 2026-11-07: the tests that belong to trillion-apps are retired here with a move row naming trillion-apps as their home, and the ledger updated; another session lands them in trillion-apps. It bundles and mounts the app screen src/workspace/home-screen (mountHomeCard) and src/workspace/person-notifications; its subject src/queued-work.json is trillion-apps web/src/queued-work.json (the ledger's subject_home).",
+      "decision": {
+        "by": "Brian (owner)",
+        "words": "retire those tests here with a move row naming trillion-apps as their home and update the ledger. Another session lands them in trillion-apps.",
+        "source": "the lane brief for workshop-test-suite-repairs, 2026-11-07, answering the question the previous session stopped on at pending-for-reader-bounded (from lead-66, 2026-11-03 21:00 MST)"
+      },
+      "allowed_exceptions": [],
+      "reference_patterns": [
+        "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button\\.test\\.mjs"
+      ]
     }
   ],
   "awaiting_switch": []

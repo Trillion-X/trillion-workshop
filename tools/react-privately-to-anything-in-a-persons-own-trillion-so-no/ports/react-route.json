@@ -24,6 +24,11 @@
    "repository": "trillion-workshop",
    "path": "tools/react-privately-to-anything-in-a-persons-own-trillion-so-no/",
    "why": "This tool itself: the decision is src/private-responses.mjs react, moved here byte for byte from trillion; this file only lends it the person's records through the door and answers { status, body }."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row. A generated listing of this tool, not another owner of the job."
   }
  ],
  "proof": {
@@ -41,7 +46,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "05cfe66794c94ad3bb6435ee7116d6d76cd52e18"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

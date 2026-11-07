@@ -4,14 +4,13 @@
 //   - a workspace page opens under it, before its script file, and a page without `opening_cover` carries none;
 //   - its inline script reads nothing from outside itself (it runs with nothing else on the page);
 //   - a host app that draws the cover itself gets no second cover, and the page's lift tells the host;
-//   - the iPhone app's copy of the cover and of its needle are the current ones (scripts/make-opening-cover.mjs).
+//   - the iPhone app's copy of the cover and of its needle are the current ones: that case reads ios/App, a trillion-apps
+//     tree, and is retired here for trillion-apps (tools/move-code-between-trees/move-rows/trillion-workshop-tests-to-apps.json).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { pageShellHtml } from '../parts/ui/show/server-rendered-page/page-sections-html.mjs';
 import { threadCoverHtml } from '../parts/ui/show/thread-cover/thread-cover.mjs';
 import setup from '../parts/ui/show/thread-cover/thread-cover.json' with { type: 'json' };
-import { openingCoverFiles } from '../../draw-trillions-app-icon-in-every-size-from/scripts/make-opening-cover.mjs';
 
 const scriptOf = html => html.slice(html.lastIndexOf('<script>') + '<script>'.length, html.lastIndexOf('</script>'));
 
@@ -44,8 +43,4 @@ test('every quote has words and who said them, and the cover\'s colours are colo
   assert.ok(setup.quotes.length > 1);
   for (const quote of setup.quotes) assert.ok(quote.words.trim() && quote.by.trim());
   for (const name of ['paper', 'ink', 'thread', 'quiet']) assert.match(setup.look[name], /^#[0-9a-f]{6}$/i);
-});
-
-test('the iPhone app carries the current cover and needle', () => {
-  for (const [path, bytes] of Object.entries(openingCoverFiles())) assert.equal(readFileSync(path, 'utf8'), bytes, `${path} is stale: run node scripts/make-opening-cover.mjs`);
 });

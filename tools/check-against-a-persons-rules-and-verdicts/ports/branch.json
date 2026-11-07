@@ -29,6 +29,31 @@
    "repository": "trillion",
    "path": "src/private-method.mjs",
    "why": "Old trillion src/private-method.mjs:25 resolves extends while loading whole methods (the job tools/decide-with-a-method/read-data/method.mjs loadMethods carries); it has no lineage function of its own to move."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/README.md",
+   "why": "This tool's own README, describing lineageOf and checksOfBranch; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/check-a-branch.mjs",
+   "why": "A caller: it imports lineageOf from branch.mjs to get a branch lineage over the methods it read; it keeps no lineage code of its own."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
+   "why": "The branch tests, calling lineageOf over made-up rows; they test this job, they do not do it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/decide-with-a-method/README.md",
+   "why": "decide-with-a-method's README: it says a step's checks are those of the method's lineage from this tool's branch.mjs; words about the caller method.mjs, not code."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/write-a-job-done-in-several-steps-have/from-old-trillion/src/workflows.mjs.held",
+   "why": "A held old-trillion file: its own lineageOf(row, rows) answers a workflow's made_from ids and the variations made from it; a recipe's history, not a branch lineage of check rows."
   }
  ],
  "proof": {
@@ -47,7 +72,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "f5c02c07688ba2c15ec6fbe24252979b57e72dc9"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

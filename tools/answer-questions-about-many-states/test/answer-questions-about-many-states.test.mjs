@@ -1,5 +1,5 @@
 // The rows and their functions against the stand-in records door (tools/records-door/test/fake-door.mjs), with the
-// made-up classifier program (test/made_up_worker.py) in place of a model, and the Python tests (test/test_*.py: the
+// made-up classifier program (test/made_up_worker.py) instead of a model, and the Python tests (test/test_*.py: the
 // MLX forward, the classifier program, the whole program on a made-up model). Every input is made up. A run's inputs
 // are read as rows and everything it keeps is written as rows, so a second door client, standing for another computer,
 // reads and cancels it. The parts that need mlx, tokenizers or blake3 skip and say why; agreement with the decider's

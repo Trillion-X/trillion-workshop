@@ -15,7 +15,7 @@ import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 // The browser and every helper it started (on some places its zygote, storage and GPU processes outlive it and keep
-// writing the profile). Where the place has process groups, the browser leads its own, and the whole group is ended;
+// writing the profile). Where the computer has process groups, the browser leads its own, and the whole group is ended;
 // elsewhere the browser alone is. Asked of the place (POSIX user ids), never of what kind it is.
 const PROCESS_GROUPS = typeof process.getuid === 'function';
 const endBrowser = child => {

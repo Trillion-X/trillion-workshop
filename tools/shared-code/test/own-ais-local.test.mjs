@@ -2,8 +2,7 @@
 // Trillion-X/trillion #243. One of its eighteen tests has a running owner: whether a computer row connects
 // (src/own-ais.mjs deviceRowConnected here); it is the old test, with the shipped local tool's descriptor read from where it
 // is shipped now, tools/models-on-this-computer/tool-rows.json, where the old one read records/workshop-listening-tool-records.json.
-// It fails on its first check: that row's invoke.kind is now "computer", and deviceRowConnected still asks for
-// "computer-tool" (the kind the old row had), so the person's own computer row never connects.
+// That row's invoke.kind is now "computer" (the old row's was "computer-tool"); deviceRowConnected asks for "computer".
 // The other seventeen ran a waiting job through old src/own-ais-routing.mjs ownAisRouting (its bounded scans, durable cursors,
 // the local tool loop, walls, retries and releases); no repository keeps that routing (searched ownAisRouting,
 // own-ais-routing in trillion-workshop tools/, trillion-apps web/, trillion-rust src/), so they are left out.

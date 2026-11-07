@@ -84,6 +84,16 @@
    "repository": "trillion-workshop",
    "path": "tools/listen-for-a-while/",
    "why": "this tool's own loop, rows, tests and README, which call this file"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/run-on-a-persons-computer/test/meeting-ledger.test.mjs",
+   "why": "The Mac runner's listener test: it gives that runner's soundKeeper its shipped keep_sound settings; it tests listen.mjs (named above), not this file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/list-and-run-trillions-tools-for-any-ai/from-old-trillion/src/tools.mjs.held",
+   "why": "A held old-trillion list of the AI tools and their descriptions, name_speaker among them; words for an AI, it renames no heard row."
   }
  ],
  "proof": {
@@ -111,7 +121,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "ea2e726b240c7d2fcead59c26e6b20d9ba07a89a"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },

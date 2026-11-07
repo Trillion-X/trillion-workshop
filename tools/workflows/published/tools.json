@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ad3c904a435acce0ec4fb53aadecf407818cd420acc9410e92f8473d096bc25d"
+  "blake3": "1f:8855a89746731d7cd8d4369e90399e825ddcb31d06f662b983b702d140dc0928"
  },
  "fields": [
   {
@@ -1305,7 +1305,7 @@
    "values": {
     "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
     "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (the taker; needs words) and unstuck clears that; withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -1599,7 +1599,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "social-posts"
+    "folder": "social-posts",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
@@ -6304,7 +6307,7 @@
    "values": {
     "title": "Make a fresh-viewer review pack of a preview: contact sheets and a transcript (runs on your computer)",
     "job": "Make the contact sheets and the timed transcript a fresh viewer reviews a preview from",
-    "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the place's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
+    "description": "For one preview (the option's working preview unless the request names video): contact sheets of a frame every every_s seconds, per_sheet frames a sheet at width px (tool:make-a-contact-sheet-of-pictures-or-video-frames), and transcript.txt, a line per sentence led by its mm:ss, heard with the computer's Whisper engine (tools/audio-transcription whisper_here; model and language from the settings), into work-round-<n>/review-pack/<id>/; a rules.txt already there is kept. The input of tool:check-a-rendered-video's fresh-viewer review.",
     "status": "active",
     "maker": "maker:put-picked-options-into-a-filmcraft-project",
     "licence_class": "licence:maker-own",
@@ -8217,7 +8220,7 @@
    "values": {
     "title": "Publish an engine release",
     "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. When the config names darwin, it then cross-builds the same commit for each Mac target in it (cargo zigbuild against the macOS SDK), signs that program Developer ID with the hardened runtime (rcodesign, the identity read by path from the service's credentials), holds the signature to the Mac app's release requirement, and adds it as its own entry in the same feed; a Mac target that fails leaves the others published. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
     "status": "active",
     "maker": "maker:publish-an-engine-release",
     "licence_class": "licence:maker-own",

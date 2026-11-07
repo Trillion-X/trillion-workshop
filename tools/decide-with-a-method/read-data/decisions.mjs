@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, holdingStep, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
@@ -141,7 +141,9 @@ async function currentPursuits(door, most) {
 async function pursuitsFor(door, question) {
   if (!question || !settings.pursuits.with_steps.includes(question.step_id)) return {};
   const found = await currentPursuits(door, settings.pursuits.carried);
-  const list = found.slice(0, settings.pursuits.carried);
+  // Those carried are sent by id from the least, the order every list of pursuits uses (do-work/answer-the-pursuits-page.mjs
+  // readPursuits, as old trillion's store read them back); the door lists the greatest id first.
+  const list = found.slice(0, settings.pursuits.carried).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   if (!list.length) return { pursuits: [], pursuits_note: WORDS.no_pursuits_note };
   const more = found.length > list.length;
   return { pursuits: list.map(({ id, title, now, after, why_it_matters, status }) => ({ id, title, now, after, why_it_matters, status })), pursuits_note: `${WORDS.pursuits_note}${more ? ` ${say('more_pursuits_note', { count: list.length })}` : ''}` };
@@ -237,6 +239,19 @@ const ready = (cat, record) => {
   return { ai_instructions: [say(optionsOf(record).length ? 'ready' : 'none_standing')], options: optionsOf(record).map(({ id, label }) => ({ id, label })), how_to_say_it: cat.howToSayIt(record), ...(asked.length ? { decision_fields: asked } : {}) };
 };
 
+// The workflows the decision's accepted plan declares necessary for choosing (required_phase "decision"). A run cannot be
+// read here, so each stays unfinished and the decision waits: readiness names them as its blockers, and
+// tool:make-the-decision refuses with the same list, so the two never disagree.
+const decisionPhaseRuns = record => Object.entries(object(record.workflow_plan?.items) ? record.workflow_plan.items : {})
+  .filter(([, item]) => item?.applicable === true && item.required_phase === 'decision').map(([workflow]) => workflow);
+// With every question answered and no decision yet: what the AI does next, the decision or what it waits on.
+function readyOrBlocked(cat, record) {
+  const waiting = decisionPhaseRuns(record);
+  if (!waiting.length) return ready(cat, record);
+  return { ai_instructions: [say('decision_phase_runs', { workflows: waiting.join(', ') })], decision_blockers: waiting.map(workflow => say('decision_phase_blocker', { workflow })) };
+}
+const readyFor = reply => !reply.question && !reply.decision_blockers?.length;
+
 async function guideReply(door, cat, record) {
   const question = cat.currentQuestion(record);
   // At the moment of choice, what happened in similar earlier decisions.
@@ -248,7 +263,7 @@ async function guideReply(door, cat, record) {
     ...(record.workflow_plan ? { workflow_plan: record.workflow_plan } : {}),
     ...(similar ? { similar_decisions: similar } : {}),
     ...(!record.input.options && question?.fields?.includes(CANDIDATES.field) ? { candidates_note: say('candidates_note', { field: CANDIDATES.field }) } : {}),
-    ...(!question && !record.decision ? ready(cat, record) : {}),
+    ...(!question && !record.decision ? readyOrBlocked(cat, record) : {}),
   };
 }
 
@@ -424,9 +439,9 @@ async function confirmStep(door, methods, record, at) {
   delete entry.recheck_of;
   entry.rechecked_at = new Date().toISOString();
   record.change_count = (record.change_count ?? 0) + 1;
-  await writeDecision(door, recordsOf(record), `confirm-a-decision-step:${record.id}:${at}:${record.change_count}`);
+  await writeDecision(door, holdingStep(recordsOf(record), record, at), `confirm-a-decision-step:${record.id}:${at}:${record.change_count}`);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
-  return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: !reply.question };
+  return { ...reply, confirmed: { step_id: entry.step_id, version: entry.version ?? 1 }, ready_for_decision: readyFor(reply) };
 }
 
 // A confirmation with verdicts: the answer stands and the judge's verdicts on its checks are added as a new version of the
@@ -459,9 +474,9 @@ async function confirmWithVerdicts(door, methods, record, at, step, given, now) 
     ...(entry.from ? { from: entry.from } : {}),
     ...(entry.needs_recheck ? { rechecked_at: now } : {}),
   };
-  await writeDecision(door, recordsOf(record, [at], archived), `confirm-a-decision-step:${record.id}:${at}:v${version}`);
+  await writeDecision(door, holdingStep(recordsOf(record, [at], archived), record, at), `confirm-a-decision-step:${record.id}:${at}:v${version}`);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
-  return { ...reply, confirmed: { step_id: entry.step_id, version, verdicts_added: added.map(item => item.id) }, ready_for_decision: !reply.question };
+  return { ...reply, confirmed: { step_id: entry.step_id, version, verdicts_added: added.map(item => item.id) }, ready_for_decision: readyFor(reply) };
 }
 
 // A revision of a decided decision's answer reopens it: the decision it had moves to decision_history, marked reopened by
@@ -482,6 +497,15 @@ function reopen(record, { step_id, because, now }) {
  * confirmation of a re-asked step unchanged, or with verdicts added as a new version of the same answer (a decided decision stays
  * decided); `from` answers with another decision's step as it stood. */
 export async function answerADecisionQuestion(input, { door }) {
+  // Each change to a step is written only if the step still holds what was read (holdingStep). One that lost to a change
+  // made meanwhile is read again and answered against it: the same answer replays, a different one is refused.
+  for (let tries = 1; ; tries += 1) {
+    try { return await answerOnce(input, { door }); }
+    catch (error) { if (error?.code !== CHANGED || tries >= settings.step_conflict_tries) throw error; }
+  }
+}
+
+async function answerOnce(input, { door }) {
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
   answerShape(input);
@@ -560,13 +584,13 @@ export async function answerADecisionQuestion(input, { door }) {
     for (const later of record.guidance.slice(index + 1)) { later.needs_recheck = true; later.recheck_of = step.id; }
   } else record.guidance.push(fresh);
   const key = entry ? `answer-a-decision-question:${id}:${index}:v${version}` : `answer-a-decision-question:${id}:${index}`;
-  await writeDecision(door, recordsOf(record, [index], archived), key);
+  await writeDecision(door, holdingStep(recordsOf(record, [index], archived), record, index), key);
   const reply = await guideReply(door, await catalogueAt(door, methods, record), record);
   return {
     ...reply,
     ...(entry ? { revised: { step_id: step.id, version, previous_version: entry.version ?? 1, needs_recheck: record.guidance.slice(index + 1).filter(item => item.needs_recheck).map(item => item.step_id) } } : {}),
     ...(reopening ? { reopened: { from_generation: decisionGeneration(record), step_id: step.id, because: input.revise.because, at: now, note: say('reopened_note', { step: step.id }) } } : {}),
-    ready_for_decision: !reply.question,
+    ready_for_decision: readyFor(reply),
   };
 }
 
@@ -611,7 +635,7 @@ export async function makeTheDecision(input, { door }) {
   if (record.decision && same(record.decision, decision)) return decidedReply(cat, record, true);
   noRunIds(decision.workflow_runs, 'decision.workflow_runs');
   // Evidence declared necessary for choosing must be finished first; no run can be read here, so such a plan waits.
-  const needsRuns = Object.entries(object(record.workflow_plan?.items) ? record.workflow_plan.items : {}).filter(([, item]) => item?.applicable === true && item.required_phase === 'decision').map(([workflow]) => workflow);
+  const needsRuns = decisionPhaseRuns(record);
   if (needsRuns.length) refuse('decision_phase_runs', { workflows: needsRuns.join(', ') });
   keepCited(record, cited.pursuits, decision.evidence_refs);
   if (record.decision) {

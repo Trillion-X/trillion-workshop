@@ -165,8 +165,13 @@ async function platformFonts({ page, held, cache, items }) {
   if (!held.session) {
     held.session = await page.context().newCDPSession(page);
     await held.session.send('DOM.enable');
+  }
+  // The control-name read may have opened the session first, with DOM only: without CSS.enable every
+  // CSS.getPlatformFontsForNode below throws, and a font that never loaded would read as no font at all.
+  if (!held.css) {
     await held.session.send('CSS.enable');
     await held.session.send('DOM.getDocument', { depth: 0 });
+    held.css = true;
   }
   const { session } = held;
   await Promise.all([...asked].map(async ([key, mark]) => {
@@ -190,7 +195,10 @@ const decidedOf = (views, colours) => (views.decided_colours ?? []).find(row => 
 async function readScreen({ page, decoder, width, mode, screen, views, fontsAllowed, clock, held, fontCache }) {
   const t = views.thresholds;
   const failures = [];
-  const add = (probe, item, detail) => failures.push({ probe, selector: item?.selector ?? null, text: item?.text ?? null, detail, mark: item?.mark ?? null });
+  // A control-name finding carries two paths: the structural one it is bound by, and displaySelector, the short human
+  // path (with the control's class) that every other probe here reports. The report names it by the human one, unless
+  // that path names more than one shown control on the page (displayShared): then by the structural one, which is unique.
+  const add = (probe, item, detail) => failures.push({ probe, selector: (item?.displayShared ? item?.selector : item?.displaySelector ?? item?.selector) ?? null, text: item?.text ?? null, detail, mark: item?.mark ?? null });
   // Contrast on a decided colour: its own bar for its words, and what still fails is reported, never refused.
   const judge = (item, ratio, need, colours, detail) => {
     const decided = decidedOf(views, colours);

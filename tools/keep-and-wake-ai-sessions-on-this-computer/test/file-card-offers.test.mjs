@@ -2,9 +2,10 @@
 // Trillion-X/trillion #243. thingActions and takes-file are this tool's (src/work-workshop.mjs,
 // parts/ui/show/file-field/takes-file.mjs). The old records/workshop-*.json held every Workshop row; this tool keeps two
 // of them, and the rest live in each tool folder's tool-rows.json now, so the cards are read from both. Every assertion
-// is the old one. Two fail today: tool:check-a-post (now tools/social-posts' row, which takes a post_id and no file) is
-// not offered on a video's card, in the first test and in the for-thing route test; no commit or README says that was
-// meant, so the old expectation stands.
+// is the old one, but for tool:who-is-in-this: the Workshop's row (tools/know-who-is-in-this, 2c9d7eec) needs the
+// recording's segments as well as the file, so by this file's own rule (a tool that needs more than the file is never a
+// button that would fail) a video's card does not offer it, and the first test says so. tool:check-a-post's row in
+// tools/social-posts carries the Posts screen and its takes_file again, as the old row did.
 // What a file's card and a thing's ⋯ menu offer (src/work-workshop.mjs thingActions, GET /work/api/workshop/for-thing):
 // every tool or screen whose row marks it as taking a file of that kind, and every tool whose required inputs are all
 // formats the thing carries, read from the real Workshop rows, never a fixed list.
@@ -33,7 +34,9 @@ const ids = actions => actions.map(action => action.id);
 
 test('a video is offered its editor, posting, its folder and the tools that take a recording', () => {
   const offered = thingActions(cards, { type: 'video/mp4', name: 'C9506S03.MP4' });
-  for (const id of ['tool:screen-media-edit', 'tool:check-a-post', 'tool:screen-files', 'tool:screen-file', 'tool:transcribe-file', 'tool:who-is-in-this', 'tool:read-file-words']) assert.ok(ids(offered).includes(id), id);
+  for (const id of ['tool:screen-media-edit', 'tool:check-a-post', 'tool:screen-files', 'tool:screen-file', 'tool:transcribe-file', 'tool:read-file-words']) assert.ok(ids(offered).includes(id), id);
+  // tool:who-is-in-this needs the recording's segments too, which a card does not have.
+  assert.ok(!ids(offered).includes('tool:who-is-in-this'));
   const edit = offered.find(action => action.id === 'tool:screen-media-edit');
   assert.equal(edit.kind, 'open');
   assert.equal(edit.surface, 'trillion.media-edit');

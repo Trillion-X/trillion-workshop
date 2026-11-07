@@ -77,7 +77,7 @@ def configure(settings, line_sets=None):
     if not isinstance(settings, dict):
         raise Refused("settings is required: the person's setting row for this tool (its `settings` object)")
     SETTINGS, LINE_SETS = settings, dict(line_sets or {})
-    # The model cache is where this place keeps it: the setting, else HF_HUB_CACHE, else HF_HOME/hub, else the Hugging Face default under the home folder.
+    # The model cache is where this computer keeps it: the setting, else HF_HUB_CACHE, else HF_HOME/hub, else the Hugging Face default under the home folder.
     HF_HUB = Path(settings.get("model_cache_root") or os.environ.get("HF_HUB_CACHE") or Path(os.environ.get("HF_HOME") or Path.home() / ".cache/huggingface") / "hub").expanduser()
     base = settings.get("base_model") or {}
     MODEL = HF_HUB / ("models--" + base["repo"].replace("/", "--")) / "snapshots" / base["snapshot"] if base.get("repo") and base.get("snapshot") else None

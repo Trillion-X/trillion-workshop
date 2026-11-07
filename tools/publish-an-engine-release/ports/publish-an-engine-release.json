@@ -60,6 +60,16 @@
       "repository": "trillion",
       "path": "scripts/deploy-batching.json",
       "why": "The batching numbers of that removed Worker deploy; this tool's numbers are its own (read-data/settings.json)."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-and-wake-ai-sessions-on-this-computer/test/event-route-members.test.mjs",
+      "why": "A test of the event route that signs a made-up WhatsApp Business delivery with Meta's x-hub-signature-256 header; it receives a messaging event, it publishes no engine release."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/start-a-new-account-with-the-rules-and-catalog-items/from-old-trillion/records/workshop-event-source-records.json",
+      "why": "Held old-trillion event source records (Instagram, Facebook Page and others) whose signature header is the same x-hub-signature-256 name Meta uses; data about messaging events, not an engine release."
     }
   ],
   "proof": {
@@ -80,7 +90,7 @@
       "repositories": [
         {
           "repository": "trillion-workshop",
-          "commit": "76decadcf22275863f14ddf30bf39832852650f4"
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
         },
         {
           "repository": "trillion",

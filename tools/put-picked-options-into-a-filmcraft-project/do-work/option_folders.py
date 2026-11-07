@@ -43,7 +43,7 @@ DEFAULTS = {
 }
 
 OPT = None
-PLACE = {}
+PREVIEW = {}
 RENDER_LOCK = None
 LOCK_HELD_ENV = 'FILM_RENDER_LOCK_HELD'
 PLAN = None       # the recorded steps while a plan is made, else None
@@ -80,7 +80,7 @@ def render_lock():
             fcntl.flock(f, fcntl.LOCK_UN)
 
 
-# The build is the one this place reports (FILMCRAFT_CLI), else `filmcraft-cli` on its PATH; no checkout under a home folder is assumed.
+# The build is the one this computer reports (FILMCRAFT_CLI), else `filmcraft-cli` on its PATH; no checkout under a home folder is assumed.
 # (Then the settings' filmcraft_cli.)
 FILMCRAFT_CLI = os.environ.get('FILMCRAFT_CLI') or 'filmcraft-cli'
 NICE = 10
@@ -186,7 +186,7 @@ def _wait_while_urgent(poll_s=15, max_s=1800):
 
 
 def round_of(oid):
-    pattern = PLACE.get('round_pattern')
+    pattern = PREVIEW.get('round_pattern')
     try:
         if not pattern:
             return int(oid.split('-')[1][1:])
@@ -197,14 +197,14 @@ def round_of(oid):
 
 def rdir(kind, oid, *parts):
     """kind: specs, out, projects, previews or work."""
-    if kind in PLACE.get('layout', {}):
-        return os.path.join(OPT, PLACE['layout'][kind].format(round=round_of(oid)), *parts)
+    if kind in PREVIEW.get('layout', {}):
+        return os.path.join(OPT, PREVIEW['layout'][kind].format(round=round_of(oid)), *parts)
     return os.path.join(OPT, f'{kind}-round-{round_of(oid)}', *parts)
 
 
 def watch_dir(oid):
-    if 'watch' in PLACE.get('layout', {}):
-        return os.path.join(OPT, PLACE['layout']['watch'].format(round=round_of(oid)))
+    if 'watch' in PREVIEW.get('layout', {}):
+        return os.path.join(OPT, PREVIEW['layout']['watch'].format(round=round_of(oid)))
     return os.path.join(OPT, f'ROUND {round_of(oid)} - watch these')
 
 
@@ -213,7 +213,7 @@ def odir(oid, *parts):
     return rdir('out', oid, oid, *parts)
 
 
-# --- the request, its settings and the option's place ---
+# --- the request, its settings and the option's folders ---
 
 def door_read(record_id):
     """One record of the person's own list:settings, read through their records door (the trillion command)."""
@@ -281,9 +281,9 @@ def configure(req):
         pv = {**pv, **{k: v for k, v in chapters[chapter].items() if k not in ('options_folder', 'option_ids')}}
     OPT = os.path.abspath(os.path.expanduser(folder))
     film = os.path.abspath(os.path.expanduser(film)) if film else os.path.normpath(os.path.join(OPT, '..', '..'))
-    PLACE.clear()
-    PLACE.update(pv, film=film, chapter=chapter, request=req)
-    PLACE['layout'] = dict(pv.get('layout') or {})
+    PREVIEW.clear()
+    PREVIEW.update(pv, film=film, chapter=chapter, request=req)
+    PREVIEW['layout'] = dict(pv.get('layout') or {})
     lock = pv.get('lock') or req.get('lock')
     RENDER_LOCK = os.path.expanduser(under(film, lock['file'])) if lock else None
     ww = (lock or {}).get('wait_while') or {}
@@ -296,13 +296,13 @@ def configure(req):
 
 
 def base_project():
-    return os.path.expanduser(under(OPT, PLACE['base_project']))
+    return os.path.expanduser(under(OPT, PREVIEW['base_project']))
 
 
 def spec_of(oid):
     """The option's spec: the request's own `spec`, else specs-round-<n>/<id>.json in the option folder. A relative picture
     in edit.hold_picture is read against the film's folder."""
-    spec = PLACE['request'].get('spec')
+    spec = PREVIEW['request'].get('spec')
     if spec is None:
         path = rdir('specs', oid, oid + '.json')
         if not os.path.exists(path):
@@ -314,7 +314,7 @@ def spec_of(oid):
     hp = spec['edit'].get('hold_picture')
     if hp:
         for one in hp if isinstance(hp, list) else [hp]:
-            one['image'] = under(PLACE['film'], one['image'])
+            one['image'] = under(PREVIEW['film'], one['image'])
     return spec
 
 

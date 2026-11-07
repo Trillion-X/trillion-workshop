@@ -4,6 +4,7 @@
  "status": "ADAPTED",
  "directive": {
   "thread_id": "work is kept in Trillion, not on disk, 2026-11-05",
+  "message_multihash": "1f:ff5a55204f8f5569ccb93140c7eff30079dbf88c85bc52e373066612de469b6c",
   "quote": "everything an AI keeps goes into his Trillion lists, never onto disk; build a judge (rules plus a classifier model) behind a hook that refuses a disk write and says which list and records:write call keeps it instead"
  },
  "mode": "NO_PRIOR_OWNER",
@@ -21,7 +22,7 @@
  "proof": {
   "search": {
    "phrasings": [
-    "refuse a tool call that writes an AI's work onto disk outside a declared repository's source",
+    "refuse a tool call that writes an AI's work onto disk outside a declared repository's source, its scratch or a list copy, naming the list and the records:write call that keeps it instead",
     "find the paths a shell command writes",
     "say which list keeps a file instead of disk"
    ],
@@ -33,7 +34,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "70be026ffa7aede39468a674698d5b8a597fac8a"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },
@@ -41,5 +42,17 @@
    "tools/check-where-work-is-kept/test/check-where-work-is-kept.test.mjs",
    "tools/check-where-work-is-kept/test/run-by-the-check-list.test.mjs"
   ]
- }
+ },
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-where-work-is-kept/README.md",
+   "why": "This tool's own README, describing writtenPaths and keepInstead; documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-where-work-is-kept/test/check-where-work-is-kept.test.mjs",
+   "why": "This file's own test, calling writtenPaths and judgeCall over made-up commands; it tests this job, it does not do it."
+  }
+ ]
 }

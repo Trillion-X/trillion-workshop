@@ -7,7 +7,7 @@
 //   people use Trillion. Business is a catalogue screen (tool:business in
 //   tools/show-my-screens-from-a-catalogue-of-reads-and-layouts), drawn by the engine's generic screen host
 //   (GET /work/api/screens/business) from one read, tool:read-business (this folder's row, readBusinessForScreen): this
-//   file reads the facts (readBusiness) and writes them as the words and figures the layout places (businessFacts).
+//   file reads the facts (readBusiness) and writes them as the words and figures the layout lays out (businessFacts).
 //   Nothing here writes markup or a screen description.
 //
 //   Ported from old trillion src/business-screen.mjs (Trillion-X/trillion before 4ffa1dc4a2), where the account action

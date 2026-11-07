@@ -103,13 +103,17 @@ export const pageCraftMeasures = String.raw`(async ({ rules, selectors, freshDay
       const identified = candidates.map(element => ({ element, ...controlDomObservation(element) })).filter(item => item.shown);
       const candidateIdentities = new Map();
       for (const item of identified) candidateIdentities.set(item.identitySelector, (candidateIdentities.get(item.identitySelector) || 0) + 1);
+      // The short human path may name more than one shown control (repeated deep branches); a report then needs the
+      // structural path, which names one.
+      const displayCounts = new Map();
+      for (const item of identified) displayCounts.set(item.selector, (displayCounts.get(item.selector) || 0) + 1);
       return identified.flatMap(({ element, selector: displaySelector, identitySelector, structuralSelector }) => {
         const matches = byIdentity.get(identitySelector) || [];
         const ambiguousPath = candidateIdentities.get(identitySelector) > 1;
         const item = matches.length === 1 ? matches[0] : null;
         const role = item?.role || 'control';
         const text = role + ' control';
-        const evidence = { element, identitySelector, selector: structuralSelector, displaySelector };
+        const evidence = { element, identitySelector, selector: structuralSelector, displaySelector, displayShared: displayCounts.get(displaySelector) > 1 };
         if (ambiguousPath || !item || item.state !== 'available') return [{ values: { kind: 'unavailable', role, text, reason: ambiguousPath || matches.length > 1 ? 'ambiguous DOM identity' : item?.reason || 'no matching AX record' }, ...evidence }];
         return String(item.name ?? '').trim() ? [] : [{ values: { kind: 'unnamed', role, text }, ...evidence }];
       });
@@ -471,7 +475,7 @@ export const pageCraftMeasures = String.raw`(async ({ rules, selectors, freshDay
       values: hit.values,
       text: hit.values.text,
       selector: hit.selector ?? (hit.element ? pathOf(hit.element) : undefined),
-      ...(hit.identitySelector ? {identitySelector: hit.identitySelector, displaySelector: hit.displaySelector} : {}),
+      ...(hit.identitySelector ? {identitySelector: hit.identitySelector, displaySelector: hit.displaySelector, ...(hit.displayShared ? {displayShared: true} : {})} : {}),
       rect: hit.element ? where(hit.element) : null,
     });
   }
