@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-WORDTIME-FROM-LAUNCH-VIDEO-SLATE",
-  "status": "VERIFIED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
     "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
