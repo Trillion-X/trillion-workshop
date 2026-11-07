@@ -20,7 +20,8 @@ if (process.argv[2] === '--inspect-source') {
     if (spans && spans.map(span => text.slice(span.start, span.end)).join('') !== text) throw new Error('Source span reconstruction differs.');
     return { file, identity: makeHashCodeHexFromBytes(bytes), bytes: bytes.length, conversation_id: chat.conversation_id,
       occurrences: archive.messages.length, person: archive.messages.filter(m => m.speaker === 'person').length,
-      ai: archive.messages.filter(m => m.speaker === 'ai').length, kept_parts: chat.messages.length, spans_exact: Boolean(spans) };
+      ai: archive.messages.filter(m => m.speaker === 'ai').length, kept_parts: chat.messages.length,
+      first_source_ref: chat.messages[0]?.node ?? null, spans_exact: Boolean(spans) };
   });
   console.log(JSON.stringify({ files })); process.exit(0);
 }
