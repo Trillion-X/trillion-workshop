@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ce6b31b6b1b6b73578ec104920c76b586f3b746aa429d027eca3a9763c7e992c"
+  "blake3": "1f:8855a89746731d7cd8d4369e90399e825ddcb31d06f662b983b702d140dc0928"
  },
  "fields": [
   {
@@ -1599,7 +1599,10 @@
     "placements": [
      "placement:small-container"
     ],
-    "folder": "social-posts"
+    "folder": "social-posts",
+    "flags": [
+     "has-a-screen"
+    ]
    }
   },
   {
