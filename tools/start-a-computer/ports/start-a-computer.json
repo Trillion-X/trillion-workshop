@@ -1,0 +1,96 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-START-A-COMPUTER-ORIGIN-RECOVERY",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:4e03be29097997b7143469291d60a09288c3a17922461c666c031940d0bf1e72",
+    "quote": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/start-a-computer/do-work/start-a-computer.mjs",
+      "multihash": "1f:041ee40f58b215f4fe9615f3186135fca1bf6fe72866348c1155f98d93f2962d",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/start-a-computer/do-work/start-a-computer.mjs"
+    }
+  ],
+  "preserve": [
+    "Provider-row lease and ownership lifecycle",
+    "SSH setup, engine release install and readback",
+    "Discovered layouts, staged updates, health checks and backup rollback",
+    "Copies policy construction and caller config values"
+  ],
+  "allowed_deltas": [
+    "Require caller product_settings object/file instead of compiled product JSON; resolve its file relative to the request",
+    "Use one exact caller settings snapshot for remote bytes and new_accounts seeds in each start/update",
+    "Recover missing starting row merge from the old startup behavior while preserving configured rows",
+    "No default product feed or engine program choice; updates require caller release_feed",
+    "Copies counts use caller seed policy, bounded by available computers; explicit policies follow the engine's 1024 admission bound and always-on ordering",
+    "Remove product-filled DATA from active package; original public Git source remains retained"
+  ],
+  "banned_substitutions": [
+    "Production defaults copied from test fixtures",
+    "A new or retroactive byte-copy commit claim",
+    "Editing the old start-a-place custody files",
+    "Claiming Mac native mv supports the Linux target's -T option"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:041ee40f58b215f4fe9615f3186135fca1bf6fe72866348c1155f98d93f2962d",
+    "target_multihash_at_baseline": "1f:041ee40f58b215f4fe9615f3186135fca1bf6fe72866348c1155f98d93f2962d",
+    "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+    "scope": "Existing canonical implementation from public origin history, not a newly made baseline. This snapshot is not currently an ancestor of the working branch; history qualification is unresolved. No VERIFIED or original pre-policy provenance claim."
+  },
+  "recovery": {
+    "existing_public_implementation": true,
+    "new_byte_copy_commit": false,
+    "ancestry_proved": false,
+    "source_snapshot_after_policy_since": true,
+    "production_consumer_bound": false,
+    "normal_mac_tests_pass": false,
+    "linux_command_local_tests": {
+      "command": "PATH=/tmp/legacy-startup-gnu-tools-01a1b7de:$PATH node --test tools/start-a-computer/test/start-a-computer.test.mjs",
+      "passed": 26,
+      "failed": 0
+    },
+    "native_mac_tests": {
+      "passed": 21,
+      "failed": 5,
+      "reason": "BSD mv rejects GNU/Linux mv -T in remote shell fixtures."
+    }
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "productSettingsOf",
+      "startingRows",
+      "rentAMachine",
+      "startAComputer",
+      "updateAComputer",
+      "rollBackAComputer"
+    ],
+    "test_refs": [
+      "tools/start-a-computer/test/start-a-computer.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null,
+    "active_target": {
+      "path": "tools/start-a-computer/do-work/start-a-computer.mjs",
+      "multihash": "1f:129b782895d10663dba352490ca1ee4ccacdd317eb76e3b153bd220630693f1b",
+      "archive_bytes_excluded": true,
+      "measurements": {
+        "sourceMeaningfulLines": 284,
+        "retainedMeaningfulLines": 256,
+        "meaningfulLineRetention": 0.9014084507042254
+      }
+    }
+  }
+}
