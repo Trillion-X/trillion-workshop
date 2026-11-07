@@ -59,6 +59,21 @@
    "repository": "trillion-workshop",
    "path": "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
    "why": "The branch mode's tests, calling rulesOfBranch and checkABranch over made-up rows; they test this job, they do not do it."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-a-record-library-valid/README.md",
+   "why": "keep-a-record-library-valid's README, describing its branch-rules.mjs as calling rulesOfBranch through the person's records door; documentation of a caller."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-a-record-library-valid/do-work/branch-rules.mjs",
+   "why": "A caller: it imports rulesOfBranch from check-a-branch.mjs and reads the delivery gate's verdict ids from its answer; it reads no branch rows itself."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-a-record-library-valid/read-data/delivery_gate.py",
+   "why": "The delivery gate's docstring naming branch-rules.mjs and rulesOfBranch; it runs that helper for the rows, it does not read a branch itself."
   }
  ],
  "proof": {
@@ -77,7 +92,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "f5c02c07688ba2c15ec6fbe24252979b57e72dc9"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

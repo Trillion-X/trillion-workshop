@@ -24,6 +24,16 @@
    "repository": "trillion-workshop",
    "path": "tools/keep-goals-and-focus/",
    "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "This tool's own capability row, whose owner names this folder: the registry entry for this tool, not another owner of the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/show-my-screens-from-a-catalogue-of-reads-and-layouts/from-old-trillion/src/screen.mjs.held",
+   "why": "A held old-trillion screen file that imports pursuitHierarchyRows from this tool's read-data/pursuit-hierarchy-view.mjs; a caller, with no order of its own."
   }
  ],
  "proof": {
@@ -41,7 +51,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

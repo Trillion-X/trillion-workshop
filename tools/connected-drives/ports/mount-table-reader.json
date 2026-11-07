@@ -43,6 +43,11 @@
    "repository": "trillion-workshop",
    "path": "tools/work-on-connected-drives/",
    "why": "imports enumerateDevices from this folder; copies, moves and ejects, never reads a mount table"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "docs/decouple-sweep.md",
+   "why": "A note of the decoupling sweep that says connected drives are now read by drive readers in rows, mountinfo among them; words, not a reader."
   }
  ],
  "proof": {
@@ -61,7 +66,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "ea2e726b240c7d2fcead59c26e6b20d9ba07a89a"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },

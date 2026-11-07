@@ -34,6 +34,16 @@
    "repository": "trillion-workshop",
    "path": "tools/check-new-names/do-work/check-new-names.mjs",
    "why": "Judges the names a change brings in by word lists its caller gives; this file judges the added lines and JSON values of a change by the person's check rows."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-every-tool-call/README.md",
+   "why": "This tool's own README, describing judge-check-rows.mjs (fixturesHold among its functions); documentation, not another owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-every-tool-call/test/check-rows-judge-commits-and-pushes.test.mjs",
+   "why": "This file's own test, calling judgeACall and fixturesHold over made-up rows; it tests this job, it does not do it."
   }
  ],
  "proof": {
@@ -52,7 +62,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "bb2ab85c5c7206a9dfd66ee975a1c79f0f311c8f"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     }
    ]
   },

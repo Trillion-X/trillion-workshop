@@ -11,7 +11,10 @@
  "job": "replay recorded writes from transcripts: bring back the rows an account's AIs wrote, from the records:write calls their transcripts prove succeeded, newest per record, through the records door",
  "sources": [],
  "targets": [
-  { "path": "tools/use-trillion-from-a-shell/do-work/replay-recorded-writes.mjs", "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path, the target the contract claims" }
+  {
+   "path": "tools/use-trillion-from-a-shell/do-work/replay-recorded-writes.mjs",
+   "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path, the target the contract claims"
+  }
  ],
  "preserve": [],
  "allowed_deltas": [],
@@ -20,8 +23,14 @@
  "distinct_from": [
   {
    "repository": "trillion-workshop",
-   "path": "tools/use-trillion-from-a-shell/", "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path",
+   "path": "tools/use-trillion-from-a-shell/",
+   "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path",
    "why": "This tool itself: its command program passes its own argument parser, home expansion and settings, so shell lines are read as the command reads them, and --write goes through the command's own client and request keys."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row. A generated listing of this tool, not another owner of the job."
   }
  ],
  "proof": {
@@ -39,7 +48,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "9441c6c6717daa8b6ddfa7942c32e89d075d23fc"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",
@@ -51,6 +60,9 @@
     }
    ]
   },
-  "test_refs": ["tools/use-trillion-from-a-shell/test/replay-recorded-writes.test.mjs"], "test_refs_note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own test"
+  "test_refs": [
+   "tools/use-trillion-from-a-shell/test/replay-recorded-writes.test.mjs"
+  ],
+  "test_refs_note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own test"
  }
 }

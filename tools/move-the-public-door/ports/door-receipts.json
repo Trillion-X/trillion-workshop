@@ -10,16 +10,55 @@
   "job": "keep a door move's lease, cutover and journal receipts as rows of the person's list, each save conditioned on the value last read",
   "sources": [],
   "targets": [
-    { "path": "tools/move-the-public-door/read-data/door-receipts.mjs" }
+    {
+      "path": "tools/move-the-public-door/read-data/door-receipts.mjs"
+    }
   ],
   "preserve": [],
   "allowed_deltas": [],
   "banned_substitutions": [],
   "baseline": {},
   "distinct_from": [
-    { "repository": "trillion", "path": "scripts/portable-host-lease.mjs", "why": "Its save(file, lease) wrote the lease receipt to a mode-600 file; this keeps the same receipts as list rows through the records door. That file leaves with the older owner's door scripts." },
-    { "repository": "trillion", "path": "scripts/portable-dns-cutover.mjs", "why": "Its save(file, receipt) wrote the cutover receipt to a file; the same receipts become list rows here. That file leaves with the older owner's door scripts." },
-    { "repository": "trillion", "path": "scripts/move-public-door.mjs", "why": "Its journal(file, receipt) wrote the move's journal to a file; the same journal becomes a list row here. That file leaves with the older owner's door scripts." }
+    {
+      "repository": "trillion",
+      "path": "scripts/portable-host-lease.mjs",
+      "why": "Its save(file, lease) wrote the lease receipt to a mode-600 file; this keeps the same receipts as list rows through the records door. That file leaves with the older owner's door scripts."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/portable-dns-cutover.mjs",
+      "why": "Its save(file, receipt) wrote the cutover receipt to a file; the same receipts become list rows here. That file leaves with the older owner's door scripts."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/move-public-door.mjs",
+      "why": "Its journal(file, receipt) wrote the move's journal to a file; the same journal becomes a list row here. That file leaves with the older owner's door scripts."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/README.md",
+      "why": "This tool's own README, describing doorReceipts; documentation, not another owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/do-work/door-tools.mjs",
+      "why": "The door's row functions: they import doorReceipts and hand it to the lease and cutover code; a caller, it keeps no receipts itself."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/do-work/move-public-door.mjs",
+      "why": "The door move: it imports doorReceipts over the records it is given; a caller, it keeps no receipts itself."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/test/",
+      "why": "This tool's own tests: they make their receipts with doorReceipts over a made-up door and read the record:public-door-receipt rows a run kept; they test this job, they do not do it."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/move-the-public-door/tool-rows.json",
+      "why": "This tool's own rows, granting records:read and records:write on record:public-door-receipt for the receipts this file keeps; the rows, not a second owner."
+    }
   ],
   "proof": {
     "search": {
@@ -30,10 +69,19 @@
         "public door receipt rows"
       ],
       "capability_rows": [],
-      "code_patterns": ["doorReceipts", "public-door-receipt"],
+      "code_patterns": [
+        "doorReceipts",
+        "public-door-receipt"
+      ],
       "repositories": [
-        { "repository": "trillion-workshop", "commit": "6323f8f" },
-        { "repository": "trillion", "commit": "9b5614150bf2ff506cb296337b79af328ffc7381" }
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion",
+          "commit": "9b5614150bf2ff506cb296337b79af328ffc7381"
+        }
       ]
     },
     "test_refs": [

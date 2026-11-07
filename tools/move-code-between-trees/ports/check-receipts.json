@@ -29,6 +29,16 @@
    "repository": "trillion-workshop",
    "path": "tools/check-deleted-code-names-its-home/",
    "why": "that judge reads receipts to find the home of a deleted source file; it does not judge whether a receipt is whole"
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/move-code-between-trees/index.js",
+   "why": "This tool's command entry: it imports checkReceipts and prints its answer for a folder; a caller, not a second owner."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/move-code-between-trees/test/move-code.test.mjs",
+   "why": "This tool's own test, calling checkReceipts over a made-up checkout; it tests this job, it does not do it."
   }
  ],
  "proof": {
@@ -47,7 +57,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "7abcba000242a8f04086eeb0b930257c49da8827"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",

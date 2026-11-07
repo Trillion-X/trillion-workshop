@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MOVED-MESSAGES-SCREEN-READ-DATA-READ-ADDRESSED-EXCHANGE-PARTICIPANTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:edde1758f8c400dcb9ecb6da259a7d687d3b56991ab276a0e9e3854d01e7eeba",
+    "quote": "The remaining old trillion features move into the Workshop in one move: parts/, computer/ and the src files the capability list sends here"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "c9f7c79e64d7eabc37eac83c0ebd53d968e54a86",
+      "path": "parts/chat/read-data/read-addressed-exchange-participants.ts",
+      "multihash": "1f:f0c590fcdd5b55e6e59d0cca143b4c01399ee54da59add98f4efe71badf12006",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T00:03:22Z",
+        "deleted_with": "the move a9ee2580ee took this file out of trillion into the Workshop; the old copy leaves trillion's main line with that move"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/messages-screen/read-data/read-addressed-exchange-participants.ts"
+    }
+  ],
+  "preserve": [
+    "the moved code itself: tools/messages-screen/read-data/read-addressed-exchange-participants.ts kept 100.0% of the copy's meaningful lines when this contract was written"
+  ],
+  "allowed_deltas": [
+    "import paths and the calls the tool's wiring needs here, after the byte copy"
+  ],
+  "banned_substitutions": [
+    "a rewrite of the moved code in place of the byte copy",
+    "a second live copy of this job in another folder"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-04T00:03:22Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f0c590fcdd5b55e6e59d0cca143b4c01399ee54da59add98f4efe71badf12006",
+    "target_multihash_at_baseline": "1f:f0c590fcdd5b55e6e59d0cca143b4c01399ee54da59add98f4efe71badf12006",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/messages-screen/moved-from.json names its source and the identity of the source bytes",
+    "test_refs": []
+  }
+}

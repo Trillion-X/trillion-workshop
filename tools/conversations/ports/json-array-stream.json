@@ -28,6 +28,11 @@
    "repository": "trillion-workshop",
    "path": "tools/conversations/test/large-and-zipped-exports.test.mjs",
    "why": "This file's own test."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/README.md",
+   "why": "This tool's own README, describing json-array-stream.mjs (jsonArrayElements); documentation, not another owner."
   }
  ],
  "proof": {
@@ -43,7 +48,7 @@
    "repositories": [
     {
      "repository": "trillion-workshop",
-     "commit": "96765cac82061ac66e9a43299ef6b2a3dc658c75"
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
     },
     {
      "repository": "trillion",
