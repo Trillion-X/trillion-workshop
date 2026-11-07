@@ -10,8 +10,18 @@ const GUARD_STALE_MS = 5000;
 const POLL_MS = 180;
 const PROBE_OPTIONS = { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 2000, killSignal: 'SIGKILL' };
 export const UNKNOWN_LIVE = 'unverified-live-process';
+// This process's own start time never changes while it runs, so it is read once: every guard and every acquire asks
+// for it, and a `ps` for each on a busy computer spent the waiters' whole timeout.
+let ownIdentity = null;
 export const identityOf = pid => {
   if (!Number.isInteger(pid) || pid <= 0) return null;
+  if (pid === process.pid) {
+    if (ownIdentity === null || ownIdentity === UNKNOWN_LIVE) ownIdentity = probeIdentity(pid);
+    return ownIdentity;
+  }
+  return probeIdentity(pid);
+};
+const probeIdentity = pid => {
   try {
     process.kill(pid, 0);
   } catch (error) {
@@ -212,8 +222,13 @@ export function createProcessAdmissionQueue(root, { isBlocked = () => false, ins
           // Waiting cannot acquire or mutate anything while the observed owner
           // is live. Do not compete with its process-group registration for the
           // state lock; many queued callers can otherwise starve that handshake.
+          // The owner's process is probed again at most once a second; between probes only its file is read, so a
+          // release is seen within one poll instead of after a whole second's sleep.
           if (!slotAvailable) {
-            await pause(Math.min(1000, Math.max(1, deadline - Date.now())), signal);
+            const recheckAt = Math.min(deadline, Date.now() + 1000);
+            while (Date.now() < recheckAt && observeOwner(ownerPath)?.bytes === latestOwner?.bytes) {
+              await pause(Math.min(POLL_MS, Math.max(1, recheckAt - Date.now())), signal);
+            }
             continue;
           }
           // Ticket and legacy-browser probes are slow too. Inspect without the
