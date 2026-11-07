@@ -1,0 +1,52 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEANING-SEARCH-QUERY-PARITY-DRIVER",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-launch-video",
+      "commit": "542d0429e384dbb268defb632ff3c6c7aff2bd42",
+      "path_multihash": "1f:efdc27a5f4e7effbbc607ddf78b48be71c37790964d62819eedb2961a8c5b155",
+      "multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-08"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/meaning-search/test/run-query-parity.mjs"
+    }
+  ],
+  "preserve": [
+    "The driver invokes the existing findSimilarAcross export rather than implementing a scorer.",
+    "The same descriptor/model provenance, saved query vectors, per-file/time spread and requested final limit semantics; the original defaults stay available.",
+    "One JSON results answer on standard output, with real inputs supplied only at run time."
+  ],
+  "allowed_deltas": [
+    "After the raw source-copy baseline is committed, read descriptor search_mode and generic query/descriptor settings from the supplied DATA.",
+    "Replace whole-file reads on every page with bounded fs.readSync spans over the same input bytes.",
+    "Allow an optional private old-baseline JSON file and compare exact returned file/time order through the existing answer shape; keep all real input paths and results outside public fixtures."
+  ],
+  "banned_substitutions": [
+    "Another scorer, search index or result ranking implementation.",
+    "Private source paths, query vectors, media names or real baseline results embedded into public code or fixtures.",
+    "Adjusting ANN parameters, floors, precision or comparison tolerances to force a match."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T22:56:57.738155Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+    "target_multihash_at_baseline": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": []
+  }
+}
