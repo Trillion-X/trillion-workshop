@@ -1,5 +1,5 @@
 // Reads the Markdown conversation export produced by ChatGPT's individual-chat export.
-// Message bodies are retained byte-for-character as represented by the decoded Markdown.
+// Body words are sliced without rewriting; source spans also retain export metadata and separators.
 const UUID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
 
 export function markdownChatExport(text) {
@@ -42,7 +42,8 @@ export function markdownChatExport(text) {
     const metaLine = stamp?.[2]?.match(/^\d{1,2}\/\d{1,2}\/\d{4},\s+\d{1,2}:\d{2}:\d{2}\s+[AP]M(?:\s+·\s+(.+))?$/i);
     const body = metaLine ? rawBody.slice(stamp[0].length) : rawBody;
     if (!body.length) throw new Error(`Corrupt Markdown chat export: occurrence ${index + 1} has an empty body.`);
-    spans.push({ unit: 'utf16-code-unit', start: boundary.offset, end: next ? next.offset : text.length, body_start: start, body_end: end });
+    spans.push({ unit: 'utf16-code-unit', start: boundary.offset, end: next ? next.offset : text.length,
+      body_start: start + (metaLine ? stamp[0].length : 0), body_end: end });
     metadata.push({ source_at: metaLine ? stamp[2].split(' · ')[0] : null, model: metaLine?.[1] ?? null });
     return { id: `markdown:${header[1]}:${index + 1}`, speaker: boundary.role, text: body, at: null, model: metaLine?.[1] ?? null, source_at: metaLine ? stamp[2].split(' · ')[0] : null };
   });

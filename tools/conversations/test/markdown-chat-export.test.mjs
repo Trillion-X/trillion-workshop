@@ -19,6 +19,7 @@ test('reads Markdown export occurrences without alternating or treating fenced h
   assert.equal(chat.messages[0].source_at, '11/5/2026, 8:21:54 AM');
   assert.equal(chat.messages[1].model, 'GPT-5');
   assert.equal(archive.provenance.source_spans.length, 4);
+  archive.provenance.source_spans.forEach((span, index) => assert.equal(fixture.slice(span.body_start, span.body_end), archive.messages[index].text));
   const spans = [archive.provenance.header_span, ...archive.provenance.source_spans];
   assert.equal(spans.map(span => fixture.slice(span.start, span.end)).join(''), fixture, 'raw spans reconstruct the entire source exactly');
   assert.equal(chat.messages[0].at, null, 'a local timestamp without a zone is not converted to UTC');
