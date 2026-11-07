@@ -1,0 +1,58 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECISIONS-IN-PLACE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that grew this file most since the rules began: 07017f8f6f829f74d0f08a19a45240d263a6e403",
+  "message_multihash": "1f:f9b29ac565b1a06b7372e16ab05439a3b20c50bcd1b9f0a715aa047413688aaf",
+  "quote": "decide-with-a-method: read a method and its step's checks by id, never by a scan of the Checks list"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+   "path": "tools/decide-with-a-method/read-data/decisions.mjs",
+   "multihash": "1f:c037e34dda0bb16b65140a095612551e164fe02057d863f219c5adbdd73395ba",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/decide-with-a-method/read-data/decisions.mjs"
+  }
+ ],
+ "preserve": [
+  "the file's own lines from before the port rules: tools/decide-with-a-method/read-data/decisions.mjs kept 93.0% of its meaningful lines at e854b028bb when this contract was written"
+ ],
+ "allowed_deltas": [
+  "07017f8f6f (+54): decide-with-a-method: read a method and its step's checks by id, never by a scan of the Checks list",
+  "0a9d0ee8cd (+42): End a decision too large for one conditioned write through its layout",
+  "1baf372fe7 (+18): decide-with-a-method: a decision waiting on a decision-phase run is not ready",
+  "f4955339ed (+17): A decision step is answered only when it has a verdict for every check it asked: an answer with fewer verdicts than checks is refused (verdicts_missing) and the step stays the current question; a step kept before this rule with fewer verdicts is asked again (question.ungraded) until verdicts are confirmed onto it, and make-the-decision refuses (ungraded_first) while any answered step is ungraded. Test: an answer kept before every check had a verdict is asked again until graded, and no decision is made while any step is ungraded; decide-with-a-method 69 pass",
+  "3ffbb5e5be (+13): decide-with-a-method: of two answers to one step sent at once, keep the first and refuse the second",
+  "256ff03108 (+10): end-a-decision: give each laid-apart end its own request keys",
+  "ed92f87b79 (+9): tool:end-a-decision: size laid-apart parts and writes by what the door can make of them, so a 67 KB evidence claim ends",
+  "88f7cbbabb (+3): decide-with-a-method: send the pursuits a question carries by id from the least",
+  "601edd8e85 (+3): Judge and decisions keep reading old method/extends rows until they are rewritten",
+  "035885eb78 (+2): Branches are nodes of the one Checks list, joined by one part_of link",
+  "cbf7a22e46 (+1): decide-with-a-method reads the one Checks list: record:check rows of list:checks"
+ ],
+ "banned_substitutions": [
+  "a second file doing this file's job beside it",
+  "another owner's job rewritten into this file instead of moved"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-03T09:35:50Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:c037e34dda0bb16b65140a095612551e164fe02057d863f219c5adbdd73395ba",
+  "target_multihash_at_baseline": "1f:c037e34dda0bb16b65140a095612551e164fe02057d863f219c5adbdd73395ba",
+  "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
+  "test_refs": []
+ }
+}

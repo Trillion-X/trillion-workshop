@@ -1,0 +1,50 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-RULES-AND-VERDICTS-IN-PLACE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that grew this file most since the rules began: 0da03c81947e273cf120b2764f2c7c4a198c0ed4",
+  "message_multihash": "1f:1a8c6082d89d7ba52b9ba988f7a30784720d4f7151ed6f66ded674fbcc55b86a",
+  "quote": "The judge answers a Book 3 call within the engine's output limit: its questions come as one entry a rule in pages, and a question not yet settled is one finding a unit, not one a row. A 346-character unit against 446 voice rows answered 393,216 bytes (a question text, a finding and a line a row, each carrying the unit's whole text) and the engine killed the run at its 262,144-byte output bound (workshop_run_outcome_unknown, output_limit). Now the ask is said once a rule, what every rule shares once in ask_all, a unit's words never copied, pages of at most 20,000 bytes with questions_after for the next; 1,200 rows answer 25 pages of at most 24,820 bytes. Tests: answer-size.test.mjs 5 added (446 and 1,200 rows, pages cover every question once, answers by id pass and fail the unit, bad cursor refused); branch, rules-and-verdicts and tool-row tests updated to the new shape. Case source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs",
+   "multihash": "1f:4d67f73624f54c67c04a769210026e3549bb507e38cb494edebff070d6f6bfd5",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs"
+  }
+ ],
+ "preserve": [
+  "the file's own lines from before the port rules: tools/check-against-a-persons-rules-and-verdicts/do-work/rules-and-verdicts.mjs kept 95.4% of its meaningful lines at e854b028bb when this contract was written"
+ ],
+ "allowed_deltas": [
+  "0da03c8194 (+65): The judge answers a Book 3 call within the engine's output limit: its questions come as one entry a rule in pages, and a question not yet settled is one finding a unit, not one a row. A 346-character unit against 446 voice rows answered 393,216 bytes (a question text, a finding and a line a row, each carrying the unit's whole text) and the engine killed the run at its 262,144-byte output bound (workshop_run_outcome_unknown, output_limit). Now the ask is said once a rule, what every rule shares once in ask_all, a unit's words never copied, pages of at most 20,000 bytes with questions_after for the next; 1,200 rows answer 25 pages of at most 24,820 bytes. Tests: answer-size.test.mjs 5 added (446 and 1,200 rows, pages cover every question once, answers by id pass and fail the unit, bad cursor refused); branch, rules-and-verdicts and tool-row tests updated to the new shape. Case source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+  "f3fa04814d (+8): check-against-a-persons-rules-and-verdicts: a row that states no test but says something is read by a model",
+  "3e1f18618c (+5): Check rows judge commits, pushes and tool calls through the one judge"
+ ],
+ "banned_substitutions": [
+  "a second file doing this file's job beside it",
+  "another owner's job rewritten into this file instead of moved"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-03T09:35:50Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:4d67f73624f54c67c04a769210026e3549bb507e38cb494edebff070d6f6bfd5",
+  "target_multihash_at_baseline": "1f:4d67f73624f54c67c04a769210026e3549bb507e38cb494edebff070d6f6bfd5",
+  "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
+  "test_refs": []
+ }
+}
