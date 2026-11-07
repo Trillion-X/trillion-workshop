@@ -37,10 +37,18 @@ test('no former tool, agent, prefix or configuration id remains in records, src 
 
 test('every current tool id is the payload id of a workshop tool record', () => {
   const ids = new Set();
-  for (const name of readdirSync(join(ROOT, 'records'))) {
-    if (!/^workshop-.*-tool-records\.json$/.test(name)) continue;
-    const file = JSON.parse(readFileSync(join(ROOT, 'records', name), 'utf8'));
-    for (const row of file.records ?? []) if (row?.payload?.id) ids.add(row.payload.id);
+  // Old trillion's records/workshop-*-tool-records.json moved into the tool folder whose job each is: its records/, or
+  // its from-old-trillion/records/ under the old name (the old-trillion sweep, d29883b6).
+  const toolFolders = fileURLToPath(new URL('../../', import.meta.url));
+  const recordFolders = readdirSync(toolFolders).flatMap(folder => [join(toolFolders, folder, 'records'), join(toolFolders, folder, 'from-old-trillion', 'records')]);
+  for (const folder of recordFolders) {
+    let names;
+    try { names = readdirSync(folder); } catch { continue; }
+    for (const name of names) {
+      if (!/^workshop-.*-tool-records\.json$/.test(name)) continue;
+      const file = JSON.parse(readFileSync(join(folder, name), 'utf8'));
+      for (const row of file.records ?? []) if (row?.payload?.id) ids.add(row.payload.id);
+    }
   }
   // A tool whose rows moved to a Workshop tool folder is read from the installed package (records/tool-folders.json).
   const tools = fileURLToPath(new URL('./tools/', import.meta.resolve('trillion-workshop/package.json')));
