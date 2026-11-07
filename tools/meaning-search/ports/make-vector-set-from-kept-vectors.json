@@ -29,7 +29,8 @@
   }
  ],
  "preserve": [
-  "the stores are read as q.py read them: the asset index's matrices and ids, the timed frames cut to the shorter of the two files, the results store's picture-vectors frames of the right size with their path and time, and the namespace store's live aliases as each video's b2 id; every source opened read-only"
+  "the stores are read as q.py read them: the asset index's matrices and ids, the timed frames cut to the shorter of the two files, the results store's picture-vectors frames of the right size with their path and time, and the namespace store's live aliases as each video's b2 id; every source opened read-only",
+  "Keep the float32 values the source computed: normalize asset matrices and decoded app-result frames once in float32, and preserve the timed frame values after the source float32 conversion. Writing the set must not normalize again or reduce values to float16, because that can reverse close hit order."
  ],
  "allowed_deltas": [
   "the stores are arguments (--asset-index, --ssd-index, --expansion-results, --namespace, --kind) instead of what the place reports in its environment",
@@ -39,7 +40,8 @@
  ],
  "banned_substitutions": [
   "a person's index folders, drives or film folders written into the code",
-  "a second search beside meaning-search's"
+  "a second search beside meaning-search's",
+  "A lower-precision vector cast or extra normalization that changes the source-compute values"
  ],
  "baseline": {
   "recorded_at": "2026-11-06T00:30:00Z",
@@ -53,7 +55,8 @@
   "test_refs": [
    "tools/meaning-search/test/kept_vectors_check.py AssetIndex.test_videos_and_images_become_sets_with_readable_names",
    "tools/meaning-search/test/kept_vectors_check.py ResultsStore.test_frames_become_timed_items_a_wrong_sized_vector_is_skipped_and_the_b2_id_is_carried",
-   "tools/meaning-search/test/kept_vectors_check.py ResultsStore.test_the_stores_are_only_read"
+   "tools/meaning-search/test/kept_vectors_check.py ResultsStore.test_the_stores_are_only_read",
+   "tools/meaning-search/test/kept_vectors_check.py AssetIndex.test_float32_precision_keeps_nearby_asset_and_half_frame_ranking"
   ]
  }
 }

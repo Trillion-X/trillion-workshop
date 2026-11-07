@@ -19,7 +19,7 @@ Writes, in --out/<index> for each store read (asset-index-video, asset-index-ima
 expansion-picture-vectors):
   items.jsonl      one line per vector: `path`, `kind`, `t` (seconds, or null when the store keeps no time), and `name`
                    (asset index), or `id` and `b2` (Expansion)
-  vectors.npy      float16, one L2-normalised row per item, in the order of items.jsonl
+  vectors.npy      float32 source-compute values, in the order of items.jsonl: assets and results are normalised once as the source did; kept timed frames are unchanged
   vector-set.json  the `vector_set` member for the person's semantic-index-descriptor record, its `carry` naming the
                    extra fields
 The descriptor fields include search_mode="exact": the source searched every vector, so callers keep this with vector_set when making its descriptor. Every source is opened read-only. The last line is {"result": {"sets": {index: items}}} or {"error": ...}. Needs numpy.
@@ -116,7 +116,9 @@ for vectors, owners, index in stores:
     with open(items_path + ".tmp", "w") as f:
         f.write("".join(json.dumps(item(p, kind, t, index)) + "\n" for p, kind, t in owners))
     v = np.asarray(vectors, dtype=np.float32)
-    np.save(vectors_path + ".tmp.npy", (v / np.linalg.norm(v, axis=1, keepdims=True)).astype(np.float16))
+    # Each store above already has exactly the values q.py used. A second
+    # normalization or float16 cast loses source precision and can reorder hits.
+    np.save(vectors_path + ".tmp.npy", v)
     os.replace(items_path + ".tmp", items_path)
     os.replace(vectors_path + ".tmp.npy", vectors_path)
     with open(os.path.join(out, "vector-set.json"), "w") as f:
