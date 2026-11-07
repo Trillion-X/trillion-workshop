@@ -77,6 +77,10 @@ function run(command, input) {
     child.stdout.on('data', chunk => { out += chunk; });
     child.stderr.on('data', chunk => { err += chunk; });
     child.on('close', code => resolve({ code, out: out.trim(), err: err.trim() }));
+    // A command that ends without reading the job (`false`, a command that fails at once) closes its input first: the
+    // write then fails with EPIPE, which is that run's failure, read from its exit code, never the receiver's crash.
+    child.stdin.on('error', () => {});
+    child.on('error', error => resolve({ code: null, out: '', err: error.message }));
     child.stdin.end(JSON.stringify(input));
   });
 }

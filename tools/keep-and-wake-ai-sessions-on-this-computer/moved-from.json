@@ -73,7 +73,9 @@
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/harness/agent-receiver.mjs",
       "source_identity": "1f:820dac3b033e0ac67e6ef69320904aac9d814aa89d6f81466d6c58ad4c9f4ea0",
-      "identity": "1f:820dac3b033e0ac67e6ef69320904aac9d814aa89d6f81466d6c58ad4c9f4ea0"
+      "identity_at_move": "1f:820dac3b033e0ac67e6ef69320904aac9d814aa89d6f81466d6c58ad4c9f4ea0",
+      "byte_copy_commit": "a8585de191a9b337a2de58efdc3de08ef2b83373",
+      "changed": "run() ignores the EPIPE a work command that ends without reading its job raises on its input, and reads a command that cannot start as a failed run, so the run fails and the receiver keeps its event (agent-receiver-recovery)."
     },
     {
       "from": "harness/ask-trillion-first.json",
