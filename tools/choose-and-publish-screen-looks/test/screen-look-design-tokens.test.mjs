@@ -15,7 +15,7 @@ const root = new URL('..', import.meta.url).pathname;
 const proof = process.env.TRILLION_LOOK_PROOF_DIR;
 const theme = id => looks.themes.find(row => row.payload.id === id).payload;
 const withToken = (payload, key, value) => ({ ...payload, tokens: payload.tokens.map(token => (token.key === key ? { ...token, value } : token)) });
-const css = name => readFileSync(join(root, 'parts/screen-look/show', name), 'utf8');
+const css = name => readFileSync(join(root, '../screen-look/show', name), 'utf8');
 
 test('density is one multiplier over every space, control height and icon', () => {
   const standard = resolveScreenLookPalette(theme('trillion'));
@@ -55,10 +55,10 @@ async function inPage(check) {
   const { outputFiles } = await build({
     absWorkingDir: root,
     stdin: { resolveDir: root, loader: 'tsx', contents: `
-      import { resolveScreenLookPalette } from './parts/screen-look/read-data/resolve-screen-look-palette.js';
+      import { resolveScreenLookPalette } from '../screen-look/read-data/resolve-screen-look-palette.js';
       import looks from './src/workspace/looks.json';
       import { mountScreenState } from './parts/ui/show/screen-state';
-      import { withViewTransition } from './src/workspace/view-transition.mjs';
+      import { withViewTransition } from '../hand-off-jobs-between-agents/src/workspace/view-transition.mjs';
       window.wear = (id, overrides = {}) => {
         const payload = looks.themes.find(row => row.payload.id === id).payload;
         const tokens = payload.tokens.map(token => (token.key in overrides ? { ...token, value: overrides[token.key] } : token));
