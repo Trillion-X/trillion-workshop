@@ -25,17 +25,54 @@ test('the owned tool descriptor exposes the same purpose, job and non-delivery r
   assert.equal(descriptor.output_schema.properties.delivery_eligible.type, 'boolean');
 });
 
-test('source-first provenance reads the actual original and honest byte-copy baseline', () => {
+test('the public regular-blob baseline matches its declared pin and retains the active core', t => {
   const contract = JSON.parse(readFileSync(new URL('../ports/private-layout-proof.json', import.meta.url), 'utf8'));
   const rules = JSON.parse(readFileSync(join(repositoryRoot, 'ports', 'feature-files.json'), 'utf8'));
+  const readers = gitReaders({ root: repositoryRoot });
+  const target = 'tools/export-documents-to-files/do-work/private-layout-proof.py';
+  const baseline = readers.targetAtCommit(contract.baseline.commit, target, { followRenames: false });
+  assert.ok(Buffer.isBuffer(baseline), 'The public baseline commit must hold the regular source blob.');
+  const identity = makeHashCodeHexFromBytes(baseline);
+  assert.equal(identity, contract.baseline.target_multihash_at_baseline);
+  assert.equal(identity, contract.baseline.source_multihash);
+  assert.equal(identity, contract.sources[0].multihash);
+  const active = readers.readTarget(target);
+  assert.ok(Buffer.isBuffer(active), 'The active consumer must be a regular source file.');
+  const meaningful = bytes => bytes.toString('utf8').split(/\r?\n/).map(line => line.trim()).filter(line => line.length >= 24);
+  const originalLines = meaningful(baseline);
+  const activeLines = new Set(meaningful(active));
+  const retained = originalLines.filter(line => activeLines.has(line)).length;
+  const required = Math.max(rules.retention_at_least, contract.proof.minimum_meaningful_line_retention);
+  assert.ok(originalLines.length > 0);
+  assert.ok(retained / originalLines.length >= required,
+    `Public baseline retention ${retained}/${originalLines.length} must reach ${required}.`);
+  t.diagnostic(JSON.stringify({ scope: 'public-baseline-to-active-core-only', baseline_commit: contract.baseline.commit,
+    baseline_identity: identity, retained_lines: retained, baseline_lines: originalLines.length }));
+});
+
+test('an unavailable original is explicitly deferred with no source-retention measurement', () => {
+  const contract = JSON.parse(readFileSync(new URL('../ports/private-layout-proof.json', import.meta.url), 'utf8'));
+  const rules = JSON.parse(readFileSync(join(repositoryRoot, 'ports', 'feature-files.json'), 'utf8'));
+  const publicReaders = gitReaders({ root: repositoryRoot });
+  const originalRepository = contract.sources[0].repository;
+  const unavailableOriginal = {
+    ...publicReaders,
+    checkout: name => name === originalRepository ? null : publicReaders.checkout(name),
+    readSource: source => source.repository === originalRepository ? null : publicReaders.readSource(source),
+    lives: (repository, path) => repository === originalRepository ? null : publicReaders.lives(repository, path),
+  };
   const answer = validateReferenceAdaptationContract(contract, {
-    stage: 'pre-edit', repository: 'trillion-workshop', readers: gitReaders({ root: repositoryRoot }),
+    stage: 'pre-edit', repository: 'trillion-workshop', readers: unavailableOriginal,
     modes: rules.modes, retentionAtLeast: rules.retention_at_least, oldCopyDaysAtMost: rules.old_copy_days_at_most,
     policySince: rules.since, target: 'tools/export-documents-to-files/do-work/private-layout-proof.py',
   });
+  // Pre-edit acceptance with explicit deferred facts is not original-source qualification.
   assert.equal(answer.valid, true, JSON.stringify(answer));
-  assert.deepEqual(answer.deferred, []);
-  assert.equal(contract.status, 'ADAPTED');
+  assert.equal(answer.measurements, null);
+  assert.equal(answer.deferred.length, 2);
+  assert.ok(answer.deferred.some(message => message.includes('source ') && message.includes('is not readable here')));
+  assert.ok(answer.deferred.some(message => message.includes('whether the old copy ') && message.includes('is not readable here')));
+  assert.equal(answer.status, contract.status);
 });
 function fixture(t) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'private-layout-proof-test-')));
