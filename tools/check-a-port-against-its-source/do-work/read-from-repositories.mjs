@@ -84,7 +84,18 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       return show(here, tree === ':' ? `:${path}` : `${tree}:${path}`);
     },
     targetAtCommit(commit, path) {
-      return show(here, `${commit}:${path}`);
+      const atPath = show(here, `${commit}:${path}`);
+      if (atPath !== null) return atPath;
+      // A target a later commit renamed (a folder split into do-work/, a word renamed) is read at commit under the name
+      // it had then, which only git's own rename record names: each rename from commit to HEAD, newest first.
+      const renames = git(here, ['log', '--follow', '--diff-filter=R', '--name-status', '--format=', `${commit}..HEAD`, '--', path]);
+      if (!renames) return null;
+      let then = path;
+      for (const line of renames.split('\n')) {
+        const [status, from, to] = line.split('\t');
+        if (status?.startsWith('R') && to === then && from) then = from;
+      }
+      return then === path ? null : show(here, `${commit}:${then}`);
     },
     lives(repository, path) {
       const folder = checkout(repository);
