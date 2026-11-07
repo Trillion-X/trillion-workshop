@@ -6,8 +6,8 @@
 // browser started by hand must read quiet-switches.json. Untracked files are source too, so they are read as well.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readdirSync, readFileSync, realpathSync } from 'node:fs';
+import { join, relative, resolve, sep } from 'node:path';
 import test from 'node:test';
 
 // Here the browser part and the cloud tools that drive Chromium are this repository's own tools/ folders (old trillion
@@ -30,8 +30,22 @@ export function loudLaunches(text) {
   return wrong;
 }
 
-const sourceFiles = () => execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...ROOTS], { cwd: root, encoding: 'utf8' })
-  .split('\n').filter(path => CODE.test(path) && !path.includes('node_modules/') && path !== HELPER && path !== TEST_HELPER && path !== SELF);
+// In this repository's own checkout git lists the tracked and untracked files. A tree a push gate materialises
+// without a work tree (its candidate folder inside the git directory, where `git ls-files` refuses) is read from disk:
+// every file under ROOTS is source there, since nothing in it is ignored build output.
+const ownCheckout = () => {
+  try {
+    const top = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    return realpathSync(top) === realpathSync(root);
+  } catch { return false; }
+};
+const onDisk = () => ROOTS.flatMap(dir => {
+  try { return readdirSync(resolve(root, dir), { recursive: true, withFileTypes: true }); } catch { return []; }
+}).filter(entry => entry.isFile()).map(entry => relative(root, join(entry.parentPath ?? entry.path, entry.name)).split(sep).join('/'));
+const sourceFiles = () => (ownCheckout()
+  ? execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', '--', ...ROOTS], { cwd: root, encoding: 'utf8' }).split('\n')
+  : onDisk())
+  .filter(path => CODE.test(path) && !path.includes('node_modules/') && path !== HELPER && path !== TEST_HELPER && path !== SELF);
 
 test('the quiet switches keep the keychain out of it', () => {
   const { switches } = JSON.parse(readFileSync(resolve(root, `${WORKSHOP}headless-browser/quiet-switches.json`), 'utf8'));
