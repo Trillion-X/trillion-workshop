@@ -108,7 +108,7 @@ import { captureJournal, pauseLiveRecording, resumeLiveRecording, stopLiveRecord
 import { RecordingLibrary, type RecordingLibraryConfiguration } from './RecordingLibrary';
 import { ArrangedContents } from '../../screen-arrangement/show/ArrangedContents';
 import recordingLibraryLayout from '../read-data/recording-library.json';
-import { selectDescriptorAuthority } from '../../visual-database/do-work/migrate-descriptor-aggregates';
+import { selectDescriptorAuthority } from '../../keep-lists-of-rows/do-work/migrate-descriptor-aggregates';
 import { foldAddressedDescriptorFactsFromPublishedFeed } from '../../visual-database/read-data/addressed-descriptors';
 import { visualDatabaseInputsFromAddressedDescriptors } from '../../visual-database/read-data/descriptor-projection';
 import { decodeVisualDatabaseModel } from '../../visual-database/read-data/visual-database';

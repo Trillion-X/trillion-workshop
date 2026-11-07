@@ -47,13 +47,13 @@ import { fileURLToPath } from 'node:url';
 import { startFtpReceiver } from './ftp-receiver.mjs';
 import { keepHeld, readHeld } from './keychain.mjs';
 import { certificateNames, localAddress, makeCertificate } from './this-computers-address.mjs';
-import { NamespaceRefused, fileSource, growingFileSource, sendFile } from '../../live-namespace/do-work/send-a-file-to-a-namespace.mjs';
-import { loadChunking } from '../../live-namespace/do-work/content-chunks.mjs';
-import { bearerControl, namespaceClient } from '../../live-namespace/do-work/namespace-client.mjs';
-import { fetchWithoutCopies } from '../../live-namespace/do-work/send-without-copies.mjs';
+import { NamespaceRefused, fileSource, growingFileSource, sendFile } from '../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
+import { loadChunking } from '../../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { bearerControl, namespaceClient } from '../../browse-and-upload-my-files/do-work/namespace-client.mjs';
+import { fetchWithoutCopies } from '../../browse-and-upload-my-files/do-work/send-without-copies.mjs';
 import { accountTools, tellTheAccount } from './tell-the-account.mjs';
 import { lookForDevices, printedBy, turnedOnBy } from './know-which-devices.mjs';
-import { endWithTheApp } from '../../../computer/end-with-the-app.mjs';
+import { endWithTheApp } from '../../run-on-a-persons-computer/end-with-the-app.mjs';
 import { appDataFolder } from '../../process-session/do-work/computer-data-folder.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
