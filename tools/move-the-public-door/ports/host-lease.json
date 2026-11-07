@@ -21,7 +21,13 @@
     }
   ],
   "targets": [
-    { "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs" }
+    {
+      "path": "tools/move-the-public-door/portable-host-lease.mjs",
+      "note": "where the byte copy of the source landed at baseline.commit (a9ee2580, the one move of the remaining old trillion features); 2138b2f4 added the adapted file under do-work/ and 8d3d6cb5 removed this path"
+    },
+    {
+      "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs"
+    }
   ],
   "preserve": [
     "the lease client sends only the row's own find, create, read and remove requests under the row's base, each path matched against the row's id pattern; anything else is refused before any network call",
@@ -37,7 +43,7 @@
     "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a mode-600 file renamed into place",
     "the provider row is always handed in (the caller reads it from the Service connections list), not defaulted to one named provider; hetznerLeaseClient goes with that default",
     "the command-line entry with the key on descriptor 3 goes: the rows in tool-rows.json run do-work/door-tools.mjs, which takes the key from the row's credential mount",
-    "the receipt schema name loses its product prefix (baseline redaction)"
+    "the receipt schema name loses its product prefix (after the byte copy at baseline.commit)"
   ],
   "banned_substitutions": [
     "deleting a guessed resource",
@@ -45,14 +51,12 @@
     "a request outside the row's declared requests"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T21:00:00Z",
+    "recorded_at": "2026-11-04T00:03:22Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
-    "target_multihash_at_baseline": "1f:2f3ed7a39ac89ee6d53c57782258a8834590f150ce1d5ca41acaa906e7280e51",
-    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
-    "redactions": [
-      { "from": "'trillion.portable-host-lease/1'", "to": "'portable-host-lease/1'", "why": "the receipt schema name carried the older owner's product prefix, which a public tool does not" }
-    ]
+    "target_multihash_at_baseline": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "note": "the copy commit first named here (1028d8fd5d, which held the copy with the schema-name prefix already dropped) is not in this repository's history; a9ee2580 holds the unredacted byte copy, and the prefix is dropped after it ('trillion.portable-host-lease/1' -> 'portable-host-lease/1')"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

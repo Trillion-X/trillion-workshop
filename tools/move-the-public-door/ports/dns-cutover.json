@@ -21,7 +21,13 @@
     }
   ],
   "targets": [
-    { "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs" }
+    {
+      "path": "tools/move-the-public-door/portable-dns-cutover.mjs",
+      "note": "where the byte copy of the source landed at baseline.commit (a9ee2580, the one move of the remaining old trillion features); 2138b2f4 added the adapted file under do-work/ and 8d3d6cb5 removed this path"
+    },
+    {
+      "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs"
+    }
   ],
   "preserve": [
     "the DNS client allows only the exact-host zone, record, route and Worker-domain shapes, and only the mutations a cutover makes; anything else is refused before any network call",
@@ -36,7 +42,7 @@
     "the receipt is a row of the person's Public door receipts list (read-data/door-receipts.mjs), each save conditioned on the value last read, not a file renamed into place",
     "the DNS provider row is always handed in, not defaulted to one named provider",
     "the command-line entry that read the token from the old vault goes: tool:cut-a-hostname-over-to-a-new-address runs do-work/door-tools.mjs, which takes it from the row's credential mount",
-    "the receipt schema name loses its product prefix (baseline redaction)"
+    "the receipt schema name loses its product prefix (after the byte copy at baseline.commit)"
   ],
   "banned_substitutions": [
     "a change sent twice",
@@ -44,14 +50,12 @@
     "the token in a receipt, an error or an answer"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T21:00:00Z",
+    "recorded_at": "2026-11-04T00:03:22Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
-    "target_multihash_at_baseline": "1f:8c855a6ec33cfc00cb4cbaec932f1fb01205adaf5a148cc8238136867d23f43d",
-    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
-    "redactions": [
-      { "from": "'trillion.portable-dns-cutover/1'", "to": "'portable-dns-cutover/1'", "why": "the receipt schema name carried the older owner's product prefix, which a public tool does not" }
-    ]
+    "target_multihash_at_baseline": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "note": "the copy commit first named here (1028d8fd5d, which held the copy with the schema-name prefix already dropped) is not in this repository's history; a9ee2580 holds the unredacted byte copy, and the prefix is dropped after it ('trillion.portable-dns-cutover/1' -> 'portable-dns-cutover/1')"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

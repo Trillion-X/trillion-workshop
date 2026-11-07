@@ -15,7 +15,10 @@
       "path": "scripts/move-public-door.mjs",
       "multihash": "1f:9ce08bb19fc916800bfb512c2d2d06a9d31c9611f1be4eda4482f6e18c14cd8e",
       "ownership": "repository-owned",
-      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the one change in the older owner that deletes the old reader, the door scripts, their tests and docs, and the door rows from parts/service-connections/records.json, once the certificate and tunnel tools are live" }
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the one change in the older owner that deletes the old reader, the door scripts, their tests and docs, and the door rows from parts/service-connections/records.json, once the certificate and tunnel tools are live"
+      }
     },
     {
       "repository": "trillion",
@@ -23,7 +26,10 @@
       "path": "parts/service-connections/read-data/public-door-rows.mjs",
       "multihash": "1f:108a42d858a6aa051a2b59e23834b507a7dbb3e211bbd4e4a55f6a39bf971982",
       "ownership": "repository-owned",
-      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the same change" }
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the same change"
+      }
     },
     {
       "repository": "trillion",
@@ -31,7 +37,10 @@
       "path": "scripts/portable-host-lease.mjs",
       "multihash": "1f:b5c074113c6e1b7563542e8a1c7f75be3e848720be54141e72a89cd8578dcccd",
       "ownership": "repository-owned",
-      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the same change" }
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the same change"
+      }
     },
     {
       "repository": "trillion",
@@ -39,14 +48,29 @@
       "path": "scripts/portable-dns-cutover.mjs",
       "multihash": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
       "ownership": "repository-owned",
-      "old_copy": { "deleted_by": "2026-11-06T21:00:00Z", "deleted_with": "the same change" }
+      "old_copy": {
+        "deleted_by": "2026-11-06T21:00:00Z",
+        "deleted_with": "the same change"
+      }
     }
   ],
   "targets": [
-    { "path": "tools/move-the-public-door/do-work/move-public-door.mjs" },
-    { "path": "tools/move-the-public-door/read-data/public-door-rows.mjs" },
-    { "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs" },
-    { "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs" }
+    {
+      "path": "tools/move-the-public-door/move-public-door.mjs",
+      "note": "where the byte copy of the source landed at baseline.commit (a9ee2580, the one move of the remaining old trillion features); 2138b2f4 added the adapted file under do-work/ and 8d3d6cb5 removed this path"
+    },
+    {
+      "path": "tools/move-the-public-door/do-work/move-public-door.mjs"
+    },
+    {
+      "path": "tools/move-the-public-door/read-data/public-door-rows.mjs"
+    },
+    {
+      "path": "tools/move-the-public-door/do-work/portable-host-lease.mjs"
+    },
+    {
+      "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs"
+    }
   ],
   "preserve": [
     "a target row that is not move-ready is refused by its own reason before any network or vault call",
@@ -67,7 +91,7 @@
     "the journal, lease and cutover receipts are rows of the person's Public door receipts list through the records door instead of files in a private home folder; a receipt's file is its name there, and the current-door row's lease_file names the lease's receipt",
     "curl runs with an empty environment, so no held value the run was handed reaches it",
     "the command-line entry that wired the old vault and the TLS script's host steps goes: the steps are handed in by the certificate and tunnel tools that own them",
-    "the journal schema name loses its product prefix (baseline redaction)"
+    "the journal schema name loses its product prefix (after the byte copy at baseline.commit)"
   ],
   "banned_substitutions": [
     "releasing the old lease before the proof passes",
@@ -76,14 +100,12 @@
     "writing the current-door row over a change made since it was read"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T21:00:00Z",
+    "recorded_at": "2026-11-04T00:03:22Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:9ce08bb19fc916800bfb512c2d2d06a9d31c9611f1be4eda4482f6e18c14cd8e",
-    "target_multihash_at_baseline": "1f:6c89f36631d1c97ae76446e376926bc25a8f7af313d53e10b545adf072476bbe",
-    "commit": "1028d8fd5d9d4993a11a8f2a10a3e892e2c44e8e",
-    "redactions": [
-      { "from": "'trillion.public-door-move/1'", "to": "'public-door-move/1'", "why": "the journal schema name carried the older owner's product prefix, which a public tool does not" }
-    ]
+    "target_multihash_at_baseline": "1f:9ce08bb19fc916800bfb512c2d2d06a9d31c9611f1be4eda4482f6e18c14cd8e",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "note": "the copy commit first named here (1028d8fd5d, which held the copy with the schema-name prefix already dropped) is not in this repository's history; a9ee2580 holds the unredacted byte copy, and the prefix is dropped after it ('trillion.public-door-move/1' -> 'public-door-move/1')"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
