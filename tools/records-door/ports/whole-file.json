@@ -1,0 +1,97 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-READ-AND-WRITE-A-WHOLE-FILE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: bea36b2ede0731ee406b3654a65485328ec239f4",
+  "message_multihash": "1f:e519ea875047d91d58edbb95d67f423df7220af7548954bce033e2f820a153c2",
+  "quote": "records-door gains whole-file.mjs (read and write a person's file in door-sized pieces), used by listen-for-a-while too."
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read and write one of the person's files whole through a run's door, page by page",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/records-door/read-data/whole-file.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/audio-transcription/read-data/hear-here.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/README.md",
+   "why": "The conversations README naming writeWholeFile as how a chat import writes its file; documentation of a caller."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/conversations/read-data/chat-import.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/generate-speech/read-data/speak.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/grade-and-repair-speech-audio/read-data/speech-enhance.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/listen-for-a-while/read-data/listen-for-a-while.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/listen-for-a-while/read-data/what-was-said.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/listen-for-a-while/test/listen-for-a-while.test.mjs",
+   "why": "The listening tool's test, whose made-up door serves the whole-file reads; it tests a caller, it does not read files itself."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+   "why": "Imports readWholeFile or writeWholeFile from records-door whole-file.mjs and calls it: a caller of this entry, holding no second reader or writer of a whole file."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/records-door/README.md",
+   "why": "This tool's own README, which describes this entry; documentation of this entry, not another owner of its job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read and write one of the person's files whole through a run's door, page by page",
+    "read whole file",
+    "write whole file"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "readWholeFile",
+    "writeWholeFile"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/listen-for-a-while/test/listen-for-a-while.test.mjs"
+  ]
+ }
+}

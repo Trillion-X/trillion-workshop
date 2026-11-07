@@ -1,0 +1,50 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SETTLE-OVER-RECORDS",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 7553148b119187c37c90b91b2f50a46e6dfc1e3d",
+  "message_multihash": "1f:e6fac6eebee8b2088189704f82af804034f5e7c03f0790be3a4d8edcd4ccd005",
+  "quote": "settle-amounts-and-reconcile: move old trillion src/list-settlements.mjs and .json"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "give the moved settlement module the person's lists through their records door and answer one settlement action",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/settle-amounts-and-reconcile/do-work/settle-over-records.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/settle-amounts-and-reconcile/test/settle-over-records.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "give the moved settlement module the person's lists through their records door and answer one settlement action",
+    "settlement lists over the door"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "settlementListsOverDoor"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/settle-amounts-and-reconcile/test/settle-over-records.test.mjs"
+  ]
+ }
+}

@@ -1,0 +1,50 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SUGGEST-MEDIA-CUTS-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 38b0566893b8581bb493fc73938bec58ee9b1442",
+  "message_multihash": "1f:5c93e37cdc00f0ca1c7bf9788af283ab568dc1732b37b749aeedaa0f375c8536",
+  "quote": "Move transcript-driven auto-edit and the suggestion stream into tools/media-composition"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the moved auto-edit over a handed-in transcript in a container and answer the cut proposals and the entry to keep",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/media-composition/do-work/suggest-media-cuts.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/media-composition/test/suggest-media-cuts.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the moved auto-edit over a handed-in transcript in a container and answer the cut proposals and the entry to keep",
+    "suggest media cuts"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "suggestMediaCuts"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/media-composition/test/suggest-media-cuts.test.mjs"
+  ]
+ }
+}

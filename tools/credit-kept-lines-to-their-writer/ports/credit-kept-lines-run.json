@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CREDIT-KEPT-LINES-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 7f7c775962d915665318314ed61b44c6fc94fa55",
+  "message_multihash": "1f:157c31693805c7863af96d6e8948782cdc11cb8b14dc9b2d50c0302186b178b3",
+  "quote": "Five old Trillion src/ product modules become Workshop tools (part 2 of 5)"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the kept-lines credit as a tool: hand a text's versions to the moved keptWork and answer who wrote each kept line",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/credit-kept-lines-to-their-writer/do-work/credit-kept-lines-to-their-writer.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/credit-kept-lines-to-their-writer/test/credit-kept-lines-to-their-writer.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/credit-kept-lines-to-their-writer/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the kept-lines credit as a tool: hand a text's versions to the moved keptWork and answer who wrote each kept line",
+    "credit kept lines to their writer"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "creditKeptLines"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/credit-kept-lines-to-their-writer/test/credit-kept-lines-to-their-writer.test.mjs"
+  ]
+ }
+}

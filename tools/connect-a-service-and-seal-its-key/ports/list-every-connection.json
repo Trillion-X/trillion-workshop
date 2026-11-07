@@ -1,0 +1,50 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LIST-EVERY-CONNECTION",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: fbfb10691178cf9f4913a89526ccf0f24e3e6bff",
+  "message_multihash": "1f:42711f3f9da581a64f2e9bfb8ab5db30b6c12cc6e7c0a0f74b3d3a888880f24d",
+  "quote": "tool:list-every-connection: the one Connections list, services and the computer's places from their two owners' rows; Mac Contacts downloads from the Workshop"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "list every connection: the services a person can connect and the places on their computer, from their two owners' rows, in one list",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/connect-a-service-and-seal-its-key/do-work/list-every-connection.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/connect-a-service-and-seal-its-key/test/list-every-connection.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "list every connection: the services a person can connect and the places on their computer, from their two owners' rows, in one list",
+    "list every connection"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "listEveryConnection"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/connect-a-service-and-seal-its-key/test/list-every-connection.test.mjs"
+  ]
+ }
+}

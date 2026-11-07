@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SIGNAL-CLIENT-ON-THIS-COMPUTER",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: cf2a8ca87b853baf5f2d3fe51e15f35d8f5f7402",
+  "message_multihash": "1f:7600696568c7b04254bff25a05af7160f8af5f561a00791bd7fda9032bc3e0fd",
+  "quote": "Signal works on the person's computer: two computer rows run signal-cli, which brings its own Java"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "read my signal messages on this computer and link signal on this computer, with signal-cli in a kept folder",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/pull-from-connected-accounts/do-work/signal-client.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/README.md",
+   "why": "This tool's own README, which describes this entry; documentation of this entry, not another owner of its job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/test/signal-client.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "read my signal messages on this computer and link signal on this computer, with signal-cli in a kept folder",
+    "read signal on this computer",
+    "link signal on this computer"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "readSignalOnThisComputer",
+    "linkSignalOnThisComputer"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/pull-from-connected-accounts/test/signal-client.test.mjs"
+  ]
+ }
+}

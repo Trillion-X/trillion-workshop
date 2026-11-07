@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CALIBRATE-A-CAMERA-FRAME-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 7f7c775962d915665318314ed61b44c6fc94fa55",
+  "message_multihash": "1f:157c31693805c7863af96d6e8948782cdc11cb8b14dc9b2d50c0302186b178b3",
+  "quote": "Five old Trillion src/ product modules become Workshop tools (part 2 of 5)"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the camera frame calibration as a tool: hand the detector's points to the moved calibration module and answer its frame map",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/calibrate-a-camera-frame/do-work/calibrate-a-camera-frame.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/calibrate-a-camera-frame/test/calibrate-a-camera-frame.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/calibrate-a-camera-frame/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the camera frame calibration as a tool: hand the detector's points to the moved calibration module and answer its frame map",
+    "calibrate a camera frame from given points"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "calibrateACameraFrame"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/calibrate-a-camera-frame/test/calibrate-a-camera-frame.test.mjs"
+  ]
+ }
+}

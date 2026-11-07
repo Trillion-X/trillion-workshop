@@ -1,0 +1,50 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-LOOK-AT-THIS-COMPUTER-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 3ec851efbfd1d64ae631307e44d90f12d966d23d",
+  "message_multihash": "1f:ea6b600d4c49df2f59c58c4321d27baa78f1caad516bb4d1c6d6d19834ab19a2",
+  "quote": "tool:look-for-the-places-on-this-computer: one look at the computer's places as a Workshop row the local door runs (read-a-folder)"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run one look at this computer's places as a tool, confined to the folder the person granted",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/bring-in-new-items-from-this-computer/do-work/look-at-this-computer.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/bring-in-new-items-from-this-computer/test/look-at-this-computer.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run one look at this computer's places as a tool, confined to the folder the person granted",
+    "look at this computer"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "lookAtThisComputer"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/bring-in-new-items-from-this-computer/test/look-at-this-computer.test.mjs"
+  ]
+ }
+}

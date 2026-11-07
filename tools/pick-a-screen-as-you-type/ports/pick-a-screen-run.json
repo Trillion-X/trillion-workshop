@@ -1,0 +1,57 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-PICK-A-SCREEN-AS-YOU-TYPE-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 7f7c775962d915665318314ed61b44c6fc94fa55",
+  "message_multihash": "1f:157c31693805c7863af96d6e8948782cdc11cb8b14dc9b2d50c0302186b178b3",
+  "quote": "Five old Trillion src/ product modules become Workshop tools (part 2 of 5)"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the screen picking as two tools: hand typed words and a catalog to the moved ranking and parser, answer the screen and its filled inputs",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/pick-a-screen-as-you-type/do-work/pick-a-screen-as-you-type.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pick-a-screen-as-you-type/test/pick-a-screen-as-you-type.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pick-a-screen-as-you-type/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the screen picking as two tools: hand typed words and a catalog to the moved ranking and parser, answer the screen and its filled inputs",
+    "pick a screen for typed words",
+    "fill screen inputs from words"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "pickAScreenForWords",
+    "fillInputsFromWords"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/pick-a-screen-as-you-type/test/pick-a-screen-as-you-type.test.mjs"
+  ]
+ }
+}

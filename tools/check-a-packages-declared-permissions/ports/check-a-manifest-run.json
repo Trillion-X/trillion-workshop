@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-A-MANIFEST-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 3bd674e71a025935b34875844f95a02a89d9b8cc",
+  "message_multihash": "1f:9b1b71cb823c92eb3e39cec33bb48ec13cc19328d343c675f5ba353d91ae9d26",
+  "quote": "check-a-packages-declared-permissions: move old trillion src/manifest-permissions.mjs"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run the manifest permission check as a tool: a package's manifest checked against the shipped or given permission rows by the moved checker",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/check-a-packages-declared-permissions/do-work/check-a-manifest.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-a-packages-declared-permissions/test/manifest-permissions.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/check-a-packages-declared-permissions/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run the manifest permission check as a tool: a package's manifest checked against the shipped or given permission rows by the moved checker",
+    "check declared permissions of a manifest"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "checkDeclaredPermissions"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/check-a-packages-declared-permissions/test/manifest-permissions.test.mjs"
+  ]
+ }
+}

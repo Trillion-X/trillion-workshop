@@ -1,0 +1,55 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CHECK-A-RUN-OF-CALLS-RUN",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: 79da321d1a5e856fcb0c66d8916083ebf1bf1f26",
+  "message_multihash": "1f:725b120e8ba4678d1e7636ef345dbe3da51d854900d32da02b90d3b2d31700a0",
+  "quote": "keep-an-ai-loop-from-spinning: move the model-loop guards from old trillion src/loop-guards.mjs"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "run a model loop's calls, in order, through one moved loop guard and say each answer",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/keep-an-ai-loop-from-spinning/do-work/check-a-run-of-calls.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-an-ai-loop-from-spinning/test/loop-guards.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-an-ai-loop-from-spinning/tool-rows.json",
+   "why": "This tool's own rows, which run this entry; they declare it and own no other job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "run a model loop's calls, in order, through one moved loop guard and say each answer",
+    "check a run of calls"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "checkRunOfCalls"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/keep-an-ai-loop-from-spinning/test/loop-guards.test.mjs"
+  ]
+ }
+}

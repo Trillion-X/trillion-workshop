@@ -1,0 +1,62 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-SIGNAL-ENVELOPES",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that added this file: cf2a8ca87b853baf5f2d3fe51e15f35d8f5f7402",
+  "message_multihash": "1f:7600696568c7b04254bff25a05af7160f8af5f561a00791bd7fda9032bc3e0fd",
+  "quote": "Signal works on the person's computer: two computer rows run signal-cli, which brings its own Java"
+ },
+ "mode": "NO_PRIOR_OWNER",
+ "job": "fold the envelopes signal-cli prints into the conversations the signal pull takes",
+ "sources": [],
+ "targets": [
+  {
+   "path": "tools/pull-from-connected-accounts/read-data/signal-envelopes.mjs"
+  }
+ ],
+ "preserve": [],
+ "allowed_deltas": [],
+ "banned_substitutions": [],
+ "baseline": {},
+ "distinct_from": [
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/README.md",
+   "why": "This tool's own README, which describes this entry; documentation of this entry, not another owner of its job."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/do-work/signal-client.mjs",
+   "why": "The Signal client that imports readEnvelopeLines and envelopesToConversations from here and hands their answer to the pull; a caller, it does not fold envelopes itself."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/pull-from-connected-accounts/test/signal-client.test.mjs",
+   "why": "A test of this tool, with made-up input; it checks this entry or the code it runs, it does not do the job."
+  }
+ ],
+ "proof": {
+  "search": {
+   "phrasings": [
+    "fold the envelopes signal-cli prints into the conversations the signal pull takes",
+    "envelopes to conversations",
+    "read envelope lines"
+   ],
+   "capability_rows": [],
+   "code_patterns": [
+    "envelopesToConversations",
+    "readEnvelopeLines"
+   ],
+   "repositories": [
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    }
+   ]
+  },
+  "test_refs": [
+   "tools/pull-from-connected-accounts/test/signal-client.test.mjs"
+  ]
+ }
+}
