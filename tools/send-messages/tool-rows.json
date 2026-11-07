@@ -238,6 +238,8 @@
             "to": { "type": "string" },
             "from": { "type": "string" },
             "account_sid": { "type": "string" },
+            "kind": { "type": "string" },
+            "idempotencyKey": { "type": "string" },
             "text": { "type": "string" },
             "subject": { "type": "string" }
           }

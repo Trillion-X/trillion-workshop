@@ -120,6 +120,25 @@ describe('email through Resend (carried from the email sender)', () => {
 });
 
 describe('text through Twilio and email through Amazon SES (carried adapters)', () => {
+  it('admits the sign-in code delivery fields and sends only the SMS body', async () => {
+    // account/sign_in/ways.rs adds these delivery fields to the account's fixed provider input.
+    const input = { from: '+15550199', account_sid: 'AC0000example', to: '+15550100',
+      kind: 'sign-in-code', subject: 'Your sign-in code', text: 'Your code is 123456', idempotencyKey: 'sign-in:synthetic-code' };
+    const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records
+      .map(record => record.payload).find(item => item.id === 'tool:send-a-text-with-twilio');
+    assert.equal(row.input_schema.additionalProperties, false);
+    for (const field of Object.keys(input)) {
+      assert.equal(row.input_schema.properties[field]?.type, 'string', `the sign-in field ${field} is declared`);
+    }
+    for (const field of row.input_schema.required) assert.ok(Object.hasOwn(input, field), field);
+    const { run, requests } = stubbed({ status: 201, body: '{"sid":"SMcode1"}' });
+    const answer = await sendMessage(input, { providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run });
+    assert.equal(answer.sent[0].messageId, 'SMcode1');
+    assert.deepEqual(Object.fromEntries(new URLSearchParams(requests()[0].body)), {
+      From: input.from, To: input.to, Body: input.text,
+    });
+  });
+
   it('sends a text with the account id, number and held token', async () => {
     const { run, requests } = stubbed({ status: 201, body: '{"sid":"SM0001"}' });
     const answer = await sendMessage({ recipients: ['+15550100'], from: '+15550199', account_sid: 'AC0000example', text: 'Running late' }, { providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run });
