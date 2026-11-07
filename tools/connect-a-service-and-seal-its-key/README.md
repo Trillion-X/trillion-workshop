@@ -4,6 +4,8 @@ Every service a person can connect to Trillion as DATA (one descriptor per servi
 
 Vault access belongs to this tool. `read-data/ask-the-vault-for-one-secret.mjs` exposes the sole secret reader, `read-data/list-the-vault-names.mjs` lists names without values, and `do-work/put-one-secret-in-the-vault.mjs` writes one secret. They use only the native vault command named by product DATA; a read value travels through a private pipe. Synthetic behavior is covered by `tests/names-held-by-the-vault.test.mjs` and its stand-in command fixture.
 
+A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND`. The reader first asks that command for `secrets where`, which returns resolved command, verb, store, account and settings-file metadata without opening the vault or reading a key. The same resolved settings binding is used for names, private reads and writes. An unsupported or malformed metadata answer refuses; it never switches to another vault. Without this selector, the existing declared `PRODUCT_DATA_ROOT/credential-home.json` route remains available until its callers migrate. Installed commands must prove support before a caller removes that legacy declaration; passing synthetic tests does not establish installed support.
+
 ## Tools
 
 | Tool | What it does | Runs |

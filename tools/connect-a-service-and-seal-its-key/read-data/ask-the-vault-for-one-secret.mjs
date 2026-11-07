@@ -19,6 +19,8 @@
 // It used to be a Bitfield engine found by a port scan; that
 // engine stopped serving in September, and a scan that finds nothing reads as "no secret",
 // which is how a present credential reads as an absent one.
+// A launcher may instead select CREDENTIAL_HOME_COMMAND. Its `secrets where` metadata supplies the resolved home
+// without opening a vault or reading a key. A failed selected command never falls back to the legacy DATA route.
 //
 // HOW A VALUE TRAVELS: the command mints a short-lived handle and resolves it inside its
 // own process (the vault's audited read), then writes the value only to a private pipe on
@@ -36,9 +38,38 @@ import { homedir } from 'node:os';
 import { isAbsolute, join, resolve } from 'node:path';
 
 const PRODUCT_DATA_ROOT_SETTING = 'PRODUCT_DATA_ROOT';
+const COMMAND_SETTING = 'CREDENTIAL_HOME_COMMAND';
 const HOME_FILE = 'credential-home.json';
 const MAX_ANSWER_BYTES = 4 * 1024 * 1024;
 const METADATA_TIMEOUT_MS = 30_000;
+
+/** Ask the selected native command for its resolved metadata. This operation opens no vault and reads no key. */
+function nativeCredentialHome(command) {
+  if (!isAbsolute(command)) throw new Error(`no credential home: ${COMMAND_SETTING} must name an absolute command`);
+  const answer = spawnSync(command, ['secrets', 'where'], {
+    env: process.env, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: MAX_ANSWER_BYTES, timeout: METADATA_TIMEOUT_MS,
+  });
+  if (answer.error || answer.status !== 0) {
+    const reason = answer.error?.code ?? `exit ${answer.status ?? answer.signal}`;
+    throw new Error(`no credential home: ${command} secrets where did not answer (${reason}); the selected command must support metadata discovery`);
+  }
+  let home;
+  try { home = JSON.parse(String(answer.stdout)); }
+  catch { throw new Error(`no credential home: ${command} secrets where did not return metadata JSON`); }
+  if (!home || typeof home !== 'object' || Array.isArray(home)
+      || typeof home.command !== 'string' || !isAbsolute(home.command) || home.command !== command
+      || typeof home.store !== 'string' || !isAbsolute(home.store)
+      || typeof home.account !== 'string' || !home.account
+      || typeof home.verb !== 'string' || !home.verb
+      || typeof home.settings?.setting !== 'string' || !/^[A-Za-z_][A-Za-z0-9_]*$/.test(home.settings.setting)
+      || typeof home.settings?.file !== 'string' || !isAbsolute(home.settings.file)) {
+    throw new Error(`no credential home: ${command} secrets where returned incomplete or inconsistent metadata`);
+  }
+  return {
+    command: home.command, commandFrom: `the launch setting ${COMMAND_SETTING}`, commandSetting: COMMAND_SETTING,
+    store: home.store, account: home.account, verb: home.verb, settings: home.settings,
+  };
+}
 
 /**
  * The vault's store file. A path is that file. A bare file name is that file in the selected
@@ -97,6 +128,8 @@ function accountOf(home, file) {
  * account cannot.
  */
 export function credentialHome() {
+  // A selected native command is authoritative. Failure never falls back to a guessed path or a different vault.
+  if (process.env[COMMAND_SETTING] !== undefined) return nativeCredentialHome(process.env[COMMAND_SETTING]);
   const root = process.env[PRODUCT_DATA_ROOT_SETTING];
   if (!root) {
     throw new Error(`no credential home: the launch setting ${PRODUCT_DATA_ROOT_SETTING} names no product DATA folder holding ${HOME_FILE}`);
@@ -131,9 +164,9 @@ export function askTheVault(words, { privatePipe = false } = {}) {
   // The vault's command word and the product settings file it reads (beside the command, in its app) are product
   // facts in credential-home.json: `verb` (the engine renamed held-values to secrets on 2026-11-04, trillion-rust
   // 9fa0d5157) and `settings` ({ setting, beside_command }), so a renamed engine is a DATA edit, not a code edit.
-  const settings = home.settings ? { [home.settings.setting]: resolve(home.command, '..', home.settings.beside_command) } : {};
+  const settings = home.settings ? { [home.settings.setting]: home.settings.file ?? resolve(home.command, '..', home.settings.beside_command) } : {};
   const answer = spawnSync(home.command, [home.verb ?? 'held-values', home.store, home.account, ...words], {
-    env: { ...process.env, ...settings, [PRODUCT_DATA_ROOT_SETTING]: resolve(process.env[PRODUCT_DATA_ROOT_SETTING]) },
+    env: { ...process.env, ...settings, ...(process.env[PRODUCT_DATA_ROOT_SETTING] ? { [PRODUCT_DATA_ROOT_SETTING]: resolve(process.env[PRODUCT_DATA_ROOT_SETTING]) } : {}) },
     stdio: ['ignore', 'pipe', 'pipe', privatePipe ? 'pipe' : 'ignore'],
     maxBuffer: MAX_ANSWER_BYTES,
     // Metadata must fail with the checked owner named, rather than hold an agent forever on a stuck command.

@@ -35,12 +35,13 @@ function withStandIn(run, home = HOME) {
   writeFileSync(join(user, 'App Settings', 'runtime.json'), JSON.stringify({ state }));
   writeFileSync(join(state, 'restore-receipt.json'), JSON.stringify({ account: { ownerId: ACCOUNT } }));
   const asked = join(folder, 'asked.txt');
-  const keys = ['HOME', 'PRODUCT_DATA_ROOT', 'STAND_IN_VAULT_ASKED', HOME.command_setting];
+  const keys = ['HOME', 'PRODUCT_DATA_ROOT', 'STAND_IN_VAULT_ASKED', HOME.command_setting, 'CREDENTIAL_HOME_COMMAND', 'STAND_IN_VAULT_WHERE', 'STAND_IN_VAULT_WHERE_REFUSED', 'STAND_IN_VAULT_SETTINGS'];
   const before = Object.fromEntries(keys.map((key) => [key, process.env[key]]));
   process.env.HOME = user;
   process.env.PRODUCT_DATA_ROOT = folder;
   process.env.STAND_IN_VAULT_ASKED = asked;
   delete process.env[HOME.command_setting];
+  for (const key of ['CREDENTIAL_HOME_COMMAND', 'STAND_IN_VAULT_WHERE', 'STAND_IN_VAULT_WHERE_REFUSED', 'STAND_IN_VAULT_SETTINGS']) delete process.env[key];
   const operations = () => readFileSync(asked, 'utf8').trim().split('\n').map((line) => line.split(' ').slice(1, 4));
   return Promise.resolve(run({ operations, folder, user, state })).finally(() => {
     for (const key of keys) {
@@ -120,4 +121,66 @@ test('a failure names what it checked', () => withStandIn(async () => {
   await assert.rejects(namesHeldByTheVault(), /the launch setting PRODUCT_DATA_ROOT names no product DATA folder holding credential-home\.json/);
   process.env.PRODUCT_DATA_ROOT = '/nonexistent/product';
   await assert.rejects(namesHeldByTheVault(), /\/nonexistent\/product\/credential-home\.json \(from PRODUCT_DATA_ROOT\) could not be read: ENOENT/);
+}));
+
+const resolvedHome = folder => ({
+  command: standIn, verb: 'secrets', store: join(folder, 'resolved.sqlite'), account: ACCOUNT,
+  settings: { setting: 'FIXTURE_PRODUCT_SETTINGS', file: join(folder, 'product-settings.json') },
+});
+
+test('native metadata selects the home without a product DATA folder and binds settings to private reads', () => withStandIn(async ({ folder }) => {
+  const home = resolvedHome(folder);
+  process.env.CREDENTIAL_HOME_COMMAND = standIn;
+  process.env.STAND_IN_VAULT_WHERE = JSON.stringify(home);
+  process.env.STAND_IN_VAULT_SETTINGS = home.settings.file;
+  delete process.env.PRODUCT_DATA_ROOT;
+  assert.deepEqual(credentialHome(), {
+    ...home, commandFrom: 'the launch setting CREDENTIAL_HOME_COMMAND', commandSetting: 'CREDENTIAL_HOME_COMMAND',
+  });
+  assert.deepEqual(await namesHeldByTheVault(), ['bare-token', 'service-a']);
+  assert.equal(await heldByTheVault('bare-token'), 'private');
+  const asked = readFileSync(join(folder, 'asked.txt'), 'utf8').trim().split('\n');
+  assert.deepEqual(asked.filter(line => line === 'secrets where'), ['secrets where', 'secrets where', 'secrets where']);
+  assert.ok(asked.includes(`secrets ${home.store} ${ACCOUNT} names-only`));
+  assert.ok(asked.includes(`secrets ${home.store} ${ACCOUNT} read bare-token`));
+}));
+
+test('failed or malformed native metadata never falls back to the valid legacy home', () => withStandIn(({ folder }) => {
+  process.env.CREDENTIAL_HOME_COMMAND = standIn;
+  process.env.STAND_IN_VAULT_WHERE_REFUSED = 'yes';
+  assert.throws(() => credentialHome(), /secrets where did not answer.*metadata discovery/);
+  delete process.env.STAND_IN_VAULT_WHERE_REFUSED;
+  process.env.STAND_IN_VAULT_WHERE = 'not JSON';
+  assert.throws(() => credentialHome(), /did not return metadata JSON/);
+  for (const change of [{ command: '/another/command' }, { store: 'relative' }, { account: '' }, { settings: { setting: 'BAD-NAME', file: '/settings' } }]) {
+    process.env.STAND_IN_VAULT_WHERE = JSON.stringify({ ...resolvedHome(folder), ...change });
+    assert.throws(() => credentialHome(), /incomplete or inconsistent metadata/);
+  }
+  assert.ok(readFileSync(join(folder, 'asked.txt'), 'utf8').trim().split('\n').every(line => line === 'secrets where'));
+}));
+
+test('an explicit native selector must name an absolute command', () => withStandIn(() => {
+  for (const command of ['', 'relative-command']) {
+    process.env.CREDENTIAL_HOME_COMMAND = command;
+    assert.throws(() => credentialHome(), /CREDENTIAL_HOME_COMMAND must name an absolute command/);
+  }
+}));
+
+test('the writer uses the same native metadata and settings without printing its synthetic value', () => withStandIn(({ folder }) => {
+  const home = resolvedHome(folder);
+  process.env.CREDENTIAL_HOME_COMMAND = standIn;
+  process.env.STAND_IN_VAULT_WHERE = JSON.stringify(home);
+  process.env.STAND_IN_VAULT_SETTINGS = home.settings.file;
+  delete process.env.PRODUCT_DATA_ROOT;
+  const valueFile = join(folder, 'synthetic-input.json');
+  const value = 'synthetic-value-not-for-output';
+  writeFileSync(valueFile, JSON.stringify({ token: value }));
+  const command = fileURLToPath(new URL('../do-work/put-one-secret-in-the-vault.mjs', import.meta.url));
+  const result = spawnSync(process.execPath, [command, '--name', 'synthetic-holder', '--from-file', valueFile], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.deepEqual(JSON.parse(result.stdout), { saved: 'synthetic-holder', use_it_by_name: 'synthetic-holder' });
+  assert.equal(`${result.stdout}${result.stderr}`.includes(value), false);
+  assert.deepEqual(readFileSync(join(folder, 'asked.txt'), 'utf8').trim().split('\n'), [
+    'secrets where', `secrets ${home.store} ${ACCOUNT} put synthetic-holder`,
+  ]);
 }));

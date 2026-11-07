@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-BITFIELD-VAULT-READER",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:92af40d8f492ed5e8389fc177f47e878d2851a69b44c2f3f8c39c67585e88755",
     "quote": "move the vault reader and writer into the service connection tool as exact first copies with synthetic tests"
@@ -45,7 +45,9 @@
   ],
   "allowed_deltas": [
     "The source paths are private and represented by BLAKE3 path identities; source bytes are named by the private repository and exact source commit.",
-    "The source files and synthetic stand-in test were copied byte-for-byte in baseline commit 41424e7d553ab3e2d0b6e15febead9fbb2e33969."
+    "The source files and synthetic stand-in test were copied byte-for-byte in baseline commit 41424e7d553ab3e2d0b6e15febead9fbb2e33969.",
+    "An explicit CREDENTIAL_HOME_COMMAND selects the native secrets where metadata projection; the legacy declared DATA route remains available only when no native command is selected. A failed native projection never selects another vault.",
+    "The native projection supplies the resolved settings file, store and account. Reader and writer keep the existing command/private-pipe protocol; no vault, key or account is opened by metadata discovery."
   ],
   "banned_substitutions": [
     "a plaintext file fallback for the vault",
@@ -68,7 +70,7 @@
       "main"
     ],
     "test_refs": [
-      "tools/connect-a-service-and-seal-its-key/tests/names-held-by-the-vault.test.mjs (nine synthetic stand-in tests)"
+      "tools/connect-a-service-and-seal-its-key/tests/names-held-by-the-vault.test.mjs"
     ]
   }
 }
