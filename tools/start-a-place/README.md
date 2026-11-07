@@ -48,4 +48,6 @@ Descriptor 3 holds the machine provider row's `vault_key` credential and descrip
 
 ## What was left out
 
+The Linux shell tests use `tools/process-session/test/target-tools.mjs` to discover genuine GNU coreutils `mv` or `gmv` on PATH or in standard package bin folders, and link it into each fixture's PATH. Plain `node --test tools/start-a-place/test/start-a-place.test.mjs` runs these assertions without an external PATH override. Install coreutils if discovery refuses; BSD move semantics are not used and assertions are not skipped. Production SSH commands remain unchanged.
+
 The earlier hosting rows also had a Fly.io row. It was not ported: a Fly Machine has no public IPv4 of its own and takes no root SSH key, so this setup cannot run on it.

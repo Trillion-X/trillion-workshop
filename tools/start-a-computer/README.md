@@ -22,4 +22,4 @@ This is the existing canonical `start-a-computer` owner, recovered from its comm
 
 `test/start-a-computer.test.mjs` covers provider ownership, pricing, lease lifecycle, complete starts and updates, discovered layouts, failed-health rollback, exact settings snapshots and starting-row merges, using synthetic caller settings.
 
-The shell commands target GNU/Linux. On the current Mac, native `mv` rejects `-T`; the normal test runner therefore has platform failures. A command-local PATH to real GNU coreutils can exercise the Linux shell fixtures. No platform skip or command shim is installed by this tool.
+The shell commands target GNU/Linux. Tests discover a genuine GNU coreutils `mv` or `gmv` by its version, searching PATH and standard package bin folders. Each fixture links that executable as `mv` in its own PATH folder. Install coreutils when the discovery error names it; BSD `mv` is refused. Run plain `node --test tools/start-a-computer/test/start-a-computer.test.mjs`; an external PATH override is unnecessary. The shared test selector lives in `tools/process-session/test/target-tools.mjs`. Production SSH commands remain unchanged.

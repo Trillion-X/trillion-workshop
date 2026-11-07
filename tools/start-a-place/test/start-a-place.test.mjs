@@ -5,6 +5,7 @@ import { spawn } from 'node:child_process';
 import { userInfo } from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { linkGnuMove } from '../../process-session/test/target-tools.mjs';
 import {
   machineProvider, nameProvider, providerClient, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf,
@@ -335,6 +336,7 @@ const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/x/a
 function madeUpComputer(l, { units = [] } = {}) {
   const root = folder(), bin = join(root, 'fake-bin'), engine = '#!/bin/sh\nexit 0\n';
   for (const dir of [l.state, 'etc/systemd/system', l.release, 'opt/build/new', 'fake-bin']) mkdirSync(join(root, dir), { recursive: true });
+  linkGnuMove(bin);
   writeFileSync(join(root, l.state, 'place.json'), OLD_CONFIG);
   writeFileSync(join(root, 'etc/systemd/system', l.unit), unitOf(l));
   for (const [name, text] of units) writeFileSync(join(root, 'etc/systemd/system', name), text);
