@@ -19,7 +19,6 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation, or from loosening the rule it states.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
@@ -28,12 +27,21 @@ import { RECORD_INDEXES, RECORD_MODEL } from '../src/record-engine.mjs';
 const root = new URL('..', import.meta.url).pathname;
 const { records } = JSON.parse(readFileSync(new URL('./fixtures/new-account-own-records.json', import.meta.url), 'utf8'));
 // The earlier owner: the two files as they were before this change, every other source byte the same as the current road.
-const EARLIER_COMMIT = '775166f635cd91daedaa51693ff40fb29b02f762';
-const committed = path => execFileSync('git', ['show', `${EARLIER_COMMIT}:${path}`], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+// 775166f635 is a commit of Trillion-X/trillion, which this repository's history does not hold (the harness moved here
+// byte for byte at a8585de1). The earlier road is the current owner with the one rule that change added taken out: a
+// kind the store never laid out and holds no record of is not skipped (unusedKind answers false), so every declared
+// kind is laid out with its registry rows, history and `table-schema-change` record, as the earlier owner did.
+const UNUSED_KIND = 'const unusedKind = type => !typed.kindLaidOut(type) && (counts !== null ? countOf(counts, type) === 0 : idsOfType(type, { limit: 1 }).length === 0);';
+function earlierOwner(path) {
+  const text = readFileSync(root + path, 'utf8');
+  if (!path.endsWith('record-log-store.mjs')) return text;
+  assert.equal(text.split(UNUSED_KIND).length, 2, 'the current owner skips an unused kind in exactly one rule');
+  return text.replace(UNUSED_KIND, 'const unusedKind = () => false;');
+}
 const EARLIER = ['parts/record-log/do-work/record-log-store.mjs', 'parts/record-log/do-work/record-tables.mjs'];
 
 async function bundle(road) {
-  const earlier = new Map(EARLIER.map(path => [root + path, committed(path)]));
+  const earlier = new Map(EARLIER.map(path => [root + path, earlierOwner(path)]));
   const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' },
     bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error',
     plugins: road === 'earlier' ? [{ name: 'earlier-record-tables-owner', setup(builder) {
