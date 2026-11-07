@@ -1,28 +1,30 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
-  "id": "NO_PRIOR_OWNER-MARKDOWN-CHAT-EXPORT",
+  "id": "REF-CONVERSATIONS-MARKDOWN-CHAT-EXPORT",
   "status": "ADAPTED",
   "mode": "NO_PRIOR_OWNER",
-  "job": "Decode individual ChatGPT Markdown exports as ordered source occurrences and exact source spans for the canonical conversation importer",
+  "job": "Decode individual Markdown chat exports as ordered source occurrences and exact source spans, and inspect or import them through the canonical owner using a configured native MCP client",
   "directive": {
     "thread_id": "01a1b7de-2fce-7412-a6a9-4b091acf90cd", "speaker": "agent",
     "message_multihash": "1f:23b0e68bbe140c2d654e44b5a8e66caf635133841c8414cc511a8771059160df",
     "quote": "Verify the current Markdown export reader against the four named sources: keep every prompt and response occurrence distinct, preserve exact source spans, keep unzoned timestamps as source text, and reuse the existing canonical message owner without publishing private material."
   },
   "sources": [],
-  "targets": [{"path": "tools/conversations/read-data/markdown-chat-export.mjs"}],
+  "targets": [{"path": "tools/conversations/read-data/markdown-chat-export.mjs"}, {"path": "tools/conversations/read-data/import-files-with-mcp.mjs"}],
   "allowed_deltas": [],
   "banned_substitutions": ["summarizing source messages", "deduplicating separate identical occurrences", "inventing a source timezone"],
   "baseline": {},
   "proof": {"test_refs": ["tools/conversations/test/markdown-chat-export.test.mjs"], "search": {
-    "phrasings": ["Markdown conversation export", "Prompt Response source occurrences"],
+    "phrasings": ["Decode individual Markdown chat exports as ordered source occurrences and exact source spans, and inspect or import them through the canonical owner using a configured native MCP client", "Markdown conversation export", "Prompt Response source occurrences"],
     "capability_rows": [], "code_patterns": ["markdownChatExport", "## Prompt:"],
     "repositories": [{"repository": "trillion", "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04"}],
     "scope": "Bounded code-owner search; comprehensive cross-repository capability absence is not claimed. Further owner searches were pending during review."
   }},
   "distinct_from": [
     {"repository": "trillion", "path": "src/chat-archives.mjs", "why": "The inspected archive owner reads JSON conversation trees and page-shaped messages; the new format reader supplies that same page shape from Markdown."},
-    {"repository": "trillion-workshop", "path": "tools/conversations/read-data/chat-import.mjs", "why": "The existing message and file importer consumes the new reader; it is not replaced or duplicated."}
+    {"repository": "trillion-workshop", "path": "tools/conversations/read-data/chat-import.mjs", "why": "The existing message and file importer consumes the new reader; it is not replaced or duplicated."},
+    {"repository": "trillion-workshop", "path": "tools/records-door/read-data/stdio-mcp-door.mjs", "why": "The native entry reuses this existing configured MCP transport and credential owner rather than implementing either."},
+    {"repository": "trillion-workshop", "path": "tools/records-door/do-work/run-an-export.mjs", "why": "The existing tool-run entry receives an admitted file descriptor. The native conversation entry composes the same import owner with an already-configured host MCP bridge and also supports read-only inspection."}
   ],
   "preserve": [
     "Identity is the ChatGPT /c/<UUID> plus ordered occurrence number.",
