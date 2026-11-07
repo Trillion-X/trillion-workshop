@@ -1,0 +1,57 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-ORGANIZE-THE-SIDEBAR-BOARD-VOTES",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:edde1758f8c400dcb9ecb6da259a7d687d3b56991ab276a0e9e3854d01e7eeba",
+    "quote": "move into the Workshop in one move: parts/, computer/ and the src files the capability list sends here"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "src/community-logic/board-votes.ts",
+      "multihash": "1f:3b84f7d50ea2795bce2a15281e3386bd6065494d87cb990ab278bebd26e82bc1",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/organize-the-sidebar/read-data/board-votes.ts"
+    }
+  ],
+  "preserve": [
+    "pure deterministic tally and vote-budget reduction from the item's self-describing votes"
+  ],
+  "allowed_deltas": [
+    "remove the source's single vendoring comment that named its former Bitfield package path"
+  ],
+  "banned_substitutions": [
+    "a different vote tally or per-feature voting implementation"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-03T17:03:22-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3b84f7d50ea2795bce2a15281e3386bd6065494d87cb990ab278bebd26e82bc1",
+    "target_multihash_at_baseline": "1f:313444101269ca619b37f3b8ad5a33d94ebc816499af2921373f3f81d6d9f5eb",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "redactions": [
+      {
+        "from": "// Vendored unchanged except for import paths from bitfield-packages/packages/group/read-data/board-votes.ts.\n",
+        "to": ""
+      }
+    ]
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "tools/organize-the-sidebar/moved-from.json records the source path, source commit and BLAKE3 identity; the first target commit is a9ee2580.",
+    "required_mechanisms": [
+      "votes",
+      "budget"
+    ]
+  }
+}
