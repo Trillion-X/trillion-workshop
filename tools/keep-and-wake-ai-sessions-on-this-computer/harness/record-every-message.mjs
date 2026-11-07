@@ -226,14 +226,14 @@ export function messagesOf(rows, harness, { sessionId, context = {}, ends = [], 
 
 /** Supported native tool rows become bounded receipts, never message text or copied tool payloads. These hooks
  * observe a transcript after the fact; they do not claim to intercept an unsupported host before dispatch. */
-export function executionsOf(rows, harness, { sessionId, ends = [], context = {} } = {}, rules = settings) {
+export function executionsOf(rows, harness, { sessionId, ends = [], context = {}, offset = 0 } = {}, rules = settings) {
   const executions = [], marks = [];
   const known = { ...context };
   const referenceRules = rules.execution_references;
   const identityPatterns = (referenceRules?.identity_patterns ?? []).map(pattern => new RegExp(pattern));
   const scalar = value => {
     if (!['string', 'number'].includes(typeof value)) return null;
-    if (String(value).length > 8192) throw new Error('Execution metadata exceeds the 8192 character capture limit; no identifier was truncated and the transcript cursor was not advanced.');
+    if (String(value).length > (referenceRules?.max_id_chars ?? 8192)) throw new Error('Execution metadata exceeds the 8192 character capture limit; no identifier was truncated and the transcript cursor was not advanced.');
     return String(value);
   };
   // Arguments can be an object or JSON-encoded arguments. Their `content` and `structuredContent` fields are
@@ -267,9 +267,9 @@ export function executionsOf(rows, harness, { sessionId, ends = [], context = {}
           const ref = scalar(candidate);
           const declaredRole = field.role_path ? at(member, field.role_path) : null;
           const role = declaredRole ?? (side === 'result' ? 'output' : 'input');
-          if (typeof role !== 'string' || !role || role.length > 80 || /[\u0000-\u001f]/.test(role)) throw new Error('Execution reference role must be bounded text.');
+          if (typeof role !== 'string' || !role || role.length > (referenceRules?.max_role_chars ?? 80) || /[\u0000-\u001f]/.test(role)) throw new Error('Execution reference role must be bounded text.');
           const path = [side, ...field.path, ...(field.each ? [index] : []), ...(field.ref_path ?? [])];
-          if (path.length > 32 || path.some(part => typeof part === 'string' && part.length > 512)) throw new Error('Execution reference path exceeds the capture limit.');
+          if (path.length > (referenceRules?.max_path_parts ?? 32) || path.some(part => typeof part === 'string' && part.length > (referenceRules?.max_label_chars ?? 512))) throw new Error('Execution reference path exceeds the capture limit.');
           const entry = { ref, role, basis: 'claimed', path, ...(field.each ? { ordinal: index } : {}) };
           const key = JSON.stringify(entry);
           if (seen.has(key)) continue;
@@ -310,21 +310,52 @@ export function executionsOf(rows, harness, { sessionId, ends = [], context = {}
           claimed: { app: harness.app, conversation_id: `${harness.id}:${sessionId}`, tool_call_id: id,
             ...(source_ref ? { source_ref } : {}), ...(known.model ? { model: known.model } : {}) },
           ...(Object.keys(observation).length ? { observation } : {}), references });
-        marks.push({ offset: ends[index], context: { ...known } });
+        marks.push({ offset: ends[index], start_offset: index ? ends[index - 1] : offset, context: { ...known } });
       }
     }
   }
   return { executions, marks, context: known };
 }
 
-export async function sendExecutionToTrillion(value, { rules = settings, deadline, key } = {}) {
-  const response = await fetch(`${rules.origin.replace(/\/$/, '')}${rules.executions_path}`, {
-    method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
-    body: JSON.stringify(value), signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
-  });
-  if (!response.ok) return false;
-  const result = await response.json().catch(() => null);
-  return result?.call_id === value.call_id && typeof result?.execution_ref === 'string';
+/** The current hook owner verifies the actual local transcript occurrence before its journal keeps a receipt.
+ * The path/offset are transient verification inputs, never part of the retained receipt. */
+export async function sendExecutionToTrillion(value, { rules = settings, deadline, key, source } = {}) {
+  const ingest = rules.execution_ingestion;
+  if (!ingest || !source || typeof source.transcript_path !== 'string' || !Number.isSafeInteger(source.offset)
+      || !Number.isSafeInteger(source.end) || source.offset < 0 || source.end <= source.offset) return false;
+  const conversation = value.claimed?.conversation_id;
+  const harness = rules.harnesses.find(row => conversation?.startsWith(`${row.id}:`));
+  if (!harness || value.capture_kind !== 'host_transcript') return false;
+  const session_id = conversation.slice(harness.id.length + 1);
+  const request_key = `hook-execution:${bytesToHex(blake3(new TextEncoder().encode(JSON.stringify([value, source.offset, source.end]))))}`;
+  const call = async (address, method, input, suffix) => {
+    const response = await fetch(`${rules.origin.replace(/\/$/, '')}${rules.executions_path}`, {
+      method: 'POST', headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json', accept: 'application/json, text/event-stream', 'mcp-protocol-version': ingest.protocol_version },
+      body: JSON.stringify({ jsonrpc: '2.0', id: request_key + suffix, method: 'tools/call', params: { name: ingest.tool,
+        arguments: { address, method, input, request_key: request_key + suffix } } }),
+      signal: AbortSignal.timeout(Math.max(1, deadline - Date.now())),
+    });
+    if (!response.ok) return null;
+    const reply = await response.json().catch(() => null);
+    if (reply?.error || reply?.result?.isError) return null;
+    return reply?.result?.structuredContent ?? null;
+  };
+  const result = await call(ingest.resource, ingest.operation, { harness: harness.id, event: ingest.event,
+    payload: { session_id }, executions: [{ receipt: value, source }] }, ':keep');
+  const kept = result?.executions_accepted?.[0];
+  if (result?.executions_accepted?.length !== 1 || kept?.call_id !== value.call_id || kept?.execution_ref !== `execution:${value.call_id}`
+      || kept?.event_phase !== value.event_phase) return false;
+  const row = await call(ingest.read.resource, ingest.read.operation, { id: kept.execution_ref, type: ingest.read.type }, ':read');
+  return row?.id === kept.execution_ref && row?.type === ingest.read.type && row?.value?.call_id === value.call_id
+    && row.value.capture_kind === 'host_transcript' && row.value.claimed?.conversation_id === conversation
+    && row.value.claimed?.tool_call_id === value.claimed?.tool_call_id
+    && (!value.operation || row.value.operation === value.operation)
+    && row.value.actor?.basis === 'unknown' && row.value.recorder?.basis === 'authenticated'
+    && row.value.coverage?.before_dispatch === false && row.value.coverage?.native_host === 'verified_transcript_occurrence'
+    && Array.isArray(row.value.references) && value.references.every(expected => row.value.references.some(actual =>
+      actual.ref === expected.ref && actual.role === expected.role && actual.basis === 'claimed'
+      && actual.ordinal === expected.ordinal && JSON.stringify(actual.path) === JSON.stringify(expected.path)))
+    && (row.value.event_phase === value.event_phase || value.event_phase === 'called' && ['returned', 'failed'].includes(row.value.event_phase));
 }
 
 /** A transcript kept as one JSON document (a harness row with `document`): its rows from `offset` (a row count) on,
@@ -786,7 +817,7 @@ export async function recordNew(event, { rules = settings, send = sendToTrillion
   // One existing cursor owns both acknowledgements. Advancing messages cannot skip a refused tool receipt.
   const nativeRows = !rules.historical && rules.executions_path && harness.executions?.length ? rowsFrom(path, kept.execution_offset ?? 0, rules) : null;
   let native;
-  try { native = nativeRows ? executionsOf(nativeRows.rows, harness, { sessionId, ends: nativeRows.ends, context: kept.execution_context ?? {} }, rules) : { executions: [], marks: [], context: {} }; }
+  try { native = nativeRows ? executionsOf(nativeRows.rows, harness, { sessionId, ends: nativeRows.ends, context: kept.execution_context ?? {}, offset: kept.execution_offset ?? 0 }, rules) : { executions: [], marks: [], context: {} }; }
   catch (error) { return { sent: 0, pending: messages.length, executions_sent: 0, executions_pending: 1, execution_capture: 'metadata_limit', reason: error.message, conversation_id: `${harness.id}:${sessionId}` }; }
   let executions_sent = 0;
   const conversation_id = `${harness.id}:${sessionId}`;
@@ -805,7 +836,7 @@ export async function recordNew(event, { rules = settings, send = sendToTrillion
     for (const receipt of native.executions) {
       if (now() >= deadline) break;
       secret ??= key();
-      if (!(await sendExecution(receipt, { rules, deadline, key: secret }))) break;
+      if (!(await sendExecution(receipt, { rules, deadline, key: secret, source: { transcript_path: realpathSync(path), offset: native.marks[executions_sent].start_offset, end: native.marks[executions_sent].offset } }))) break;
       executions_sent += 1;
     }
   } catch {}
