@@ -1,0 +1,86 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PERSONAL-DATA-RECOVERY-BASELINE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "immutable source-baselines/*.held byte-copy NORMAL commit acceptable recovery evidence ONLY if contract states ACTIVE TARGET ALREADY ADAPTED BEFORE this NEW recovery baseline; NEVER claim retroactive original byte-copy.",
+    "message_multihash": "1f:7ad9851032a6e2265e3f04e1045d090330c13a97157b0c64dfcaebb3dde98687"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path_multihash": "1f:6b80214d999fd47215c2d3bf06e6d7e29d026a37e4603b44002c40a212f75ce0",
+      "multihash": "1f:f7a3510b22c3c458daf07910b16a55e83235427a28e8bb499e644de943290722",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-07T15:59:19-06:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-words-for-personal-data/source-baselines/personal-data.held",
+      "role": "Immutable recovery byte-copy; never loaded by the active tool"
+    },
+    {
+      "path": "tools/check-words-for-personal-data/read-data/personal-data.mjs",
+      "role": "Active implementation; already adapted before the recovery baseline"
+    }
+  ],
+  "preserve": [
+    "luhn",
+    "checkPersonalData",
+    "model_checked"
+  ],
+  "allowed_deltas": [
+    "Location comments, model adapter using the existing answer-state-questions owner, and named check export added before the recovery baseline"
+  ],
+  "banned_substitutions": [
+    "Claiming this recovery proves the first Workshop commit was an exact byte copy",
+    "Counting the immutable archived baseline as evidence of active implementation retention",
+    "Rewriting the preserved algorithm"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:f7a3510b22c3c458daf07910b16a55e83235427a28e8bb499e644de943290722",
+    "target_multihash_at_baseline": "1f:f7a3510b22c3c458daf07910b16a55e83235427a28e8bb499e644de943290722",
+    "commit": "d1876baae22436e6091c28fc2355085994d4e617",
+    "recorded_at": "2026-11-07T15:59:19-06:00",
+    "scope": "The exact copy is the immutable recovery artifact in targets[0]. The active target was already adapted before this NEW recovery baseline. copied_before_adaptation refers only to the unmodified recovery artifact; no retroactive original source-first claim is made."
+  },
+  "recovery": {
+    "active_target_already_adapted_before_recovery_baseline": true,
+    "first_adapted_target_commit": "635b5a74e7cee4f5fc840fc16604855ab38d0d1f",
+    "original_source_first_baseline_proved": false,
+    "source_retirement": {
+      "checked_main_commit": "ed5e8d0389729321ca4263294b6a377235829e5e",
+      "source_path_absent_from_main": true,
+      "local_working_copy_state": "The retired source may still exist on disk; this checks committed main, not a claim of filesystem deletion."
+    },
+    "privacy_and_rights": "Repository-owned code moved under explicit integration authorization. Both exact snapshots were read in full: generic algorithms and relative imports; no credentials, personal records or third-party attribution notices were found. Source path identity is published instead of the private repository path."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "luhn",
+      "checkPersonalData",
+      "model_checked"
+    ],
+    "test_refs": [
+      "tools/check-words-for-personal-data/test/personal-data.test.mjs"
+    ],
+    "active_target": {
+      "path": "tools/check-words-for-personal-data/read-data/personal-data.mjs",
+      "multihash": "1f:829f4b1645731f421c9dd936678594ec20b90d6a07a65ac25a91e88249778ccb",
+      "archive_bytes_excluded": true,
+      "method": "Trim each source and active-target line; keep lines of length >=24; count source lines present in the active-target line set, exactly as the shared validator does. No source-baselines file contributes to this measurement.",
+      "measurements": {
+        "sourceMeaningfulLines": 44,
+        "retainedMeaningfulLines": 39,
+        "meaningfulLineRetention": 0.8863636363636364
+      }
+    }
+  }
+}
