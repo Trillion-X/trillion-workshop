@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-MEANING-SEARCH-QUERY-PARITY-DRIVER",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
     "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
@@ -43,10 +43,14 @@
     "recorded_at": "2026-11-07T22:56:57.738155Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
-    "target_multihash_at_baseline": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391"
+    "target_multihash_at_baseline": "1f:f257641b0b1d3989aad7754a1e2ddd475b410c743163421eeefd20eab70bc391",
+    "commit": "1ef3272195740e460f3139f5c873d2950ba01e7a"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": []
+    "test_refs": [
+      "tools/meaning-search/test/run-query-parity.test.mjs query driver preserves defaults and query vectors while reading bounded spans",
+      "tools/meaning-search/test/run-query-parity.test.mjs query driver reads exact settings from DATA and compares strict file/time order"
+    ]
   }
 }
