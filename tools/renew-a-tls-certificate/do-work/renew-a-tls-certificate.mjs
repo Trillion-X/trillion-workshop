@@ -6,12 +6,13 @@
 // pattern, address, paths and environment, the downloads folder and the site whose pages the host hands on). The
 // engine hands the server's administration key as a file (credential_mounts mount_path) and the DNS key on descriptor
 // 3; this file names no product, no vault and no schedule (renewal is a wake the person declares).
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, realpathSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, join, resolve, relative, isAbsolute, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { administrationArguments, heldKeyFile, knownHostsLine } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const hostnamePattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/;
 // An absolute path with no quote, space or shell word in it, so it can sit inside the host's shell words.
@@ -94,17 +95,30 @@ export function pinnedHost(request, adminKeyFile, folder) {
 // publish keeps a file and moves its pointer. /download and
 // /download/ send people to the last published name through a one-line include publish writes beside the files.
 const downloadName = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+// A computer row names a file relative to its granted folder. Real paths
+// refuse symlinks leaving that folder; the sandbox enforces the same boundary
+// during the actual file read.
+export function grantedDownloadFile(folder, file) {
+  if (typeof folder !== 'string' || !folder || typeof file !== 'string' || !file
+    || isAbsolute(file) || file.split(/[\\/]/).includes('..')) throw new Error('The download file is outside the granted folder.');
+  const root = realpathSync(folder), path = realpathSync(resolve(root, file));
+  const inside = relative(root, path);
+  if (!inside || inside === '..' || inside.startsWith(`..${sep}`) || isAbsolute(inside)
+    || !statSync(path).isFile()) throw new Error('The download file is outside the granted folder.');
+  return path;
+}
 export function publishDownload(c, file, name, { run = execFileSync } = {}) {
   checkedTLS(c);
   const kept = file.split('/').pop();
   if (!downloadName.test(kept) || !downloadName.test(name) || kept === name) throw new Error('The download name was refused.');
   const body = readFileSync(file);
-  const blake3 = run('b3sum', ['--no-names', file], { encoding: 'utf8' }).trim();
-  const downloadDirectory = c.host.downloads;
-  const downloadDefault = `${downloadDirectory}/.default-download.conf`;
-  const d = downloadDirectory;
-  const script = `set -eu; install -d -m 0755 '${d}'; if [ ! -f '${d}/${kept}' ]; then cat > '${d}/.${kept}.part'; [ "$(stat -c %s '${d}/.${kept}.part')" = '${body.length}' ]; chmod 0644 '${d}/.${kept}.part'; mv '${d}/.${kept}.part' '${d}/${kept}'; else cat > /dev/null; fi; [ "$(stat -c %s '${d}/${kept}')" = '${body.length}' ]; ln -sfn '${kept}' '${d}/.${name}.next'; mv -T '${d}/.${name}.next' '${d}/${name}'; printf 'return 302 /download/%s;\\n' '${name}' > '${downloadDefault}.next'; mv '${downloadDefault}.next' '${downloadDefault}'; stat -L -c %s '${d}/${name}'`;
-  const held = Number(run('/usr/bin/ssh', [...administrationArguments(c), script], { input: body, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 600000 }).trim());
+  const blake3 = makeHashCodeHexFromBytes(body).slice(3);
+  // SSH joins command arguments as shell text. Only the program text needs
+  // quoting; the directory and names above contain no shell words.
+  const script = readFileSync(new URL('./publish-download.py', import.meta.url), 'utf8');
+  const quoted = "'" + script.replaceAll("'", "'\\''") + "'";
+  const held = Number(run('/usr/bin/ssh', [...administrationArguments(c), '/usr/bin/python3', '-c', quoted,
+    c.host.downloads, kept, name, String(body.length)], { input: body, encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], timeout: 600000 }).trim());
   if (held !== body.length) throw new Error(`The host serves ${name} at a different size.`);
   return { name, kept, bytes: held, blake3 };
 }
@@ -183,14 +197,15 @@ export function heldValue(text) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const folder = mkdtempSync(join(tmpdir(), 'known-host-'));
   try {
-    const [action, adminKeyFile] = process.argv.slice(2);
+    const [action, adminKeyFile, grantedFolder] = process.argv.slice(2);
     const request = JSON.parse(readFileSync(0, 'utf8'));
     const configureHost = c => hostCommand(c, 'configure', { hostname: c.hostname, nginx: publicProxy(c), receptionistBinary: c.receptionistBinary });
     const c = checkedTLS(pinnedHost(request, adminKeyFile, folder));
     let result;
     if (action === 'publish') {
       // Configure after the pointer moves, so the host checks and reloads its config with the new default download.
-      result = { ...publishDownload(c, request.file, request.name), configured: configureHost(c).public_tls_configured };
+      const file = grantedFolder === undefined ? request.file : grantedDownloadFile(grantedFolder, request.file);
+      result = { ...publishDownload(c, file, request.name), configured: configureHost(c).public_tls_configured };
     }
     else if (action === 'setup' || action === 'update-owner') result = installHostOwner(c, { prepare: action === 'setup' });
     else if (action === 'host-test') {

@@ -50,7 +50,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "renew", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [
             { "secret_name": "cloudflare-api-token", "fd": 3 },
             { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
@@ -101,7 +101,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "issue", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [
             { "secret_name": "cloudflare-api-token", "fd": 3 },
             { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
@@ -150,7 +150,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "status", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -197,7 +197,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "setup", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -243,7 +243,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "update-owner", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -289,7 +289,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "configure", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
@@ -335,12 +335,81 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "activate", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",
         "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with their held administration key and the host key the request pins (each run signs in to that server and reads or changes it; the tests here hold no stand-in server)", "proved_on": null }],
         "needs": { "expected_seconds": 15, "network_egress": true },
+        "maker": "maker:renew-a-tls-certificate",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"]
+      }
+    },
+    {
+      "id": "package::renew-a-tls-certificate::tool::publish-a-download",
+      "address": "package::renew-a-tls-certificate::tool::publish-a-download",
+      "path": ["current-item", "published-record"],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:publish-a-download",
+        "label": "Publish a download from my computer",
+        "job": "Publish one file from a folder I choose on my computer at my server's download address",
+        "description": "Reads one relative file path inside the folder I grant, sends it to my rented server over pinned SSH through this run's proxy, and moves the public download pointer only after the server confirms that the kept bytes match. The administration key is mounted for this run; no DNS key is used. Repeating an identical publish is safe; a kept name with different bytes is refused.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["hostname", "address", "ssh_port", "admin_user", "knownHost", "host", "file", "name"],
+          "additionalProperties": false,
+          "properties": {
+            "hostname": { "type": "string", "maxLength": 253 },
+            "address": { "type": "string", "maxLength": 15 },
+            "ssh_port": { "type": "integer", "minimum": 1, "maximum": 65535, "description": "The server's SSH port (22 for a pinned key written as \"<address> ssh-ed25519 <key>\")" },
+            "admin_user": { "type": "string", "maxLength": 32, "description": "The administrator the run signs in as" },
+            "knownHost": { "type": "string", "maxLength": 200 },
+            "host": { "type": "object", "properties": { "static_files": {"type":"array","maxItems":32,"description":"Explicit public export trees only. The publication writer must prove current public rights and same-host folder ownership. No mapping is installed by default; applying changed manifest MIME DATA is a separate authorized host operation.","items":{"type":"object","required":["path","folder","index","exclude"],"additionalProperties":false,"properties":{"path":{"type":"string","description":"Distinct absolute URL mount ending in /, such as /share/."},"folder":{"type":"string","description":"Dedicated public export directory on this host, never an account private store or Namespace root."},"index":{"type":"string"},"exclude":{"type":"array","items":{"type":"string"}},"media_types":{"type":"object","description":"Current manifest media types keyed by relative file path, including extensionless content identities.","additionalProperties":{"type":"string"}}}}} } },
+            "file": { "type": "string", "minLength": 1, "maxLength": 2048, "description": "A relative path inside the folder granted to this tool, such as builds/App-1.dmg." },
+            "name": { "type": "string", "minLength": 1, "maxLength": 128, "description": "The public download name that points to the immutable kept file." },
+            "remotePort": { "type": "integer", "minimum": 1, "maximum": 65535 },
+            "receptionistBinary": { "type": "string", "maxLength": 300 },
+            "connectionDiagnostics": { "type": "boolean" }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": ["name", "kept", "bytes", "blake3", "configured"],
+          "properties": {
+            "name": { "type": "string" },
+            "kept": { "type": "string" },
+            "bytes": { "type": "integer" },
+            "blake3": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "configured": { "type": "boolean" }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": ["read-a-folder", "resolve-current-user"],
+          "internet": true,
+          "max_run_ms": 1260000,
+          "workdir": "/opt/renew-a-tls-certificate",
+          "stdout": "json",
+          "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "publish", "/held/server-administration-key", {"fill": {"from": "task", "field": "grants.read-a-folder.folder"}}],
+          "stdin": { "fill": { "from": "input" } },
+          "files": {
+            "package_files": [
+              { "package": "renew-a-tls-certificate", "paths": ["do-work"], "at": "/opt/renew-a-tls-certificate" },
+              { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" },
+              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
+              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+            ]
+          },
+          "credential_mounts": [
+            { "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }
+          ]
+        },
+        "result_selector": "$",
+        "verify": [{ "kind": "needs-a-machine", "requires": "a rented Linux server the person administers, reached over SSH with the held administration key and pinned host key; tests use only a fake SSH runner", "proved_on": null }],
+        "needs": { "expected_seconds": 30, "network_egress": true },
         "maker": "maker:renew-a-tls-certificate",
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"]
@@ -381,7 +450,7 @@
           "stdout": "json",
           "argv": ["node", "/opt/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs", "host-test", "/held/server-administration-key"],
           "stdin": { "fill": { "from": "input" } },
-          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work", "test/tls-host-owner.test.py"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }] },
+          "files": { "package_files": [{ "package": "renew-a-tls-certificate", "paths": ["do-work", "test/tls-host-owner.test.py"], "at": "/opt/renew-a-tls-certificate" }, { "package": "administer-a-rented-host", "paths": ["do-work"], "at": "/opt/administer-a-rented-host" }, { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" }, { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }] },
           "credential_mounts": [{ "secret_name": "server-administration-ssh-key", "mount_path": "/held/server-administration-key" }]
         },
         "result_selector": "$",

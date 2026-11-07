@@ -27,6 +27,9 @@
     {
       "path": "tools/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
       "baseline_commit_message": "renew-a-tls-certificate, step one: the older owner's certificate owner and host owner, copied byte for byte before they are adapted"
+    },
+    {
+      "path": "tools/renew-a-tls-certificate/do-work/publish-download.py"
     }
   ],
   "preserve": [
@@ -46,7 +49,8 @@
     "the renewal schedule is a wake the person declares for tool:renew-a-tls-certificate, so the launchd supervisor and its installer (renewalLaunchAgent, installRenewal) are not moved",
     "the vault-shape action (metadata) is not moved: the engine names a held value by its vault name and the run reads only the named field (tokenField)",
     "the command is one Workshop run: one JSON request on standard input, one JSON answer as the last line; the older command (lines 96-128, a config file named in argv) and its product wiring (lines 1-13: the vault reader and the door rows reader) are not moved, so the source is lines 14-78, the owner's functions",
-    "certbot renew may run as a dry run against the CA's staging server (dry_run), which changes no certificate"
+    "certbot renew may run as a dry run against the CA's staging server (dry_run), which changes no certificate",
+    "2026-11-07: publishDownload uses the shared content-identity owner over the exact outgoing bytes instead of b3sum. Its server helper stages stdin, verifies complete length, compares actual retained bytes (including same-size collisions), serializes publications and changes only the pointer after a match; retained names are never overwritten. The computer row uses a relative file within read-a-folder plus resolve-current-user and the existing mounted administration role; direct CLI callers retain their absolute-path interface. No installed, mounted-credential or live publication proof is implied."
   ],
   "banned_substitutions": [
     "a credential in argv, a file the tool keeps or the answer",
@@ -62,6 +66,15 @@
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "test_refs": ["tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the real share exporter feeds host DATA and nginx for public JSON, pages, sitemap, media, changes and revocation", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs TLS command pins host and passes DNS token on private stdin, never argv or environment", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs public ingress keeps its own paths and forwards every other path to the engine, with normal upstream TLS verification", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs publishing keeps a file once under its own name and moves only the pointer; bad names never reach the host", "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the host owner is installed with its layout beside it, the layout first, holding only the facts the owner reads"]
+    "test_refs": [
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the real share exporter feeds host DATA and nginx for public JSON, pages, sitemap, media, changes and revocation",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs TLS command pins host and passes DNS token on private stdin, never argv or environment",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs public ingress keeps its own paths and forwards every other path to the engine, with normal upstream TLS verification",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs publishing keeps a file once under its own name and moves only the pointer; bad names never reach the host",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the host owner is installed with its layout beside it, the layout first, holding only the facts the owner reads",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs actual download publication preserves immutable bytes, retries identically and refuses same-size collisions before moving its pointer",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs a truncated incoming file and a retained symlink fail without moving existing public pointers; a complete retry recovers",
+      "tools/renew-a-tls-certificate/test/renew-a-tls-certificate.test.mjs the computer publication reads only a relative regular file within its granted real folder"
+    ]
   }
 }

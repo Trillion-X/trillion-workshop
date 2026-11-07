@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, readdirSync, readlinkSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { once } from 'node:events';
 import { writeShareFiles } from '../../write-public-share-files/do-work/write-share-files.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { tmpdir } from 'node:os';
-import { checkedTLS, hostCommand, publicProxy, publishDownload, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
+import { checkedTLS, hostCommand, publicProxy, publishDownload, grantedDownloadFile, installHostOwner, hostLayout, layoutFile, pinnedHost, heldValue } from '../do-work/renew-a-tls-certificate.mjs';
 import { administrationArguments, proxied } from '../../administer-a-rented-host/do-work/administration-arguments.mjs';
 
 // A made-up server: every fact below is the run's input, none is the tool's.
@@ -118,16 +118,95 @@ test('publishing keeps a file once under its own name and moves only the pointer
   const file = `${mkdtempSync(`${tmpdir()}/download-`)}/App-1.dmg`;
   writeFileSync(file, 'abc');
   const calls = [];
-  const run = (cmd, args, options) => { calls.push([cmd, args.at(-1), options?.input?.length]); return cmd === 'b3sum' ? `${'a'.repeat(64)}\n` : '3\n'; };
-  assert.deepEqual(publishDownload(c, file, 'App.dmg', { run }), { name: 'App.dmg', kept: 'App-1.dmg', bytes: 3, blake3: 'a'.repeat(64) });
-  const [cmd, script, sent] = calls.at(-1);
+  const run = (cmd, args, options) => { calls.push([cmd, args, options?.input?.length]); return '3\n'; };
+  assert.deepEqual(publishDownload(c, file, 'App.dmg', { run }), { name: 'App.dmg', kept: 'App-1.dmg', bytes: 3, blake3: makeHashCodeHexFromBytes(Buffer.from('abc')).slice(3) });
+  const [cmd, args, sent] = calls.at(-1);
   assert.equal(cmd, '/usr/bin/ssh'); assert.equal(sent, 3);
-  assert.ok(script.includes("if [ ! -f '/var/lib/public-downloads/App-1.dmg' ]"));
-  assert.ok(script.includes("ln -sfn 'App-1.dmg' '/var/lib/public-downloads/.App.dmg.next'; mv -T"));
-  assert.ok(script.includes("printf 'return 302 /download/%s;\\n' 'App.dmg' > '/var/lib/public-downloads/.default-download.conf.next'"));
+  assert.equal(calls.length, 1); // shared identity code needs no external b3sum
+  assert.deepEqual(args.slice(-4), [host.downloads, 'App-1.dmg', 'App.dmg', '3']);
+  assert.ok(args.includes('/usr/bin/python3'));
   for (const name of ["App.dmg'; rm -rf /", '../App.dmg', '', 'App-1.dmg']) assert.throws(() => publishDownload(c, file, name, { run: () => { throw new Error('reached host'); } }), /refused/);
-  const short = (cmd) => cmd === 'b3sum' ? 'x\n' : '2\n';
-  assert.throws(() => publishDownload(c, file, 'App.dmg', { run: short }), /different size/);
+  assert.throws(() => publishDownload(c, file, 'App.dmg', { run: () => '2\n' }), /different size/);
+});
+
+// Run the exact command SSH would execute in a local temporary host folder.
+// This exercises Python, shell quoting, real bytes, links, and atomic replaces;
+// it never reaches a real server, account, credential or public download.
+function localDownloadHost(_command, args, options) {
+  return execFileSync('/bin/sh', ['-c', args.slice(args.indexOf('/usr/bin/python3')).join(' ')], options);
+}
+
+test('the real download helper recovers pointers after a failed redirect and reports failed recovery as unknown', () => {
+  const result = spawnSync('/usr/bin/python3', [new URL('./publish-download.test.py', import.meta.url).pathname], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /Ran 4 tests/);
+});
+
+test('actual download publication preserves immutable bytes, retries identically and refuses same-size collisions before moving its pointer', t => {
+  const root = realpathSync(mkdtempSync(`${tmpdir()}/download-host-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const file = `${root}/App-1.dmg`, downloads = `${root}/public`;
+  writeFileSync(file, 'abc');
+  const request = { ...c, host: { ...host, downloads } };
+  const publish = () => publishDownload(request, file, 'App.dmg', { run: localDownloadHost });
+  const first = publish();
+  assert.equal(first.blake3, makeHashCodeHexFromBytes(readFileSync(`${downloads}/App.dmg`)).slice(3));
+  assert.equal(readFileSync(`${downloads}/App.dmg`, 'utf8'), 'abc');
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'App-1.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'return 302 /download/App.dmg;\n');
+  const inode = statSync(`${downloads}/App-1.dmg`).ino;
+  assert.deepEqual(publish(), first);
+  assert.equal(statSync(`${downloads}/App-1.dmg`).ino, inode);
+  writeFileSync(file, 'xyz'); // same length, different identity
+  assert.throws(publish, /not published/);
+  assert.equal(readFileSync(`${downloads}/App-1.dmg`, 'utf8'), 'abc');
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'App-1.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'return 302 /download/App.dmg;\n');
+  assert.deepEqual(readdirSync(downloads).sort(), ['.default-download.conf', '.publish-download.lock', 'App-1.dmg', 'App.dmg']);
+});
+
+test('a truncated incoming file and a retained symlink fail without moving existing public pointers; a complete retry recovers', t => {
+  const root = realpathSync(mkdtempSync(`${tmpdir()}/download-refusal-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const downloads = `${root}/public`, file = `${root}/App-2.dmg`;
+  mkdirSync(downloads);
+  writeFileSync(`${downloads}/Old.dmg`, 'old');
+  symlinkSync('Old.dmg', `${downloads}/App.dmg`);
+  writeFileSync(`${downloads}/.default-download.conf`, 'old config');
+  writeFileSync(file, 'abc');
+  const request = { ...c, host: { ...host, downloads } };
+  const truncated = (cmd, args, options) => localDownloadHost(cmd, args, { ...options, input: options.input.subarray(0, 2) });
+  assert.throws(() => publishDownload(request, file, 'App.dmg', { run: truncated }), /not published/);
+  assert.ok(!existsSync(`${downloads}/App-2.dmg`));
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'Old.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'old config');
+  writeFileSync(`${downloads}/App-2.dmg`, 'xyz'); // same-size retained collision must not select this name
+  assert.throws(() => publishDownload(request, file, 'App.dmg', { run: localDownloadHost }), /not published/);
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'Old.dmg');
+  assert.equal(readFileSync(`${downloads}/.default-download.conf`, 'utf8'), 'old config');
+  rmSync(`${downloads}/App-2.dmg`);
+  symlinkSync(file, `${downloads}/App-2.dmg`);
+  assert.throws(() => publishDownload(request, file, 'App.dmg', { run: localDownloadHost }), /not published/);
+  assert.equal(readlinkSync(`${downloads}/App.dmg`), 'Old.dmg');
+  rmSync(`${downloads}/App-2.dmg`);
+  publishDownload(request, file, 'App.dmg', { run: localDownloadHost });
+  assert.equal(readFileSync(`${downloads}/App.dmg`, 'utf8'), 'abc');
+  assert.ok(!readdirSync(downloads).some(name => name.startsWith('.publish-') && name !== '.publish-download.lock'));
+});
+
+test('the computer publication reads only a relative regular file within its granted real folder', t => {
+  const root = realpathSync(mkdtempSync(`${tmpdir()}/download-grant-`));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const folder = `${root}/granted`;
+  mkdirSync(folder);
+  writeFileSync(`${folder}/App-1.dmg`, 'abc');
+  writeFileSync(`${root}/outside.dmg`, 'secret');
+  symlinkSync(`${root}/outside.dmg`, `${folder}/escaped.dmg`);
+  assert.equal(grantedDownloadFile(folder, 'App-1.dmg'), `${folder}/App-1.dmg`);
+  for (const file of ['', '.', '..', '../outside.dmg', `${root}/outside.dmg`, 'escaped.dmg']) {
+    assert.throws(() => grantedDownloadFile(folder, file), /outside the granted folder/);
+  }
+  assert.throws(() => grantedDownloadFile(undefined, 'App-1.dmg'), /granted folder/);
 });
 
 test('the host owner is installed with its layout beside it, the layout first, holding only the facts the owner reads', () => {
