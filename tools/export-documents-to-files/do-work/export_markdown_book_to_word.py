@@ -79,6 +79,21 @@ def _is_table_separator(line: str) -> bool:
     return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c.replace(" ", "")) for c in cells)
 
 
+def _fence_start(line: str):
+    match = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+    if match and not (match.group(1)[0] == "`" and "`" in match.group(2)):
+        return match
+    return None
+
+
+def _code_indent(line: str) -> str | None:
+    if line.startswith("    "):
+        return line[4:]
+    if line.startswith("\t"):
+        return line[1:]
+    return None
+
+
 def parse_markdown(text: str) -> ParsedBook:
     """Parse the Markdown subset used by book manuscripts and general prose."""
     lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
@@ -91,7 +106,32 @@ def parse_markdown(text: str) -> ParsedBook:
         if not line:
             i += 1
             continue
-        heading = re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", line)
+        fence = _fence_start(raw)
+        if fence:
+            marker = fence.group(1)
+            indent = len(raw) - len(raw.lstrip(" "))
+            closing = re.compile(r"^ {0,3}" + re.escape(marker[0]) + "{" + str(len(marker)) + r",}\s*$")
+            literal = []
+            i += 1
+            while i < len(lines) and not closing.fullmatch(lines[i]):
+                # Markdown removes only the opening fence's indentation.
+                remove = min(indent, len(lines[i]) - len(lines[i].lstrip(" ")))
+                literal.append(lines[i][remove:])
+                i += 1
+            blocks.append(Block("code", "\n".join(literal)))
+            i += int(i < len(lines))
+            continue
+        if _code_indent(raw) is not None:
+            literal = []
+            while i < len(lines) and (not lines[i].strip() or _code_indent(lines[i]) is not None):
+                value = _code_indent(lines[i])
+                literal.append(value if value is not None else "")
+                i += 1
+            while literal and not literal[-1].strip():
+                literal.pop()
+            blocks.append(Block("code", "\n".join(literal)))
+            continue
+        heading = re.match(r"^(#{1,6})\s+(.+?)(?:\s+#+)?\s*$", line)
         if heading:
             level, value = len(heading.group(1)), heading.group(2).strip()
             if not title and level == 1:
@@ -104,14 +144,14 @@ def parse_markdown(text: str) -> ParsedBook:
             continue
         if line.startswith("|") and i + 1 < len(lines) and _is_table_separator(lines[i + 1].strip()):
             header = _split_table_row(line)
+            if len(_split_table_row(lines[i + 1])) != len(header):
+                raise ValueError(f"Table separator at line {i + 2} does not match the header cell count")
             rows = [header]
             i += 2
             while i < len(lines) and lines[i].strip().startswith("|"):
                 row = _split_table_row(lines[i])
-                if len(row) < len(header):
-                    row.extend([""] * (len(header) - len(row)))
-                elif len(row) > len(header):
-                    row = row[:len(header) - 1] + [" | ".join(row[len(header) - 1:])]
+                if len(row) != len(header):
+                    raise ValueError(f"Table row at line {i + 1} has {len(row)} cells; expected {len(header)}")
                 rows.append(row)
                 i += 1
             blocks.append(Block("table", rows=rows))
@@ -142,7 +182,7 @@ def parse_markdown(text: str) -> ParsedBook:
         i += 1
         while i < len(lines) and lines[i].strip():
             candidate = lines[i].strip()
-            if (re.match(r"^#{1,6}\s", candidate) or candidate.startswith("|")
+            if (_fence_start(lines[i]) or re.match(r"^#{1,6}\s", candidate) or candidate.startswith("|")
                     or re.match(r"^(?:[-*+]\s+|\d+[.)]\s+|>)", candidate)):
                 break
             paragraph.append(candidate)
@@ -358,6 +398,7 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
         raise ValueError("The source snapshot is missing or invalid; export remains blocked") from None
     if parse_markdown(snapshot_text) != parsed:
         raise ValueError("Parsed content does not match the source snapshot; export remains blocked")
+    _check(parsed, snapshot_text, report=False)
     from writing_gate import enforce_writing_policy
     gate_receipt = enforce_writing_policy(source_path, expected_bytes=source_bytes,
                                           settings=settings, checks_receipt=checks_receipt)
@@ -396,6 +437,7 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
     body_start.paragraph_format.keep_with_next = True
     _bookmark(body_start, "BookBody", 3)
     heading_ids = {id(heading): index + 4 for index, heading in enumerate(headings)}
+    code_index = 0
     for block in parsed.blocks:
         if block.kind == "heading":
             p = doc.add_paragraph(style=f"Heading {block.level}")
@@ -412,6 +454,14 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
         elif block.kind == "quote":
             p = doc.add_paragraph(style="Quote" if "Quote" in [s.name for s in doc.styles] else "Normal")
             _inline(p, block.text)
+        elif block.kind == "code":
+            code_index += 1
+            p = doc.add_paragraph(style="Normal")
+            p.paragraph_format.space_after = Pt(6)
+            run = p.add_run(block.text)
+            run.font.name = "Menlo"
+            run.font.size = Pt(9)
+            _bookmark(p, f"BookCode{code_index}", len(headings) + 3 + code_index)
         elif block.kind == "list":
             ordered_instance = _new_numbering_instance(doc, ordered_num) if any(x[2] for x in block.items) else ordered_num
             for depth, value, ordered in block.items:
@@ -528,6 +578,8 @@ def verify_output(parsed: ParsedBook, output_path: Path) -> None:
     for block in parsed.blocks:
         if block.kind in ("heading", "paragraph", "quote"):
             expected_body.append(_plain_inline(block.text))
+        elif block.kind == "code":
+            expected_body.append(block.text)
         elif block.kind == "list":
             expected_body.extend(_plain_inline(value) for _, value, _ in block.items)
         elif block.kind == "table":
@@ -535,6 +587,15 @@ def verify_output(parsed: ParsedBook, output_path: Path) -> None:
     compact = lambda text: re.sub(r"\s+", "", text)
     if compact("".join(actual_body)) != compact("".join(expected_body)):
         raise ValueError("Saved DOCX body differs from source prose, headings, lists or tables")
+    # General prose parity ignores layout whitespace; literal diagrams cannot.
+    from docx.text.paragraph import Paragraph
+    actual_code = []
+    for child in body_children[body_start_index + 1 :]:
+        if any((el.get(qn("w:name")) or "").startswith("BookCode")
+               for el in child.iter(qn("w:bookmarkStart"))):
+            actual_code.append(Paragraph(child, readback._body).text)
+    if actual_code != [block.text for block in parsed.blocks if block.kind == "code"]:
+        raise ValueError("Saved DOCX literal code text or indentation differs from Markdown source")
     if len(readback.tables) != len(parsed.tables):
         raise ValueError(f"Native table readback mismatch: {len(readback.tables)} != {len(parsed.tables)}")
     for index, (actual, expected) in enumerate(zip(readback.tables, parsed.tables), start=1):
@@ -544,65 +605,144 @@ def verify_output(parsed: ParsedBook, output_path: Path) -> None:
             raise ValueError(f"Table {index} cell text differs from Markdown source")
 
 
-def _check(parsed: ParsedBook, source: str) -> None:
+def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
     # Compare visible words and punctuation in source order, including table
     # cells. Markdown styling and layout whitespace are ignored.
     heading_texts = [b.text for b in parsed.headings]
     table_row_count = sum(len(t.rows) for t in parsed.tables)
     table_cell_count = sum(len(row) for t in parsed.tables for row in t.rows)
-    normalized_text = [parsed.title]
+    actual_parts = [_plain_inline(parsed.title)]
     for block in parsed.blocks:
-        if block.kind in ("heading", "paragraph", "quote"):
-            normalized_text.append(block.text)
+        if block.kind == "code":
+            actual_parts.append(block.text)
+        elif block.kind in ("heading", "paragraph", "quote"):
+            actual_parts.append(_plain_inline(block.text))
         elif block.kind == "list":
-            normalized_text.extend(value for _, value, _ in block.items)
+            actual_parts.extend(_plain_inline(value) for _, value, _ in block.items)
         elif block.kind == "table":
-            normalized_text.extend(cell for row in block.rows for cell in row)
-    actual = " ".join(_plain_inline(value) for value in normalized_text)
+            actual_parts.extend(_plain_inline(cell) for row in block.rows for cell in row)
+    actual = " ".join(actual_parts)
     expected: list[str] = []
     source_headings: list[str] = []
     source_tables: list[list[list[str]]] = []
-    active_table: list[list[str]] | None = None
+    source_code: list[str] = []
     has_title = False
-    for line in source.replace("\r\n", "\n").replace("\r", "\n").split("\n"):
+    lines = source.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    prose: list[str] = []
+    def flush():
+        if prose:
+            expected.append(_plain_inline(" ".join(prose)))
+            prose.clear()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
         stripped = line.strip()
+        i += 1
         if not stripped:
-            active_table = None
+            flush()
             continue
-        if stripped.startswith("|"):
-            if _is_table_separator(stripped):
-                continue
-            if active_table is None:
-                active_table = []
-                source_tables.append(active_table)
-            source_row = _split_table_row(stripped)
-            active_table.append(source_row)
-            expected.extend(source_row)
+        # This source scanner does not call the block parser or its fence and
+        # indentation helpers: a broken parser must not define its own oracle.
+        fence = re.match(r"^( {0,3})(`{3,}|~{3,})([^\n]*)$", line)
+        if fence and fence[2][0] == "`" and "`" in fence[3]:
+            fence = None
+        if fence:
+            flush()
+            literal = []
+            while i < len(lines):
+                candidate = lines[i]
+                closing = candidate.lstrip(" ")
+                if (len(candidate) - len(closing) <= 3 and closing.rstrip()
+                        and set(closing.rstrip()) == {fence[2][0]}
+                        and len(closing.rstrip()) >= len(fence[2])):
+                    i += 1
+                    break
+                remove = 0
+                while remove < len(fence[1]) and candidate.startswith(" " * (remove + 1)):
+                    remove += 1
+                literal.append(candidate[remove:])
+                i += 1
+            value = "\n".join(literal)
+            source_code.append(value)
+            expected.append(value)
+            continue
+        if not prose and (line.startswith("    ") or line.startswith("\t")):
+            literal = [line[1:] if line.startswith("\t") else line[4:]]
+            while i < len(lines):
+                candidate = lines[i]
+                if candidate.startswith("\t"):
+                    literal.append(candidate[1:])
+                elif candidate.startswith("    "):
+                    literal.append(candidate[4:])
+                elif not candidate.strip():
+                    literal.append("")
+                else:
+                    break
+                i += 1
+            while literal and not literal[-1].strip():
+                literal.pop()
+            value = "\n".join(literal)
+            source_code.append(value)
+            expected.append(value)
+            continue
+        if stripped.startswith("|") and i < len(lines) and _is_table_separator(lines[i]):
+            flush()
+            rows = [_split_table_row(stripped)]
+            i += 1
+            while i < len(lines) and lines[i].strip().startswith("|"):
+                rows.append(_split_table_row(lines[i]))
+                i += 1
+            source_tables.append(rows)
+            expected.extend(_plain_inline(cell) for row in rows for cell in row)
+            continue
+        heading_match = re.match(r"^(#{1,6})\s+(.+?)(?:\s+#+)?\s*$", stripped)
+        if heading_match:
+            flush()
+            if not (not has_title and len(heading_match[1]) == 1):
+                source_headings.append(heading_match[2])
+            has_title = has_title or len(heading_match[1]) == 1
+            expected.append(_plain_inline(heading_match[2]))
+        elif re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", stripped):
+            flush()
+            expected.append(_plain_inline(re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)))
+            # A nested item belongs to the uninterrupted list, even at four
+            # spaces. At a new block boundary that same indent remains code.
+            while i < len(lines) and re.match(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)", lines[i]):
+                value = re.sub(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)", "", lines[i]).strip()
+                expected.append(_plain_inline(value))
+                i += 1
+        elif stripped.startswith("> ") or stripped == ">":
+            flush()
+            quote = [re.sub(r"^\s*> ?", "", line).strip()]
+            while i < len(lines) and (lines[i].strip().startswith(">") or not lines[i].strip()):
+                quote.append(re.sub(r"^\s*> ?", "", lines[i]).strip())
+                i += 1
+            expected.append(_plain_inline(" ".join(v for v in quote if v)))
         else:
-            heading_match = re.match(r"^(#{1,6})\s+(.+?)\s*#*\s*$", stripped)
-            if heading_match:
-                if not (not has_title and len(heading_match.group(1)) == 1):
-                    source_headings.append(heading_match.group(2))
-                has_title = has_title or len(heading_match.group(1)) == 1
-                stripped = heading_match.group(2)
-            else:
-                active_table = None
-            stripped = re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+|>\s*)", "", stripped)
-            expected.append(stripped)
+            if stripped.startswith("|"):
+                flush()
+            prose.append(stripped)
+    flush()
+    if not has_title:
+        expected.insert(0, "Manuscript")
     if [_plain_inline(h) for h in source_headings] != [_plain_inline(h) for h in heading_texts]:
         raise ValueError("Heading text or order differs from Markdown source")
     if source_tables != [table.rows for table in parsed.tables]:
         raise ValueError("Table count, row count, or cell boundaries differ from Markdown source")
-    expected_text = " ".join(_plain_inline(value) for value in expected)
+    if source_code != [block.text for block in parsed.blocks if block.kind == "code"]:
+        raise ValueError("Literal code text or indentation differs from Markdown source")
+    expected_text = " ".join(expected)
     collapse = lambda value: re.sub(r"\s+", " ", value).strip()
     if collapse(actual) != collapse(expected_text):
         raise ValueError("Parsed visible text does not match Markdown source text")
-    print(f"Title: {parsed.title}")
-    print(f"Headings: {len(heading_texts)}")
-    print(f"Native tables: {len(parsed.tables)} ({table_row_count} rows, {table_cell_count} cells)")
-    print(f"Paragraphs: {sum(b.kind in ('paragraph', 'quote') for b in parsed.blocks)}")
-    print(f"Lists: {sum(len(b.items) for b in parsed.blocks if b.kind == 'list')} items")
-    print(f"Text readback: {len(actual)} characters; exact visible-text parity passed")
+    if report:
+        print(f"Title: {parsed.title}")
+        print(f"Headings: {len(heading_texts)}")
+        print(f"Native tables: {len(parsed.tables)} ({table_row_count} rows, {table_cell_count} cells)")
+        print(f"Paragraphs: {sum(b.kind in ('paragraph', 'quote') for b in parsed.blocks)}")
+        print(f"Lists: {sum(len(b.items) for b in parsed.blocks if b.kind == 'list')} items")
+        print(f"Literal code blocks: {len(source_code)}; exact text and indentation parity passed")
+        print(f"Text readback: {len(actual)} characters; exact visible-text parity passed")
 
 
 TOOL_FOLDER = "export-documents-to-files"

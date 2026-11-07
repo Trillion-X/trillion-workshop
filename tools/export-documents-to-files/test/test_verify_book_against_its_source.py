@@ -60,6 +60,22 @@ class ContentLossTests(unittest.TestCase):
                 self.assertFalse(result["tables"][0]["word_boundary_inventory_match"])
                 self.assertFalse(result["passed"])
 
+    def test_literal_code_is_compared_without_inline_markup_projection(self):
+        source = self.builder.parse_markdown(
+            "# Fixture\n\nBefore.\n\n```diagram\n  **raw_name**\n    child → leaf\n```\n\nAfter.\n")
+        literal = "Before.\n  **raw_name**\n    child → leaf\nAfter."
+        self.assertTrue(verifier._compare_pdf_body(source, self.builder, literal)["passed"])
+        for bad in (literal.replace("**", ""), literal.replace("child", ""),
+                    literal.replace("→", ""), literal.replace("raw_name", "rawname")):
+            with self.subTest(bad=bad):
+                self.assertFalse(verifier._compare_pdf_body(source, self.builder, bad)["passed"])
+
+    def test_old_code_omission_cannot_pass_pdf_consumer(self):
+        source = self.builder.parse_markdown("# Fixture\n\nBefore.\n\n```\nkeep_me\n```\n\nAfter.\n")
+        result = verifier._compare_pdf_body(source, self.builder, "Before. After.")
+        self.assertFalse(result["passed"])
+        self.assertFalse(result["prose_ordered_match"])
+
 
 class PrebodyPageTests(unittest.TestCase):
     @staticmethod
@@ -238,6 +254,28 @@ class ScopedCMapTests(unittest.TestCase):
 
 
 class CachedPageFieldTests(unittest.TestCase):
+    def test_native_docx_consumer_reads_literal_code_and_rejects_indent_loss(self):
+        builder = verifier._load_builder()
+        source_bytes = b"# Fixture\n\nBefore.\n\n```\n  **raw_name**\n\tchild\n```\n\nAfter.\n"
+        parsed = builder.parse_markdown(source_bytes.decode())
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            template, output, source = root / "template.docx", root / "book.docx", root / "fixture.md"
+            Document().save(template)
+            source.write_bytes(source_bytes)
+            from writing_gate import _hash
+            builder.render_document(parsed, template, output, source_path=source, source_bytes=source_bytes,
+                                    settings={"role": "comparison", "source_blake3": _hash(source)})
+            result = verifier._check_docx(output, parsed, builder)
+            self.assertEqual(result["literal_code_blocks"], 1)
+            self.assertTrue(result["literal_code_text_and_indentation_match"])
+            doc = Document(output)
+            code = next(p for p in doc.paragraphs if p.text.startswith("  **raw_name**"))
+            code.text = code.text.lstrip()
+            doc.save(output)
+            with self.assertRaisesRegex(ValueError, "literal code"):
+                verifier._check_docx(output, parsed, builder)
+
     def test_numeric_heading_label_does_not_change_cached_page(self):
         builder = verifier._load_builder()
         parsed = builder.parse_markdown(

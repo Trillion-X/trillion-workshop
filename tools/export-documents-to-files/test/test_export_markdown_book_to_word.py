@@ -5,6 +5,9 @@ settings object of a made-up book's row instead of a .writing-policy.json beside
 """
 
 import sys
+import contextlib
+import copy
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -201,6 +204,138 @@ class InlineLiteralTests(BodyReadbackTests):
         doc.save(output)
         with self.assertRaisesRegex(ValueError, "Saved DOCX body differs"):
             builder.verify_output(parsed, output)
+
+
+class ParserFidelityTests(unittest.TestCase):
+    def check(self, source, parsed=None):
+        parsed = parsed or builder.parse_markdown(source)
+        with contextlib.redirect_stdout(io.StringIO()):
+            builder._check(parsed, source)
+        return parsed
+
+    def test_fence_is_a_literal_block_and_does_not_consume_adjacent_prose(self):
+        source = ("# Fixture\n\nBefore.\n```text\n  root_name\n    |-- **literal**\n"
+                  "\t+-- `tick` _raw_\n\n# code heading\n- code item\n"
+                  "| code | row |\n|---|---|\n```\nAfter.\n")
+        parsed = self.check(source)
+        self.assertEqual([b.kind for b in parsed.blocks], ["paragraph", "code", "paragraph"])
+        self.assertEqual(parsed.blocks[1].text,
+                         "  root_name\n    |-- **literal**\n\t+-- `tick` _raw_\n\n"
+                         "# code heading\n- code item\n| code | row |\n|---|---|")
+        self.assertEqual(parsed.blocks[-1].text, "After.")
+
+    def test_matching_fence_character_length_and_indentation(self):
+        source = "# Fixture\n\n  ~~~~diagram\n    left\n  ~~~\n  ```\n  right  \n  ~~~~~\n"
+        parsed = self.check(source)
+        self.assertEqual(parsed.blocks[0].text, "  left\n~~~\n```\nright  ")
+
+    def test_unclosed_fence_keeps_literal_text_to_end(self):
+        parsed = self.check("# Fixture\n\n```\n **raw**\n  end")
+        self.assertEqual(parsed.blocks[0].text, " **raw**\n  end")
+
+    def test_indented_code_retains_internal_indentation_and_blank_lines(self):
+        parsed = self.check("# Fixture\n\n    alpha_name\n        beta\n      \n\t\tend\n      \nAfter.\n")
+        self.assertEqual(parsed.blocks[0].text, "alpha_name\n    beta\n  \n\tend")
+        self.assertEqual(parsed.blocks[1].text, "After.")
+
+    def test_three_level_list_between_literal_blocks_retains_list_structure(self):
+        parsed = self.check("# Fixture\n\n```\n  before\n```\n\n"
+                            "- Outer\n  - Middle\n    - Inner\n\n~~~\n  after\n~~~\n")
+        self.assertEqual([block.kind for block in parsed.blocks], ["code", "list", "code"])
+        self.assertEqual(parsed.blocks[1].items,
+                         [(0, "Outer", False), (1, "Middle", False), (2, "Inner", False)])
+        self.assertEqual([parsed.blocks[0].text, parsed.blocks[2].text], ["  before", "  after"])
+
+    def test_four_space_list_marker_at_block_boundary_is_literal_code(self):
+        parsed = self.check("# Fixture\n\n    - **literal marker**\n        child_name\n\n"
+                            "- Outer\n  - Middle\n    - Inner\n")
+        self.assertEqual([block.kind for block in parsed.blocks], ["code", "list"])
+        self.assertEqual(parsed.blocks[0].text, "- **literal marker**\n    child_name")
+        self.assertEqual(parsed.blocks[1].items,
+                         [(0, "Outer", False), (1, "Middle", False), (2, "Inner", False)])
+
+    def test_soft_line_wrap_does_not_break_inline_emphasis(self):
+        parsed = self.check("# Fixture\n\nA **wrapped\nlabel** with field_name.\n")
+        self.assertEqual(builder._plain_inline(parsed.blocks[0].text), "A wrapped label with field_name.")
+
+    def test_literal_trailing_heading_hash_is_not_a_closing_marker(self):
+        parsed = self.check("# Fixture\n\n## Use C#\n\n### Closing marker ###\n")
+        self.assertEqual([h.text for h in parsed.headings], ["Use C#", "Closing marker"])
+
+    def test_pipe_line_without_separator_is_ordinary_text(self):
+        parsed = self.check("# Fixture\n\n| literal | line |\nNext line.\n")
+        self.assertEqual(parsed.tables, [])
+
+    def test_ragged_table_is_refused_without_merging_or_padding_cells(self):
+        for row in ("| only one |", "| one | two | three |"):
+            with self.subTest(row=row), self.assertRaisesRegex(ValueError, "Table row"):
+                builder.parse_markdown("# Fixture\n\n| A | B |\n|---|---|\n" + row + "\n")
+        with self.assertRaisesRegex(ValueError, "Table separator"):
+            builder.parse_markdown("# Fixture\n\n| A | B |\n|---|\n")
+
+    def test_source_check_independently_rejects_code_loss_and_indent_change(self):
+        source = "# Fixture\n\n```text\n  **raw**\n    child_name\n```\n"
+        original = self.check(source)
+        for change in ("drop", "indent", "markup", "kind"):
+            parsed = copy.deepcopy(original)
+            if change == "drop":
+                parsed.blocks.clear()
+            elif change == "indent":
+                parsed.blocks[0].text = parsed.blocks[0].text.replace("    child", "  child")
+            elif change == "markup":
+                parsed.blocks[0].text = parsed.blocks[0].text.replace("**", "")
+            else:
+                parsed.blocks[0].kind = "paragraph"
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError, "Literal code"):
+                self.check(source, parsed)
+
+    def test_source_check_rejects_table_boundary_and_prose_loss(self):
+        source = "# Fixture\n\nExact prose.\n\n| A | B |\n|---|---|\n| one | two |\n"
+        original = self.check(source)
+        merged = copy.deepcopy(original)
+        merged.tables[0].rows[1] = ["one two", ""]
+        with self.assertRaisesRegex(ValueError, "cell boundaries"):
+            self.check(source, merged)
+        changed = copy.deepcopy(original)
+        changed.blocks[0].text = "Exactprose."
+        with self.assertRaisesRegex(ValueError, "visible text"):
+            self.check(source, changed)
+
+
+class LiteralCodeReadbackTests(BodyReadbackTests):
+    def test_three_level_list_keeps_native_depth_between_literal_blocks(self):
+        parsed, output = self.render("# Fixture\n\n```\n  before\n```\n\n"
+                                     "- Outer\n  - Middle\n    - Inner\n\n~~~\n  after\n~~~\n")
+        doc = Document(output)
+        items = [p for p in doc.paragraphs if p.text in ("Outer", "Middle", "Inner")]
+        self.assertEqual([p.text for p in items], ["Outer", "Middle", "Inner"])
+        self.assertEqual([p._p.xpath("./w:pPr/w:numPr/w:ilvl/@w:val")[0] for p in items],
+                         ["0", "1", "2"])
+        self.assertEqual([p.text for p in doc.paragraphs if p.text in ("  before", "  after")],
+                         ["  before", "  after"])
+        builder.verify_output(parsed, output)
+
+    def test_saved_docx_retains_exact_literal_text(self):
+        source = ("# Fixture\n\n```text\n  **raw** _name_ `tick`\n\t+-- child\n\n  end  \n```\n\n"
+                  "~~~\n  **raw** _name_ `tick`\n\t+-- child\n\n  end  \n~~~\n")
+        parsed, output = self.render(source)
+        paragraphs = [p for p in Document(output).paragraphs if "**raw**" in p.text]
+        self.assertEqual(len(paragraphs), 2)
+        self.assertEqual([p.text for p in paragraphs], [b.text for b in parsed.blocks])
+        self.assertTrue(all(r.font.name == "Menlo" for p in paragraphs for r in p.runs))
+        builder.verify_output(parsed, output)
+
+    def test_code_whitespace_loss_is_rejected_after_save(self):
+        for mutation in ("indent", "newline", "tab", "trailing"):
+            parsed, output = self.render("# Fixture\n\n```\n  root\n\tchild  \n```\n", mutation + ".docx")
+            doc = Document(output)
+            paragraph = next(p for p in doc.paragraphs if p.text.startswith("  root"))
+            replacements = {"indent": ("  root", "root"), "newline": ("\n", " "),
+                            "tab": ("\t", " "), "trailing": ("child  ", "child")}
+            paragraph.text = paragraph.text.replace(*replacements[mutation])
+            doc.save(output)
+            with self.subTest(mutation=mutation), self.assertRaisesRegex(ValueError, "literal code"):
+                builder.verify_output(parsed, output)
 
 
 if __name__ == "__main__":

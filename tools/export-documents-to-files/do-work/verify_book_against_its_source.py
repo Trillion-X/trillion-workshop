@@ -72,6 +72,8 @@ def _load_builder():
 
 
 def _block_text(block, builder) -> str:
+    if block.kind == "code":
+        return block.text
     if block.kind in ("heading", "paragraph", "quote"):
         return builder._plain_inline(block.text)
     if block.kind == "list":
@@ -350,6 +352,8 @@ def _check_docx(path: Path, parsed, builder, page_map: dict[str, int] | None = N
         "table_rows": sum(len(table.rows) for table in doc.tables),
         "table_cells": table_cell_count,
         "table_cell_order_match": True,
+        "literal_code_blocks": sum(block.kind == "code" for block in parsed.blocks),
+        "literal_code_text_and_indentation_match": True,
         "contents_page_fields": len(cached),
         "cached_page_mismatches": cache_mismatches,
         "page_field_present": True,
