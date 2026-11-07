@@ -1,5 +1,5 @@
 {
- "_what": "What the vendor tables returned before they became data rows (the old code tables: src/fixed-oauth-clients.json clients, computer/hear-a-link.json fetchers, computer/speak.json programs and engines, computer/local-models.json chat, jobs, classify and offer, records/post-place-records.json payloads, records/cloud-files-origins.json and cloud-files-origin-settings.json records), frozen on 2026-10-08 from Trillion origin/main 985ff157e. test/vendor-table-rows.test.mjs holds the new reader to these values, so a change to a vendor table is a deliberate edit of this file too. Edited 2026-10-14: the link readers' list command and today's label, and the site-articles job.",
+ "_what": "What the vendor tables returned before they became data rows (the old code tables: src/fixed-oauth-clients.json clients, computer/hear-a-link.json fetchers, computer/speak.json programs and engines, computer/local-models.json chat, jobs, classify and offer, records/post-place-records.json payloads, records/cloud-files-origins.json and cloud-files-origin-settings.json records), frozen on 2026-10-08 from Trillion origin/main 985ff157e. test/vendor-table-rows.test.mjs holds the new reader to these values, so a change to a vendor table is a deliberate edit of this file too. Edited 2026-10-14: the link readers' list command and today's label, and the site-articles job. Edited 2026-11-07 for the tables the Workshop ships (tools/audio-transcription/read-data/hear-a-link.json, tools/generate-speech/read-data/speak.json, tools/run-on-a-persons-computer/local-models.json): the yt-dlp row has no list command (bea36b2e carried info, captions and sound only); the mlx-audio program runs ../do-work/speak-with-mlx.py once; the engines' _measured notes are kept with the old records in tools/generate-speech/from-old-trillion/records/speech-engine-records.json; and the dictation-polish and meeting-notes jobs.",
  "oauth_clients": [
   {
    "clientId": "muse",
@@ -45,16 +45,6 @@
     "--skip-download",
     "--dump-single-json",
     "--no-playlist",
-    "{url}"
-   ],
-   "list": [
-    "yt-dlp",
-    "--no-update",
-    "--no-warnings",
-    "--js-runtimes",
-    "node:{node}",
-    "--flat-playlist",
-    "--dump-single-json",
     "{url}"
    ],
    "captions": [
@@ -114,7 +104,8 @@
    ],
    "run": [
     "python3",
-    "{here}/speak-with-mlx.py"
+    "{here}/../do-work/speak-with-mlx.py",
+    "once"
    ]
   }
  ],
@@ -124,8 +115,7 @@
    "label": "Qwen3-TTS",
    "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16",
    "takes": "reference",
-   "produced_by": "Qwen3-TTS 1.7B on this computer",
-   "_measured": "2026-10-07 on an M5 Max at load average about 36: a 7.5 s sentence in a cloned voice took 9.6-12.7 s with the model loaded (26 s the first time); streamed, its first sound came after 0.54 s at a real-time factor of 0.95. Cloned from a reference that ends on a sentence end, every take transcribed word for word."
+   "produced_by": "Qwen3-TTS 1.7B on this computer"
   },
   {
    "id": "kokoro",
@@ -133,8 +123,7 @@
    "model": "mlx-community/Kokoro-82M-bf16",
    "takes": "speaker",
    "lang_code": "a",
-   "produced_by": "Kokoro 82M on this computer",
-   "_measured": "2026-10-07 on the same Mac: an 8.2 s sentence took 0.63-1.6 s with the model loaded (real-time factor 0.08-0.2, about 16-20 s the first time), word for word, no clipping."
+   "produced_by": "Kokoro 82M on this computer"
   }
  ],
  "local_chat": [
@@ -213,6 +202,26 @@
    ],
    "most_tokens": 512
   },
+  "dictation-polish": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 400,
+   "timeout_seconds": 25,
+   "response_format": {
+    "type": "json_object"
+   }
+  },
+  "meeting-notes": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 1500,
+   "timeout_seconds": 60,
+   "response_format": {
+    "type": "json_object"
+   }
+  },
   "site-articles": {
    "models": [
     "ollama-gemma3-4b"
@@ -251,7 +260,7 @@
    "model": "qwen2.5:14b-instruct",
    "job": "Careful answers, and telling requests from room chatter",
    "min_memory_gb": 16,
-   "size_gb": 9.0
+   "size_gb": 9
   }
  ],
  "post_places": [
