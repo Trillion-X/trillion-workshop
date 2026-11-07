@@ -18,6 +18,16 @@
   ],
   "capabilities": [
     {
+      "capability": "provide shared rendering and interaction primitives for screens, including controls, loading marks, record views and reusable motion",
+      "owner": ["tools/ui/"],
+      "entry": "tools/ui/part.json",
+      "evidence": "The existing shared UI library is exposed by part.json, index.ts and declared-props.json; moved-from.json records its original modules. This declaration covers the existing library and its provenance receipts.",
+      "distinct_from": [
+        { "job": "lay out tabs, panes, the sidebar and shared controls", "why": "That source capability composes the application shell and navigation. This owner supplies the reusable rendering and interaction components those composed surfaces import." },
+        { "job": "turn a look's colour, size and font tokens into concrete values and the stylesheet a document carries, with its font faces", "why": "That owner resolves visual tokens and fonts; this library supplies components and interaction behavior that consume those styles." }
+      ]
+    },
+    {
       "capability": "keep lists of rows with my own fields and look at them as a table, board, gallery, outline, timeline or tree; edit a cell in place, paste rows from a spreadsheet, see a field's history, and approve or decline changes my AI proposed",
       "owner": ["tools/keep-lists-of-rows/"],
       "entry": "tools/keep-lists-of-rows/part.json",
