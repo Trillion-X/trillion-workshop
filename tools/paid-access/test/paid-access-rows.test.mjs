@@ -137,12 +137,13 @@ test('the sample runs answer as the rows say, with no records at all', async () 
   }
 });
 
-test('the rows read payments and write nothing but the sealed file\'s record, and no row holds a key or a person', () => {
+test('the rows read payments and write only paid-file records or access grants, and no row holds a key or a person', () => {
   const all = rows.records.map(item => item.payload);
   for (const row of all) {
     for (const right of row.invoke.records?.rights ?? []) {
       const writes = right.operations.some(operation => operation === 'records:write');
-      assert.ok(!writes || (row.id === 'tool:seal-a-paid-file' && right.kind === 'paid-file'), `${row.id} writes only the sealed file's record`);
+      const mayWrite = (row.id === 'tool:seal-a-paid-file' && right.kind === 'paid-file') || (row.id === 'tool:grant-paid-access-to-people' && right.kind === 'access-grant');
+      assert.ok(!writes || mayWrite, `${row.id} writes only paid-file or access-grant records`);
     }
     for (const mount of row.invoke.credential_mounts ?? []) assert.equal(mount.secret_name, 'paid-files-key');
     assert.doesNotMatch(JSON.stringify(row), /\b(?:sk|rk|whsec)_[A-Za-z0-9]/);
