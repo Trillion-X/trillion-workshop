@@ -1,0 +1,52 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECISION-RECORDS-IN-PLACE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that grew this file most since the rules began: a5b0db298206dc92fdb1aac1c6ad7d77ddbb734f",
+  "message_multihash": "1f:8c0edf6e7f19004d5b88383cb0e6fee70dd03617de23840b758ad3815fede464",
+  "quote": "decide-with-a-method: lay a root's largest fields apart when the root alone is over record_bytes"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+   "path": "tools/decide-with-a-method/read-data/decision-records.mjs",
+   "multihash": "1f:0c37f736fba8e9a429ad0eb750e3a9b79c15d3bace2bf6fc5e0c87158c602a50",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/decide-with-a-method/read-data/decision-records.mjs"
+  }
+ ],
+ "preserve": [
+  "the file's own lines from before the port rules: tools/decide-with-a-method/read-data/decision-records.mjs kept 80.4% of its meaningful lines at e854b028bb when this contract was written"
+ ],
+ "allowed_deltas": [
+  "a5b0db2982 (+62): decide-with-a-method: lay a root's largest fields apart when the root alone is over record_bytes",
+  "3eaae0d8d2 (+54): decide-with-a-method: the join of a laid-apart decision is one pure synchronous function, so a reader that reads synchronously calls it instead of copying it",
+  "ed92f87b79 (+29): tool:end-a-decision: size laid-apart parts and writes by what the door can make of them, so a 67 KB evidence claim ends",
+  "3ffbb5e5be (+21): decide-with-a-method: of two answers to one step sent at once, keep the first and refuse the second",
+  "0f97066858 (+3): decide-with-a-method: decision-records imports its settings instead of reading them from disk, so the join also runs where the file is bundled"
+ ],
+ "banned_substitutions": [
+  "a second file doing this file's job beside it",
+  "another owner's job rewritten into this file instead of moved"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-03T09:35:50Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0c37f736fba8e9a429ad0eb750e3a9b79c15d3bace2bf6fc5e0c87158c602a50",
+  "target_multihash_at_baseline": "1f:0c37f736fba8e9a429ad0eb750e3a9b79c15d3bace2bf6fc5e0c87158c602a50",
+  "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
+  "test_refs": []
+ }
+}

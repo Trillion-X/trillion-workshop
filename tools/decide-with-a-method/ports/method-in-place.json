@@ -1,0 +1,52 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-DECISION-METHOD-IN-PLACE",
+ "status": "ADAPTED",
+ "directive": {
+  "thread_id": "the commit that grew this file most since the rules began: f4955339ed9388a24c5af1bcc60afe33104a3c85",
+  "message_multihash": "1f:da067c7ed3e8fe12e4d6e20f227ca5ff430ec4650b455a15b50529cd3fe61fe7",
+  "quote": "A decision step is answered only when it has a verdict for every check it asked: an answer with fewer verdicts than checks is refused (verdicts_missing) and the step stays the current question; a step kept before this rule with fewer verdicts is asked again (question.ungraded) until verdicts are confirmed onto it, and make-the-decision refuses (ungraded_first) while any answered step is ungraded. Test: an answer kept before every check had a verdict is asked again until graded, and no decision is made while any step is ungraded; decide-with-a-method 69 pass"
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion-workshop",
+   "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+   "path": "tools/decide-with-a-method/read-data/method.mjs",
+   "multihash": "1f:38d0fa02b60636733ed178c3e0dc685888a2b9da48bea6a8e01ab610ae30558d",
+   "ownership": "repository-owned",
+   "old_copy": "same-file"
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/decide-with-a-method/read-data/method.mjs"
+  }
+ ],
+ "preserve": [
+  "the file's own lines from before the port rules: tools/decide-with-a-method/read-data/method.mjs kept 95.2% of its meaningful lines at e854b028bb when this contract was written"
+ ],
+ "allowed_deltas": [
+  "f4955339ed (+19): A decision step is answered only when it has a verdict for every check it asked: an answer with fewer verdicts than checks is refused (verdicts_missing) and the step stays the current question; a step kept before this rule with fewer verdicts is asked again (question.ungraded) until verdicts are confirmed onto it, and make-the-decision refuses (ungraded_first) while any answered step is ungraded. Test: an answer kept before every check had a verdict is asked again until graded, and no decision is made while any step is ungraded; decide-with-a-method 69 pass",
+  "035885eb78 (+15): Branches are nodes of the one Checks list, joined by one part_of link",
+  "13f4365d56 (+9): decide-with-a-method: refuse an answer to a person-only field that names no source in answered_by",
+  "fe5d2ba08d (+8): Judge reads part_of as one id or a list",
+  "fe2047e6b6 (+6): check-against-a-persons-rules-and-verdicts: one lineage for every check (do-work/branch.mjs)"
+ ],
+ "banned_substitutions": [
+  "a second file doing this file's job beside it",
+  "another owner's job rewritten into this file instead of moved"
+ ],
+ "baseline": {
+  "recorded_at": "2026-11-03T09:35:50Z",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:38d0fa02b60636733ed178c3e0dc685888a2b9da48bea6a8e01ab610ae30558d",
+  "target_multihash_at_baseline": "1f:38d0fa02b60636733ed178c3e0dc685888a2b9da48bea6a8e01ab610ae30558d",
+  "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
+  "test_refs": []
+ }
+}
