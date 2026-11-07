@@ -39,7 +39,8 @@ test('a row that holds the token takes it from the treg connection the input nam
     assert.deepEqual(payload.invoke.connection, { vendor: 'treg', from_input: 'account' }, payload.id);
     assert.equal(payload.invoke.connection_id, undefined, `${payload.id} fixes no one account`);
     assert.deepEqual(payload.invoke.credential_injections,
-      [{ field_id: 'api_key', placement: { kind: 'header', name: 'X-Treg-Token' } }], payload.id);
+      [{ field_id: 'api_key', hosts: ['treg.to'], placement: { kind: 'header', name: 'X-Treg-Token' } }], payload.id);
+    assert.equal(new URL(payload.invoke.url).hostname, 'treg.to', `${payload.id} names the declared host`);
     assert.ok(payload.input_schema.required.includes('account'), `${payload.id} requires the account`);
     assert.equal(payload.input_schema.properties.account.pattern, accountPattern.source, `${payload.id} reads one account shape`);
   }

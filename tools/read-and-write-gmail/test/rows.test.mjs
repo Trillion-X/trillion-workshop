@@ -19,7 +19,9 @@ test('each row takes its account from input.connection and no other way', () => 
 
 test('the token goes only in the Authorization header, and only to Gmail over https', () => {
   for (const row of rows) {
-    assert.deepEqual(row.invoke.credential_injections, [{ field_id: 'access_token', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }], row.id);
+    const host = new URL(row.invoke.url).hostname;
+    assert.equal(host, 'gmail.googleapis.com', row.id);
+    assert.deepEqual(row.invoke.credential_injections, [{ field_id: 'access_token', hosts: [host], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }], row.id);
     assert.match(row.invoke.url, /^https:\/\/gmail\.googleapis\.com\/gmail\/v1\/users\/me\//, row.id);
     assert.equal(row.invoke.kind, 'http', row.id);
   }

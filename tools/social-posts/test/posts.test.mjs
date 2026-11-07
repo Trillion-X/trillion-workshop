@@ -332,7 +332,10 @@ test('each connection check asks with the value its place signs with, over https
     const place = places.places.find(item => item.connection_vendor === vendor);
     assert.ok(place, `${check.id} checks a vendor some place posts through`);
     const signed = JSON.stringify(place.options);
-    for (const item of check.invoke.credential_injections) assert.ok(signed.includes(`{"held":"${item.field_id}"}`), `${check.id} uses ${item.field_id}, which ${place.id} signs with`);
+    for (const item of check.invoke.credential_injections) {
+      assert.ok(signed.includes(`{"held":"${item.field_id}"}`), `${check.id} uses ${item.field_id}, which ${place.id} signs with`);
+      assert.deepEqual(item.hosts, [new URL(check.invoke.url).hostname], `${check.id} binds its credential to the checked host`);
+    }
     assert.equal(check.invoke.method, 'GET');
     assert.equal(check.read_only, true);
     assert.ok(place.hosts.includes(new URL(check.invoke.url).hostname), `${check.id} asks one of ${place.id}'s own hosts`);

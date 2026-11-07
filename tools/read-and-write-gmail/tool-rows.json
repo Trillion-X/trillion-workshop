@@ -84,6 +84,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -192,6 +193,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -273,6 +275,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -360,6 +363,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -464,6 +468,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -556,6 +561,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -657,6 +663,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -777,6 +784,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -890,6 +898,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -982,6 +991,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1075,6 +1085,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1170,6 +1181,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1262,6 +1274,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1358,6 +1371,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1447,6 +1461,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1550,6 +1565,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1648,6 +1664,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1744,6 +1761,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1833,6 +1851,7 @@
      "timeout_seconds": 30,
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -1946,6 +1965,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
@@ -2053,6 +2073,7 @@
      },
      "credential_injections": [
       {
+       "hosts": ["gmail.googleapis.com"],
        "field_id": "access_token",
        "placement": {
         "kind": "header",
