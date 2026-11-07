@@ -494,11 +494,11 @@ function applyDeleteToState(state, { subjectId, metadata }) {
   return state;
 }
 
-function applyPlanWithOutcomes(state, plan, vectors, params, indexId) {
+function applyPlanWithOutcomes(state, plan, vectors, params, indexId, cloneState = true) {
   if (!isDict(plan) || !isDict(vectors)) throw new SystemExitError("ann-index apply-plan requires object plan and vectors");
   if (!isDict(state)) throw new SystemExitError("ann-index apply-plan requires object state");
   if (!isDict(params)) throw new SystemExitError("ann-index apply-plan requires object params");
-  state = structuredClone(state);
+  if (cloneState) state = structuredClone(state);
   const mutations = [...(truthy(pyGet(plan, "upserts", null)) ? plan.upserts : []), ...(truthy(pyGet(plan, "retracts", null)) ? plan.retracts : [])];
   if (!mutations.every((item) => isDict(item))) throw new SystemExitError("ann-index apply-plan mutations must be objects");
   let applied = 0;
@@ -551,6 +551,26 @@ function cmdApplyPlan(args) {
   if (args.output_event_json) {
     writeJson(args.output_event_json, { event: "semantic_index.plan_applied", index_id: args.index_id, mutation_count: result.mutationCount, vector_count: pyInt(pyGet(state, "vector_count", 0)) });
   }
+}
+
+// The same ordered mutations as one plan, with each vector-bearing input read
+// separately. Clone once and serialize the compact ANN state once, so bounding
+// the inputs does not turn index construction into repeated whole-state work.
+function cmdApplyBatches(args) {
+  let state = structuredClone(loadState(args.state_json, {}));
+  const manifest = loadJson(args.plan_json, {});
+  if (!isDict(manifest) || !Array.isArray(manifest.batches)) throw new SystemExitError("ann-index apply-batches requires batches");
+  const params = loadJson(args.params_json, {});
+  for (const batch of manifest.batches) {
+    if (!isDict(batch) || typeof batch.plan_json !== "string" || typeof batch.vectors_json !== "string") {
+      throw new SystemExitError("ann-index apply-batches needs plan_json and vectors_json for every batch");
+    }
+    const plan = loadJson(batch.plan_json, {});
+    const vectors = loadJson(batch.vectors_json, {});
+    state = applyPlanWithOutcomes(state, plan, vectors, params, args.index_id, false).state;
+  }
+  writeJson(args.output_state_json, state);
+  writeJson(args.output_facts_json, factsForState(args.index_id, state));
 }
 
 function cmdQuery(args) {
@@ -658,9 +678,16 @@ function main() {
     output_facts_json: "", output_candidates_json: "", output_event_json: "", plan_json: "", vectors_json: "",
   };
   const args = parseArgs(process.argv.slice(2), spec, defaults);
-  const allowed = ["upsert", "delete", "query", "apply-plan"];
+  const allowed = ["upsert", "delete", "query", "apply-plan", "apply-batches"];
   if (!allowed.includes(args.mode)) throw new SystemExitError(`ann-index: invalid --mode ${args.mode}`);
 
+  if (args.mode === "apply-batches") {
+    if (!args.index_id || !args.plan_json || !args.params_json || !args.output_state_json || !args.output_facts_json) {
+      throw new SystemExitError("ann-index apply-batches requires --index-id --plan-json --params-json --output-state-json --output-facts-json");
+    }
+    cmdApplyBatches(args);
+    return 0;
+  }
   if (args.mode === "apply-plan") {
     if (!args.index_id || !args.plan_json || !args.vectors_json || !args.params_json || !args.output_state_json || !args.output_facts_json) {
       throw new SystemExitError("ann-index apply-plan requires --index-id --plan-json --vectors-json --params-json --output-state-json --output-facts-json");

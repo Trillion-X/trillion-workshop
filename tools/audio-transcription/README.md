@@ -6,7 +6,7 @@ The audio-transcription package's local Whisper transcription with word times, a
 
 | File | Purpose |
 |------|---------|
-| `do-work/process-scripts/transcribe-audio.py` | The package's transcriber, unchanged: decodes any recording to 16 kHz mono, runs whisper.cpp, and answers language, full text, segments and words with a `timing_source` (`engine_token_timestamps`, `segment_bounds_fallback` or `segment_uniform_estimate`). |
+| `do-work/process-scripts/transcribe-audio.py` | Decodes any recording to 16 kHz mono and runs whisper.cpp with word segmentation and token timestamps. Reads token offsets, timestamps or start/end fields, joins word pieces and punctuation, and removes provider control tokens. Answers language, text, segments and words with an honest `timing_source` (`engine_token_timestamps`, `segment_bounds_fallback` or `segment_uniform_estimate`). Provider timestamps do not establish alignment accuracy. |
 | `do-work/process-scripts/make-audio-transcription-records-from-command-output.py` | The package's record maker, unchanged. |
 | `do-work/audio-master.mjs`, `do-work/submit-audio-transcription.ts`, `do-work/prepare-local-whisper-admission.py`, `do-work/README.md` | The rest of the package's `do-work`, unchanged. |
 | `do-work/__tests__/` | The package's 39 tests, unchanged. |

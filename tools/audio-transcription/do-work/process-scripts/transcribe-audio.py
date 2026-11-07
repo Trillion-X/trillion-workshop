@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import json
+import math
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -68,16 +70,17 @@ def find_executable(env_key: str, candidates: tuple[str, ...]) -> tuple[str | No
 
 def timestamp_seconds(value: Any) -> float | None:
     if isinstance(value, (int, float)):
-        return float(value)
+        return float(value) if math.isfinite(value) else None
     if not isinstance(value, str):
         return None
-    parts = value.strip().split(":")
+    parts = value.strip().replace(",", ".").split(":")
     try:
         if len(parts) == 3:
             return int(parts[0]) * 3600 + int(parts[1]) * 60 + float(parts[2])
         if len(parts) == 2:
             return int(parts[0]) * 60 + float(parts[1])
-        return float(parts[0])
+        result = float(parts[0])
+        return result if math.isfinite(result) else None
     except (TypeError, ValueError):
         return None
 
@@ -104,6 +107,47 @@ def words_from_segment(text: str, start: float, end: float) -> list[dict[str, An
     return [{"t": token, "start": round(start + index * step, 3), "end": round(start + (index + 1) * step, 3)} for index, token in enumerate(tokens)]
 
 
+def token_span(token: dict[str, Any]) -> tuple[float, float] | None:
+    """Read the provider's real token bounds, including whisper.cpp's JSON shape."""
+    offsets = token.get("offsets")
+    timestamps = token.get("timestamps")
+    candidates = [(token.get("start"), token.get("end"), 1)]
+    if isinstance(offsets, dict):
+        candidates.append((offsets.get("from"), offsets.get("to"), 1000))
+    if isinstance(timestamps, dict):
+        candidates.append((timestamps.get("from"), timestamps.get("to"), 1))
+    for first, last, scale in candidates:
+        start, end = timestamp_seconds(first), timestamp_seconds(last)
+        if start is not None and end is not None and math.isfinite(start) and math.isfinite(end) and 0 <= start <= end:
+            return start / scale, end / scale
+    return None
+
+
+def words_from_tokens(tokens: list[Any], start: float, end: float) -> list[dict[str, Any]]:
+    """Whisper tokens are word pieces: keep punctuation and subwords with their word."""
+    words: list[dict[str, Any]] = []
+    for token in tokens:
+        if not isinstance(token, dict):
+            continue
+        text = str(token.get("text") or "")
+        if not text.strip() or re.fullmatch(r"\[_[^\]]*_\]|<\|.*\|>", text.strip()):
+            continue
+        span = token_span(token)
+        first, last = span if span is not None else (start, max(start + 0.05, end))
+        source = "engine_token_timestamps" if span is not None else "segment_bounds_fallback"
+        for piece in re.findall(r"\s*\S+", text):
+            if not words or piece[0].isspace():
+                words.append({"t": piece.strip(), "start": first, "end": last, "timing_source": source})
+            else:
+                word = words[-1]
+                word["t"] += piece
+                word["start"] = min(word["start"], first)
+                word["end"] = max(word["end"], last)
+                if source == "segment_bounds_fallback":
+                    word["timing_source"] = source
+    return words
+
+
 def normalize_whisper_json(value: dict[str, Any], request_id: str) -> dict[str, Any]:
     raw_segments = value.get("transcription")
     if not isinstance(raw_segments, list):
@@ -120,22 +164,10 @@ def normalize_whisper_json(value: dict[str, Any], request_id: str) -> dict[str, 
             end = start + max(0.35, len(text.split()) * 0.24)
         segments.append({"segment_index": index, "start": start, "end": end, "text": text})
         token_rows = raw.get("tokens")
-        if isinstance(token_rows, list):
-            for token in token_rows:
-                if isinstance(token, dict) and token.get("text"):
-                    token_start = timestamp_seconds(token.get("start"))
-                    token_end = timestamp_seconds(token.get("end"))
-                    has_token_timing = token_start is not None and token_end is not None and token_end >= token_start
-                    if not has_token_timing:
-                        token_start = start
-                        token_end = max(start + 0.05, end)
-                    words.append({
-                        "t": str(token.get("text")).strip(),
-                        "start": token_start,
-                        "end": token_end,
-                        "timing_source": "engine_token_timestamps" if has_token_timing else "segment_bounds_fallback",
-                    })
-        if not token_rows:
+        token_words = words_from_tokens(token_rows, start, end) if isinstance(token_rows, list) else []
+        if token_words:
+            words.extend(token_words)
+        else:
             words.extend({**word, "timing_source": "segment_uniform_estimate"} for word in words_from_segment(text, start, end))
     full_text = " ".join(segment["text"] for segment in segments).strip()
     result = value.get("result")
@@ -224,7 +256,8 @@ def run_whisper(audio_path: str, request_id: str, output_path: str) -> int:
         write_json(output_path, error_output(request_id, "transcription_model_unavailable", "Whisper model could not be downloaded.", {"model_path": str(model_path), "model_url": model_url, "error": model_error}))
         return 0
     out_base = str(Path(output_path).with_suffix(""))
-    command = [whisper, "-m", str(model_path), "-f", audio_path, "-oj", "-ojf", "-of", out_base, "-np"]
+    # max-len enables whisper.cpp token timestamps; split-on-word keeps word pieces together.
+    command = [whisper, "-m", str(model_path), "-f", audio_path, "-oj", "-ojf", "-ml", "1", "-sow", "-of", out_base, "-np"]
     started = time.time()
     completed = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     json_path = Path(out_base + ".json")

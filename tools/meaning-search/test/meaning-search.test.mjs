@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -79,6 +79,58 @@ test('a query vector finds the closest items of the vector set, with the file an
     assert.equal(item.index_id, 'synthetic-pictures');
   }
   assert.ok(door.calls.filter(call => call.method === 'read_file').length > 2, 'files are read a span at a time');
+});
+
+// Model the VM's whole-string ceiling at a small size: the same failure must be
+// absent for every vector-bearing plan, not only the final answer. Six synthetic
+// items force several production-sized batches without a huge matrix or model.
+test('bounded indexing keeps one ANN state and candidate order across plan batches', async () => {
+  const maxBytes = JSON.parse(readFileSync(new URL('../read-data/meaning-search.json', import.meta.url), 'utf8')).index_batch_bytes;
+  const text = 'zorblax '.repeat(150000);
+  const items = ITEMS.map((item, at) => ({ ...item, clip: `synthetic-${at}.mp4`, text }));
+  const set = { ...SET, points_to: { ...SET.points_to, text: 'text' } };
+  const d = descriptor(set, { result_limit: 6, ann_params: { hyperplane_count: 2, table_count: 4, seed: 7, candidate_limit: 4 } });
+  const door = standInDoor({ descriptors: [d], files: { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy(items.map(() => [1, 0, 0, 0])) }, span: 262144 });
+  const stringify = JSON.stringify;
+  const batches = [];
+  JSON.stringify = function(value, ...args) {
+    const result = stringify.call(this, value, ...args);
+    if (Array.isArray(value?.upserts)) {
+      const bytes = Buffer.byteLength(result);
+      if (bytes > maxBytes) throw new RangeError('Synthetic whole-plan string limit exceeded');
+      batches.push(value.upserts.length);
+    }
+    return result;
+  };
+  let answer;
+  try {
+    answer = await findSimilarVector({ index_id: d.index_id, query_vector_base64: asQuery([1, 0, 0, 0]) }, { door });
+  } finally { JSON.stringify = stringify; }
+  assert.ok(batches.length > 1, 'the complete plan never crosses one process boundary');
+  assert.equal(batches.reduce((sum, count) => sum + count, 0), 6);
+  assert.deepEqual(answer.result.items.map(item => [item.address, item.score]), [0, 1, 2, 3].map(at => [`/Sets/frames.jsonl#${at}`, 1]), 'the original candidate limit takes the first four across batch boundaries');
+  assert.equal(answer.result.considered, 4);
+  assert.equal(answer.result.skipped, 0);
+  assert.deepEqual(Object.values(answer.points_to).map(point => point.file), [0, 1, 2, 3].map(at => `synthetic-${at}.mp4`));
+});
+
+test('ANN batch application is byte-identical to one ordered plan', () => {
+  const work = mkdtempSync(join(tmpdir(), 'meaning-search-batch-parity-'));
+  const script = fileURLToPath(new URL('../do-work/process-scripts/ann-index.mjs', import.meta.url));
+  const put = (name, value) => { const path = join(work, name); writeFileSync(path, JSON.stringify(value)); return path; };
+  const hash = mintCanonicalMultihashOfText('synthetic mutation');
+  const upserts = VECTORS.map((vector, at) => ({ index_id: 'synthetic', content_address: `item:${at}`, canonical_address: `item:${at}`, canonical_revision: hash, canonical_payload_hash: hash, source_snapshot_ref: hash, content_text: '' }));
+  const vectors = Object.fromEntries(VECTORS.map((vector, at) => [`item:${at}`, vector]));
+  const state = put('empty.json', {});
+  const params = put('params.json', { hyperplane_count: 2, table_count: 4, seed: 7, candidate_limit: 4 });
+  const plan = put('whole.json', { upserts });
+  const vectorFile = put('vectors.json', vectors);
+  const batches = put('batches.json', { batches: [0, 2, 4].map(start => ({ plan_json: put(`plan-${start}.json`, { upserts: upserts.slice(start, start + 2) }), vectors_json: put(`vectors-${start}.json`, Object.fromEntries(Object.entries(vectors).slice(start, start + 2))) })) });
+  for (const mode of ['apply-plan', 'apply-batches']) {
+    const ran = spawnSync(process.execPath, [script, '--mode', mode, '--index-id', 'synthetic', '--state-json', state, '--plan-json', mode === 'apply-plan' ? plan : batches, '--vectors-json', vectorFile, '--params-json', params, '--output-state-json', join(work, `${mode}-state.json`), '--output-facts-json', join(work, `${mode}-facts.json`)], { encoding: 'utf8' });
+    assert.equal(ran.status, 0, ran.stderr);
+  }
+  for (const output of ['state', 'facts']) assert.deepEqual(readFileSync(join(work, `apply-batches-${output}.json`)), readFileSync(join(work, `apply-plan-${output}.json`)), `${output} must retain the whole-plan bytes and insertion order`);
 });
 
 test('half-precision vectors are read as their numbers, and a smaller limit asks for fewer', async () => {

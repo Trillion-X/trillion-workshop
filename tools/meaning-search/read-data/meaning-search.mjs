@@ -112,7 +112,29 @@ const pointOf = (item, field) => ({
   ...Object.fromEntries((field.carry ?? []).map(name => [name, item[name] ?? null])),
 });
 
-// The package's index plan for the person's vector set, and what each address points to.
+// Bound every vector-bearing process input, not just its writer: the preparation and ANN
+// scripts also parse their JSON inputs as one string. Keep mutations in source order so
+// applying the batches to one ANN state gives the same buckets and candidate ordering.
+function* planBatches(upserts) {
+  const limit = settings.index_batch_bytes;
+  if (!Number.isInteger(limit) || limit < 1) throw new Error('index_batch_bytes must be a positive integer.');
+  let batch = [];
+  let bytes = Buffer.byteLength('{"upserts":[]}');
+  for (const upsert of upserts) {
+    const size = Buffer.byteLength(JSON.stringify(upsert));
+    if (batch.length && bytes + 1 + size > limit) {
+      yield { upserts: batch };
+      batch = [];
+      bytes = Buffer.byteLength('{"upserts":[]}');
+    }
+    batch.push(upsert);
+    bytes += size + (batch.length > 1 ? 1 : 0);
+  }
+  // An empty set still runs the package's validation and empty-state behavior.
+  yield { upserts: batch };
+}
+
+// The package's ordered, bounded index plans, and what each address points to.
 async function planOf(descriptor, door) {
   const set = descriptor.vector_set;
   if (!set?.items?.file || !set.points_to?.file) {
@@ -127,21 +149,23 @@ async function planOf(descriptor, door) {
   const at = new Date().toISOString();
   const field = set.points_to;
   const pointsTo = new Map();
-  const upserts = lines.map((line, index) => {
-    const item = JSON.parse(line);
-    const address = `${set.items.file}#${index}`;
-    const lineBytes = Buffer.from(line, 'utf8');
-    const vector = matrix?.row(index);
-    pointsTo.set(address, pointOf(item, field));
-    return {
-      index_id: descriptor.index_id, content_address: address, canonical_address: address,
-      canonical_revision: mintCanonicalMultihashOfBytes(vector ? Buffer.concat([lineBytes, vector.bytes]) : lineBytes),
-      canonical_payload_hash: mintCanonicalMultihashOfBytes(lineBytes), source_snapshot_ref: snapshot, at,
-      content_text: String(item[field.text] ?? ''),
-      ...(vector ? { content_vector_base64: Buffer.from(JSON.stringify({ vector: vector.values })).toString('base64') } : {}),
-    };
-  });
-  return { plan: { upserts }, pointsTo };
+  function* upserts() {
+    for (const [index, line] of lines.entries()) {
+      const item = JSON.parse(line);
+      const address = `${set.items.file}#${index}`;
+      const lineBytes = Buffer.from(line, 'utf8');
+      const vector = matrix?.row(index);
+      pointsTo.set(address, pointOf(item, field));
+      yield {
+        index_id: descriptor.index_id, content_address: address, canonical_address: address,
+        canonical_revision: mintCanonicalMultihashOfBytes(vector ? Buffer.concat([lineBytes, vector.bytes]) : lineBytes),
+        canonical_payload_hash: mintCanonicalMultihashOfBytes(lineBytes), source_snapshot_ref: snapshot, at,
+        content_text: String(item[field.text] ?? ''),
+        ...(vector ? { content_vector_base64: Buffer.from(JSON.stringify({ vector: vector.values })).toString('base64') } : {}),
+      };
+    }
+  }
+  return { plans: planBatches(upserts()), pointsTo };
 }
 
 // The descriptor rows of this index in the person's records: the package's read_descriptor reply.
@@ -192,18 +216,27 @@ async function run(input, door, query) {
     put(work, 'empty.json', { items: [] });
     await step('node', 'prepare-semantic-index-process-input.mjs', ['--index-id', index, '--descriptor-reply-json', reply, '--ann-state-reply-json', join(work, 'empty.json'), '--output-state-json', join(work, 'none.json'), '--output-json', join(work, 'described.json')], work);
     const { descriptor } = take(work, 'described.json');
-    const { plan, pointsTo } = await planOf(descriptor, door);
-    put(work, 'plan.json', plan);
+    const { plans, pointsTo } = await planOf(descriptor, door);
     put(work, 'descriptor.json', descriptor);
     put(work, 'params.json', descriptor.ann_params ?? {});
-    await step('node', 'prepare-semantic-index-process-input.mjs', ['--index-id', index, '--descriptor-reply-json', reply, '--ann-state-reply-json', join(work, 'empty.json'), '--plan-json', join(work, 'plan.json'), '--embedding-request-json', join(work, 'texts.json'), '--output-state-json', join(work, 'none.json'), '--output-json', join(work, 'described.json')], work);
-    if (take(work, 'texts.json').items.length) {
-      await step('node', 'embed-text-ollama.mjs', ['--request-json', join(work, 'texts.json'), '--output-json', join(work, 'embedded.json'), '--model', descriptor.model_id, '--endpoint', descriptor.model_endpoint], work);
-    } else {
-      put(work, 'embedded.json', { vectors: {} });
+    const factBatches = [];
+    const indexBatches = [];
+    for (const plan of plans) {
+      const planPath = put(work, `plan-${indexBatches.length}.json`, plan);
+      const vectorsPath = join(work, `vectors-${indexBatches.length}.json`);
+      await step('node', 'prepare-semantic-index-process-input.mjs', ['--index-id', index, '--descriptor-reply-json', reply, '--ann-state-reply-json', join(work, 'empty.json'), '--plan-json', planPath, '--embedding-request-json', join(work, 'texts.json'), '--output-state-json', join(work, 'none.json'), '--output-json', join(work, 'described.json')], work);
+      if (take(work, 'texts.json').items.length) {
+        await step('node', 'embed-text-ollama.mjs', ['--request-json', join(work, 'texts.json'), '--output-json', join(work, 'embedded.json'), '--model', descriptor.model_id, '--endpoint', descriptor.model_endpoint], work);
+      } else {
+        put(work, 'embedded.json', { vectors: {} });
+      }
+      const facts = `facts-${factBatches.length}.json`;
+      await step('python3', 'make-embedding-facts-from-command-output.py', ['--plan-json', planPath, '--command-output-json', join(work, 'embedded.json'), '--descriptor-json', join(work, 'descriptor.json'), '--output-json', join(work, facts), '--output-vectors-json', vectorsPath], work);
+      factBatches.push(facts);
+      indexBatches.push({ plan_json: planPath, vectors_json: vectorsPath });
     }
-    await step('python3', 'make-embedding-facts-from-command-output.py', ['--plan-json', join(work, 'plan.json'), '--command-output-json', join(work, 'embedded.json'), '--descriptor-json', join(work, 'descriptor.json'), '--output-json', join(work, 'facts.out.json'), '--output-vectors-json', join(work, 'vectors.json')], work);
-    await step('node', 'ann-index.mjs', ['--mode', 'apply-plan', '--index-id', index, '--state-json', join(work, 'none.json'), '--plan-json', join(work, 'plan.json'), '--vectors-json', join(work, 'vectors.json'), '--params-json', join(work, 'params.json'), '--output-state-json', join(work, 'built-state.json'), '--output-facts-json', join(work, 'ann-facts.json')], work);
+    put(work, 'batches.json', { batches: indexBatches });
+    await step('node', 'ann-index.mjs', ['--mode', 'apply-batches', '--index-id', index, '--state-json', join(work, 'none.json'), '--plan-json', join(work, 'batches.json'), '--params-json', join(work, 'params.json'), '--output-state-json', join(work, 'built-state.json'), '--output-facts-json', join(work, 'ann-facts.json')], work);
     put(work, 's.json', { items: take(work, 'ann-facts.json').map(row => row.payload) });
     await step('node', 'prepare-semantic-index-process-input.mjs', ['--index-id', index, '--descriptor-reply-json', reply, '--ann-state-reply-json', join(work, 's.json'), '--output-state-json', join(work, 'state.json'), '--output-json', join(work, 'o.json')], work);
     const prepared = take(work, 'o.json').descriptor;
@@ -213,8 +246,13 @@ async function run(input, door, query) {
     await step('node', 'ann-index.mjs', ['--mode', 'query', '--state-json', join(work, 'state.json'), '--vector-json', join(work, 'vector.json'), '--params-json', join(work, 'params.json'), '--output-candidates-json', join(work, 'candidates.out.json')], work);
     const candidates = new Set(take(work, 'candidates.out.json').map(candidate => candidate.subject_ref));
     const property = `${settings.embedding_property}${index}`;
-    const facts = take(work, 'facts.out.json').map(row => row.payload)
-      .filter(fact => fact.table === settings.attribute_table && fact.property_id === property && candidates.has(fact.subject_id));
+    const facts = [];
+    for (const name of factBatches) {
+      for (const row of take(work, name)) {
+        const fact = row.payload;
+        if (fact.table === settings.attribute_table && fact.property_id === property && candidates.has(fact.subject_id)) facts.push(fact);
+      }
+    }
     put(work, 'facts.json', facts);
     const { spread, ...asked } = input;
     // With a spread the package ranks as many as the descriptor allows, so there is something left after setting aside.

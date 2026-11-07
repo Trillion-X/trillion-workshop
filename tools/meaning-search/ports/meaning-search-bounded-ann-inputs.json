@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-MEANING-SEARCH-BOUNDED-ANN-INPUTS",
+  "status": "ADAPTED",
+  "directive": {
+    "message_multihash": "1f:11acf832af50a26ac601d46f4b82723155843990f31feb95cd97438fcf76fb46",
+    "quote": "finish the film repository port so the repo can be retired: settings are rows in the person's lists, read through the door"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/meaning-search/do-work/process-scripts/ann-index.mjs",
+      "multihash": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/meaning-search/do-work/process-scripts/ann-index.mjs"
+    }
+  ],
+  "preserve": [
+    "The original apply-plan, upsert, delete and query behavior, deterministic hyperplanes, ordered buckets, metadata qualification, candidate limits and persisted state/fact bytes."
+  ],
+  "allowed_deltas": [
+    "Add apply-batches: read one bounded plan/vector pair at a time and call the original applyPlanWithOutcomes function in manifest order. Clone the input state once and write the resulting state/facts once. Existing callers retain the default clone behavior."
+  ],
+  "banned_substitutions": [
+    "Independent ranking or ANN candidate selection",
+    "Rebuilding a separate index per batch",
+    "Changing descriptor ANN parameters or limits to obtain a passing comparison"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T21:28:07.925343Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+    "target_multihash_at_baseline": "1f:6b5bf0eaa1b9c57511354eadcdfc9abd95a65921f3f324b9ddd3ad38a79c458d",
+    "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.95,
+    "test_refs": [
+      "tools/meaning-search/test/meaning-search.test.mjs ANN batch application is byte-identical to one ordered plan",
+      "tools/meaning-search/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches"
+    ]
+  }
+}
