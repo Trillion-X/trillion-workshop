@@ -32,7 +32,7 @@
     "import paths and the calls the tool's wiring needs here, after the byte copy"
   ],
   "banned_substitutions": [
-    "a rewrite of the moved code in place of the byte copy",
+    "a rewrite of the moved code instead of the byte copy",
     "a second live copy of this job in another folder"
   ],
   "baseline": {
