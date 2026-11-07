@@ -21,12 +21,8 @@
   ],
   "targets": [
     {
-      "path": "tools/check-how-an-installed-app-is-hardened/source-baselines/app-hardening.held",
-      "role": "Immutable recovery byte-copy; never loaded by the active tool"
-    },
-    {
-      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening.mjs",
-      "role": "Active implementation; already adapted before the recovery baseline"
+      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening-core.mjs",
+      "role": "Canonical implementation; the public app-hardening.mjs compatibility facade re-exports this module."
     }
   ],
   "preserve": [
@@ -35,7 +31,8 @@
     "auditApp"
   ],
   "allowed_deltas": [
-    "Location comments and the named audit export added before the recovery baseline"
+    "Location comments and the named audit export added before the recovery baseline",
+    "A fresh canonical core contains the adapted behavior; the existing public module path is a thin re-export facade and adds no historical-copy claim."
   ],
   "banned_substitutions": [
     "Claiming this recovery proves the first Workshop commit was an exact byte copy",
@@ -48,7 +45,8 @@
     "target_multihash_at_baseline": "1f:201991a1bf165afd4d6b50c9c40da2916f25955bc0f818488bd0463764ef76a3",
     "commit": "d1876baae22436e6091c28fc2355085994d4e617",
     "recorded_at": "2026-11-07T15:59:19-06:00",
-    "scope": "The exact copy is the immutable recovery artifact in targets[0]. The active target was already adapted before this NEW recovery baseline. copied_before_adaptation refers only to the unmodified recovery artifact; no retroactive original source-first claim is made."
+    "scope": "The immutable original source copy at baseline.path is recovery evidence only. The active core is introduced after this NEW baseline, and the pre-existing public module path is rewritten as a thin compatibility facade after it. This does not claim the original migration was source-first or that the facade was historically copied first.",
+    "path": "tools/check-how-an-installed-app-is-hardened/source-baselines/app-hardening.held"
   },
   "recovery": {
     "active_target_already_adapted_before_recovery_baseline": true,
@@ -72,10 +70,10 @@
       "tools/check-how-an-installed-app-is-hardened/test/app-hardening.test.mjs"
     ],
     "active_target": {
-      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening.mjs",
-      "multihash": "1f:6a90495dc4f950cabb52e1762b75d406e528c347eac96b531ba297d799fc2b28",
+      "path": "tools/check-how-an-installed-app-is-hardened/read-data/app-hardening-core.mjs",
       "archive_bytes_excluded": true,
-      "method": "Trim each source and active-target line; keep lines of length >=24; count source lines present in the active-target line set, exactly as the shared validator does. No source-baselines file contributes to this measurement.",
+      "method": "Trim each source and active-core line; keep lines of length >=24; count source lines present in the core line set. The immutable archive and compatibility facade are excluded.",
+      "multihash": "1f:6a90495dc4f950cabb52e1762b75d406e528c347eac96b531ba297d799fc2b28",
       "measurements": {
         "sourceMeaningfulLines": 54,
         "retainedMeaningfulLines": 52,

@@ -21,12 +21,8 @@
   ],
   "targets": [
     {
-      "path": "tools/check-words-for-personal-data/source-baselines/personal-data.held",
-      "role": "Immutable recovery byte-copy; never loaded by the active tool"
-    },
-    {
-      "path": "tools/check-words-for-personal-data/read-data/personal-data.mjs",
-      "role": "Active implementation; already adapted before the recovery baseline"
+      "path": "tools/check-words-for-personal-data/read-data/personal-data-core.mjs",
+      "role": "Canonical implementation; the public personal-data.mjs compatibility facade re-exports this module."
     }
   ],
   "preserve": [
@@ -35,7 +31,8 @@
     "model_checked"
   ],
   "allowed_deltas": [
-    "Location comments, model adapter using the existing answer-state-questions owner, and named check export added before the recovery baseline"
+    "Location comments, model adapter using the existing answer-state-questions owner, and named check export added before the recovery baseline",
+    "A fresh canonical core contains the adapted behavior; the existing public module path is a thin re-export facade and adds no historical-copy claim."
   ],
   "banned_substitutions": [
     "Claiming this recovery proves the first Workshop commit was an exact byte copy",
@@ -48,7 +45,8 @@
     "target_multihash_at_baseline": "1f:f7a3510b22c3c458daf07910b16a55e83235427a28e8bb499e644de943290722",
     "commit": "d1876baae22436e6091c28fc2355085994d4e617",
     "recorded_at": "2026-11-07T15:59:19-06:00",
-    "scope": "The exact copy is the immutable recovery artifact in targets[0]. The active target was already adapted before this NEW recovery baseline. copied_before_adaptation refers only to the unmodified recovery artifact; no retroactive original source-first claim is made."
+    "scope": "The immutable original source copy at baseline.path is recovery evidence only. The active core is introduced after this NEW baseline, and the pre-existing public module path is rewritten as a thin compatibility facade after it. This does not claim the original migration was source-first or that the facade was historically copied first.",
+    "path": "tools/check-words-for-personal-data/source-baselines/personal-data.held"
   },
   "recovery": {
     "active_target_already_adapted_before_recovery_baseline": true,
@@ -72,10 +70,10 @@
       "tools/check-words-for-personal-data/test/personal-data.test.mjs"
     ],
     "active_target": {
-      "path": "tools/check-words-for-personal-data/read-data/personal-data.mjs",
-      "multihash": "1f:829f4b1645731f421c9dd936678594ec20b90d6a07a65ac25a91e88249778ccb",
+      "path": "tools/check-words-for-personal-data/read-data/personal-data-core.mjs",
       "archive_bytes_excluded": true,
-      "method": "Trim each source and active-target line; keep lines of length >=24; count source lines present in the active-target line set, exactly as the shared validator does. No source-baselines file contributes to this measurement.",
+      "method": "Trim each source and active-core line; keep lines of length >=24; count source lines present in the core line set. The immutable archive and compatibility facade are excluded.",
+      "multihash": "1f:829f4b1645731f421c9dd936678594ec20b90d6a07a65ac25a91e88249778ccb",
       "measurements": {
         "sourceMeaningfulLines": 44,
         "retainedMeaningfulLines": 39,
