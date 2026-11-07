@@ -351,6 +351,24 @@ export function recordsOf(record, changed = [], archived = []) {
   ];
 }
 
+/**
+ * `list` (from recordsOf) with the summary of answered step `n` written only if it still holds what was read: absent for a
+ * step not answered when read, else its summary as read (the door's `expected`). Of two changes to one step made at once
+ * the door keeps the first and refuses the second whole (`original_command_conflict`), so the second is read again and
+ * judged against the first. The summary is small and writeDecision sends it in its first write, so a refused change
+ * writes nothing.
+ */
+export function holdingStep(list, record, n) {
+  const key = itemKey('answered_steps', record.id, n);
+  const { type } = LAID.answered_steps;
+  const was = (LOADED.get(record) ?? {}).answered_steps?.[n];
+  const value = was === undefined ? null : JSON.parse(was);
+  const expected = object(value) && !value.lost ? { type, value } : null;
+  const at = list.findIndex(item => item.id === key);
+  if (at >= 0) return list.map((item, i) => (i === at ? { ...item, expected } : item));
+  return expected ? [...list, { id: key, type, value: expected.value, expected }] : list;
+}
+
 // One write when it fits one door message (`writes` records, `write_bytes` bytes); otherwise every other record first
 // and the root last, so a root never counts a record that is not there yet. Each part keeps its own request key, so a
 // write sent again answers the receipt it already saved. A record too large for `record_bytes` goes in its parts. Writes
@@ -358,7 +376,9 @@ export function recordsOf(record, changed = [], archived = []) {
 const writeBounds = { rows: settings.writes, bytes: settings.write_bytes, measure: carriedBytes };
 export async function writeDecision(door, list, key) {
   const [root, ...rest] = list;
-  const parts = fitted(rest);
+  // A record written only if it still holds what was read goes first, so a refused condition writes nothing.
+  const all = fitted(rest);
+  const parts = [...all.filter(item => 'expected' in item), ...all.filter(item => !('expected' in item))];
   const whole = [root, ...parts];
   if (writeBatches(whole, writeBounds).length === 1) return door.write(whole, { key });
   for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${key}:part:${at}` });
