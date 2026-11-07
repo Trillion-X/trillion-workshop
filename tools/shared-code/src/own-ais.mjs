@@ -84,7 +84,7 @@ export function deviceRowConnected(row, { data, card, reach, now = new Date() })
   if (!row?.tool_id || !row.runs_on?.place) return false;
   const tool = data.tools.find(item => item.id === row.tool_id);
   const place = data.placements.find(item => item.id === row.runs_on.place);
-  if (!tool || tool.status !== 'active' || tool.invoke?.kind !== 'computer-tool' || tool.needs?.network_egress !== false ||
+  if (!tool || tool.status !== 'active' || tool.invoke?.kind !== 'computer' || tool.needs?.network_egress !== false ||
       tool.price_ref || tool.billing || !tool.placements?.length || tool.placements.some(id => id !== row.runs_on.place) ||
       place?.executor !== 'agent' || !place.settings?.agent_id) return false;
   // A device app published before the rename advertises the former agent id.
