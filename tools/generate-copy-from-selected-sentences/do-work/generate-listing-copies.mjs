@@ -1,0 +1,110 @@
+// Render caller-selected listing copies from supplied data. No filesystem or product configuration is owned here.
+// The source name is closed over so nested errors and block markers retain the caller's attribution.
+function renderer(SOURCE) {
+  const blockMarks = id => [`<!-- how-to-start:${id} begin: written from ${SOURCE}; edit there -->`, `<!-- how-to-start:${id} end -->`];
+  
+  const lookup = (source, path) => path.split('.').reduce((at, key) => (at === null || typeof at !== 'object' ? undefined : at[key]), source);
+  
+  /** A sentence's words with every `{path.to.text}` replaced by the text at that path in the source. */
+  function words(source, text, trail = []) {
+    return text.replace(/\{([\w.]+)\}/g, (_, path) => {
+      if (trail.includes(path)) throw new Error(`{${path}} refers to itself.`);
+      const found = lookup(source, path);
+      if (typeof found !== 'string') throw new Error(`{${path}} is not text in ${SOURCE}.`);
+      return words(source, found, [...trail, path]);
+    });
+  }
+  
+  /** The words of a `say` list: each entry a sentence id, or a list of ids kept together in one paragraph. */
+  function say(source, ids, join, limit, where) {
+    const one = id => {
+      const sentence = source.sentences[id];
+      if (typeof sentence !== 'string') throw new Error(`${where}: there is no sentence "${id}".`);
+      return words(source, sentence);
+    };
+    const text = ids.map(entry => (Array.isArray(entry) ? entry.map(one).join(' ') : one(entry))).join(join);
+    if (limit && text.length > limit) throw new Error(`${where} is ${text.length} characters, over its limit of ${limit}.`);
+    return text;
+  }
+  
+  /** One value of a `json` place: a literal, a `say`, a `from_json`, or the permissions with their reasons. */
+  function value(source, node, read, where) {
+    if (Array.isArray(node)) return node.map((item, index) => value(source, item, read, `${where}[${index}]`));
+    if (node === null || typeof node !== 'object') return node;
+    if (node.say) return say(source, node.say, node.join ?? ' ', node.limit, where);
+    if (node.from_json) {
+      const [file, key] = node.from_json;
+      const text = JSON.parse(read(file))[key];
+      if (node.limit && text.length > node.limit) throw new Error(`${where} is ${text.length} characters, over its limit of ${node.limit}.`);
+      return text;
+    }
+    if (node.permissions_of) {
+      const manifest = JSON.parse(read(node.permissions_of));
+      const needed = [
+        ...(manifest.permissions ?? []),
+        ...(manifest.optional_permissions ?? []).map(name => `optional:${name}`),
+        ...(manifest.host_permissions ?? []).map(host => `host:${host}`),
+        ...(manifest.content_scripts ?? []).flatMap(script => script.matches.map(match => `content_script:${match}`)),
+      ];
+      const reasons = source.extension_permissions;
+      const missing = needed.filter(name => !reasons[name]);
+      if (missing.length) throw new Error(`${where}: ${node.permissions_of} asks for ${missing.join(', ')} but ${SOURCE} gives no reason in extension_permissions.`);
+      return Object.fromEntries(needed.map(name => [name, reasons[name]]));
+    }
+    return Object.fromEntries(Object.entries(node).map(([key, item]) => [key, value(source, item, read, `${where}.${key}`)]));
+  }
+  
+  /** `text` with the block called `id` replaced by `body` (markers kept, written when first needed). */
+  function withBlock(text, id, body, file) {
+    const [begin, end] = blockMarks(id);
+    const start = text.indexOf(`<!-- how-to-start:${id} begin`);
+    const stop = text.indexOf(end);
+    if (start < 0 || stop < start) throw new Error(`${file} has no "${id}" block: put ${begin} and ${end} around where it goes.`);
+    return `${text.slice(0, start)}${begin}\n${body}\n${text.slice(stop)}`;
+  }
+  
+  const setPath = (object, path, text) => {
+    const parent = path.slice(0, -1).reduce((at, key) => at[key], object);
+    parent[path.at(-1)] = text;
+  };
+  
+  /** Every selected copy as a Map. Pure: nothing is read or written outside the supplied reader. */
+  function generate(source, read, outputs) {
+    const ownedOutputs = new Set(outputs);
+    const declaredOutputs = new Set(source.places.map(place => place.file));
+    for (const file of ownedOutputs) {
+      if (!declaredOutputs.has(file)) throw new Error(`Requested output "${file}" has no place in ${SOURCE}.`);
+    }
+    const files = new Map();
+    const current = file => (files.has(file) ? files.get(file) : read(file));
+    for (const place of source.places) {
+      if (!ownedOutputs.has(place.file)) continue;
+      const where = `place "${place.id}"`;
+      if (place.kind === 'fields') {
+        const data = JSON.parse(current(place.file));
+        for (const field of place.set) setPath(data, field.path, say(source, field.say, field.join ?? ' ', field.limit, `${where} ${field.path.join('.')}`));
+        files.set(place.file, `${JSON.stringify(data, null, 2)}\n`);
+      } else if (place.kind === 'block') {
+        files.set(place.file, withBlock(current(place.file), place.block, say(source, place.say, place.join ?? ' ', place.limit, where), place.file));
+      } else if (place.kind === 'text') {
+        files.set(place.file, place.lines.map(line => (typeof line === 'string' ? line : say(source, line.say, ' ', line.limit, where))).join('\n'));
+      } else if (place.kind === 'json') {
+        files.set(place.file, `${JSON.stringify(value(source, place.value, read, where), null, 2)}\n`);
+      } else throw new Error(`${where} has an unknown kind "${place.kind}".`);
+    }
+    return files;
+  }
+  return { words, generate };
+}
+
+/** Expand text tokens; missing text and recursive references are refused. */
+export function words(source, text, trail = [], sourceName = 'source') {
+  return renderer(sourceName).words(source, text, trail);
+}
+
+/** Return only explicitly allowed destination files. The caller supplies data, reads and output ownership. */
+export function generateCopies(source, { read, outputs, sourceName = 'source' } = {}) {
+  if (typeof read !== 'function') throw new TypeError('read must be a function.');
+  if (!Array.isArray(outputs) && !(outputs instanceof Set)) throw new TypeError('outputs must be an explicit array or Set of allowed file names.');
+  return renderer(sourceName).generate(source, read, outputs);
+}

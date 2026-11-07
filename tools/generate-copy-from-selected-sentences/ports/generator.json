@@ -1,0 +1,92 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-LISTING-COPY-GENERATOR",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk.",
+    "message_multihash": "1f:d2b24fd6e0852c1368e40ea8a29bd185ccd2ab551445eb69a181ce53c58b37c0"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path_multihash": "1f:2e113211154c153de4643e98f59072a76efee3de47ef12c767275168725be4f5",
+      "lines": [
+        28,
+        119
+      ],
+      "multihash": "1f:345c24f6aaf800b4918289a3a012c5ae028951438bacafde0f0d028af6096491",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T16:52:49-06:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/generate-copy-from-selected-sentences/do-work/generate-listing-copies.mjs"
+    }
+  ],
+  "preserve": [
+    "Recursive text-token expansion, missing-text and cycle refusals",
+    "Deterministic fields, accumulated destinations, legacy block delimiters, text and JSON renderers",
+    "Nested say lists, from_json length limits, and reasons for required, optional, host and content-script permissions"
+  ],
+  "allowed_deltas": [
+    "Caller supplies source object, reader, sourceName and explicit allowed outputs; no product filesystem or source defaults",
+    "Return Map instead of an object; app wrapper may convert to its existing object interface",
+    "Block attribution says written from the supplied source name, without the old app-specific script command; legacy delimiters and replacement semantics remain",
+    "Source name closes over unchanged helpers so nested diagnostics retain caller attribution",
+    "Refuse any explicitly requested output absent from source.places so a missing required destination cannot silently pass a caller check; empty selection remains allowed."
+  ],
+  "banned_substitutions": [
+    "Copying product-filled or private customer DATA into generic implementation",
+    "Counting archived baseline bytes as active retention",
+    "Claiming the current uncommitted app adapter has a fabricated source commit"
+  ],
+  "baseline": {
+    "path": "tools/generate-copy-from-selected-sentences/source-baselines/generator.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:345c24f6aaf800b4918289a3a012c5ae028951438bacafde0f0d028af6096491",
+    "target_multihash_at_baseline": "1f:345c24f6aaf800b4918289a3a012c5ae028951438bacafde0f0d028af6096491",
+    "commit": "1d006c830684b94c8f583f9f92fb9eae7390b250",
+    "recorded_at": "2026-11-07T16:52:49-06:00"
+  },
+  "lineage": {
+    "source": "Real committed original parser and renderer; current app adapter inherited the same helpers but was uncommitted when inspected.",
+    "retirement": {
+      "checked_main_commit": "ed5e8d0389729321ca4263294b6a377235829e5e",
+      "source_path_absent_from_main": true,
+      "app_adapter_retired": false
+    },
+    "privacy_and_rights": "Explicitly authorized repository-owned generic code port. Full excerpt inspected: pure parsing/rendering functions, no credentials, customer records, filled listing DATA or third-party attribution notices. Original package was private and had no LICENSE file at the source ref; publication rests on the owner's explicit authorization, not an inferred public licence."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "function words",
+      "function say",
+      "function value",
+      "function withBlock",
+      "const setPath",
+      "function generate"
+    ],
+    "test_refs": [
+      "tools/generate-copy-from-selected-sentences/test/generate-listing-copies.test.mjs"
+    ],
+    "render_refs": [],
+    "originality_ref": null,
+    "active_target": {
+      "path": "tools/generate-copy-from-selected-sentences/do-work/generate-listing-copies.mjs",
+      "multihash": "1f:93b8b2e67aa15bd84b74b4087bd9db5096d41d4519749cb1f8d9c8040915f6ff",
+      "archive_bytes_excluded": true,
+      "method": "Trim lines and count source lines of at least 24 characters present in the active target line set. Baseline excluded.",
+      "measurements": {
+        "sourceMeaningfulLines": 65,
+        "retainedMeaningfulLines": 58,
+        "meaningfulLineRetention": 0.8923076923076924
+      }
+    }
+  }
+}
