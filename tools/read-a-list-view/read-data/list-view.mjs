@@ -40,11 +40,12 @@
 //     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer, history?(id) }
 //     paths and dry_run apply to the list-original sources only (list-copy.mjs).
 import data from './list-view.json' with { type: 'json' };
-import { filterRecords } from '../../formulas/do-work/requests.mjs';
+import { filterRecords, evaluateFormula } from '../../formulas/do-work/requests.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { syncRowSource } from './list-copy.mjs';
 import { rowRecordAddress } from '../../keep-lists-of-rows/read-data/row-record-address.mjs';
+import { prepareListTitles } from '../../keep-lists-of-rows/read-data/list-title-projection.mjs';
 import documentData from '../../documents-as-list-rows/read-data/document-properties.json' with { type: 'json' };
 
 const say = (code, words) => Object.assign(new Error(words), { code });
@@ -136,11 +137,13 @@ async function rowPage(door, list, names, sources, { after, limit }) {
   const address = addressOf(list, names), { type } = address;
   const page = await door.list({ ...address.query, limit, ...(after ? { after } : {}) });
   if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${type} answered no records.`);
+  const prepared = prepareListTitles(list, page.records.map(record => record.value ?? {}));
+  const projected = prepared.request ? prepared.finish(evaluateFormula(prepared.request)) : null;
   return {
-    rows: page.records.map(record => {
+    rows: page.records.map((record, index) => {
       const id = address.localId(record.id);
       const source = sources.find(one => id.startsWith(`${one.id}${SOURCE_MARK}`))?.id;
-      return { id, record_id: record.id, values: record.value ?? {}, title: titleOf(list, record.value, id), ...(source ? { source } : {}) };
+      return { id, record_id: record.id, values: record.value ?? {}, title: projected ? projected[index] ?? id : titleOf(list, record.value, id), ...(source ? { source } : {}) };
     }),
     next: page.records.length ? page.next ?? null : null,
   };

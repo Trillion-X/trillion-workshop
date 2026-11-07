@@ -4,6 +4,8 @@ Reads one page of what a person's list shows, from their records only. A list's 
 
 A refresh is the one thing that runs the source tools. It runs the tool each row source names, reads and writes bounded pages, and removes obsolete rows only after the source ends successfully. It writes only the rows that changed.
 
+Formula-derived title fields are evaluated from each row's current stored values through the existing formula owner. The shared title projection changes only the returned title; it never saves a name or changes the row's values. Missing formula DATA or an evaluator failure refuses the read rather than returning a stale title or a successful empty list.
+
 A list can declare `row_records: { type, prefix }` when its records already use another physical address. The shared `keep-lists-of-rows/read-data/row-record-address.mjs` resolver supplies that same address for reads, refresh writes and list-original copies. Without a declaration, the configured `names.row_type` template remains unchanged and reads keep their existing kind-only selection. A declaration supplies both nonempty literal strings and narrows reads to its prefix; an invalid declaration fails instead of falling back. Row IDs remain local even when their text contains the physical prefix. Address DATA neither moves records nor grants access.
 
 Ported from:
