@@ -1,0 +1,15 @@
+{
+  "about": "Files moved byte for byte from an earlier path in this repository into held evidence. This receipt records the Workshop baseline bytes, not byte equality with the separate Trillion source tree.",
+  "source": "Trillion-X/trillion-workshop",
+  "package": "trillion-workshop",
+  "calls": [],
+  "files": [
+    {
+      "from": "tools/social-posts/native-post-owner.mjs",
+      "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "to": "tools/social-posts/from-old-trillion/native-post-owner.mjs.held",
+      "source_identity": "1f:64c247ddf67b2218fb346fc754e03406b21af823a369649823ed9d5717fc4808",
+      "identity": "1f:64c247ddf67b2218fb346fc754e03406b21af823a369649823ed9d5717fc4808"
+    }
+  ]
+}

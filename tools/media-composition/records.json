@@ -4730,6 +4730,178 @@
   },
   {
    "type": "record",
+   "id": "package::media-composition::tool::use-an-app-on-this-computer",
+   "address": "package::media-composition::tool::use-an-app-on-this-computer",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:use-an-app-on-this-computer",
+    "label": "Work in an app on your computer",
+    "status": "active",
+    "job": "On the person's own computer, edit a video timeline in DaVinci Resolve and do anything else its scripting allows (projects, media pool, clips, markers, colour, Fusion, Fairlight audio, rendering), or write DaVinci Resolve project, timeline and grade files that import into any edition, or reverse engineer an app or binary, decompile it and explain how a feature works under the hood (native computer, Linux and Windows programs, .NET, Android, Electron and JavaScript apps, firmware, websites), through the app's own tool server",
+    "description": "Runs on the computer where the app is. Leave out operation to see every operation the app offers with the input each takes, then call again with one operation and its arguments. Which apps it can use are the rows of apps-here.json (app: davinci-resolve works in the open Resolve project in every edition, Studio through External scripting set to Local and the free edition through a helper this tool puts in Resolve's scripts folder, which Resolve runs when it opens; davinci-resolve-files writes and reads Resolve's .drp, .drt and .drx files without Resolve open; rea reverse engineers, inspects, decompiles and explains programs and files on this computer, using Hopper, Ghidra or IDA for native code where one is installed and a Chrome-family browser to watch a website or Electron app run). The app's own answer comes back as it said it. An app that must be running is opened in the background without taking focus; never file a Waiting on you row asking the person to open it.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "app"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "app": {
+       "type": "string",
+       "minLength": 1,
+       "description": "Which app: davinci-resolve (the open Resolve project), davinci-resolve-files (Resolve's files, no Resolve needed) or rea (reverse engineer, decompile and explain a program or file on this computer)"
+      },
+      "operation": {
+       "type": "string",
+       "minLength": 1,
+       "description": "One operation the app offers; leave out to list them"
+      },
+      "arguments": {
+       "type": "object",
+       "description": "The operation's input, as the listing shows it"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "app",
+      "label",
+      "said"
+     ],
+     "properties": {
+      "app": {
+       "type": "string"
+      },
+      "label": {
+       "type": "string"
+      },
+      "operation": {
+       "type": "string"
+      },
+      "ok": {
+       "type": "boolean"
+      },
+      "operations": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "name"
+        ]
+       }
+      },
+      "answer": {},
+      "said": {
+       "type": "string"
+      },
+      "placed": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "file"
+        ]
+       }
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "media-composition",
+        "paths": [
+         "do-work/use-an-app-here.mjs",
+         "do-work/apps-here.json",
+         "do-work/app-files/davinci-resolve/resolve-bridge.scriptlib"
+        ],
+        "at": "/opt/media-composition"
+       },
+       {
+        "package": "computer-programs",
+        "paths": ["read-data/program-here.mjs"],
+        "at": "/opt/computer-programs"
+       }
+      ]
+     },
+     "workdir": "/opt/media-composition",
+     "internet": true,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "do-work/use-an-app-here.mjs",
+      "--app",
+      {
+       "from": "app"
+      },
+      {
+       "$when": "operation",
+       "value": "--operation"
+      },
+      {
+       "from": "operation",
+       "optional": true
+      },
+      {
+       "$when": "arguments",
+       "value": "--arguments"
+      },
+      {
+       "from": "arguments",
+       "optional": true
+      }
+     ]
+    },
+    "needs": {
+     "expected_seconds": 30,
+     "network_egress": true
+    },
+    "result_selector": "$.result",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "maker": "maker:media-composition",
+    "provenance": {
+     "source": "apps-here.json rows name each app's tool server: davinci-resolve-mcp (MIT, github.com/samuelgursky/davinci-resolve-mcp), run from its own installation on the person's computer"
+    },
+    "verify": [
+     {
+      "kind": "output-contains",
+      "output_selector": "$.said",
+      "text": "."
+     }
+    ],
+    "screen": {
+     "group": "content-make",
+     "kind": "described",
+     "icon": "Clapperboard",
+     "inputs": {
+      "app": {
+       "label": "App",
+       "placeholder": "davinci-resolve"
+      },
+      "operation": {
+       "label": "What to do",
+       "placeholder": "Leave empty to see what it can do"
+      },
+      "arguments": {
+       "hidden": true
+      }
+     },
+     "label": "Work in an app",
+     "about": "Edits in DaVinci Resolve, and other apps on your computer, for you."
+    }
+   }
+  },
+  {
+   "type": "record",
    "id": "package::media-composition::tool::grade-a-video",
    "address": "package::media-composition::tool::grade-a-video",
    "path": [

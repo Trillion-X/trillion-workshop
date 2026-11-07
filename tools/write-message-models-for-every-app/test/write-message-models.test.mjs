@@ -35,7 +35,9 @@ test('Swift takes each target\'s own names, protocols and Identifiable, and leav
 });
 
 test('outputs answers one file per target', () => {
-  assert.deepEqual(outputs(spec).map(item => item.file), [spec.targets.mac.file, spec.targets.ios.file, spec.targets.typescript.file]);
+  const generated = outputs(spec, 'src/device-bridge-models.json');
+  assert.deepEqual(generated.map(item => item.file), [spec.targets.mac.file, spec.targets.ios.file, spec.targets.typescript.file]);
+  assert.ok(generated.every(item => item.text.startsWith('// generated from src/device-bridge-models.json ')));
 });
 
 test('--write writes every target under --root, --check then passes, and a changed row makes --check fail', () => {
@@ -43,7 +45,7 @@ test('--write writes every target under --root, --check then passes, and a chang
   const models = join(root, 'models.json');
   writeFileSync(models, JSON.stringify(spec));
   assert.match(execFileSync('node', [script, '--models', models, '--root', root, '--write'], { encoding: 'utf8' }), /^Wrote /);
-  assert.equal(readFileSync(join(root, spec.targets.typescript.file), 'utf8'), renderTypescript(spec).replace(/^\/\/ generated from [^ ]+/, `// generated from ${models}`));
+  assert.equal(readFileSync(join(root, spec.targets.typescript.file), 'utf8'), renderTypescript(spec, models));
   assert.equal(spawnSync('node', [script, '--models', models, '--root', root, '--check']).status, 0);
   assert.match(execFileSync('node', [script, '--models', models, '--root', root], { encoding: 'utf8' }), /Up to date/);
   const changed = structuredClone(spec);

@@ -6,7 +6,7 @@ The helper DaVinci Resolve runs itself when it opens, so the person's AIs work i
 
 | File | Purpose |
 |------|---------|
-| `trillion-resolve-bridge.scriptlib` | Resolve runs every `.scriptlib` in its `Fusion/Scripts` folder when it opens, in its own LuaJIT with the live `resolve` object. This one serves that object on 127.0.0.1 with the same signed one-line JSON protocol as davinci-resolve-mcp's in-app bridge (`resolve_bridge.py`), so that MCP server drives it unchanged. Placed by `../../apps-here.json` row `davinci-resolve` (`places`, macOS). |
+| `resolve-bridge.scriptlib` | Resolve runs every `.scriptlib` in its `Fusion/Scripts` folder when it opens, in its own LuaJIT with the live `resolve` object. This one serves that object on 127.0.0.1 with the same signed one-line JSON protocol as davinci-resolve-mcp's in-app bridge (`resolve_bridge.py`), so that MCP server drives it unchanged. Placed by `../../apps-here.json` row `davinci-resolve` (`places`, macOS). |
 
 ## Key types / functions (inside the scriptlib)
 
