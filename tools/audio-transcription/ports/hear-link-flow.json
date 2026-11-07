@@ -1,0 +1,86 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-AUDIO-TRANSCRIPTION-HEAR-LINK-FLOW-RECOVERY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:finish:launch-video-decouple-and-film-qa; recovery of the hearing helper source on 2026-11-07",
+    "message_multihash": "1f:34369b9f6f53dab39c4fcda09c583b4f93e0edfcf494214de234eaa15dc24e8f",
+    "quote": "Move code, never rewrite it."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/hear-a-link.mjs",
+      "lines": [
+        105,
+        154
+      ],
+      "multihash": "1f:5e772a90dc0a86ea0d9fb440cbad9068e907bf1f6fe1591dd1e9ec4ecd9a29bc",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:06:08Z",
+        "deleted_in": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "computer/hear-a-link.mjs",
+      "lines": [
+        83,
+        83
+      ],
+      "multihash": "1f:32dccbb6743d05f0c1b5e764bae436d2d35e638c64bb2f1d50674d7013b7ff7a",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-04T00:06:08Z",
+        "deleted_in": "7fd88384753b34aa9259fca7bc74ed8746f6e32d"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/audio-transcription/read-data/hear-link-flow.mjs"
+    }
+  ],
+  "preserve": [
+    "Read link metadata, prefer available captions, and hear audio only when captions do not yield words.",
+    "Refuse unsupported links, unavailable readers/hearing, empty sound and empty words with explanatory errors.",
+    "Keep sound only when enabled and possible; preserve the heard answer on keep failure; clean the owned working folder."
+  ],
+  "allowed_deltas": [
+    "Bind current settings, program, caption, hearing and file-keeping owners through linkToolsFor; keep link handling and its failure/cleanup order in this recovered flow.",
+    "Receive current hearing DATA rather than reading retired computer-sources.json; receive the current file-door availability check rather than old origin/key transport.",
+    "Add the original fileIn helper from its declared source line and bind only standard-library filesystem/path dependencies.",
+    "Normalize the application-specific temporary-folder prefix in the active helper; the non-active held source remains unredacted."
+  ],
+  "banned_substitutions": [
+    "An archived helper that the final consumer does not call",
+    "A second parser, link-flow engine or fetcher implementation beside the recovered source"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:5e772a90dc0a86ea0d9fb440cbad9068e907bf1f6fe1591dd1e9ec4ecd9a29bc",
+    "target_multihash_at_baseline": "1f:5e772a90dc0a86ea0d9fb440cbad9068e907bf1f6fe1591dd1e9ec4ecd9a29bc",
+    "recorded_at": "2026-11-07T22:23:38.000Z",
+    "path": "tools/audio-transcription/source-baselines/hear-link-flow.mjs.held",
+    "commit": "0c292e215a6e0556a97451fd41dd1766a0d6d1e8"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/audio-transcription/test/hear-a-link.test.mjs",
+      "tools/audio-transcription/test/hear-a-recording.test.mjs"
+    ],
+    "recovery_state": "Private adaptation verified against the actual committed source-baselines held artifact. The artifact is neither an active target nor an import; source retention is measured only from the active helper.",
+    "required_mechanisms": [
+      "export const linkToolsFor",
+      "async hear(input, context",
+      "captionWords(readFileSync",
+      "await runFetcher(fetcher",
+      "rmSync(folder"
+    ]
+  }
+}

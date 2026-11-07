@@ -1,0 +1,89 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-AUDIO-TRANSCRIPTION-CURRENT-HEARING-BRIDGE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "ai-job:finish:launch-video-decouple-and-film-qa; hearing bridge recovery 2026-11-07",
+    "message_multihash": "1f:8f7633e95308428f632ce98c240e5e26720ef97118a43089b40f2d9a237ed6e8",
+    "quote": "reuse ported original helpers through currentrecords-door seam, with honest source baseline(s), preserve currentAPI; thinadapter qualifies narrowly distinct only whenactuallydelegating."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "4c0f8eeff91d70fb4b8ad6627da46ffe3e0201c7",
+      "path": "tools/audio-transcription/read-data/hear-here.mjs",
+      "multihash": "1f:63f123d71f46896abc03109f8d4823071d14de7f24cc64a2c429f5442dc90bf6",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/audio-transcription/read-data/hear-here.mjs"
+    },
+    {
+      "path": "tools/audio-transcription/read-data/read-link-captions.mjs"
+    },
+    {
+      "path": "tools/audio-transcription/read-data/run-link-fetcher.mjs"
+    },
+    {
+      "path": "tools/audio-transcription/read-data/hear-link-flow.mjs"
+    }
+  ],
+  "preserve": [
+    "Keep current hearARecording, hearALink, hearFile, keepSound, fetcherProgram, linkSettings and public parser/fetcher exports and result shapes.",
+    "Delegate actual file I/O to the existing records-door whole-file owner and actual hearing to the existing audio_transcription.py seam.",
+    "Keep caption preference, explanatory refusals, current model selection, optional sound keeping, owned temporary cleanup and current file-door behavior."
+  ],
+  "allowed_deltas": [
+    "Move embedded caption, process-running and link-flow code behind imports of the actively called original-source recovery helpers; those helpers have separate exact source-copy contracts.",
+    "This is an in-place adaptation of the existing current protocol bridge. It does not claim the whole old listener was copied into this file.",
+    "Restore reader eligibility and fallback by calling the public computer-programs hearingHere owner; bind an explicit reader through that same owner and reject substitution for an explicitly named path.",
+    "Allow the existing dependency-options argument to supply settings for controlled consumer tests; runtime tool input and result schemas stay unchanged."
+  ],
+  "banned_substitutions": [
+    "A second caption parser, fetcher or link-control-flow implementation inside the protocol bridge",
+    "A historical raw-copy claim for the pre-recovery hearing adapter",
+    "An import of the retired account runtime or a fake origin/key to satisfy the old transport"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:63f123d71f46896abc03109f8d4823071d14de7f24cc64a2c429f5442dc90bf6",
+    "target_multihash_at_baseline": "1f:63f123d71f46896abc03109f8d4823071d14de7f24cc64a2c429f5442dc90bf6",
+    "recorded_at": "2026-11-07T22:23:38.000Z",
+    "commit": "0c292e215a6e0556a97451fd41dd1766a0d6d1e8"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "linkToolsFor({",
+      "createLinkFetcher({ execFile, fill })",
+      "readWholeFile(door",
+      "writeWholeFile(door"
+    ],
+    "test_refs": [
+      "tools/audio-transcription/test/hear-a-link.test.mjs",
+      "tools/audio-transcription/test/hear-a-recording.test.mjs"
+    ],
+    "recovery_state": "Private in-place adaptation of the existing current bridge; named recovery commit holds its unchanged source bytes. Current API delegates to the actively used recovered helpers and existing records/program/transcription owners.",
+    "delegates_to": [
+      {
+        "path": "tools/computer-programs/read-data/program-here.mjs",
+        "export": "hearingHere"
+      },
+      {
+        "path": "tools/records-door/read-data/whole-file.mjs",
+        "exports": [
+          "readWholeFile",
+          "writeWholeFile"
+        ]
+      },
+      {
+        "path": "tools/audio-transcription/do-work/audio_transcription.py",
+        "command": "transcribe"
+      }
+    ]
+  }
+}
