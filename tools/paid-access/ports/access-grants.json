@@ -1,0 +1,42 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PAID-ACCESS-GRANT-WRITER-RECOVERY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7de-2fce-7412-a6a9-4b091acf90cd",
+    "quote": "Recover the existing c9fbccd8 grant writer in its paid-access owner and carry its source, descriptor and tests through normal checks."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion-workshop",
+    "commit": "c9fbccd8f03da99611a2a9fa405f7649b310ec85",
+    "path": "tools/paid-access/read-data/access-grants.mjs",
+    "multihash": "1f:3d9c97d77665de9cb3a9a4413eff8dc9ca896da64fb6f3b51e21695084d21d0d",
+    "ownership": "repository-owned",
+    "old_copy": "same-file"
+  }],
+  "targets": [{"path": "tools/paid-access/read-data/access-grants.mjs"}],
+  "preserve": [
+    "The existing access-grant reader shape and immutable subject/grant-reference identities",
+    "Conditional creation, idempotent repeats and refusal to change existing terms",
+    "Revocations remain monotonic tombstones, including when they arrive before a grant",
+    "Output reports accepted writes, not a promise that access is currently held",
+    "No payment, buyer, session, credential or network mutation"
+  ],
+  "allowed_deltas": [
+    "Accept a revoke-only request without requiring an unrelated grant; descriptor and function express the same nonempty either-or rule",
+    "Reuse the shared byte-and-row write batcher and refuse a record too large for one admitted message",
+    "Add synthetic packed-row and reader consumer checks for revoke-only, tombstones, paired writes, expiry and large Unicode inputs"
+  ],
+  "banned_substitutions": ["A second grant store or access projection", "Rewriting payment history", "Testing with real member grants"],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:3d9c97d77665de9cb3a9a4413eff8dc9ca896da64fb6f3b51e21695084d21d0d",
+    "target_multihash_at_baseline": "1f:3d9c97d77665de9cb3a9a4413eff8dc9ca896da64fb6f3b51e21695084d21d0d",
+    "commit": "c9fbccd8f03da99611a2a9fa405f7649b310ec85"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": ["tools/paid-access/test/grant-paid-access.test.mjs", "tools/paid-access/test/paid-access-rows.test.mjs", "tools/paid-access/test/read-granted-access-refs.test.ts"]
+  }
+}
