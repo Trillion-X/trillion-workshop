@@ -18,12 +18,13 @@
 //     readTarget(path)              Buffer | null   the bytes of a path of `root` in `tree` (a commit, ':' for the staged
 //                                                   index, or undefined for the file on disk)
 //     targetAtCommit(commit, path)  Buffer | null   the bytes of a path of `root` at a commit
+//     baselineHistory(commit, paths) object | null ancestry and each active path's history before the byte copy
 //     lives(repository, path)       boolean | null  whether the path is in that repository's main line now
 //     searchCode(repository, pattern)  string[] | null  paths in that repository's main line whose text or path matches
 //     mainOf(repository)            string | null   the commit searched
 //   }
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
@@ -31,7 +32,7 @@ const MAX_BUFFER = 1 << 28;
 
 function git(root, args, { bytes = false } = {}) {
   try {
-    const out = execFileSync('git', ['-C', root, ...args], { maxBuffer: MAX_BUFFER, stdio: ['ignore', 'pipe', 'ignore'] });
+    const out = execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { maxBuffer: MAX_BUFFER, stdio: ['ignore', 'pipe', 'ignore'] });
     return bytes ? out : out.toString('utf8');
   } catch (error) {
     // git grep answers 1 when nothing matched; every other failure is "not readable here".
@@ -61,6 +62,9 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     return main;
   };
   const show = (folder, spec) => (folder ? git(folder, ['show', spec], { bytes: true }) : null);
+  const targetAtCommit = (commit, path) => /^100(?:644|755) blob /.test(git(here, ['--literal-pathspecs', 'ls-tree', `${commit}^{commit}`, '--', path]) ?? '')
+    ? show(here, `${commit}^{commit}:${path}`) : null;
+  const ancestor = (before, after) => git(here, ['merge-base', '--is-ancestor', before, after]) !== null;
   const pathOf = (source) => {
     if (source?.path) return source.path;
     const folder = source?.repository && source?.commit && source?.path_multihash ? checkout(source.repository) : null;
@@ -79,12 +83,33 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     readTarget(path) {
       if (tree === undefined) {
         const file = resolve(here, path);
-        return existsSync(file) ? readFileSync(file) : null;
+        // Git reads a symlink's own blob, never its destination. Disk reads must not follow a file or parent alias
+        // into another target (in particular an archival baseline). Allow an OS alias of the checkout root itself.
+        return existsSync(file) && realpathSync(file) === resolve(realpathSync(here), path) ? readFileSync(file) : null;
       }
-      return show(here, tree === ':' ? `:${path}` : `${tree}:${path}`);
+      if (tree !== ':') return targetAtCommit(tree, path);
+      return /^100(?:644|755) [0-9a-f]+ 0\t/.test(git(here, ['--literal-pathspecs', 'ls-files', '--stage', '--', path]) ?? '') ? show(here, `:${path}`) : null;
     },
-    targetAtCommit(commit, path) {
-      return show(here, `${commit}:${path}`);
+    targetAtCommit,
+    baselineHistory(commit, paths) {
+      if (git(here, ['rev-parse', '--is-shallow-repository'])?.trim() !== 'false') return null;
+      const grafts = git(here, ['rev-parse', '--git-path', 'info/grafts'])?.trim();
+      if (!grafts || (existsSync(resolve(here, grafts)) && readFileSync(resolve(here, grafts), 'utf8').trim())) return null;
+      const base = git(here, ['rev-parse', '--verify', `${commit}^{commit}`])?.trim();
+      const judged = git(here, ['rev-parse', '--verify', `${tree === undefined || tree === ':' ? 'HEAD' : tree}^{commit}`])?.trim();
+      if (!base || !judged) return null;
+      const targets = paths.map((path) => {
+        const earlier = git(here, ['--literal-pathspecs', 'log', '--full-history', '--format=%H', base, '--', path]);
+        const added = git(here, ['--literal-pathspecs', 'log', '--full-history', '--diff-filter=A', '--format=%H', judged, '--', path]);
+        if (earlier === null || added === null) return null;
+        return {
+          path,
+          atBaseline: targetAtCommit(base, path),
+          before: earlier.trim().split('\n').filter(Boolean).map((one) => targetAtCommit(one, path)),
+          introductionsOrdered: added.trim().split('\n').filter(Boolean).every((one) => ancestor(one, base) || ancestor(base, one)),
+        };
+      });
+      return targets.some((one) => one === null) ? null : { ancestor: ancestor(base, judged), targets };
     },
     lives(repository, path) {
       const folder = checkout(repository);

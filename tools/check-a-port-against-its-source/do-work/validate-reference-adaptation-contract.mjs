@@ -29,6 +29,10 @@ function isRecord(value) { return value && typeof value === 'object' && !Array.i
 function finiteNonNegative(value) { return Number.isFinite(value) && value >= 0; }
 function finitePositive(value) { return Number.isFinite(value) && value > 0; }
 function unique(values) { return new Set(values).size === values.length; }
+function repositoryRelativePath(path) {
+  return typeof path === 'string' && path.length > 0 && !/[:\\\x00-\x1f\x7f]/.test(path)
+    && path.split('/').every((part) => part && part !== '.' && part !== '..');
+}
 function words(text) { return new Set(String(text ?? '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase().match(/[a-z][a-z0-9]{3,}/g) ?? []); }
 function redacted(text, redactions) {
   return redactions.reduce((out, one) => (typeof one?.from === 'string' && one.from && typeof one?.to === 'string' ? out.split(one.from).join(one.to) : out), text);
@@ -484,6 +488,13 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   const targets = Array.isArray(contract?.targets) ? contract.targets : [];
   const source = sources[0];
   const target = targets[0];
+  const separateBaseline = isRecord(contract.baseline) && Object.hasOwn(contract.baseline, 'path');
+  const baselinePath = separateBaseline ? contract.baseline.path : target?.path;
+  if (separateBaseline) {
+    if (!repositoryRelativePath(baselinePath)) errors.push('baseline.path must be a non-empty repository-relative path without traversal');
+    if (targets.some((one) => !repositoryRelativePath(one?.path))) errors.push('targets with baseline.path must use canonical repository-relative paths without traversal');
+    if (targets.some((one) => one?.path === baselinePath)) errors.push('baseline.path is a separate byte-copy artifact and must not appear in targets');
+  }
   // A source in a private repository moved into a public one may have to lose words before its first commit there (a
   // person's name, a private path): baseline.redactions lists each literal replacement, and the byte copy is then the
   // source with exactly those replacements. Nothing else may differ.
@@ -521,11 +532,13 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   const targetTexts = [];
   let targetBytes = null;
   for (const one of targets) {
+    // A declared archival copy never supplies retention or required mechanisms, even in an invalid contract.
+    if (separateBaseline && (!repositoryRelativePath(one?.path) || one.path === baselinePath)) continue;
     const bytes = one?.path ? readTargetBytes(one.path, options) : null;
     if (bytes) {
       targetTexts.push(bytes.toString('utf8'));
       if (one === target) targetBytes = bytes;
-    } else if (stage === 'completion' && one?.path) errors.push(`target missing: ${options.readers ? one.path : absolute(one.path)}`);
+    } else if ((stage === 'completion' || separateBaseline) && one?.path) errors.push(`target missing: ${options.readers ? one.path : absolute(one.path)}`);
   }
 
   if (stage === 'pre-edit' && !['BASELINED', 'ADAPTED', 'VERIFIED'].includes(contract?.status)) errors.push('pre-edit requires BASELINED, ADAPTED, or VERIFIED status');
@@ -542,13 +555,29 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
     }
     if (!Array.isArray(contract?.preserve) || contract.preserve.length === 0) errors.push('SOURCE_FIRST_PORT requires preserved mechanisms');
     if (!Array.isArray(contract?.banned_substitutions) || contract.banned_substitutions.length === 0) errors.push('SOURCE_FIRST_PORT requires banned substitutions');
-    // The first commit of a port is the byte copy: the target held the source's exact bytes at baseline.commit, or
-    // holds them now (this is that commit).
+    // The immutable baseline is the byte copy, either at the first target's historical path or at an explicitly
+    // separate path. A separate artifact requires committed proof; its current bytes cannot stand in for history.
     const copyNow = targetBytes && multihash(targetBytes) === copied;
-    if (contract?.baseline?.commit && options.readers?.targetAtCommit && target?.path) {
-      const atBaseline = options.readers.targetAtCommit(contract.baseline.commit, target.path);
-      if (atBaseline === null) errors.push(`baseline.commit ${contract.baseline.commit} does not hold ${target.path}`);
-      else if (multihash(atBaseline) !== copied) errors.push(`${target.path} at baseline.commit is not the source's bytes: the first commit of a port is the byte copy`);
+    if (separateBaseline && (!/^[0-9a-f]{7,64}$/.test(String(contract.baseline.commit ?? '')) || typeof options.readers?.targetAtCommit !== 'function')) {
+      errors.push('baseline.path requires baseline.commit and a repository reader to verify its committed byte copy');
+    } else if (contract?.baseline?.commit && options.readers?.targetAtCommit && baselinePath && (!separateBaseline || repositoryRelativePath(baselinePath))) {
+      const atBaseline = options.readers.targetAtCommit(contract.baseline.commit, baselinePath);
+      if (atBaseline === null) errors.push(`baseline.commit ${contract.baseline.commit} does not hold ${baselinePath}`);
+      else if (multihash(atBaseline) !== copied) errors.push(`${baselinePath} at baseline.commit is not the source's bytes: the first commit of a port is the byte copy`);
+      if (separateBaseline) {
+        const history = options.readers.baselineHistory?.(contract.baseline.commit, targets.map((one) => one?.path).filter(repositoryRelativePath));
+        if (!history) errors.push('baseline.path requires repository history proof before active adaptation');
+        else {
+          if (!history.ancestor) errors.push('baseline.commit must be an ancestor of the judged commit');
+          const copies = new Set([copied, ...sources.slice(1).map((one) => one?.multihash)]);
+          for (const one of history.targets) {
+            const exact = (bytes) => bytes !== null && copies.has(multihash(bytes));
+            if (!one.introductionsOrdered || (one.atBaseline === null ? one.before.length > 0 : !exact(one.atBaseline) || !one.before.every(exact))) {
+              errors.push(`baseline.path must precede active adaptation: ${one.path} has prior or unrelated target history`);
+            }
+          }
+        }
+      }
     } else if (options.readers && source?.repository && !copyNow) {
       errors.push('baseline.commit must name the commit that holds the byte copy of the source');
     }

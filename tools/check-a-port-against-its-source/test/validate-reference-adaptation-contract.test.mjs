@@ -150,6 +150,15 @@ test('unit: accepts a valid source-first contract', () => {
   assert.equal(result.valid, true, result.errors.join('\n'));
 });
 
+test('unit: a separate baseline requires committed repository proof even when active bytes are the source', () => {
+  const { contract } = fixture();
+  contract.baseline.path = 'proofs/source-copy.tsx';
+  contract.baseline.commit = 'a'.repeat(40);
+  const result = validateReferenceAdaptationContract(contract);
+  assert.equal(result.valid, false);
+  assert.match(result.errors.join('\n'), /baseline.path requires baseline.commit and a repository reader/);
+});
+
 test('unit: accepts the package-owned semantic schema', () => {
   const { contract, targetPath } = fixture({
     schema: 'reference-adaptation-contract/reference-grounded-adaptation',
