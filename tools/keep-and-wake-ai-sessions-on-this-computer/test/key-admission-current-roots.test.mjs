@@ -5,6 +5,11 @@ import { RECORD_MODEL } from '../src/record-engine.mjs';
 import { recordLogStore } from '../parts/record-log/do-work/record-log-store.mjs';
 import { recordLogStore as before } from './fixtures/record-log-store-before-key-admission.mjs';
 const material = Buffer.alloc(32,7).toString('base64');
+// What an erasure received for a message's text leaves behind. The store before key admission kept the field it was
+// sent; the current store erases a received erasure as erase() does, with every field the kind declares erasable or
+// erase_fields (record-model.json), so its tombstone names them all, in that order.
+const MESSAGE = RECORD_MODEL.kinds.find(kind => kind.type === 'message');
+const tombstone = source => ({ erased: source === recordLogStore ? [...new Set(['text', ...MESSAGE.erasable, ...MESSAGE.erase_fields])] : ['text'] });
 const config = host => ({ transaction:host.transaction, model:RECORD_MODEL, slot_bytes:0, runs:{page_bytes:4096,cache_bytes:0,filter_bytes:0,memtable_bytes:1<<20,tail_rows:Infinity} });
 function seed(host,source) {
   const options=config(host);let records=source(host.sql,options);
@@ -23,11 +28,11 @@ test('current roots preserve owner keys, side-tree keys, duplicate/absent inputs
     assert.equal(expected['message:owner'],material);assert.equal(expected['side-only'],material);assert.equal('missing' in expected,false);
     for(const [host,source,item] of [[a,before,left],[b,recordLogStore,right]]) {
       item.records.takeErasureKeys({'message:owner':{erased:['text']}});item.records.checkpoint();item.records=source(host.sql,item.options);
-      assert.deepEqual(item.records.erasureKeys(['message:owner'])['message:owner'],{erased:['text']});
+      assert.deepEqual(item.records.erasureKeys(['message:owner'])['message:owner'],tombstone(source));
       assert.throws(()=>host.transaction(()=>{item.records.takeErasureKeys({'side-only':{erased:[]}});throw new Error('deliberate rollback');}),/deliberate rollback/);item.records.forgetCached();
       assert.equal(item.records.erasureKeys(['side-only'])['side-only'],material);
     }
-    assert.deepEqual(right.records.erasureKeys(ids),left.records.erasureKeys(ids));
+    assert.deepEqual(right.records.erasureKeys(ids),{...left.records.erasureKeys(ids),'message:owner':tombstone(recordLogStore)});
     // Each independently written message has a distinct generated key. Test logical output size/coverage without falsely equating key bytes.
     const wide=Array.from({length:140},(_,i)=>'message:'+i);
     for(const item of [left,right]) {
