@@ -1,7 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { join, posix, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { sqliteHost } from '../../keep-and-wake-ai-sessions-on-this-computer/src/local-store.mjs';
 import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
 import { recordLogStore as beforeOwner } from './fixtures/record-log-store-before-bucket-directory.mjs';
@@ -51,9 +54,31 @@ function originalRead(host, opts = {}) {
   return beforeOwner(host.sql, { transaction: host.transaction, runs, ...opts });
 }
 
+// Each relative import of the fixture is written back as the source wrote it, from the source's own folder
+// (parts/record-log/do-work), to the old path its target's move receipt (moved-from.json) names; what is left must be
+// the 577d3b687 source byte for byte.
+function oldPaths() {
+  const repo = fileURLToPath(new URL('../../../', import.meta.url));
+  const receipts = execFileSync('git', ['-C', repo, 'ls-files', '-z', '--', 'moved-from.json', '*/moved-from.json'], { encoding: 'utf8' }).split('\0').filter(Boolean);
+  const old = new Map();
+  for (const file of receipts) {
+    let receipt;
+    try { receipt = JSON.parse(readFileSync(join(repo, file), 'utf8')); } catch { continue; }
+    for (const row of Array.isArray(receipt.files) ? receipt.files : []) if (row?.to && row?.from) old.set(row.to, row.from);
+  }
+  return { repo, old };
+}
+
 test('baseline fixture is exactly 577d3b687 source with only relative import relocation', () => {
-  const original = readFileSync(new URL('./fixtures/record-log-store-before-bucket-directory.mjs', import.meta.url), 'utf8')
-    .replaceAll("from '../../parts/record-log/do-work/", "from '");
+  const fixture = new URL('./fixtures/record-log-store-before-bucket-directory.mjs', import.meta.url);
+  const { repo, old } = oldPaths();
+  const here = posix.dirname(relative(repo, fileURLToPath(fixture)));
+  const original = readFileSync(fixture, 'utf8').replace(/from '(\.[^']+)'/g, (_, specifier) => {
+    const target = posix.normalize(posix.join(here, specifier));
+    assert.ok(old.has(target), `${target} names no source path in a move receipt`);
+    const back = posix.relative('parts/record-log/do-work', old.get(target));
+    return `from '${back.startsWith('.') ? back : `./${back}`}'`;
+  });
   assert.equal(createHash('sha256').update(original).digest('hex'), '4b039d64ea2850718524d5c9f27ce8099578017ce2859e1d1bd7a19e994a80fa');
 });
 
