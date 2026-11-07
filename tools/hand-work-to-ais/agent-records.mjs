@@ -162,7 +162,12 @@ const entryOrder = (a, b) => {
 };
 const pageOf = limit => (Number.isFinite(limit) && limit >= 0 ? limit : Infinity);
 
-export function agentRecordStore({ records, transaction = fn => fn(), firstRows = () => [], heldSummaryReady = () => true, cardsMoving = () => true }) {
+// The defaults describe a store with no older tables: no rows to read from them (firstRows), the held summary whole
+// (heldSummaryReady) and no cards still coming in (cardsMoving). A caller whose table move is running says so for each.
+// cardsMoving once defaulted to true here alone, so a store built with no move could never trust its reader facts and
+// greeted a connecting AI by one look at each of the reader's cards, however long ago those cards were records
+// (tools/hand-work-to-ais/test/pending-for-reader-bounded.test.mjs: 62 rows for 100 cards, 151 for 400; now 32 and 41).
+export function agentRecordStore({ records, transaction = fn => fn(), firstRows = () => [], heldSummaryReady = () => true, cardsMoving = () => false }) {
   // Records written inside one transaction(fn), written as one log row when it returns (invariant 3).
   let pending = null;
   let pendingRetractions = null;
