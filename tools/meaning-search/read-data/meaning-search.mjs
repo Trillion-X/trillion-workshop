@@ -319,6 +319,9 @@ export async function findSimilarAcross(input, { door }) {
   const asked = { ...input };
   delete asked.index_ids;
   delete asked.spread;
+  // Spread is applied after merging: use each descriptor's existing result_limit
+  // so clustered top hits do not hide distinct files before the final limit.
+  if (spread) delete asked.limit;
   const answers = [];
   for (const id of ids) answers.push(await findSimilarVector({ ...asked, index_id: id }, { door }));
   const models = new Set(answers.map(answer => `${answer.model_id}@${answer.model_version}`));

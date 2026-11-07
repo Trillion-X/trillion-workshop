@@ -29,7 +29,8 @@
     "findSimilarAcross: the same query vector over several descriptors, merged by score, spread and limit on the merged list, descriptors of different models refused",
     "findWordsSaid: the lines of the descriptors' sets that say every word of query_text longer than two letters",
     "points_to.carry: item fields passed through to an answer",
-    "Bound vector-bearing preparation and fact-generation inputs by index_batch_bytes; apply the ordered batches to one ANN state through the original mutation function, query once, and collect selected facts from bounded batches. No ranking, candidate order or descriptor limits change."
+    "Bound vector-bearing preparation and fact-generation inputs by index_batch_bytes; apply the ordered batches to one ANN state through the original mutation function, query once, and collect selected facts from bounded batches. No ranking, candidate order or descriptor limits change.",
+    "With a spread across indexes, rank each descriptor to its existing result_limit before the merge, then apply the unchanged spread and requested final limit. Without a spread the requested per-descriptor limit remains unchanged."
   ],
   "banned_substitutions": [
     "a second ranking beside the package's: each descriptor is still ranked by findSimilarVector",
@@ -47,7 +48,8 @@
     "test_refs": [
       "tools/meaning-search/test/meaning-search.test.mjs one query over two indexes is ranked together, best first, and carries the fields the descriptor names",
       "tools/meaning-search/test/meaning-search.test.mjs words said: every word longer than two letters, case ignored, in the order the sets hold them, up to the limit",
-      "tools/meaning-search/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches"
+      "tools/meaning-search/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches",
+      "tools/meaning-search/test/meaning-search.test.mjs one index with a spread keeps the direct search result before its final limit"
     ]
   }
 }

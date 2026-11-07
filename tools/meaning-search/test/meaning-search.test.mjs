@@ -370,6 +370,26 @@ test('one query over two indexes is ranked together, best first, and carries the
   assert.equal(answer.model_id, 'synthetic-picture-model');
 });
 
+test('one index with a spread keeps the direct search result before its final limit', async () => {
+  const items = [
+    { clip: 'cluster.mp4', t: 0 }, { clip: 'cluster.mp4', t: 2 }, { clip: 'cluster.mp4', t: 4 },
+    { clip: 'distinct-a.mp4', t: 0 }, { clip: 'distinct-b.mp4', t: 0 }, { clip: 'distinct-c.mp4', t: 0 },
+  ];
+  const files = { '/Sets/frames.jsonl': lines(items), '/Sets/frames.npy': npy(items.map(() => [1, 0, 0, 0])) };
+  const input = { query_vector_base64: asQuery([1, 0, 0, 0]), limit: 3, spread: { per_file: 1, seconds_apart: 10 } };
+  for (const resultLimit of [6, 3]) {
+    const d = descriptor(SET, { result_limit: resultLimit });
+    const world = () => standInDoor({ descriptors: [d], files, span: 4096 });
+    const direct = await findSimilarVector({ ...input, index_id: d.index_id }, { door: world() });
+    const across = await findSimilarAcross({ ...input, index_ids: [d.index_id] }, { door: world() });
+    assert.deepEqual(across.result, direct.result, 'across must rank to the existing descriptor limit before spreading, just as direct search does');
+    assert.deepEqual(across.points_to, direct.points_to);
+    assert.deepEqual(across.result.items.map(item => [across.points_to[item.address].file, item.score]), resultLimit === 6 ? [['cluster.mp4', 1], ['distinct-a.mp4', 1], ['distinct-b.mp4', 1]] : [['cluster.mp4', 1]], 'the descriptor limit stays in force even when it cannot fill the requested spread');
+  }
+  const plain = await findSimilarAcross({ index_ids: ['synthetic-pictures'], query_vector_base64: input.query_vector_base64, limit: 3 }, { door: standInDoor({ descriptors: [descriptor(SET, { result_limit: 6 })], files, span: 4096 }) });
+  assert.deepEqual(plain.result.items.map(item => item.address), [0, 1, 2].map(at => `/Sets/frames.jsonl#${at}`), 'without a spread the requested limit still applies to each descriptor');
+});
+
 test('across indexes the spread applies to the merged answer and an untimed picture counts once', async () => {
   const answer = await findSimilarAcross({ ...across, limit: 6, spread: { per_file: 1 } }, { door: acrossWorld() });
   const files = answer.result.items.map(item => answer.points_to[item.address].file);

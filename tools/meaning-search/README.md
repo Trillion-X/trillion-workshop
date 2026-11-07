@@ -13,7 +13,7 @@ Both take an optional `spread: { per_file, seconds_apart }` so many neighbouring
 
 | Row | Seam export | What it does |
 |---|---|---|
-| `tool:find-closest-across-my-indexes` | `findSimilarAcross` | The same query vector over several descriptors (`index_ids`), merged best first. The package ranks each descriptor; the merge sorts the answers by score and applies `spread` and `limit` to the merged list. Descriptors of different models are refused. |
+| `tool:find-closest-across-my-indexes` | `findSimilarAcross` | The same query vector over several descriptors (`index_ids`), merged best first. The package ranks each descriptor; with a spread it ranks to that descriptor's existing `result_limit`, so clustered top hits do not hide later files before spreading. The merge sorts the answers by score and applies `spread` and the requested final `limit` to the merged list. Descriptors of different models are refused. |
 | `tool:find-words-said-in-my-recordings` | `findWordsSaid` | The lines of the descriptors' sets whose `points_to.text` field says every word of `query_text` longer than two letters (case ignored), in the order the sets hold them, at most `limit` (8). No model. |
 | `tool:make-a-vector-set-from-picture-vectors-my-apps-kept` | `do-work/make_vector_set_from_kept_vectors.py` | On the person's computer: an asset index of CLIP matrices (with readable names), a folder of timed frames, and an app's results store of timed frames (with each video's namespace id) each become `items.jsonl`, `vectors.npy` and `vector-set.json`. |
 
