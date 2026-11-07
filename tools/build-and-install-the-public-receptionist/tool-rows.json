@@ -1,7 +1,7 @@
 {
   "kind": "package-set-records",
   "record_set": "build-and-install-the-public-receptionist-tool-rows",
-  "what_this_is": "The Workshop rows for building and installing the public receptionist on its own rented Linux host: prepare the host, read it, build one commit there and install the built file. The host, its port, the administration user, every host path and the Rust toolchain version are inputs; the administration key reaches ssh only as a held file (credential_mounts mount_path). The SSH arguments come from tools/administer-a-rented-host.",
+  "what_this_is": "The Workshop rows for building and installing the public receptionist on its own rented Linux host: prepare the host, read it, build one commit there and install the built file. The host, its port, the administration user, every host path, the Rust toolchain version and executable target name are inputs; the administration key reaches ssh only as a held file (credential_mounts mount_path). The SSH arguments come from tools/administer-a-rented-host.",
   "records": [
     {
       "payload": {
@@ -18,6 +18,7 @@
             "host",
             "source_root",
             "rust",
+            "binary",
             "build_packages",
             "swap"
           ],
@@ -56,6 +57,11 @@
             "dry_run": {
               "type": "boolean",
               "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "binary": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+              "description": "The executable target name supplied from product data; this tool has no default."
             },
             "source_root": {
               "type": "string",
@@ -213,6 +219,7 @@
                 "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
               },
               "dry_run": true,
+              "binary": "sample-receptionist",
               "source_root": "/srv/receptionist/source",
               "rust": {
                 "toolchain": "1.93.0",
@@ -260,7 +267,8 @@
           "required": [
             "host",
             "source_root",
-            "rust"
+            "rust",
+            "binary"
           ],
           "properties": {
             "host": {
@@ -297,6 +305,11 @@
             "dry_run": {
               "type": "boolean",
               "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "binary": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+              "description": "The executable target name supplied from product data; this tool has no default."
             },
             "source_root": {
               "type": "string",
@@ -440,6 +453,7 @@
                 "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
               },
               "dry_run": true,
+              "binary": "sample-receptionist",
               "source_root": "/srv/receptionist/source",
               "rust": {
                 "toolchain": "1.93.0",
@@ -472,7 +486,7 @@
         "id": "tool:build-the-public-receptionist",
         "label": "Build the public receptionist",
         "job": "Build the public receptionist on my rented Linux server from one committed version of its source",
-        "description": "Sends git archive of one commit of a local trillion-rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds trillion-mcp-receptionist there with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
+        "description": "Sends git archive of one commit of a local Rust checkout (declared source only: no home folder, Git settings, credentials or local state) to the host, builds the requested executable target with the given Rust toolchain, and runs its bootstrap-credential test. Answers the commit, its folder, the built file and the build's last lines.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -481,6 +495,7 @@
             "host",
             "source_root",
             "rust",
+            "binary",
             "repository"
           ],
           "properties": {
@@ -519,6 +534,11 @@
               "type": "boolean",
               "description": "true answers the ssh arguments and remote command and runs nothing."
             },
+            "binary": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+              "description": "The executable target name supplied from product data; this tool has no default."
+            },
             "source_root": {
               "type": "string",
               "pattern": "^/",
@@ -553,7 +573,7 @@
             },
             "repository": {
               "type": "string",
-              "description": "Full path of the local trillion-rust checkout."
+              "description": "Full path of the local Rust source checkout."
             },
             "revision": {
               "type": "string",
@@ -660,6 +680,7 @@
                 "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
               },
               "dry_run": true,
+              "binary": "sample-receptionist",
               "source_root": "/srv/receptionist/source",
               "rust": {
                 "toolchain": "1.93.0",
@@ -670,7 +691,7 @@
               "revision": "0123456789abcdef0123456789abcdef01234567"
             },
             "output_selector": "$.remote_command",
-            "contains": "cargo' +1.93.0 build --locked --release --bin trillion-mcp-receptionist"
+            "contains": "build --locked --release --bin sample-receptionist"
           }
         ],
         "maker": "maker:build-and-install-the-public-receptionist",
@@ -697,6 +718,7 @@
           "required": [
             "host",
             "source_root",
+            "binary",
             "commit"
           ],
           "properties": {
@@ -734,6 +756,11 @@
             "dry_run": {
               "type": "boolean",
               "description": "true answers the ssh arguments and remote command and runs nothing."
+            },
+            "binary": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+              "description": "The executable target name supplied from product data; this tool has no default."
             },
             "source_root": {
               "type": "string",
@@ -847,9 +874,10 @@
                 "host_key": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample"
               },
               "dry_run": true,
+              "binary": "sample-receptionist",
               "source_root": "/srv/receptionist/source",
               "commit": "0123456789abcdef0123456789abcdef01234567",
-              "install_path": "/srv/receptionist/bin/trillion-mcp-receptionist"
+              "install_path": "/srv/receptionist/bin/receptionist"
             },
             "output_selector": "$.remote_command",
             "contains": "chmod 0755"
