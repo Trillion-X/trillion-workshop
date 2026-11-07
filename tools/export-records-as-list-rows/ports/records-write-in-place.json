@@ -1,0 +1,51 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECORDS-WRITE-IN-PLACE",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "current authorized provenance repair task",
+    "message_multihash": "1f:3965771a08d4a22ed89e4398de23a027db5a044e55cfef4c7930690cc664f2c0",
+    "quote": "Inspect actual current head, CI and source; fix root causes without weakening checks or inventing provenance."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/export-records-as-list-rows/read-data/records_write.py",
+      "multihash": "1f:40a268340519d9d452551eca10b362d409c21e26f59f9e780cffae339c67076a",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/export-records-as-list-rows/read-data/records_write.py"
+    }
+  ],
+  "preserve": [
+    "the file's existing records mapping and row-building job and its own behavior from the pre-rules source"
+  ],
+  "allowed_deltas": [
+    "0e0c3639: export-records-as-list-rows: read a whole library of files into lists the person has, with the mapping kept as setting rows"
+  ],
+  "banned_substitutions": [
+    "a second records mapping and row builder doing this file's job beside it",
+    "another owner's job rewritten into this file instead of changed in place"
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-07T15:42:43-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:40a268340519d9d452551eca10b362d409c21e26f59f9e780cffae339c67076a",
+    "target_multihash_at_baseline": "1f:40a268340519d9d452551eca10b362d409c21e26f59f9e780cffae339c67076a",
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "source_record": "the source is the same file before the port rules began; the later implementation extends that owner in place",
+    "test_refs": [
+      "tools/export-records-as-list-rows/test/test_record_write.py",
+      "tools/export-records-as-list-rows/test/test_record_write_sources.py"
+    ]
+  }
+}
