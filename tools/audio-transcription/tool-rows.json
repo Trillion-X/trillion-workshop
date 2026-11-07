@@ -248,6 +248,54 @@
           "source": "Moved from a film repository's films/<film>/narrator/tools/word_onsets.py; the silence line is a request field"
         }
       }
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:time-words-in-a-recording",
+        "label": "Get word-level timestamps for a recording on this computer",
+        "job": "Give me timed words from a recording or a window of it",
+        "description": "Runs the existing whisper_here.py provider with word timestamps, optionally on a source-time window, and writes source-time word bounds. Accepts JSON on stdin; model defaults to mlx-community/whisper-large-v3-turbo.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "required": ["request"],
+          "additionalProperties": false,
+          "properties": {
+            "request": {
+              "type": "string",
+              "maxLength": 400,
+              "description": "JSON request file containing source and out, with optional from, to, and model fields.",
+              "x-free-text-because": "A JSON request file path on this computer."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "description": "Last line {\"result\": {\"out\", \"words\"}}, or {\"error\": \"what to change\"} with exit 2."
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "repository": "https://github.com/Trillion-X/trillion-workshop",
+          "get_it": [
+            "git clone https://github.com/Trillion-X/trillion-workshop.git"
+          ],
+          "run": "python3 trillion-workshop/tools/audio-transcription/do-work/wordtime.py < {request}",
+          "needs": [
+            "python",
+            "ffmpeg",
+            "a supported whisper_here.py backend and its model",
+            "the source audio or video"
+          ],
+          "say": "Write one JSON request with source and out, and optionally from and to in source seconds and model. The job uses provider word timestamps and shifts them to source seconds."
+        },
+        "maker": "maker:audio-transcription",
+        "licence_class": "licence:maker-own",
+        "placements": ["placement:your-computer"],
+        "provenance": {
+          "source": "Moved from a film repository's wordtime.py helper; ports/wordtime.json names its exact source and byte-copy baseline."
+        }
+      }
     }
   ]
 }

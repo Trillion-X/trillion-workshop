@@ -21,12 +21,13 @@ The audio-transcription package's local Whisper transcription with word times, a
 | `ports/` | The port contract of each file moved from trillion-launch-video: its source, the byte-copy commit and what changed. |
 | `read-data/transcript_reports.py` | Pure: when a recording was made (camera sidecar XML or file time), the index line and totals, the judge of a whole answer, and timed paragraphs. |
 | `do-work/whisper_here.py` | Speech to text with word times on whichever Whisper engine the place has: a drop-in for `mlx_whisper.transcribe(path, path_or_hf_repo=..., **options)` answering mlx_whisper's shape from mlx-whisper, faster-whisper or openai-whisper (below). Moved from trillion-launch-video `tools/place-capabilities/whisper_here.py`@5a9ba39 (`ports/whisper-here.json`). |
+| `do-work/wordtime.py` | `tool:time-words-in-a-recording`: runs the existing `whisper_here.py` provider with word timestamps and writes source-time word bounds; accepts a JSON request on stdin or the legacy positional command. Moved from trillion-launch-video (`ports/wordtime.json`). |
 | `do-work/word_onsets.py` | `tool:move-word-starts-to-where-the-voice-starts`: a voice take's Whisper word starts moved to the first 10 ms above a silence line (default -45 dBFS), ends kept; with the take's line file, the script's spelling when the word counts agree (a hyphen split joined). One JSON request on stdin. Moved from a film's `narrator/tools/word_onsets.py`. |
 | `test/test_word_onsets.py`, `test/word-onsets.test.mjs` | A made-up tone take with a start inside the pause, the silence line, the script spelling, a hyphen split, a count mismatch and the refusals. Needs numpy and soundfile. |
 | `read-data/whisper_loops.py` | Pure: what a loop is, the windows to hear again, moving a heard window into place, and the splice. |
 | `read-data/hear-here.mjs` | `hearARecording` (`tool:hear-a-recording`) and `hearALink` (`tool:hear-a-link`), run as functions by `tools/records-door`: a recording read through the run's door, or a link's captions or sound, heard with `transcribe` on the person's computer; a heard link's sound is kept in their files with its words beside it. Moved from the product repo's `computer/listen.mjs` (`listeningTools.transcribe`) and `computer/hear-a-link.mjs`. |
 | `read-data/hear-a-link.json` | The link readers (the yt-dlp row: `info`, `captions`, `sound`, `search_path`, `update_hint`), the caption languages, where a heard sound is kept, the longest fetch and every word the AI reads. |
-| `tool-rows.json` | `tool:hear-a-recording` and `tool:hear-a-link`: `computer` rows with `start-a-program` (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder); and `tool:transcribe-audio-and-repair-whisper-loops`: `on-your-computer`. |
+| `tool-rows.json` | `tool:hear-a-recording` and `tool:hear-a-link`: `computer` rows with `start-a-program` (the person grants the `record-and-hear` programs: ffmpeg, whisper-cli and the models folder); `tool:transcribe-audio-and-repair-whisper-loops` and `tool:time-words-in-a-recording`: `on-your-computer`. |
 | `src/account-transcription.mjs` | `tool:transcribe-file` on the account side, moved byte for byte from Trillion-X/trillion (`moved-from.json`): hears one audio or video file in the person's Trillion files (a video through its sound alone), long files in pieces, and keeps the transcript with every word's own seconds beside the file; a kept transcript with word timings is reused. Its meeting hearing options come from `tools/record-voice-and-meetings/read-data/meeting-settings.mjs`. |
 | `src/transcript-words.mjs` | The one shape a transcript is kept in (`text`, `segments` with `words`, `language`); a word or segment without finite times is dropped, never given guessed ones. |
 | `moved-from.json` | Each moved file's source path, commit and identities. |
@@ -40,6 +41,10 @@ The audio-transcription package's local Whisper transcription with word times, a
 | `test/hear-a-recording.test.mjs` | A recording read through a fake door, heard in the run's folder and removed; the seam's answer; a heard sound kept in pieces with its words. |
 | `test/hear-a-link.test.mjs` | Captions win, no captions is heard, and every road with no words says why (the product repo's `test/hear-a-link.test.mjs`, its assertions kept). |
 | `test/hear-in-pieces.test.mjs` | A long recording heard in pieces: each piece's words keep their seconds from the start of the whole file (moved with `src/account-transcription.mjs`). |
+
+## Word-time a recording
+
+Send one JSON object on stdin to `do-work/wordtime.py`, for example `{"source":"./take.wav","out":"./take.words.json","from":100,"to":130}`. The optional `model` defaults to `mlx-community/whisper-large-v3-turbo`. It uses `whisper_here.py` for the selected local engine and writes word times in source seconds. The legacy positional command remains available.
 
 ## How to run it
 

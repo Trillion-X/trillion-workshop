@@ -21,7 +21,8 @@
           "test/provider-word-timing.test.mjs",
           "test/test_provider_word_timing.py",
           "test/word-onsets.test.mjs",
-          "test/test_word_onsets.py"
+          "test/test_word_onsets.py",
+          "test/test_wordtime.py"
         ]
       }
     },
