@@ -516,10 +516,10 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       records.update(record.handoff_id, { ended_at: nowIso, lost: true });
   }
   for (const record of records.all().values()) {
-    if (!record.lost || record.released_at || record.mode !== 'claim') continue;
-    if (await releaseHeld(call, settings, record)) {
-      records.update(record.handoff_id, { released_at: nowIso, release_pending: false });
-      log({ did: 'released lost run', handoff_id: record.handoff_id });
+    if ((!record.lost && !record.release_pending) || (record.released_at && !record.release_pending) || record.mode !== 'claim') continue;
+    if (await releaseHeld(call, settings, record, record.recovery_because)) {
+      records.update(record.handoff_id, { released_at: nowIso, release_pending: false, final_read_pending: false });
+      log({ did: record.lost ? 'released lost run' : 'released pending run', handoff_id: record.handoff_id });
     } else records.update(record.handoff_id, { release_pending: true });
   }
   const open = [];
@@ -586,7 +586,7 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
       }
       continue;
     }
-    if (record?.claim_pending || !record?.ended_at || (!call.aiJobs && attempt >= retryAfterMinutes.length) || nowMs - Date.parse(record.ended_at) < retryAfterMinutes[Math.min(attempt, retryAfterMinutes.length - 1)] * 60_000) continue;
+    if (record?.claim_pending || record?.release_pending || !record?.ended_at || (!call.aiJobs && attempt >= retryAfterMinutes.length) || nowMs - Date.parse(record.ended_at) < retryAfterMinutes[Math.min(attempt, retryAfterMinutes.length - 1)] * 60_000) continue;
     if (record.parked && record.parked_move === item.last_move?.key) continue;
     executions.set(item.handoff_id, revised ? 0 : record.executor_starts ?? (record.pid ? attempt : 0));
     attempts.set(item.handoff_id, revised ? 1 : attempt + 1);
@@ -785,7 +785,14 @@ export async function runPass({ settings, call, computer, log = () => {}, now = 
         await republish();
         return { handoff_id: job.handoff_id, code, finished: false, limit: true };
       }
-      const read = (await call('/handoffs/read', { handoff_id: job.handoff_id }).catch(() => null))?.handoff;
+      let read;
+      try { read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff; }
+      catch (error) {
+        // Process exit says nothing about the persisted claim. Keep its exact take for recovery before the next
+        // backlog read, even though this local process has ended; never turn an unavailable read into lost ownership.
+        records.update(job.handoff_id, { final_read_pending: true, release_pending: true, recovery_because: fill(settings.words.not_finished, { code, log: logPath, computer }) });
+        log({ did: 'final job read awaits recovery', handoff_id: job.handoff_id, error: String(error?.message ?? error) });
+      }
       const finished = read?.state === 'finished';
       let released = false;
       if (!finished && read?.state === 'taken' && read.taken_by === job.agent_id) {
@@ -813,9 +820,19 @@ export const isBusy = error => Boolean(error?.busy);
  * the busy account's words when none is given). → true when the account took it back. */
 export async function releaseHeld(call, settings, job, because = settings.words.released_busy) {
   try {
-    const read = (await call('/handoffs/read', { handoff_id: job.handoff_id }))?.handoff;
+    // An ai-job recovery belongs to the original take, not whichever claim the latest read happens to show.
+    // Missing local evidence stays pending for review; borrowing a fresh timestamp would authorize another run's release.
+    if (call.aiJobs && (typeof job.taken_at !== 'string' || !Number.isFinite(Date.parse(job.taken_at)))) return false;
+    const answer = await call('/handoffs/read', { handoff_id: job.handoff_id });
+    const read = answer?.handoff;
+    if (call.aiJobs) {
+      if (!answer || !Object.hasOwn(answer, 'handoff')) return false;
+      if (read === null) return true; // An explicit absent target, rather than an unavailable read.
+      if (!read || (!jobStates.states.some(state => state.key === read.state) && !['open', 'finished'].includes(read.state))) return false;
+      if (read.state === 'taken' && (typeof read.taken_by !== 'string' || typeof read.taken_at !== 'string' || !Number.isFinite(Date.parse(read.taken_at)))) return false;
+    }
     if (read?.state !== 'taken' || read.taken_by !== job.agent_id || (job.taken_at && read.taken_at !== job.taken_at)) return true;
-    await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, generation: read.generation, because, ...(call.aiJobs ? { taken_at: job.taken_at ?? read.taken_at } : {}), ...(call.aiJobs && (job.executor_starts ?? 0) >= settings.ai_jobs.max_attempts ? { park: true } : {}) });
+    await call('/handoffs/release', { handoff_id: job.handoff_id, agent_id: job.agent_id, generation: read.generation, because, ...(call.aiJobs ? { taken_at: job.taken_at } : {}), ...(call.aiJobs && (job.executor_starts ?? 0) >= settings.ai_jobs.max_attempts ? { park: true } : {}) });
     return true;
   } catch { return false; }
 }

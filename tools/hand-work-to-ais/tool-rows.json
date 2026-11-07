@@ -303,6 +303,14 @@
           "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
           "kinds": [
             {
+              "type": "ai-job",
+              "guard_properties": {
+                "last_move": "object",
+                "take_request": "object"
+              },
+              "_read_by": "hand-work-to-ais/read-data/ai-work.mjs: lifecycle replay metadata generated from the authenticated tool task request key, action, caller and input identity; take_request retains the original claim across progress notes and is checked against the current taker and taken_at. No tool input can supply these metadata fields."
+            },
+            {
               "type": "agent-delivery",
               "guard_properties": {
                 "agent_id": "text",

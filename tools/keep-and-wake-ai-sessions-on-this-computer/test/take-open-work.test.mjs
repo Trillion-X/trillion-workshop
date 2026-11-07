@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, restUntil, runPass, startedRecords, tailOf, takerCard, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
+import { accountCaller, chatOf, eachLine, findChats, limitResetAt, listOpenWork, readPage, plan, releaseHeld, restUntil, runPass, startedRecords, tailOf, takerCard, withComputerArgs, withWorkMcp } from '../harness/take-open-work.mjs';
 import { runTriage } from '../harness/triage-open-work.mjs';
 import settingsFile from '../harness/take-open-work.json' with { type: 'json' };
 
@@ -753,4 +753,79 @@ test('ai-job local receipts keep distinct colon and underscore ids distinct', ()
   assert.equal(records.claim({ handoff_id: 'ai-job:sample:one', started_at: NOW }), true);
   assert.equal(records.claim({ handoff_id: 'ai-job:sample_one', started_at: NOW }), true);
   assert.equal(records.all().size, 2);
+});
+
+
+test('ai-job unavailable final read retains exact claim recovery before the next backlog read', async () => {
+  const f = await jobFixture(); f.configured.page_retry = { backoff_seconds: [] }; const original = f.raw.resource;
+  let failJobRead = false, failBacklog = false;
+  f.raw.resource = async (address, method, input, key) => {
+    if (method === 'records:read' && input.id === 'ai-job:synthetic' && failJobRead) throw new Error('Synthetic final read transport unavailable');
+    if (method === 'records:list' && failBacklog) throw new Error('Synthetic backlog unavailable');
+    return original(address, method, input, key);
+  };
+  const call = f.wrap();
+  const first = await f.pass(() => f.child(() => { failJobRead = true; }), { call });
+  const result = (await Promise.all(first.runs))[0];
+  assert.equal(result.finished, false);
+  assert.equal(result.released, false);
+  const receipt = startedRecords(f.configured.state_folder).all().get('ai-job:synthetic');
+  assert.ok(receipt.ended_at);
+  assert.equal(receipt.final_read_pending, true);
+  assert.equal(receipt.release_pending, true);
+  assert.equal(f.held.get('ai-job:synthetic').status, 'taken');
+  const originalTakenAt = receipt.taken_at;
+  failJobRead = false; failBacklog = true;
+  await assert.rejects(f.pass(() => { throw new Error('Recovery must not spawn another child'); }, { call }), /Synthetic backlog unavailable/);
+  const recovered = f.held.get('ai-job:synthetic');
+  assert.equal(recovered.status, 'waiting');
+  assert.equal(recovered.released_taken_at, originalTakenAt);
+  assert.equal(recovered.continuation.owner, f.as);
+  const updated = startedRecords(f.configured.state_folder).all().get('ai-job:synthetic');
+  assert.equal(updated.release_pending, false);
+  assert.equal(updated.final_read_pending, false);
+});
+
+
+test('ai-job recovery never borrows a newer same-AI claim timestamp when its original fence is missing', async () => {
+  const current = { state: 'taken', taken_by: 'ai:synthetic-worker', taken_at: '2026-11-07T13:00:00.000Z' };
+  const calls = [];
+  const call = Object.assign(async (path, body) => { calls.push({ path, body }); return { handoff: current }; }, { aiJobs: true });
+  const unknown = { handoff_id: 'ai-job:synthetic', agent_id: current.taken_by };
+  assert.equal(await releaseHeld(call, settingsFile, unknown), false);
+  assert.equal(calls.length, 0, 'unknown original ownership stays pending without adopting current ownership');
+  assert.equal(await releaseHeld(call, settingsFile, { ...unknown, taken_at: '2026-11-07T12:00:00.000Z' }), true);
+  assert.equal(calls.filter(row => row.path === '/handoffs/release').length, 0, 'a known newer claim is left untouched');
+});
+
+test('ai-job recovery preserves pending state on incomplete current readback and releases only its exact claim', async () => {
+  const original = { handoff_id: 'ai-job:synthetic', agent_id: 'ai:synthetic-worker', taken_at: '2026-11-07T12:00:00.000Z' };
+  let answer; const releases = [];
+  const call = Object.assign(async (path, body) => { if (path === '/handoffs/release') { releases.push(body); return {}; } return answer; }, { aiJobs: true });
+  for (const unknown of [undefined, {}, { handoff: undefined }, { handoff: {} }, { handoff: { state: 'unavailable' } }, { handoff: { state: 'taken', taken_by: original.agent_id } }, { handoff: { state: 'taken', taken_at: original.taken_at } }]) {
+    answer = unknown;
+    assert.equal(await releaseHeld(call, settingsFile, original), false);
+    assert.equal(releases.length, 0);
+  }
+  answer = { handoff: { state: 'taken', taken_by: original.agent_id, taken_at: original.taken_at } };
+  assert.equal(await releaseHeld(call, settingsFile, original), true);
+  assert.equal(releases.length, 1);
+  assert.equal(releases[0].taken_at, original.taken_at);
+});
+
+
+test('ai-job missing original recovery fence stays pending across a pass without adopting a newer same-AI take', async () => {
+  const f = await jobFixture();
+  const current = f.held.get('ai-job:synthetic');
+  Object.assign(current, { status: 'taken', taker: f.as, taken_at: '2026-11-07T12:00:00.000Z' });
+  const local = startedRecords(f.configured.state_folder);
+  local.claim({ handoff_id: 'ai-job:synthetic', mode: 'claim', agent_id: f.as, started_at: '2026-11-07T11:00:00.000Z', ended_at: '2026-11-07T11:01:00.000Z', executor_starts: 1, release_pending: true });
+  const pass = await f.pass(() => { throw new Error('Unresolved recovery cannot start another executor'); });
+  assert.equal(pass.started.length, 0);
+  const retained = local.all().get('ai-job:synthetic');
+  assert.equal(retained.release_pending, true);
+  assert.equal(retained.taken_at, undefined);
+  assert.equal(current.status, 'taken');
+  assert.equal(current.taken_at, '2026-11-07T12:00:00.000Z');
+  assert.equal(f.calls.filter(row => row.method === 'tools:run').length, 0);
 });

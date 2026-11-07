@@ -53,7 +53,10 @@ export function workRules(rules = RULES) {
 }
 
 const RULED = workRules();
+
+// The declared state a stored status word means: itself, or what `read_as` maps it to.
 export const stateOf = (status, rules = RULED) => rules.read_as[status] ?? status;
+// Every stored word that means a declared state, so a listing by state finds the jobs written with either.
 const wordsFor = (state, rules) => [state, ...Object.keys(rules.read_as).filter(word => rules.read_as[word] === state)];
 
 function words(value, name, most) {
@@ -130,6 +133,9 @@ export function movedJob(job, edge, as, input, now, rules = RULED) {
       else if (source.format === 'priority') { if (!Number.isInteger(given) || given < 0 || given > 9) throw new Error('priority must be a whole number from 0 to 9.'); }
       else if (source.format === 'acceptance') acceptanceOf(given, { ...job, ...input }, rules);
       else words(given, source.field, source.most_chars ?? rules.limits.words_chars);
+      if (source.preserve_existing && job[field] != null && makeHashCodeHexFromJson(job[field]) !== makeHashCodeHexFromJson(given)) {
+        throw new Error(`"${edge.action}" cannot replace the saved ${field}.`);
+      }
     }
     if (source.from === 'as') next[field] = as;
     else if (source.from === 'now') next[field] = now.toISOString();
@@ -137,6 +143,7 @@ export function movedJob(job, edge, as, input, now, rules = RULED) {
     else if (source.from === 'input') next[field] = given;
     else next[field] = { by: as, at: now.toISOString(), words: given ?? null };
   }
+  // A same-state note preserves the stored alias; a real transition writes its declared state.
   if (stateOf(job.status, rules) !== edge.to) next.status = edge.to;
   return next;
 }
@@ -245,13 +252,28 @@ async function writeIfUnchanged(door, id, before, after, key, rules) {
 
 // A retried run (the same request key) sends the same write key, so the door answers the receipt it already kept.
 const writeKey = (task, id, action) => (typeof task.request_key === 'string' && task.request_key ? `${task.request_key}:${action}:${id}` : undefined);
+// Progress notes replace last_move, but do not replace the request that acquired the current claim. This receipt
+// stays on that job through its release; the outer tool-run journal owns replay after a different claim or terminal
+// state, so the next-job lookup never needs an unbounded history scan.
+const takeReplay = (job, key) => key && (job.take_request?.key === key ? job.take_request : job.last_move?.key === key ? job.last_move : null);
 
 async function moveRead(door, id, before, action, as, input, now, task, rules) {
   const key = writeKey(task, id, action);
   const signature = key ? makeHashCodeHexFromJson({ action, as, input }) : null;
-  if (key && before.last_move?.key === key) {
-    if (before.last_move.signature !== signature) throw new Error('The same move request key cannot name different input.');
-    return { job_id: id, moved: true, from: before.last_move.from, to: before.status, job: shown(id, before), replayed: true };
+  const replay = action === 'take' ? takeReplay(before, key) : key && before.last_move?.key === key ? before.last_move : null;
+  if (replay) {
+    if (replay.signature !== signature) throw new Error('The same move request key cannot name different input.');
+    if (action === 'take') {
+      // A next-job candidate came from a listing that may already be stale. Replay ownership only from an exact
+      // current read of the same claim, never from that earlier listing or from the door's historical receipt.
+      const current = await readJob(door, id, rules);
+      const held = current && takeReplay(current, key);
+      if (!held || !Number.isFinite(Date.parse(held.taken_at)) || stateOf(current.status, rules) !== 'taken' || current.taker !== as || held.taken_at !== current.taken_at) {
+        return { job_id: id, moved: false, from: replay.from, to: null, reason: current ? 'changed' : 'gone', job: shown(id, current), replayed: true };
+      }
+      return { job_id: id, moved: true, from: held.from, to: current.status, job: shown(id, current), replayed: true };
+    }
+    return { job_id: id, moved: true, from: replay.from, to: before.status, job: shown(id, before), replayed: true };
   }
   const { edge, refused } = moveFor(before, action, as, now, rules);
   if (refused) throw new Error(refused);
@@ -265,6 +287,10 @@ async function moveRead(door, id, before, action, as, input, now, task, rules) {
   if (action === 'edit' && input.to && !(await door.read(rules.ai_kind, input.to))) throw new Error('to must name one of this person\'s existing AIs.');
   if (after && key) after.last_move = { key, signature, from: before.status };
   else if (after) delete after.last_move;
+  if (after && action === 'take') {
+    if (key) after.take_request = { key, signature, from: before.status, taken_at: after.taken_at };
+    else delete after.take_request;
+  }
   if (await writeIfUnchanged(door, id, before, after, writeKey(task, id, action), rules)) {
     return { job_id: id, moved: true, from: before.status, to: after?.status ?? null, job: shown(id, after) };
   }
@@ -441,15 +467,23 @@ export async function takeAJob({ input = {}, task = {} } = {}, context) {
     for (const record of await listedIn(door, status, {}, rules.most_jobs_read, rules)) {
       if (!record.value || (input.only_mine && record.value.to !== as)) continue;
       const key = writeKey(task, record.id, 'take');
-      if ((key && record.value.last_move?.key === key) || moveFor(record.value, 'take', as, now, rules).edge) candidates.push(record);
+      if (takeReplay(record.value, key) || moveFor(record.value, 'take', as, now, rules).edge) candidates.push(record);
     }
   }
-  candidates.sort(takeOrder(rules));
+  // An already-held result of this exact request wins before newly arrived work. Otherwise a higher-priority
+  // arrival could make the same logical take acquire a second job while its first claim is still held.
+  const replayOf = record => {
+    const key = writeKey(task, record.id, 'take');
+    return Boolean(takeReplay(record.value, key));
+  };
+  const order = takeOrder(rules);
+  candidates.sort((a, b) => Number(replayOf(b)) - Number(replayOf(a)) || order(a, b));
   let tried = 0;
   for (const { id, value } of candidates.slice(0, rules.take_tries)) {
     tried += 1;
     const answer = await moveRead(door, id, value, 'take', as, input, now, task, rules);
     if (answer.moved) return { taken: answer.job, tried };
+    if (answer.replayed) return { taken: null, tried, job_id: id, reason: answer.reason, job: answer.job };
   }
   return { taken: null, tried };
 }

@@ -63,6 +63,16 @@ test('the shipped rules hold together: states once, no way out of a finished job
   assert.deepEqual(new Set(rowOf(ROWS, 'tool:change-an-ai-job').input_schema.properties.action.enum), new Set(rules.actions));
   assert.throws(() => workRules({ ...RULES, transitions: [...RULES.transitions, { action: 'reopen', from: 'done', to: 'waiting' }] }), /terminal/);
   assert.throws(() => workRules({ ...RULES, transitions: [{ ...RULES.transitions[0], set: { taker: { from: 'clock' } } }] }), /not as, now, input or note/);
+  const models = ROWS.records.flatMap(row => row.payload.record_model?.kinds ?? []).filter(kind => kind.type === 'ai-job');
+  assert.equal(models.length, 1, 'the lifecycle owns one canonical replay-metadata declaration');
+  assert.deepEqual(models[0].guard_properties, { last_move: 'object', take_request: 'object' });
+  for (const id of ['tool:take-an-ai-job', 'tool:change-an-ai-job', 'tool:finish-an-ai-job']) {
+    const schema = rowOf(ROWS, id).input_schema;
+    assert.equal(schema.additionalProperties, false);
+    assert.equal(Object.hasOwn(schema.properties, 'take_request'), false, 'callers cannot supply claim-origin metadata');
+  }
+  assert.throws(() => workRules({ ...RULES, read_as: { running: 'busy' } }), /not a declared state/);
+  assert.throws(() => workRules({ ...RULES, read_as: { done: 'taken' } }), /already a declared state/);
 });
 
 test('a job is handed once per key, to a named AI or to any, and an unknown AI is refused', async () => {
@@ -118,7 +128,7 @@ test('two AIs taking the next job at once get different jobs: the loser of the f
     await handAJob({ input: { as: 'ai:east', job: 'Second', key: 'two' } }, { door: door(), now: at(1) });
     await handAJob({ input: { as: 'ai:east', job: 'For east only', key: 'three', to: 'ai:east', priority: 9 } }, { door: door(), now: at(2) });
     // Each taker lists the two statuses a take leaves from (waiting, and taken past the stale time).
-    const gate = gateFor(4);
+    const gate = gateFor(6);
     const [north, south] = await Promise.all([
       takeAJob({ input: { as: 'ai:north' }, task: { request_key: 'n' } }, { door: afterAllRead(door(), gate), now: at(3) }),
       takeAJob({ input: { as: 'ai:south' }, task: { request_key: 's' } }, { door: afterAllRead(door(), gate), now: at(3) }),
@@ -186,6 +196,25 @@ test('a taker gives a job back or says what blocks it; another AI may give back 
     assert.equal(takenOver.taken.taker, 'ai:south', 'a job held past the stale time may be taken by another AI');
     await moveAJob({ input: { as: 'ai:north', id: 'ai-job:inbox', action: 'release' } }, { door: door(), now: at(stale + 1) }).then(
       () => assert.fail('north no longer holds it'), error => assert.match(error.message, /does not hold for ai:north/));
+  } finally { await fake.close(); }
+});
+
+test('a watcher may say a running job is stuck, and its taker can still finish it', async () => {
+  // A long job written by another writer with the status word "running", which read_as reads as taken.
+  const running = { id: 'ai-job:finish:long', type: 'ai-job', value: { kind: 'ai-job', status: 'running', job: 'A long job', to: 'ai:north', from: 'ai:east', priority: 5, sent_at: '2026-11-01T20:00:00.000Z', taker: 'ai:north', taken_at: '2026-11-01T20:00:00.000Z', acceptance: acceptance('A long job') } };
+  const { fake, door } = await account([...AIS, running]);
+  try {
+    const flagged = await moveAJob({ input: { as: 'ai:south', id: 'ai-job:finish:long', action: 'stuck', words: 'No change for three hours' } }, { door: door(), now: at(180) });
+    assert.deepEqual({ moved: flagged.moved, from: flagged.from }, { moved: true, from: 'running' });
+    assert.equal(job(fake, 'ai-job:finish:long').status, 'running', 'a move that stays in the state keeps the stored word');
+    assert.deepEqual(job(fake, 'ai-job:finish:long').stuck, { by: 'ai:south', at: '2026-11-01T23:00:00.000Z', words: 'No change for three hours' }, 'the note says who flagged it and when');
+    assert.deepEqual((await seeAiWork({ input: { status: 'taken' } }, { door: door() })).jobs.map(one => one.id), ['ai-job:finish:long'], 'a running job lists as taken');
+    assert.equal((await seeMyAis({}, { door: door(), now: at(180) })).ais.find(one => one.id === 'ai:north').busy, 1, 'and counts as its taker\'s');
+    await assert.rejects(moveAJob({ input: { as: 'ai:south', id: 'ai-job:finish:long', action: 'finish', result: 'Mine now' } }, { door: door(), now: at(181) }), /does not hold for ai:south/, 'flagging it does not let the watcher finish it');
+    const done = await moveAJob({ input: { as: 'ai:north', id: 'ai-job:finish:long', action: 'finish', result: 'Done at last', check: { target: acceptance('A long job').target, outcome: 'A long job', checked_at: at(182)().toISOString(), evidence: [{ ref: 'fixture:destination', observation: 'The consumer is readable.' }] } } }, { door: door(), now: at(182) });
+    assert.deepEqual({ moved: done.moved, from: done.from, to: done.to }, { moved: true, from: 'running', to: 'done' });
+    assert.equal(job(fake, 'ai-job:finish:long').status, 'done');
+    assert.equal('stuck' in job(fake, 'ai-job:finish:long'), false, 'finishing clears the stuck note');
   } finally { await fake.close(); }
 });
 
@@ -286,6 +315,98 @@ test('an old run of the same AI cannot finish a newer take, and an old request r
     await assert.rejects(moveActual({ input: { as: 'ai:north', id: 'ai-job:fence', action: 'finish', result: 'Done', check, taken_at: first.taken.taken_at } }, { door: door(), now: at(5) }), /exact current claim/);
     await assert.rejects(moveActual({ input: { as: 'ai:north', id: 'ai-job:fence', action: 'finish', result: 'Done', check } }, { door: door(), now: at(5) }), /exact current claim/);
     assert.equal(job(fake, 'ai-job:fence').taken_at, second.taken.taken_at);
+  } finally { await fake.close(); }
+});
+
+test('a next-job take replays its original claim before a higher-priority arrival', async () => {
+  const { fake, door } = await account();
+  try {
+    await handAJob({ input: { as: 'ai:east', key: 'first-claim', job: 'Original work', priority: 5 } }, { door: door(), now: at(0) });
+    const request = { input: { as: 'ai:north' }, task: { request_key: 'one-next-job-take' } };
+    const first = await takeAJob(request, { door: door(), now: at(1) });
+    await handAJob({ input: { as: 'ai:east', key: 'later-priority', job: 'New urgent work', priority: 9 } }, { door: door(), now: at(2) });
+    const retry = await takeAJob(request, { door: door(), now: at(3) });
+    assert.equal(retry.taken.id, first.taken.id);
+    assert.equal(retry.taken.taken_at, first.taken.taken_at);
+    await moveAJob({ input: { as: 'ai:north', id: first.taken.id, action: 'stuck', words: 'An observed dependency needs review' }, task: { request_key: 'progress-after-take' } }, { door: door(), now: at(4) });
+    const afterNote = await takeAJob(request, { door: door(), now: at(5) });
+    assert.equal(afterNote.taken.id, first.taken.id, 'a progress note does not erase the original claim request');
+    assert.equal(afterNote.taken.taken_at, first.taken.taken_at);
+    assert.equal(job(fake, 'ai-job:later-priority').status, 'waiting');
+    assert.deepEqual([...fake.kept.values()].filter(row => row.type === 'ai-job' && row.value.status === 'taken').map(row => row.id), [first.taken.id]);
+    await moveAJob({ input: { as: 'ai:north', id: first.taken.id, action: 'release' } }, { door: door(), now: at(6) });
+    const afterRelease = await takeAJob(request, { door: door(), now: at(7) });
+    assert.equal(afterRelease.taken, null, 'an ended original claim cannot be replayed as ownership or acquire fresh work');
+    assert.equal(job(fake, 'ai-job:later-priority').status, 'waiting');
+  } finally { await fake.close(); }
+});
+
+test('a take replay reads the current claim after listing and refuses a replaced or removed claim', async () => {
+  for (const change of ['replaced', 'same-ai-replaced', 'removed']) {
+    const { fake, door } = await account();
+    try {
+      await handAJob({ input: { as: 'ai:east', key: 'read-current', job: 'Original work' } }, { door: door(), now: at(0) });
+      const request = { input: { as: 'ai:north' }, task: { request_key: 'replay-current-claim' } };
+      const first = await takeAJob(request, { door: door(), now: at(1) });
+      await handAJob({ input: { as: 'ai:east', key: 'fresh-current', job: 'Fresh urgent work', priority: 9 } }, { door: door(), now: at(2) });
+      const currentDoor = door();
+      let changed = false;
+      const racingDoor = { ...currentDoor, async read(type, id) {
+        if (!changed && id === first.taken.id) {
+          changed = true;
+          if (change === 'removed') fake.kept.delete(id);
+          else fake.kept.get(id).value = { ...job(fake, id), taken_at: at(4)().toISOString(), taker: change === 'same-ai-replaced' ? 'ai:north' : 'ai:south' };
+        }
+        return currentDoor.read(type, id);
+      } };
+      const replay = await takeAJob(request, { door: racingDoor, now: at(5) });
+      assert.equal(changed, true, 'ownership is re-read after the candidate listing');
+      assert.equal(replay.taken, null);
+      assert.equal(replay.reason, change === 'removed' ? 'gone' : 'changed');
+      assert.equal(job(fake, 'ai-job:fresh-current').status, 'waiting');
+    } finally { await fake.close(); }
+  }
+});
+
+test('a legacy last-move-only take receipt cannot supply the missing original claim fence', async () => {
+  const { fake, door } = await account();
+  try {
+    await handAJob({ input: { as: 'ai:east', key: 'legacy-replay', job: 'Legacy work' } }, { door: door(), now: at(0) });
+    const request = { input: { as: 'ai:north' }, task: { request_key: 'legacy-take-request' } };
+    const first = await takeAJob(request, { door: door(), now: at(1) });
+    const legacy = job(fake, first.taken.id);
+    delete legacy.take_request;
+    legacy.taken_at = at(4)().toISOString();
+    assert.ok(legacy.last_move.key, 'the legacy receipt retains the matching request but no original take timestamp');
+    const replay = await takeAJob(request, { door: door(), now: at(5) });
+    assert.equal(replay.taken, null, 'a current same-AI take timestamp cannot fill missing original proof');
+    assert.equal(replay.reason, 'changed');
+    assert.equal(job(fake, first.taken.id).taken_at, legacy.taken_at);
+  } finally { await fake.close(); }
+});
+
+test('a taker plans missing acceptance or repeats it unchanged, without replacing saved consumer checks', async () => {
+  const { fake, door } = await account();
+  try {
+    const outcome = 'The destination is readable';
+    const saved = acceptance(outcome);
+    await handAJob({ input: { as: 'ai:east', key: 'plan-once', job: outcome } }, { door: door(), now: at(0) });
+    const first = await takeAJob({ input: { as: 'ai:north', id: 'ai-job:plan-once' } }, { door: door(), now: at(1) });
+    const plan = { as: 'ai:north', id: first.taken.id, taken_at: first.taken.taken_at, action: 'plan', acceptance: saved };
+    await moveActual({ input: plan, task: { request_key: 'plan-consumer' } }, { door: door(), now: at(2) });
+    assert.equal((await moveActual({ input: plan, task: { request_key: 'plan-consumer' } }, { door: door(), now: at(3) })).replayed, true);
+    await moveActual({ input: plan, task: { request_key: 'same-plan-new-request' } }, { door: door(), now: at(3) });
+    const weaker = { ...saved, rules: [{ id: 'outcome', path: 'readable', equals: [false] }] };
+    await assert.rejects(moveActual({ input: { ...plan, acceptance: weaker } }, { door: door(), now: at(4) }), /cannot replace the saved acceptance/);
+    assert.deepEqual(job(fake, first.taken.id).acceptance, saved);
+    fake.kept.get('fixture:destination').value.readable = false;
+    await assert.rejects(moveActual({ input: { as: plan.as, id: plan.id, taken_at: plan.taken_at, action: 'finish', result: 'A claim of completion', check: { target: saved.target, outcome, checked_at: at(5)().toISOString(), evidence: [{ ref: 'fixture:destination', observation: 'The current destination was read' }] } } }, { door: door(), now: at(5) }), /requested outcome is not checked/);
+    assert.equal(job(fake, first.taken.id).status, 'taken');
+
+    await handAJob({ input: { as: 'ai:east', key: 'sender-plan', job: outcome, acceptance: saved } }, { door: door(), now: at(0) });
+    const second = await takeAJob({ input: { as: 'ai:north', id: 'ai-job:sender-plan' } }, { door: door(), now: at(1) });
+    await assert.rejects(moveActual({ input: { ...plan, id: second.taken.id, taken_at: second.taken.taken_at, acceptance: weaker } }, { door: door(), now: at(4) }), /cannot replace the saved acceptance/);
+    assert.deepEqual(job(fake, second.taken.id).acceptance, saved);
   } finally { await fake.close(); }
 });
 
