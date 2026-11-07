@@ -5,7 +5,7 @@
 // from their computer:
 //
 //   node do-work/read-list-view.mjs --config FILE (--list ID | --view ID) [--after CURSOR] [--limit N]
-//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]'] [--paths '["/a/b.md"]'] [--dry-run yes]
+//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]'] [--changes '{"source-id":{"paths":["/a/b.md"],"removed":[]}}'] [--run-id COMMIT] [--paths '["/a/b.md"]'] [--dry-run yes]
 //
 // A refresh of a list whose source is declared original: "list" writes both ways (read-data/list-copy.mjs); --paths
 // settles only those documents (a file an app just wrote) and --dry-run yes plans without writing.
@@ -46,6 +46,8 @@ try {
     : flags.refresh
     ? await refreshRowSources({ list: flags.refresh, names: config.names, source_answer_bytes: config.source_answer_bytes,
       ...(flags.sources !== undefined ? { source_ids: JSON.parse(flags.sources) } : {}),
+      ...(flags.changes !== undefined ? { changes: JSON.parse(flags.changes) } : {}),
+      ...(flags['run-id'] !== undefined ? { run_id: flags['run-id'] } : {}),
       ...(flags.paths !== undefined ? { paths: JSON.parse(flags.paths) } : {}), ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
     : await readListView({ list: flags.list, view: flags.view, after: flags.after ?? null, limit: flags.limit ? Number(flags.limit) : undefined, names: config.names }, door);
   console.log(JSON.stringify(answer));

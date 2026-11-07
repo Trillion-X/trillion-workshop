@@ -92,10 +92,10 @@ const properties = (values, names) => Object.fromEntries(Object.entries(values).
 const sameValues = (a, b) => valueIdentity(a) === valueIdentity(b);
 
 export async function syncRowSource(input, door) {
-  const { list, type, source, sources, paths, dry_run: dryRun = false, key, signal } = input;
+  const { list, type, record_prefix: recordPrefix = `${type}:`, source, sources, paths, dry_run: dryRun = false, key, signal } = input;
   const names = copyNames(source);
   const change = source.served.change;
-  const prefixOf = id => `${type}:${id}${SOURCE_MARK}`;
+  const prefixOf = id => `${recordPrefix}${id}${SOURCE_MARK}`;
   const recordId = name => `${prefixOf(source.id)}${encodeURIComponent(name)}`;
   const nameOf = record => {
     const own = decodeURIComponent(record.id.slice(prefixOf(source.id).length));
@@ -134,7 +134,7 @@ export async function syncRowSource(input, door) {
       own.push(record);
     }
   };
-  const listing = paths ? paths.map(name => recordId(name)) : [`${type}:`];
+  const listing = paths ? paths.map(name => recordId(name)) : [recordPrefix];
   for (const prefix of listing) {
     const cursors = new Set();
     for (let after = null; ;) {

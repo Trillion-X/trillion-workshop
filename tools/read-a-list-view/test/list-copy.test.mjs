@@ -19,7 +19,7 @@ const TYPE = 'record:note';
 const recordOf = name => `${TYPE}:documents~${encodeURIComponent(name)}`;
 const KEY = 'made-up-key-for-the-bakery';
 
-async function bakery({ partBytes = 4000, files = {} } = {}) {
+async function bakery({ partBytes = 4000, files = {}, rowRecords } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'list-copy-'));
   for (const [name, text] of Object.entries(files)) {
     await mkdir(join(root, 'notes', name.split('/')[0]), { recursive: true });
@@ -27,7 +27,7 @@ async function bakery({ partBytes = 4000, files = {} } = {}) {
   }
   const source = { source: 'documents', of: '/notes', match: '*/*.md', root, original: 'list', adopt_own_rows: true,
     copy_name: '{note.by}/{note.name}.md', content: { field: 'document.text', part_bytes: partBytes } };
-  const records = new Map([['list:notes', { label: 'Notes', row_type: 'note', row_sources: [source] }]]);
+  const records = new Map([['list:notes', { label: 'Notes', row_type: 'note', row_sources: [source], ...(rowRecords ? { row_records: rowRecords } : {}) }]]);
   const versions = new Map();
   let clock = Date.parse('2026-01-01T00:00:00Z');
   const writes = [];
@@ -87,6 +87,20 @@ test('a folder that has never been read reaches the list, and a second run write
     const writes = b.writes.length;
     const again = await b.sync();
     assert.deepEqual([again.unchanged, again.pushed, again.pulled, b.writes.length], [2, 0, 0, writes]);
+  } finally { await b.done(); }
+});
+
+test('a list-original copy uses its declared native prefix for reads and writes', async () => {
+  const b = await bakery({ rowRecords: { type: 'entry', prefix: 'entry:project:' }, files: { 'ada/rye.md': NOTE('rye', 'Let it rise.') } });
+  try {
+    const first = await b.sync();
+    assert.equal(first.pushed, 1);
+    const id = `entry:project:documents~${encodeURIComponent('/notes/ada/rye.md')}`;
+    assert.ok(b.records.has(id));
+    assert.equal(b.records.has(recordOf('/notes/ada/rye.md')), false);
+    const again = await b.sync();
+    assert.equal(again.unchanged, 1);
+    assert.equal(again.pushed, 0);
   } finally { await b.done(); }
 });
 

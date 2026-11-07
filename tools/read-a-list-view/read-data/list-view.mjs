@@ -35,7 +35,7 @@
 //   readListView({ list | view, after?, limit?, names }, door)
 //     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
 //     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next } }
-//   refreshRowSources({ list, names, source_ids?, paths?, dry_run?, source_answer_bytes?, signal? }, door)
+//   refreshRowSources({ list, names, source_ids?, paths?, changes?, run_id?, dry_run?, source_answer_bytes?, signal? }, door)
 //     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] } | the sync's answer] }
 //     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer, history?(id) }
 //     paths and dry_run apply to the list-original sources only (list-copy.mjs).
@@ -44,6 +44,8 @@ import { filterRecords } from '../../formulas/do-work/requests.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { syncRowSource } from './list-copy.mjs';
+import { rowRecordAddress } from '../../keep-lists-of-rows/read-data/row-record-address.mjs';
+import documentData from '../../documents-as-list-rows/read-data/document-properties.json' with { type: 'json' };
 
 const say = (code, words) => Object.assign(new Error(words), { code });
 const fill = (template, values) => template.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
@@ -126,17 +128,17 @@ async function listOf(door, names, listId) {
   return list;
 }
 
-const rowTypeOf = (list, names) => fill(names.row_type, { row_type: list.row_type });
+const addressOf = (list, names) => rowRecordAddress(list, names.row_type);
 const titleOf = (list, values, otherwise) => (list.title_field && values?.[list.title_field]) ?? otherwise;
 
 /** One page of the list's rows, the records of its row type: { rows, next }. */
 async function rowPage(door, list, names, sources, { after, limit }) {
-  const type = rowTypeOf(list, names);
-  const page = await door.list({ type, limit, ...(after ? { after } : {}) });
+  const address = addressOf(list, names), { type } = address;
+  const page = await door.list({ ...address.query, limit, ...(after ? { after } : {}) });
   if (!Array.isArray(page?.records)) throw say('records_unanswered', `Listing ${type} answered no records.`);
   return {
     rows: page.records.map(record => {
-      const id = record.id.startsWith(`${type}:`) ? record.id.slice(type.length + 1) : record.id;
+      const id = address.localId(record.id);
       const source = sources.find(one => id.startsWith(`${one.id}${SOURCE_MARK}`))?.id;
       return { id, record_id: record.id, values: record.value ?? {}, title: titleOf(list, record.value, id), ...(source ? { source } : {}) };
     }),
@@ -252,7 +254,7 @@ function continued(next, after, cursors, what) {
 }
 
 /** A source's bounded pages. A successful terminal page, never a read-count limit, proves the source is complete. */
-async function* sourcePages(door, source, mostBytes, signal) {
+async function* sourcePages(door, source, mostBytes, signal, pathsOverride) {
   // A template the row source leaves empty is no value, so the tool gets only what the list says.
   // An exact placeholder keeps its value's JSON type. A fixed DATA input may itself be JSON; neither is coerced
   // through String or `.replace`, which would turn an object or boolean into a different source request.
@@ -267,7 +269,8 @@ async function* sourcePages(door, source, mostBytes, signal) {
     }).filter(([, value]) => value !== ''));
   if (source.content !== undefined) input.content = source.content;
   if (source.exclude !== undefined) input.exclude = source.exclude;
-  if (source.paths !== undefined) input.paths = source.paths;
+  if (pathsOverride !== undefined) input.paths = pathsOverride;
+  else if (source.paths !== undefined) input.paths = source.paths;
   if (source.text_extensions !== undefined) input.text_extensions = source.text_extensions;
   const cursors = new Set();
   for (let after = null; ;) {
@@ -289,11 +292,103 @@ async function* sourcePages(door, source, mostBytes, signal) {
   }
 }
 
+/** The existing rows for one document only, including its exact text-part descendants. */
+async function writtenDocumentRows(door, address, source, path, signal) {
+  const { type } = address;
+  const id = address.recordId(`${source}${SOURCE_MARK}${encodeURIComponent(path)}`);
+  const held = new Map();
+  signal?.throwIfAborted();
+  const exact = await door.read(type, id);
+  signal?.throwIfAborted();
+  if (exact !== null && exact !== undefined) held.set(id, valueIdentity(exact));
+  const content = source.content === true ? {} : source.content ?? {};
+  const parentField = content.parent_field ?? documentData.content.parent_field;
+  const sourceField = content.source_field ?? documentData.content.source_field;
+  const prefix = address.recordId(`${source}${SOURCE_MARK}${encodeURIComponent(`${path}#`)}`);
+  const cursors = new Set();
+  for (let after = null; ;) {
+    signal?.throwIfAborted();
+    const page = await door.list({ type, prefix, limit: limits.door_page_rows, ...(after ? { after } : {}) });
+    signal?.throwIfAborted();
+    if (!Array.isArray(page?.records) || page.next === undefined) {
+      throw say('records_unanswered', `Listing document rows for ${path} answered no records or continuation.`);
+    }
+    for (const record of page.records) {
+      if (typeof record.id !== 'string' || !record.id.startsWith(prefix) || record.type !== type || held.has(record.id)) {
+        throw say('records_unanswered', `Listing document rows for ${path} answered a duplicate or unrelated record.`);
+      }
+      let rowId;
+      try {
+        const local = address.localId(record.id);
+        if (!local.startsWith(`${source}${SOURCE_MARK}`)) throw Error('other source');
+        rowId = decodeURIComponent(local.slice(`${source}${SOURCE_MARK}`.length));
+      } catch {
+        throw say('records_unanswered', `Listing document rows for ${path} answered a record outside its source identity.`);
+      }
+      if (!rowId.startsWith(`${path}#`) || (record.value?.[parentField] !== path && record.value?.[sourceField] !== path)) continue;
+      held.set(record.id, valueIdentity(record.value));
+    }
+    after = continued(page.next, after, cursors, `Listing document rows for ${path}`);
+    if (!after) return held;
+  }
+}
+
+/** Reconcile only named documents, preserving other rows of the source and removing stale split text parts. */
+async function refreshChangedSource({ door, address, source, paths, removedPaths, mostBytes, key, signal }) {
+  const { type } = address;
+  let rows = 0, written = 0, removed = 0, unchanged = 0;
+  const refused = [];
+  for (const path of paths) {
+    signal?.throwIfAborted();
+    const held = await writtenDocumentRows(door, address, source.id, path, signal);
+    const seen = new Set(), writes = [];
+    const content = source.content === true ? {} : source.content ?? {};
+    const parentField = content.parent_field ?? documentData.content.parent_field;
+    const sourceField = content.source_field ?? documentData.content.source_field;
+    for await (const page of sourcePages(door, source, mostBytes, signal, [path])) {
+      for (const row of page) {
+        if (row.id !== path && (!row.id.startsWith(`${path}#`) ||
+            (row.values?.[parentField] !== path && row.values?.[sourceField] !== path))) {
+          throw say('source_changed_path_mismatch', `The source answered ${row.id} for the changed document ${path}.`);
+        }
+        const id = address.recordId(`${source.id}${SOURCE_MARK}${encodeURIComponent(row.id)}`);
+        if (seen.has(id)) throw say('source_duplicate_row', `The row source ${source.id} answered a row id twice.`);
+        seen.add(id);
+        const value = projectedValues(source, row);
+        if (held.get(id) === valueIdentity(value)) unchanged += 1;
+        else writes.push({ id, type, value });
+        held.delete(id);
+        rows += 1;
+      }
+    }
+    if (!seen.size && held.size) {
+      throw say('source_changed_path_unanswered', `The source did not answer the existing changed document ${path}; its old rows were preserved.`);
+    }
+    const removals = [...held.keys()].map(id => ({ id, type, value: null }));
+    const pathKey = `${key}:document:${encodeURIComponent(path)}`;
+    const pageRefused = await writeAll(door, writes, `${pathKey}:write`, signal);
+    const removalRefused = await writeAll(door, removals, `${pathKey}:remove`, signal);
+    refused.push(...pageRefused, ...removalRefused);
+    written += writes.length - pageRefused.length;
+    removed += removals.length - removalRefused.length;
+  }
+  for (const path of removedPaths) {
+    signal?.throwIfAborted();
+    const held = await writtenDocumentRows(door, address, source.id, path, signal);
+    const removals = [...held.keys()].map(id => ({ id, type, value: null }));
+    const removalRefused = await writeAll(door, removals, `${key}:document:${encodeURIComponent(path)}:remove`, signal);
+    refused.push(...removalRefused);
+    removed += removals.length - removalRefused.length;
+  }
+  return { source: source.id, rows, written, removed, unchanged, refused };
+}
+
 /** The records a source wrote at its last refresh: Map(record id → BLAKE3 canonical value identity). */
-async function writtenRows(door, type, source, signal) {
+async function writtenRows(door, address, source, signal) {
+  const { type } = address;
   const held = new Map();
   const cursors = new Set();
-  const prefix = `${type}:${source}${SOURCE_MARK}`;
+  const prefix = address.recordId(`${source}${SOURCE_MARK}`);
   for (let after = null; ;) {
     signal?.throwIfAborted();
     const page = await door.list({ type, prefix, limit: limits.door_page_rows, ...(after ? { after } : {}) });
@@ -339,7 +434,7 @@ export async function refreshRowSources(input = {}, door) {
   input.signal?.throwIfAborted();
   const names = checkedNames(input);
   const list = await listOf(door, names, input.list);
-  const type = rowTypeOf(list, names);
+  const address = addressOf(list, names), { type } = address;
   const declared = sourcesOf(list);
   if (input.source_ids !== undefined && (!Array.isArray(input.source_ids) || !input.source_ids.length ||
       input.source_ids.some(id => typeof id !== 'string' || !id) || new Set(input.source_ids).size !== input.source_ids.length)) {
@@ -349,28 +444,53 @@ export async function refreshRowSources(input = {}, door) {
     throw say('bad_input', 'source_ids names a source this list does not declare.');
   }
   const selected = input.source_ids ? declared.filter(source => input.source_ids.includes(source.id)) : declared;
+  if (input.changes !== undefined && (!input.changes || typeof input.changes !== 'object' || Array.isArray(input.changes))) {
+    throw say('bad_input', 'changes maps selected document source ids to exact changed and removed paths.');
+  }
+  for (const [id, paths] of Object.entries(input.changes ?? {})) {
+    const source = selected.find(one => one.id === id);
+    if (!source || source.source !== 'documents' || source.original === 'list' || source.paths !== undefined || source.paths_file !== undefined) {
+      throw say('bad_input', 'changes can narrow only selected, non-list-original document sources without a positive path catalogue.');
+    }
+    if (!paths || typeof paths !== 'object' || Array.isArray(paths) || Object.keys(paths).some(key => !['paths', 'removed'].includes(key)) ||
+        !Array.isArray(paths.paths) || !Array.isArray(paths.removed) || (!paths.paths.length && !paths.removed.length) ||
+        [...paths.paths, ...paths.removed].some(path => typeof path !== 'string' || !path.startsWith('/') || path === '/' ||
+          path.slice(1).split('/').some(part => !part || part === '.' || part === '..')) ||
+        new Set([...paths.paths, ...paths.removed]).size !== paths.paths.length + paths.removed.length) {
+      throw say('bad_input', 'each changes entry has distinct absolute paths and removed paths without traversal.');
+    }
+  }
   if (input.paths !== undefined && (!Array.isArray(input.paths) || !input.paths.length || input.paths.some(path => typeof path !== 'string' || !path.startsWith('/')))) {
     throw say('bad_input', 'paths is a nonempty array of document names, each starting with /.');
   }
   if ((input.paths !== undefined || input.dry_run) && selected.some(source => source.original !== 'list')) {
     throw say('bad_input', 'paths and dry_run settle list-original sources; select only those with source_ids.');
   }
-  const run = globalThis.crypto.randomUUID();
+  if (input.run_id !== undefined && (typeof input.run_id !== 'string' || !/^[0-9a-f]{40,64}$/.test(input.run_id))) {
+    throw say('bad_input', 'run_id is a full lowercase commit identity when supplied.');
+  }
+  const run = input.run_id ?? globalThis.crypto.randomUUID();
   const sources = [];
   for (const source of selected) {
     const key = `refresh:${input.list}:${source.id}:${run}`;
     if (source.original === 'list') {
-      sources.push(await syncRowSource({ list: input.list, type, source, sources: declared, paths: input.paths, dry_run: Boolean(input.dry_run),
+      sources.push(await syncRowSource({ list: input.list, type, record_prefix: address.prefix, source, sources: declared, paths: input.paths, dry_run: Boolean(input.dry_run),
         source_answer_bytes: input.source_answer_bytes, key, signal: input.signal }, door));
       continue;
     }
-    const held = await writtenRows(door, type, source.id, input.signal);
+    if (input.changes?.[source.id]) {
+      sources.push(await refreshChangedSource({ door, address, source, paths: input.changes[source.id].paths,
+        removedPaths: input.changes[source.id].removed,
+        mostBytes: input.source_answer_bytes, key, signal: input.signal }));
+      continue;
+    }
+    const held = await writtenRows(door, address, source.id, input.signal);
     const seen = new Set(), refused = [];
     let rows = 0, written = 0, unchanged = 0, pageIndex = 0;
     for await (const page of sourcePages(door, source, input.source_answer_bytes, input.signal)) {
       const writes = [];
       for (const row of page) {
-        const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(row.id)}`;
+        const id = address.recordId(`${source.id}${SOURCE_MARK}${encodeURIComponent(row.id)}`);
         if (seen.has(id)) throw say('source_duplicate_row', `The row source ${source.id} answered a row id twice.`);
         seen.add(id);
         const value = projectedValues(source, row);

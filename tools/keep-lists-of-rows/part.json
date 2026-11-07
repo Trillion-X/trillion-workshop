@@ -1,5 +1,7 @@
 {
   "public": [
+    "read-data/row-record-address.mjs",
+    "read-data/row-record-address.d.mts",
     "read-data/saved-view-engine.mjs",
     "read-data/configuration-controller.mjs",
     "read-data/configuration-values.mjs",

@@ -4,6 +4,8 @@ Reads one page of what a person's list shows, from their records only. A list's 
 
 A refresh is the one thing that runs the source tools. It runs the tool each row source names, reads and writes bounded pages, and removes obsolete rows only after the source ends successfully. It writes only the rows that changed.
 
+A list can declare `row_records: { type, prefix }` when its records already use another physical address. The shared `keep-lists-of-rows/read-data/row-record-address.mjs` resolver supplies that same address for reads, refresh writes and list-original copies. Without a declaration, the configured `names.row_type` template remains unchanged and reads keep their existing kind-only selection. A declaration supplies both nonempty literal strings and narrows reads to its prefix; an invalid declaration fails instead of falling back. Row IDs remain local even when their text contains the physical prefix. Address DATA neither moves records nor grants access.
+
 Ported from:
 - the read path of the lists in the earlier Trillion app (`src/lists.mjs` `withRowSources`), where a source row's id is `<source>~<id>`;
 - the view read of `tools/export-records-as-list-rows` (`read-data/view_publish.py`): the rule filter, then the sort.
@@ -14,7 +16,7 @@ From the root of the Workshop checkout, on the person's own computer:
 
 ```
 node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE (--list ID | --view ID) [--after CURSOR] [--limit N]
-node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --refresh LIST_ID [--sources '["source-id"]'] [--paths '["/folder/name.md"]'] [--dry-run yes]
+node tools/read-a-list-view/do-work/read-list-view.mjs --config FILE --refresh LIST_ID [--sources '["source-id"]'] [--changes '{"source-id":{"paths":["/folder/name.md"],"removed":[]}}'] [--run-id COMMIT] [--paths '["/folder/name.md"]'] [--dry-run yes]
 ```
 
 A read prints the page as JSON: `{ list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }`.
@@ -50,6 +52,7 @@ The config is JSON. Nothing in the code names a list, view, record type, address
 - Existing source records are read in bounded pages; only their IDs and BLAKE3 identities of canonical values are retained. Source bodies are then read and written one bounded page at a time. A refresh is not limited by a view's `rows_per_read`, so a large collection needs more pages rather than a higher per-page limit.
 - A row whose value identity equals the existing record's is left alone. The source must reach a successful terminal page before any obsolete row is removed. If a later page fails, repeats its cursor, repeats a row ID or is cancelled, unread existing rows survive. Earlier successfully saved page changes may remain and a retry compares them normally. An answer missing its rows array is refused; an explicit empty terminal array is a complete empty collection.
 - The list's own rows and the rows of other source IDs are never touched. A second refresh with nothing changed writes nothing. The local `refreshRowSources` function accepts an optional `AbortSignal` as `signal`, checked around source/list reads and before each write batch.
+- `changes` narrows selected non-list-original document sources to exact changed and removed paths. It reads changed documents only, and removes only their stale rows (including split text parts) after a successful path read. The caller names missing files in `removed`, so an empty filtered result cannot delete an existing row by accident. Positive path catalogues cannot be narrowed this way; refresh those sources in full. `run_id` is an optional stable commit identity used in request keys so a retry of the same committed refresh keeps its key. Without it, the reader makes a fresh run identity.
 - Writes go in batches of at most `write_rows` records and `write_bytes` bytes, each with its own request key. If the door refuses a batch as written, its records are sent again one at a time: the others are written, and the refused ones are named.
 
 ## A list that is the original, a folder that is its copy

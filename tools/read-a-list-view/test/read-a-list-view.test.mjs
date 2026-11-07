@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, rm, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { readListView, refreshRowSources } from '../read-data/list-view.mjs';
@@ -33,14 +33,16 @@ function bakery({ sources = [{ source: 'documents', of: '/recipes' }], folder = 
     read: async (type, id) => (records.has(id) ? records.get(id) : null),
     // Greatest id first, like the door with no order; `after` is the last id shown.
     list: async ({ type, limit, after, prefix = `${type}:` }) => {
-      const ids = [...records.keys()].filter(id => id.startsWith(`${type}:`) && id.startsWith(prefix)).sort().reverse().filter(id => !after || id < after);
+      const ids = [...records.keys()].filter(id => id.startsWith(prefix)).sort().reverse().filter(id => !after || id < after);
       const shown = ids.slice(0, limit);
       return { records: shown.map(id => ({ id, type, value: records.get(id) })), next: shown.length < ids.length ? shown.at(-1) : null };
     },
     run: async (tool, input) => {
       runs.push({ tool, input });
       if (tool !== 'tool:read-documents-as-list-rows') throw new Error(`no tool ${tool}`);
-      const rest = folder.filter(row => !input.after || row.id > input.after);
+      const selected = input.paths === undefined ? folder : folder.filter(row => input.paths.some(path =>
+        row.id === path || row.id.startsWith(`${path}#`)));
+      const rest = selected.filter(row => !input.after || row.id > input.after);
       const rows = rest.slice(0, input.limit);
       return { exit_code: 0, result: { rows, next: rows.length < rest.length ? rows.at(-1).id : null } };
     },
@@ -64,6 +66,106 @@ test('a refresh writes each source row as a record of the list, its id <source>~
   const answer = await refresh(door);
   assert.deepEqual(answer.sources, [{ source: 'documents', rows: 4, written: 4, removed: 0, unchanged: 0, refused: [] }]);
   assert.deepEqual(records.get('record:chore:documents~%2Fbread.md'), { 'note.chore': 'bake bread', 'note.minutes': 40 });
+});
+
+test('a changed-path refresh reads only named documents and safely settles edits, deletions and renames', async () => {
+  const { door, records, runs, writes, folder } = bakery();
+  await refresh(door);
+  runs.length = writes.length = 0;
+  folder.splice(0, folder.length, recipe('buns', 27), recipe('scones', 15), recipe('bagel', 35));
+  const result = await refresh(door, { source_ids: ['documents'], changes: { documents: {
+    paths: ['/buns.md', '/bagel.md'], removed: ['/bread.md'] } },
+    run_id: 'a'.repeat(40) });
+  assert.deepEqual(result.sources, [{ source: 'documents', rows: 2, written: 2, removed: 1, unchanged: 0, refused: [] }]);
+  assert.deepEqual(runs.map(run => run.input.paths), [['/buns.md'], ['/bagel.md']]);
+  assert.equal(runs.length, 2, 'deleted and unrelated source documents are never read');
+  assert.equal(records.get('record:chore:documents~%2Fbuns.md')['note.minutes'], 27);
+  assert.equal(records.get('record:chore:documents~%2Fbagel.md')['note.minutes'], 35);
+  assert.ok(!records.has('record:chore:documents~%2Fbread.md'), 'the removed side of a rename is settled');
+  assert.ok(records.has('record:chore:documents~%2Fscones.md'), 'unselected source rows remain untouched');
+  assert.ok(writes.every(write => write.key.includes('a'.repeat(40))), 'a caller-supplied run identity stabilizes retry keys');
+});
+
+test('changed-path refresh refuses catalogued sources rather than widening their declared selection', async () => {
+  const { door, runs, writes } = bakery({ sources: [{ source: 'documents', id: 'catalogued', of: '/recipes', paths: ['/recipes/bread.md'] }] });
+  await assert.rejects(refresh(door, { source_ids: ['catalogued'], changes: { catalogued: { paths: ['/recipes/bread.md'], removed: [] } } }), /changes can narrow/);
+  assert.equal(runs.length, 0);
+  assert.equal(writes.length, 0);
+});
+
+test('a deleted document removes only its existing text-part rows through the exact row prefix', async () => {
+  const parts = [
+    { id: '/notes/big.md#text-part-00000002', values: { 'document.text': 'second', 'document.parent': '/notes/big.md' } },
+    { id: '/notes/big.md#text-part-00000001', values: { 'document.text': 'first', 'document.parent': '/notes/big.md' } },
+  ];
+  const { door, records, folder, writes } = bakery({ sources: [{ source: 'documents', id: 'notes', of: '/notes' }], folder: parts });
+  await refresh(door);
+  assert.equal([...records.keys()].filter(id => id.startsWith('record:chore:notes~')).length, 2);
+  folder.splice(0);
+  writes.length = 0;
+  const result = await refresh(door, { source_ids: ['notes'], changes: { notes: { paths: [], removed: ['/notes/big.md'] } }, run_id: 'c'.repeat(40) });
+  assert.equal(result.sources[0].removed, 2);
+  assert.ok(![...records.keys()].some(id => id.startsWith('record:chore:notes~')));
+  assert.ok(writes.flatMap(write => write.rows).every(row => row.value === null));
+});
+
+test('a removed sectioned document deletes only its own section descendants', async () => {
+  const path = '/notes/guide.md';
+  const folder = [
+    { id: `${path}#section-intro#text-part-00000002`, values: { 'document.parent': `${path}#section-intro`, 'document.source': path } },
+    { id: `${path}#section-intro`, values: { 'document.parent': path, 'document.source': path } },
+    { id: `${path}#text-part-00000002`, values: { 'document.parent': path } },
+    { id: `${path}#other.md`, values: { 'document.parent': `${path}#other.md`, 'document.source': `${path}#other.md` } },
+  ];
+  const { door, records, writes } = bakery({ sources: [{ source: 'documents', id: 'notes', of: '/notes',
+    content: { field: 'document.text', sections: {} } }], folder });
+  await refresh(door);
+  assert.equal([...records.keys()].filter(id => id.startsWith('record:chore:notes~')).length, 4);
+  writes.length = 0;
+  const result = await refresh(door, { source_ids: ['notes'], changes: { notes: { paths: [], removed: [path] } }, run_id: '7'.repeat(40) });
+  assert.equal(result.sources[0].removed, 3);
+  assert.ok(records.has(`record:chore:notes~${encodeURIComponent(`${path}#other.md`)}`), 'a filename containing # is not a section child');
+  assert.equal(writes.flatMap(write => write.rows).length, 3);
+});
+
+test('a changed-path refresh addresses configured physical row records through the shared resolver', async () => {
+  const { door, records } = bakery();
+  records.set('list:chores', { ...records.get('list:chores'), row_records: { type: 'record:physical', prefix: 'account:library/' } });
+  const result = await refreshRowSources({ names: NAMES, list: 'chores', source_ids: ['documents'],
+    changes: { documents: { paths: ['/bread.md'], removed: [] } }, run_id: 'b'.repeat(40) }, door);
+  assert.equal(result.sources[0].source, 'documents');
+  assert.deepEqual(records.get('account:library/documents~%2Fbread.md'), { 'note.chore': 'bake bread', 'note.minutes': 40 });
+  assert.ok(!records.has('record:chore:documents~%2Fbread.md'), 'delta writes use the configured physical prefix');
+});
+
+test('changed paths reconcile created, edited and deleted files through the real document reader', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'list-delta-'));
+  try {
+    const folder = join(root, 'notes');
+    await mkdir(folder);
+    const file = join(folder, 'guide.md');
+    await writeFile(file, 'One small document with enough text to split into several text parts.\n');
+    const source = { source: 'documents', id: 'notes', root, of: '/notes', match: '*.md',
+      content: { field: 'document.text', part_bytes: 24 } };
+    const { door, records, runs } = bakery({ sources: [source], folder: [] });
+    door.run = async (tool, input) => {
+      runs.push({ tool, input });
+      return { result: await readDocumentRows(input) };
+    };
+    await refresh(door);
+    const original = [...records.keys()].filter(id => id.startsWith('record:chore:notes~'));
+    assert.ok(original.length > 1, 'the document tool produces several stored text parts');
+    await writeFile(file, 'Edited.\n');
+    await refresh(door, { source_ids: ['notes'], changes: { notes: { paths: ['/notes/guide.md'], removed: [] } }, run_id: '9'.repeat(40) });
+    const edited = [...records.keys()].filter(id => id.startsWith('record:chore:notes~'));
+    assert.equal(edited.length, 1, 'old part rows are removed when a document gets shorter');
+    await unlink(file);
+    await refresh(door, { source_ids: ['notes'], changes: { notes: { paths: [], removed: ['/notes/guide.md'] } }, run_id: '8'.repeat(40) });
+    assert.equal([...records.keys()].filter(id => id.startsWith('record:chore:notes~')).length, 0);
+    const namedReads = runs.filter(run => run.input.paths !== undefined);
+    assert.equal(namedReads.length, 1, 'the edit reads its named file once and deletion reads no file');
+    assert.deepEqual(namedReads[0].input.paths, ['/notes/guide.md']);
+  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test('a scoped refresh fully reconciles only selected sources and refuses unknown or empty selections', async () => {
