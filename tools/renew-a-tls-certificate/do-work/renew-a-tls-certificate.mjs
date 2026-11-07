@@ -18,6 +18,49 @@ const hostnamePattern = /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}
 const safePath = /^\/[A-Za-z0-9._/-]+$/;
 const unitName = /^[a-z][a-z0-9-]{0,62}$/;
 const urlPaths = list => Array.isArray(list) && list.every(path => typeof path === 'string' && /^\/[A-Za-z0-9._/-]*$/.test(path));
+// The caller must name a dedicated public export tree, never an account or
+// Namespace root. Lexical path checks cannot prove publication rights. The
+// publication writer chooses its public contents; this host only serves them.
+// Mounts cannot take an existing ingress path or another mount, and no path can
+// escape its root. A mount is explicit DATA, for example
+// {path: "/share/", folder: "/srv/public-exports", index: "index.html",
+//  exclude: ["manifest.json"], media_types: {"files/identity": "image/png"}}.
+// media_types comes from the export manifest for files without extensions.
+// No mapping is installed by default.
+// Revocation and expiry still require the writer's existing change/expiry wakes;
+// nginx does not read account records or claim to recheck current rights.
+const folderPath = path => typeof path === 'string' && safePath.test(path) && path !== '/'
+  && path.split('/').slice(1).every(segment => segment && segment !== '.' && segment !== '..');
+const filePath = path => typeof path === 'string' && /^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(path)
+  && path.split('/').every(segment => segment && segment !== '.' && segment !== '..');
+const mediaPath = path => typeof path === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:/-]*$/.test(path)
+  && path.split('/').every(segment => segment && !segment.startsWith('.')) && !/\.(writing|next)$/.test(path);
+const mediaType = type => typeof type === 'string'
+  && /^[a-zA-Z0-9!#$&^_.+-]+\/[a-zA-Z0-9!#$&^_.+-]+(?:; charset=[a-zA-Z0-9_-]+)?$/.test(type);
+// An index is also reachable through its folder's extensionless URL. Both names
+// must be refused when that file is excluded, including the root index.
+function excludedPaths(row) {
+  return new Set(row.exclude.flatMap(path => path === row.index ? [path, '']
+    : path.endsWith('/' + row.index) ? [path, path.slice(0, -row.index.length), path.slice(0, -(row.index.length + 1))] : [path]));
+}
+function checkedStaticFiles(h) {
+  if (h.static_files === undefined) return true;
+  if (!Array.isArray(h.static_files) || h.static_files.length > 32) return false;
+  const claimed = ['/healthz', '/download', ...(h.receptionist?.paths ?? []), ...(h.site?.paths ?? [])].map(path => path.replace(/\/$/, ''));
+  for (const row of h.static_files) {
+    if (!row || Object.keys(row).some(key => !['path', 'folder', 'index', 'exclude', 'media_types'].includes(key))
+      || typeof row.path !== 'string' || !/^\/[A-Za-z0-9][A-Za-z0-9_/-]*\/$/.test(row.path)
+      || row.path.slice(1, -1).split('/').some(segment => !segment || segment === '.' || segment === '..')
+      || !folderPath(row.folder) || !filePath(row.index) || row.index.includes('/')
+      || !Array.isArray(row.exclude) || row.exclude.some(path => !filePath(path))
+      || (row.media_types !== undefined && (row.media_types === null || Array.isArray(row.media_types) || typeof row.media_types !== 'object'
+        || Object.entries(row.media_types).some(([path, type]) => !mediaPath(path) || !mediaType(type) || excludedPaths(row).has(path))))) return false;
+    const mount = row.path.slice(0, -1);
+    if (claimed.some(path => path === mount || path.startsWith(row.path) || mount.startsWith(path + '/'))) return false;
+    claimed.push(mount);
+  }
+  return true;
+}
 export function checkedHost(h, { diagnostics = false } = {}) {
   const i = h?.ingress, r = h?.receptionist;
   const ok = h && [h.owner, h.state, h.downloads, i?.pid_file, i?.error_log].every(path => safePath.test(path ?? '')) && h.owner.endsWith('.py')
@@ -25,8 +68,9 @@ export function checkedHost(h, { diagnostics = false } = {}) {
     && typeof r?.binary_pattern === 'string' && r.binary_pattern.length > 0 && /^127\.0\.0\.1:[0-9]{1,5}$/.test(r?.listen ?? '') && urlPaths(r?.paths)
     && r?.environment !== null && typeof r?.environment === 'object' && Object.entries(r.environment).every(([name, value]) => /^[A-Z][A-Z0-9_]{0,63}$/.test(name) && typeof value === 'string' && !/[\n\0]/.test(value))
     && (!diagnostics || (safePath.test(i?.diagnostics_log ?? '') && urlPaths(i?.diagnostics_paths)))
-    && (h.site === undefined || (hostnamePattern.test(h.site?.hostname ?? '') && urlPaths(h.site?.paths)));
-  if (!ok) throw new Error('The server layout (host) was refused: owner (a .py path), state, downloads, ingress {service, pid_file, error_log}, receptionist {service, account, binary_pattern, listen 127.0.0.1:<port>, paths, environment} and, optionally, site {hostname, paths}; diagnostics need ingress.diagnostics_log and diagnostics_paths.');
+    && (h.site === undefined || (hostnamePattern.test(h.site?.hostname ?? '') && urlPaths(h.site?.paths)))
+    && checkedStaticFiles(h);
+  if (!ok) throw new Error('The server layout (host) was refused: owner (a .py path), state, downloads, ingress {service, pid_file, error_log}, receptionist {service, account, binary_pattern, listen 127.0.0.1:<port>, paths, environment} and, optionally, site {hostname, paths} and static_files [{path, folder, index, exclude, media_types?}]; diagnostics need ingress.diagnostics_log and diagnostics_paths.');
   return h;
 }
 export function checkedTLS(c) {
@@ -106,6 +150,21 @@ export function publicProxy(c) {
   const locations = [];
   for (const path of ['/download', '/download/']) locations.push(`location = ${path} { include ${downloadDirectory}/.default-download*.conf; return 404; }`);
   locations.push(`location ^~ /download/ { limit_except GET HEAD { deny all; } types { } default_type application/octet-stream; add_header Cache-Control "public, max-age=300" always; alias ${downloadDirectory}/; location ~ ^/download/\\. { return 404; } }`);
+  // The existing downloads route is the source of this read-only folder serving.
+  // Public exports retain their media type, never enter a shared cache, never
+  // follow links or list folders, and extensionless pages resolve to their index.
+  for (const row of c.host.static_files ?? []) {
+    const mount = row.path.slice(0, -1);
+    const refused = new Set([mount, ...[...excludedPaths(row)].map(path => row.path + path)]);
+    locations.push(...[...refused].map(path => `location = ${path} { return 404; }`));
+    const headers = 'limit_except GET HEAD { deny all; } add_header Cache-Control "no-store" always; add_header X-Content-Type-Options "nosniff" always; add_header Access-Control-Allow-Origin "*" always; autoindex off; disable_symlinks on;';
+    // A content identity has no extension. Its media type is the export owner's
+    // declared DATA, not a guess from its name or its bytes.
+    for (const [path, type] of Object.entries(row.media_types ?? {})) {
+      locations.push(`location = ${row.path}${path} { ${headers} types { } default_type "${type}"; root ${row.folder}; rewrite ^${row.path}(.*)$ /$1 break; try_files $uri =404; }`);
+    }
+    locations.push(`location ^~ ${row.path} { ${headers} include /etc/nginx/mime.types; default_type application/octet-stream; root ${row.folder}; rewrite ^${row.path}(.*)$ /$1 break; try_files $uri $uri/${row.index} =404; location ~ "(?:^|/)\\.|\\.(?:writing|next)$" { return 404; } }`);
+  }
   for (const path of receptionist.paths) locations.push(`location = ${path} { proxy_pass https://${receptionist.listen}; proxy_ssl_server_name on; proxy_ssl_name ${c.hostname}; proxy_ssl_verify on; proxy_ssl_verify_depth 4; proxy_ssl_trusted_certificate /etc/ssl/certs/ca-certificates.crt; }`);
   // GET and HEAD only; any other method is refused here, never sent to the engine or the site.
   // Not when this host is the site itself, which would send the address to itself.

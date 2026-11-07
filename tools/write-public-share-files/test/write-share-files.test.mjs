@@ -61,12 +61,14 @@ test('writes every public file at its served path with a BLAKE3 manifest, rewrit
   assert.deepEqual(data.rows.map(row => row.title).sort(), ['Caramel twist', 'Sea salt bun']);
   assert.doesNotMatch(JSON.stringify(data), /PRIVATE COST/);
   assert.equal(first.written, 8);
+  assert.deepEqual(first.host_files, { path: '/share/', folder, index: 'index.html', exclude: ['manifest.json'], media_types: { [`files/${identity}`]: 'image/png' } });
 
   const again = await writeShareFiles(input, { door: doorOf({ grant: grantOf({ expires_at: '2026-11-01T00:00:00Z' }) }), now: NOW });
   assert.deepEqual([again.written, again.unchanged, again.removed], [0, 8, []]);
 
   const revoked = await writeShareFiles(input, { door: doorOf({ grant: grantOf({ revoked_at: '2026-10-05T12:00:00Z' }) }), now: NOW });
   assert.deepEqual(revoked.ended, [CODE]);
+  assert.deepEqual(revoked.host_files.media_types, {}, 'ended media no longer appears in desired host DATA');
   assert.deepEqual(revoked.removed, [`files/${identity}`, `${CODE}.json`, 'menu.json', 'menu/caramel-twist/index.html', 'menu/index.html', 'menu/sea-salt-bun/index.html']);
   for (const path of revoked.removed) assert.equal(await exists(join(folder, path)), false, `${path} is not kept`);
   assert.equal(await exists(join(folder, 'menu')), false, 'an emptied folder goes too');

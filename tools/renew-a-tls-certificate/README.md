@@ -65,6 +65,14 @@ A made-up request:
 }
 ```
 
+## Public export folders
+
+`host.static_files` optionally mounts dedicated public export trees. A row is `{ "path": "/share/", "folder": "/srv/public-exports", "index": "index.html", "exclude": ["manifest.json"], "media_types": { "files/1f:example": "image/png" } }`. All names and paths are the run's DATA. Omit the field to retain the existing ingress unchanged.
+
+The host serves GET/HEAD, resolves extensionless pages to their declared index, retains JSON/XML/HTML types, and uses `media_types` for files without extensions. It sends no-store, nosniff and open anonymous CORS headers. It refuses hidden and temporary files, excluded files and their index aliases, symlinks, folder listings, overlapping mounts and attempts to take the host's existing ingress paths. A mapping's folder must be proved to be the host's dedicated public export directory; path validation cannot prove publication rights.
+
+`tool:write-public-share-files` returns `host_files`, the desired row from its actual current export manifest. A composing workflow may place that row in `host.static_files` only when the host reads that same public folder. Files on a different computer need an established publication handoff first. A new extensionless-media manifest requires the host DATA regenerated and applied again. The host cannot check revocation or expiry: the export writer's existing change/expiry wakes and successful refresh remain necessary. No fixture, generated config or unavailable administrator credential proves a live publication.
+
 ## Renewing on a schedule
 
 The person declares a wake (a `wake-declaration` record in their own records, then `wake:switch`) for `tool:renew-a-tls-certificate` with `{ "time": { "every_ms": 21600000 } }`, a budget of at least the row's `max_run_ms`, and their server's request as its `input`. Each firing renews when the certificate is due and is a no-op otherwise; a missed firing (the computer slept) runs once when it wakes.
