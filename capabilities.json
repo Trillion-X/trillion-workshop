@@ -18,6 +18,16 @@
   ],
   "capabilities": [
     {
+      "capability": "run child programs with a bounded lifetime and streamed input and output, admit heavy work on a host, and resolve that host's data and cache folders",
+      "owner": ["tools/process-session/"],
+      "entry": "tools/process-session/part.json",
+      "evidence": "The existing process-session library exports run-owned-process, process-admission, heavy-work, place-data-folder and place-cache-folder from part.json. Its README documents shared host admission and private streamed input; its importers reuse that implementation.",
+      "distinct_from": [
+        { "job": "keep a long job on the person's computer resumable: one job per key, its output kept as numbered pieces any client can read on from a cursor, finish or cancel", "why": "That owner persists a resumable job and its numbered results. This library supervises the actual child process and its host resource claim; it does not create a second resumable job store." },
+        { "job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "That owner locates and runs an installed app's command-line entry. This is the shared lower-level process lifetime, stream and host-path library used by process callers." }
+      ]
+    },
+    {
       "capability": "generate selected listing and reviewer copies from supplied sentences, field rules and permission reasons",
       "owner": ["tools/generate-copy-from-selected-sentences/"],
       "entry": "tools/generate-copy-from-selected-sentences/part.json",
