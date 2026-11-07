@@ -11,7 +11,7 @@
  "job": "replay recorded writes from transcripts: bring back the rows an account's AIs wrote, from the records:write calls their transcripts prove succeeded, newest per record, through the records door",
  "sources": [],
  "targets": [
-  { "path": "tools/use-trillion-from-a-shell/do-work/replay-recorded-writes.mjs", "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path, the target the contract claims" }
+  { "path": "tools/use-trillion-from-a-shell/do-work/replay-recorded-writes.mjs" }
  ],
  "preserve": [],
  "allowed_deltas": [],
@@ -20,7 +20,7 @@
  "distinct_from": [
   {
    "repository": "trillion-workshop",
-   "path": "tools/use-trillion-from-a-shell/", "note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own path",
+   "path": "tools/use-trillion-from-a-shell/",
    "why": "This tool itself: its command program passes its own argument parser, home expansion and settings, so shell lines are read as the command reads them, and --write goes through the command's own client and request keys."
   }
  ],
@@ -51,6 +51,6 @@
     }
    ]
   },
-  "test_refs": ["tools/use-trillion-from-a-shell/test/replay-recorded-writes.test.mjs"], "test_refs_note": "PACKAGE-SET-IDENTITY-EXEMPT: this folder's own test"
+  "test_refs": ["tools/use-trillion-from-a-shell/test/replay-recorded-writes.test.mjs"]
  }
 }
