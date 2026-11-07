@@ -26,7 +26,8 @@
     "The original apply-plan, upsert, delete and query behavior, deterministic hyperplanes, ordered buckets, metadata qualification, candidate limits and persisted state/fact bytes."
   ],
   "allowed_deltas": [
-    "Add apply-batches: read one bounded plan/vector pair at a time and call the original applyPlanWithOutcomes function in manifest order. Clone the input state once and write the resulting state/facts once. Existing callers retain the default clone behavior."
+    "Add apply-batches: read one bounded plan/vector pair at a time and call the original applyPlanWithOutcomes function in manifest order. Clone the input state once and write the resulting state/facts once. Existing callers retain the default clone behavior.",
+    "Reuse the private subject dictionary without checking dictionary emptiness or copying it per mutation; keep the applyPlan input clone boundary. Keep transient membership sets for the persisted ordered bucket arrays, with no persisted shape or ordering changes. Export applyPlan for direct caller-immutability and complexity regression checks; direct command execution keeps the same CLI."
   ],
   "banned_substitutions": [
     "Independent ranking or ANN candidate selection",
@@ -44,7 +45,8 @@
     "minimum_meaningful_line_retention": 0.95,
     "test_refs": [
       "tools/meaning-search/test/meaning-search.test.mjs ANN batch application is byte-identical to one ordered plan",
-      "tools/meaning-search/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches"
+      "tools/meaning-search/test/meaning-search.test.mjs bounded indexing keeps one ANN state and candidate order across plan batches",
+      "tools/meaning-search/test/meaning-search.test.mjs ANN mutations reuse private dictionaries and ordered bucket membership without changing caller state"
     ]
   }
 }

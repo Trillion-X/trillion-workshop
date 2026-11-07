@@ -14,9 +14,9 @@
  *    abstained, with its reason, never silently kept or dropped.
  */
 import settings from './cut-by-events.json' with { type: 'json' };
-import { keptRanges, keptTotal, removedRanges } from '../../../src/range-edits.mjs';
-import { decide, filterEvents } from '../../../src/confidence-filter.mjs';
-import { toFrame } from '../../../src/frame-calibration.mjs';
+import { keptRanges, keptTotal, removedRanges } from './range-edits.mjs';
+import { decide, filterEvents } from '../src/confidence-filter.mjs';
+import { toFrame } from '../../calibrate-a-camera-frame/src/frame-calibration.mjs';
 import { authorConcatEdl } from './author-concat-edl.mjs';
 
 const finite = value => typeof value === 'number' && Number.isFinite(value);

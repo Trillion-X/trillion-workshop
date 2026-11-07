@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { findSimilar, findSimilarAcross, findSimilarVector, findWordsSaid, spreadItems } from '../read-data/meaning-search.mjs';
+import { applyPlan } from '../do-work/process-scripts/ann-index.mjs';
 import { mintCanonicalMultihashOfText } from '../do-work/process-scripts/canonical_multihash.mjs';
 
 const KIND = 'semantic-index-descriptor';
@@ -131,6 +132,54 @@ test('ANN batch application is byte-identical to one ordered plan', () => {
     assert.equal(ran.status, 0, ran.stderr);
   }
   for (const output of ['state', 'facts']) assert.deepEqual(readFileSync(join(work, `apply-batches-${output}.json`)), readFileSync(join(work, `apply-plan-${output}.json`)), `${output} must retain the whole-plan bytes and insertion order`);
+});
+
+test('ANN mutations reuse private dictionaries and ordered bucket membership without changing caller state', () => {
+  const hash = mintCanonicalMultihashOfText('synthetic mutation');
+  const nextHash = mintCanonicalMultihashOfText('synthetic next snapshot');
+  const params = { hyperplane_count: 2, table_count: 4, seed: 7, candidate_limit: 100 };
+  const mutation = (id, snapshot = hash) => ({ index_id: 'synthetic', content_address: id, canonical_address: id, canonical_revision: hash, canonical_payload_hash: hash, source_snapshot_ref: snapshot, content_text: '' });
+  const seed = mutation('synthetic:seed');
+  const { content_text, ...retraction } = seed;
+  const before = applyPlan({}, { upserts: [seed] }, { 'synthetic:seed': [1, 0, 0, 0] }, params, 'synthetic').nextState;
+  const snapshot = structuredClone(before);
+  const subjects = before.subjects;
+  const bucket = [...before.buckets[0].values()][0];
+  Object.freeze(before.subjects);
+  const upserts = Array.from({ length: 32 }, (_, at) => mutation(`synthetic:new-${at}`));
+  const vectors = Object.fromEntries(upserts.map(one => [one.content_address, [1, 0, 0, 0]]));
+  const keys = Object.keys;
+  const includes = Array.prototype.includes;
+  let subjectEnumerations = 0;
+  let membershipScans = 0;
+  Object.keys = function(value) {
+    if (Object.prototype.hasOwnProperty.call(value, 'synthetic:seed')) subjectEnumerations += 1;
+    return keys(value);
+  };
+  Array.prototype.includes = function(value, ...rest) {
+    if (typeof value === 'string' && value.startsWith('synthetic:')) membershipScans += 1;
+    return includes.call(this, value, ...rest);
+  };
+  let added;
+  let removed;
+  let restored;
+  try {
+    added = applyPlan(before, { upserts }, vectors, params, 'synthetic').nextState;
+    removed = applyPlan(added, { retracts: [retraction] }, {}, params, 'synthetic').nextState;
+    restored = applyPlan(removed, { upserts: [mutation(seed.content_address, nextHash)] }, { [seed.content_address]: [1, 0, 0, 0] }, params, 'synthetic').nextState;
+  } finally {
+    Object.keys = keys;
+    Array.prototype.includes = includes;
+  }
+  assert.equal(subjectEnumerations, 0, 'a mutation must not enumerate the growing subject dictionary');
+  assert.equal(membershipScans, 0, 'a bucket append must use derived membership instead of scanning its ordered array');
+  assert.throws(() => applyPlan(before, { upserts: [mutation('synthetic:valid'), mutation('synthetic:no-vector')] }, { 'synthetic:valid': [1, 0, 0, 0] }, params, 'synthetic'), /non-empty numeric vector/);
+  assert.deepEqual(before, snapshot, 'applyPlan must not mutate its caller state, including nested maps and arrays, even when a later mutation fails');
+  assert.equal(before.subjects, subjects);
+  assert.equal([...before.buckets[0].values()][0], bucket);
+  assert.equal(added.subjects[seed.content_address].removed, false, 'a later delete must not change an earlier result');
+  assert.equal(removed.subjects[seed.content_address].removed, true, 'a later resurrection must not change the removed result');
+  for (const table of restored.buckets) assert.deepEqual([...table.values()][0], [...upserts.map(one => one.content_address), seed.content_address], 'delete then resurrection preserves original ordered-array behavior');
 });
 
 test('half-precision vectors are read as their numbers, and a smaller limit asks for fewer', async () => {

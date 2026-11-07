@@ -18,6 +18,7 @@
 //  - Python container truthiness ([] and {} are falsy) drives several `or`/`if`
 //    branches; truthy() replicates it so regenerate-vs-reuse decisions match.
 import fs from "node:fs";
+import { fileURLToPath } from "node:url";
 import { pyDumps, pyFloat } from "./pyjson.mjs";
 import { requireCanonicalMultihash, ValueError } from "./canonical_multihash.mjs";
 
@@ -36,6 +37,33 @@ function truthy(x) {
 
 function pyGet(obj, key, dflt) {
   return isDict(obj) && Object.prototype.hasOwnProperty.call(obj, key) ? obj[key] : dflt;
+}
+
+// An existing dictionary can be used whether it is empty or not. Testing its
+// Python truthiness would enumerate every subject on every mutation/query. The
+// state is already private at the command or applyPlan clone boundary. Keep the
+// old fallback for non-dictionary values without scanning real subject maps.
+function subjectsOf(state) {
+  const value = pyGet(state, "subjects", null);
+  return isDict(value) || truthy(value) ? value : {};
+}
+
+// Persisted buckets stay ordered arrays. A run-local membership set avoids a
+// growing linear scan for each new member; removals replace the array, so its
+// derived set is naturally discarded and the serialized state is unchanged.
+const bucketMembership = new WeakMap();
+function appendSubject(table, key, subjectId) {
+  if (!table.has(key)) table.set(key, []);
+  const members = table.get(key);
+  let membership = bucketMembership.get(members);
+  if (!membership) {
+    membership = new Set(members);
+    bucketMembership.set(members, membership);
+  }
+  if (!membership.has(subjectId)) {
+    members.push(subjectId);
+    membership.add(subjectId);
+  }
 }
 
 // Python int(x): truncate toward zero for numbers, parse base-10 integer strings,
@@ -347,7 +375,7 @@ function cmdUpsert(args) {
   const dims = vector.length;
 
   const metadata = subjectMetadata(args);
-  const subjects = truthy(pyGet(state, "subjects", null)) ? state.subjects : {};
+  const subjects = subjectsOf(state);
   const existing = subjects[args.subject_id];
   if (isRejected(existing, metadata, false)) {
     writeJson(args.output_state_json, state);
@@ -384,8 +412,7 @@ function cmdUpsert(args) {
   removeSubjectFromBuckets(buckets, args.subject_id);
   for (let t = 0; t < tableCount; t++) {
     const key = bucketKey(vector, hyperplanes[t]);
-    if (!buckets[t].has(key)) buckets[t].set(key, []);
-    if (!buckets[t].get(key).includes(args.subject_id)) buckets[t].get(key).push(args.subject_id);
+    appendSubject(buckets[t], key, args.subject_id);
   }
 
   const newState = {
@@ -415,7 +442,7 @@ function cmdUpsert(args) {
 function cmdDelete(args) {
   const state = truthy(loadState(args.state_json, {})) ? loadState(args.state_json, {}) : {};
   const metadata = subjectMetadata(args);
-  const subjects = { ...(truthy(pyGet(state, "subjects", null)) ? state.subjects : {}) };
+  const subjects = subjectsOf(state);
   const existing = subjects[args.subject_id];
   if (truthy(existing) && isRejected(existing, metadata, true)) {
     writeJson(args.output_state_json, state);
@@ -445,7 +472,7 @@ function cmdDelete(args) {
 }
 
 function applyUpsertToState(state, { indexId, subjectId, metadata, vector, paramsIn }) {
-  const subjects = truthy(pyGet(state, "subjects", null)) ? state.subjects : {};
+  const subjects = subjectsOf(state);
   const existing = subjects[subjectId];
   if (isRejected(existing, metadata, false)) return state;
   const dims = vector.length;
@@ -467,8 +494,7 @@ function applyUpsertToState(state, { indexId, subjectId, metadata, vector, param
   if (truthy(existing)) removeSubjectFromBuckets(buckets, subjectId);
   for (let t = 0; t < tableCount; t++) {
     const key = bucketKey(vector, hyperplanes[t]);
-    if (!buckets[t].has(key)) buckets[t].set(key, []);
-    if (!buckets[t].get(key).includes(subjectId)) buckets[t].get(key).push(subjectId);
+    appendSubject(buckets[t], key, subjectId);
   }
   // state.update(...) mutates the same object, preserving existing key order and
   // appending new keys, exactly like Python dict.update.
@@ -483,7 +509,7 @@ function applyUpsertToState(state, { indexId, subjectId, metadata, vector, param
 }
 
 function applyDeleteToState(state, { subjectId, metadata }) {
-  const subjects = { ...(truthy(pyGet(state, "subjects", null)) ? state.subjects : {}) };
+  const subjects = subjectsOf(state);
   const existing = subjects[subjectId];
   if (truthy(existing) && isRejected(existing, metadata, true)) return state;
   const buckets = truthy(pyGet(state, "buckets", null)) ? state.buckets : [];
@@ -524,7 +550,7 @@ function applyPlanWithOutcomes(state, plan, vectors, params, indexId, cloneState
       if (!Array.isArray(vector) || vector.length === 0) throw new SystemExitError("ann-index apply-plan needs a non-empty numeric vector for every upsert");
       state = applyUpsertToState(state, { indexId, subjectId, metadata, vector: vector.map((value) => floatOf(value)), paramsIn: params });
     } else {
-      const existing = pyGet(truthy(pyGet(state, "subjects", null)) ? state.subjects : {}, subjectId, undefined);
+      const existing = pyGet(subjectsOf(state), subjectId, undefined);
       const accepted = !(truthy(existing) && isRejected(existing, metadata, true));
       state = applyDeleteToState(state, { subjectId, metadata });
       if (accepted) acceptedRetractions.push(subjectId);
@@ -534,7 +560,7 @@ function applyPlanWithOutcomes(state, plan, vectors, params, indexId, cloneState
   return { state, applied, acceptedRetractions };
 }
 
-function applyPlan(state, plan, vectors, params, indexId) {
+export function applyPlan(state, plan, vectors, params, indexId) {
   const { state: nextState, applied } = applyPlanWithOutcomes(state, plan, vectors, params, indexId);
   return { nextState, mutationCount: applied };
 }
@@ -616,7 +642,7 @@ function cmdQuery(args) {
 
   const candidates = [];
   for (const subjectId of seen.slice(0, candidateLimit)) {
-    const metadata = pyGet(truthy(pyGet(state, "subjects", null)) ? state.subjects : {}, subjectId, undefined);
+    const metadata = pyGet(subjectsOf(state), subjectId, undefined);
     if (!isDict(metadata) || metadata.removed) continue;
     try {
       requireCanonicalMultihash(metadata.revision, "indexed revision");
@@ -712,9 +738,11 @@ function main() {
   return 0;
 }
 
-try {
-  process.exit(main());
-} catch (exc) {
-  process.stderr.write(`[meaning-search] error: ${exc && exc.message ? exc.message : exc}\n`);
-  process.exit(1);
+if (process.argv[1] && fs.existsSync(process.argv[1]) && fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1])) {
+  try {
+    process.exit(main());
+  } catch (exc) {
+    process.stderr.write(`[meaning-search] error: ${exc && exc.message ? exc.message : exc}\n`);
+    process.exit(1);
+  }
 }
