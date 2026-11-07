@@ -65,7 +65,7 @@
       "credentialHome",
       "namesHeldByTheVault",
       "heldByTheVault",
-      "putOneSecretInTheVault"
+      "main"
     ],
     "test_refs": [
       "tools/connect-a-service-and-seal-its-key/tests/names-held-by-the-vault.test.mjs (nine synthetic stand-in tests)"
