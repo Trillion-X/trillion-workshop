@@ -1,7 +1,8 @@
 // A synthetic method and an in-memory records door for the decision tests. The method is made up for the tests; it
 // holds no one's own method. The door keeps records as the records door does: read by type and id, list by type
 // (newest created first for a declared order, else greatest id first) with `fields`, and write with null removing. Like
-// the real door it refuses a write whose message is over 64 KiB, and it notes each write's bytes and its largest record,
+// the real door it bounds request keys to 512 UTF-8 bytes without control bytes, refuses messages over 64 KiB,
+// and notes each write's bytes and its largest record,
 // and `carried`: the bytes of that message when a door carries it with every character past ASCII as a \u escape and
 // quotes it once more as a JSON string, the most any re-encoding on the way can make of it.
 import assert from 'node:assert/strict';
@@ -85,6 +86,7 @@ export function memoryDoor() {
       for (const [id, kept] of rows) yield { id, type, value: structuredClone(view(kept, fields)) };
     },
     async write(list, { key } = {}) {
+      assert.ok(typeof key === 'string' && key.trim() && Buffer.byteLength(key) <= 512 && !/[\u0000-\u001f]/u.test(key), 'a request key fits the native 512-byte bound and contains no control bytes');
       assert.ok(list.length >= 1 && list.length <= 256, `a write carries 1 to 256 records, not ${list.length}`);
       const size = bytes({ records: list, key });
       assert.ok(size <= DOOR_CAP, `a write of ${size} bytes is over the door's 64 KiB cap (413)`);

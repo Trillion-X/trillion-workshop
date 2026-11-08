@@ -463,7 +463,15 @@ export async function writeDecision(door, list, key) {
   const parts = fitted(rest);
   // Every changed input/basis gets its own normal retry identity. A request key shared by two differing answers
   // must never let the second writer accept the first writer's historical records-door receipt.
-  const request = `${key}:${makeHashCodeHexFromJson({ basis, records: [root, ...parts] })}`;
+  const contents = { basis, records: [root, ...parts] };
+  const identity = makeHashCodeHexFromJson(contents);
+  const legacy = `${key}:${identity}`;
+  // Preserve the complete legacy family when even its longest final key fits the native UTF-8 bound.
+  // Oversized intents bind the whole logical key AND the exact contents/basis, never a truncated prefix.
+  // Choose once before any write: an unknown outcome must never trigger a new retry identity. Existing
+  // record keys/read pointers are independent of these request keys and remain unchanged on every host.
+  const request = utf8.encode(`${legacy}:part:${identity}`).length <= 512 ? legacy
+    : `decision-write:${makeHashCodeHexFromJson({ key, ...contents })}`;
   async function writeImmutable(batch) {
     let remaining = batch;
     while (remaining.length) {
