@@ -609,6 +609,7 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
       if (!history) errors.push('baseline requires repository history proof before active adaptation');
       else {
         if (!history.ancestor) errors.push('baseline.commit must be an ancestor of the judged commit');
+        if (history.allEarlierOrParallelContent !== true) errors.push('baseline requires complete earlier and parallel target history proof');
         const copies = new Set([copied, ...(fullSourceBaseline ? [source.multihash] : []), ...sources.slice(1).map((one) => one?.multihash)]);
         const sourcePaths = new Set(sources.map((one) => one?.path));
         const targetPaths = new Set(activeTargets.map((one) => one?.path));
@@ -625,8 +626,11 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
             && source.multihash === multihash(one.atBaseline) && (source.old_copy === 'same-file' || source.old_copy === undefined));
           const initial = !contract?.baseline?.commit;
           const bytes = initial ? readTargetBytes(one.path, options) : one.atBaseline;
-          const absentBefore = !initial && bytes === null && one.before.length === 0;
-          if (!one.introductionsOrdered || (!absentBefore && (!exact(bytes) || (!sameFile && !one.before.every(exact))))) {
+          const absentAtBaseline = !initial && bytes === null;
+          const priorCopies = sameFile
+            ? one.introductionsOrdered && Array.isArray(one.parallel) && one.parallel.every(exact)
+            : Array.isArray(one.before) && one.before.every(exact);
+          if (!priorCopies || (!absentAtBaseline && !exact(bytes))) {
             errors.push(`baseline must precede active adaptation: ${one.path} has prior or unrelated target history`);
           }
         }

@@ -19,7 +19,7 @@
 //                                                   index, or undefined for the file on disk)
 //     targetState(path)             { state, mode?, bytes? } absent, unreadable or regular; known leaf modes are Git mode strings
 //     targetAtCommit(commit, path)  Buffer | null   the bytes of a path of `root` at a commit
-//     baselineHistory(commit, paths) object | null ancestry and each active path's history before the byte copy
+//     baselineHistory(commit, paths) object | null ancestry and all earlier/parallel content, with explicit coverage
 //     retirementOf(source)          { state: 'absent' | 'regular' | 'unreadable', bytes? } candidate for self, else published main
 //     lives(repository, path)       boolean | null  whether the path is in that repository's main line now
 //     searchCode(repository, pattern)  string[] | null  paths in that repository's main line whose text or path matches
@@ -168,7 +168,7 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     if (!historyRead) {
       historyRead = true;
       const tip = judgedCommit();
-      const text = tip && git(here, ['log', '--topo-order', '--full-history', '--always', '-m', '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', '--format=%x00@%H %P%x00', tip]);
+      const text = tip && git(here, ['log', '--root', '--topo-order', '--full-history', '--always', '-m', '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', '--format=%x00@%H %P%x00', tip]);
       history = text === null || !tip ? null : indexHistory(text);
     }
     return history;
@@ -413,8 +413,11 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       if (!completeHistory()) return null;
       const base = resolveCommit(here, commit);
       const judged = judgedCommit();
-      if (!base && !judged && commit === 'HEAD' && (tree === undefined || tree === ':') && git(here, ['symbolic-ref', '--quiet', 'HEAD'])) {
-        return { ancestor: true, targets: paths.map((path) => ({ path, atBaseline: null, before: [], introductionsOrdered: true })) };
+      if (!base && !judged && commit === 'HEAD' && (tree === undefined || tree === ':')
+          && git(here, ['symbolic-ref', '--quiet', 'HEAD'])
+          && git(here, ['rev-list', '--all', '--reflog', '--max-count=1']) === '') {
+        return { ancestor: true, allEarlierOrParallelContent: true,
+          targets: paths.map((path) => ({ path, atBaseline: null, before: [], parallel: [], introductionsOrdered: true })) };
       }
       if (!base || !judged) return null;
       const index = historyIndex();
@@ -425,14 +428,19 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
         if (!lineage) return null;
         const { then, names } = lineage;
         const events = names.flatMap((name) => [...(index.paths.get(name)?.values() ?? [])].map((event) => ({ ...event, name })));
+        // A parallel branch may adapt and then revert or discard a path. Inspect its content events, not just
+        // introduction or merge-tip bytes. Only strict descendants of the baseline are allowed to adapt freely.
+        const earlierOrParallel = events.filter((one) => one.content && (one.revision === base || !ancestor(base, one.revision)));
+        const before = earlierOrParallel.map((one) => copiedBytes(regularAtCommit(one.revision, one.name)));
         return {
           path,
           atBaseline: copiedBytes(regularAtCommit(base, then)),
-          before: events.filter((one) => one.content && ancestor(one.revision, base)).map((one) => copiedBytes(regularAtCommit(one.revision, one.name))),
+          before,
+          parallel: earlierOrParallel.flatMap((one, index) => ancestor(one.revision, base) ? [] : [before[index]]),
           introductionsOrdered: events.filter((one) => one.introduced).every((one) => ancestor(one.revision, base) || ancestor(base, one.revision)),
         };
       });
-      return targets.some((one) => one === null) ? null : { ancestor: ancestor(base, judged), targets };
+      return targets.some((one) => one === null) ? null : { ancestor: ancestor(base, judged), allEarlierOrParallelContent: true, targets };
     },
     lives(repository, path) {
       const folder = checkout(repository);

@@ -23,6 +23,8 @@ All contract, source, picture and comparison identities are the BLAKE3 identity 
 | `test/judged-source-retirement.test.mjs` | Candidate and staged retirement inside the same repository, source slices behind facades, whole-file removal, unreadable/nonregular states, and the external owner's published-main boundary. |
 | `test/shared-history-cache.test.mjs` | Actual Git call counts, shared history across targets, sibling-branch isolation, copied return values, NUL-safe names, fresh shallow/graft refusal, published search scopes, inherited Git environment isolation, private staged indexes and one full validation per contract. |
 | `test/full-source-baseline-ranges.test.mjs` | Real synthetic Git histories for a complete original snapshot and selected ranges, with excerpt compatibility and altered-artifact, mixed-origin, prior-adaptation, active-retention and source-identity opponents. |
+| `test/parallel-source-baseline-history.test.mjs` | Independent original copies and held baselines across branches, with adapted, reverted, deleted, discarded and hidden-root history opponents. |
+| `test/history-proof-coverage.test.mjs` | Reader coverage, empty-history qualification and the pre-policy same-file exception, including parallel adaptation. |
 
 ## Key Types / Functions
 
@@ -36,6 +38,8 @@ All contract, source, picture and comparison identities are the BLAKE3 identity 
 | Pixel lock | `{ schema, references, target_screens }` | The measured geometry a visual replica must carry: landmarks, colour samples, typography, spacing, surfaces, controls and element mappings, with minimums. At completion the pixel difference is measured from the pictures and may not exceed three percent. |
 
 A separate `baseline.path` can hold the complete, unredacted original file when the first source selects `lines`. All source references must name the same repository, commit and path (or path multihash), and the complete artifact must match those pinned source bytes. `baseline.target_multihash_at_baseline` then identifies the complete artifact; the source identities and `baseline.source_multihash` still identify the selected ranges. The existing history checks still apply. Line retention and required mechanisms still come from active targets.
+
+History proof checks every relevant content event not strictly descended from the baseline, including incomparable branches and earlier names. Independent original copies can merge before adaptation; a parallel adaptation still fails after a revert, deletion or merge that discards it. The reader explicitly certifies this coverage, including root commits, so an older reader cannot silently supply an incomplete proof. The existing pre-policy same-file exception keeps its ancestral-history allowance and also checks parallel content.
 
 ## Dependencies
 
