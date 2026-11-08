@@ -9,6 +9,7 @@
 //     ios/App/Assets.xcassets/CoverPaper.colorset/       the cover's paper, the colour iOS shows while it launches the
 //                                                        app (UILaunchScreen in ios/project.yml), so no white comes first
 //     node scripts/make-opening-cover.mjs
+//     node scripts/make-opening-cover.mjs --output-root /absolute/path/to/the/app-repository
 //   test/thread-cover.test.mjs fails while any written file is stale.
 //
 // NON-NEGOTIABLE INVARIANTS
@@ -48,16 +49,20 @@ export function coverLook() {
 }
 
 /** Every file this writes, by path, with its bytes. */
-export function openingCoverFiles() {
+export function openingCoverFiles({ outputRoot = ROOT } = {}) {
+  const root = resolve(outputRoot);
+  const cover = join(root, 'ios/App/thread-cover.html');
+  const needleSet = join(root, 'ios/App/Assets.xcassets/CoverNeedle.imageset');
+  const paperSet = join(root, 'ios/App/Assets.xcassets/CoverPaper.colorset');
   return {
-    [IOS_COVER]: threadCoverPage(undefined, coverLook()),
-    [join(IOS_NEEDLE_SET, 'cover-needle.svg')]: coverNeedleSvg(),
-    [join(IOS_NEEDLE_SET, 'Contents.json')]: `${JSON.stringify({
+    [cover]: threadCoverPage(undefined, coverLook()),
+    [join(needleSet, 'cover-needle.svg')]: coverNeedleSvg(),
+    [join(needleSet, 'Contents.json')]: `${JSON.stringify({
       images: [{ filename: 'cover-needle.svg', idiom: 'universal' }],
       info: { author: 'xcode', version: 1 },
       properties: { 'preserves-vector-representation': true, 'template-rendering-intent': 'original' },
     }, null, 2)}\n`,
-    [join(IOS_PAPER_SET, 'Contents.json')]: `${JSON.stringify({
+    [join(paperSet, 'Contents.json')]: `${JSON.stringify({
       colors: [{
         color: { 'color-space': 'srgb', components: { alpha: '1.000', blue: channel(setup.look.paper, 2), green: channel(setup.look.paper, 1), red: channel(setup.look.paper, 0) } },
         idiom: 'universal',
@@ -68,7 +73,9 @@ export function openingCoverFiles() {
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  for (const [path, bytes] of Object.entries(openingCoverFiles())) {
+  const args = process.argv.slice(2);
+  if (args.length && (args.length !== 2 || args[0] !== '--output-root' || !args[1])) throw new Error('Usage: make-opening-cover.mjs [--output-root APP_REPOSITORY]');
+  for (const [path, bytes] of Object.entries(openingCoverFiles(args.length ? { outputRoot: args[1] } : {}))) {
     mkdirSync(dirname(path), { recursive: true });
     writeFileSync(path, bytes);
     process.stdout.write(`wrote ${path}\n`);
