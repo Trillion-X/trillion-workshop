@@ -20,6 +20,10 @@ An in-place source can follow actual Git renames from its original pre-policy sn
 
 Typed quotation consumers can call `validateReferenceAdaptationEvidence(contract, options)` with real repository readers. It shares the full validator's structural, literal-copy/mode, pinned source, line-range, redaction and declared copy-identity checks. Its result carries `scope: "immutable-contract-evidence"` and `admission: false`; full admission separately checks current targets, retirement, completed baseline copies, history and retention. The quotation consumer also binds the quote's exact bytes through the existing BLAKE3 owner. `NO_PRIOR_OWNER` requires fresh searches and is refused by this evidence endpoint.
 
+For one complete immutable repository source, `SOURCE_FIRST_PORT` also accepts `baseline.redactions: [{ from_bytes: [start, end], to }]`. These are zero-based UTF-8 byte offsets into the original source, with an exclusive end. The whole original source hash must match before any offset is used. Ranges must be ordered, nonempty, disjoint and on UTF-8 boundaries; replacements must be valid UTF-8 text. Selected source lines, multiple sources, mixed literal/byte forms and malformed arrays are refused. All declarations are checked before the copy is assembled. The metadata contains neither the removed text nor an extra digest of a private fragment; positions and lengths remain visible.
+
+For this byte form, `source.multihash` and `baseline.source_multihash` still identify the entire unredacted source, and retention is measured against that original text. Only the copy-identity comparison uses the transformed bytes and `baseline.target_multihash_at_baseline`. Existing literal `{ from, to }` replacements retain their sequential behavior. Neither form proves privacy readiness, completed copying, current adoption or source history: the actual serialized contract and copied bytes still need the privacy gate, and all existing chronology, ownership, retirement and active-source checks remain.
+
 ## Files
 
 | File | Purpose |

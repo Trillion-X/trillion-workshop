@@ -44,6 +44,58 @@ function words(text) { return new Set(String(text ?? '').replace(/([a-z0-9])([A-
 function redacted(text, redactions) {
   return redactions.reduce((out, one) => (typeof one?.from === 'string' && one.from && typeof one?.to === 'string' ? out.split(one.from).join(one.to) : out), text);
 }
+// The existing source-copy owner also accepts positions in the complete pinned
+// UTF-8 source. The declaration discloses positions, never the removed text or
+// an extra digest of a private fragment. This does not prove port admission.
+function redactSourceCopy(source, redactions = [], { sourceMultihash } = {}) {
+  const refused = () => new TypeError('Source copy redactions are invalid or do not bind the complete pinned source.');
+  const own = (value, key) => Object.hasOwn(value, key);
+  const data = (value, key) => Object.getOwnPropertyDescriptor(value, key)?.value;
+  const validText = text => typeof text === 'string' && Buffer.from(text, 'utf8').toString('utf8') === text;
+  if (!Buffer.isBuffer(source) || !Array.isArray(redactions)) throw refused();
+  const original = Buffer.from(source);
+  if (redactions.length === 0) return { bytes: original, mode: 'none' };
+  const entries = [];
+  for (let index = 0; index < redactions.length; index += 1) {
+    const entry = data(redactions, String(index));
+    if (!isRecord(entry)) throw refused();
+    entries.push(entry);
+  }
+  const byteMode = entries.some(entry => own(entry, 'from_bytes'));
+  if (!byteMode) {
+    if (entries.some(entry => typeof data(entry, 'from') !== 'string' || !data(entry, 'from')
+        || typeof data(entry, 'to') !== 'string')) throw refused();
+    return { bytes: Buffer.from(redacted(original.toString('utf8'), entries), 'utf8'), mode: 'literal' };
+  }
+  // Bind all original bytes before interpreting any position.
+  if (typeof sourceMultihash !== 'string' || !BLAKE3_MULTIHASH.test(sourceMultihash)
+      || multihash(original) !== sourceMultihash) throw refused();
+  try { new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(original); }
+  catch { throw refused(); }
+  const boundary = offset => offset === original.length || (original[offset] & 0xc0) !== 0x80;
+  const spans = [];
+  let previousEnd = 0;
+  for (const entry of entries) {
+    if (Reflect.ownKeys(entry).length !== 2 || !own(entry, 'from_bytes') || !own(entry, 'to')) throw refused();
+    const range = data(entry, 'from_bytes'), replacement = data(entry, 'to');
+    if (!Array.isArray(range) || range.length !== 2 || Reflect.ownKeys(range).length !== 3
+        || !own(range, '0') || !own(range, '1') || !validText(replacement)) throw refused();
+    const start = data(range, '0'), end = data(range, '1');
+    if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < previousEnd || start < 0
+        || start >= end || end > original.length || !boundary(start) || !boundary(end)) throw refused();
+    spans.push({ start, end, replacement: Buffer.from(replacement, 'utf8') });
+    previousEnd = end;
+  }
+  // Validate everything first, then assemble once using original positions.
+  const chunks = [];
+  let offset = 0;
+  for (const { start, end, replacement } of spans) {
+    chunks.push(original.subarray(offset, start), replacement);
+    offset = end;
+  }
+  chunks.push(original.subarray(offset));
+  return { bytes: Buffer.concat(chunks), mode: 'bytes' };
+}
 function named(source) {
   const lines = Array.isArray(source.lines) ? ` lines ${source.lines.join('-')}` : '';
   const repository = typeof source.repository === 'string' ? source.repository
@@ -568,12 +620,22 @@ function readContractEvidence(contract, options) {
   // A source in a private repository moved into a public one may have to lose words before its first commit there (a
   // person's name, a private path): baseline.redactions lists each literal replacement, and the byte copy is then the
   // source with exactly those replacements. Nothing else may differ.
+  if (contract?.baseline?.redactions !== undefined && !Array.isArray(contract.baseline.redactions)) errors.push('baseline.redactions must be an array');
   const redactions = Array.isArray(contract?.baseline?.redactions) ? contract.baseline.redactions : [];
-  for (const one of redactions) {
-    if (!isRecord(one) || typeof one.from !== 'string' || !one.from || typeof one.to !== 'string') errors.push('baseline.redactions are { from, to } literal replacements');
+  const declarations = Array.from({ length: redactions.length }, (_, index) => Object.getOwnPropertyDescriptor(redactions, String(index))?.value);
+  const byteRedactions = declarations.some(one => isRecord(one) && Object.hasOwn(one, 'from_bytes'));
+  const completeByteSource = sources.length === 1 && source?.repository && source?.commit && source?.lines === undefined;
+  if (byteRedactions && (contract.mode !== 'SOURCE_FIRST_PORT' || !completeByteSource)) {
+    errors.push('byte redactions require SOURCE_FIRST_PORT with exactly one complete immutable repository source and no selected lines');
+  }
+  if (!byteRedactions) for (const one of declarations) {
+    const from = isRecord(one) ? Object.getOwnPropertyDescriptor(one, 'from')?.value : null;
+    const to = isRecord(one) ? Object.getOwnPropertyDescriptor(one, 'to')?.value : null;
+    if (typeof from !== 'string' || !from || typeof to !== 'string') errors.push('baseline.redactions are { from, to } literal replacements');
   }
   const sourceTexts = [];
   const sourceChecks = [];
+  let sourceCopyBytes = null;
   let sourceArtifact = null;
   let sourceArtifactCount = 0;
   let sourceArtifactsMatch = true;
@@ -597,8 +659,19 @@ function readContractEvidence(contract, options) {
           else if (!sourceArtifact.equals(file)) sourceArtifactsMatch = false;
           sourceArtifactCount += 1;
         }
-        sourceTexts.push(one === source ? redacted(bytes.toString('utf8'), redactions) : bytes.toString('utf8'));
         if (multihash(bytes) !== one.multihash) errors.push(`source multihash drift: ${named(one)}`);
+        let retentionText = bytes.toString('utf8');
+        if (one === source && (!byteRedactions || completeByteSource)) {
+          try {
+            const copy = redactSourceCopy(bytes, redactions, { sourceMultihash: one.multihash });
+            sourceCopyBytes = copy.bytes;
+            if (copy.mode !== 'bytes') retentionText = copy.bytes.toString('utf8');
+          } catch {
+            errors.push('Source copy redactions are invalid or do not bind the complete pinned source.');
+          }
+        }
+        // Byte redactions never shrink the original retention denominator.
+        sourceTexts.push(retentionText);
       }
       sourceChecks.push({ source: one, bytes: one.lines === undefined ? null : bytes });
     } else if (options.requireRepositorySources) {
@@ -608,6 +681,7 @@ function readContractEvidence(contract, options) {
       if (sourcePath && existsSync(sourcePath)) {
         const bytes = readFileSync(sourcePath);
         sourceTexts.push(bytes.toString('utf8'));
+        if (one === source) sourceCopyBytes = Buffer.from(bytes);
         if (multihash(bytes) !== one.multihash) errors.push('source multihash drift');
       } else if (sourcePath) errors.push(`source missing: ${sourcePath}`);
     }
@@ -627,7 +701,7 @@ function readContractEvidence(contract, options) {
       && multihash(sourceArtifact) === contract?.baseline?.target_multihash_at_baseline;
     copied = redactions.length || fullSourceBaseline ? contract?.baseline?.target_multihash_at_baseline : source?.multihash;
     if (!redactions.length && !fullSourceBaseline && copied !== contract?.baseline?.target_multihash_at_baseline) errors.push('baseline target multihash must equal source multihash');
-    if (redactions.length && sourceTexts.length && multihash(Buffer.from(sourceTexts[0])) !== copied) {
+    if (redactions.length && sourceCopyBytes !== null && multihash(sourceCopyBytes) !== copied) {
       errors.push('baseline target multihash must equal the source with exactly baseline.redactions applied');
     }
     if (!Array.isArray(contract?.preserve) || contract.preserve.length === 0) errors.push('SOURCE_FIRST_PORT requires preserved mechanisms');

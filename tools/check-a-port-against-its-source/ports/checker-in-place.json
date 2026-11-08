@@ -57,7 +57,9 @@
     "Share one immutable raw Git DAG/history index and bounded metadata, blob and published-search caches per reader; copy public results",
     "Validate one loaded complete contract once per immutable judge scope while retaining exact claimed-feature ownership",
     "Read same-repository source retirement from the judged candidate or staged index, keeping unreadable state distinct and external published main authoritative",
-    "Bind reader and judge Git operations to their declared repository, freeze committed diff endpoints, and preserve the caller's private staged index while refusing generation changes during a judgment"
+    "Bind reader and judge Git operations to their declared repository, freeze committed diff endpoints, and preserve the caller's private staged index while refusing generation changes during a judgment",
+    "Expose publication-only remote-tracking main without local fallback and retain earlier-or-parallel content events through historical rename and cycle names",
+    "Consume the maintained synchronous verified-context API for a source-qualified read-only staged probe, rechecking its root, ordered parents and lifetime before cached public reads without granting transaction authority"
   ],
   "banned_substitutions": [
     "A rewritten validator or application-specific bypass",
@@ -83,7 +85,8 @@
       "tools/check-a-port-against-its-source/test/check-a-repository-for-port-contracts.test.mjs",
       "tools/check-a-port-against-its-source/test/check-my-reference-contract-row.test.mjs",
       "tools/check-a-port-against-its-source/test/judged-source-retirement.test.mjs",
-      "tools/check-a-port-against-its-source/test/shared-history-cache.test.mjs"
+      "tools/check-a-port-against-its-source/test/shared-history-cache.test.mjs",
+      "tools/check-a-port-against-its-source/test/verified-git-context.test.mjs"
     ]
   }
 }

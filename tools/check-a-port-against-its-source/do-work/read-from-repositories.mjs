@@ -30,6 +30,9 @@ import { existsSync, lstatSync, readFileSync, statSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
+const { readVerifiedGitContext } = Object.hasOwn(process.env, 'QUALIFIED_COMMITTED_READER_PROBE')
+  || Object.hasOwn(process.env, 'CANDIDATE_GIT_CONTEXT') ? await import('trillion:verified-git-context') : {};
+
 const MAX_BUFFER = 1 << 28;
 const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 
@@ -111,7 +114,7 @@ function indexHistory(text) {
   return { parents, paths, incoming, identityIncoming };
 }
 
-function repositoryGit(root, args, { bytes = false, index = false, history = false, environment } = {}) {
+function repositoryGit(root, args, { bytes = false, index = false, history = false, environment, verifiedContext } = {}) {
   try {
     // -C does not override Git's inherited repository/object/namespace selectors. Bind every read to its declared
     // checkout; only self staged operations use the caller's private index. Keep self history overrides visible to
@@ -124,6 +127,16 @@ function repositoryGit(root, args, { bytes = false, index = false, history = fal
         || (key === 'GIT_INDEX_FILE' && !index)
         || (['GIT_GRAFT_FILE', 'GIT_SHALLOW_FILE'].includes(key) && !history)) delete env[key];
     }
+    if (verifiedContext) {
+      env.GIT_DIR = verifiedContext.admin;
+      env.GIT_COMMON_DIR = verifiedContext.common;
+      env.GIT_WORK_TREE = verifiedContext.root;
+      if (index) env.GIT_INDEX_FILE = verifiedContext.index;
+      else delete env.GIT_INDEX_FILE;
+      env.GIT_CONFIG_COUNT = '1';
+      env.GIT_CONFIG_KEY_0 = 'core.hooksPath';
+      env.GIT_CONFIG_VALUE_0 = dirname(verifiedContext.hooks['reference-transaction'].path);
+    }
     const out = execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { env, maxBuffer: MAX_BUFFER, stdio: ['ignore', 'pipe', 'ignore'] });
     return bytes ? out : out.toString('utf8');
   } catch (error) {
@@ -135,8 +148,21 @@ function repositoryGit(root, args, { bytes = false, index = false, history = fal
 
 export function gitReaders({ root, repositories = {}, repositoryNames = [], tree } = {}) {
   const here = resolve(root ?? process.cwd());
+  const wantsContext = Object.hasOwn(process.env, 'QUALIFIED_COMMITTED_READER_PROBE') || Object.hasOwn(process.env, 'CANDIDATE_GIT_CONTEXT');
+  if (wantsContext && typeof readVerifiedGitContext !== 'function') throw new Error('the verified reader context owner is unavailable');
+  const initialContext = typeof readVerifiedGitContext === 'function' ? readVerifiedGitContext() : null;
+  if (initialContext && tree !== ':') throw new Error('the verified reader scope requires its held staged tree');
+  const contextStamp = initialContext && JSON.stringify(initialContext);
+  const currentContext = () => {
+    if (!initialContext) return null;
+    const current = readVerifiedGitContext();
+    if (current.root !== here || JSON.stringify(current) !== contextStamp) throw new Error('the verified reader root or scope changed');
+    return current;
+  };
+  currentContext();
   const environment = { ...process.env };
-  const git = (folder, args, options = {}) => repositoryGit(folder, args, { ...options, environment, history: folder === here });
+  const git = (folder, args, options = {}) => repositoryGit(folder, args, { ...options, environment,
+    verifiedContext: folder === here ? currentContext() : null, history: folder === here });
   const common = git(here, ['rev-parse', '--path-format=absolute', '--git-common-dir'])?.trim();
   const owner = common && basename(common) === '.git' ? dirname(common) : here;
   const self = basename(owner);
@@ -185,6 +211,8 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
   };
   let parentSnapshot;
   const pendingParents = () => {
+    const context = currentContext();
+    if (context) return {stamp: JSON.stringify(context.parents), tips: [...context.parents]};
     const head = git(here, ['rev-parse', '--verify', '-q', 'HEAD^{commit}'])?.trim() ?? null;
     const location = git(here, ['rev-parse', '--git-path', 'MERGE_HEAD'])?.trim();
     if (!location) throw new Error('the staged merge parents could not be read');
@@ -390,6 +418,7 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
     } catch (error) { return error.code === 'ENOENT' ? 'absent-index' : null; }
   };
   const assertScope = () => {
+    currentContext();
     if (judgedIndexStamp !== undefined && indexGeneration() !== judgedIndexStamp) throw new Error('the staged index changed during the repository judgment');
     if (parentSnapshot && pendingParents().stamp !== parentSnapshot.stamp) throw new Error('the staged parents changed during the repository judgment');
   };
@@ -446,7 +475,7 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
       judgedIndexStamp = generation;
       const head = historyTips()[0] ?? EMPTY_TREE;
       assertScope();
-      return { ...span, head };
+      return { ...span, head, ...(initialContext ? {parents: [...historyTips()]} : {}) };
     }
     return { ...span, to: judgedCommit(), ...(span.from === undefined ? {} : { from: resolveCommit(here, span.from) ?? (span.from === EMPTY_TREE ? EMPTY_TREE : null) }) };
   };
@@ -508,7 +537,7 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
     if (tree === ':' && (before === null || before !== indexGeneration())) return { state: 'unreadable' };
     return state.state === 'regular' ? { ...state, bytes: copiedBytes(state.bytes) } : { ...state };
   };
-  return {
+  const api = {
     self,
     repositoryName,
     checkout,
@@ -530,6 +559,10 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
       // Historical captures can outlive a branch or a replacement of main.
       // Resolve their immutable object here; the fresh search binds main apart.
       return resolveCommit(checkout(name), commit);
+    },
+    publishedCommit(name) {
+      const folder = checkout(name);
+      return folder ? git(folder, ['rev-parse', '--verify', '-q', 'refs/remotes/origin/main^{commit}'])?.trim() ?? null : null;
     },
     pathOf,
     snapshotSpan,
@@ -596,7 +629,8 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
           && git(here, ['symbolic-ref', '--quiet', 'HEAD'])
           && git(here, ['rev-list', '--all', '--reflog', '--max-count=1']) === '') {
         return { ancestor: true, allEarlierOrParallelContent: true,
-          targets: paths.map((path) => ({ path, atBaseline: null, before: [], parallel: [], introductionsOrdered: true })) };
+          targets: paths.map((path) => ({ path, atBaseline: null, before: [], parallel: [], contentBeforeBaseline: false,
+            introductionsOrdered: true })) };
       }
       if (!base || !tips.length) return null;
       const index = historyIndex();
@@ -615,6 +649,7 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
           path,
           atBaseline: copiedBytes(regularAtCommit(base, then)),
           before,
+          contentBeforeBaseline: earlierOrParallel.some((one) => one.revision !== base),
           parallel: earlierOrParallel.flatMap((one, index) => ancestor(one.revision, base) ? [] : [before[index]]),
           introductionsOrdered: events.filter((one) => one.introduced).every((one) => ancestor(one.revision, base) || ancestor(base, one.revision)),
         };
@@ -643,4 +678,15 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
       return found === null ? null : [...found];
     },
   };
+  if (initialContext) {
+    for (const [name, method] of Object.entries(api)) if (typeof method === 'function') {
+      api[name] = (...args) => {
+        currentContext();
+        const answer = method(...args);
+        currentContext();
+        return answer;
+      };
+    }
+  }
+  return api;
 }
