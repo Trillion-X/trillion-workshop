@@ -10,6 +10,8 @@ For a `NO_PRIOR_OWNER` search, each `proof.search.repositories` row records `com
 
 Both locator forms verify that the captured commit is an immutable object readable through that declared checkout. An unavailable reader is reported as deferred. A historical capture can remain readable after its branch or published main changes; current-main ancestry is not a prerequisite. These checks verify the reference, not that a past query occurred. The fresh code searches still run against current published snapshots and return their actual commits in `measurements.searched`, separately from the preserved capture. Source-port `sources[].repository` retains its existing string form.
 
+Feature coverage and target admission are separate. The existing feature rules still select which changed files need contracts and which files can supply retention and mechanisms. Every declared target must also be readable as a current regular file, so coupled JSON or other DATA can accompany code without expanding feature coverage or supplying archived source lines. A contract's own explicit `baseline.path` identifies its separate artifact; a legacy archive-first target outside the feature scope is likewise refused. Neither can supply that contract's retention or mechanisms. A path named as another contract's historical baseline is not evidence that the path is archival in the current tree.
+
 ## Files
 
 | File | Purpose |

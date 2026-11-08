@@ -539,11 +539,16 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   const separateBaseline = isRecord(contract.baseline) && Object.hasOwn(contract.baseline, 'path');
   const baselinePath = separateBaseline ? contract.baseline.path : target?.path;
   const activeScope = Array.isArray(options.activeTargetPaths) ? new Set(options.activeTargetPaths) : null;
-  const activeTargets = activeScope ? targets.filter((one) => activeScope.has(one?.path)) : targets;
+  const artifacts = new Set();
+  if (separateBaseline) artifacts.add(baselinePath);
+  // In a legacy archive-first contract the first target is also its claimed
+  // original-copy artifact. It cannot become active merely because it exists.
+  if (contract.mode === 'SOURCE_FIRST_PORT' && !separateBaseline && activeScope && !activeScope.has(baselinePath)) artifacts.add(baselinePath);
+  const activeTargets = targets.filter((one) => !artifacts.has(one?.path) && (!activeScope || activeScope.has(one?.path)));
   const ambiguousTargets = contract.mode === 'SOURCE_FIRST_PORT' && targets.length > 1 && !separateBaseline && !activeScope;
   if (ambiguousTargets) errors.push('multiple targets require baseline.path or activeTargetPaths to prove active retention');
-  if (activeScope && targets.some((one) => !activeScope.has(one?.path))) errors.push('targets must name active feature files; a separate artifact belongs in baseline.path');
-  if ((separateBaseline || source?.repository) && targets.some((one) => !repositoryRelativePath(one?.path))) errors.push('targets must use canonical repository-relative paths without traversal');
+  if (targets.some((one) => artifacts.has(one?.path))) errors.push('targets must not name baseline artifacts; a separate artifact belongs in baseline.path');
+  if ((options.readers || separateBaseline || source?.repository) && targets.some((one) => !repositoryRelativePath(one?.path))) errors.push('targets must use canonical repository-relative paths without traversal');
   if (separateBaseline) {
     if (!repositoryRelativePath(baselinePath)) errors.push('baseline.path must be a non-empty repository-relative path without traversal');
     if (targets.some((one) => one?.path === baselinePath)) errors.push('baseline.path is a separate byte-copy artifact and must not appear in targets');
@@ -594,13 +599,14 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   let targetBytes = null;
   for (const one of targets) {
     // A declared archival copy never supplies retention or required mechanisms, even in an invalid contract.
-    if (separateBaseline && (!repositoryRelativePath(one?.path) || one.path === baselinePath)) continue;
-    if (activeScope && !activeScope.has(one?.path)) continue;
+    if (artifacts.has(one?.path) || ((options.readers || separateBaseline) && !repositoryRelativePath(one?.path))) continue;
     const bytes = one?.path ? readTargetBytes(one.path, options) : null;
     if (bytes) {
-      targetTexts.push(bytes.toString('utf8'));
+      // Admission reads every current target, including coupled DATA. Only the
+      // independently constrained feature scope supplies retained mechanisms.
+      if (!activeScope || activeScope.has(one.path)) targetTexts.push(bytes.toString('utf8'));
       if (one === target) targetBytes = bytes;
-    } else if ((stage === 'completion' || separateBaseline || activeScope) && one?.path) errors.push(`target missing: ${options.readers ? one.path : absolute(one.path)}`);
+    } else if ((options.readers || stage === 'completion' || separateBaseline || activeScope) && one?.path) errors.push(`target missing: ${options.readers ? one.path : absolute(one.path)}`);
   }
 
 
