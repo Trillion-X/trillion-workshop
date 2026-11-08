@@ -35,6 +35,7 @@ def rules():
     value = json.loads((ROOT / "read-data/starter-projection-rules.json").read_text())[0]
     value["literal_text"] = {"path": ["props", "text_mode"], "equals": "literal"}
     value["indent_level_path"] = ["props", "indent_level"]
+    value["keep_with_next_path"] = ["props", "keep_with_next"]
     value["formats"]["pdf"]["font_file"] = "Arial.ttf"
     value["formats"]["pdf"]["literal_font_file"] = "Courier New.ttf"
     return value
@@ -46,6 +47,91 @@ class SourceProjectionTests(unittest.TestCase):
         self.rules = rules()
         self.sections = RENDER["project"](self.projection["tree"], self.rules)
         self.literal = "\n  A → B\n\tC  D  \n\n  End\n"
+
+    def test_introductory_keep_relationships_and_opposing_siblings(self):
+        source = ("# Synthetic\n\n- Parent\n  - Child\n  - Child sibling\n"
+                  "- Peer parent\n\n  - Blank-separated child\n\n"
+                  "- Continuation parent\n\n  Child paragraph.\n\n"
+                  "- Literal parent\n\n  ```text\n  child literal\n  ```\n\n"
+                  "- Ordinary sibling\n- Last sibling\n\n"
+                  "**Passage label**\n\nFollowing passage.\n\n"
+                  "An **inline label** stays prose.\n\n"
+                  "- Before heading\n\n## Boundary\n\nAfter.\n").encode()
+        projection = PROJECT(source, identity(source))
+        expected_kept = {"- Parent", "- Peer parent", "- Continuation parent", "- Literal parent", "Passage label"}
+        self.assertEqual({b["text"] for b in projection["ordered_blocks"] if b.get("keep_with_next")}, expected_kept)
+        self.assertEqual({n["props"]["text"] for n in projection["tree"]["children"]
+                          if n["props"].get("keep_with_next")}, expected_kept)
+        sections = RENDER["project"](projection["tree"], self.rules)
+        blocks = [b for section in sections for b in section["blocks"]]
+        self.assertEqual({b["text"] for b in blocks if b.get("keep_with_next")}, expected_kept)
+        document = Document(BytesIO(RENDER["render_docx"]("Synthetic", sections, self.rules["formats"]["docx"])))
+        for block in blocks:
+            paragraph = next(p for p in document.paragraphs if p.text == block["text"])
+            self.assertEqual(bool(paragraph.paragraph_format.keep_with_next), block["text"] in expected_kept)
+        # The generic renderer recognizes only the DATA-selected path.
+        unconfigured = copy.deepcopy(self.rules)
+        unconfigured.pop("keep_with_next_path")
+        self.assertFalse(any(b.get("keep_with_next") for s in RENDER["project"](projection["tree"], unconfigured)
+                             for b in s["blocks"]))
+        projection["tree"]["children"][0]["props"]["keep_with_next"] = "true"
+        with self.assertRaisesRegex(ValueError, "keep_with_next must be boolean"):
+            RENDER["project"](projection["tree"], self.rules)
+
+    def test_pdf_parent_moves_to_child_page_but_sibling_can_break(self):
+        source = ("# Synthetic\n\n```text\n" + "\n".join(f"filler-{i:02d}" for i in range(54))
+                  + "\n```\n\n- Parent label\n  - Child item\n  - Child sibling\n").encode()
+        projection = PROJECT(source, identity(source))
+        sections = RENDER["project"](projection["tree"], self.rules)
+        def page_of(sections, label):
+            pages = PdfReader(BytesIO(RENDER["render_pdf"]("", sections, self.rules["formats"]["pdf"]))).pages
+            matches = [i for i, page in enumerate(pages) if label in page.extract_text()]
+            self.assertEqual(len(matches), 1)
+            return matches[0]
+        baseline = copy.deepcopy(sections)
+        parent = next(b for s in baseline for b in s["blocks"] if b["text"] == "- Parent label")
+        parent["keep_with_next"] = False
+        self.assertEqual(page_of(baseline, "Parent label"), 0)
+        self.assertEqual(page_of(baseline, "Child item"), 1)
+        self.assertEqual(page_of(sections, "Parent label"), 1)
+        self.assertEqual(page_of(sections, "Child item"), 1)
+        # A peer at this same physical boundary must retain ordinary flow.
+        peer_source = source.replace(b"  - Child item", b"- Child item").replace(b"  - Child sibling", b"- Child sibling")
+        peer_projection = PROJECT(peer_source, identity(peer_source))
+        peers = RENDER["project"](peer_projection["tree"], self.rules)
+        self.assertEqual(page_of(peers, "Parent label"), 0)
+        self.assertEqual(page_of(peers, "Child item"), 1)
+
+    def test_projection_cli_exact_private_output_and_refusal_controls(self):
+        with tempfile.TemporaryDirectory(prefix="synthetic-source-cli-") as directory:
+            parent = Path(directory)
+            parent.chmod(0o700)
+            source, output = parent / "source.md", parent / "projection.json"
+            source.write_bytes(SOURCE)
+            command = [sys.executable, str(ROOT / "do-work/project-markdown-source.py"),
+                       "--source", str(source), "--source-identity", identity(SOURCE), "--output", str(output)]
+            result = subprocess.run(command, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(output.read_text()), self.projection)
+            self.assertEqual(output.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(json.loads(result.stdout)["path"], str(output.resolve()))
+            original = output.read_bytes()
+            repeated = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(repeated.returncode, 0)
+            self.assertEqual(output.read_bytes(), original)
+            output.unlink()
+            source.write_bytes(SOURCE + b"changed")
+            wrong = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(wrong.returncode, 0)
+            self.assertIn("identity", wrong.stderr)
+            self.assertFalse(output.exists())
+            source.write_bytes(SOURCE)
+            parent.chmod(0o755)
+            public = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(public.returncode, 0)
+            self.assertIn("parent must be private", public.stderr)
+            self.assertFalse(output.exists())
+            parent.chmod(0o700)
 
     def test_container_semantics_reach_existing_render_indent_path(self):
         source = ("# Synthetic\n\n- **Outer**\n\n  - **Middle**\n\n"
@@ -95,7 +181,8 @@ class SourceProjectionTests(unittest.TestCase):
         tree = copy.deepcopy(self.projection["tree"])
         def rename(node):
             props = node["props"]
-            for before, after in (("text", "value"), ("text_mode", "spacing"), ("indent_level", "depth")):
+            for before, after in (("text", "value"), ("text_mode", "spacing"), ("indent_level", "depth"),
+                                  ("keep_with_next", "join_next")):
                 if before in props:
                     props[after] = props.pop(before)
             for child in node["children"]:
@@ -105,6 +192,7 @@ class SourceProjectionTests(unittest.TestCase):
         selected["text_properties"] = ["value"]
         selected["literal_text"]["path"] = ["props", "spacing"]
         selected["indent_level_path"] = ["props", "depth"]
+        selected["keep_with_next_path"] = ["props", "join_next"]
         self.assertEqual(RENDER["project"](tree, selected), self.sections)
         with self.assertRaisesRegex(ValueError, "native DOCX or PDF"):
             RENDER["render"]("Synthetic", self.sections, self.rules["formats"]["markdown"])

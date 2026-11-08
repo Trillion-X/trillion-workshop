@@ -128,6 +128,9 @@ def project(node, rules, title=None):
             indent = 0
         if type(indent) is not int or not 0 <= indent <= 32:
             raise ValueError("Projected indent level must be an integer from 0 through 32")
+        keep = value_at_path(item, rules.get("keep_with_next_path"))
+        if keep is not _MISSING and type(keep) is not bool:
+            raise ValueError("Projected keep_with_next must be boolean")
         source_heading_level = value_at_path(item, rules.get("heading_level_path"))
         has_source_heading_level = source_heading_level is not _MISSING
         if item_depth == 0 and skip_title_echo and own_text is not None and own_text == title:
@@ -148,6 +151,8 @@ def project(node, rules, title=None):
                 block["text_mode"] = "literal"
             if indent:
                 block["indent_level"] = indent
+            if keep is not _MISSING:
+                block["keep_with_next"] = keep
             current["blocks"].append(block)
         for kid in kids:
             visit(kid, item_depth + 1)
@@ -165,6 +170,13 @@ def section_blocks(section):
     return ([{"type": "paragraph", "text": line} for line in section.get("lines", [])]
             + ([{"type": "table", "rows": section.get("rows", [])}]
                if section.get("rows") else []))
+
+
+def block_keep_with_next(block):
+    value = block.get("keep_with_next", False)
+    if type(value) is not bool:
+        raise ValueError("Paragraph keep_with_next must be boolean")
+    return value
 
 
 def apply_escapes(value, escapes):
@@ -240,8 +252,9 @@ def render(title, sections, fmt, layout_receipt=None):
             parts.append(fmt["heading_template"].replace("{heading}", section["heading"]))
         for block in section_blocks(section):
             if block.get("type") == "paragraph":
-                if block.get("text_mode") == "literal" or block.get("indent_level", 0):
-                    raise ValueError("Literal text and paragraph indentation require a native DOCX or PDF renderer")
+                if (block.get("text_mode") == "literal" or block.get("indent_level", 0)
+                        or block_keep_with_next(block)):
+                    raise ValueError("Literal text, paragraph indentation and pagination require a native DOCX or PDF renderer")
                 parts.append(fmt["line_template"].replace("{line}", block["text"]))
                 continue
             if block.get("type") != "table":
@@ -358,13 +371,15 @@ def render_docx(title, sections, fmt):
                 output.append("\u2060")
         return "".join(output)
 
-    def paragraph(text, style=None, space_before=None, indent=0, literal=False):
+    def paragraph(text, style=None, space_before=None, indent=0, literal=False, keep=False):
         if style in {config["style_id"] for config in heading_levels.values()}:
             # Keep the heading with its first following paragraph, and prevent
             # Word from splitting the heading itself across pages.
             ppr = f'<w:pPr><w:pStyle w:val="{escape(style, quote=True)}"/><w:keepNext/><w:keepLines/></w:pPr>'
         else:
             ppr = f'<w:pPr><w:pStyle w:val="{escape(style, quote=True)}"/></w:pPr>' if style else ""
+            if keep:
+                ppr = ppr.replace("</w:pPr>", "<w:keepNext/></w:pPr>") if ppr else '<w:pPr><w:keepNext/></w:pPr>'
         if space_before is not None:
             spacing = f'<w:spacing w:before="{space_before}"/>'
             ppr = ppr.replace("</w:pPr>", spacing + "</w:pPr>") if ppr else f'<w:pPr>{spacing}</w:pPr>'
@@ -422,7 +437,8 @@ def render_docx(title, sections, fmt):
                 literal = block.get("text_mode") == "literal"
                 body.append(paragraph(block["text"], "LiteralText" if literal else None,
                                       space_before=after_table if previous_table else None,
-                                      indent=block.get("indent_level", 0), literal=literal))
+                                      indent=block.get("indent_level", 0), literal=literal,
+                                      keep=block_keep_with_next(block)))
                 previous_table = False
             elif block.get("type") == "table":
                 body.append(table(block["rows"]))
@@ -618,7 +634,8 @@ def render_pdf(title, sections, fmt, layout_receipt=None):
         if available <= 36:
             raise ValueError("PDF indent leaves insufficient printable width")
         if block.get("text_mode") != "literal":
-            return para(block["text"], ParagraphStyle("IndentedBody", parent=body, leftIndent=indent))
+            return para(block["text"], ParagraphStyle("IndentedBody", parent=body, leftIndent=indent,
+                                                     keepWithNext=block_keep_with_next(block)))
         size = fmt.get("literal_font_size", 9)
         leading = fmt.get("literal_leading", 12)
         tab_size = fmt.get("literal_tab_size", 4)
@@ -634,7 +651,8 @@ def render_pdf(title, sections, fmt, layout_receipt=None):
                                    "source_hard_line_count": len(block["text"].split("\n")),
                                    "display_lines": layout["mapping"]})
         style = ParagraphStyle("LiteralBody", parent=body, fontName=literal_font.fontName,
-                               fontSize=size, leading=leading, leftIndent=indent)
+                               fontSize=size, leading=leading, leftIndent=indent,
+                               keepWithNext=block_keep_with_next(block))
         # ReportLab's constructor trims empty edge lines even with dedent=0.
         # Its page splitter also reconstructs through that constructor.
         return LiteralPreformatted(layout["lines"], style)

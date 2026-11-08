@@ -241,6 +241,27 @@ def parse_markdown(text: str) -> ParsedBook:
     return ParsedBook(title or "Manuscript", blocks)
 
 
+def _keep_with_following(blocks, block_index, item_index=None):
+    """Keep introductory labels with their passage, never ordinary siblings."""
+    block = blocks[block_index]
+    if block.kind == "paragraph":
+        return bool(re.fullmatch(r"(?:\*\*[^*\n]+\*\*|__[^_\n]+__)", block.text.strip()))
+    if block.kind != "list" or item_index is None:
+        return False
+    depth = block.items[item_index][0]
+    if item_index + 1 < len(block.items):
+        return block.items[item_index + 1][0] > depth
+    # Blank-separated children occupy another parser block. A heading, table,
+    # sibling or dedent ends the relationship instead of joining whole lists.
+    if block_index + 1 < len(blocks):
+        following = blocks[block_index + 1]
+        if following.kind == "list" and following.items:
+            return following.items[0][0] > depth
+        if following.kind in {"paragraph", "code"}:
+            return following.indent_level > depth
+    return False
+
+
 _INLINE_TOKEN = re.compile(
     r"(?<!\\)(`[^`\n]+`|\*\*(?=\S).+?(?<=\S)\*\*"
     r"|(?<!\w)__(?=\S).+?(?<=\S)__(?!\w)"
@@ -488,7 +509,7 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
     _bookmark(body_start, "BookBody", 3)
     heading_ids = {id(heading): index + 4 for index, heading in enumerate(headings)}
     code_index = 0
-    for block in parsed.blocks:
+    for block_index, block in enumerate(parsed.blocks):
         if block.kind == "heading":
             p = doc.add_paragraph(style=f"Heading {block.level}")
             _inline(p, block.text)
@@ -499,7 +520,7 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
             # Standalone emphasis labels introduce the following passage.
             # Keep them with it when pagination changes; inline emphasis
             # inside ordinary prose must retain normal paragraph behavior.
-            if re.fullmatch(r"(?:\*\*[^*\n]+\*\*|__[^_\n]+__)", block.text.strip()):
+            if _keep_with_following(parsed.blocks, block_index):
                 p.paragraph_format.keep_with_next = True
         elif block.kind == "quote":
             p = doc.add_paragraph(style="Quote" if "Quote" in [s.name for s in doc.styles] else "Normal")
@@ -514,10 +535,12 @@ def render_document(parsed: ParsedBook, template_path: Path, output_path: Path, 
             _bookmark(p, f"BookCode{code_index}", len(headings) + 3 + code_index)
         elif block.kind == "list":
             ordered_instance = _new_numbering_instance(doc, ordered_num) if any(x[2] for x in block.items) else ordered_num
-            for depth, value, ordered in block.items:
+            for item_index, (depth, value, ordered) in enumerate(block.items):
                 p = doc.add_paragraph(style="Normal")
                 _set_list(p, ordered_instance if ordered else bullet_num, depth)
                 _inline(p, value)
+                if _keep_with_following(parsed.blocks, block_index, item_index):
+                    p.paragraph_format.keep_with_next = True
         elif block.kind == "table":
             columns = max(len(row) for row in block.rows)
             table = doc.add_table(rows=len(block.rows), cols=columns)

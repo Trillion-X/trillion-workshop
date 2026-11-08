@@ -84,6 +84,20 @@ class BodyReadbackTests(unittest.TestCase):
         self.assertIsNone(inline.paragraph_format.keep_with_next)
         builder.verify_output(parsed, output)
 
+    def test_list_parents_keep_their_children_but_not_siblings(self):
+        parsed, output = self.render(
+            "# Fixture\n\n- Parent\n  - Child\n  - Child sibling\n"
+            "- Blank parent\n\n  - Blank child\n\n"
+            "- Prose parent\n\n  Child passage.\n\n"
+            "- Sibling\n- Last sibling\n"
+        )
+        doc = Document(output)
+        kept = {"Parent", "Blank parent", "Prose parent"}
+        for text in kept | {"Child", "Child sibling", "Blank child", "Sibling", "Last sibling"}:
+            paragraph = next(p for p in doc.paragraphs if p.text == text)
+            self.assertEqual(bool(paragraph.paragraph_format.keep_with_next), text in kept)
+        builder.verify_output(parsed, output)
+
     def test_legacy_without_body_bookmark_reads_intro_after_contents_break(self):
         parsed, output = self.render(
             "# Fixture\n\nIntro before the first heading.\n\n"
