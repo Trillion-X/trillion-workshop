@@ -1,4 +1,4 @@
-"""whisper_here picks the engine the place has and returns mlx_whisper's shape from each.
+"""whisper_here picks the engine the computer has and returns mlx_whisper's shape from each.
 Run: python3 -m unittest discover -s tools/audio-transcription/test -p 'test_whisper_here.py'
 
 Ported from trillion-launch-video tools/place-capabilities/tests/test_whisper_here.py@5a9ba39: its five tests, their
@@ -42,7 +42,7 @@ class WhisperHere(unittest.TestCase):
         self.assertEqual(whisper_here.model_name("mlx-community/whisper-large-v3-turbo"), "large-v3-turbo")
         self.assertEqual(whisper_here.model_name("mlx-community/whisper-small-mlx"), "small")
 
-    def test_a_place_without_mlx_gets_faster_whisper_in_mlx_whispers_shape(self):
+    def test_a_computer_without_mlx_gets_faster_whisper_in_mlx_whispers_shape(self):
         fw = fake_faster()
         with mock.patch.dict(sys.modules, {"faster_whisper": fw}), mock.patch.dict(os.environ, {"WHISPER_BACKEND": "faster"}):
             r = whisper_here.transcribe("a.wav", path_or_hf_repo="mlx-community/whisper-large-v3-turbo", word_timestamps=True,
@@ -55,13 +55,13 @@ class WhisperHere(unittest.TestCase):
         self.assertEqual(fw.WhisperModel.seen["temperature"], [0.0, 0.2])
         self.assertNotIn("verbose", fw.WhisperModel.seen)
 
-    def test_the_first_engine_the_place_has_is_chosen(self):
+    def test_the_first_engine_the_computer_has_is_chosen(self):
         have = {"mlx_whisper": None, "faster_whisper": object(), "whisper": object()}
         with mock.patch.dict(os.environ, {}, clear=False), mock.patch("importlib.util.find_spec", side_effect=lambda n: have.get(n)):
             os.environ.pop("WHISPER_BACKEND", None)
             self.assertEqual(whisper_here.engine(), "faster")
 
-    def test_a_place_with_no_engine_is_told_so(self):
+    def test_a_computer_with_no_engine_is_told_so(self):
         with mock.patch("importlib.util.find_spec", return_value=None), mock.patch.dict(os.environ, {}, clear=False):
             os.environ.pop("WHISPER_BACKEND", None)
             with self.assertRaises(SystemExit) as e:

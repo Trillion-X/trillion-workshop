@@ -106,7 +106,7 @@ class WordtimeTests(unittest.TestCase):
         request = {"source": "recording.wav", "out": str(Path(self.temp.name) / "unused.json")}
         cases = [
             ({"WHISPER_BACKEND": "cloud"}, False, "WHISPER_BACKEND=cloud"),
-            ({}, True, "This place has no speech-to-text engine"),
+            ({}, True, "This computer has no speech-to-text engine"),
         ]
         for environment, missing, message in cases:
             with self.subTest(message=message):
