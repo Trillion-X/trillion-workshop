@@ -8,6 +8,7 @@ import runpy
 import subprocess
 import sys
 import tempfile
+import unittest
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from zipfile import ZipFile
@@ -238,6 +239,10 @@ def assert_no_break_character_data(renderer):
 
 
 def main():
+    font_controls = runpy.run_path(str(Path(__file__).with_name("test_docx_font_rendering.py")))
+    font_suite = unittest.defaultTestLoader.loadTestsFromTestCase(font_controls["FontConfigurationTests"])
+    if not unittest.TextTestRunner(stream=sys.stderr).run(font_suite).wasSuccessful():
+        raise AssertionError("DOCX font-configuration controls failed")
     assert_no_break_character_data(runpy.run_path(str(RENDERER)))
     with tempfile.TemporaryDirectory(prefix="structured-output-docx-") as directory:
         assert_project_only_cli(directory)

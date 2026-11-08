@@ -11,6 +11,7 @@ from html import escape
 from io import BytesIO
 import json
 import os
+from pathlib import Path
 import re
 import runpy
 import stat
@@ -495,6 +496,28 @@ def resolve_pdf_font(font_file):
     raise FileNotFoundError(f"configured PDF font {font_file!r} was not found in a supported font directory")
 
 
+def docx_render_environment(fmt):
+    """Resolve explicit font-discovery DATA for a later native DOCX render.
+
+    The bundled headless consumer's Fontconfig build prefix may not name its
+    installed configuration. Select its shipped configuration without changing
+    vendor bytes, copying fonts or substituting document characters.
+    """
+    configuration = fmt.get("font_configuration")
+    if configuration is None:
+        return {}
+    if configuration != {"source": "bundled_runtime"}:
+        raise ValueError("DOCX font_configuration must explicitly select bundled_runtime")
+    executable = Path(sys.executable).absolute()
+    dependencies = executable.parent.parent.parent
+    if executable.parent.parent.name != "python" or dependencies.name != "dependencies":
+        raise ValueError("DOCX font configuration requires the selected bundled Python runtime")
+    config = dependencies / "native/libreoffice-headless/libreoffice/LibreOfficeDev.app/Contents/Resources/fontconfig/fonts.conf"
+    if not config.is_file():
+        raise ValueError("The selected runtime does not provide the requested Fontconfig configuration")
+    return {"FONTCONFIG_FILE": str(config)}
+
+
 def render_pdf(title, sections, fmt, layout_receipt=None):
     """Render a paginated Unicode PDF with an embedded DATA-selected font."""
     from reportlab.lib import colors
@@ -739,6 +762,8 @@ def main():
     parser.add_argument("--result-path", default=None)
     parser.add_argument("--content-identity", action="store_true",
                         help="bind the original rendered bytes through the Workshop BLAKE3 owner")
+    parser.add_argument("--render-environment-only", action="store_true",
+                        help="read configured native DOCX font-discovery environment without writing an artifact")
     args = parser.parse_args()
 
     try:
@@ -760,6 +785,13 @@ def main():
         print(json.dumps({"error": f"format {descriptor['format_id']} is not in the projection rules"}))
         sys.exit(1)
 
+    if args.render_environment_only:
+        if args.project_only or fmt.get("renderer") != "docx":
+            parser.error("--render-environment-only requires a native DOCX format and cannot project content")
+        print(json.dumps({"kind": "structured-file-render-environment", "format_id": descriptor["format_id"],
+                          "environment": docx_render_environment(fmt)}, ensure_ascii=False))
+        return
+
     sections = project(job["tree"], rules, title=job.get("title"))
     if args.project_only:
         projection = {
@@ -773,6 +805,7 @@ def main():
         return
 
     literal_layout = []
+    render_environment = docx_render_environment(fmt) if fmt.get("renderer") == "docx" else {}
     body = render(job.get("title", ""), sections, fmt, layout_receipt=literal_layout)
     layout_source_identity = (job.get("source") or {}).get("candidate_content_identity") if literal_layout else None
     if layout_source_identity is not None and (not isinstance(layout_source_identity, str)
@@ -826,6 +859,8 @@ def main():
     }
     if payload_hash is not None:
         result["payload_hash"] = payload_hash
+    if render_environment:
+        result["render_environment"] = render_environment
     if literal_layout:
         result["literal_layout"] = literal_layout
         if layout_source_identity is not None:
