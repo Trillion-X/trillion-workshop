@@ -1,24 +1,24 @@
 // tools/social-posts/read-data/send-a-post.mjs
 //
 // Purpose: send one of the person's posts to one of its destinations, once its time has come, through the publisher
-// of that place (@opencoredev/social-sdk, MIT, or a publisher shaped like one), and keep the outcome on the post
-// record. A place's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
-// a held value may go to; the destination is one of the person's connection records. Each place has its own tool row
-// (tool:send-a-post-to-<place>), because each place signs with its own held fields: the engine hands this run that
-// connection's held values on descriptors 4, 5, ... in the order the place's options name them (`heldFields`), and
+// of that destination (@opencoredev/social-sdk, MIT, or a publisher shaped like one), and keep the outcome on the post
+// record. A destination's row (read-data/post-places.json) says which publisher, how its options are filled and which hosts
+// a held value may go to; the destination is one of the person's connection records. Each destination has its own tool row
+// (tool:send-a-post-to-<place>), because each destination signs with its own held fields: the engine hands this run that
+// connection's held values on descriptors 4, 5, ... in the order the destination's options name them (`heldFields`), and
 // the run's input names which of the person's accounts of that kind (`account_id`).
 //
 // Non-Negotiable Invariants:
 //   1. Only an approved or scheduled post whose time has come is sent, only to a destination it names, and only the
 //      approved content.
 //   2. A held value reaches a publisher only as a one-use stand-in. The fetch the publisher is handed puts the real
-//      value in its place as the request leaves, only for the place's own hosts, and never follows a redirect while
+//      value in the stand-in's position as the request leaves, only for the destination's own hosts, and never follows a redirect while
 //      carrying one. A stand-in found on any other host refuses the request before anything is sent.
 //   3. A destination is marked "not known" before the send begins, so a send that is cut off is never sent again by
-//      itself: it is resent only when the caller names it (resend: true) after looking at the place.
+//      itself: it is resent only when the caller names it (resend: true) after looking at the destination.
 //   4. A destination that already took the post is never sent it again.
-//   5. Nothing here names a place, a vendor or a person.
-//   6. A post's file comes only from the person's own files through the run's door: a place is handed a share of it
+//   5. Nothing here names a destination, a vendor or a person.
+//   6. A post's file comes only from the person's own files through the run's door: a destination is handed a share of it
 //      (a signed link that expires) or its bytes streamed a page at a time. No copy of the file is kept here.
 //   7. A post goes at its time only through the person's own wake (tool:send-each-post-at-its-time, which they
 //      switch on): a change to their posts answers one timed send per destination at the post's scheduled_for, and
@@ -35,19 +35,19 @@ import { tiktok } from '@opencoredev/social-sdk/tiktok';
 import { x } from '@opencoredev/social-sdk/x';
 import { youtube } from '@opencoredev/social-sdk/youtube';
 import settings from './posts.json' with { type: 'json' };
-import placeRows from './post-places.json' with { type: 'json' };
+import destinationRows from './post-places.json' with { type: 'json' };
 import { heldFields, isHeld, wordsOf } from './posts.mjs';
 import { facebookPage } from './publisher-facebook-page.mjs';
 import { requests } from './publisher-requests.mjs';
 import { substack } from './publisher-substack.mjs';
 import { shaped } from './post-shape.mjs';
 
-// The publishers this tool carries, bound by the names place rows use (`adapter`). A place whose adapter is not here
+// The publishers this tool carries, bound by the names destination rows use (`adapter`). A destination whose adapter is not here
 // is refused in plain words.
 export const PUBLISHERS = { 'facebook-page': facebookPage, instagram, linkedin, requests, substack, threads, tiktok, x, youtube };
 const FIRST_HELD_DESCRIPTOR = 4;
 const TYPE = settings.record_type;
-const PLACES = placeRows.places;
+const DESTINATIONS = destinationRows.places;
 const object = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const fillWords = (words, values) => words.replace(/\{(\w+)\}/g, (_, key) => values[key] ?? '');
 
@@ -55,23 +55,23 @@ class Refused extends Error {}
 // A refusal made here, wherever a publisher wrapped it.
 const ours = error => { for (let at = error, depth = 0; at && depth < 6; at = at.cause, depth += 1) if (at instanceof Refused) return at; return null; };
 
-/** The held values the engine handed this run, by field: descriptor 4 onwards, in the order the place names them.
+/** The held values the engine handed this run, by field: descriptor 4 onwards, in the order the destination names them.
  *  A descriptor is read to its end once, so each value is read the first time a request needs it and kept only in this
- *  run's memory for its later requests (a place that signs several requests); it is never written anywhere. */
-export function heldFromDescriptors(place, read = descriptor => readFileSync(descriptor, 'utf8')) {
-  const fields = heldFields(place.options);
+ *  run's memory for its later requests (a destination that signs several requests); it is never written anywhere. */
+export function heldFromDescriptors(destination, read = descriptor => readFileSync(descriptor, 'utf8')) {
+  const fields = heldFields(destination.options);
   const kept = new Map();
   return field => {
     const at = fields.indexOf(field);
-    if (at < 0) throw new Refused(`${place.label} does not sign with a ${field.replace(/_/g, ' ')}.`);
+    if (at < 0) throw new Refused(`${destination.label} does not sign with a ${field.replace(/_/g, ' ')}.`);
     if (!kept.has(field)) kept.set(field, read(FIRST_HELD_DESCRIPTOR + at).trim());
     const value = kept.get(field);
-    if (!value) throw new Refused(`Your ${place.label} connection holds no ${field.replace(/_/g, ' ')}. Connect ${place.label} again.`);
+    if (!value) throw new Refused(`Your ${destination.label} connection holds no ${field.replace(/_/g, ' ')}. Connect ${destination.label} again.`);
     return value;
   };
 }
 
-// A value made from a held one as the request leaves, by its place row's `sign` (`{held, sign}`), so the held value
+// A value made from a held one as the request leaves, by its destination row's `sign` (`{held, sign}`), so the held value
 // itself never goes anywhere. One kind: `jwt-hs256`, a token signed with HMAC-SHA256 from a held value written
 // `<key id>:<hex secret>`, with the row's claims, issued now and good for the row's seconds.
 const SIGNERS = {
@@ -91,7 +91,7 @@ function signed(value, sign) {
 }
 
 // The fetch a publisher is handed: each stand-in in the address, a header or a text body becomes the person's value
-// as the request leaves, and only for the place's own hosts. What it refuses is refused before the request leaves, as
+// as the request leaves, and only for the destination's own hosts. What it refuses is refused before the request leaves, as
 // the publishers' own error that is never sent again (invalid_input), so no publisher takes it for a cut-off send.
 const refusedBeforeSending = message => new SocialError({ code: 'invalid_input', operation: 'held-fetch', message, retryDisposition: { kind: 'never' } });
 export function heldFetch({ standIns, hosts, send = fetch }) {
@@ -118,7 +118,7 @@ export function heldFetch({ standIns, hosts, send = fetch }) {
   };
 }
 
-// One value of a publisher's options, from where its place row says it comes.
+// One value of a publisher's options, from where its destination row says it comes.
 const leaf = value => isHeld(value) || (object(value) && ['plain', 'service_origin', 'value'].some(key => key in value) && Object.keys(value).length === 1);
 function filled(template, { plain, standIn, label }) {
   if (Array.isArray(template)) return template.map(item => filled(item, { plain, standIn, label }));
@@ -137,7 +137,7 @@ function filled(template, { plain, standIn, label }) {
 }
 
 /** A publisher for one connection: its options filled, its fetch holding the person's values. */
-export function publisherFor(place, connection, { held, send = fetch, publishers = PUBLISHERS }) {
+export function publisherFor(destination, connection, { held, send = fetch, publishers = PUBLISHERS }) {
   const plain = object(connection.plain) ? connection.plain : {};
   const standIns = new Map();
   const standIn = (field, sign) => {
@@ -145,33 +145,33 @@ export function publisherFor(place, connection, { held, send = fetch, publishers
     standIns.set(mark, () => (sign ? signed(held(field), sign) : held(field)));
     return mark;
   };
-  const options = filled(place.options, { plain, standIn, label: place.label });
-  const readable = template => filled(template, { plain, standIn: () => { throw new Refused(`${place.label}'s account and hosts are named by readable fields, never held ones.`); }, label: place.label });
-  const accountId = readable(place.account);
-  const hosts = place.hosts.map(item => (typeof item === 'string' ? item : URL.canParse(readable(item)) ? new URL(readable(item)).hostname : null)).filter(Boolean);
-  const make = publishers[place.adapter];
-  if (typeof make !== 'function') throw new Refused(`This tool cannot post to ${place.label} yet.`);
+  const options = filled(destination.options, { plain, standIn, label: destination.label });
+  const readable = template => filled(template, { plain, standIn: () => { throw new Refused(`${destination.label}'s account and hosts are named by readable fields, never held ones.`); }, label: destination.label });
+  const accountId = readable(destination.account);
+  const hosts = destination.hosts.map(item => (typeof item === 'string' ? item : URL.canParse(readable(item)) ? new URL(readable(item)).hostname : null)).filter(Boolean);
+  const make = publishers[destination.adapter];
+  if (typeof make !== 'function') throw new Refused(`This tool cannot post to ${destination.label} yet.`);
   const publisher = make({ ...options, fetch: heldFetch({ standIns, hosts, send }) });
-  return { social: createSocial({ backend: publisher }), account: connectedAccountRef({ backend: 'default', platform: place.platform, accountId }) };
+  return { social: createSocial({ backend: publisher }), account: connectedAccountRef({ backend: 'default', platform: destination.platform, accountId }) };
 }
 
 // The words for a failed or unknown destination.
-function wordsFor(place, { code = '', message = '', retry = null }) {
+function wordsFor(destination, { code = '', message = '', retry = null }) {
   const detail = String(message || code || 'it gave no reason').slice(0, 300);
   const lower = `${code} ${message}`.toLowerCase();
   const row = settings.outcome_words.find(item => (item.retry && item.retry === retry) || (item.contains_any ?? []).some(word => lower.includes(word)));
-  return fillWords(row?.says ?? settings.outcome_fallback, { platform: place.label, detail });
+  return fillWords(row?.says ?? settings.outcome_fallback, { platform: destination.label, detail });
 }
-function fromOutcome(place, outcome, attempt) {
+function fromOutcome(destination, outcome, attempt) {
   const status = settings.outcome_states[outcome?.state] ?? 'not known';
   const detail = outcome?.message ?? outcome?.diagnostic ?? ((outcome?.issues ?? []).map(issue => issue.message).join(' ') || outcome?.reason);
   return {
-    platform: place.platform, label: place.label, status, attempt,
+    platform: destination.platform, label: destination.label, status, attempt,
     ...(outcome?.url ? { url: String(outcome.url) } : {}),
     ...(outcome?.post?.postId ? { platform_post_id: String(outcome.post.postId) } : {}),
     ...(outcome?.delivery ? { delivery_ref: outcome.delivery } : outcome?.job ? { delivery_ref: outcome.job } : {}),
-    ...(status === 'failed' ? { error: wordsFor(place, { code: outcome?.code ?? outcome?.reason, message: detail, retry: outcome?.retryDisposition?.kind }) } : {}),
-    ...(status === 'not known' ? { error: fillWords(settings.not_known_words, { platform: place.label }) } : {}),
+    ...(status === 'failed' ? { error: wordsFor(destination, { code: outcome?.code ?? outcome?.reason, message: detail, retry: outcome?.retryDisposition?.kind }) } : {}),
+    ...(status === 'not known' ? { error: fillWords(settings.not_known_words, { platform: destination.label }) } : {}),
   };
 }
 
@@ -184,14 +184,14 @@ function overall(post) {
   return 'scheduled';
 }
 
-// What the place is given of the post's file, from the person's own files through the run's door (its files right):
-// a place that fetches from an address gets a share of the file (share_file: a signed URL it streams, whole or by
-// range, until it expires); a place that takes the bytes gets a stream of them, read from the person's files a page
+// What the destination is given of the post's file, from the person's own files through the run's door (its files right):
+// a destination that fetches from an address gets a share of the file (share_file: a signed URL it streams, whole or by
+// range, until it expires); a destination that takes the bytes gets a stream of them, read from the person's files a page
 // at a time (read_file), so no copy of the file is ever kept here. A file the person's files no longer hold, or files
 // that cannot answer, refuse the send before anything leaves.
-async function mediaFor(post, place, door) {
+async function mediaFor(post, destination, door) {
   if (!post.media) return null;
-  const said = (key, values = {}) => new Refused(fillWords(settings.media.words[key], { platform: place.label, ...values }));
+  const said = (key, values = {}) => new Refused(fillWords(settings.media.words[key], { platform: destination.label, ...values }));
   const asked = async (operation, input) => {
     try {
       return await door.files(operation, input);
@@ -203,7 +203,7 @@ async function mediaFor(post, place, door) {
   const identity = post.media.identity;
   const mediaType = post.media.media_type ?? 'application/octet-stream';
   const kind = mediaType.startsWith('image/') ? 'image' : mediaType.startsWith('video/') ? 'video' : 'document';
-  if (place.media_from === 'stream' || place.media_from === 'whole') {
+  if (destination.media_from === 'stream' || destination.media_from === 'whole') {
     const first = await asked('read_file', { name_or_identity: identity, offset: 0, length: settings.media.read_bytes });
     const size = first.byte_length;
     const open = () => {
@@ -222,8 +222,8 @@ async function mediaFor(post, place, door) {
       });
     };
     const facts = { kind, mimeType: first.media_type ?? mediaType, byteSize: size, ...(post.media.name ? { filename: post.media.name.split('/').pop() } : {}) };
-    if (place.media_from === 'stream') return { ...facts, source: { kind: 'stream', open, fingerprint: first.identity } };
-    // A place whose uploader takes the file only as one piece is handed it whole, read through the same stream.
+    if (destination.media_from === 'stream') return { ...facts, source: { kind: 'stream', open, fingerprint: first.identity } };
+    // A destination whose uploader takes the file only as one piece is handed it whole, read through the same stream.
     const blob = await new Response(open()).blob();
     return { ...facts, source: { kind: 'blob', blob: new Blob([blob], { type: facts.mimeType }), fingerprint: first.identity } };
   }
@@ -254,7 +254,7 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
     return { post_id: post.post_id, status: post.status, post: shaped(post), said: state === 'posted' ? 'This destination already has the post.' : state === 'not known' ? fillWords(settings.not_known_words, { platform: earlier.label ?? accountId }) : 'This destination is already taking the post.' };
   }
   const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
-  const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
+  const destination = connection ? DESTINATIONS.find(item => item.connection_vendor === connection.vendor) ?? null : null;
   const keep = async verb => {
     const at = now().toISOString();
     const next = { ...post, sent_at: post.sent_at ?? at, deliveries: { ...deliveries }, updated_at: at };
@@ -262,44 +262,44 @@ export async function sendAPost({ post_id: postId, account_id: accountId, resend
     await door.write([{ id: post.post_id, type: TYPE, value: post, expected }], { key: `${verb}:${post.post_id}:${accountId}:${at}` });
     expected = { type: TYPE, value: post };
   };
-  // The attempt moves on after each send, so a later retry is a new request to the place.
+  // The attempt moves on after each send, so a later retry is a new request to the destination.
   const attempt = (earlier.attempt ?? 0) + (earlier.status && earlier.status !== 'not sent' ? 1 : 0);
-  if (!place) {
+  if (!destination) {
     deliveries[accountId] = { ...earlier, status: 'failed', attempt, error: 'That account is no longer connected. Connect it again, then send again.' };
     await keep('send-failed');
     return { post_id: post.post_id, status: post.status, post: shaped(post), said: deliveries[accountId].error };
   }
   try {
-    const { social, account } = publisherFor(place, connection, { held: held ?? heldFromDescriptors(place), send, publishers });
-    const media = await mediaFor(post, place, door);
-    const chosen = { ...(place.default_settings ?? {}), ...(post.settings_by_platform?.[place.platform] ?? {}) };
+    const { social, account } = publisherFor(destination, connection, { held: held ?? heldFromDescriptors(destination), send, publishers });
+    const media = await mediaFor(post, destination, door);
+    const chosen = { ...(destination.default_settings ?? {}), ...(post.settings_by_platform?.[destination.platform] ?? {}) };
     // Recorded before the send: if the send is cut off, its outcome is not known and it is not resent by itself.
-    deliveries[accountId] = { platform: place.platform, label: place.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: place.label }) };
+    deliveries[accountId] = { platform: destination.platform, label: destination.label, status: 'not known', attempt, error: fillWords(settings.not_known_words, { platform: destination.label }) };
     await keep('send-begun');
     const result = await social.posts.publish({
       targets: [{ account, ...(Object.keys(chosen).length ? { options: chosen } : {}) }],
-      content: { text: wordsOf(post, place, accountId), ...(media ? { media: [media] } : {}) },
+      content: { text: wordsOf(post, destination, accountId), ...(media ? { media: [media] } : {}) },
       idempotencyKey: `${post.post_id}:${accountId}:${attempt}`,
     });
-    deliveries[accountId] = fromOutcome(place, result.outcomes?.[0], attempt);
+    deliveries[accountId] = fromOutcome(destination, result.outcomes?.[0], attempt);
   } catch (error) {
     // A conditional-write conflict means another run changed the post before this request was sent; do not turn it
-    // into a place failure or attempt another write using the stale snapshot.
+    // into a destination failure or attempt another write using the stale snapshot.
     if (error?.code === 'original_command_conflict') throw error;
-    // Refused here before anything left: it failed. Anything else after the send began may have reached the place, so
+    // Refused here before anything left: it failed. Anything else after the send began may have reached the destination, so
     // it stays not known (invariant 3).
     const refusedHere = ours(error);
     const beforeSending = deliveries[accountId]?.status !== 'not known' || refusedHere || error?.issues?.length || error?.retryDisposition?.kind === 'never';
-    if (beforeSending) deliveries[accountId] = { platform: place.platform, label: place.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(place, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
+    if (beforeSending) deliveries[accountId] = { platform: destination.platform, label: destination.label, status: 'failed', attempt, error: refusedHere?.message ?? wordsFor(destination, { code: error?.code, message: error?.issues?.map(issue => issue.message).join(' ') || error?.message, retry: error?.retryDisposition?.kind }) };
   }
   await keep('send-done');
   const shown = shaped(post);
   const mine = shown.destinations.find(item => item.account_id === accountId);
-  return { post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${place.label}.` : mine.error ?? `${place.label}: ${mine.status}.` };
+  return { post_id: post.post_id, status: post.status, post: shown, said: mine.status === 'posted' ? `Posted to ${destination.label}.` : mine.error ?? `${destination.label}: ${mine.status}.` };
 }
 
 /** tool:send-each-post-at-its-time: woken when the person's posts change (the wake they switched on; its cause names
- *  the changed records). For each changed post set to go at its time, it answers one timed run of the place's send
+ *  the changed records). For each changed post set to go at its time, it answers one timed run of the destination's send
  *  row per destination still to be sent, at the post's scheduled_for, told the post's armed_at (invariant 7). A post
  *  taken back, changed, set again or removed answers nothing new, and the runs set for it before send nothing. */
 export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
@@ -315,8 +315,8 @@ export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
     for (const accountId of post.destinations ?? []) {
       if (!settings.resend_states.includes(post.deliveries?.[accountId]?.status ?? 'not sent')) continue;
       const connection = await door.read(settings.connection_type, `${settings.connection_prefix}${encodeURIComponent(accountId)}`);
-      const place = connection ? PLACES.find(item => item.connection_vendor === connection.vendor) ?? null : null;
-      if (!place?.send_tool) {
+      const destination = connection ? DESTINATIONS.find(item => item.connection_vendor === connection.vendor) ?? null : null;
+      if (!destination?.send_tool) {
         leftOut.push({ post_id: post.post_id, account_id: accountId, said: plan.words.not_connected });
         continue;
       }
@@ -324,8 +324,8 @@ export async function sendEachPostAtItsTime({ task = {} } = {}, { door }) {
         leftOut.push({ post_id: post.post_id, account_id: accountId, said: fillWords(plan.words.too_many, { most: String(plan.most_sends) }) });
         continue;
       }
-      set.push({ post_id: post.post_id, account_id: accountId, tool: place.send_tool, at: post.scheduled_for });
-      wakes.push({ wake: { tool: place.send_tool, at_ms: at, input: { post_id: post.post_id, account_id: accountId, armed_at: post.armed_at }, budget: plan.child_budget } });
+      set.push({ post_id: post.post_id, account_id: accountId, tool: destination.send_tool, at: post.scheduled_for });
+      wakes.push({ wake: { tool: destination.send_tool, at_ms: at, input: { post_id: post.post_id, account_id: accountId, armed_at: post.armed_at }, budget: plan.child_budget } });
     }
   }
   return { set, left_out: leftOut, said: set.length ? fillWords(plan.words.set, { count: String(set.length) }) : plan.words.none, wake_effects: wakes };
