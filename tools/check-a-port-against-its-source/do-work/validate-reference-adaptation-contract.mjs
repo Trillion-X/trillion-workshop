@@ -523,6 +523,9 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
     if (!isRecord(one) || typeof one.from !== 'string' || !one.from || typeof one.to !== 'string') errors.push('baseline.redactions are { from, to } literal replacements');
   }
   const sourceTexts = [];
+  let sourceArtifact = null;
+  let sourceArtifactCount = 0;
+  let sourceArtifactsMatch = true;
   for (const one of sources) {
     if (one?.repository !== undefined || one?.commit !== undefined) {
       if (!one?.repository || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !(one?.path || BLAKE3_MULTIHASH.test(String(one?.path_multihash ?? '')))) {
@@ -534,6 +537,11 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
       if (file === null && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
       else if (file === null) deferred.push(`source ${named(one)} is not readable here`);
       else if (bytes) {
+        if (separateBaseline && source?.lines !== undefined && !redactions.length) {
+          if (sourceArtifact === null) sourceArtifact = Buffer.from(file);
+          else if (!sourceArtifact.equals(file)) sourceArtifactsMatch = false;
+          sourceArtifactCount += 1;
+        }
         sourceTexts.push(one === source ? redacted(bytes.toString('utf8'), redactions) : bytes.toString('utf8'));
         if (multihash(bytes) !== one.multihash) errors.push(`source multihash drift: ${named(one)}`);
       }
@@ -570,8 +578,15 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
     if (!['user-owned', 'repository-owned', 'licensed'].includes(source?.ownership)) errors.push('SOURCE_FIRST_PORT requires owned or licensed source');
     if (!contract?.baseline?.copied_before_adaptation) errors.push('SOURCE_FIRST_PORT requires copied_before_adaptation=true');
     if (contract?.baseline?.source_multihash !== source?.multihash) errors.push('baseline source multihash must equal declared source multihash');
-    const copied = redactions.length ? contract?.baseline?.target_multihash_at_baseline : source?.multihash;
-    if (!redactions.length && copied !== contract?.baseline?.target_multihash_at_baseline) errors.push('baseline target multihash must equal source multihash');
+    // A complete, unchanged snapshot of this same pinned source also proves its selected ranges.
+    // Bind the whole artifact, not merely matching slices from an unrelated or changed file.
+    const fullSourceBaseline = separateBaseline && source?.repository && source?.lines !== undefined && !redactions.length
+      && sourceArtifactCount === sources.length && sourceArtifactCount > 0 && sourceArtifactsMatch
+      && sources.every((one) => one.repository === source.repository && one.commit === source.commit
+        && one.path === source.path && one.path_multihash === source.path_multihash)
+      && multihash(sourceArtifact) === contract?.baseline?.target_multihash_at_baseline;
+    const copied = redactions.length || fullSourceBaseline ? contract?.baseline?.target_multihash_at_baseline : source?.multihash;
+    if (!redactions.length && !fullSourceBaseline && copied !== contract?.baseline?.target_multihash_at_baseline) errors.push('baseline target multihash must equal source multihash');
     if (redactions.length && sourceTexts.length && multihash(Buffer.from(sourceTexts[0])) !== copied) {
       errors.push('baseline target multihash must equal the source with exactly baseline.redactions applied');
     }
@@ -594,7 +609,7 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
       if (!history) errors.push('baseline requires repository history proof before active adaptation');
       else {
         if (!history.ancestor) errors.push('baseline.commit must be an ancestor of the judged commit');
-        const copies = new Set([copied, ...sources.slice(1).map((one) => one?.multihash)]);
+        const copies = new Set([copied, ...(fullSourceBaseline ? [source.multihash] : []), ...sources.slice(1).map((one) => one?.multihash)]);
         const sourcePaths = new Set(sources.map((one) => one?.path));
         const targetPaths = new Set(activeTargets.map((one) => one?.path));
         const inPlaceClaim = sources.some((one) => one?.old_copy === 'same-file'

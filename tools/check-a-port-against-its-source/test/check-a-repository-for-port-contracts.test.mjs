@@ -56,6 +56,7 @@ function checkouts(t) {
     git(root, 'init', '-q', '-b', 'main');
   }
   const oldCommit = commit(old, { 'src/order-rows.mjs': OLD_SOURCE, 'src/unrelated.mjs': 'export const nothing = 0;\n' });
+  git(old, 'update-ref', 'refs/remotes/origin/main', oldCommit);
   const since = commit(tools, { 'ports/feature-files.json': { ...RULES, since: 'placeholder' }, 'README.md': 'made-up\n' });
   write(tools, { 'ports/feature-files.json': { ...RULES, since } });
   return { base, old, tools, oldCommit, since };
@@ -150,6 +151,7 @@ test('a renamed byte-copy baseline proves active targets without claiming the hi
   assert.equal(result.valid, true, JSON.stringify(result, null, 2));
   git(old, 'rm', 'src/order-rows.mjs');
   commit(old, {}, 'retire moved owner');
+  git(old, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
   const command = spawnSync(process.execPath, [JUDGE, '--root', tools, '--range', `${since}..HEAD`], { encoding: 'utf8' });
   assert.equal(command.status, 0, command.stdout);
   assert.equal(JSON.parse(command.stdout).valid, true);
@@ -270,6 +272,7 @@ test('source code must be a regular Git file rather than source-looking symlink 
   git(old, 'rm', 'src/order-rows.mjs');
   symlinkSync(OLD_SOURCE, join(old, 'src/order-rows.mjs'));
   const sourceCommit = commit(old, {});
+  git(old, 'update-ref', 'refs/remotes/origin/main', sourceCommit);
   const contract = portContract({ oldCommit: sourceCommit });
   contract.baseline.commit = commit(tools, { [contract.targets[0].path]: OLD_SOURCE });
   commit(tools, { 'tools/order-rows/ports/order-rows.json': contract });
@@ -282,6 +285,7 @@ test('a separate baseline retains grouped sources across active targets only', (
   const { tools, old, since, oldCommit } = checkouts(t);
   const extra = 'export const keepSupplementaryRowsInOrder = (rows) => rows.slice();\n';
   const extraCommit = commit(old, { 'src/supplement.mjs': extra });
+  git(old, 'update-ref', 'refs/remotes/origin/main', extraCommit);
   const baselinePath = 'proofs/order-rows-original.mjs';
   const copy = commit(tools, { [baselinePath]: OLD_SOURCE });
   const contract = portContract({ oldCommit, baselineCommit: copy });
@@ -609,6 +613,7 @@ test('when the old copy has left its repository, the VERIFIED port passes', (t) 
   commit(tools, { 'tools/order-rows/ports/order-rows.json': portContract({ oldCommit, baselineCommit: copy, status: 'VERIFIED' }) });
   git(old, 'rm', '-q', 'src/order-rows.mjs');
   git(old, '-c', 'user.name=t', '-c', 'user.email=t@example.test', 'commit', '-q', '-m', 'moved');
+  git(old, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
   const result = judgeRepository({ root: tools, span: range(since), now: '2026-02-01T00:00:00Z' });
   assert.equal(result.valid, true, JSON.stringify(result, null, 2));
 });
@@ -731,15 +736,18 @@ test('a source that is part of a file is followed by its lines: kept after its d
   const before = 'export const engineStart = 1;\n'.repeat(3);
   const after = 'export const engineEnd = 2;\n'.repeat(2);
   const oldCommit = commit(old, { 'src/engine.mjs': before + OLD_SOURCE + after });
+  git(old, 'update-ref', 'refs/remotes/origin/main', oldCommit);
   const part = (contract, status = 'ADAPTED') => ({ ...contract, status,
     sources: [{ ...contract.sources[0], path: 'src/engine.mjs', lines: [4, 15] }] });
   const copy = commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': OLD_SOURCE });
   commit(tools, { 'tools/order-rows/ports/order-rows.json': part(portContract({ oldCommit, baselineCommit: copy })) });
   assert.equal(judgeRepository({ root: tools, span: range(since), now: NOW_BEFORE_DUE }).valid, true);
   commit(old, { 'src/engine.mjs': before + OLD_SOURCE.replaceAll('{ return', '{\n    return') + after });
+  git(old, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
   const late = judgeRepository({ root: tools, span: range(since), now: '2026-02-01T00:00:00Z' });
   assert.match(late.judged[0].errors.join('\n'), /engine\.mjs lines 4-15 still lives after its deleted_by/, 'a re-indented copy is the same copy');
   commit(old, { 'src/engine.mjs': before + after });
+  git(old, 'update-ref', 'refs/remotes/origin/main', 'HEAD');
   commit(tools, { 'tools/order-rows/ports/order-rows.json': part(portContract({ oldCommit, baselineCommit: copy }), 'VERIFIED') });
   const moved = judgeRepository({ root: tools, span: range(since), now: '2026-02-01T00:00:00Z' });
   assert.equal(moved.valid, true, JSON.stringify(moved, null, 2));
