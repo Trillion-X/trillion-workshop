@@ -17,7 +17,10 @@ const ready = new Map();
 const pythonIn = folder => join(folder, process.platform === 'win32' ? 'Scripts/python.exe' : 'bin/python3');
 function run(program, args, env = process.env) {
   const result = spawnSync(program, args, { env, encoding: 'utf8', timeout: 180_000, maxBuffer: 8 * 1024 ** 2 });
-  if (result.error || result.status !== 0) throw new Error(`${program} did not finish: ${result.error?.message ?? result.stderr?.trim() ?? result.status}`);
+  if (result.error || result.status !== 0) {
+    const output = [result.stderr?.trim(), result.stdout?.trim()].filter(Boolean).join('\n').slice(-6000);
+    throw new Error(`${program} did not finish: ${result.error?.message ?? result.status}${output ? `\n${output}` : ''}`);
+  }
   return result.stdout.trim();
 }
 export function pythonProfile(name = 'default') {
