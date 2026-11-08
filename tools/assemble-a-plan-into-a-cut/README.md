@@ -6,6 +6,8 @@ The tool lays the cut out; it renders nothing itself. The cut is one edit of the
 
 The tool holds only the mechanism. What a format is made of, every look, every graphic and how it is drawn, which checks a cut must pass and where things go all come in the person's request, read from their own records or files at run time. Nothing in this folder names a film, a format, a person or a brand.
 
+Before a clip can use the sound-only still fallback, ffprobe must read it successfully; a failed probe refuses the cut even if ffprobe printed partial stream data.
+
 ## The request
 
 One JSON file (`--request <file>`, paths in it relative to that file) or JSON on standard input (paths relative to its `relative_to`).
@@ -73,7 +75,7 @@ Given picture files after its argv, it prints one line per file in order: `<name
 | `read-data/spans.py` | A recorded span's key, the media file a clip names and its words: the one lookup the cutter and tool:check-a-rendered-video's plan check share (that row packs this file), so the check cuts what the render cuts. |
 | `read-data/timing.py` | Edge room, word times, caption chunks, event times. |
 | `read-data/cut-rules.json` | The default numbers (editing and online-video norms). |
-| `test/` | `run_tests.py` over `test_assemble.py`, on recordings drawn by ffmpeg with stand-in renderer, face reader, checker and speaker (`fixtures/`). |
+| `test/` | `run_tests.py` over `test_assemble.py` and the isolated ffprobe behavior tests in `test_media_probe.py`, on recordings drawn by ffmpeg with stand-in renderer, face reader, checker and speaker (`fixtures/`). |
 
 ## How to run it
 

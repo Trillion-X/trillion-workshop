@@ -8,7 +8,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
-suite = unittest.defaultTestLoader.loadTestsFromName('test_assemble')
+loader = unittest.defaultTestLoader
+suite = unittest.TestSuite([
+    loader.loadTestsFromName('test_assemble'),
+    loader.loadTestsFromName('test_media_probe'),
+])
 stream = io.StringIO()
 result = unittest.TextTestRunner(stream=stream, verbosity=2).run(suite)
 sys.stderr.write(stream.getvalue())
