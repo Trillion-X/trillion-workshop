@@ -33,6 +33,21 @@
   },
   "distinct_from": [
     {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/read-data/guarded-upload-core.mjs",
+      "why": "The canonical source-first core owns the historical settings loader, slot validator and timed holder. This adapter imports that implementation and keeps its bindings rather than implementing those algorithms."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/source-baselines/guarded-upload.mjs.held",
+      "why": "This is the inactive exact original source artifact, not a second running upload owner or a folder/export adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/source-baselines/guarded-upload.json.held",
+      "why": "This inactive artifact preserves the original settings DATA; it does not implement a Node entry or module compatibility seam."
+    },
+    {
       "repository": "trillion",
       "path": "computer/guarded-upload.mjs",
       "why": "This is the historical slot validator and holder, preserved by the SOURCE_FIRST_PORT canonical core contract. The folder/export adapter delegates those algorithms instead of claiming them as new."
