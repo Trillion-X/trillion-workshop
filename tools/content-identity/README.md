@@ -5,6 +5,12 @@ ordered chunk inputs give the same identity, and a JSON value has one identity w
 the bytes hands them in, whole or in bounded chunks. A library: it offers no tool of its own, and every row whose code
 imports it packs `read-data` beside its own files (with the `@noble/hashes` module, licence included).
 
+The compressor is the existing allocation-aware implementation from
+`keep-and-wake-ai-sessions-on-this-computer/parts/live-namespace/do-work/blake3.mjs` (Workshop source commit
+`a8585de191a9b337a2de58efdc3de08ef2b83373`), moved here with its MIT attribution and compression code intact.
+It reuses Noble's tree, keyed/context, clone and XOF behavior while keeping compression scratch space per hasher.
+The Namespace module re-exports this same implementation and retains its checkpoint-specific wrappers.
+
 ## Files
 
 | File | Purpose |

@@ -54,6 +54,39 @@ test('in the branch mode, run as the container runs it, a made-up reading row is
   assert.deepEqual(fail.results[0].breaks.map(finding => finding.rule), ['made-up-note']);
 });
 
+test('the packed film descriptor reads public plans and recordings from stdin and refuses absent or changed origin evidence', async () => {
+  const row = rows.find(each => each.id === 'tool:check-a-films-copy');
+  const sample = structuredClone(row.verify.find(each => each.kind === 'sample-run'));
+  const settings = sample.records.find(record => record.type === 'record:setting').value.settings;
+  settings.spoken_spans = { cites_plan: 'never', words_json: ['takes/{clip}.json'],
+    tsv: { path: 'tables/moments.tsv', clip: 'clip', from: 'start', to: 'end', text: 'text' }, speaker_unverified: '^UNCHECKED' };
+  settings.origin_words = { own: 'recorded', added: 'added', unverified: 'unverified' };
+  sample.records.find(record => record.id === 'record:check:no-sparkle').value.held_when = { path: 'origin', where: 'recorded' };
+  const plan = { segments: [{ clip: 'C1', from: 2, to: 3 }, { clip: 'C2', from: 2, to: 3 }] };
+  const input = { ...sample.input, files: [{ name: 'SCRIPT.md',
+    text: '| # | line |\n|---|---|\n| 1 | Word sparkle. |\n| 2 | Moment sparkle. |\n' }],
+    plan: 'public.json', plans: { 'public.json': plan }, recordings: {
+      words: { C1: [{ text: 'Word', start: 2, end: 2.4 }, { text: 'sparkle', start: 2.4, end: 3 }] },
+      tsv: 'clip\tstart\tend\ttext\nC2\t2\t3\tMoment sparkle.\n' } };
+  for (const key of Object.keys(input)) assert.ok(Object.hasOwn(row.input_schema.properties, key), `${key} is declared`);
+  for (const [name, extra, status, origin, verdict] of [
+    ['recorded', {}, 'uncertain', 'recorded', 'uncertain'],
+    ['missing plan', { plans: {} }, 'unqualified', null, null],
+    ['missing recordings', { recordings: {} }, 'failed', 'added', 'fail'],
+    ['changed recordings', { recordings: { words: { C1: [{ text: 'Other', start: 2, end: 3 }] },
+      tsv: 'clip\tstart\tend\ttext\nC2\t2\t3\tDifferent words.\n' } }, 'failed', 'added', 'fail'],
+    ['unverified speakers', { plans: { 'public.json': { segments: plan.segments.map(segment => ({ ...segment, speaker: 'UNCHECKED: who' })) } } },
+      'failed', 'unverified', 'fail'],
+  ]) {
+    const ran = await runRow(row, { ...input, ...extra }, { records: sample.records });
+    assert.equal(ran.code, 0, `${name}: ${ran.stderr}`);
+    const answer = JSON.parse(ran.stdout.trim().split('\n').at(-1)).result;
+    assert.equal(answer.status, status, name);
+    assert.equal(answer.exit_code, status === 'uncertain' ? 3 : status === 'unqualified' ? 2 : 1, name);
+    assert.deepEqual(answer.results.map(result => [result.facts.origin, result.verdict]), origin === null ? [] : [[origin, verdict], [origin, verdict]], name);
+  }
+});
+
 test('a model question asked once is answered by id on the second run', () => {
   const input = { rules: [{ id: 'sounds-off', ask: { question: 'Does it sound off?', options: ['yes', 'no'], fail: 'yes', calibration: { status: 'usable', t_pass: 0.3, t_fail: 0.7 } }, says: 'Sounds off.' }],
     units: [{ text: 'Plain words.', kind: 'line' }] };

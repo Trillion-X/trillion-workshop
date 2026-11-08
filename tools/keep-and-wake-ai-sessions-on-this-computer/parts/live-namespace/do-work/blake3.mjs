@@ -11,68 +11,8 @@
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // The subclass leaves noble's tree, key, context, digest and XOF owners intact.
-import { _BLAKE3 } from '@noble/hashes/blake3.js';
-import { createHasher, clean } from '@noble/hashes/utils.js';
-
-const IV0 = 0x6a09e667, IV1 = 0xbb67ae85, IV2 = 0x3c6ef372, IV3 = 0xa54ff53a;
-const PERMUTATION = Uint8Array.from([2, 6, 3, 10, 7, 0, 4, 13, 1, 11, 12, 5, 9, 14, 15, 8]);
-const SCHEDULE = new Uint8Array(7 * 16);
-for (let i = 0; i < 16; i++) SCHEDULE[i] = i;
-for (let round = 1; round < 7; round++) {
-  const previous = (round - 1) * 16, current = round * 16;
-  for (let i = 0; i < 16; i++) SCHEDULE[current + i] = SCHEDULE[previous + PERMUTATION[i]];
-}
-const rotr = (value, bits) => (value >>> bits) | (value << (32 - bits));
-
-// Mutate the four selected words directly. Noble's generic compressor returns a new object
-// from each half-round; this keeps the compression loop allocation-free after construction.
-function g(v, a, b, c, d, x, y) {
-  v[a] = (v[a] + v[b] + x) | 0;
-  v[d] = rotr(v[d] ^ v[a], 16);
-  v[c] = (v[c] + v[d]) | 0;
-  v[b] = rotr(v[b] ^ v[c], 12);
-  v[a] = (v[a] + v[b] + y) | 0;
-  v[d] = rotr(v[d] ^ v[a], 8);
-  v[c] = (v[c] + v[d]) | 0;
-  v[b] = rotr(v[b] ^ v[c], 7);
-}
-
-export class AllocationAwareBLAKE3 extends _BLAKE3 {
-  compressScratch = new Uint32Array(16);
-
-  b2Compress(counter, flags, buf, bufPos = 0) {
-    const v = this.compressScratch;
-    const s = this.state;
-    v[0] = s[0]; v[1] = s[1]; v[2] = s[2]; v[3] = s[3];
-    v[4] = s[4]; v[5] = s[5]; v[6] = s[6]; v[7] = s[7];
-    v[8] = IV0; v[9] = IV1; v[10] = IV2; v[11] = IV3;
-    v[12] = counter >>> 0;
-    v[13] = Math.floor(counter / 0x100000000) >>> 0;
-    v[14] = this.pos;
-    v[15] = flags;
-
-    for (let round = 0, at = 0; round < 7; round++, at += 16) {
-      g(v, 0, 4, 8, 12, buf[bufPos + SCHEDULE[at]], buf[bufPos + SCHEDULE[at + 1]]);
-      g(v, 1, 5, 9, 13, buf[bufPos + SCHEDULE[at + 2]], buf[bufPos + SCHEDULE[at + 3]]);
-      g(v, 2, 6, 10, 14, buf[bufPos + SCHEDULE[at + 4]], buf[bufPos + SCHEDULE[at + 5]]);
-      g(v, 3, 7, 11, 15, buf[bufPos + SCHEDULE[at + 6]], buf[bufPos + SCHEDULE[at + 7]]);
-      g(v, 0, 5, 10, 15, buf[bufPos + SCHEDULE[at + 8]], buf[bufPos + SCHEDULE[at + 9]]);
-      g(v, 1, 6, 11, 12, buf[bufPos + SCHEDULE[at + 10]], buf[bufPos + SCHEDULE[at + 11]]);
-      g(v, 2, 7, 8, 13, buf[bufPos + SCHEDULE[at + 12]], buf[bufPos + SCHEDULE[at + 13]]);
-      g(v, 3, 4, 9, 14, buf[bufPos + SCHEDULE[at + 14]], buf[bufPos + SCHEDULE[at + 15]]);
-    }
-
-    s[0] = v[0] ^ v[8]; s[1] = v[1] ^ v[9]; s[2] = v[2] ^ v[10]; s[3] = v[3] ^ v[11];
-    s[4] = v[4] ^ v[12]; s[5] = v[5] ^ v[13]; s[6] = v[6] ^ v[14]; s[7] = v[7] ^ v[15];
-  }
-
-  destroy() {
-    super.destroy();
-    clean(this.compressScratch);
-  }
-}
-
-export const blake3 = createHasher(opts => new AllocationAwareBLAKE3(opts));
+import { AllocationAwareBLAKE3, blake3 } from '../../../../content-identity/read-data/identity.mjs';
+export { AllocationAwareBLAKE3, blake3 };
 
 // Unkeyed incremental content identities can cross a durable bounded-work
 // boundary without retaining/re-reading the message prefix. Never exports a

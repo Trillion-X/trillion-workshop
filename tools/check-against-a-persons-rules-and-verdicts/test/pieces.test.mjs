@@ -5,10 +5,21 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { atomsOf, keepPieces, pieceRow, pieceRows } from '../do-work/pieces.mjs';
+import { atomsOf, carriedBytes, keepPieces, pieceRow, pieceRows } from '../do-work/pieces.mjs';
 import { runRow } from '../../../test-helpers/run-a-row.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
+
+test('carried bytes equal the escaped and quoted door representation, including every UTF-16 unit', () => {
+  const units = Array.from({ length: 0x10000 }, (_, unit) => String.fromCharCode(unit)).join('');
+  const values = [null, [], {}, [true, false, 17, null],
+    { id: 'made-up', text: 'quotes " and \\ and\n\tcontrols', expected: null },
+    { text: 'café 中文 😀', source: ['one.md', 'two.md'] }, { text: units }];
+  for (const value of values) {
+    const escaped = JSON.stringify(value).replace(/[\u0080-\uffff]/g, char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`);
+    assert.equal(carriedBytes(value), Buffer.byteLength(JSON.stringify(escaped)));
+  }
+});
 
 test('a file splits into pieces: paragraphs, list items and table rows under their headings, titles and table headers left out', () => {
   const atoms = atomsOf('# Title\n\nFirst paragraph here.\n\n## Part\n\n**Bold lead.** More words.\n\n1. One item\n   continued.\n2. Two item\n\n| Name | What |\n|---|---|\n| Row A | a |\n');

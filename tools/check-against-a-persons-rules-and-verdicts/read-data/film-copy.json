@@ -1,0 +1,44 @@
+{
+ "what_this_is": "DATA for do-work/check-a-films-copy.mjs (tool:check-a-films-copy): the readers it knows, the report's schema, the exit code of each status, the settings it reads and every word it says. The person's layouts, spans, profiles, owners, fields, origin words and reader-knowledge rows are never here: they are their settings row (list:settings, record:setting:<settings_folder>~<scope_kind>~<scope_id>), read through tools/settings.",
+ "settings_folder": "check-against-a-persons-rules-and-verdicts",
+ "tool_row": "tool:check-a-films-copy",
+ "report_schema": "copy-check-report-v1",
+ "readers": [
+  "film",
+  "auto",
+  "sectioned-prose",
+  "cue-narration",
+  "json-words"
+ ],
+ "auto_profile": "sectioned-prose",
+ "exit_codes": {
+  "passed": 0,
+  "failed": 1,
+  "unqualified": 2,
+  "uncertain": 3,
+  "no-applicable-rule": 2
+ },
+ "reader_knowledge_rule_prefix": "reader-knowledge/",
+ "reader_knowledge_not_run": {
+  "rule": "reader-knowledge-not-run",
+  "says": "The reader-knowledge check could not run, so it has not passed this line."
+ },
+ "modes": {
+  "no_model": "no-model diagnostic; asking rules retained as unknown",
+  "answers": "model answers by question id"
+ },
+ "words": {
+  "no_settings": "settings_record {id} is not in the person's list:settings (or is not theirs): the film readers, spans and reader-knowledge rows are read from it. Write it, or name the row that holds them.",
+  "no_files": "files is a non-empty list of { name, text }: the film's copy files, each by its name (the layouts are chosen by the file's name) and its text.",
+  "reader": "reader must be one of {readers}.",
+  "owner": "--owner (owner) is only valid with the json-words reader, which requires it.",
+  "kind_with_owner": "JSON owner kind is selected by the owner in the settings; kind is not allowed.",
+  "no_owner": "The settings name no JSON owner {owner}.",
+  "no_profile": "The settings name no reader profile {profile}.",
+  "no_layouts": "The settings hold no readers (the film layouts): the film reader reads only what they name.",
+  "plan_missing": "A file the piece's plan needs was not handed in (sources): {plan}. Its lines' origins cannot be read.",
+  "unqualified_files": "UNQUALIFIED: every input file must produce recognized copy with no reader issues.",
+  "head": "copy check ({branch}, {lineage}): {units} lines: {fail} fail, {uncertain} uncertain, {pass} pass",
+  "quiet": "copy check: {units} units; {status}"
+ }
+}

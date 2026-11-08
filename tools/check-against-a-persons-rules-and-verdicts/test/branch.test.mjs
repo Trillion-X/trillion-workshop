@@ -163,12 +163,15 @@ test('a row that states no test but says something becomes a reading row; a piec
 
 test('a reading row\'s question is made from read-data/branch.json: each string part filled, a field part only when the row has words there that says does not hold', () => {
   const parts = [...SETTINGS_OF_BRANCH.reading.question];
-  const field = parts.find(part => typeof part === 'object').field;
+  const fields = parts.filter(part => typeof part === 'object').map(part => part.field);
+  const field = fields[0];
   const strings = parts.filter(part => typeof part === 'string');
   const row = { id: 'made-up-row', says: 'Made-up says.', [field]: 'Made-up other words.' };
   const question = readingQuestion(row);
-  assert.equal(question.split('\n').length, parts.length);
+  assert.equal(question.split('\n').length, strings.length + 1);
   assert.ok(question.includes('Made-up says.') && question.includes('Made-up other words.'));
+  const every = readingQuestion({ ...row, ...Object.fromEntries(fields.map((name, at) => [name, `Made-up words ${at}.`])) });
+  assert.equal(every.split('\n').length, parts.length, 'every field part is said when the row has words there');
   assert.equal(readingQuestion({ ...row, [field]: undefined }).split('\n').length, strings.length, 'no words at the field: the part is left out');
   assert.equal(readingQuestion({ ...row, says: 'Made-up says: Made-up other words.' }).split('\n').length, strings.length, 'says already holds them: not said twice');
   assert.equal(readingRow(row).ask.question, question);

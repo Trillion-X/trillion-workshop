@@ -86,6 +86,7 @@
               {
                 "package": "formulas",
                 "paths": [
+                  "read-data/list-refusals-core.mjs",
                   "read-data/list-refusals.mjs",
                   "read-data/list-value-history.mjs",
                   "read-data/lists.json",
@@ -274,6 +275,7 @@
               {
                 "package": "walk-nested-input-within-limits",
                 "paths": [
+                  "read-data/bounded-walk-core.mjs",
                   "read-data/bounded-walk.json",
                   "read-data/bounded-walk.mjs"
                 ],

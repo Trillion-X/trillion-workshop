@@ -79,8 +79,17 @@ const object = value => value !== null && typeof value === 'object' && !Array.is
 export class SplitRefusal extends Error {}
 
 // A record's bytes as a door may carry it: its JSON with every character past ASCII as a \u escape, quoted once more.
-export const carriedBytes = record => Buffer.byteLength(JSON.stringify(JSON.stringify(record)
-  .replace(/[\u0080-\uffff]/g, char => `\\u${char.charCodeAt(0).toString(16).padStart(4, '0')}`)));
+// Count that ASCII representation without allocating the escaped copy and then a second, quoted copy. Each non-ASCII
+// UTF-16 unit becomes seven carried bytes (\\uXXXX); an ASCII quote or backslash gains its one escape byte.
+export function carriedBytes(record) {
+  const json = JSON.stringify(record);
+  let bytes = 2; // The outer quotes.
+  for (let at = 0; at < json.length; at += 1) {
+    const unit = json.charCodeAt(at);
+    bytes += unit > 0x7f ? 7 : unit === 0x22 || unit === 0x5c ? 2 : 1;
+  }
+  return bytes;
+}
 
 // One of the person's files, read whole by name through the files door, every page of one identity.
 async function readByName(door, name, { read_bytes: readBytes, most_file_bytes: most } = SETTINGS.split) {
@@ -124,6 +133,7 @@ export async function keepPieces(input, door, settings = SETTINGS.split) {
   const type = SETTINGS.check_type;
   const held = await each(rows, settings.reads_at_once, row => door.read(type, `${SETTINGS.record_prefix}${row.id}`));
   const records = [], too_large = [];
+  const sizes = new WeakMap();
   let added = 0, sourcesAdded = 0, unchanged = 0;
   rows.forEach((row, at) => {
     const id = `${SETTINGS.record_prefix}${row.id}`;
@@ -147,10 +157,11 @@ export async function keepPieces(input, door, settings = SETTINGS.split) {
     }
     const size = carriedBytes(record);
     if (size > settings.write_bytes) { too_large.push({ id: row.id, section: row.key, bytes: size }); return; }
+    sizes.set(record, size);
     records.push(record);
     if (was) sourcesAdded += 1; else added += 1;
   });
-  const batches = writeBatches(records, { rows: settings.write_rows, bytes: settings.write_bytes, measure: carriedBytes });
+  const batches = writeBatches(records, { rows: settings.write_rows, bytes: settings.write_bytes, measure: record => sizes.get(record) });
   for (const batch of batches) {
     await door.write(batch, { key: `${settings.key_prefix}:${makeHashCodeHexFromBytes(new TextEncoder().encode(JSON.stringify(batch))).slice(3)}` });
   }
