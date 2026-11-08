@@ -90,7 +90,7 @@ function fill(template, sources) {
   return Object.fromEntries(Object.entries(template).map(([key, item]) => [key, fill(item, sources)]).filter(([, item]) => item !== undefined));
 }
 
-// Lay every packed file at its place under `there` (which stands for `/`): a package's paths from tools/<package>, a
+// Lay every packed file at its path under `there` (which stands for `/`): a package's paths from tools/<package>, a
 // module's from this checkout's node_modules.
 function lay(specs, there) {
   for (const spec of specs) {
@@ -105,7 +105,7 @@ function lay(specs, there) {
   }
 }
 
-// The word as the run sees it: an absolute path inside a packed place, under `there`; node is this Node.
+// The word as the run sees it: an absolute path inside a packed folder, under `there`; node is this Node.
 function placed(word, specs, there) {
   if (typeof word !== 'string') return typeof word === 'object' ? JSON.stringify(word) : String(word);
   if (word === 'node' || /\/node$/.test(word)) return process.execPath;
@@ -156,7 +156,7 @@ function heldPipe(path, value) {
 // computer (a message, a print) answers from the sample instead: { code, stdout, stderr, last, kept, calls, unanswered }
 // or { cannot }. `doorOptions` reach the stand-in records door. A string anywhere in the input or the sample may name
 // a granted folder as {grant:<capability>}; it is that folder's path for this run. `laid_files` ([{ path, text }])
-// replaces a file the row packs, at its absolute place, for this run only. `model_server` ({ vector }) starts a stand-in
+// replaces a file the row packs, at its absolute path, for this run only. `model_server` ({ vector }) starts a stand-in
 // model server (startStandInModelServer) whose address any string names as {model_endpoint}. `task` gives fields of the
 // made-up task (its request_key, its cause); `stdin` replaces the filled standard input, for a refusal test. A row with
 // invoke.kept_folder gets a folder of its own as the task's `kept_folder`, holding the sample's `kept_files` ([{ path, text }]).
@@ -185,7 +185,7 @@ export async function runRow(row, sampleInput, sample = {}) {
     const input = placedGrants(sampleInput);
     const { records = [], door_files: doorFiles = {}, replies = [], held = {}, files = [], laid_files: laidFiles = [], stand_in_programs: standIns = {}, doorOptions = {} } = placedGrants(sample);
     // A packed file the sample replaces for this run (a settings file naming a program by a path a stand-in cannot
-    // take): only a file the row itself packs, at its place under the folder that stands for `/`.
+    // take): only a file the row itself packs, at its path under the folder that stands for `/`.
     for (const file of laidFiles) {
       const target = join(there, file.path);
       if (!existsSync(target) || !target.startsWith(`${there}/`)) return { cannot: `the sample replaces ${file.path}, which the row does not pack` };
