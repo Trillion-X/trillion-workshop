@@ -1,60 +1,78 @@
 {
  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
- "id": "REF-CHECK-AGAINST-BRANCH-LINEAGE-FROM-DECIDE-WITH-A-METHOD",
+ "id": "REF-CHECK-AGAINST-BRANCH-LINEAGE-CORE",
  "status": "ADAPTED",
  "directive": {
   "thread_id": "cloud job 2026-11-03: one judge for every check, reading one check list by branch",
   "message_multihash": "1f:2b260cf27649ba578ebdd23b332371a2ec98a7f3b4b3d10de6d3696152706406",
   "quote": "Turn all his checks into ONE generic check system; everything in lists, one generic process, the decision engine under it too, for any kind of thing: book, script, article, post."
  },
- "mode": "NO_PRIOR_OWNER",
- "job": "the lineage of a branch, nearest first, and the checks of a branch: one base with branches for every check",
- "sources": [],
- "targets": [
+ "mode": "SOURCE_FIRST_PORT",
+ "job": "Find a branch's ancestors nearest first, select the check rows that belong to its lineage, and build door filters for those rows.",
+ "sources": [
   {
-   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/branch.mjs"
+   "repository": "trillion-workshop",
+   "commit": "a4e865bebc80fa21aec481b5dab55e4da6e9c68f",
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/branch.mjs",
+   "path_multihash": "1f:5bbf0aedc1e54e18f5976fe5d39cd55bb89155466b73257942a63fd62af08449",
+   "lines": [1, 91],
+   "multihash": "1f:3215b8bb23f05ec2001b0d5b6d539ef73df6de3051116064226ed55506f77ce1",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-07T21:10:00-06:00",
+    "deleted_with": "The public branch.mjs path becomes an export-only adapter to branch-core.mjs; its old implementation remains only in the inactive source-baseline artifact."
+   }
   }
  ],
- "preserve": [],
- "allowed_deltas": [],
- "banned_substitutions": [],
- "baseline": {},
+ "targets": [
+  {
+   "path": "tools/check-against-a-persons-rules-and-verdicts/do-work/branch-core.mjs"
+  }
+ ],
+ "preserve": [
+  "The complete branch implementation: refusal types, scalar and list link reading, one-parent checks, records-door where filters, nearest-first lineage, refusal of unknown parents and cycles, and branch check filtering.",
+  "The current public API exports and behavior; branch.mjs forwards every export to this core so existing consumers keep their entry path.",
+  "The original methodLineage history in decide-with-a-method/read-data/method.mjs and the older extends model are preserved as provenance; whole-method loading remains a separate job."
+ ],
+ "allowed_deltas": [
+  "The implementation moves from branch.mjs into branch-core.mjs while its existing public module becomes a one-line export adapter.",
+  "The core header records the canonical implementation path; the complete executable implementation is retained from the inactive baseline."
+ ],
+ "banned_substitutions": [
+  "A person, branch, check row, or link-field choice embedded in the implementation.",
+  "Replacing the existing lineage, refusal, list-link, or door-filter behavior with a second implementation or a weaker check."
+ ],
+ "baseline": {
+  "commit": "a4e865bebc80fa21aec481b5dab55e4da6e9c68f",
+  "path": "tools/check-against-a-persons-rules-and-verdicts/ports/source-baselines/branch.mjs.held",
+  "recorded_at": "2026-11-07T21:00:38-06:00",
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:3215b8bb23f05ec2001b0d5b6d539ef73df6de3051116064226ed55506f77ce1",
+  "target_multihash_at_baseline": "1f:3215b8bb23f05ec2001b0d5b6d539ef73df6de3051116064226ed55506f77ce1"
+ },
  "distinct_from": [
   {
    "repository": "trillion-workshop",
    "path": "tools/decide-with-a-method/read-data/method.mjs",
-   "why": "Its methodLineage (and the filter of a step's check rows by lineage) moved here as lineageOf and checksOfBranch; method.mjs now imports them and keeps no copy. Its loadMethods resolves extends to build whole method snapshots (steps, backbone, preset), a different job."
+   "why": "Its original methodLineage helper selected checks for a method. That helper was extracted into the branch feature; whole-method loading and step-specific checklist composition remain in method.mjs."
   },
   {
    "repository": "trillion",
    "path": "src/private-method.mjs",
-   "why": "Old trillion src/private-method.mjs:25 resolves extends while loading whole methods (the job tools/decide-with-a-method/read-data/method.mjs loadMethods carries); it has no lineage function of its own to move."
+   "why": "The old app resolves extends while loading whole methods. The current branch implementation supplies generic lineage, row filters and records-door where shapes; those are different jobs."
   }
  ],
  "proof": {
-  "search": {
-   "phrasings": [
-    "the lineage of a branch, nearest first, and the checks of a branch: one base with branches for every check",
-    "lineage of a branch",
-    "checks of a branch",
-    "one base with branches"
-   ],
-   "capability_rows": [],
-   "code_patterns": [
-    "lineageOf",
-    "checksOfBranch"
-   ],
-   "repositories": [
-    {
-     "repository": "trillion-workshop",
-     "commit": "f5c02c07688ba2c15ec6fbe24252979b57e72dc9"
-    },
-    {
-     "repository": "trillion",
-     "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
-    }
-   ]
-  },
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "export class BranchRefusal",
+   "export function linksOf(",
+   "export function parentOf(",
+   "export function whereOfLink(",
+   "export function wheresOfLink(",
+   "export function lineageOf(",
+   "export function checksOfBranch("
+  ],
   "test_refs": [
    "tools/check-against-a-persons-rules-and-verdicts/test/branch.test.mjs",
    "tools/decide-with-a-method/test/method.test.mjs"
