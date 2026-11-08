@@ -227,7 +227,7 @@
         "id": "tool:send-a-text-with-twilio",
         "label": "Send a text message with Twilio",
         "job": "Send a text message, to one number or a list, through my Twilio account",
-        "description": "Give recipients (phone numbers with country code; to for one), from (a number on the Twilio account), account_sid (the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId } or { recipient, error }. The held auth token reaches the one process on a private pipe; it is never shown.",
+        "description": "Give recipients (phone numbers with country code; to for one), from (a number on the Twilio account), account_sid (the account's id) and text (or subject when there is no text). Each number is sent to on its own and answered on its own: sent holds { recipient, messageId }, { recipient, error } when Twilio rejected it, or { recipient, error, unknown: true } when it may have gone and must not be retried blindly. The held auth token reaches the one process on a private pipe; it is never shown.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -249,7 +249,7 @@
           "required": ["provider", "sent", "said"],
           "properties": {
             "provider": { "type": "string" },
-            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" } } } },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" }, "unknown": { "type": "boolean" } } } },
             "said": { "type": "string" }
           }
         },

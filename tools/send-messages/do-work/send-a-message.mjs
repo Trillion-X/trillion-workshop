@@ -173,8 +173,12 @@ export async function sendMessage(request, { providerId, credentials = {}, rows 
       recipients, subject: message.subject, html: message.html, text: message.text, headers, ...copiesOf(request),
       ...(typeof request.idempotencyKey === 'string' ? { idempotencyKey: request.idempotencyKey } : {}),
     }, { ...settings, ...secrets }, run);
-  const failed = sent.filter(item => item.error);
-  const said = `Sent to ${sent.length - failed.length} of ${sent.length} through ${provider.label}.${failed.length ? ` Not sent: ${failed.map(item => `${item.recipient} (${item.error})`).join('; ')}` : ''}`;
+  const unknown = sent.filter(item => item.unknown === true);
+  const failed = sent.filter(item => item.error && item.unknown !== true);
+  const accepted = sent.length - unknown.length - failed.length;
+  const said = unknown.length
+    ? `Sent: ${accepted}; not sent: ${failed.length}; unknown: ${unknown.length} through ${provider.label}.${failed.length ? ` Not sent: ${failed.map(item => `${item.recipient} (${item.error})`).join('; ')}.` : ''} Unknown (may have gone; do not retry blindly): ${unknown.map(item => `${item.recipient} (${item.error ?? 'provider outcome unknown'})`).join('; ')}.`
+    : `Sent to ${accepted} of ${sent.length} through ${provider.label}.${failed.length ? ` Not sent: ${failed.map(item => `${item.recipient} (${item.error})`).join('; ')}` : ''}`;
   return { provider: provider.id, sent, said };
 }
 

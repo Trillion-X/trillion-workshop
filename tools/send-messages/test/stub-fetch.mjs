@@ -12,5 +12,6 @@ globalThis.fetch = async (url, init = {}) => {
   const reply = JSON.parse(process.env.STUB_REPLY ?? '{"status":200,"body":"{}"}');
   const headers = Object.fromEntries(Object.entries(init.headers ?? {}).map(([name, value]) => [name.toLowerCase(), String(value)]));
   appendFileSync(process.env.STUB_LOG, `${JSON.stringify({ url: String(url), method: init.method, headers, body: String(init.body ?? ''), argv: process.argv })}\n`);
+  if (process.env.STUB_THROW_AFTER_REQUEST === '1') throw new Error('connection reset after request reached provider');
   return new Response(reply.body, { status: reply.status });
 };
