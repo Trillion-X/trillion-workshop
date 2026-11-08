@@ -42,7 +42,7 @@ export function serviceWorkCountsFromSources(sources, { only = null } = {}) {
         count += 1;
       }
     }
-    if (count) counts[file] = count;
+    if (count) counts[file] = (counts[file] ?? 0) + count;
   }
   return counts;
 }

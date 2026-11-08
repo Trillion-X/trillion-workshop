@@ -4,15 +4,91 @@
   "current_repository": "Trillion-X/trillion-workshop",
   "current_package": "trillion-workshop",
   "history_repository": "Trillion-X/trillion",
-  "excluded_parts": ["from-old-trillion", "source-baselines", "test", "tests", "__tests__", "node_modules"],
+  "excluded_parts": [
+    "from-old-trillion",
+    "source-baselines",
+    "test",
+    "tests",
+    "__tests__",
+    "node_modules"
+  ],
   "sources": [
-    { "repository": "Trillion-X/trillion-workshop", "folders": ["tools"], "capabilities": "capabilities.json", "anchors": [], "require_entry": true },
-    { "repository": "Trillion-X/trillion-apps", "folders": ["src", "parts", "computer", "web/src", "web/parts", "web/harness", "web/records"], "anchors": ["web/records/workshop-tray-tool-records.json"], "legacy_keys": {"web/records/workshop-tray-tool-records.json": "records/workshop-tray-tool-records.json"} },
-    { "repository": "Trillion-X/trillion-rust", "folders": ["src", "crates", "product"], "capabilities": "capabilities.json", "anchors": ["src/local_account/service_records.rs"] }
+    {
+      "repository": "Trillion-X/trillion-workshop",
+      "folders": [
+        "tools"
+      ],
+      "capabilities": "capabilities.json",
+      "anchors": [],
+      "require_entry": true
+    },
+    {
+      "repository": "Trillion-X/trillion-apps",
+      "folders": [
+        "src",
+        "parts",
+        "computer",
+        "web/src",
+        "web/parts",
+        "web/harness",
+        "web/records"
+      ],
+      "anchors": [
+        "web/records/workshop-tray-tool-records.json"
+      ],
+      "legacy_keys": {
+        "web/records/workshop-tray-tool-records.json": "records/workshop-tray-tool-records.json"
+      }
+    },
+    {
+      "repository": "Trillion-X/trillion-rust",
+      "folders": [
+        "src",
+        "crates",
+        "product"
+      ],
+      "capabilities": "capabilities.json",
+      "anchors": [
+        "src/local_account/service_records.rs"
+      ]
+    }
   ],
   "scope_evidence": [
     "The declared Apps source root holds app composition and the report-recipient DATA; its exact old allowance key follows that same row into web/records without raising its count.",
     "Workshop capability rows own the moved tools. Held originals and source-baseline/test evidence are not live service source.",
-    "The native record capability explicitly owns src/local_account/service_records.rs. No old Worker or PersonStore is restored."
+    "The native record capability explicitly owns src/local_account/service_records.rs. No old Worker or PersonStore is restored.",
+    "The three DATA files above are byte-identical at their original immutable source, committed move and current source. Their original count-one personal roles were removed from the old-tree ledger in fe1fb2646e03846ac5a010b5ce3ec66ec02bc85d because files left that tree, not because those roles were removed. Only those exact bytes keep their original keys; no new role or count is admitted."
+  ],
+  "moved_allowance_sources": [
+    {
+      "repository": "Trillion-X/trillion-workshop",
+      "path": "tools/marketplace-defaults/src/marketplace-defaults.json",
+      "moved_at": "54a83b3c5593919132c000afbbf047955d7917c7",
+      "source": {
+        "repository": "Trillion-X/trillion",
+        "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+        "path": "src/marketplace-defaults.json"
+      }
+    },
+    {
+      "repository": "Trillion-X/trillion-workshop",
+      "path": "tools/service-watch/src/service-watch.json",
+      "moved_at": "54a83b3c5593919132c000afbbf047955d7917c7",
+      "source": {
+        "repository": "Trillion-X/trillion",
+        "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+        "path": "src/service-watch.json"
+      }
+    },
+    {
+      "repository": "Trillion-X/trillion-apps",
+      "path": "web/src/client-program.json",
+      "moved_at": "bd1b0c3c5989f81f3bc25adf5e0fdee989176649",
+      "source": {
+        "repository": "Trillion-X/trillion",
+        "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+        "path": "src/client-program.json"
+      }
+    }
   ]
 }

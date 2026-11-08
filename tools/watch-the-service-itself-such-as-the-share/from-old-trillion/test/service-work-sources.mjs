@@ -5,6 +5,7 @@ import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import configuration from './service-work-sources.json' with { type: 'json' };
+import { gitReaders } from '#tools/check-a-port-against-its-source/do-work/read-from-repositories.mjs';
 
 const git = (root, args, input) => execFileSync('git', ['--no-replace-objects', '-C', root, ...args], {
   env: { ...Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_'))), GIT_OPTIONAL_LOCKS: '0', GIT_TERMINAL_PROMPT: '0' },
@@ -84,10 +85,38 @@ function recordsFor(owner) {
   });
 }
 
+// A moved file keeps an old ledger identity only while its current bytes equal BOTH the
+// immutable original and its committed destination at the move. A path or role alone
+// grants nothing. Changed files retain their current key and fail the original guard.
+export function withOriginalAllowanceKeys(sources, moves, readSource) {
+  const keys = new Set();
+  return sources.map(source => {
+    const matches = moves.filter(move => move.repository === source.repository && move.path === source.path);
+    if (matches.length > 1) throw new Error('A source has ambiguous allowance lineage');
+    let key = source.key;
+    if (matches.length) {
+      const move = matches[0];
+      const original = readSource(move.source);
+      const moved = readSource({ repository: move.repository, commit: move.moved_at, path: move.path });
+      if (!original || !moved || !original.equals(moved)) throw new Error('The committed allowance lineage is unavailable or differs');
+      if (original.equals(Buffer.from(source.text))) key = move.source.path;
+    }
+    if (keys.has(key)) throw new Error('Two maintained sources cannot share an allowance identity');
+    keys.add(key);
+    return { ...source, key };
+  });
+}
+
 export function maintainedServiceSources(start = fileURLToPath(new URL('..', import.meta.url))) {
   const selected = context(start);
-  return configuration.sources.flatMap(source => recordsFor({ ...source,
+  const sources = configuration.sources.flatMap(source => recordsFor({ ...source,
     ...(source.repository === configuration.current_repository ? selected : { root: sourceRoot(selected.root, source.repository) }),
+  }));
+  const repositories = Object.fromEntries([...new Set([configuration.history_repository, ...configuration.sources.map(source => source.repository)])]
+    .map(repository => [repository.split('/').at(-1), repository === configuration.current_repository ? selected.root : sourceRoot(selected.root, repository)]));
+  const readers = gitReaders({ root: selected.root, repositories });
+  return withOriginalAllowanceKeys(sources, configuration.moved_allowance_sources, source => readers.readSource({
+    ...source, repository: source.repository.split('/').at(-1),
   }));
 }
 export function serviceWorkHistory(args, start = fileURLToPath(new URL('..', import.meta.url))) {

@@ -7,6 +7,28 @@
         "the tray report tool hands each report someone sends to Trillion HQ to the operator account (153)"
       ],
       "allowed_because": "A report sent to Trillion HQ is addressed to the operator as its recipient; it is their inbox, one message per report."
+    },
+    "src/marketplace-defaults.json": {
+      "count": 1,
+      "duties": [
+        "the default Marketplace publisher is the operator: its maker id is worked out from the setting (4)"
+      ],
+      "allowed_because": "Only a maker identity is computed from the setting and the shared pool is read; no store of the operator is reached."
+    },
+    "src/service-watch.json": {
+      "count": 1,
+      "duties": [
+        "service_work_setting names the one account the service's own work reaches: a failing watch, a stopped service check or a client health issue handed to its AIs (through that account's own records, RecordBook handServiceWork, not its store), the bill notice told to it (through its own records too, src/service-notice.mjs tellServiceNotice), and the tool steps that need its own connections (the repository for a waiting deploy, a page critique) run on it. The watches' state, and each check's and issue's state and schedule, are kept by their own owners (src/service-checks.mjs, src/client-health.mjs: one record book each)."
+      ],
+      "runtime_calls": [],
+      "allowed_because": "Each reach is addressed to that account itself: work handed to its own AIs, a notice to the person who runs Trillion, or a tool run on connections only it holds. Nothing it is asked keeps, schedules or runs the service's checks or issues."
+    },
+    "src/client-program.json": {
+      "count": 1,
+      "duties": [
+        "the hosted client program names the operator as its host (8)"
+      ],
+      "allowed_because": "The client program is hosted by the operator as a person: applicants apply to them and they accept clients. The list of programs every account reads comes from the edge store (service record client-programs), never their store."
     }
   },
   "patterns": [
