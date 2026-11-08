@@ -9,7 +9,7 @@
 // door that answers 503 in the middle of a file's pieces stops the run and a resume keeps each file once, whole.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
@@ -158,4 +158,22 @@ test('an export\'s files are found by the id their name starts with or the folde
   assert.equal(mediaTypeOf('content', PNG), 'image/png');
   assert.equal(mediaTypeOf('notes.pdf', Buffer.alloc(0)), 'application/pdf');
   assert.equal(mediaTypeOf('content', Buffer.from('plain')), 'application/octet-stream');
+});
+
+test('a granted folder may use a symlink while an export or attachment outside it stays unread', t => {
+  const { home } = makeHome();
+  const aliases = mkdtempSync(join(tmpdir(), 'conversations-granted-'));
+  const outside = mkdtempSync(join(tmpdir(), 'conversations-outside-'));
+  t.after(() => { for (const folder of [home, aliases, outside]) rmSync(folder, { recursive: true, force: true }); });
+  const granted = join(aliases, 'home');
+  symlinkSync(home, granted);
+  const beside = exportFilesBeside(granted, join(granted, 'Downloads/chatgpt/conversations.json'));
+  assert.equal(beside.locate('file-AB12').name, 'file-AB12-crumb.png');
+
+  put(outside, 'conversations.json', '[]');
+  put(outside, 'file-ESC-private.png', PNG);
+  assert.equal(exportFilesBeside(home, join(outside, 'conversations.json')).locate('file-ESC'), null);
+  symlinkSync(outside, join(home, 'Downloads/chatgpt/outside'));
+  assert.equal(exportFilesBeside(home, join(home, 'Downloads/chatgpt/outside/conversations.json')).locate('file-ESC'), null);
+  assert.equal(exportFilesBeside(home, join(home, 'Downloads/chatgpt/conversations.json')).locate('file-ESC'), null);
 });

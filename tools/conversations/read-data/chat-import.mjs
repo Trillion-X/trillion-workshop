@@ -375,9 +375,12 @@ export function fileKeeper(door) {
  * asset's <id>/content).
  */
 export function exportFilesBeside(home, exportPath, rules = settings) {
+  const granted = homeOf(home);
   let index = null;
   const build = () => {
     index = [];
+    const source = inside(granted, exportPath);
+    if (!source) return;
     const budget = { left: rules.attachment_index_files };
     const visit = (path, left) => {
       let entries;
@@ -386,10 +389,10 @@ export function exportFilesBeside(home, exportPath, rules = settings) {
         if (budget.left-- <= 0) return;
         const child = join(path, entry.name);
         if (entry.isDirectory()) { if (left > 0 && !entry.name.startsWith('.')) visit(child, left - 1); }
-        else if (entry.isFile() && child !== exportPath && !entry.name.startsWith('.')) index.push({ path: child, name: entry.name, folder: basename(path) });
+        else if (entry.isFile() && child !== source && !entry.name.startsWith('.')) index.push({ path: child, name: entry.name, folder: basename(path) });
       }
     };
-    visit(dirname(exportPath), rules.attachment_depth);
+    visit(dirname(source), rules.attachment_depth);
   };
   return {
     locate(id) {
@@ -397,7 +400,7 @@ export function exportFilesBeside(home, exportPath, rules = settings) {
       if (!index) build();
       const hit = index.find(file => file.name.startsWith(id) && !/[A-Za-z0-9]/.test(file.name.charAt(id.length)))
         ?? index.find(file => file.folder === id);
-      return hit && inside(home, hit.path) ? hit : null;
+      return hit && inside(granted, hit.path) ? hit : null;
     },
   };
 }
