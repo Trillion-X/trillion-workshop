@@ -243,6 +243,9 @@
                 ],
                 "choices": [
                   "choices"
+                ],
+                "moves": [
+                  "moves"
                 ]
               },
               "indexes": {
