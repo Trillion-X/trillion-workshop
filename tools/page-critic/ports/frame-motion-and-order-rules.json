@@ -7,59 +7,47 @@
     "message_multihash": "1f:1c097d1bb0c5252c7f0e8b71a4b3c16fcfe55a90e33f0db8659924f365cc5f20",
     "quote": "move code, never rewrite it"
   },
-  "mode": "NO_PRIOR_OWNER",
-  "job": "check a rendered page for its frame, its reduced-motion first screen, its heading order, its tab order and its page metadata",
-  "sources": [],
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/page-critic/do-work/measure-page-craft.mjs",
+      "multihash": "1f:57f0d03dabf3e1c3496f5bace2b621c8a6fc9ebfaee1df890d5c6b9dc4ac6c2c",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
   "targets": [
     {
       "path": "tools/page-critic/do-work/measure-page-craft.mjs"
     }
   ],
-  "preserve": [],
-  "allowed_deltas": [],
-  "banned_substitutions": [],
-  "baseline": {},
-  "distinct_from": [
-    {
-      "repository": "trillion-workshop",
-      "path": "tools/page-critic/",
-      "why": "This tool itself: the rule rows (read-data/page-craft-rules.json), the reduced-motion second pass (do-work/critique-a-page.mjs), the README and the test of the measures this contract claims."
-    },
-    {
-      "repository": "trillion-workshop",
-      "path": "tools/conversations/test/python/test_transcript_mapper.py",
-      "why": "Its test_map_page_metadata maps the metadata of a saved conversation's page into a transcript; it does not judge whether a rendered page carries a title, language, viewport and description."
-    }
+  "preserve": [
+    "Every pre-policy page-craft measure and its DATA-driven thresholds/selectors.",
+    "The existing public critic remains the caller of the measures, including its reduced-motion second pass."
   ],
+  "allowed_deltas": [
+    "Extend the existing measure owner with the nine frame, reduced-motion, heading, Tab and metadata rules introduced by commit 9712f603.",
+    "Keep rule words, selectors, thresholds, widths and finding identities in the existing rule DATA."
+  ],
+  "banned_substitutions": [
+    "A second page critic or a claim that the pre-policy measure owner did not exist.",
+    "Removing an existing measure or weakening its thresholds to pass a planted page."
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:57f0d03dabf3e1c3496f5bace2b621c8a6fc9ebfaee1df890d5c6b9dc4ac6c2c",
+    "target_multihash_at_baseline": "1f:57f0d03dabf3e1c3496f5bace2b621c8a6fc9ebfaee1df890d5c6b9dc4ac6c2c"
+  },
   "proof": {
-    "search": {
-      "phrasings": [
-        "check a rendered page for its frame, its reduced-motion first screen, its heading order, its tab order and its page metadata",
-        "rendered frame check: first screen title, untitled sections, lopsided sections, blank stretches, side margins",
-        "reduced motion second pass: first screen text hidden when motion is reduced",
-        "heading order, tab order and page metadata as one line rules"
-      ],
-      "capability_rows": [],
-      "code_patterns": [
-        "reduced_motion_hidden",
-        "lopsided_sections",
-        "blank_stretch",
-        "first_screen_title",
-        "untitled_section",
-        "heading_order",
-        "page_metadata"
-      ],
-      "repositories": [
-        {
-          "repository": "trillion-workshop",
-          "commit": "886da97848b8ec1b26c3c06938f23557529ea4c8"
-        },
-        {
-          "repository": "trillion",
-          "commit": "d273ef3049fea1297f18533f798d4916a3832192"
-        }
-      ]
-    },
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "pageCraftHelpers",
+      "pageCraftMeasures"
+    ],
     "test_refs": [
       "tools/page-critic/test/frame-motion-and-page-rules.test.mjs"
     ]
