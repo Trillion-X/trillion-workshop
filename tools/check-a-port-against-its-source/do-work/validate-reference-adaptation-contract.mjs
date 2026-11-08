@@ -336,6 +336,16 @@ function partLives(source, part, options) {
   const now = options.readers.readSource({ ...source, path, commit: main });
   return now === null ? null : folded(now.toString('utf8')).includes(folded(part.toString('utf8')));
 }
+function oldCopyLives(source, part, options) {
+  if (options.readers?.retirementOf) {
+    const state = options.readers.retirementOf(source);
+    if (state?.state === 'absent') return false;
+    if (state?.state !== 'regular') return null;
+    return part ? folded(state.bytes.toString('utf8')).includes(folded(part.toString('utf8'))) : true;
+  }
+  const path = options.readers?.pathOf?.(source) ?? source.path;
+  return part ? partLives(source, part, options) : path ? options.readers?.lives?.(source.repository, path) ?? null : null;
+}
 function checkOldCopy(source, contract, options, errors, deferred, part) {
   const old = source.old_copy;
   const sameFile = source.repository === options.repository && (contract.targets ?? []).some((target) => target?.path === source.path);
@@ -353,11 +363,9 @@ function checkOldCopy(source, contract, options, errors, deferred, part) {
     if (!Number.isFinite(recorded)) errors.push('baseline.recorded_at is required to judge old_copy.deleted_by');
     else if (due - recorded > options.oldCopyDaysAtMost * DAY_MS) errors.push(`source ${named(source)}: old_copy.deleted_by is more than ${options.oldCopyDaysAtMost} days after baseline.recorded_at`);
   }
-  const path = options.readers?.pathOf?.(source) ?? source.path;
-  const lives = part ? partLives(source, part, options)
-    : path ? options.readers?.lives?.(source.repository, path) ?? null : null;
+  const lives = oldCopyLives(source, part, options);
   if (lives === null) {
-    deferred.push(`whether the old copy ${named(source)} has left its main line is not readable here`);
+    deferred.push(`whether the old copy ${named(source)} has retired is not readable here`);
     return;
   }
   if (!lives) return;

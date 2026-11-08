@@ -53,7 +53,11 @@
   "allowed_deltas": [
     "Verify immutable regular-file baseline bytes, target chronology and rename records against the judged commit",
     "Use the complete feature-file scope for active-only retention; refuse ambiguous archival targets",
-    "Ignore Git replacement objects and refuse incomplete shallow or grafted chronology"
+    "Ignore Git replacement objects and refuse incomplete shallow or grafted chronology",
+    "Share one immutable raw Git DAG/history index and bounded metadata, blob and published-search caches per reader; copy public results",
+    "Validate one loaded complete contract once per immutable judge scope while retaining exact claimed-feature ownership",
+    "Read same-repository source retirement from the judged candidate or staged index, keeping unreadable state distinct and external published main authoritative",
+    "Bind reader and judge Git operations to their declared repository, freeze committed diff endpoints, and preserve the caller's private staged index while refusing generation changes during a judgment"
   ],
   "banned_substitutions": [
     "A rewritten validator or application-specific bypass",
@@ -77,7 +81,9 @@
     "test_refs": [
       "tools/check-a-port-against-its-source/test/validate-reference-adaptation-contract.test.mjs",
       "tools/check-a-port-against-its-source/test/check-a-repository-for-port-contracts.test.mjs",
-      "tools/check-a-port-against-its-source/test/check-my-reference-contract-row.test.mjs"
+      "tools/check-a-port-against-its-source/test/check-my-reference-contract-row.test.mjs",
+      "tools/check-a-port-against-its-source/test/judged-source-retirement.test.mjs",
+      "tools/check-a-port-against-its-source/test/shared-history-cache.test.mjs"
     ]
   }
 }

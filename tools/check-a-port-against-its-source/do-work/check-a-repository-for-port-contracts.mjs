@@ -31,7 +31,7 @@
 // Prints { valid, judged: [{ path, change, lines_added, contracts, errors, deferred }], errors } and exits 0 when
 // valid, 1 when not, 2 when it could not judge. Deferred findings (a repository with no checkout here, a capability
 // search not run here) are printed and never pass or refuse on their own.
-import { execFileSync, spawnSync } from 'node:child_process';
+import { spawnSync } from 'node:child_process';
 import { realpathSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { gitReaders } from './read-from-repositories.mjs';
@@ -40,26 +40,9 @@ import { validateReferenceAdaptationContract } from './validate-reference-adapta
 const EMPTY_TREE = '4b825dc642cb6eb9a060e54bf8d69288fbee4904';
 const IS_CONTRACT = /(^|\/)ports\/.+\.json$/;
 
-function git(root, args) {
-  return execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { maxBuffer: 1 << 28, stdio: ['ignore', 'pipe', 'pipe'] }).toString('utf8');
-}
-
-function hasCommit(root, ref) {
-  return spawnSync('git', ['--no-replace-objects', '-C', root, 'rev-parse', '--verify', '-q', `${ref}^{commit}`]).status === 0;
-}
-
-// [{ path, added: boolean, lines_added }] for the files a span adds or changes, renames counted as added.
+// [{ path, added: boolean, lines_added }] for a declared checkout; staged reads preserve its caller's private index.
 export function changesOf(root, span) {
-  const diff = span.staged
-    ? ['diff', '--cached', '--no-renames', '--numstat', '-z', '--diff-filter=AM', hasCommit(root, 'HEAD') ? 'HEAD' : EMPTY_TREE]
-    : ['diff', '--no-renames', '--numstat', '-z', '--diff-filter=AM', span.from, span.to];
-  const added = new Set(git(root, [...diff.filter((one) => one !== '--numstat' && one !== '--diff-filter=AM'), '--name-only', '--diff-filter=A'])
-    .split('\0').filter(Boolean));
-  return git(root, diff).split('\0').filter(Boolean).map((line) => {
-    const [plus, , ...rest] = line.split('\t');
-    const path = rest.join('\t');
-    return { path, added: added.has(path), lines_added: plus === '-' ? 0 : Number(plus) };
-  });
+  return gitReaders({ root, tree: span.staged ? ':' : span.to }).changesOf(span);
 }
 
 function featurePath(rule, path) {
@@ -100,18 +83,22 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   const here = resolve(root);
   const tree = span.staged ? ':' : span.to;
   const readers = gitReaders({ root: here, repositories, tree });
+  span = readers.snapshotSpan(span);
   if (!rules) {
     const bytes = readers.readTarget(rulesPath);
     // A tree with no rules predates them (a branch from before they began). It is judged when it reaches a tree that
     // has them: the pull request or the push to main, whose range then includes its commits.
-    if (!bytes) return { valid: true, judged: [], errors: [], unjudged: `${rulesPath} is not in the judged tree: it predates the port rules` };
+    if (!bytes) {
+      readers.assertScope();
+      return { valid: true, judged: [], errors: [], unjudged: `${rulesPath} is not in the judged tree: it predates the port rules` };
+    }
     rules = JSON.parse(bytes.toString('utf8'));
   }
   if (rules.schema !== 'port-contracts/feature-files') throw new Error('the rules are not port-contracts/feature-files');
-  if (rules.since && !hasCommit(here, rules.since)) throw new Error(`the rules' since commit ${rules.since} is not in this checkout's history`);
+  if (rules.since && !readers.hasCommit(rules.since)) throw new Error(`the rules' since commit ${rules.since} is not in this checkout's history`);
   // Nothing before the rules began is judged: a range that starts earlier (or at the empty tree) starts at `since`.
-  const startsEarlier = (from) => rules.since && (!hasCommit(here, from)
-    || spawnSync('git', ['--no-replace-objects', '-C', here, 'merge-base', '--is-ancestor', from, rules.since]).status === 0);
+  const startsEarlier = (from) => rules.since && (!readers.hasCommit(from)
+    || readers.commitIsAncestor(from, rules.since));
   const resolved = span.since ? { from: rules.since, to: span.to }
     : span.from !== undefined && startsEarlier(span.from) ? { from: rules.since, to: span.to } : span;
 
@@ -121,12 +108,10 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   const away = rules.contracts_in && readers.checkout(rules.contracts_in.repository);
   if (rules.contracts_in && !away) throw new Error(`the contracts' repository ${rules.contracts_in.repository} has no checkout here`);
   const contractReader = away ? gitReaders({ root: away, tree: rules.contracts_in.tree }) : readers;
-  const contractTree = away ? rules.contracts_in.tree : tree;
-  const listed = contractTree === undefined ? git(away, ['ls-files', '-z', '--cached', '--others', '--exclude-standard'])
-    : contractTree === ':' ? git(away ?? here, ['ls-files', '-z']) : git(away ?? here, ['ls-tree', '-r', '-z', '--name-only', contractTree]);
+  const listed = contractReader.listPaths({ untracked: true });
   const contracts = [];
   const errors = [];
-  for (const path of listed.split('\0').filter((one) => one && contractsMatch.test(one))) {
+  for (const path of listed.filter((one) => contractsMatch.test(one))) {
     try {
       contracts.push({ path, contract: JSON.parse(contractReader.readTarget(path).toString('utf8')) });
     } catch (error) {
@@ -136,8 +121,7 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
 
   const options = {
     readers,
-    activeTargetPaths: (tree === ':' ? git(here, ['ls-files', '-z']) : git(here, ['ls-tree', '-r', '-z', '--name-only', tree]))
-      .split('\0').filter((path) => path && (rules.feature_files ?? []).some((rule) => featurePath(rule, path))),
+    activeTargetPaths: readers.listPaths().filter((path) => (rules.feature_files ?? []).some((rule) => featurePath(rule, path))),
     repository: readers.self,
     policySince: rules.since,
     searchRepositories,
@@ -147,17 +131,21 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
     retentionAtLeast: rules.retention_at_least,
     oldCopyDaysAtMost: rules.old_copy_days_at_most,
     requireRepositorySources: rules.sources_by_repository !== false,
-    now,
+    now: now ?? new Date().toISOString(),
   };
   const judged = [];
-  for (const change of changesOf(here, resolved)) {
+  const validated = new Map();
+  for (const change of readers.changesOf(resolved)) {
     const kind = featureRule(rules, change);
     if (!kind) continue;
     const claiming = contracts.filter(({ contract }) => (contract?.targets ?? []).some((target) => target?.path === change.path));
-    const results = claiming.map(({ path, contract }) => ({
-      path,
-      ...validateReferenceAdaptationContract(contract, { ...options, stage: contract?.status === 'VERIFIED' ? 'completion' : 'pre-edit', target: change.path }),
-    }));
+    // The claiming filter proves ownership of this exact path. Everything else validates the complete contract
+    // against one immutable tree/options scope, so a second owned feature must not repeat its full searches.
+    const results = claiming.map((entry) => {
+      if (!validated.has(entry)) validated.set(entry, validateReferenceAdaptationContract(entry.contract,
+        { ...options, stage: entry.contract?.status === 'VERIFIED' ? 'completion' : 'pre-edit' }));
+      return { path: entry.path, ...validated.get(entry) };
+    });
     const passing = results.filter((result) => result.valid);
     judged.push({
       path: change.path,
@@ -169,6 +157,7 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
       deferred: [...new Set((passing.length ? passing : results).flatMap((result) => result.deferred))],
     });
   }
+  readers.assertScope();
   return { valid: !errors.length && judged.every((one) => !one.errors.length), judged, errors };
 }
 
@@ -177,8 +166,8 @@ export function spanForCommand(root, command) {
   const git = String(command).split(/&&|\|\||;|\n/).map((part) => part.trim()).filter((part) => /^git(\s+-C\s+\S+)?\s/.test(part));
   if (git.some((part) => /\scommit(\s|$)/.test(part))) return { staged: true };
   if (git.some((part) => /\spush(\s|$)/.test(part))) {
-    const base = spawnSync('git', ['--no-replace-objects', '-C', root, 'merge-base', 'HEAD', 'refs/remotes/origin/main'], { encoding: 'utf8' });
-    return { from: base.status === 0 ? base.stdout.trim() : EMPTY_TREE, to: 'HEAD' };
+    const base = gitReaders({ root }).mergeBase('HEAD', 'refs/remotes/origin/main');
+    return { from: base ?? EMPTY_TREE, to: 'HEAD' };
   }
   return null;
 }
