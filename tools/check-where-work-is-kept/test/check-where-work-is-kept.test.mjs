@@ -20,6 +20,7 @@ const RULES = {
   list_copy_sync: 'read-list-view\\.mjs[^\\n]*--refresh',
   refused_places: [
     { place: '/tmp', why: 'a temporary file, outside every repository', list: 'list:notes' },
+    { place: tmpdir(), why: 'a temporary file, outside every repository', list: 'list:notes' },
     { place: '~', why: 'a file in the home folder, outside every repository', list: 'list:notes' },
     { place: '~/.ai-orchestra', why: 'the old orchestra folder', list: 'list:notes' },
     { place: '~/.ai-orchestra/data', why: 'the old orchestra data folder', list: 'list:data' },

@@ -1118,19 +1118,38 @@ test('a door that answers 413 for a batch of several records still ends every de
   for (const id of ids) assert.equal(door.value(id).status, 'ended');
 });
 
-test('a single conditioned record the door still refuses as 413 is ended through its layout', async () => {
+test('a value-conditioned record the door refuses as 413 is ended through its compact identity-conditioned layout', async () => {
   const door = memoryDoor();
   const id = 'source:camp-a';
   door.put(id, 'decision', { status: 'needs_outcome', goal: 'A made-up goal', input: { goal: 'A made-up goal', evidence: [{ ref: 'e1', claim: 'A made-up fact' }] } });
   const write = door.write.bind(door);
   door.write = async (list, options) => {
-    if (list.some(record => 'expected' in record)) throw Object.assign(new Error('413'), { code: 'http_413' });
+    // A value condition carries the old body beside the new body. Immutable staging uses absence conditions;
+    // its compact root publication still compares the exact identity read, rather than dropping the condition.
+    if (list.some(record => record.expected && 'value' in record.expected)) throw Object.assign(new Error('413'), { code: 'http_413' });
     return write(list, options);
   };
   const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'Done with it.' }], by: 'test-agent' }, { door });
   assert.deepEqual([answer.decisions[0].ended, answer.decisions[0].laid_apart], [true, true]);
   assert.equal(caseView(door, id).status, 'ended');
   assert.deepEqual(caseView(door, id).input.evidence, [{ ref: 'e1', claim: 'A made-up fact' }]);
+});
+
+test('a door that refuses every conditioned write as 413 never publishes an unprotected ending', async () => {
+  const door = memoryDoor();
+  const id = 'source:camp-too-small';
+  const original = { status: 'needs_outcome', goal: 'A made-up goal', input: { goal: 'A made-up goal', evidence: [{ ref: 'e1', claim: 'A made-up fact' }] } };
+  door.put(id, 'decision', original);
+  const write = door.write.bind(door);
+  door.write = async (list, options) => {
+    if (list.some(record => 'expected' in record)) throw Object.assign(new Error('413'), { code: 'http_413' });
+    return write(list, options);
+  };
+  const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'Done with it.' }], by: 'test-agent' }, { door });
+  assert.equal(answer.ended, 0);
+  assert.deepEqual([answer.decisions[0].ended, answer.decisions[0].too_large], [false, true]);
+  assert.deepEqual(door.value(id), original, 'a too-small door never causes an unconditional root replacement');
+  assert.equal(door.writes.length, 0, 'the first refused immutable stage publishes nothing');
 });
 
 // A made-up old-layout root of the shape measured on a real account: two evidence rows inline, one of them a whole
