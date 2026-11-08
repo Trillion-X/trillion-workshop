@@ -753,6 +753,7 @@
             {
               "type": "agent-handoff",
               "name": "pending_reader",
+              "backfill": "pending-reader-greeting-v1",
               "paths": [
                 [
                   "found_by",
@@ -767,6 +768,8 @@
                   "handed_at"
                 ]
               ],
+              "carry": [["job"], ["state"], ["from_agent"]],
+              "carry_presence": [],
               "_read_by": "src/agent-records.mjs pendingForReader (waiting work addressed to any card of one reader, in the order it is taken)"
             },
             {

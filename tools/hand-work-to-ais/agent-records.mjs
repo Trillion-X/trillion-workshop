@@ -1081,7 +1081,18 @@ export function agentRecordStore({ records, transaction = fn => fn(), firstRows 
     pendingForReader: (reader, limit) => {
       flush();
       if (!readerReady() && (cardsMoving() || (keepFacts(READER_MARK, 'to_reader'), !readerReady()))) return null;
-      return readAll('handoff', scan('handoff', 'pending_reader', { equal: [reader], limit: pageOf(limit) })).filter(item => item.state === 'open');
+      // The greeting needs a bounded job title and sender, not the job's potentially large input/result. The existing
+      // index carries those scalar fields under the record's erasure key. Only a current schema/epoch attestation
+      // can answer alone; older entries retain the full-record fallback while the index owner backfills them.
+      const entries = scan('handoff', 'pending_reader', { equal: [reader], limit: pageOf(limit), carried: true });
+      const covered = entry => entry.carried_defined?.job === true && entry.carried_defined?.state === true
+        && typeof entry.carried_defined?.from_agent === 'boolean' && typeof entry.carried?.job === 'string';
+      const older = new Map(readAll('handoff', entries.filter(entry => !covered(entry))).map(item => [item.handoff_id, item]));
+      return entries.map(entry => covered(entry) ? {
+        handoff_id: entry.id, job: entry.carried.job, state: entry.carried.state,
+        from_agent: entry.carried_defined.from_agent ? entry.carried.from_agent : undefined,
+        handed_at: entry.values[2], priority: MAX_PRIORITY - entry.values[1],
+      } : older.get(entry.id)).filter(item => item?.state === 'open');
     },
     // With `most`, counting stops there: a full queue is known from its first `most` jobs, never by reading them all.
     waitingCount: (id, { most = Infinity } = {}) => {
