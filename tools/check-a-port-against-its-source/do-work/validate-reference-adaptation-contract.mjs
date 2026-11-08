@@ -476,7 +476,7 @@ function checkNoPriorOwner(contract, options, errors, deferred) {
 
   const distinct = Array.isArray(contract?.distinct_from) ? contract.distinct_from : [];
   for (const one of distinct) if (!String(one?.why ?? '').trim()) errors.push(`distinct_from ${one?.capability ?? one?.path ?? '(unnamed)'} requires why`);
-  const namesFile = (repository, path) => distinct.some((one) => one?.repository === repository
+  const namesFile = (repository, path) => distinct.some((one) => sameRepository(one?.repository, repository)
     && (one.path === path || (String(one.path ?? '').endsWith('/') && path.startsWith(one.path))));
   const namesRow = (row) => distinct.some((one) => one?.capability === row.capability);
   const own = new Set((Array.isArray(contract?.targets) ? contract.targets : []).map((target) => target?.path));
