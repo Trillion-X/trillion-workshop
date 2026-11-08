@@ -18,6 +18,12 @@
   ],
   "capabilities": [
     {
+      "capability": "decide who may do what in a space by each member's kind and the space's own rules, and open or close a space to everyone",
+      "owner": ["tools/decide-who-may-do-what-in-a-space/"],
+      "entry": "tools/decide-who-may-do-what-in-a-space/moved-from.json",
+      "evidence": "Existing job recorded at immutable commit b6ae0ebf815f2f5271eed34e6e023c7e1767ec04:capabilities.json, original entry src/space-permissions.mjs. The existing moved-from.json records its five original source paths. This registers the retained owner; active adaptation, public API admission and consumer qualification remain separate."
+    },
+    {
       "capability": "run a community inside a space with a ranked feed and votes, events that repeat, courses, member levels and roles, digests by email, and tools so any member's AI joins in",
       "owner": [
         "tools/run-a-community/"
