@@ -1,5 +1,8 @@
 {
   "imported_by": [
     "Trillion-X/trillion"
+  ],
+  "public": [
+    "end-with-the-app.mjs"
   ]
 }
