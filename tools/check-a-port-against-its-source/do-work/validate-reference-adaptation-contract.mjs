@@ -416,7 +416,40 @@ function checkNoPriorOwner(contract, options, errors, deferred) {
     }
     return true;
   });
-  const recorded = new Map((Array.isArray(search.repositories) ? search.repositories : []).map((row) => [row?.repository, row?.commit]));
+  const recorded = new Map();
+  for (const row of Array.isArray(search.repositories) ? search.repositories : []) {
+    if (!isRecord(row) || Number(Object.hasOwn(row, 'repository')) + Number(Object.hasOwn(row, 'repository_multihash')) !== 1) {
+      errors.push('proof.search.repositories needs exactly one repository name or repository_multihash per row');
+      continue;
+    }
+    const privateReference = Object.hasOwn(row, 'repository_multihash');
+    const name = privateReference
+      ? (BLAKE3_MULTIHASH.test(row.repository_multihash ?? '')
+        ? options.readers?.repositoryName?.({ repository_multihash: row.repository_multihash }, options.searchRepositories ?? []) : null)
+      : row.repository;
+    if (typeof name !== 'string' || !name || (privateReference && multihash(Buffer.from(name)) !== row.repository_multihash)) {
+      errors.push('proof.search.repositories has an invalid or unresolved repository locator in the declared reader scope');
+      continue;
+    }
+    if (recorded.has(name)) {
+      errors.push('proof.search.repositories records the same resolved repository more than once');
+      continue;
+    }
+    if (typeof row.commit !== 'string' || !/^[0-9a-f]{7,64}$/.test(row.commit)) {
+      errors.push('proof.search.repositories needs an immutable commit identity for each captured search');
+      continue;
+    }
+    if (typeof options.readers?.repositoryCommit !== 'function' || options.readers?.checkout?.(name) === null) {
+      deferred.push(`the captured search commit for ${name} could not be verified here`);
+    } else {
+      const captured = options.readers.repositoryCommit(name, row.commit);
+      if (typeof captured !== 'string' || !/^[0-9a-f]{7,64}$/.test(captured) || !captured.startsWith(row.commit)) {
+        errors.push('proof.search.repositories could not verify the captured commit in its declared repository');
+        continue;
+      }
+    }
+    recorded.set(name, row.commit);
+  }
   if (![...recorded.values()].some(Boolean)) errors.push('proof.search.repositories must record each repository searched and its commit');
   for (const name of options.searchRepositories ?? []) if (!recorded.get(name)) errors.push(`proof.search.repositories does not record a search of ${name}`);
 
@@ -528,7 +561,7 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   let sourceArtifactsMatch = true;
   for (const one of sources) {
     if (one?.repository !== undefined || one?.commit !== undefined) {
-      if (!one?.repository || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !(one?.path || BLAKE3_MULTIHASH.test(String(one?.path_multihash ?? '')))) {
+      if (typeof one?.repository !== 'string' || !one.repository || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !(one?.path || BLAKE3_MULTIHASH.test(String(one?.path_multihash ?? '')))) {
         errors.push('a source named by repository needs repository, commit (a commit identity) and path, or path_multihash for a private repository');
         continue;
       }

@@ -618,7 +618,7 @@ test('when the old copy has left its repository, the VERIFIED port passes', (t) 
   assert.equal(result.valid, true, JSON.stringify(result, null, 2));
 });
 
-function noPriorOwner(extra = {}) {
+function noPriorOwner(extra = {}, captures = {}) {
   return {
     schema: 'reference-adaptation-contract/reference-grounded-adaptation',
     id: 'REF-NEW-JOB', status: 'ADAPTED',
@@ -632,7 +632,7 @@ function noPriorOwner(extra = {}) {
         phrasings: ['keep rows in order by a field', 'sort rows'],
         capability_rows: [],
         code_patterns: ['keepTheRows'],
-        repositories: [{ repository: 'old-owner', commit: 'abcdef1' }, { repository: 'tools-repo', commit: 'abcdef1' }],
+        repositories: Object.entries(captures).map(([repository, commit]) => ({ repository, commit })),
       },
       test_refs: [],
     },
@@ -641,13 +641,14 @@ function noPriorOwner(extra = {}) {
 }
 
 test('a claim of no prior owner is refused when the search, run again, finds the old code or a near row', (t) => {
-  const { tools, since } = checkouts(t);
-  commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': 'export const sortRows = (rows) => rows;\n', 'tools/order-rows/ports/new.json': noPriorOwner() });
+  const { tools, since, oldCommit } = checkouts(t);
+  const captures = { 'old-owner': oldCommit, 'tools-repo': since };
+  commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': 'export const sortRows = (rows) => rows;\n', 'tools/order-rows/ports/new.json': noPriorOwner({}, captures) });
   const searchRepositories = ['old-owner', 'tools-repo'];
   const found = judgeRepository({ root: tools, span: range(since), searchRepositories });
   assert.match(found.judged[0].errors.join('\n'), /finds old-owner:src\/order-rows\.mjs/);
 
-  commit(tools, { 'tools/order-rows/ports/new.json': noPriorOwner({ distinct_from: [{ repository: 'old-owner', path: 'src/order-rows.mjs', why: 'a made-up difference for the test' }] }) });
+  commit(tools, { 'tools/order-rows/ports/new.json': noPriorOwner({ distinct_from: [{ repository: 'old-owner', path: 'src/order-rows.mjs', why: 'a made-up difference for the test' }] }, captures) });
   assert.equal(judgeRepository({ root: tools, span: range(since), searchRepositories }).valid, true);
 
   const rowSearch = [process.execPath, '-e', 'process.stdout.write(JSON.stringify([{capability:"put rows in order",repository:"old-owner",owner:["src/order-rows.mjs"],where:"old-owner",words:0.7,near:true}]))'];
@@ -656,21 +657,111 @@ test('a claim of no prior owner is refused when the search, run again, finds the
 });
 
 test('a claim of no prior owner must record a search of every required repository, with patterns from its own words', (t) => {
-  const { tools, since } = checkouts(t);
+  const { tools, since, oldCommit } = checkouts(t);
   const contract = noPriorOwner();
   contract.proof.search.code_patterns = ['zzqx'];
-  contract.proof.search.repositories = [{ repository: 'old-owner', commit: 'abcdef1' }];
+  contract.proof.search.repositories = [{ repository: 'old-owner', commit: oldCommit }];
   commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': 'export const sortRows = (rows) => rows;\n', 'tools/order-rows/ports/new.json': contract });
   const errors = judgeRepository({ root: tools, span: range(since), searchRepositories: ['old-owner', 'third-repo'] }).judged[0].errors.join('\n');
   assert.match(errors, /shares no word with the job phrasings/);
   assert.match(errors, /does not record a search of third-repo/);
 });
 
+test('typed private repository identities preserve exact search scope and historical commits', (t) => {
+  const { base, old, tools, oldCommit, since } = checkouts(t);
+  const names = ['old-owner', 'tools-repo', 'alpha', 'beta', 'gamma', 'delta'];
+  const repositories = { 'old-owner': old, 'tools-repo': tools };
+  const commits = { 'old-owner': oldCommit, 'tools-repo': since };
+  for (const name of names.slice(2)) {
+    const root = join(base, name);
+    mkdirSync(root);
+    git(root, 'init', '-q', '-b', 'main');
+    commits[name] = commit(root, { 'README.md': `${name} synthetic source\n` });
+    repositories[name] = root;
+  }
+  commit(tools, { 'tools/order-rows/do-work/order-rows.mjs': 'export const sortRows = (rows) => rows;\n' });
+  const contract = noPriorOwner({ distinct_from: [{ repository: 'old-owner', path: 'src/order-rows.mjs', why: 'a synthetic distinct job for this check' }] });
+  contract.proof.search.repositories = names.map((name) => ({ repository_multihash: identity(name), commit: commits[name] }));
+  const options = {
+    repository: 'tools-repo', stage: 'pre-edit', searchRepositories: names,
+    readers: gitReaders({ root: tools, repositories, tree: 'HEAD' }), searchCapabilities: () => [],
+  };
+  const judge = (candidate, extra = {}) => validateReferenceAdaptationContract(candidate, { ...options, ...extra });
+  const valid = judge(contract);
+  assert.equal(valid.valid, true, JSON.stringify(valid));
+  assert.deepEqual(valid.deferred, []);
+  assert.deepEqual(Object.keys(valid.measurements.searched).sort(), [...names].sort());
+  assert.equal(options.readers.checkout({ repository_multihash: identity('old-owner') }), old);
+
+  const reject = (label, change) => {
+    const candidate = structuredClone(contract);
+    change(candidate.proof.search.repositories);
+    const result = judge(candidate);
+    assert.equal(result.valid, false, `${label}: ${JSON.stringify(result)}`);
+    assert.ok(result.errors.length, `${label} must be refused, not silently deferred`);
+  };
+  reject('both locator forms', (rows) => { rows[0].repository = 'old-owner'; });
+  reject('malformed identity', (rows) => { rows[0].repository_multihash = '12:' + 'a'.repeat(64); });
+  reject('unknown identity', (rows) => { rows[0].repository_multihash = identity('outside-owner'); });
+  reject('missing canonical repository', (rows) => { rows.pop(); });
+  reject('duplicate resolved repository', (rows) => { rows.push({ repository: 'old-owner', commit: oldCommit }); });
+  reject('unresolvable commit', (rows) => { rows[0].commit = 'f'.repeat(40); });
+  reject('commit from another repository', (rows) => { rows[0].commit = since; });
+  reject('non-record locator', (rows) => { rows[0] = null; });
+
+  const outside = join(base, 'outside-owner');
+  mkdirSync(outside);
+  git(outside, 'init', '-q', '-b', 'main');
+  commit(outside, { 'README.md': 'unadmitted sibling\n' });
+  assert.equal(options.readers.checkout({ repository_multihash: identity('outside-owner') }), null,
+    'a matching sibling directory cannot grant a repository identity scope');
+  assert.equal(options.readers.repositoryName({ repository_multihash: identity('../outside-owner') }, ['../outside-owner']), null);
+  assert.equal(options.readers.checkout('../old-owner'), null, 'a raw name cannot traverse outside the declared sibling lookup');
+  const spaced = gitReaders({ root: tools, repositories: { 'My Repo': old }, tree: 'HEAD' });
+  assert.equal(spaced.checkout('My Repo'), old);
+  assert.equal(spaced.checkout({ repository_multihash: identity('My Repo') }), old,
+    'an explicit authorized name keeps the same meaning when its ordinary spaces are hashed');
+
+  const named = structuredClone(contract);
+  named.proof.search.repositories = names.map((repository) => ({ repository, commit: commits[repository] }));
+  assert.equal(judge(named).valid, true);
+  for (const badCommit of ['not-a-commit', 'f'.repeat(40), since]) {
+    const bad = structuredClone(named);
+    bad.proof.search.repositories[0].commit = badCommit;
+    assert.equal(judge(bad).valid, false, 'a plain name cannot bypass captured-commit verification');
+  }
+  const unreachable = { ...repositories, 'old-owner': join(base, 'temporarily-unreachable-owner') };
+  const unreadableTyped = judge(contract, { readers: gitReaders({ root: tools, repositories: unreachable, tree: 'HEAD' }) });
+  const unreadableNamed = judge(named, { readers: gitReaders({ root: tools, repositories: unreachable, tree: 'HEAD' }) });
+  assert.deepEqual(unreadableTyped, unreadableNamed, 'known identity coverage survives an unavailable checkout in both forms');
+  assert.deepEqual(unreadableTyped.errors, []);
+  assert.ok(unreadableTyped.deferred.length > 0, 'unreadable capture and fresh search remain unqualified');
+
+  const unsupportedSourceForm = portContract({ oldCommit, baselineCommit: since });
+  unsupportedSourceForm.sources[0].repository = { repository_multihash: identity('old-owner') };
+  assert.match(judge(unsupportedSourceForm).errors.join('\n'), /a source named by repository needs repository/,
+    'a typed search receipt does not silently add a new source-contract form');
+
+  const later = commit(old, { 'README.md': 'later published source\n' });
+  git(old, 'update-ref', 'refs/remotes/origin/main', later);
+  const fresh = judge(contract, { readers: gitReaders({ root: tools, repositories, tree: 'HEAD' }) });
+  assert.equal(fresh.valid, true, JSON.stringify(fresh));
+  assert.equal(fresh.measurements.searched['old-owner'], later);
+  assert.equal(contract.proof.search.repositories[0].commit, oldCommit, 'captured proof is not rewritten as a fresh search');
+  const replacement = git(old, '-c', 'user.name=t', '-c', 'user.email=t@example.test', 'commit-tree', `${later}^{tree}`, '-m', 'synthetic replacement main');
+  git(old, 'update-ref', 'refs/remotes/origin/main', replacement);
+  assert.equal(spawnSync('git', ['-C', old, 'merge-base', '--is-ancestor', oldCommit, replacement]).status, 1);
+  const afterReplacement = judge(contract, { readers: gitReaders({ root: tools, repositories, tree: 'HEAD' }) });
+  assert.equal(afterReplacement.valid, true, JSON.stringify(afterReplacement));
+  assert.equal(afterReplacement.measurements.searched['old-owner'], replacement);
+  assert.equal(contract.proof.search.repositories[0].commit, oldCommit);
+});
+
 test('a repository with no checkout here is deferred in words, never passed or refused on its own', (t) => {
-  const { tools, since } = checkouts(t);
+  const { tools, since, oldCommit } = checkouts(t);
   commit(tools, {
     'tools/order-rows/do-work/order-rows.mjs': 'export const sortRows = (rows) => rows;\n',
-    'tools/order-rows/ports/new.json': noPriorOwner({ distinct_from: [{ repository: 'old-owner', path: 'src/', why: 'made-up' }] }),
+    'tools/order-rows/ports/new.json': noPriorOwner({ distinct_from: [{ repository: 'old-owner', path: 'src/', why: 'made-up' }] }, { 'old-owner': oldCommit, 'tools-repo': since }),
   });
   const result = judgeRepository({ root: tools, span: range(since), searchRepositories: ['old-owner', 'tools-repo', 'elsewhere'], repositories: {} });
   assert.ok(result.judged[0].deferred.some((one) => /elsewhere/.test(one)));

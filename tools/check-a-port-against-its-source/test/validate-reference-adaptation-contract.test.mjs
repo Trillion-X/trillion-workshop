@@ -91,7 +91,8 @@ function capabilityOwnerJudgment(owner, { repository = 'tools-repo', target = 't
   };
   return validateReferenceAdaptationContract(contract, {
     repository: 'tools-repo', stage: 'pre-edit', searchRepositories: ['tools-repo'],
-    readers: { readTarget: () => Buffer.from('export const publicCommandDoor = true;\n'), searchCode: () => [], mainOf: () => 'abcdef1' },
+    readers: { readTarget: () => Buffer.from('export const publicCommandDoor = true;\n'), searchCode: () => [], mainOf: () => 'abcdef1',
+      repositoryCommit: (name, captured) => name === 'tools-repo' && captured === 'abcdef1' ? captured : null },
     searchCapabilities: () => [{ capability: job, repository, owner: [owner], near: true }],
   });
 }

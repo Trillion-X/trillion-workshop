@@ -130,8 +130,24 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
   const common = git(here, ['rev-parse', '--path-format=absolute', '--git-common-dir'])?.trim();
   const owner = common && basename(common) === '.git' ? dirname(common) : here;
   const self = basename(owner);
-  const checkout = (name) => {
-    const named = repositories[name] ?? (name === self ? here : join(dirname(owner), name));
+  const repositoryLabel = (name) => typeof name === 'string' && name.length > 0
+    && name.trim().length > 0 && !/[/\\:\x00-\x1f\x7f]/.test(name) && name !== '.' && name !== '..';
+  const declaredNames = [self, ...Object.keys(repositories)].filter(repositoryLabel);
+  const repositoryName = (reference, allowedNames = []) => {
+    if (typeof reference === 'string') return repositoryLabel(reference) ? reference : null;
+    if (!reference || Array.isArray(reference) || typeof reference !== 'object'
+      || Object.keys(reference).length !== 1 || !/^1f:[0-9a-f]{64}$/.test(reference.repository_multihash ?? '')) return null;
+    // A content identity selects only a caller-declared name. It never discovers
+    // siblings, decodes a path, or adds a checkout to the reader's scope.
+    const names = [...new Set([...declaredNames, ...allowedNames].filter(repositoryLabel))];
+    const matches = names.filter((name) => makeHashCodeHexFromBytes(Buffer.from(name)) === reference.repository_multihash);
+    return matches.length === 1 ? matches[0] : null;
+  };
+  const checkout = (reference) => {
+    const name = repositoryName(reference);
+    if (!name) return null;
+    const named = Object.hasOwn(repositories, name) ? repositories[name] : (name === self ? here : join(dirname(owner), name));
+    if (typeof named !== 'string') return null;
     const folder = isAbsolute(named) ? named : resolve(here, named);
     return existsSync(join(folder, '.git')) ? folder : null;
   };
@@ -352,8 +368,15 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
   };
   return {
     self,
+    repositoryName,
     checkout,
     mainOf,
+    repositoryCommit(name, commit) {
+      if (!repositoryLabel(name) || !/^[0-9a-f]{7,64}$/.test(commit ?? '')) return null;
+      // Historical captures can outlive a branch or a replacement of main.
+      // Resolve their immutable object here; the fresh search binds main apart.
+      return resolveCommit(checkout(name), commit);
+    },
     pathOf,
     snapshotSpan,
     assertScope,

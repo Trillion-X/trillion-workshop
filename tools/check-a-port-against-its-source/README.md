@@ -6,6 +6,10 @@ It is also the one judge of a repository's feature code: every feature file a ch
 
 All contract, source, picture and comparison identities are the BLAKE3 identity `1f:<64 hex>` of `tools/content-identity`, the one owner. Application identity, source paths, target paths and adaptation choices stay DATA in the contract the person gives.
 
+For a `NO_PRIOR_OWNER` search, each `proof.search.repositories` row records `commit` and exactly one of `repository` or `repository_multihash`. The latter is the content identity of the UTF-8 repository name. It resolves only against the reader's own repository, explicitly supplied repository mappings and the caller's required search names. It does not discover directories or grant access. Unknown, malformed, duplicate and conflicting locators are refused; every required repository must still be covered. Ordinary spaces in an explicitly authorized name keep their meaning.
+
+Both locator forms verify that the captured commit is an immutable object readable through that declared checkout. An unavailable reader is reported as deferred. A historical capture can remain readable after its branch or published main changes; current-main ancestry is not a prerequisite. These checks verify the reference, not that a past query occurred. The fresh code searches still run against current published snapshots and return their actual commits in `measurements.searched`, separately from the preserved capture. Source-port `sources[].repository` retains its existing string form.
+
 ## Files
 
 | File | Purpose |
