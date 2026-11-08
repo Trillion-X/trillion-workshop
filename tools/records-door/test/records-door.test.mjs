@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
-import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -12,6 +12,43 @@ import { writeBatches } from '../read-data/write-batches.mjs';
 
 const ALL = ['records:read', 'records:list', 'records:write'];
 const noWait = async () => {};
+
+test('the selected resource is read-only metadata and input cannot change its call target', async () => {
+  const calls = [];
+  const client = recordsDoorFromCall(async (method, input, key, target) => {
+    calls.push({ method, input, target });
+    return { results: [] };
+  }, { resource: '@selected-records' });
+  assert.equal(client.resource, '@selected-records');
+  assert.throws(() => { client.resource = '@forged-records'; }, TypeError);
+  await client.search({ question: 'sample words', resource: '@forged-records' });
+  assert.equal(calls[0].target, '@selected-records');
+  assert.equal(client.resource, '@selected-records');
+  assert.equal(Object.hasOwn(client, 'capability'), false);
+  assert.equal(Object.hasOwn(client, 'url'), false);
+});
+
+test('resource metadata comes from the actual runner descriptor on fd 3', async () => {
+  const door = await startFakeDoor();
+  const descriptor = openSync(door.descriptor, 'r');
+  const module = new URL('../read-data/records-door.mjs', import.meta.url).href;
+  const program = `import { openRecordsDoor } from ${JSON.stringify(module)};
+    const door = openRecordsDoor();
+    let readOnly = false;
+    try { door.resource = '@forged-records'; } catch { readOnly = true; }
+    process.stdout.write(JSON.stringify({ resource: door.resource, readOnly,
+      capabilityExposed: Object.hasOwn(door, 'capability'), urlExposed: Object.hasOwn(door, 'url') }));`;
+  try {
+    const child = spawnSync(process.execPath, ['--input-type=module', '-e', program], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe', descriptor],
+    });
+    assert.equal(child.status, 0, child.stderr);
+    assert.deepEqual(JSON.parse(child.stdout), {
+      resource: '@own-records', readOnly: true, capabilityExposed: false, urlExposed: false,
+    });
+    assert.equal(door.calls.length, 0, 'reading metadata performs no operation');
+  } finally { closeSync(descriptor); await door.close(); }
+});
 
 test('a current root identity stays opaque while read remains value only', async () => {
   const identity='900719925474099312345678901234567890';

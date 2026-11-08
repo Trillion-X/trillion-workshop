@@ -159,6 +159,8 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
   }
 
   return {
+    // The runner's selected resource is metadata, never an authority supplied by tool input.
+    get resource() { return resource; },
     readRecord,
     readWorkspace,
     async read(type, id) {
