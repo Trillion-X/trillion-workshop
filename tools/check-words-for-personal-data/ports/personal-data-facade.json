@@ -1,0 +1,236 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PERSONAL-DATA-PUBLIC-FACADE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "fresh canonical cores, thin compatibility facades, and truthful provenance contracts",
+    "message_multihash": "1f:1eb5d9bd6e1e5710e4112630a7663149cffa08bb3a0f9add4eebac99497c5c9c"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Forward the existing personal-data checking module exports to its source-first canonical implementation without implementing a scanner",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/check-words-for-personal-data/read-data/personal-data.mjs",
+      "role": "Compatibility entry only: forwards the established public module export set to the canonical core and contains no audit, scanner, or refusal algorithm."
+    }
+  ],
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "computer/personal-data.mjs",
+      "why": "This is the historical scanner and advice algorithm owner, preserved under the source-first core contract; it is broader work than forwarding the existing module exports."
+    },
+    {
+      "capability": "check words on the person's computer for personal data before they go to a model elsewhere, and offer to send them, do the job on the computer only, or keep them back",
+      "why": "This capability owns scanning and advice. The facade job only retains the established import path and export identities."
+    },
+    {
+      "repository": "trillion",
+      "path": "dev/deleted-code-homes.json",
+      "why": "This is a retirement index that records deleted code homes, not a runnable public module facade."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "README.md",
+      "why": "This is repository-level orientation text, not implementation of a module forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "This is capability catalog DATA describing personal-data scanning, not implementation of a module forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-words-for-personal-data/README.md",
+      "why": "This describes scanning and advice behavior; it does not forward module exports."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-words-for-personal-data/read-data/personal-data.json",
+      "why": "This holds editable scanning questions and settings DATA, not the public compatibility seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-words-for-personal-data/test/",
+      "why": "These tests exercise scanning and advice, not an independently owned facade implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-words-for-personal-data/tool-rows.json",
+      "why": "This declares the user-facing scanner tool entry, not a module export-forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "This is published workflow catalog DATA that mentions the tool, not a public module compatibility facade."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/check-words-for-personal-data/part.json",
+      "why": "This declares package composition and dependencies; it does not implement a module export seam."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/hosted-public-app/proof/2026-07-24-buyer-isolation/README.md",
+      "why": "This proof discusses a personal-data copy in a buyer-isolation scenario; it is evidence about data isolation, not module-path compatibility."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/ui/plans/2026-09-18-expansion-project-tree/reference-grounded-screen-contract.md",
+      "why": "This screen plan notes installed personal-data proof; it describes design evidence, not a module re-export implementation."
+    }
+  ],
+  "preserve": [
+    "The established public module path remains importable by existing consumers.",
+    "Every export keeps the exact binding identity of the canonical core; the formula refusal class identity remains shared."
+  ],
+  "allowed_deltas": [
+    "A single export-star forwarding declaration to the canonical core; no algorithm behavior is implemented in the facade."
+  ],
+  "banned_substitutions": [
+    "Claiming the historical audit, personal-data scanner, or list-refusal algorithm has no older owner.",
+    "Copying algorithm behavior into the facade or treating an export seam as a source-first algorithm port."
+  ],
+  "baseline": {},
+  "proof": {
+    "test_refs": [
+      "tools/check-words-for-personal-data/test/personal-data-facade.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "Forward the existing personal-data checking module exports to its source-first canonical implementation without implementing a scanner"
+      ],
+      "capability_rows": [
+        {
+          "capability": "check words on the person's computer for personal data before they go to a model elsewhere, and offer to send them, do the job on the computer only, or keep them back",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-words-for-personal-data/"
+          ],
+          "words": 0.243,
+          "near": false
+        },
+        {
+          "capability": "keep the video-packaging ledger: admit reviewed videos' titles, thumbnails, thumbnail words and caption-located hooks with every value pinned to its source file, project one source key into word-template source DATA, and read both back",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-a-video-packaging-ledger/"
+          ],
+          "words": 0.173,
+          "near": false
+        },
+        {
+          "capability": "export a markdown manuscript to word and verify it against its source",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-documents-to-files/"
+          ],
+          "words": 0.169,
+          "near": false
+        },
+        {
+          "capability": "read a meeting link through declared meeting-app routes, host checked first and secrets hidden, and open an allowed one in the app that owns it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/open-a-meeting-link/"
+          ],
+          "words": 0.16,
+          "near": false
+        },
+        {
+          "capability": "report source files that break a rule written down as DATA",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-a-folder-against-my-rules/"
+          ],
+          "words": 0.156,
+          "near": false
+        },
+        {
+          "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pin-files-by-content/"
+          ],
+          "words": 0.153,
+          "near": false
+        },
+        {
+          "capability": "check a port or replica against the source it copies",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-a-port-against-its-source/"
+          ],
+          "words": 0.149,
+          "near": false
+        },
+        {
+          "capability": "check, read only, that the shipped Marketplace method workflows work for two existing accounts",
+          "repository": "trillion",
+          "owner": [
+            "scripts/qualify-marketplace-method-consumers.mjs"
+          ],
+          "words": 0.146,
+          "near": false
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.133,
+          "near": false
+        },
+        {
+          "capability": "press, hover, tap, wait or end a tour on a page as named data steps before a check measures it",
+          "repository": "trillion",
+          "owner": [
+            "scripts/page-steps.mjs"
+          ],
+          "words": 0.115,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "personal[-_]data",
+        "exports?[[:space:]]+\\*[[:space:]]+from.*-core[.]mjs",
+        "exports?[[:space:]]+\\{[^}]+\\}[[:space:]]+from.*-core[.]mjs"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ]
+    }
+  },
+  "private_evidence_reference": {
+    "kind": "private_original_command_evidence",
+    "scope": "private conversation archive",
+    "conversation_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "ordinal": 6621,
+    "request_key": "workshop-pr325-keep-facade-capability-raw-20261107-1"
+  }
+}
