@@ -5,13 +5,23 @@ import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor, RecordsDoorError } from '../read-data/records-door.mjs';
+import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 import { writeBatches } from '../read-data/write-batches.mjs';
 
 const ALL = ['records:read', 'records:list', 'records:write'];
 const noWait = async () => {};
+
+test('a current root identity stays opaque while read remains value only', async () => {
+  const identity='900719925474099312345678901234567890';
+  const value={ computed: 'display field' };
+  const client=recordsDoorFromCall(async () => ({type:'synthetic-kind',value,identity}),{resource:'@own-records'});
+  assert.deepEqual(await client.readRecord('synthetic-kind','synthetic-id'),{type:'synthetic-kind',value,identity});
+  assert.deepEqual(await client.read('synthetic-kind','synthetic-id'),value);
+  const older=recordsDoorFromCall(async () => ({type:'synthetic-kind',value}),{resource:'@own-records'});
+  assert.deepEqual(await older.readRecord('synthetic-kind','synthetic-id'),{type:'synthetic-kind',value});
+});
 
 test('read, list and write go through the door with the bearer capability and the protocol version', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], records: [{ id: 'note:1', type: 'note', value: { words: 'one' } }] });

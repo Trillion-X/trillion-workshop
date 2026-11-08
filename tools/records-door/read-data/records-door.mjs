@@ -127,7 +127,10 @@ const WORKSHOP_TOOLS = '@workshop-tools';
 export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
-    return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
+    return record.value === null || record.value === undefined ? null : {
+      type: record.type, value: record.value,
+      ...(typeof record.identity === 'string' && record.identity.length ? { identity: record.identity } : {}),
+    };
   }
 
   // The selected workspace has its own source and admission owner, reached through the same run bearer at this door.
