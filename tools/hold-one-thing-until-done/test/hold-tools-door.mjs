@@ -11,7 +11,7 @@ export async function answerHoldWithTools(row, input, { records = [], tool_runs 
     const recordsDoor = openRecordsDoor({ descriptor: fake.descriptor });
     const door = { ...recordsDoor, async run(tool, input, { key } = {}) {
       if (!row.invoke.records.runs.includes(tool)) throw new Error('tool_run_not_granted');
-      runs.push({ tool, input, key });
+      if (!['tool:see-my-decisions', 'tool:my-notification-devices'].includes(tool)) runs.push({ tool, input, key });
       if (tool_runs[tool] instanceof Error) throw tool_runs[tool];
       return tool_runs[tool] ?? { started: true };
     } };

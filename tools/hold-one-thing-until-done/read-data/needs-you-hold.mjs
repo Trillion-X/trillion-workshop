@@ -138,7 +138,7 @@ function holdable(answer, state, settings, now, opensScreen) {
 /** The things a card names in `field` as waiting on, each as the card ids it may be: a name is a card's own id, or an
  *  id of the same source (`asks:` + a row id). */
 const namedIn = (card, field) => (Array.isArray(card?.[field]) ? card[field] : String(card?.[field] ?? '').split(','))
-  .map(name => String(name).trim()).filter(Boolean).flatMap(name => [name, `${card.source}:${name}`]);
+  .map(name => String(name).trim()).filter(Boolean).flatMap(name => [name, `${card.record_source ?? card.source}:${name}`]);
 
 /** How many other waiting cards wait on any of `cards`, directly or through other waiting cards (rule `waited_on`). */
 function waitedOn(answer, cards, field) {

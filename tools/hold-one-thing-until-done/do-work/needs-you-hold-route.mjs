@@ -46,9 +46,13 @@ import { makeWaitingNudge } from '../read-data/waiting-nudge.mjs';
 import { inOrder, sameOnce, weighCards } from '../read-data/waiting-weigh.mjs';
 import { whoDoesEachStep } from '../../who-does-each-step/read-data/who-does.mjs';
 import WHO from '../../shared-code/src/who-does-it.json' with { type: 'json' };
-import { answerOfRows, changeWhatHoldsMe, publishHoldJobs } from './hold.mjs';
+import { changeWhatHoldsMe, publishHoldJobs } from './hold.mjs';
+import { readWaitingOnMe } from '../../what-is-waiting-on-me/read-data/waiting-records.mjs';
+import { waitingSentence } from '../../what-is-waiting-on-me/read-data/waiting.mjs';
 import tellRows from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.json' with { type: 'json' };
 import { makeTellThePerson } from '../../tell-one-person-something-through-every-way-they/read-data/tell-the-person.mjs';
+import { randomUUID } from 'node:crypto';
+import { makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 const text = value => (typeof value === 'string' ? value.trim() : '');
@@ -77,12 +81,7 @@ async function rulesOf(door) {
 
 async function cardsOf(door, input = {}) {
   if (input.things !== undefined) return input.things;
-  const rows = [];
-  for await (const record of door.list({ type: ROWS.must_do.type, limit: ROWS.page_rows })) {
-    rows.push(record);
-    if (rows.length > ROWS.most_rows) throw new Error(`More than ${ROWS.most_rows} ${ROWS.must_do.type} rows: the hold reads at most that many.`);
-  }
-  return answerOfRows(rows, input.section);
+  return readWaitingOnMe({}, { door });
 }
 
 // The doer gate (old src/who-does-it.mjs over src/who-does-it.json): who does each waiting thing.
@@ -98,10 +97,20 @@ async function waitingAnswer(door, settings, input = {}) {
   if (!object(answer) || !Array.isArray(answer.sections)) throw new Error('things must be { sections: [{ id, cards: [...] }] }.');
   const opensScreen = opensScreenOf(input.opens_screens);
   const decided = weighCards(answer.sections.map(section => ({ section, cards: sameOnce(section.cards ?? []) })), {
-    settings, weigh, given: input.given ?? {}, ...(opensScreen ? { opensScreen } : {}),
+    settings: answer.finishes ? { ...settings, finishes: answer.finishes } : settings, weigh, given: input.given ?? {}, ...(opensScreen ? { opensScreen } : {}),
   });
   return { ...answer, toAis: [...(answer.toAis ?? []), ...decided.toAis], sections: decided.rows.map(row => ({ ...row.section,
     total: row.cards.length === row.section.cards?.length ? row.section.total ?? row.cards.length : row.cards.length, cards: row.cards })) };
+}
+
+/** The page/AI feed shares this existing doer gate and actual AI-work publication with the hold. */
+export async function readWaitingFeed(input = {}, { door, rules, now = Date.now() } = {}) {
+  const ownRules = rules ?? input.rules ?? (await readSetting(door, ROWS.rules)).value ?? {};
+  const answer = await waitingAnswer(door, settingsOf(ownRules, input), input);
+  for (const item of inOrder(answer.toAis)) if (item.handOff) await handOff(door, item.handOff, now);
+  const cards = answer.sections.flatMap(section => section.cards);
+  return { ...answer, cards, count: cards.length, published: true,
+    ...(answer.sources ? { said: waitingSentence(cards.length, answer.sources) } : {}) };
 }
 
 /** The read, as old needsYouHold answered op read: the view, what it says and the words. */
@@ -109,9 +118,9 @@ export async function read(door, now, rules, input = {}) {
   const settings = rules ?? await rulesOf(door);
   const state = input.state !== undefined ? input.state : (await readSetting(door, ROWS.state)).value ?? {};
   const waiting = settingsOf(settings, input);
-  const answer = await waitingAnswer(door, waiting, input);
+  const answer = await readWaitingFeed(input, { door, rules: settings, now });
+  if (answer.finishes) waiting.finishes = answer.finishes;
   // The doer gate's work must be published before its cards leave the human view.
-  for (const item of inOrder(answer.toAis)) if (item.handOff) await handOff(door, item.handOff, now);
   const opensScreen = opensScreenOf(input.opens_screens);
   // The walk-away nudge's prepareForHold (old src/waiting-nudge.mjs): what waited long enough and Trillion can do is
   // handed to the AIs, once per card, and the hold is weighed over the rest.
@@ -120,12 +129,13 @@ export async function read(door, now, rules, input = {}) {
   const prepared = await nudge.prepareForHold(answer, settings.after_minutes);
   let view = holdView(withoutHanded(answer, prepared.handed), state, settings, now, { opensScreen });
   if (input.covered) view = { ...view, held: null, ranked: [] };
-  await keepHeld(door, view.held, settings, now);
+  const waitingSources = input.things !== undefined ? { from: 'caller', complete: input.things.complete === true }
+    : { from: 'configured-sources', ...answer.waiting_sources };
+  // An incomplete empty read cannot prove that the persisted held thing or its device lock is free.
+  if (view.held || view.on === false || waitingSources.complete === true) await keepHeld(door, view.held, settings, now);
   const said = view.held ? fill(settings.words?.held, { title: view.held.card.title ?? '' })
-    : view.on ? settings.words?.free : fill(settings.words?.off, view);
-  return { ...view, said, words: settings.words,
-    waiting_sources: input.things !== undefined ? { from: 'caller', complete: input.things.complete === true }
-      : { from: 'records', complete: false, read: [ROWS.must_do.type] } };
+    : view.on ? answer.complete === false ? answer.said : settings.words?.free : fill(settings.words?.off, view);
+  return { ...view, said, words: settings.words, waiting_sources: waitingSources };
 }
 
 /** What the hold holds now, kept as setting:needs_you_held when it changed, and a new thing held, or nothing held any
@@ -137,14 +147,25 @@ async function keepHeld(door, held, rules, now) {
   const kept = await door.readRecord(HELD.type, HELD.id);
   const before = object(kept?.value) ? kept.value.value ?? null : null;
   if ((before?.key ?? null) === (heldFact?.key ?? null) && (before?.title ?? null) === (heldFact?.title ?? null)) return;
+  // A repeated held/free cycle, or a deleted and recreated setting, is a new transition even when its values match
+  // an old cycle. Keep its identity on this same setting; write receipts and device runs share that exact identity.
+  const transition = makeHashCodeHexFromJson({ record: HELD.id, before: kept?.value ?? null, after: heldFact, nonce: randomUUID() });
+  const value = { ...(object(kept?.value) ? kept.value : {}), value: heldFact, held_transition: transition };
   try {
-    await door.write([{ id: HELD.id, type: HELD.type, value: { ...(object(kept?.value) ? kept.value : {}), value: heldFact },
-      expected: kept ? { type: HELD.type, value: kept.value } : null }], { key: `needs-you-held:${heldFact?.key ?? 'free'}:${heldFact?.title ?? ''}` });
-  } catch (error) { if (error?.code !== CONFLICT) throw error; return; }
+    await door.write([{ id: HELD.id, type: HELD.type, value,
+      expected: kept ? { type: HELD.type, value: kept.value } : null }], { key: `needs-you-held:${transition}` });
+  } catch (error) {
+    if (error?.code !== CONFLICT) throw error;
+    throw new Refused('The held thing changed before this transition could be saved. Read it again.', 409);
+  }
+  const confirmed = await door.readRecord(HELD.type, HELD.id);
+  if (!confirmed || makeHashCodeHexFromJson(confirmed.value) !== makeHashCodeHexFromJson(value)) {
+    throw new Refused('The held thing changed before its device actions could be confirmed. Read it again.', 409);
+  }
   const runs = heldFact ? rules.devices?.when_held ?? [] : before ? rules.devices?.when_free ?? [] : [];
   for (const run of runs) {
     await door.run(run.tool_id, heldInput(run.input, heldFact),
-      { key: `native-hold-devices:${run.tool_id}:${heldFact?.key ?? 'free'}:${Math.floor(now / 3_600_000)}` }).catch(() => null);
+      { key: `native-hold-devices:${run.tool_id}:${heldFact?.key ?? 'free'}:${transition}` }).catch(() => null);
   }
 }
 

@@ -37,10 +37,10 @@ test('records that wait become cards, newest first, with their own words, and a 
 test('a source with no records handed in is unread, never nothing waiting, and the sentence says so', () => {
   const answer = whatIsWaitingOnMe({ sources, found });
   assert.equal(answer.sources.find(source => source.id === 'sign-ins').unread, true);
-  assert.equal(answer.said, '3 things are waiting on you. Not read: Sign-ins.');
+  assert.equal(answer.said, '3 things are waiting on you. Not read: Sign-ins. Some waiting records could not be shown from: Drafts to approve.');
   const all = whatIsWaitingOnMe({ sources, found: { ...found, 'sign-ins': [] } });
   assert.equal(all.sources.find(source => source.id === 'sign-ins').unread, false);
-  assert.equal(all.said, '3 things are waiting on you.');
+  assert.equal(all.said, '3 things are waiting on you. Some waiting records could not be shown from: Drafts to approve.');
 });
 
 test('most keeps a source to its newest few while its count still says how many wait', () => {

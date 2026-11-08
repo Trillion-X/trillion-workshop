@@ -6,7 +6,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
-import { inRounds, nextRound } from '../from-old-trillion/src/work-rounds.mjs';
+import { inRounds, nextRound } from '../read-data/work-rounds.mjs';
 import { progressForListRow } from '../../keep-and-wake-ai-sessions-on-this-computer/src/work-progress.mjs';
 
 const waiting = JSON.parse(readFileSync(new URL('../../keep-and-wake-ai-sessions-on-this-computer/src/waiting-on-you.json', import.meta.url), 'utf8'));
