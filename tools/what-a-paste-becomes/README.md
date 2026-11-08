@@ -6,9 +6,9 @@ What a paste becomes. In a composer (a message to the AIs, a hand-off, a note) a
 
 | File | Purpose |
 |------|---------|
-| `read-data/paste-policy.mjs` | `pasteDecision(clipboard, { settings, now })` and `markupHasText(markup)`, plus `decidePaste(input)`, the container's run of `tool:decide-what-a-paste-becomes`. |
+| `read-data/paste-policy.mjs` | Calls the existing policy in `tools/messages-screen/read-data/paste-policy.mjs`, preserving this tool's settings, public functions and `decidePaste(input)` JSON command. |
 | `read-data/paste-policy.json` | The threshold, the file name, the image prefix, the tags whose bodies are never words, and the words the person reads. |
-| `show/paste-sources.ts` | `pasteSourceOf(html)`, `pastedMarkdown(html, parse?)` and `tableRows(html, parse?)`: the browser side, run where the paste lands (it reads the HTML with the page's `DOMParser`; nothing pasted is ever run). No row runs it. |
+| `show/paste-sources.ts` | Forwards `pasteSourceOf`, `pastedMarkdown` and `tableRows` to the existing converter in `tools/edit-a-document-together/read-data/paste-sources.ts`. No row runs it; the browser supplies `DOMParser`. |
 | `show/paste-sources.json` | The sources, their signatures and their rules, and the default rules. A new editor is one row. |
 | `tool-rows.json` | `tool:decide-what-a-paste-becomes`, a `container` row with no internet. |
 | `part.json` | The code and its DATA are public. |
@@ -17,10 +17,12 @@ What a paste becomes. In a composer (a message to the AIs, a hand-off, a note) a
 
 ## Moved from Trillion
 
-Moved from Trillion-X/trillion `parts/chat/read-data/paste-policy.mjs` (+ `.json`) and `parts/documents/read-data/paste-sources.ts` (+ `.json`), code unchanged except the header paths and the container entry added to `paste-policy.mjs`. The tests moved with them. The old copies stay in Trillion while their callers import them: `parts/chat/show/ChatInput.tsx` (paste policy), `src/workspace/row-clipboard.ts` and `parts/documents/show/DocumentEditor.tsx` (paste sources). The editor, composer and board clipboard parts of `test/paste-and-row-clipboard-browser.test.mjs` stay with those callers.
+The earlier move copied `parts/chat/read-data/paste-policy.mjs` and `parts/documents/read-data/paste-sources.ts` into this tool, while their migrated screen owners also retained the algorithms. This tool now exposes those existing canonical owners through forwarding entries, with no second active clipboard or HTML conversion algorithm. Its local policy settings and original public function names remain available.
+
+The narrow entry contracts describe only this forwarding and JSON invocation seam; they do not claim that paste handling had no older owner. Tests run the actual packaged descriptor and import the browser entry with its canonical module.
 
 ## Dependencies
 
-**Depends on:** Node's standard library; a browser's `DOMParser` for `show/paste-sources.ts`; Playwright's Chromium for its test.
+**Depends on:** the public paste-policy files in `tools/messages-screen` and paste-source files in `tools/edit-a-document-together`; Node's standard library; a browser's `DOMParser` for `show/paste-sources.ts`; Playwright's Chromium for its test.
 
 **Depended on by:** `tool-rows.json`.

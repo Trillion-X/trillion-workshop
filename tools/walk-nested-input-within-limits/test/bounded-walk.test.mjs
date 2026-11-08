@@ -34,3 +34,24 @@ test('the row sample runs as the container runs it: a value over the limits is r
   assert.deepEqual([result.ok, result.reason, result.limit], [false, 'too_many_nodes', 3]);
   assert.match(result.said, new RegExp(row.verify[0].contains));
 });
+
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
+
+test('the actual packaged descriptor keeps its public entry and relative dependencies', async () => {
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const answer = await answerOf(row, row.verify[0].input);
+  assert.equal(answer.status, 0, answer.error);
+  assert.ok(answer.result && typeof answer.result === 'object');
+});
+
+
+test('both historical library entries expose the one canonical walker by identity', async () => {
+  const publicEntry = await import('../read-data/bounded-walk.mjs');
+  const core = await import('../read-data/bounded-walk-core.mjs');
+  const rootEntry = await import('../../bounded-walk.mjs');
+  assert.deepEqual(Object.keys(rootEntry).sort(), Object.keys(core).sort());
+  for (const name of Object.keys(core)) {
+    assert.strictEqual(publicEntry[name], core[name], name);
+    assert.strictEqual(rootEntry[name], core[name], name);
+  }
+});

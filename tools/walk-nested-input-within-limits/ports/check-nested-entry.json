@@ -1,0 +1,325 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CHECK-NESTED-TOOL-ENTRY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "speaker": "agent",
+    "quote": "No runtimecopies/NPOoldcode.",
+    "message_multihash": "1f:7a44dde2f6542952a89291687ad4cd921f7b13a245db5839ee785ef5b1eae916"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/walk-nested-input-within-limits/read-data/bounded-walk.mjs"
+    }
+  ],
+  "preserve": [
+    "Use the existing algorithm owner; preserve the public named exports and actual packaged consumer path."
+  ],
+  "allowed_deltas": [
+    "Only forwarding, existing tool settings and the established row/CLI input-output seam; no algorithm reimplementation."
+  ],
+  "banned_substitutions": [
+    "Claiming the older algorithm had no prior owner",
+    "Keeping a second active algorithm implementation",
+    "Importing an evidence archive at runtime"
+  ],
+  "baseline": {
+    "scope": "NO_PRIOR_OWNER applies only to the new forwarding/tool entry seam. The old implementation was already adapted and duplicated before this consolidation; no source-first claim is made for that old public file."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/bounded-walk.mjs",
+      "why": "The earlier exact root walker is an existing algorithm owner, now a compatibility forwarder to the single canonical core. The new JSON tool entry does not claim that walking nested input had no prior owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-lists-of-rows/lists.mjs",
+      "why": "The list engine consumes the existing bounded walker for row values; it is not the standalone JSON checkNested tool entry."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/walk-nested-input-within-limits/README.md",
+      "why": "Documentation and synthetic consumer checks describe or exercise this entry; they do not implement another compatibility entry or the older algorithm."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/walk-nested-input-within-limits/test/",
+      "why": "Documentation and synthetic consumer checks describe or exercise this entry; they do not implement another compatibility entry or the older algorithm."
+    }
+  ],
+  "proof": {
+    "test_refs": [
+      "tools/walk-nested-input-within-limits/test/bounded-walk.test.mjs"
+    ],
+    "behavior_reference": {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path_multihash": "1f:b83a1d06640b906366d888888647d2073c9c996d4b8706c2017df3d37dfd8edc",
+      "multihash": "1f:9a9e24bf07e5583c754bc84d8083e8d6af14ab24c7b9b5f443a5694addfa5dc3",
+      "read_only": true
+    },
+    "search": {
+      "phrasings": [
+        "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command",
+        "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+      ],
+      "code_patterns": [
+        "checkNested|boundedWalk"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "capability_rows": [
+        {
+          "capability": "seal one of Trillion's own account keys inside the hosted service from standard input, so it never appears in a command line, file or log",
+          "repository": "trillion",
+          "owner": [
+            "scripts/keep-platform-key.mjs"
+          ],
+          "words": 0.207,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "refuse untrusted nested input that is too deep, too large or refers back to itself, before it is rendered or stored",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/walk-nested-input-within-limits/"
+          ],
+          "words": 0.202,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "post a note, or anything picked, to a public web address as JSON, as a page in a Notion database, or as a message in a Slack channel",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/send-to-a-place/"
+          ],
+          "words": 0.199,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "read a run of the person's own AI command line as normalised live events with a bounded progress file, and keep the tools they allow it in one folder",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/follow-my-ai-command-line-runs/"
+          ],
+          "words": 0.194,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/use-trillion-from-a-shell/"
+          ],
+          "words": 0.192,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "walk the worked example through a service one question at a time, the way a calling AI does, so no live screen ever shows filler words",
+          "repository": "trillion",
+          "owner": [
+            "scripts/worked-example.mjs"
+          ],
+          "words": 0.189,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "act on a computer's apps, windows and command lines within declared bounds",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/computer-interface-actions/"
+          ],
+          "words": 0.187,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "list every place that builds a shell command from supplied words and fail a release when any exists",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-shell-strings.mjs"
+          ],
+          "words": 0.165,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/run-an-installed-apps-command-line/"
+          ],
+          "words": 0.165,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "give each typed tool request one stable identity from its sorted input, whatever carries it or wherever it runs",
+          "repository": "trillion",
+          "owner": [
+            "src/typed-operation-contract.mjs"
+          ],
+          "words": 0.152,
+          "near": false,
+          "query": "Expose the existing bounded nested walk through its public tool entry and a JSON standard input output command"
+        },
+        {
+          "capability": "apply an amount one row holds across the open amounts of rows of another list as allocation rows, reconcile cleared lines against a statement with a receipt per close, post entries whose signed lines add to zero, total quote lines whose percents name their base, and read the same rows on an accrual or a cash basis",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/settle-amounts-and-reconcile/"
+          ],
+          "words": 0.181,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/run-an-installed-apps-command-line/"
+          ],
+          "words": 0.178,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "put Trillion's MCP entry into the config files of the AI apps a person names, preview the exact change first, and take it out again, leaving the person's own entries and every other key as they were",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/register-trillion-in-my-ai-apps/"
+          ],
+          "words": 0.152,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "work out which modules a page must download before it opens, by following only the static imports of each bundled entry",
+          "repository": "trillion",
+          "owner": [
+            "scripts/module-download-graph.mjs"
+          ],
+          "words": 0.138,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "publish best X for Y comparison pages: compare Trillion with another tool side by side, a table, who should pick which, both prices and common questions",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/compare.js",
+            "worker/data/compare.json"
+          ],
+          "words": 0.135,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "move a shared checkout forward to the newest main without losing anyone's work, and refuse any commit that does not build on the newest main",
+          "repository": "trillion",
+          "owner": [
+            "scripts/advance-shared-checkout.mjs",
+            "scripts/commit-on-current-main.mjs"
+          ],
+          "words": 0.132,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "publish a signed engine release on every push to the engine repository's branch: a builder computer builds the engine at that commit, signs a release feed entry with a key only it holds and serves the feed, so every computer adopts the fix without an app install",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/publish-an-engine-release/"
+          ],
+          "words": 0.13,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "use one screen layout inside another as a shared part, pinned to a version or following the latest, with changes per part",
+          "repository": "trillion",
+          "owner": [
+            "src/layout-parts.mjs"
+          ],
+          "words": 0.128,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "move the public door to another hosting provider's host: rent it, set it up, cut DNS, prove it on the new address, release the old lease and save where the door now runs",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/move-the-public-door/"
+          ],
+          "words": 0.125,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        },
+        {
+          "capability": "keep a person's files in step between their computers: say where one computer's sync stands, fill a file from another computer of the same account on the same network, and back up a local folder into a Trillion folder",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/sync-files-between-my-computers/"
+          ],
+          "words": 0.122,
+          "near": false,
+          "query": "checkNested row entry forwarding boundedWalk and refusalWords without another walker"
+        }
+      ]
+    },
+    "raw_search_evidence": {
+      "owner": "original private Codex native transcript",
+      "thread_id": "01a1b867-3ea6-7981-a8a7-a78ea4ebf04d",
+      "call_id": "call_4a19aa46347c48e287752ab1898fcb1b",
+      "transcript_line": 950,
+      "encoding": "deflate-raw+base64",
+      "raw_bytes": 31479,
+      "multihash": "1f:42a9d086477927b42a6a6151855f58060e8b1e3206ce040203a06ae002b408b7",
+      "job_index": 2,
+      "readback": "The complete original stdout rows, private where values and all six code-query path lists were reconstructed from the owner-only native transcript before public projection. All 20 capability rows are retained publicly with only where omitted.",
+      "capability_stdout_multihashes": [
+        "1f:693f05fb23b088b43b986bda2d6897e043ce36104c4de5f8e60a7991d7563cad",
+        "1f:ab54f122dcea77b8e4444df7515ced49842486af8b3db5d24febfcff702fc721"
+      ]
+    }
+  },
+  "entry_history": {
+    "introduced_by": "2dcc68cf830719bc0387583fb9e370f67d0ca6a7",
+    "scope": "This commit added checkNested and the JSON command around the older walker. That invocation seam stays here and now forwards to the canonical core; the old algorithm is qualified separately by its actual later source-only baseline."
+  }
+}

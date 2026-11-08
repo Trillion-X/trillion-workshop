@@ -1,0 +1,358 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CHECK-A-RUN-OF-CALLS-RUN",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "speaker": "agent",
+    "quote": "No runtimecopies/NPOoldcode.",
+    "message_multihash": "1f:7a44dde2f6542952a89291687ad4cd921f7b13a245db5839ee785ef5b1eae916"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/keep-an-ai-loop-from-spinning/do-work/check-a-run-of-calls.mjs"
+    }
+  ],
+  "preserve": [
+    "Use one existing stateful guard for the recorded batch, preserve call order and return the first give-back with its index.",
+    "The existing guard remains the owner of argument canonicalization, repeat thresholds, malformed-call handling and failure budget."
+  ],
+  "allowed_deltas": [
+    "Only the finite recorded-call row seam; the preserved guard is reused unchanged."
+  ],
+  "banned_substitutions": [
+    "Claiming the underlying AI-loop guard has no prior owner",
+    "Replacing or duplicating the existing guard algorithm"
+  ],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "dev/deleted-code-homes.json",
+      "why": "Retirement metadata names the old algorithm owner; it does not implement this row adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "The shared catalogue describes the existing algorithm and its callers; it is not this row seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-an-ai-loop-from-spinning/read-data/",
+      "why": "The preserved stateful makeLoopGuard algorithm owns repeat/failure decisions and its DATA. This wrapper calls it for a finite recorded batch; it does not replace it."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-an-ai-loop-from-spinning/README.md",
+      "why": "Documentation, public exports, synthetic tests and row DATA describe or exercise this entry; they are not another recorded-call sequence implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-an-ai-loop-from-spinning/part.json",
+      "why": "Documentation, public exports, synthetic tests and row DATA describe or exercise this entry; they are not another recorded-call sequence implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-an-ai-loop-from-spinning/test/",
+      "why": "Documentation, public exports, synthetic tests and row DATA describe or exercise this entry; they are not another recorded-call sequence implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-an-ai-loop-from-spinning/tool-rows.json",
+      "why": "Documentation, public exports, synthetic tests and row DATA describe or exercise this entry; they are not another recorded-call sequence implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "docs/",
+      "why": "Historical move/test inventories reference the old guard; they are not a recorded-call row adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/shared-code/src/own-ais.json",
+      "why": "The live model-loop guard thresholds and words are DATA; they do not sequence a caller-supplied recorded calls array."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "Published tool descriptors point at the row; they do not implement its recorded-call sequencing."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/native-artifact/do-work/project-app-open-bundle.sh",
+      "why": "The match is prose saying a shell loop guards a timed run. It is unrelated to the AI call guard or this row adapter."
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back",
+        "checkRunOfCalls row function over makeLoopGuard"
+      ],
+      "code_patterns": [
+        "checkRunOfCalls|makeLoopGuard|loop.guards"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "capability_rows": [
+        {
+          "capability": "keep a model working a job in a loop from spinning: nudge it once when it repeats the same call, and give the job back when it keeps repeating or its tools keep failing",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-an-ai-loop-from-spinning/"
+          ],
+          "words": 0.268,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/use-trillion-from-a-shell/"
+          ],
+          "words": 0.242,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "refuse a push to main that silently takes back work main already has, and run the guard tests every release needs before any push",
+          "repository": "trillion",
+          "owner": [
+            "scripts/pushed-work-kept.mjs",
+            "scripts/run-always-guards.mjs"
+          ],
+          "words": 0.229,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "ask a judge model a declared question about some content, trusting only a judge that first answered known cases right",
+          "repository": "ai-command-center",
+          "owner": [
+            ".claude/hooks/judges"
+          ],
+          "words": 0.225,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "score two builds of an AI's behavior on the same trap tasks from the calls each run recorded, to see which does better",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/compare-two-ai-builds-on-trap-tasks/"
+          ],
+          "words": 0.222,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "ask a live source and fall back to its last good answer",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-the-last-good-answer/"
+          ],
+          "words": 0.22,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "reach a person's own records from a tool run: the records door client every records tool uses",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/records-door/"
+          ],
+          "words": 0.217,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "keep an operation's records and move it through its states: run its next transition and read its actions and work",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/operation-records/"
+          ],
+          "words": 0.215,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "make the request that sets which AI answers a person, or sends them back to automatic routing, without sending it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/selected-agent/"
+          ],
+          "words": 0.21,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/work-on-connected-drives/"
+          ],
+          "words": 0.208,
+          "near": false,
+          "query": "run a recorded finite batch of calls through the existing loop guard, return its answers in order and stop at first give-back"
+        },
+        {
+          "capability": "show rows of one kind (tools, workflows, looks, layouts and more) as the Marketplace shelf shows everything my AI can use: title, what it does, who made it, its price and runs, whether it is mine and published, and whether I can use, publish or withdraw it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/browse-and-publish-what-my-ai-can-use/"
+          ],
+          "words": 0.185,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "list every way into Trillion, its apps and where to get each, from the app's own device rows",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/ways-in.js"
+          ],
+          "words": 0.179,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "decide whether an AI agent's action may run, must be asked of the person first, or is refused, from the person's action policy rows, the grants they gave and the actions they declined",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/decide-agent-actions/"
+          ],
+          "words": 0.178,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "pick the small good moment to play when something good happens or a phrase is typed, its words and motion, from the moment rows given",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/make-things-feel-good/"
+          ],
+          "words": 0.175,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.174,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "evaluate formulas over rows",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/formulas/"
+          ],
+          "words": 0.173,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "list what is new in Trillion as rows, read from the what's-new tours the product ships",
+          "repository": "trillion",
+          "owner": [
+            "src/whats-new-rows.mjs"
+          ],
+          "words": 0.171,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-a-list-view/"
+          ],
+          "words": 0.163,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "publish articles with their pictures, an RSS feed, a sitemap, robots and llms.txt, drawn from the rows of the Articles list",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/articles.js",
+            "worker/article-image.js"
+          ],
+          "words": 0.159,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        },
+        {
+          "capability": "say what saving rows to a list cost, how many rows were written beyond the ones I sent, with every save",
+          "repository": "trillion",
+          "owner": [
+            "src/save-cost.mjs"
+          ],
+          "words": 0.154,
+          "near": false,
+          "query": "checkRunOfCalls row function over makeLoopGuard"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/keep-an-ai-loop-from-spinning/test/loop-guards.test.mjs"
+    ],
+    "raw_search_evidence": {
+      "owner": "original private Codex native transcript",
+      "thread_id": "01a1b867-3ea6-7981-a8a7-a78ea4ebf04d",
+      "call_id": "call_02d488de5edc45efaa0a0364cd426d04",
+      "transcript_line": 895,
+      "encoding": "deflate-raw+base64",
+      "raw_bytes": 22031,
+      "multihash": "1f:03f4632375f51dd50821f7a980ee8a70f4dc6498fa6d962a8cef98e84ef42dd7",
+      "job_index": 0,
+      "readback": "All original stdout fields, private where values and six full code-query path lists were reconstructed from the owner-only original transcript before this public projection. Only where is omitted publicly; all 20 capability rows remain.",
+      "capability_stdout_multihashes": [
+        "1f:946707685133428e187d260f53481960722fa2f05b51a82b72cfd50f4b68a8a6",
+        "1f:4d2b15555d8fd911f52671e5ff46bf9a6dedfd26dd0e660561b62ec7aa00aafe"
+      ]
+    },
+    "behavior_reference": {
+      "repository": "trillion",
+      "commit": "eb1d33fb423a3cade19245aa7d596d598eb70af9",
+      "path_multihash": "1f:54f56238fb28d63a8479361f783ca0e12e99722ddd5197d971411f6ee3f2cadc",
+      "multihash": "1f:c62a23447089315bb4921a56a26eb6e82f9e7e94c9508a1016dff7da47e245b6",
+      "read_only": true
+    }
+  },
+  "entry_history": {
+    "introduced_by": "79da321d1a5e856fcb0c66d8916083ebf1bf1f26",
+    "scope": "This commit authored the finite recorded-call adapter while copying the older guard separately. The NPO claim is for that adapter seam, not the guard or its historical code."
+  }
+}

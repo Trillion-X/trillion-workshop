@@ -1,0 +1,328 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PASTE-SOURCES-FORWARDING-ENTRY",
+  "status": "ADAPTED",
+  "directive": {
+    "thread_id": "01a1b7dc-3254-7ec3-b8f1-a1cf748dc438",
+    "speaker": "agent",
+    "quote": "No runtimecopies/NPOoldcode.",
+    "message_multihash": "1f:7a44dde2f6542952a89291687ad4cd921f7b13a245db5839ee785ef5b1eae916"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/what-a-paste-becomes/show/paste-sources.ts"
+    }
+  ],
+  "preserve": [
+    "Use the existing algorithm owner; preserve the public named exports and actual packaged consumer path."
+  ],
+  "allowed_deltas": [
+    "Only forwarding, existing tool settings and the established row/CLI input-output seam; no algorithm reimplementation."
+  ],
+  "banned_substitutions": [
+    "Claiming the older algorithm had no prior owner",
+    "Keeping a second active algorithm implementation",
+    "Importing an evidence archive at runtime"
+  ],
+  "baseline": {
+    "scope": "NO_PRIOR_OWNER applies only to the new forwarding/tool entry seam. The old implementation was already adapted and duplicated before this consolidation; no source-first claim is made for that old public file."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "parts/documents/README.md",
+      "why": "Historical document documentation describes the older conversion owner; it does not implement the new forwarding module."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/port-sources.json",
+      "why": "A move inventory records earlier mechanisms; it is evidence, not a conversion or forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/edit-a-document-together/",
+      "why": "The existing source-aware HTML-to-markdown and table converter lives here and the document editor consumes it directly. This compatibility entry exposes that same owner; it does not claim a new conversion algorithm."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/what-a-paste-becomes/README.md",
+      "why": "Documentation and synthetic consumer checks describe or exercise this entry; they do not implement another compatibility entry or the older algorithm."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/what-a-paste-becomes/test/",
+      "why": "Documentation and synthetic consumer checks describe or exercise this entry; they do not implement another compatibility entry or the older algorithm."
+    }
+  ],
+  "proof": {
+    "test_refs": [
+      "tools/what-a-paste-becomes/test/paste-sources.test.mjs"
+    ],
+    "behavior_reference": {
+      "repository": "trillion-workshop",
+      "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+      "path": "tools/edit-a-document-together/read-data/paste-sources.ts",
+      "multihash": "1f:70cd10cebff3865891db3f6020a96aa0e42a722c26cab98bfac5f1a9688af317",
+      "read_only": true
+    },
+    "search": {
+      "phrasings": [
+        "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation",
+        "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+      ],
+      "code_patterns": [
+        "pastedMarkdown|pasteSourceOf"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "capability_rows": [
+        {
+          "capability": "refuse code that reaches the AI binding, the database or the host directly instead of through the one module that owns it",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-reaches.mjs"
+          ],
+          "words": 0.196,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "move the public door to another hosting provider's host: rent it, set it up, cut DNS, prove it on the new address, release the old lease and save where the door now runs",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/move-the-public-door/"
+          ],
+          "words": 0.182,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "read optional public data from another address within a time limit, so a slow answer never holds a page",
+          "repository": "trillion-site",
+          "owner": [
+            "worker/public-json.js"
+          ],
+          "words": 0.162,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "decide what a paste becomes: a normal insert, a named text file for a long paste, attached images, or markdown that keeps the structure of the editor it came from",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/what-a-paste-becomes/"
+          ],
+          "words": 0.146,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.139,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "turn a board's presentation frames into slides in story order, one page each, as SVG, printable HTML and a PDF",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/turn-frames-into-slides/"
+          ],
+          "words": 0.137,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/decide-with-a-method/"
+          ],
+          "words": 0.133,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "work out how a live camera's stream would be received: the address this computer listens on for the camera's own key, the FFmpeg listener it is taken with, and a public RTMPS address through Tailscale Funnel that never takes a port serving something else",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/watch-and-keep-a-live-camera/"
+          ],
+          "words": 0.127,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/traffic-attribution/"
+          ],
+          "words": 0.124,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "check every claim a narrator makes, spoken or on screen, against the person's own facts and cited sources, and make the plain-text extracts of those sources",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-every-claim-against-its-facts-and-sources/"
+          ],
+          "words": 0.124,
+          "near": false,
+          "query": "Expose the existing pasted HTML conversion module through the public paste sources module without another conversion implementation"
+        },
+        {
+          "capability": "export a markdown manuscript to word and verify it against its source",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-documents-to-files/"
+          ],
+          "words": 0.183,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "turn a board's presentation frames into slides in story order, one page each, as SVG, printable HTML and a PDF",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/turn-frames-into-slides/"
+          ],
+          "words": 0.145,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/decide-with-a-method/"
+          ],
+          "words": 0.139,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "let an account store that has been retired hand out its full export, hand over its access rules and erase itself, and nothing else",
+          "repository": "trillion",
+          "owner": [
+            "src/retired-exit.mjs"
+          ],
+          "words": 0.132,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "tell a space owner, before they add a tool for members, what it would give each member, what it reaches or could cost, and whether the owner must decide it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/show-what-a-tool-would-give-members/"
+          ],
+          "words": 0.127,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.124,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "show the destinations an owner publishes",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/published-destinations/"
+          ],
+          "words": 0.122,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/read-a-list-view/"
+          ],
+          "words": 0.119,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "export a document tree to Word, PDF or other file formats",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-documents-to-files/"
+          ],
+          "words": 0.119,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        },
+        {
+          "capability": "decide how an interrupted command of the account's own records is settled afterward, and send each operation to the owner that handles it",
+          "repository": "trillion",
+          "owner": [
+            "src/behavior-command-readbacks.mjs"
+          ],
+          "words": 0.118,
+          "near": false,
+          "query": "Forward pastedMarkdown pasteSourceOf and tableRows exports to the canonical pasted HTML source rules owner"
+        }
+      ]
+    },
+    "raw_search_evidence": {
+      "owner": "original private Codex native transcript",
+      "thread_id": "01a1b867-3ea6-7981-a8a7-a78ea4ebf04d",
+      "call_id": "call_4a19aa46347c48e287752ab1898fcb1b",
+      "transcript_line": 950,
+      "encoding": "deflate-raw+base64",
+      "raw_bytes": 31479,
+      "multihash": "1f:42a9d086477927b42a6a6151855f58060e8b1e3206ce040203a06ae002b408b7",
+      "job_index": 1,
+      "readback": "The complete original stdout rows, private where values and all six code-query path lists were reconstructed from the owner-only native transcript before public projection. All 20 capability rows are retained publicly with only where omitted.",
+      "capability_stdout_multihashes": [
+        "1f:d46148c65cb99f2b502a726853bebdc8c94844644026358a2047f35e5719ce3d",
+        "1f:9c7c8a33aaafb37a44baad6c035d41c1cfdc2e05d2e06aca3d449fb2381b8e0a"
+      ]
+    }
+  },
+  "entry_history": {
+    "introduced_by": "0e3338e9558e0c98683c7f287e35b3aa1b8979e8",
+    "scope": "This commit introduced a duplicate of the older converter at the current public path. The present new seam only forwards to its existing canonical owner with the local editable rule DATA; it makes no NPO or source-first claim for the former duplicated algorithm."
+  }
+}

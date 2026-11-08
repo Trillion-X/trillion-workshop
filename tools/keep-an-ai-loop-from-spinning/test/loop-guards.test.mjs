@@ -4,6 +4,7 @@
 // itself, unchanged; the ones that drive the old model loop stay with that loop until it moves.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import rules from '../read-data/loop-guards.json' with { type: 'json' };
 import { makeLoopGuard } from '../read-data/loop-guards.mjs';
 import { checkRunOfCalls } from '../do-work/check-a-run-of-calls.mjs';
@@ -44,4 +45,13 @@ test('failing calls past the budget give the job back with the count said', () =
   const run = checkRunOfCalls({ calls: Array.from({ length: 20 }, (_, n) => ({ name: 'probe', args: { n }, failed: true })) });
   assert.match(run.give_back, new RegExp(`${rules.error_budget} tool calls in a row failed`));
   assert.equal(run.at, rules.error_budget - 1);
+});
+
+import { answerOf } from '../../../test-helpers/run-a-row.mjs';
+
+test('the actual packaged descriptor keeps its public entry and relative dependencies', async () => {
+  const row = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url))).records[0].payload;
+  const answer = await answerOf(row, row.verify[0].input);
+  assert.equal(answer.status, 0, answer.error);
+  assert.ok(answer.result && typeof answer.result === 'object');
 });

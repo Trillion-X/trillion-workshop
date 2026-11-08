@@ -7,18 +7,35 @@
     "message_multihash": "1f:a71a73d5e3c19fee45193b70ce4d62ca6f61a43a3ce286498ce7255d21614ff2"
   },
   "mode": "SOURCE_FIRST_PORT",
-  "sources": [{
-    "repository": "trillion",
-    "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
-    "path_multihash": "1f:fa39b77e03e10307c603bda7e20dda6f952a1138b000d9aab23bef63451ee3fe",
-    "multihash": "1f:f9676a177c927a237cdd6e67cfbc1ba671f978463533dbc70810523d341aa546",
-    "ownership": "repository-owned",
-    "old_copy": { "deleted_by": "2026-11-06T22:26:41Z" }
-  }],
-  "targets": [{ "path": "tools/check-a-packages-declared-permissions/read-data/manifest-permissions.mjs" }],
-  "preserve": ["Manifest validation against permission DATA", "Entry confinement including symlink targets", "Fail-closed per-call host API guard"],
-  "allowed_deltas": ["Repository location; this module's baseline is the exact original bytes"],
-  "banned_substitutions": ["Rewritten permission or confinement logic", "Treating the new row wrapper as the original module"],
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e",
+      "path_multihash": "1f:fa39b77e03e10307c603bda7e20dda6f952a1138b000d9aab23bef63451ee3fe",
+      "multihash": "1f:f9676a177c927a237cdd6e67cfbc1ba671f978463533dbc70810523d341aa546",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-06T22:26:41Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/check-a-packages-declared-permissions/read-data/manifest-permissions.mjs"
+    }
+  ],
+  "preserve": [
+    "Manifest validation against permission DATA",
+    "Entry confinement including symlink targets",
+    "Fail-closed per-call host API guard"
+  ],
+  "allowed_deltas": [
+    "Repository location; this module's baseline is the exact original bytes"
+  ],
+  "banned_substitutions": [
+    "Rewritten permission or confinement logic",
+    "Treating the new row wrapper as the original module"
+  ],
   "baseline": {
     "copied_before_adaptation": true,
     "source_multihash": "1f:f9676a177c927a237cdd6e67cfbc1ba671f978463533dbc70810523d341aa546",
@@ -28,7 +45,14 @@
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
-    "required_mechanisms": ["checkManifest", "confinedEntry", "guardApi"],
-    "test_refs": ["tools/check-a-packages-declared-permissions/test/manifest-permissions.test.mjs"]
+    "required_mechanisms": [
+      "checkManifest",
+      "confinedEntry",
+      "guardApi"
+    ],
+    "test_refs": [
+      "tools/check-a-packages-declared-permissions/test/manifest-permissions.test.mjs"
+    ],
+    "evidence": "Exact source, first target baseline and current algorithm identities were independently read through GitReaders. The existing focused API tests and an isolated run through the real descriptor and its declared packed dependencies passed; the wrapper calls this preserved algorithm."
   }
 }

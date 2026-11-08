@@ -1,0 +1,400 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CREDIT-KEPT-LINES-ENTRY",
+  "status": "ADAPTED",
+  "directive": {
+    "source_kind": "authorship-commit-message",
+    "speaker": "agent",
+    "commit": "7f7c775962d915665318314ed61b44c6fc94fa55",
+    "quote": "a do-work run for each",
+    "message_multihash": "1f:42287880808be43e130371f6e74619e949562bb0f73fdd9f2d59cabad3060da8"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner",
+  "job_scope": "Only the versions-object row adapter: validate that versions is an array and delegate to the existing pure keptWork function. No claim of new attribution, normalization, hashing or ledger algorithms.",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/credit-kept-lines-to-their-writer/do-work/credit-kept-lines-to-their-writer.mjs"
+    }
+  ],
+  "preserve": [
+    "Reject a non-array versions input",
+    "Delegate to src/kept-work.mjs without storing versions or text",
+    "Preserve by, kept and versions output fields"
+  ],
+  "allowed_deltas": [
+    "The original row invocation seam only; current runtime and descriptor bytes remain unchanged."
+  ],
+  "banned_substitutions": [
+    "Claiming attribution had no older owner",
+    "Reimplementing line attribution, hashing or ledger storage in the adapter",
+    "Inventing a retrospective source-first baseline"
+  ],
+  "baseline": {
+    "scope": "No source-copy baseline is claimed for this newly authored invocation adapter."
+  },
+  "authorship": {
+    "commit": "7f7c775962d915665318314ed61b44c6fc94fa55",
+    "path": "tools/credit-kept-lines-to-their-writer/do-work/credit-kept-lines-to-their-writer.mjs",
+    "git_blob": "b950bc993acb129bdb8198c3903b3287bb9e3aca",
+    "multihash": "1f:a39810fd4203fe1c9e20494d34f5d350c4a2a7b63d845c0798d2aa3edda2f17c",
+    "scope": "This wrapper was authored alongside its descriptor and tests. Its current bytes still match that introduction; the existing algorithm was a separate dependency."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "src/",
+      "why": "The existing kept-work algorithm and DATA own line attribution. The other keptWork symbol reads a durable work object’s saved user/concern identity; it is a different resource and operation. Neither is the new versions-object row adapter."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/from-old-trillion/src/",
+      "why": "Archived work-object code reads and binds the object’s saved user/concern identity with a different keptWork(sql) function. It does not validate version lists or expose the attribution row adapter."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/credit-kept-lines-to-their-writer/src/",
+      "why": "The preserved attribution implementation and normalization DATA own keptWork. The wrapper only rejects a non-array input and delegates the supplied versions to that existing owner."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/credit-kept-lines-to-their-writer/test/",
+      "why": "Synthetic direct and packaged tests exercise the wrapper and existing algorithm; they are consumers, not independent implementations."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/credit-kept-lines-to-their-writer/README.md",
+      "why": "Documents the same wrapper and its algorithm dependency; documentation is not an earlier implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/credit-kept-lines-to-their-writer/tool-rows.json",
+      "why": "Invocation DATA names this exact wrapper and packs its existing algorithm dependency; it is a caller declaration rather than another implementation."
+    },
+    {
+      "capability": "credit each line of a text's newest version to whoever first wrote it and count each writer's kept lines",
+      "why": "The existing attribution capability owns kept-line attribution, which is reused through keptWork. This claim is only the versions-object validation and invocation adapter."
+    },
+    {
+      "capability": "credit each line of a text to whoever first wrote it and report how many lines of the newest version belong to each writer",
+      "why": "The existing attribution capability owns kept-line attribution, which is reused through keptWork. This claim is only the versions-object validation and invocation adapter."
+    }
+  ],
+  "proof": {
+    "test_refs": [
+      "tools/credit-kept-lines-to-their-writer/test/credit-kept-lines-to-their-writer.test.mjs",
+      "tools/credit-kept-lines-to-their-writer/test/kept-work.test.mjs"
+    ],
+    "behavior_reference": {
+      "read_only": true,
+      "repository": "trillion",
+      "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c",
+      "path_multihash": "1f:be6e8d159f299fe2c7eff124c17737397d4df1e22fe7213fd9c6cacdf069cfad",
+      "multihash": "1f:22e6c1e0191bff11100d70246f9fbd735e3613d7aa747db386c3cae007f42438"
+    },
+    "underlying_owner_boundary": {
+      "reference": "proof.behavior_reference",
+      "checked_main_commit": "ed5e8d0389729321ca4263294b6a377235829e5e",
+      "source_path_still_present": true,
+      "scope": "The original algorithm remains present at the checked main commit. This wrapper contract neither claims its retirement nor qualifies a source-first migration of that algorithm."
+    },
+    "search": {
+      "phrasings": [
+        "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner",
+        "Expose creditKeptLines without storing versions or implementing line attribution"
+      ],
+      "capability_rows": [
+        {
+          "capability": "match the words of an arriving message to my existing list rows by title or alias without reading every row",
+          "repository": "trillion",
+          "owner": [
+            "src/entity-mentions.mjs"
+          ],
+          "words": 0.147,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.135,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "tell a space owner, before they add a tool for members, what it would give each member, what it reaches or could cost, and whether the owner must decide it",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/show-what-a-tool-would-give-members/"
+          ],
+          "words": 0.116,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "use one screen layout inside another as a shared part, pinned to a version or following the latest, with changes per part",
+          "repository": "trillion",
+          "owner": [
+            "src/layout-parts.mjs"
+          ],
+          "words": 0.114,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "keep what a list says true: set a list up for review with an owner, a review state and a check-again date per row, mark rows verified, outdated or asking to be checked, and list the rows nobody uses by use heat that halves with time",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/review-what-a-list-says/"
+          ],
+          "words": 0.114,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "show the destinations an owner publishes",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/published-destinations/"
+          ],
+          "words": 0.112,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "decide how an interrupted command of the account's own records is settled afterward, and send each operation to the owner that handles it",
+          "repository": "trillion",
+          "owner": [
+            "src/behavior-command-readbacks.mjs"
+          ],
+          "words": 0.109,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "show what changed between two versions of a site, which pages were added, removed or reworded",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs"
+          ],
+          "words": 0.106,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "put a checked site backend and its database copy onto one live hosted site, with nothing serving until the owner switches it on",
+          "repository": "trillion",
+          "owner": [
+            "scripts/attach-site-worker-bundle.mjs"
+          ],
+          "words": 0.105,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "tell an AI about a list of tools: fit the list in a character budget, say each tool's hints in its description, tell whether a tool changes anything, and pick the release of a published tool a host version runs",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/list-tools-for-an-ai/"
+          ],
+          "words": 0.104,
+          "near": false,
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner"
+        },
+        {
+          "capability": "refuse untrusted nested input that is too deep, too large or refers back to itself, before it is rendered or stored",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/walk-nested-input-within-limits/"
+          ],
+          "words": 0.193,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "credit each line of a text's newest version to whoever first wrote it and count each writer's kept lines",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/credit-kept-lines-to-their-writer/"
+          ],
+          "words": 0.181,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "credit each line of a text to whoever first wrote it and report how many lines of the newest version belong to each writer",
+          "repository": "trillion",
+          "owner": [
+            "src/kept-work.mjs"
+          ],
+          "words": 0.168,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "use one screen layout inside another as a shared part, pinned to a version or following the latest, with changes per part",
+          "repository": "trillion",
+          "owner": [
+            "src/layout-parts.mjs"
+          ],
+          "words": 0.166,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "refuse a commit or push that puts a secret key or one person's private facts into shipped code or data, and name the file and line",
+          "repository": "trillion",
+          "owner": [
+            "scripts/check-committed-credentials.mjs",
+            "scripts/check-person-facts.mjs",
+            "scripts/check-pushed-person-facts.mjs"
+          ],
+          "words": 0.161,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "pair rows of two lists that describe one thing (a card line and its receipt, both sides of a transfer) by caller-named fields, tolerances and weights, confirming only a clear winner and offering the rest with alternatives and reasons",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/match-rows/"
+          ],
+          "words": 0.155,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "show what changed between two versions of a site, which pages were added, removed or reworded",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs"
+          ],
+          "words": 0.15,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "tell an AI about a list of tools: fit the list in a character budget, say each tool's hints in its description, tell whether a tool changes anything, and pick the release of a published tool a host version runs",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/list-tools-for-an-ai/"
+          ],
+          "words": 0.146,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "know which record indexes have finished building from one stored row, so a cold start answers readiness without reading each index",
+          "repository": "trillion",
+          "owner": [
+            "src/index-readiness.mjs"
+          ],
+          "words": 0.136,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        },
+        {
+          "capability": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/measurement-ledger/"
+          ],
+          "words": 0.135,
+          "near": false,
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution"
+        }
+      ],
+      "code_patterns": [
+        "creditKeptLines|keptWork"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ],
+      "projection": "All ten native rows from each query are retained with their original capability, repository, owner, words and near fields. Only private where text is omitted from this public projection; complete original responses remain in the independently read native transcript."
+    },
+    "raw_search_evidence": {
+      "owner": "original Codex native transcript",
+      "thread_id": "01a1b912-82bb-75e1-a623-1d97ccafd9a5",
+      "chunks": [
+        {
+          "line": 450,
+          "call_id": "call_b5110ef74949478391dba04b792973ed"
+        },
+        {
+          "line": 490,
+          "call_id": "call_9a7c929bc43a4a6fb1d66de68760fc71"
+        }
+      ],
+      "encoding": "deflate-raw+base64",
+      "raw_bytes": 10373,
+      "multihash": "1f:cb3cada7034042ce811710673dbb68229f406c3d81342e1ac8ba98999bd2b6d0",
+      "readback": "The complete native capability stdout and all six code-query responses were reconstructed losslessly from the original owner-only transcript and verified by the declared content-identity owner before public projection.",
+      "capability_stdout": [
+        {
+          "query": "Validate versions input and expose creditKeptLines as a row function delegating to the existing keptWork attribution owner",
+          "multihash": "1f:8615af1bd5d58a59f63c99762839d13e8c0956d3be2ee45b9d4ded5efd2e0c32",
+          "returned_rows": 10
+        },
+        {
+          "query": "Expose creditKeptLines without storing versions or implementing line attribution",
+          "multihash": "1f:732a2c6d98f8fb24125992d36742ce161c430d1617fe4941814961f9f5f40848",
+          "returned_rows": 10
+        }
+      ],
+      "code_matches": [
+        {
+          "search_repository_index": 0,
+          "matches": 3
+        },
+        {
+          "search_repository_index": 1,
+          "matches": 2
+        },
+        {
+          "search_repository_index": 2,
+          "matches": 7
+        },
+        {
+          "search_repository_index": 3,
+          "matches": 0
+        },
+        {
+          "search_repository_index": 4,
+          "matches": 0
+        },
+        {
+          "search_repository_index": 5,
+          "matches": 0
+        }
+      ],
+      "repository_index_owner": "proof.search.repositories"
+    }
+  }
+}

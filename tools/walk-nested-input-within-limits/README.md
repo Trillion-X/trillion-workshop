@@ -6,7 +6,8 @@ The one guard for walking untrusted nested input: an imported document, pasted r
 
 | File | Purpose |
 |------|---------|
-| `read-data/bounded-walk.mjs` | `boundedWalk(root, { children, visit, limits })` and `refusalWords(result)`, plus `checkNested(input)`, the container's run of `tool:check-nested-input`. |
+| `read-data/bounded-walk-core.mjs` | The canonical iterative walker, unchanged from the exact archived source. |
+| `read-data/bounded-walk.mjs` | Forwards the library exports and keeps `checkNested(input)` plus the container JSON command. |
 | `read-data/bounded-walk.json` | The limits (`max_depth` 100, `max_nodes` 100,000) and the words for each reason. |
 | `tool-rows.json` | `tool:check-nested-input`, a `container` row with no internet. |
 | `part.json` | The code and its limits are public. |
@@ -23,7 +24,9 @@ The one guard for walking untrusted nested input: an imported document, pasted r
 
 ## Moved from Trillion
 
-Moved from Trillion-X/trillion `parts/bounded-walk.mjs` and `parts/bounded-walk.json`, code unchanged except the header's paths. The two library tests of `test/bounded-walk.test.mjs` moved with it unchanged; its third test checks list rows in `src/lists.mjs`, which still imports the old copy, so that copy stays in Trillion until `src/lists.mjs` moves.
+The original package entry was already adapted in `2dcc68cf830719bc0387583fb9e370f67d0ca6a7`. This does not claim that migration was source-first. Exact original `parts/bounded-walk.mjs` bytes were later preserved alone in `source-baselines/bounded-walk.mjs.held`, committed as `1b6f146a` before the fresh canonical core existed. The archive is evidence only and is never imported at runtime.
+
+Both this package's public entry and the historical root `tools/bounded-walk.mjs` now forward to the one core. The list engine consumes the package entry. Existing limits, refusal words, named exports and the descriptor's JSON command remain available. The original library tests and actual packaged descriptor checks exercise those public paths.
 
 ## Dependencies
 

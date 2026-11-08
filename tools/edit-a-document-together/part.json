@@ -9,7 +9,8 @@
     "show/mount-documents.tsx",
     "read-data/collaboration-view.ts",
     "read-data/paste-sources.ts",
-    "things-to-store-and-run.json"
+    "things-to-store-and-run.json",
+    "read-data/paste-sources.json"
   ],
   "side_effects": [
     "*.css",

@@ -1,3 +1,7 @@
 {
-  "public": ["read-data/bounded-walk.mjs", "read-data/bounded-walk.json"]
+  "public": [
+    "read-data/bounded-walk.mjs",
+    "read-data/bounded-walk.json",
+    "read-data/bounded-walk-core.mjs"
+  ]
 }
