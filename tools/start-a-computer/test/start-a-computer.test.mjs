@@ -269,21 +269,26 @@ test('the sign-up check answers the way a browser does and its passkey signs wha
   const { checkASignUp, softwarePasskey, assertion } = await import('../do-work/check-a-sign-up.mjs');
   const { createVerify, createPublicKey } = await import('node:crypto');
   const origin = 'https://front.example', address = 'c'.repeat(64), seen = [];
+  let withRouteCookie = true;
   const fetchImpl = async (url, request) => {
     const path = url.slice(origin.length), body = request.body && JSON.parse(request.body);
     seen.push([request.method, path, request.headers.origin ?? null, request.headers.cookie ?? null]);
     const answer = (status, json, cookie) => ({ status, headers: { get: name => (name === 'set-cookie' ? cookie ?? null : null) }, text: async () => JSON.stringify(json ?? {}) });
     if (path === '/sign-up') return answer(200);
-    if (path === '/sign-up/options') return answer(200, { options: { challenge: 'up-1', rp: { id: 'example' } } });
+    if (path === '/sign-up/options') return answer(200, { options: { challenge: 'up-1', rp: { id: 'example' } } }, withRouteCookie ? '__Secure-sign-up-computer=second.example:443; Path=/sign-up; Secure; HttpOnly; SameSite=Strict' : undefined);
     if (path === '/sign-up/finish') {
+      assert.equal(request.headers.cookie, withRouteCookie ? '__Secure-sign-up-computer=second.example:443' : undefined);
       const client = JSON.parse(Buffer.from(body.response.clientDataJSON, 'base64url'));
       assert.deepEqual([client.type, client.challenge, client.origin], ['webauthn.create', 'up-1', origin]);
       assert.equal(body.response.publicKeyAlgorithm, -7);
       return answer(200, { address });
     }
-    if (path === `/a/${address}/passkey/options`) return answer(200, { challenge: 'in-1', rpId: 'example' });
-    if (path === `/a/${address}/passkey/finish`) return answer(200, { ok: true }, 'session=s1; Path=/; Secure; HttpOnly');
-    if (path === `/a/${address}/sign-in/security`) return answer(request.headers.cookie === 'session=s1' ? 200 : 303);
+    if (path === `/a/${address}/passkey/options`) return answer(200, { challenge: 'in-1', rpId: 'example' }, `ceremony=once; Path=/a/${address}/passkey; Secure; HttpOnly`);
+    if (path === `/a/${address}/passkey/finish`) {
+      assert.equal(request.headers.cookie, 'ceremony=once');
+      return answer(200, { ok: true }, `session=s1; Path=/; Secure; HttpOnly, __Host-account-address=${address}; Expires=Tue, 19 Jan 2038 03:14:07 GMT; Path=/; Secure; HttpOnly`);
+    }
+    if (path === `/a/${address}/sign-in/security`) return answer(request.headers.cookie === `session=s1; __Host-account-address=${address}` ? 200 : 303);
     return answer(404);
   };
   const answer = await checkASignUp(origin, { fetchImpl });
@@ -292,6 +297,9 @@ test('the sign-up check answers the way a browser does and its passkey signs wha
   assert.deepEqual(answer.steps.map(step => step.status), [200, 200, 200, 200, 200, 200, 303]);
   assert.ok(seen.filter(([method]) => method === 'POST').every(([, , sent]) => sent === origin));
   assert.ok(!JSON.stringify(answer).includes('s1'));
+  assert.ok(!JSON.stringify(answer).includes('second.example'));
+  withRouteCookie = false;
+  assert.equal((await checkASignUp(origin, { fetchImpl })).signed_in_read, true, 'direct computer signup also works without an affinity cookie');
 
   // The assertion is a valid ES256 signature over authenticatorData || SHA-256(clientDataJSON).
   const passkey = softwarePasskey();
