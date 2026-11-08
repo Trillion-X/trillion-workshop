@@ -24,6 +24,32 @@ test('real stdio client preserves exact record values, stable write keys and sho
   } finally { await door.close(); }
 });
 
+test('a timed-out write keeps the client available for the same-key receipt and exact readback', async () => {
+  const door = open('slow-write-once', { timeout_ms: 1000 });
+  const rows = [{ id: 'note:slow', type: 'note', value: { text: 'retained after an unknown outcome' } }];
+  try {
+    const first = assert.rejects(door.write(rows, { key: 'slow-stable-write' }),
+      error => error.code === 'mcp_client_timeout' && error.outcome === 'unknown');
+    await new Promise(resolve => setTimeout(resolve, 800));
+    const peer = door.read('note', 'note:slow').then(value => ({ value }), error => ({ error }));
+    await first;
+    assert.deepEqual(await door.write(rows, { key: 'slow-stable-write' }),
+      { write_count: 1, request_key: 'slow-stable-write', applied: 1 });
+    assert.deepEqual(await peer, { value: rows[0].value });
+    assert.deepEqual(await door.read('note', 'note:slow'), rows[0].value);
+  } finally { await door.close(); }
+});
+
+test('closing the owned client leaves pending outcomes unknown and later requests not started', async () => {
+  const door = open('wait');
+  const pending = assert.rejects(door.read('note', 'pending'),
+    error => error.code === 'mcp_client_closed' && error.outcome === 'unknown');
+  await door.close();
+  await pending;
+  await assert.rejects(door.read('note', 'after-close'),
+    error => error.code === 'mcp_client_closed' && error.outcome === 'not_started');
+});
+
 for (const [mode, code] of [['refuse', 'current_workspace_rights_refused'], ['exit', 'mcp_client_closed'], ['invalid', 'mcp_invalid_answer'], ['wait', 'mcp_client_timeout']]) {
   test(`stdio ${mode} remains a failure with explicit outcome`, async () => {
     const door = open(mode, { timeout_ms: mode === 'wait' ? 100 : 3000 });

@@ -70,6 +70,8 @@ A row asks for the door in its invoke, with one rights item per record kind:
   - `selected_owner_unavailable`: busy.
 - A busy answer (HTTP 503 or `selected_owner_unavailable`), and any call whose outcome is `unknown`, is sent again
   with the same request key after a growing wait, never a new key. HTTP 401 means the run's capability is gone.
+  A stdio request timeout remains `unknown` and leaves its healthy client available for that same-key retry;
+  only the expired request's late answer is ignored. Invalid output, child exit and explicit close still end the client.
 - `readRecord`, `readWorkspace` and each `list` page retry fetch failures and response-body transport failures up to
   five times, with the identical request body and request key. HTTP refusals, malformed JSON, and envelope or byte-page
   integrity failures are returned immediately. Transport retries do not apply to writes or Namespace files calls.

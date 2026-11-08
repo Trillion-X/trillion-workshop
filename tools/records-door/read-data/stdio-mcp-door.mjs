@@ -39,7 +39,12 @@ export function openStdioRecordsDoor({ argv, resource = '@own-records', files_re
     if (closed) throw new RecordsDoorError('mcp_client_closed', 'The configured MCP client is closed.', 'not_started');
     const id = ++sequence;
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => { fail('mcp_client_timeout', 'The MCP client did not answer within its declared timeout.'); child.kill(); }, timeout_ms);
+      const timer = setTimeout(() => {
+        // The operation may still finish. Keep this client alive so its caller
+        // can retry with the same key; a late answer to this id is ignored.
+        pending.delete(id);
+        reject(new RecordsDoorError('mcp_client_timeout', 'The MCP client did not answer within its declared timeout.', 'unknown'));
+      }, timeout_ms);
       pending.set(id, { resolve, reject, timer });
       child.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, ...message }) + '\n');
     });
