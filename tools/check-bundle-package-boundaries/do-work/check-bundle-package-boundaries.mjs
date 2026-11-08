@@ -24,20 +24,45 @@ export function filePathOfBundleInput(inputPath, bundleRoot) {
 }
 
 function valueAt(value, dottedPath) {
+  if (dottedPath === '') return value;
   let here = value;
-  for (const key of dottedPath.split('.')) here = here !== null && typeof here === 'object' ? here[key] : undefined;
+  for (const key of dottedPath.split('.')) here = here !== null && typeof here === 'object' && Object.hasOwn(here, key) ? here[key] : undefined;
   return here;
 }
 
 export function checkDeclaration(declaration) {
   const text = key => typeof declaration?.[key] === 'string' && declaration[key] !== '';
-  for (const key of ['file', 'entries_at', 'kind_at', 'kind', 'path_at']) {
-    if (!text(key)) throw new Error(`declaration.${key} is required: say where a package declares its public files`);
+  if (!text('file')) throw new Error('declaration.file is required: say where a package declares its public files');
+  for (const key of ['entries_at', 'path_at']) {
+    if (typeof declaration[key] !== 'string') throw new Error(`declaration.${key} is required: say where a package declares its public files`);
+    if (declaration[key] !== '' && declaration[key].split('.').some(part => !part)) throw new Error(`declaration.${key} must be a dotted path or empty for the root value`);
+  }
+  if (Object.hasOwn(declaration, 'kind_at') || Object.hasOwn(declaration, 'kind')) {
+    if (typeof declaration.kind_at !== 'string' || !text('kind')) throw new Error('declaration.kind_at and declaration.kind must be supplied together');
+    if (declaration.kind_at !== '' && declaration.kind_at.split('.').some(part => !part)) throw new Error('declaration.kind_at must be a dotted path or empty for the root value');
   }
   if (declaration.file.includes('/') || declaration.file.includes('\\') || declaration.file === '..') {
     throw new Error('declaration.file is a file name that sits in the package folder, not a path');
   }
   return declaration;
+}
+
+// The one declaration projection for bundle consumers and other hosts. This is shape/path validation only:
+// callers establish the declaration's authority and prove exact regular files through their own read boundary.
+export function publicPathsOf(parsed, declaration) {
+  checkDeclaration(declaration);
+  const entries = valueAt(parsed, declaration.entries_at);
+  if (!Array.isArray(entries)) throw new Error(`${declaration.file} has no list at ${declaration.entries_at || '(root)'}`);
+  const paths = new Set();
+  for (const entry of entries) {
+    if (declaration.kind_at !== undefined && valueAt(entry, declaration.kind_at) !== declaration.kind) continue;
+    const declared = valueAt(entry, declaration.path_at);
+    if (typeof declared !== 'string' || /[\\:\x00-\x1f\x7f]/u.test(declared)) continue;
+    const parts = declared.split('/').filter(part => part && part !== '.');
+    if (!parts.length || parts.includes('..') || isAbsolute(declared)) continue;
+    paths.add(parts.join('/'));
+  }
+  return [...paths];
 }
 
 function ownerOf(absolutePath, packagesRoot) {
@@ -55,17 +80,8 @@ function readPublicRoots(packagesRoot, name, declaration) {
   let parsed;
   try { parsed = JSON.parse(readFileSync(declarationPath, 'utf8')); }
   catch (error) { return { owned: true, error: `${declaration.file} is not readable JSON: ${error.message}` }; }
-  const entries = valueAt(parsed, declaration.entries_at);
-  if (!Array.isArray(entries)) return { owned: true, error: `${declaration.file} has no list at ${declaration.entries_at}` };
-  const roots = new Set([declaration.file]);
-  for (const entry of entries) {
-    const declared = valueAt(entry, declaration.path_at);
-    if (valueAt(entry, declaration.kind_at) !== declaration.kind || typeof declared !== 'string') continue;
-    const parts = declared.split('/').filter(part => part && part !== '.');
-    if (!parts.length || parts.includes('..') || isAbsolute(declared)) continue;
-    roots.add(parts.join('/'));
-  }
-  return { owned: true, roots };
+  try { return { owned: true, roots: new Set([declaration.file, ...publicPathsOf(parsed, declaration)]) }; }
+  catch (error) { return { owned: true, error: error.message }; }
 }
 
 function isUnderRoot(path, roots) {
@@ -76,7 +92,7 @@ function isUnderRoot(path, roots) {
 /**
  * @param {{ metafile: { inputs: Record<string, { imports?: Array<{ path: string, external?: boolean }> }> },
  *           bundleRoot: string, packagesRoot: string,
- *           declaration: { file: string, entries_at: string, kind_at: string, kind: string, path_at: string } }} input
+ *           declaration: { file: string, entries_at: string, kind_at?: string, kind?: string, path_at: string } }} input
  * @returns {{ findings: Array<{ rule: string, importer: string, target: string, package: string, target_path: string, reason?: string }>,
  *             edges_checked: number, packages_reached: string[] }}
  */
