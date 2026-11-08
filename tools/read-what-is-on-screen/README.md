@@ -1,5 +1,7 @@
 # tools/read-what-is-on-screen/
 
+The `read-data/snapshot-triggers.mjs` entry forwards its exports to the same-directory `-core.mjs` implementation. The exact historical source was committed as inactive evidence in `8889fe2f` before those fresh core paths were introduced; the earlier adapted-file birth is not presented as a source-only copy. The original behavior tests still run through this public entry. Inactive `source-baselines/` files are not imported or mounted by the tool rows.
+
 Reads what the person is doing on their Mac, as text, from the front window's accessibility tree (never a screenshot), for a short watch: the app, the window title, the page address and the visible words, when they switch apps or windows and again every tick, so their AIs keep continuity across the day. Passwords, keys and card numbers are removed on the Mac before anything leaves it. Learned from a screen-reading continuity app (reverse engineered 2026-10-14 and 2026-10-15).
 
 ## Files

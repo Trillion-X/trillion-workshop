@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PRIVATE-SITES-EXCLUSION-CANONICAL-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Close actual missing source provenance for ONLY these Workshop folders", "message_multihash": "1f:d5ba9e3a6e6858e71ab612d90a7bb65535e1e81508e1cf5fb58397610ec1fa43", "attribution": "delegated task, not a user quote"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/capture-exclusion.mjs", "multihash": "1f:38680ac92ee45d16ee2c1ea7bd7f6284d80b7aa1e6ad9fd1cd748b29181e5fc3", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the active source; authoritative main still has no file at this path."}}],
+  "targets": [{"path": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion-core.mjs"}],
+  "preserve": ["DATA categories and defaults, cursor-ordered diffs, subdomain boundaries and tombstones remain the original mechanism."],
+  "allowed_deltas": ["Retain the existing pure row adapter: preferences and diff state are supplied by the caller and returned, rather than written to the old Mac state file.", "Keep current folder-relative DATA and export bindings; move the existing implementation unchanged into the fresh core after the exact baseline."],
+  "banned_substitutions": ["Using the recording-folder state file for this pure API.", "Fabricating prior copy chronology or counting the inactive baseline as active code."],
+  "baseline": {"commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "path": "tools/keep-private-sites-out-of-capture/source-baselines/capture-exclusion.mjs.held", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:38680ac92ee45d16ee2c1ea7bd7f6284d80b7aa1e6ad9fd1cd748b29181e5fc3", "target_multihash_at_baseline": "1f:38680ac92ee45d16ee2c1ea7bd7f6284d80b7aa1e6ad9fd1cd748b29181e5fc3"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["categoriesOn", "domainsIn", "applyDiff"], "test_refs": ["tools/keep-private-sites-out-of-capture/test/capture-exclusion.test.mjs"]}
+}

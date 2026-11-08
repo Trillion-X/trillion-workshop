@@ -1,0 +1,314 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-RECORD-THE-SCREEN-PUBLIC-MODULE-FACADE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Close actual missing source provenance for ONLY these Workshop folders",
+    "message_multihash": "1f:d5ba9e3a6e6858e71ab612d90a7bb65535e1e81508e1cf5fb58397610ec1fa43",
+    "attribution": "delegated task, not a user quote"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Forward the existing screen-recording session and exclusion module exports to their source-first canonical implementations while preserving their public import paths",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/record-the-screen/do-work/capture-session.mjs",
+      "role": "Export-only compatibility binding; the older algorithm is retained by its separately qualified source-first core."
+    },
+    {
+      "path": "tools/record-the-screen/do-work/capture-exclusion.mjs",
+      "role": "Export-only compatibility binding; the older algorithm is retained by its separately qualified source-first core."
+    }
+  ],
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "computer/capture-session.mjs",
+      "why": "This is the historical algorithm owner. Its preserved mechanisms are certified by the source-first core contract, while this job only forwards the existing module export identities."
+    },
+    {
+      "repository": "trillion",
+      "path": "computer/capture-exclusion.mjs",
+      "why": "This is the historical algorithm owner. Its preserved mechanisms are certified by the source-first core contract, while this job only forwards the existing module export identities."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/do-work/capture-session-core.mjs",
+      "why": "This is the canonical active algorithm, preserved from the older source. The compatibility entry only forwards its exports."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/do-work/capture-exclusion-core.mjs",
+      "why": "This is the canonical active algorithm, preserved from the older source. The compatibility entry only forwards its exports."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/source-baselines/capture-session.mjs.held",
+      "why": "This is the exact inactive source evidence committed before the fresh core. It is neither imported nor run by the compatibility entry."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/source-baselines/capture-exclusion.mjs.held",
+      "why": "This is the exact inactive source evidence committed before the fresh core. It is neither imported nor run by the compatibility entry."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/README.md",
+      "why": "This describes the tool and its limitations rather than implementing a compatibility module."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/test/",
+      "why": "These tests exercise the tool's behavior through the public API; they do not own an independent compatibility implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/tool-rows.json",
+      "why": "These are invocation descriptors and sample inputs, not module export-forwarding code."
+    },
+    {
+      "repository": "trillion",
+      "path": "dev/deleted-code-homes.json",
+      "why": "This is a retirement index naming historical code homes, not a runnable module-export compatibility binding."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "This is the capability catalogue describing the underlying tool jobs; it supplies no public module forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/do-work/capture-display.swift",
+      "why": "This is the platform helper that records the chosen display or window; it does not forward the existing Node module API."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/do-work/capture-shield.mjs",
+      "why": "This is the older notification lifecycle helper around a capture; it brackets the effect rather than forwarding this public session or exclusion API."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/do-work/list-capture-sources.swift",
+      "why": "This is the platform helper that enumerates recording sources, rather than a Node module compatibility binding."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/do-work/track-pointer.swift",
+      "why": "This helper samples pointer positions for a recording, not the module-export forwarding job."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/read-data/capture-session.json",
+      "why": "This is editable recording settings and capturer DATA, not a module-export forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/suggest-zooms-from-pointer-moves/README.md",
+      "why": "This documentation describes the tools and their consumers, rather than forwarding the public module export set."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom.mjs",
+      "why": "This is the pointer-dwell zoom algorithm that consumes recording telemetry, not a compatibility binding for the recording API."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/suggest-zooms-from-pointer-moves/test/auto-zoom.test.mjs",
+      "why": "This is a regression test or inactive historical test artifact exercising the underlying behavior; it does not own an independent module-forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "README.md",
+      "why": "This documentation describes the tools and their consumers, rather than forwarding the public module export set."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-private-sites-out-of-capture/README.md",
+      "why": "This documentation describes the tools and their consumers, rather than forwarding the public module export set."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion.json",
+      "why": "This is editable privacy-category settings DATA, not a compatibility module."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-private-sites-out-of-capture/read-data/capture-exclusion.mjs",
+      "why": "This owns the pre-existing privacy-category algorithm and its own state boundary. The new facade job only preserves the named module's public export bindings, while the older algorithm is retained by its source-first contract."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-private-sites-out-of-capture/test/capture-exclusion.test.mjs",
+      "why": "This is a regression test or inactive historical test artifact exercising the underlying behavior; it does not own an independent module-forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/keep-private-sites-out-of-capture/tool-rows.json",
+      "why": "This is declarative settings or catalogue DATA, not a public module compatibility implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/record-the-screen/read-data/capture-exclusion.json",
+      "why": "This is editable privacy-category settings DATA, not a compatibility module."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/tell-a-repeated-capture-from-a-new-one/from-old-trillion/test/capture-categories.test.mjs.held",
+      "why": "This is a regression test or inactive historical test artifact exercising the underlying behavior; it does not own an independent module-forwarding implementation."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/use-trillion-from-a-shell/from-old-trillion/harness/action-bus.json",
+      "why": "This is historical dispatcher DATA that names the old capture operations, not a current Node export binding."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "This is a published tool catalogue of invocation descriptors, not an implementation of the named module API."
+    }
+  ],
+  "preserve": [
+    "Every public named export retains its binding to the canonical implementation.",
+    "The facade contains no capture, privacy, detector, parser or recording algorithm."
+  ],
+  "allowed_deltas": [
+    "Replace the former public implementation body with a same-directory export-only forwarder after its genuine baseline and source-first core are established."
+  ],
+  "banned_substitutions": [
+    "Calling the older algorithm a new invention or retaining an algorithm body in the facade."
+  ],
+  "baseline": {},
+  "proof": {
+    "test_refs": [
+      "tools/record-the-screen/test/capture-session.test.mjs",
+      "tools/record-the-screen/test/capture-exclusion.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "Forward the existing screen-recording session and exclusion module exports to their source-first canonical implementations while preserving their public import paths"
+      ],
+      "capability_rows": [
+        {
+          "capability": "turn a written video presentation plan into the recording session the camera screen runs: the teleprompter script sentence by sentence, the countdown, when to stop on silence, on the final word or on a stop phrase, and whether it may start by itself",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/record-video-with-teleprompter/"
+          ],
+          "words": 0.187,
+          "near": false
+        },
+        {
+          "capability": "get and renew a public secure certificate for the portable server's address, with the DNS credentials passing only through the vault, and decide which paths the public host keeps (/healthz, /download, the receptionist's /mcp paths, and /privacy and /terms handed to the site gettrillion.ai by GET and HEAD) before the rest goes to the engine",
+          "repository": "trillion",
+          "owner": [
+            "scripts/portable-tls.mjs"
+          ],
+          "words": 0.183,
+          "near": false
+        },
+        {
+          "capability": "keep a single copy of each style rule in the joined workspace stylesheet, even when several screens import the same library",
+          "repository": "trillion",
+          "owner": [
+            "scripts/one-copy-of-each-rule.mjs"
+          ],
+          "words": 0.158,
+          "near": false
+        },
+        {
+          "capability": "suggest zooms for a screen recording from the pointer moves and clicks noted beside it, as rows the person can edit before export",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/suggest-zooms-from-pointer-moves/"
+          ],
+          "words": 0.158,
+          "near": false
+        },
+        {
+          "capability": "keep each AI session on this computer as the person's records, take the open work handed to this computer's AIs, wake their stopped sessions, and set up this computer's AI apps with the account's key, hooks and connection",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/keep-and-wake-ai-sessions-on-this-computer/"
+          ],
+          "words": 0.157,
+          "near": false
+        },
+        {
+          "capability": "export a markdown manuscript to word and verify it against its source",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-documents-to-files/"
+          ],
+          "words": 0.151,
+          "near": false
+        },
+        {
+          "capability": "import Markdown into the maintained editable composition-document scene tree, preserving headings, nested lists, tables, code fences, source-byte provenance and strict semantic round trips",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/import-markdown-to-editable-document/"
+          ],
+          "words": 0.148,
+          "near": false
+        },
+        {
+          "capability": "measure what the signed-in workspace costs to load, from its own build: the script every screen pays and what each screen adds when it first opens",
+          "repository": "trillion",
+          "owner": [
+            "scripts/workspace-screen-sizes.mjs"
+          ],
+          "words": 0.144,
+          "near": false
+        },
+        {
+          "capability": "read which browser session and account a screen in the person's browser is signed in as, and the browser's own id, for the screens that need them",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/account-session/"
+          ],
+          "words": 0.136,
+          "near": false
+        },
+        {
+          "capability": "keep a rented server's public address on a valid certificate: issue and renew it by DNS-01 with the person's DNS key, set up the server's certificate owner and decide which paths its public host keeps before the rest goes to the engine",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/renew-a-tls-certificate/"
+          ],
+          "words": 0.132,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "capture[-_]session",
+        "capture[-_]exclusion"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ]
+    }
+  }
+}

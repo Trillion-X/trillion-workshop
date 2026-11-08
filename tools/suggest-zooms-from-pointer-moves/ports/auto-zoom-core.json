@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-POINTER-ZOOM-CANONICAL-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Close actual missing source provenance for ONLY these Workshop folders", "message_multihash": "1f:d5ba9e3a6e6858e71ab612d90a7bb65535e1e81508e1cf5fb58397610ec1fa43", "attribution": "delegated task, not a user quote"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/auto-zoom.mjs", "multihash": "1f:85d1bcfcde3629195a85d9c030f823c29d8f3550cb7a1de09e16d38a2de979d9", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the active source; authoritative main still has no file at this path."}}],
+  "targets": [{"path": "tools/suggest-zooms-from-pointer-moves/read-data/auto-zoom-core.mjs"}],
+  "preserve": ["Pointer dwell and click strength, bounded zoom spans, telemetry-space refusal and DATA thresholds remain unchanged."],
+  "allowed_deltas": ["Retain the existing folder-relative DATA and computer-row export, with the existing implementation extracted unchanged after the exact source baseline."],
+  "banned_substitutions": ["A rewritten zoom detector or invented earlier byte-copy commit.", "Counting the held artifact toward active retention."],
+  "baseline": {"commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "path": "tools/suggest-zooms-from-pointer-moves/source-baselines/auto-zoom.mjs.held", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:85d1bcfcde3629195a85d9c030f823c29d8f3550cb7a1de09e16d38a2de979d9", "target_multihash_at_baseline": "1f:85d1bcfcde3629195a85d9c030f823c29d8f3550cb7a1de09e16d38a2de979d9"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["suggestZooms", "exportFlags"], "test_refs": ["tools/suggest-zooms-from-pointer-moves/test/auto-zoom.test.mjs"]}
+}

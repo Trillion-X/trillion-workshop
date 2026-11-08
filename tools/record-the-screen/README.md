@@ -1,5 +1,7 @@
 # tools/record-the-screen/
 
+The `do-work/capture-session.mjs` and `do-work/capture-exclusion.mjs` entries forward their exports to the same-directory `-core.mjs` implementations. The exact historical source was committed as inactive evidence in `8889fe2f` before those fresh core paths were introduced; the earlier adapted-file birth is not presented as a source-only copy. The original behavior tests still run through these public entries. Inactive `source-baselines/` files are not imported or mounted by the tool rows.
+
 Records one chosen display or one chosen window of the person's Mac as a movie, with pause, resume and stop, and notes the pointer beside it (positions and presses only, never keys). The recording stays in a private folder until `save` moves it to a place the person's allow-list names. It runs on the person's own Mac as a `computer` row. A second row keeps the categories of places (banking, health, social and more) that screen capture must leave out. The code was moved one to one from Trillion's Mac host (`computer/` in Trillion-X/trillion, deleted there in dc79bb0a8).
 
 ## Files

@@ -1,0 +1,14 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-DEMONSTRATION-CANONICAL-CORE",
+  "status": "ADAPTED",
+  "directive": {"quote": "Close actual missing source provenance for ONLY these Workshop folders", "message_multihash": "1f:d5ba9e3a6e6858e71ab612d90a7bb65535e1e81508e1cf5fb58397610ec1fa43", "attribution": "delegated task, not a user quote"},
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{"repository": "trillion", "commit": "b7dc53d08a13252409f48873d543442a2fc26f9e", "path": "computer/demonstration.mjs", "multihash": "1f:88d70782487315ae3fff146ae0e836b15b6e5a033bf53472e6cf6989378aa909", "ownership": "repository-owned", "old_copy": {"deleted_by": "2026-10-30T07:15:22-06:00", "deleted_with": "dc79bb0a87cd87abefba2c68360492c797546604 removed the active source; authoritative main still has no file at this path."}}],
+  "targets": [{"path": "tools/record-a-job-shown-once/read-data/demonstration-core.mjs"}],
+  "preserve": ["Consecutive typed characters become one bounded step, secure-field text is absent, dropped steps are counted, missing Mac permission is its own refusal and an empty recording asks to retry."],
+  "allowed_deltas": ["Retain the existing engine-granted capability boundary instead of the retired Mac grant file, and retain the local bounded process helper already introduced by the folder port.", "Extract the existing implementation unchanged after the exact inactive baseline; keep its old module as an export-only facade."],
+  "banned_substitutions": ["Claiming a live recorder run or installed permission from synthetic adapter tests.", "Counting baseline evidence toward active retention or inventing the old mixed birth as a source-only commit."],
+  "baseline": {"commit": "8889fe2f7303fab7fd0dd9ea46e920868b8416a0", "path": "tools/record-a-job-shown-once/source-baselines/demonstration.mjs.held", "recorded_at": "2026-11-07T21:01:30-06:00", "copied_before_adaptation": true, "source_multihash": "1f:88d70782487315ae3fff146ae0e836b15b6e5a033bf53472e6cf6989378aa909", "target_multihash_at_baseline": "1f:88d70782487315ae3fff146ae0e836b15b6e5a033bf53472e6cf6989378aa909"},
+  "proof": {"minimum_meaningful_line_retention": 0.6, "required_mechanisms": ["draftFromEvents", "makeDemonstrationTools"], "test_refs": ["tools/record-a-job-shown-once/test/demonstration.test.mjs"]}
+}
