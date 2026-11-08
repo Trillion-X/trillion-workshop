@@ -11,9 +11,9 @@
  * Kept as its own module (not inside video-compose.mjs) because video-compose.mjs runs its CLI
  * at import time, so it cannot be imported by tests.
  */
-import { closeSync, existsSync, openSync, readSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { closeSync, existsSync, fstatSync, openSync, readSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { makeHashCodeHexFromBytes, makeHashCodeHexFromChunks } from '../../content-identity/read-data/identity.mjs';
+import { makeHashCodeHasher, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks } from '../../content-identity/read-data/identity.mjs';
 
 const sidecarOf = out => `${out}.made-from.json`;
 
@@ -30,14 +30,68 @@ export function* stageInputChunks(path, chunkBytes = 1024 * 1024) {
   } finally { closeSync(descriptor); }
 }
 
+const fileVersion = stat => [stat.dev, stat.ino, stat.size, stat.mtimeNs, stat.ctimeNs].map(String).join(':');
+
+/** Per-render bounded digest reuse. Every lookup verifies the opened file still matches the path version. */
+export function createStageHashSession({ maxEntries = 64, chunkBytes = 1024 * 1024 } = {}) {
+  if (!Number.isSafeInteger(maxEntries) || maxEntries <= 0) throw new TypeError('A positive whole cache bound is required.');
+  if (!Number.isSafeInteger(chunkBytes) || chunkBytes <= 0) throw new TypeError('A positive whole chunk size is required.');
+  const cache = new Map();
+  const versionOf = stat => fileVersion(stat);
+  const changed = path => new Error(`Stage input changed while its identity was checked: ${path}`);
+  const assertStable = (path, before, opened, afterOpened, afterPath) => {
+    const expected = versionOf(before);
+    if (versionOf(opened) !== expected || versionOf(afterOpened) !== expected || versionOf(afterPath) !== expected)
+      throw changed(path);
+  };
+
+  return {
+    identity(path) {
+      const before = statSync(path, { bigint: true });
+      if (!before.isFile()) throw new TypeError(`A stage input must be a regular file: ${path}`);
+      const version = versionOf(before);
+      const descriptor = openSync(path, 'r');
+      try {
+        const opened = fstatSync(descriptor, { bigint: true });
+        const entry = cache.get(path);
+        if (entry?.version === version) {
+          const afterOpened = fstatSync(descriptor, { bigint: true });
+          const afterPath = statSync(path, { bigint: true });
+          assertStable(path, before, opened, afterOpened, afterPath);
+          cache.delete(path); cache.set(path, entry);
+          return { bytes: entry.bytes, reused: true };
+        }
+
+        cache.delete(path);
+        if (versionOf(opened) !== version) throw changed(path);
+        const hasher = makeHashCodeHasher(), buffer = Buffer.allocUnsafe(chunkBytes);
+        for (;;) {
+          const count = readSync(descriptor, buffer, 0, buffer.length, null);
+          if (!count) break;
+          hasher.update(buffer.subarray(0, count));
+        }
+        const afterOpened = fstatSync(descriptor, { bigint: true });
+        const afterPath = statSync(path, { bigint: true });
+        assertStable(path, before, opened, afterOpened, afterPath);
+        const bytes = hasher.identity();
+        cache.set(path, { version, bytes });
+        if (cache.size > maxEntries) cache.delete(cache.keys().next().value);
+        return { bytes, reused: false };
+      } finally { closeSync(descriptor); }
+    },
+    clear() { cache.clear(); },
+  };
+}
+
 /** Identity of exact arguments and input bytes, including ordered image-pattern inputs. */
-export function stageIdentity(args) {
+export function stageIdentity(args, hashSession = null) {
   const inputs = [];
   const binding = new Set();
   const keep = path => {
     if (binding.has(path)) throw new Error('A stage input reference cycle cannot be bound.');
     const stat = statSync(path);
-    if (stat.isFile()) inputs.push({ path, bytes: makeHashCodeHexFromChunks(stageInputChunks(path)) });
+    if (stat.isFile()) inputs.push({ path, bytes: hashSession
+      ? hashSession.identity(path).bytes : makeHashCodeHexFromChunks(stageInputChunks(path)) });
   };
   let inputFormat = null;
   args.forEach((arg, index) => {
@@ -81,10 +135,10 @@ export function markStage(out, identity) {
 }
 
 /** True only when `out` is non-empty and its sidecar identity equals the identity of these exact args and inputs now. */
-export function reusable(out, args) {
+export function reusable(out, args, hashSession = null) {
   try {
     const made = JSON.parse(readFileSync(sidecarOf(out), 'utf8'));
-    return statSync(out).size > 0 && typeof made.identity === 'string' && made.identity === stageIdentity(args);
+    return statSync(out).size > 0 && typeof made.identity === 'string' && made.identity === stageIdentity(args, hashSession);
   } catch {
     return false;
   }

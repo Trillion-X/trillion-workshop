@@ -33,7 +33,7 @@ import { chooseByThreshold } from './choose-by-threshold.mjs';
 import { resolveRenderDimensions } from './resolve-render-dimensions.mjs';
 import { channelStats, computeColorTransfer, colorMatchFilter } from './color-match.mjs';
 import { measureLoudness } from './measure-loudness.mjs';
-import { markStage, reusable, stageIdentity, stageInputChunks } from './stage-reuse.mjs';
+import { createStageHashSession, markStage, reusable, stageIdentity, stageInputChunks } from './stage-reuse.mjs';
 import { makeHashCodeHexFromChunks } from '../../content-identity/read-data/identity.mjs';
 
 import { createKeyframeEffects, resolveEffectFragment, createTransitionRenderers, resolveTemplateEffect, VIZ_PRODUCERS, createEffectProducers, createComputeEffects, createPulseEffects, createStabilizeEffect, resolveLookStack } from './effect-registry.mjs';
@@ -76,6 +76,7 @@ const T = (args.get('workdir') ?? mkdtempSync(join(tmpdir(), 'video-compose-')))
 // every segment kind, transition renderer, and concat stage because they all pass
 // through ff() below — no per-builder resume branches (L069 clay, not LEGO).
 const RESUME = process.argv.includes('--resume');
+const STAGE_HASHES = createStageHashSession({ maxEntries: 64 });
 
 // ---- stored-bytes ref materialization (engine-native artifacts, ZERO machine paths — L136/Physics-vs-Society) ----
 // DATA references shipped package artifacts (LUT `.cube`, transition scripts, any bytes) by their
@@ -180,7 +181,7 @@ function ff(ffArgs, stage) {
     // A stage is reused only when it was made by these exact args from these exact inputs (stage-reuse.mjs), and decodes.
     let canReuse = false;
     try {
-      canReuse = reusable(out, fullArgs) && probeDuration(out) > 0;
+      canReuse = reusable(out, fullArgs, STAGE_HASHES) && probeDuration(out) > 0;
     } catch { /* missing or non-decoding output (crash stub) → re-render */ }
     if (canReuse) {
       console.log(`[video.compose] resume: reuse existing ${stage} → ${out}`);
@@ -189,7 +190,7 @@ function ff(ffArgs, stage) {
   }
   // Invalidate the sidecar first, so a run that fails midway cannot leave a sidecar vouching for a clobbered output.
   if (sidecarOk) markStage(out, null);
-  const identity = stageIdentity(fullArgs);
+  const identity = stageIdentity(fullArgs, STAGE_HASHES);
   try {
     execFileSync('ffmpeg', fullArgs, { encoding: 'utf8' });
   } catch (error) {
