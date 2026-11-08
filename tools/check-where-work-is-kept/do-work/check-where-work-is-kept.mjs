@@ -10,6 +10,7 @@
 // Where a write may go is the caller's DATA (the rules), never this file's:
 //
 //   { source_repositories: ["owner/name", ...],   a checkout whose origin names one of these holds source
+//     source_checkouts: [{ path, name }],         a checkout with no origin, named by its folder, holds source too
 //     scratch: ".git/scratch",                    the one place under a checkout's .git an AI may write
 //     new_files_refused: [{ why, pattern, except?, list? }],   a NEW file in a checkout whose path matches is refused
 //     list_copies: [{ folder, list }],            folders the list-copy sync writes; an AI writing there is refused
@@ -323,6 +324,14 @@ function declared(origin, rules) {
   return (rules.source_repositories ?? []).find((name) => url.endsWith(`/${name.toLowerCase()}`) || url.endsWith(`:${name.toLowerCase()}`));
 }
 
+// A checkout with no origin that the rules name by its folder (`source_checkouts`: [{ path, name }], `~` the home
+// folder): the name it is placed under, or undefined.
+const realOr = (path) => { try { return realpathSync(path); } catch { return path; } };
+function declaredCheckout(checkout, rules, home) {
+  const real = realOr(checkout);
+  return (rules.source_checkouts ?? []).find((row) => realOr(String(row.path).replace(/^~(?=\/|$)/, home)) === real)?.name;
+}
+
 const segments = (path) => path.split('/').filter(Boolean);
 
 function segmentMatches(pattern, value) {
@@ -350,7 +359,7 @@ export function placePath(path, rules, { home = homedir() } = {}) {
   if (path === '/dev' || path.startsWith('/dev/')) return { verdict: 'not-kept', why: 'a device, which keeps nothing' };
   const checkout = checkoutOf(path);
   if (checkout) {
-    const repository = declared(originOf(checkout), rules);
+    const repository = declared(originOf(checkout), rules) ?? declaredCheckout(checkout, rules, home);
     if (repository) {
       const relative = path === checkout ? '' : path.slice(checkout.length + 1);
       const scratch = (rules.scratch ?? '.git/scratch').replace(/\/$/, '');

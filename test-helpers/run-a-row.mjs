@@ -241,6 +241,14 @@ export async function runRow(row, sampleInput, sample = {}) {
       environment.WORKSHOP_TEST_PYTHON = python;
       if (argv[0] === 'python3' && !Object.hasOwn(standIns, 'python3')) argv[0] = python;
     }
+    // Browser samples keep their isolated HOME. Resolve the installed test dependency through its owner, then
+    // hand its real executable to tools through the existing discovery setting; never install during a sample.
+    if (sample.browser_environment === true) {
+      const { chromiumExecutable } = await import('./chromium.mjs');
+      const executable = chromiumExecutable();
+      if (!existsSync(executable)) throw new Error('The declared browser sample needs the installed Playwright Chromium dependency.');
+      environment.CHROME_PATH = executable;
+    }
     if (standInFolder) environment.PATH = `${standInFolder}:${environment.PATH}`;
     for (const item of mounts) {
       const value = heldValue(item, held);
