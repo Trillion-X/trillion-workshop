@@ -852,6 +852,41 @@
       "contains": "missing"
      }
     ],
+    "screen": {
+     "group": "content-publish",
+     "kind": "app-entry",
+     "entry": "posts",
+     "icon": "Send",
+     "label": "Posts",
+     "about": "Check a post is ready for each place it goes.",
+     "inputs": {
+      "post_id": {
+       "label": "Post",
+       "placeholder": "The post, from your posting calendar"
+      }
+     },
+     "takes_file": {
+      "takes": "seen-or-heard",
+      "label": "Post or schedule",
+      "icon": "Send",
+      "input": {
+       "media": {
+        "identity": {
+         "from": "file",
+         "field": "identity"
+        },
+        "name": {
+         "from": "file",
+         "field": "name"
+        },
+        "media_type": {
+         "from": "file",
+         "field": "type"
+        }
+       }
+      }
+     }
+    },
     "result_selector": "$.result"
    }
   },
