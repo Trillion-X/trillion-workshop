@@ -1,0 +1,50 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SHARE-DESTINATIONS",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:cf4063836e541838463534af36382860765370db56f806b0a8a617b71fc8ef29",
+    "quote": "Proceed lawful separate exact immutable baseline artifacts within your owner using checker supported baseline.path, normal gates only once capability prerequisite qualified."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "path": "src/share-destinations.mjs",
+    "multihash": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
+    "ownership": "repository-owned",
+    "old_copy": {"deleted_by": "2026-11-03T19:11:31-07:00", "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"}
+  }],
+  "targets": [{"path": "tools/choose-where-shares-from-the-phone-browser/read-data/share-destinations.mjs"}],
+  "preserve": [
+    "Read current request-scoped pursuits, rooms, saved instructions and tools from their existing owners.",
+    "Keep choices under the original workshop_facts entity share-destinations, not a new setting or preference store.",
+    "Keep history in the original shares_sent owner, including the exact receiving destinations and request key.",
+    "The caller supplies actual private reach; a selected target is resolved only from the current admitted list.",
+    "Validate the whole selection and saved action tree before persisting a change or delivering anything.",
+    "Deliver through the receiving resource owner with the original request reach and stable retry key.",
+    "Retain read, save, deliver, history, adoption, action folders, site defaults and route-itself operations."
+  ],
+  "allowed_deltas": [
+    "Resolve shared helper dependencies through their admitted public owners.",
+    "Receive account defaults and words as DATA from the existing owner instead of bundling product defaults.",
+    "An invoked provider failure remains a failure instead of an empty destination or tool list.",
+    "Missing receiving-owner identities cannot count as delivered; preserve unknown outcomes for retry.",
+    "Current owner bindings and active public import admission must be proved separately; this baseline alone grants neither."
+  ],
+  "banned_substitutions": ["A new preference or history store", "A fixture-only implementation", "A cross-account target lookup", "A default private grant", "A legacy runtime fallback", "A successful list read reported as delivery"],
+  "baseline": {
+    "path": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/baseline/src/share-destinations.mjs.held",
+    "commit": "d494390943f29701c6b4c2fb74d396822c1ae5e2",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
+    "target_multihash_at_baseline": "1f:7aa1fd56fc602dbbb8557061ca060918a944bcb47d44f657a24e52e5e2ce1279",
+    "recorded_at": "2026-11-07T19:41:13-06:00"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.9,
+    "required_mechanisms": ["makeShareDestinations", "destinationsFrom", "sitesFrom", "treeFrom", "workflowStart", "personShareHandOff", "handleShareDestinationsRequest", "shareDestinationTools"],
+    "test_refs": ["tools/choose-where-shares-from-the-phone-browser/test/share-destination-controls.test.mjs"]
+  }
+}

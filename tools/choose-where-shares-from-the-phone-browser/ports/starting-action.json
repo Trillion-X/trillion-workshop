@@ -1,0 +1,42 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SHARE-STARTING-ACTION",
+  "status": "BASELINED",
+  "directive": {
+    "thread_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:cf4063836e541838463534af36382860765370db56f806b0a8a617b71fc8ef29",
+    "quote": "Reuse original exact held selector if already sufficient; avoid redundant5copies unless needed by contract baseline checks. Do not export/import inert artifacts or alter guard. Continue generic adaptation/proofs after source baseline admitted."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "path": "src/share-starting-action.mjs",
+    "multihash": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
+    "ownership": "repository-owned",
+    "old_copy": {"deleted_by": "2026-11-03T19:11:31-07:00", "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7"}
+  }],
+  "targets": [{"path": "tools/choose-where-shares-from-the-phone-browser/read-data/share-starting-action.mjs"}],
+  "preserve": [
+    "Use the shared whole-label host rule, never a host-text suffix check.",
+    "The longest matching host suffix wins for one address.",
+    "The first shared address with a site action determines the selected saved action.",
+    "An action is returned only from the current account's supplied actions.",
+    "Keep the browser-pure actionForAddress, siteAction, startingAction and routingAction exports."
+  ],
+  "allowed_deltas": ["Resolve hostWithin from its current public Workshop owner without importing a server runtime."],
+  "banned_substitutions": ["A fixture-only selector", "A second host matching implementation", "A bundled list of account actions or site defaults"],
+  "baseline": {
+    "path": "tools/choose-where-shares-from-the-phone-browser/from-old-trillion/src/share-starting-action.mjs.held",
+    "commit": "ae875b9b01543aead2efd4fca4b373e9a4381cdd",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
+    "target_multihash_at_baseline": "1f:584f0003e73fe14053c54a6e4ff6b1de5a5df4c02ab9f10b6edc0ac8b93ca70c",
+    "recorded_at": "2026-11-04T15:15:08Z"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.9,
+    "required_mechanisms": ["export function actionForAddress", "export function siteAction", "export function startingAction", "export function routingAction", "hostWithin"],
+    "test_refs": ["tools/choose-where-shares-from-the-phone-browser/test/share-destination-controls.test.mjs"]
+  }
+}
