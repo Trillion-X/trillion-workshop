@@ -12,7 +12,7 @@
 // a tool.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { basename, dirname } from 'node:path';
+import { basename } from 'node:path';
 import { rows as readRows } from '../test-helpers/tool-rows.mjs';
 import { runRow, select } from '../test-helpers/run-a-row.mjs';
 import { staleReplies } from '../test-helpers/stand-in-egress.mjs';
@@ -111,30 +111,9 @@ test('the app-tool descriptor selects the direct answer from its synthetic stdio
   const row = readRows().find(({ payload }) => payload?.id === 'tool:use-an-app-on-this-computer')?.payload;
   assert.ok(row, 'the app tool descriptor is present');
   assert.equal(row.result_selector, '$');
-  const server = `
-let buffer = '';
-process.stdin.on('data', chunk => {
-  buffer += chunk;
-  for (let end = buffer.indexOf('\\n'); end >= 0; end = buffer.indexOf('\\n')) {
-    const request = JSON.parse(buffer.slice(0, end));
-    buffer = buffer.slice(end + 1);
-    if (request.id === undefined) continue;
-    const result = request.method === 'initialize'
-      ? { protocolVersion: request.params.protocolVersion, capabilities: { tools: {} }, serverInfo: { name: 'fixture', version: '1' } }
-      : request.method === 'tools/list'
-        ? { tools: [{ name: 'echo', inputSchema: { type: 'object' } }] }
-        : { content: [{ type: 'text', text: JSON.stringify({ seen: request.params.arguments }) }] };
-    process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: request.id, result }) + '\\n');
-  }
-});`;
-  const apps = {
-    protocol_version: '2025-06-18', client: { name: 'test', version: '1' }, answer_seconds: 5,
-    apps: [{ id: 'fixture', label: 'Fixture', runtime: 'command', check: [basename(process.execPath), '--version'],
-      search_path: [dirname(process.execPath)], start: [basename(process.execPath), '-e', server] }],
-  };
-  const ran = await runRow(row, { app: 'fixture', operation: 'echo', arguments: { proof: 'descriptor-consumer' } }, {
-    laid_files: [{ path: 'opt/media-composition/do-work/apps-here.json', text: JSON.stringify(apps) }],
-  });
+  const sample = samplesOf(row).find(check => check.input.app === 'fixture');
+  assert.ok(sample, 'the descriptor declares its synthetic sample for every catalogue consumer');
+  const ran = await runRow(row, sample.input, sample);
   assert.equal(ran.code, 0, ran.stderr || JSON.stringify(ran));
   assert.deepEqual(ran.last, {
     app: 'fixture', label: 'Fixture', operation: 'echo', ok: true,
