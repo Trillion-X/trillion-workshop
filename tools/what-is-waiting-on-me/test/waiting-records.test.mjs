@@ -14,7 +14,7 @@ const doorOf = (records = [], runs = {}) => ({
 const own = (id, value) => ({ id, type: DATA.registry_type, value });
 
 test('current record and reader-tool sources compose once, while unported owners remain unread', async () => {
-  const record = { id: 'record:waiting-on-you:sample', type: 'record:waiting-on-you', value: { what: 'Sign the sample form', do_it_in: '/sample/form', status: 'Open' } };
+  const record = { id: 'record:waiting-on-you:sample', type: 'record:waiting-on-you', value: { what: 'Sign the sample form', do_it_in: '/sample/form', status: 'Open', round_step: 'Run a sample tasting', rounds_done: 1, progress: 'One sample tasting recorded' } };
   let decisionReads = 0;
   const post = { id: 'post:sample', type: 'post', value: { post_id: 'post:sample', caption: 'A sample post', status: 'draft', media: { identity: 'sample-file' } } };
   const answer = await readWaitingOnMe({}, { door: doorOf([record, post], {
@@ -22,7 +22,11 @@ test('current record and reader-tool sources compose once, while unported owners
     'tool:see-my-decisions': () => { decisionReads++; return { summaries: [{ case_id: 'source:sample', goal: 'A sample decision', status: 'needs_decision' }], next_before: null }; },
   }) });
   assert.equal(answer.complete, false);
-  assert.equal(answer.sections.find(section => section.id === 'asks').cards[0].id, record.id);
+  const ask = answer.sections.find(section => section.id === 'asks').cards[0];
+  assert.equal(ask.id, record.id);
+  assert.equal(ask.round_step, record.value.round_step);
+  assert.equal(ask.rounds_done, 1);
+  assert.equal(ask.progress, record.value.progress);
   assert.equal(answer.sections.find(section => section.id === 'decide').cards[0].id, 'source:sample');
   assert.equal(answer.sections.find(section => section.id === 'turn-on-notices').cards[0].address, '/sample/settings');
   assert.equal(decisionReads, 1, 'decision and outcome sections share the same source read');
@@ -82,7 +86,7 @@ test('a round completion counts only one round on retry and closes only the fina
 test('the packaged read and completion tools use their declared record rights and read the same target back', async () => {
   const id = 'record:waiting-on-you:sample';
   const registry = DATA.sources.map(source => own(`source:${source.id}`, { id: source.id, title: '{what}', where: [], read: { type: 'record:waiting-on-you' } }));
-  const records = [...registry, { id, type: 'record:waiting-on-you', value: { what: 'A sample task', status: 'Waiting' } }];
+  const records = [...registry, { id, type: 'record:waiting-on-you', value: { what: 'Sign the sample paper form', status: 'Waiting', needs: 'sign by hand', only_you_because: 'Their own signature', response: { kind: 'press', label: 'I signed the paper' } } }];
   const read = await answerOf(rowOf(ROWS, 'tool:read-what-is-waiting-on-me'), {}, { records });
   assert.equal(read.status, 0, read.error);
   assert.equal(read.result.complete, true);
