@@ -94,7 +94,7 @@
         { "repository": "trillion-rust", "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f" },
         { "repository": "trillion-workshop", "commit": "1083a00ae322107c47e76d82e9c641789d0fd176" },
         { "repository": "trillion-site", "commit": "14cb42dff1ab465388331616f82ca51f50761aab" },
-        { "repository": "trillion-launch-video", "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f" },
+        { "repository_multihash": "1f:7194f5aeee028c1b6843e2a7f56b491474b9df140a5f2fbaa1a1c6fb23039055", "commit": "b968a719d3efc64f6b75cafe72f2705ae297c23f" },
         { "repository": "bitfield-packages", "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4" }
       ]
     },
