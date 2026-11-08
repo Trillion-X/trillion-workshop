@@ -1,0 +1,1598 @@
+{
+  "schema": "content-production.presentation-formats/self-describing",
+  "source_kind": "embedded-json-data-island",
+  "source_script_id": "seed",
+  "formats": [
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "series",
+          "role": "host",
+          "template": "{series}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "opening",
+          "role": "host",
+          "template": "{hook}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [
+            "application"
+          ],
+          "delivery": "speak",
+          "id": "apply",
+          "role": "host",
+          "template": "{application}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "close",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+    "execution": {
+      "adapter": "capture.video",
+      "countdown_seconds": 3,
+      "prompt_on_start": true,
+      "auto_stop_seconds": 0,
+      "silence_stop_seconds": 3,
+      "silence_threshold_rms": 0.02,
+      "minimum_speech_ms": 750,
+      "completion_reason_refs": {
+        "manual": "capture-completion:operator-stop",
+        "speech": "capture-completion:confirmed-script-complete",
+        "silence": "capture-completion:measured-silence-after-speech",
+        "duration": "capture-completion:active-duration-limit",
+        "provider_end": "capture-completion:provider-ended",
+        "provider_error": "capture-completion:provider-error",
+        "cancel": "capture-completion:operator-cancel"
+      },
+      "stop_on_final_word": true,
+      "completion_grace_ms": 500
+      },
+      "id": "F57-SOLO",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        }
+      ],
+    "revision": 2,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "cues"
+        }
+      ],
+      "series_policy": "spoken",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Full script or the same beats as cues",
+        "shot": "Single presenter, eyes near lens, comfortable chest-up composition"
+      },
+      "title": "Direct-to-camera series"
+    },
+    {
+      "acquisitions": [
+        {
+          "needed": "A real answer; record and inspect it before deriving a conclusion.",
+          "role": "guest"
+        }
+      ],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "question",
+          "id": "ask",
+          "role": "host",
+          "template": "{question}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "listen",
+          "id": "listen",
+          "role": "guest",
+          "template": ""
+        },
+        {
+          "claim_refs": [],
+          "delivery": "question",
+          "id": "follow",
+          "role": "host",
+          "template": "{followup}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "close",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": false
+      },
+      "id": "F57-INTERVIEW",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "guest",
+          "instruction": "Seat a willing participant; confirm each face and each microphone can be captured.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "questions"
+        },
+        {
+          "id": "guest",
+          "prompt_mode": "unscripted"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Questions on host surface; no scripted guest answers",
+        "shot": "A two-shot or tested host/guest angles; eyelines toward each other"
+      },
+      "title": "Two-person interview"
+    },
+    {
+      "acquisitions": [
+        {
+          "needed": "Authentic response; never generated and presented as a street interview.",
+          "role": "guest"
+        }
+      ],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "direction",
+          "id": "approach",
+          "role": "host",
+          "template": "Ask a willing person for recording consent in an appropriate place."
+        },
+        {
+          "claim_refs": [],
+          "delivery": "question",
+          "id": "question",
+          "role": "host",
+          "template": "{question}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "listen",
+          "id": "listen",
+          "role": "guest",
+          "template": ""
+        },
+        {
+          "claim_refs": [],
+          "delivery": "question",
+          "id": "follow",
+          "role": "host",
+          "template": "{followup}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "direction",
+          "id": "editor",
+          "role": "host",
+          "template": "Review the answer fairly; it may challenge this lesson rather than confirm it."
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": false
+      },
+      "id": "F57-STREET",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "environment",
+          "instruction": "Choose a safe place that does not obstruct people; review who else may be captured.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "guest",
+          "instruction": "Confirm the actual participant is ready and understands the recording.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "questions"
+        },
+        {
+          "id": "guest",
+          "prompt_mode": "unscripted"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Brief questions, not a moving monologue",
+        "shot": "Test the two-person handheld framing and microphone reach"
+      },
+      "title": "Street interview"
+    },
+    {
+      "acquisitions": [
+        {
+          "needed": "A real conversational contribution.",
+          "role": "guest"
+        }
+      ],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "introduce",
+          "role": "host",
+          "template": "Today I want to examine the gap between explaining something and helping someone use it."
+        },
+        {
+          "claim_refs": [],
+          "delivery": "question",
+          "id": "question",
+          "role": "host",
+          "template": "{question}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "listen",
+          "id": "listen",
+          "role": "guest",
+          "template": ""
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "question",
+          "id": "follow",
+          "role": "host",
+          "template": "{followup}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "close",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": false
+      },
+      "id": "F57-PODCAST",
+      "medium": "audio+video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "guest",
+          "instruction": "Seat the guest and test microphone separation, listening position and return audio.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "outline"
+        },
+        {
+          "id": "guest",
+          "prompt_mode": "unscripted"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Outline and responsive follow-ups",
+        "shot": "Seated host/guest coverage; source notes near the host without replacing eye contact"
+      },
+      "title": "Conversational podcast"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "opening",
+          "role": "host",
+          "template": "Here is a moment from my own teaching notes that changed the question I ask."
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [
+            "application"
+          ],
+          "delivery": "speak",
+          "id": "apply",
+          "role": "host",
+          "template": "{application}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "close",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.audio",
+        "countdown_seconds": 3,
+        "prompt_on_start": true
+      },
+      "id": "F57-SOURCE-ESSAY",
+      "medium": "audio",
+      "reference_status": "Broad source-led essay family, informed by the publisher’s episode description; not an exact imitation of David Senra.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "source_access",
+          "instruction": "Put the actual source and its boundaries within reach; distinguish quotation from your interpretation.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "cues"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4",
+        "S57-FOUNDERS"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Attributed scene, interpretation, comparison, application",
+        "shot": "Audio-only by default; add video coverage as a separate output choice"
+      },
+      "title": "Source-led solo podcast"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "lead",
+          "role": "host",
+          "template": "A useful distinction: someone understanding an explanation and someone being able to act on it are not the same result."
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "implication",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": true
+      },
+      "id": "F57-NEWS",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "cues"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Concise lead, attributable facts, implication. No fabricated breaking news or authority branding.",
+        "shot": "Eye-level desk presentation; notes and optional on-screen evidence"
+      },
+      "title": "News-desk explanation"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "question",
+          "role": "host",
+          "template": "Why can a clear explanation still leave someone stuck?"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "visual",
+          "id": "graphic1",
+          "role": "editor",
+          "template": "Show a two-stage diagram: hearing the instruction, then attempting the task."
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "story",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "meaning",
+          "role": "host",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "limit",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "visual",
+          "id": "graphic2",
+          "role": "editor",
+          "template": "Show the actual first-note workflow only if captured; otherwise label the diagram as a proposed flow."
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "close",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": true
+      },
+      "id": "F57-EXPLAINER",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "visuals",
+          "instruction": "Prepare accurate diagrams or approved footage; mark proposed flows and do not use them as proof of a working product.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "narration"
+        },
+        {
+          "id": "editor",
+          "prompt_mode": "visual_plan"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Separate narration, evidence, graphics and editor instructions",
+        "shot": "Narration plus source-led visuals; camera is for the presenter segments only"
+      },
+      "title": "Reported visual explainer"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "opening",
+          "role": "host",
+          "template": "{title}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "speak",
+          "id": "problem",
+          "role": "host",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [
+            "application"
+          ],
+          "delivery": "speak",
+          "id": "approach",
+          "role": "host",
+          "template": "{application}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "visual",
+          "id": "demo",
+          "role": "editor",
+          "template": "Demonstrate one real user path or label the storyboard as planned. Do not invent revenue or customer results."
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "speak",
+          "id": "boundary",
+          "role": "host",
+          "template": "{boundary}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "speak",
+          "id": "lesson",
+          "role": "host",
+          "template": "{ending}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": false
+      },
+      "id": "F57-CASE",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "audio_live",
+          "instruction": "Check that the intended microphones record a usable test, not just that a device exists.",
+          "max_age_seconds": 30,
+          "methods": [
+            "sensor",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "framing",
+          "instruction": "Move the camera until the requested composition is actually in frame; request a new check.",
+          "max_age_seconds": 45,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "demo",
+          "instruction": "Have the actual product screen or explicitly labeled proposed walkthrough ready.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "host",
+          "prompt_mode": "outline"
+        },
+        {
+          "id": "editor",
+          "prompt_mode": "demo_cues"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4",
+        "S57-STARTER"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Problem, approach, actual state, lesson. Missing success data stay missing.",
+        "shot": "Founder explanation plus product evidence"
+      },
+      "title": "Founder product case study"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "movement",
+          "id": "move1",
+          "role": "performer",
+          "template": "Use a comfortable self-chosen movement to portray trying an unclear instruction. This is a staged illustration, not evidence of a real learner."
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "caption",
+          "id": "caption1",
+          "role": "editor",
+          "template": "{caption1}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "movement",
+          "id": "move2",
+          "role": "performer",
+          "template": "Pause at a visible mark, show the missing instruction appearing, and then demonstrate the understood action."
+        },
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "caption2",
+          "role": "editor",
+          "template": "{caption2}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "caption3",
+          "role": "editor",
+          "template": "{caption3}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "endcard",
+          "role": "editor",
+          "template": "{ending}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "caption",
+          "id": "limit",
+          "role": "editor",
+          "template": "{boundary}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "capture.video",
+        "countdown_seconds": 3,
+        "prompt_on_start": false
+      },
+      "id": "F57-MOVEMENT",
+      "medium": "video",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "permission",
+          "instruction": "Confirm this capture is wanted and permitted for all participants; publication is a different action.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "camera_live",
+          "instruction": "Check that the selected camera is delivering a current preview.",
+          "max_age_seconds": 20,
+          "methods": [
+            "sensor"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "full_body",
+          "instruction": "Move the camera back until the entire intended movement stays visible. Recheck after any repositioning.",
+          "max_age_seconds": 30,
+          "methods": [
+            "vision",
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "space",
+          "instruction": "Confirm a clear, appropriate movement area and a movement you choose to perform.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "music",
+          "instruction": "Use silence or music with the needed rights; rhythm does not require unlicensed source audio.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "performer",
+          "prompt_mode": "movement_cues"
+        },
+        {
+          "id": "editor",
+          "prompt_mode": "timed_captions"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "prompt": "Movement cues and timed captions, not a lecture on a teleprompter",
+        "shot": "Full intended movement rather than a cropped talking head"
+      },
+      "title": "Movement-and-caption demonstration"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "frame1",
+          "role": "editor",
+          "template": "{title}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "caption",
+          "id": "frame2",
+          "role": "editor",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "frame3",
+          "role": "editor",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "application"
+          ],
+          "delivery": "caption",
+          "id": "frame4",
+          "role": "editor",
+          "template": "{application}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "frame5",
+          "role": "editor",
+          "template": "{ending}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "caption",
+          "id": "frame6",
+          "role": "editor",
+          "template": "{boundary}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "render.images",
+        "countdown_seconds": 0,
+        "prompt_on_start": true
+      },
+      "id": "F57-CAROUSEL",
+      "medium": "image-set",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "assets",
+          "instruction": "Choose source-safe images or a text-only graphic layout; prepare alt text and check reading size.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "editor",
+          "prompt_mode": "frame_copy"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "camera": "Not required for a designed carousel",
+        "layout": "Six independently readable frames; source note and alt text travel with the output"
+      },
+      "title": "Image carousel"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "text",
+          "id": "opening",
+          "role": "author",
+          "template": "{title}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "text",
+          "id": "scene",
+          "role": "author",
+          "template": "{scene}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "text",
+          "id": "meaning",
+          "role": "author",
+          "template": "{mechanism}"
+        },
+        {
+          "claim_refs": [
+            "application"
+          ],
+          "delivery": "text",
+          "id": "apply",
+          "role": "author",
+          "template": "{application}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "text",
+          "id": "close",
+          "role": "author",
+          "template": "{ending}"
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "text",
+          "id": "limits",
+          "role": "author",
+          "template": "{boundary}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "render.markdown",
+        "countdown_seconds": 0,
+        "prompt_on_start": true
+      },
+      "id": "F57-TEXT",
+      "medium": "text",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "author",
+          "prompt_mode": "editable_text"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "layout": "Short paragraphs; no camera, positioning or recording countdown"
+      },
+      "title": "Text post or newsletter"
+    },
+    {
+      "acquisitions": [],
+      "beats": [
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "heading",
+          "role": "designer",
+          "template": "{title}"
+        },
+        {
+          "claim_refs": [
+            "teaching_event"
+          ],
+          "delivery": "caption",
+          "id": "example",
+          "role": "designer",
+          "template": "{caption1}"
+        },
+        {
+          "claim_refs": [],
+          "delivery": "caption",
+          "id": "steps",
+          "role": "designer",
+          "template": "Observe the attempt → find the missing instruction → revise → check again."
+        },
+        {
+          "claim_refs": [
+            "boundary"
+          ],
+          "delivery": "caption",
+          "id": "smallprint",
+          "role": "designer",
+          "template": "{boundary}"
+        }
+      ],
+      "capabilities": [],
+      "execution": {
+        "adapter": "render.images",
+        "countdown_seconds": 0,
+        "prompt_on_start": true
+      },
+      "id": "F57-POSTER",
+      "medium": "image",
+      "reference_status": "Authored format family; not automatically extracted from a supplied clip.",
+      "references": [],
+      "requirements": [
+        {
+          "expected": true,
+          "id": "claim_review",
+          "instruction": "Review the actual claims, qualifications and chosen wording before making this version.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        },
+        {
+          "expected": true,
+          "id": "legibility",
+          "instruction": "Fit a legible headline, illustration and accurate qualification; use accompanying text when the frame cannot preserve the meaning.",
+          "max_age_seconds": 120,
+          "methods": [
+            "operator"
+          ]
+        }
+      ],
+      "revision": 1,
+      "roles": [
+        {
+          "id": "designer",
+          "prompt_mode": "layout"
+        }
+      ],
+      "series_policy": "none",
+      "source_refs": [
+        "S57-REQUEST",
+        "S57-V4"
+      ],
+      "status": "declared_format",
+      "style": {
+        "layout": "One visual explanation plus accessible companion text; reject rather than cram an unrepresentable lesson"
+      },
+      "title": "Single image explainer"
+    }
+  ]
+}

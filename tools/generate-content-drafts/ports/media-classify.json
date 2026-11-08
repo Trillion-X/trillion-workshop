@@ -1,0 +1,52 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CONTENT-PRODUCTION-MEDIA-CLASSIFY",
+  "status": "BASELINED",
+  "directive": {
+    "message_multihash": "1f:2ded00d7730bf9fbcab2b482a143ad89bd86bc216290846cadcbfce920ee5e9b",
+    "quote": "Continue unfinished capability moves from the existing 126 source-ID / 77 destination-group inventory, prioritizing work independent of blocked Workshop public imports."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "bitfield-packages",
+      "commit": "df40e32b3bca776a9132d013f50558096721fa47",
+      "path_multihash": "1f:9a7993042b6328a645c2ae6f8ef0305874485dfb82418ecafc5e634ce02b1d6b",
+      "multihash": "1f:861108c0b51c4ab50ef9cab98b3622d5bed0d97bd4eea29dbda84c871d4af6c3",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-10T02:24:50.306Z"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/generate-content-drafts/do-work/media-classify.mjs"
+    }
+  ],
+  "preserve": [
+    "The committed source algorithm and its DATA-driven selection, evidence and refusal semantics."
+  ],
+  "allowed_deltas": [
+    "Adapt the command boundary for the Workshop tool row after the exact byte-copy baseline.",
+    "Use the declared shared content identity owner for new internal plan identities."
+  ],
+  "banned_substitutions": [
+    "A rewrite in place of the retained source.",
+    "Treating readiness as capture or publication authority."
+  ],
+  "baseline": {
+    "recorded_at": "2026-11-08T02:24:50.306Z",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:861108c0b51c4ab50ef9cab98b3622d5bed0d97bd4eea29dbda84c871d4af6c3",
+    "target_multihash_at_baseline": "1f:861108c0b51c4ab50ef9cab98b3622d5bed0d97bd4eea29dbda84c871d4af6c3"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/generate-content-drafts/test/presentation-input-contract.test.mjs",
+      "tools/generate-content-drafts/test/presentation-readiness.test.mjs",
+      "tools/generate-content-drafts/do-work/__tests__/media-classify.test.mjs"
+    ]
+  }
+}
