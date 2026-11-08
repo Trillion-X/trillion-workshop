@@ -18,8 +18,9 @@
 //   decision-part:<id>:root-fields:part:<nnn>  the root's largest fields, when the root alone is over `record_bytes`
 //                                        (named on the root in `fields_in_parts`, and put back on it when read)
 // These remain the logical keys. New writes stage immutable BLAKE3-addressed values under each key's :content:
-// suffix, and publish their current keys in the same decision root's record_keys. A large map uses the existing
-// root-field parts, under an immutable content prefix. Legacy fixed keys remain readable when no pointer is present;
+// suffix, and publish their current keys in the same decision root's record_keys. Diagnostic calls share one cold
+// reference map in decision-part, named by their unnumbered prefix in record_keys; content reads never open it.
+// A large hot map uses the existing root-field parts, under an immutable content prefix. Legacy fixed keys remain readable when no pointer is present;
 // a null pointer retires a logical key without destroying bytes an earlier snapshot may still be reading.
 //
 // The root names each list's length (`counts`), its method's id and identity, and the identity of the input it was
@@ -105,6 +106,7 @@ const MOVED = ['answered_steps', 'original_input', 'candidates', 'reports', 'car
 const LOADED = new WeakMap();
 const WRITE_BASIS = new WeakMap();
 const RECORD_KEYS = 'record_keys';
+const callKeysPrefix = id => `${NAMES.call}${id}:`;
 const contentKey = (key, value) => `${key}:content:${makeHashCodeHexFromJson(value)}`;
 const changed = () => Object.assign(new Error('The decision changed since it was read.'), { code: 'original_command_conflict' });
 const physicalKey = (keys, key) => Object.hasOwn(keys, key) ? keys[key] : key;
@@ -230,6 +232,7 @@ export function wholeValue(key, value, get) {
   let text = '';
   for (let n = 0; n < value.kept_in_parts; n += 1) {
     const part = get(NAMES.part.type, partKey(value.parts_of ?? key, n));
+    if (part === undefined) return undefined;
     if (typeof part?.text !== 'string') return null;
     text += part.text;
   }
@@ -258,7 +261,21 @@ export const stepIn = (get, key) => {
 /** A logical record's current immutable storage key, or its legacy fixed key. Root-field parts keep large maps. */
 export function recordKeyIn(id, root, key, get) {
   const own = rootFieldsIn(id, root, get);
-  return own === undefined ? undefined : physicalKey(keysIn(own), key);
+  if (own === undefined) return undefined;
+  const keys = keysIn(own);
+  const prefix = callKeysPrefix(id);
+  // An old snapshot may still keep its call keys in the hot map. New snapshots resolve only diagnostic reads
+  // through the cold map, preserving the exact immutable history without carrying it into ordinary content reads.
+  if (key.startsWith(prefix) && !Object.hasOwn(keys, key) && Object.hasOwn(keys, prefix)) {
+    const saved = keys[prefix];
+    const kept = get(NAMES.part.type, saved);
+    if (kept === undefined) return undefined;
+    const map = wholeValue(saved, kept, get);
+    if (map === undefined) return undefined;
+    if (!object(map?.[RECORD_KEYS])) throw new Error('The decision\'s immutable diagnostic references could not be read.');
+    return physicalKey(map[RECORD_KEYS], key);
+  }
+  return physicalKey(keys, key);
 }
 export async function readStep(door, key) {
   // Step keys end in the numbered step, optionally its numbered archived version. Physical content keys already
@@ -414,6 +431,18 @@ export function recordsOf(record, changed = [], archived = []) {
     const physical = item.type === NAMES.method ? item.id : contentKey(item.id, item.value);
     if (physical !== item.id) keys[item.id] = physical;
     staged.push({ ...item, id: physical });
+  }
+  // Calls are cold diagnostic history. Keeping every call pointer in the root's hot reference map made even a
+  // content-only read fetch more root-field parts as that history grew. Publish their immutable map separately
+  // through the existing decision-part owner, and leave just its one pointer beside the hot content references.
+  const prefix = callKeysPrefix(id);
+  const callsKept = Object.fromEntries(Object.entries(keys).filter(([key]) => key.startsWith(prefix) && key !== prefix));
+  if (Object.keys(callsKept).length) {
+    for (const key of Object.keys(callsKept)) delete keys[key];
+    const value = { [RECORD_KEYS]: callsKept };
+    const saved = contentKey(`${NAMES.part.type}:${id}:call-keys`, value);
+    keys[prefix] = saved;
+    staged.push(...fitted([{ id: saved, type: NAMES.part.type, value }]));
   }
   const { root: fittedRoot, parts: rootParts } = rootFitted(id, { ...root, [RECORD_KEYS]: keys });
   const records = [{ id, type: 'decision', value: fittedRoot }, ...rootParts, ...staged];

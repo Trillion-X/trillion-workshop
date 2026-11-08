@@ -12,6 +12,8 @@ import { joinDecision, readDecision, readStep, recordsOf, writeDecision } from '
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
 import { methodCatalogue } from '../read-data/method.mjs';
 import { caseView, memoryDoor, plainChecks, plainMethod, today } from './fixtures.mjs';
+import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
+import { openRecordsDoor } from '../../records-door/read-data/records-door.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
@@ -422,9 +424,47 @@ test('the tool rows reach only the decision records, the person\'s pursuits and 
     // Ending a large old-layout decision goes through its record layout, so every decision tool reaches each laid-apart kind.
     for (const kind of decisionKinds.filter(each => each !== 'decision-call')) assert.ok(rights.some(right => right.kind === kind), `${id} reaches ${kind}, where a decision keeps its parts`);
     if (['tool:add-decision-evidence', 'tool:end-a-decision'].includes(id)) assert.ok(!rights.some(right => right.kind.startsWith('record:')), 'adding evidence reads no method rows');
-    else for (const kind of ['record:check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:list'], `${id} only lists ${kind} rows`);
+    // The retained list-only expectation predated bounded method-by-ID reads. The same check kind is now read
+    // or listed; exact operations still forbid writes, and the transport test below proves unrelated kinds refused.
+    else for (const kind of ['record:check']) assert.deepEqual(rights.find(right => right.kind === kind)?.operations, ['records:read', 'records:list'], `${id} only reads and lists ${kind} rows`);
     assert.ok(!rights.some(right => right.kind === 'pursuit' && right.operations.includes('records:write')), `${id} never writes a pursuit`);
   }
+});
+
+test('method-by-ID permissions admit check reads and refuse check writes and unrelated record reads', async () => {
+  for (const row of rows.filter(row => row.invoke?.records?.rights.some(right => right.kind === 'record:check'))) {
+    const method = { id: 'record:check:synthetic-method', type: 'record:check', value: { kind: 'branch', name: 'Synthetic method' } };
+    const outside = { id: 'record:contact:synthetic', type: 'record:contact', value: { name: 'Unrelated synthetic record' } };
+    const door = await startFakeDoor({ rights: row.invoke.records.rights, records: [method, outside] });
+    try {
+      const client = openRecordsDoor({ descriptor: door.descriptor, wait: async () => {} });
+      assert.deepEqual(await client.read(method.type, method.id), method.value, `${row.id} reads its method by ID`);
+      await assert.rejects(client.write([{ ...method, value: { kind: 'branch', name: 'Changed method' } }], { key: 'forbidden-check-write' }), { code: 'current_workspace_rights_refused' });
+      await assert.rejects(client.read(outside.type, outside.id), { code: 'current_workspace_rights_refused' });
+      assert.deepEqual(door.kept.get(method.id), method, `${row.id} never changes the method`);
+    } finally { await door.close(); }
+  }
+});
+
+test('declared decision rights migrate whole diagnostic history through immutable staging', async () => {
+  const id = 'source:synthetic-cold-history';
+  const original = { id, input: opened, method: plainMethod(), guidance: [], status: 'needs_decision',
+    calls: [{ route: 'guide', accepted: false, submission: { private: 'Discard this payload' } }] };
+  const rights = rows.find(row => row.id === 'tool:start-a-decision').invoke.records.rights;
+  const door = await startFakeDoor({ rights, records: [{ id, type: 'decision', value: original }] });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: async () => {} });
+    const before = await readDecision(client, id);
+    await writeDecision(client, recordsOf(before), 'synthetic-cold-migration');
+    const after = await readDecision(client, id);
+    assert.deepEqual(after.input, original.input);
+    assert.equal(after.call_count, 1);
+    assert.equal(after.calls, undefined);
+    const calls = [...door.kept.values()].filter(record => record.type === 'decision-call');
+    assert.equal(calls.length, 1);
+    assert.deepEqual(calls[0].value, { route: 'guide', accepted: false });
+    assert.ok(calls[0].id.includes(':content:'), 'history keeps its immutable content identity');
+  } finally { await door.close(); }
 });
 
 test('a decided decision is shared only after the plain pass and a re-identification verdict bound to its exact words', async () => {

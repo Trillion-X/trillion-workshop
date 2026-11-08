@@ -84,7 +84,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -282,7 +283,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -338,6 +340,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -429,6 +432,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        }
@@ -892,7 +896,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -1021,6 +1026,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        }
@@ -1195,7 +1201,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -1251,6 +1258,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -1342,6 +1350,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        }
@@ -1468,7 +1477,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -1524,6 +1534,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -1755,7 +1766,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -1811,6 +1823,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -1902,6 +1915,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        }
@@ -2034,7 +2048,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -2090,6 +2105,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -2181,6 +2197,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        }
@@ -2283,7 +2300,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -2339,6 +2357,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -2430,6 +2449,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        }
@@ -2544,7 +2564,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -2600,6 +2621,7 @@
        {
         "kind": "decision-call",
         "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -2783,7 +2805,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -3082,7 +3105,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -3221,6 +3245,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        },
@@ -3336,7 +3361,8 @@
        {
         "package": "check-against-a-persons-rules-and-verdicts",
         "paths": [
-         "do-work/branch.mjs"
+         "do-work/branch.mjs",
+         "do-work/branch-core.mjs"
         ],
         "at": "/opt/check-against-a-persons-rules-and-verdicts"
        },
@@ -3475,6 +3501,7 @@
        {
         "kind": "record:check",
         "operations": [
+         "records:read",
          "records:list"
         ]
        },

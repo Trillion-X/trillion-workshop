@@ -10,6 +10,8 @@
     "check_list": "list:checks",
     "check_step_field": "step",
     "check_id_field": "id",
+    "default_method": "universal",
+    "step_parts_field": "parts",
     "step": "decision-step:",
     "step_digits": 3,
     "version": ":v",

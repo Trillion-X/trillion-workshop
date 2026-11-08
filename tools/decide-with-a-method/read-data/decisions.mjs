@@ -32,7 +32,7 @@
 //      checks, an answer kept before this rule is asked again until its verdicts are added, and a decision is made only
 //      when every step is graded.
 import { readFileSync } from 'node:fs';
-import { AnswerProblems, judgedProblems, methodCatalogue, refusalWords, ungradedOf } from './method.mjs';
+import { AnswerProblems, judgedProblems, methodCatalogue, methodParent, refusalWords, ungradedOf } from './method.mjs';
 import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
@@ -61,13 +61,40 @@ export async function rowsOf(door, rowType, where) {
   for await (const row of door.list({ type: `record:${rowType}`, ...(where ? { where } : {}) })) rows.push(row);
   return rows.sort((a, b) => (a.id < b.id ? -1 : 1)).map(row => row.value);
 }
-async function methodsOf(door) {
+// The link a method and a check name their parent in, then the old fields still read until the rows are rewritten.
+const LINK = [NAMES.method_link, ...(NAMES.old_method_links ?? [])];
+const rowKey = (rowType, id) => `record:${rowType}:${id}`;
+async function rowById(door, rowType, id) {
+  const value = await door.read(`record:${rowType}`, rowKey(rowType, id));
+  return value ? { ...value, id: value.id ?? id } : null;
+}
+const isMethodRow = row => Object.entries(NAMES.method_where).every(([name, value]) => canonical(row?.[name]) === canonical(value));
+// Read only the selected method and its parents, never unrelated branches of the person's Checks list.
+async function lineageRows(door, id) {
+  const rows = [];
+  for (let at = id; nonempty(at);) {
+    if (rows.some(row => row.id === at)) throw new Error(`Method ${at} has a repeated parent link.`);
+    const row = await rowById(door, NAMES.method_row, at);
+    if (!row || !isMethodRow(row)) {
+      if (!rows.length) return null;
+      throw new Error(`Method ${rows.at(-1).id} is ${NAMES.method_link} ${at}, which is not one of the branch rows; fix its ${NAMES.method_link}.`);
+    }
+    rows.push(row);
+    at = methodParent(row, LINK);
+  }
+  return rows;
+}
+async function methodsOf(door, named) {
+  for (const id of new Set([named, NAMES.default_method])) {
+    if (!nonempty(id)) continue;
+    const rows = await lineageRows(door, id);
+    if (rows) return rows;
+  }
   const methods = await rowsOf(door, NAMES.method_row, NAMES.method_where);
   if (!methods.length) refuse('no_methods');
   return methods;
 }
-// The link a method and a check name their parent in, then the old fields still read until the rows are rewritten.
-const LINK = [NAMES.method_link, ...(NAMES.old_method_links ?? [])];
+const methodIdOf = record => record?.method_id ?? record?.method?.id ?? record?.input?.method;
 const catalogue = (methods, checks = []) => methodCatalogue(methods, checks, { grader: settings.grader, link: LINK });
 // The method functions with the check rows of one step: that step's rows and the rows it names by id (`check_ids`), each
 // read with the door's `where`, so a call carries one step's checks, never the whole list. The step is the one given,
@@ -76,8 +103,14 @@ async function catalogueAt(door, methods, record, step = undefined) {
   const bare = catalogue(methods);
   const current = step === undefined ? bare.nextStepOf(record) : step;
   if (!current || current.kind === 'scope') return bare;
-  const checks = await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: current.id });
-  for (const id of current.check_ids ?? []) checks.push(...await rowsOf(door, NAMES.check_row, { [NAMES.check_id_field]: id }));
+  const parts = current[NAMES.step_parts_field];
+  const checks = Array.isArray(parts) ? [] : await rowsOf(door, NAMES.check_row, { [NAMES.check_step_field]: current.id });
+  const ids = [...new Set([...(Array.isArray(parts) ? parts : []), ...(current.check_ids ?? [])])].filter(nonempty);
+  for (const id of ids) {
+    if (checks.some(row => row.id === id)) continue;
+    const row = await rowById(door, NAMES.check_row, id);
+    if (row) checks.push(row);
+  }
   return catalogue(methods, checks);
 }
 
@@ -99,7 +132,7 @@ async function currentPursuits(door, most) {
 async function pursuitsFor(door, question) {
   if (!question || !settings.pursuits.with_steps.includes(question.step_id)) return {};
   const found = await currentPursuits(door, settings.pursuits.carried);
-  const list = found.slice(0, settings.pursuits.carried);
+  const list = found.slice(0, settings.pursuits.carried).sort((a, b) => a.id.localeCompare(b.id));
   if (!list.length) return { pursuits: [], pursuits_note: WORDS.no_pursuits_note };
   const more = found.length > list.length;
   return { pursuits: list.map(({ id, title, now, after, why_it_matters, status }) => ({ id, title, now, after, why_it_matters, status })), pursuits_note: `${WORDS.pursuits_note}${more ? ` ${say('more_pursuits_note', { count: list.length })}` : ''}` };
@@ -228,7 +261,7 @@ export async function decisionOrRefuse(door, id, steps) {
 /** tool:start-a-decision. input { source_id, goal, evidence: [{ ref, claim }], options?: [{ id, label }], method? }: with no
  * options the method's own steps generate and rule out candidates (optionsOf). */
 export async function startADecision(input, { door }) {
-  const methods = await methodsOf(door);
+  const methods = await methodsOf(door, input?.method);
   const { id, method } = validatedCase(input, catalogue(methods));
   const current = await readDecision(door, id);
   if (current) {
@@ -254,7 +287,7 @@ export async function nextDecisionQuestion(input, { door }) {
     return versionsReply(door, record, input.versions_of);
   }
   const record = await decisionOrRefuse(door, decisionId(input));
-  const cat = await catalogueAt(door, await methodsOf(door), record);
+  const cat = await catalogueAt(door, await methodsOf(door, methodIdOf(record)), record);
   if (input.explain === undefined) return guideReply(door, cat, record);
   if (!Array.isArray(input.explain) || !input.explain.length || input.explain.length > settings.most_explained || !input.explain.every(nonempty)) refuse('explain_shape', { count: settings.most_explained });
   const { texts, unknown } = cat.checkTexts(record, input.explain);
@@ -451,8 +484,8 @@ export async function answerADecisionQuestion(input, { door }) {
   const id = decisionId(input);
   if (!nonempty(input.step_id)) refuse('answer_needs_step');
   answerShape(input);
-  const methods = await methodsOf(door);
   const record = await decisionOrRefuse(door, id, [input.step_id]);
+  const methods = await methodsOf(door, methodIdOf(record));
   const bare = catalogue(methods);
   const at = record.guidance.findIndex(item => item.step_id === input.step_id);
   const entry = at < 0 ? null : record.guidance[at];
@@ -558,8 +591,8 @@ function decisionShape(decision, expectedGeneration) {
 export async function makeTheDecision(input, { door }) {
   const id = decisionId(input);
   const { decision, expected_generation: expectedGeneration } = input;
-  const cat = catalogue(await methodsOf(door));
   const record = await decisionOrRefuse(door, id, ['proof']);
+  const cat = catalogue(await methodsOf(door, methodIdOf(record)));
   const decidedBefore = Boolean(record.decision);
   // Every question is answered and none of them stands to be asked again.
   // Every step is graded: an answer kept before every check had a verdict waits for the rest of them.

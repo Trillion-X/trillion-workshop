@@ -51,10 +51,15 @@ export function memoryDoor() {
   let writeMark = 9007199254740992n;
   const advance = id => identities.set(id, String(++writeMark));
   const raw = (type, key) => records.get(key)?.type === type ? records.get(key).value : null;
+  const logicalPrefixes = [settings.records.step, settings.records.call,
+    ...Object.values(settings.records.laid_apart).map(row => `${row.type}:`)];
   const physical = key => {
+    // Fixture seeding installs a root before its parts. Physical records and unrelated keys must not try
+    // joining that not-yet-installed map; logical decision-key edits still follow the published snapshot.
+    if (key.includes(':content:') || key.startsWith(`${settings.records.part.type}:`)) return key;
     for (const id of roots) {
       const root = records.get(id)?.value;
-      if (!root || id === key) continue;
+      if (!root || id === key || !logicalPrefixes.some(prefix => key.startsWith(`${prefix}${id}:`))) continue;
       const resolved = recordKeyIn(id, root, key, raw);
       if (resolved !== key) return resolved;
     }
