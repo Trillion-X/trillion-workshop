@@ -45,7 +45,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/choose-and-publish-screen-looks/test/screen-look-design-tokens.test.mjs",
       "source_identity": "1f:1f000c739d854b1baf91e5b867c1971b7e7dc9ea2893de6f653af2174a585ac7",
-      "identity": "1f:05fbf3e1dc1da764bfa519c06a9fa872c1ed13a7915d42d202d6628856fa5587"
+      "identity": "1f:150eb74aab198b3c380914e20b209df3e0751adb78ab844e9ebbc30d89f29175",
+      "adaptations": [
+        "All 8 original browser bodies and 31 complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/choose-and-publish-screen-looks/test/screen-look-design-tokens.test.mjs"
+      }
     },
     {
       "from": "test/screen-look-token-kinds.test.mjs",

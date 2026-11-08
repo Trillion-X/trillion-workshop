@@ -2281,7 +2281,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs",
       "source_identity": "1f:197a408276a318369eb0b1ef7c4cda4f5181be3ec027219adcf0173bd606ecc0",
-      "identity": "1f:8921d4812dc2bd0a12af87f58a50775b2af1618ce0b2806787ed113384c73d68"
+      "identity": "1f:02219a355d79030441613ad78f0c1905dd2c35d6ba24814c156cf0aaa21c5c8e",
+      "adaptations": [
+        "All 2 original browser bodies and 10 complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/keep-and-wake-ai-sessions-on-this-computer/test/list-pages-browser.test.mjs"
+      }
     },
     {
       "from": "test/list-paired-links.test.mjs",
@@ -2365,7 +2372,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs",
       "source_identity": "1f:6d407e0f5e671bda4e5ee84be1f48e50381922810daac04524056e0d1bfa3a64",
-      "identity": "1f:0acf5fc42897ffa383c55a2f22b4618065d45eddb76994386c69123abd6d2e9d"
+      "identity": "1f:06d7cea3d832daaf8cad1308f249e4eb4dcc4db25b1f2f0411646806b37d8fc4",
+      "adaptations": [
+        "All 1 original browser bodies and 41 complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/keep-and-wake-ai-sessions-on-this-computer/test/media-edit-screen.test.mjs"
+      }
     },
     {
       "from": "test/messages-batch-order.test.mjs",
@@ -2512,7 +2526,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs",
       "source_identity": "1f:b7b40a871d076711b843fee5082fb110ac67f2b1ec36eebaa8ec71b5ef0b8373",
-      "identity": "1f:1ace855bddf5c5986b9953b4b10b1a35a931450a94a7578cd5b708bc0be7514b"
+      "identity": "1f:a87d2189ebdd7f2628f48b33258a31de9a9b80054ba1747bcbb59686974704b0",
+      "adaptations": [
+        "All 1 original browser bodies and 9 complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/keep-and-wake-ai-sessions-on-this-computer/test/public-app-indexed-collaboration-browser.test.mjs"
+      }
     },
     {
       "from": "test/public-app-run-permission.test.mjs",

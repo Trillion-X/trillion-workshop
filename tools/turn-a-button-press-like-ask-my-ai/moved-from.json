@@ -31,7 +31,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs",
       "source_identity": "1f:2f4e9527f1e3021cfb379c43efd1970a26bb24b66ed7d3f5edf39cf6d7d9e555",
-      "identity": "1f:6f77d85bfae381989fc13ec34256dbb8815b9fc603cab755f0833473976a8fed"
+      "identity": "1f:587366e0db029076ba3bbe28205ef1e49cf9df9b9d19f258562cee0565a9bf95",
+      "adaptations": [
+        "All 4 original browser bodies and 12 complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/turn-a-button-press-like-ask-my-ai/test/queue-job-button.test.mjs"
+      }
     }
   ]
 }

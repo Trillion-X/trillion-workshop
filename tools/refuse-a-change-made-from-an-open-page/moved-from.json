@@ -45,7 +45,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs",
       "source_identity": "1f:0b396107260a9070da85365ad3ed61da1842268ce522ae3b5fb85542412b2283",
-      "identity": "1f:0bd3cbdcb7e141f6fb819d7bbe9cb5a2ce6caf0a1e9be99627c08c605bdd77d4"
+      "identity": "1f:83f537141bb23a7fc9220ca9a47d0440327457108a49368f2fdeb0fc7b8f8c73",
+      "adaptations": [
+        "All 8 original browser bodies and 76 complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/refuse-a-change-made-from-an-open-page/test/tray-screen-browser.test.mjs"
+      }
     }
   ]
 }
