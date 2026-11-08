@@ -169,3 +169,70 @@ test('large Unicode grants batch by encoded bytes and rows under the real door c
   assert.deepEqual(oversized.result, { written: 0, already: 0, refused: [{ index: 0, reason: 'this access-grant record exceeds the 60000-byte write limit; shorten its subject, grant_ref or note' }] });
   assert.ok(!oversized.calls.some(call => call.method === 'records:write'));
 });
+
+test('stored grants reach the actual reader and authorization rows, and revocation closes the consumer', async () => {
+  const read = rowOf(rows, 'tool:see-who-holds-paid-access');
+  const check = rowOf(rows, 'tool:check-a-buyer-may-open');
+  const subject = 'member@example.test', access = 'access:synthetic-member';
+  const scope = {
+    schema: 'addressed-expiring-value-scope/v1',
+    value_ref: 'page:synthetic-event', instance_ref: 'page:synthetic-event:1',
+    required_access_refs: [access],
+  };
+  const given = await answerOf(grant, { grants: [{ subject, access_ref: access }] });
+  assert.equal(given.status, 0, given.error);
+  assert.deepEqual(given.result, { written: 1, already: 0, refused: [] });
+  const observed = await answerOf(read, { subject }, { records: given.kept });
+  assert.equal(observed.status, 0, observed.error);
+  assert.deepEqual(observed.result.held_access_refs, [access]);
+  assert.ok(observed.calls.some(call => call.method === 'records:list' && call.input.type === 'access-grant'));
+  assert.ok(!observed.calls.some(call => call.method === 'records:write'));
+  const permitted = await answerOf(check, { subject, scope }, { records: given.kept });
+  assert.equal(permitted.status, 0, permitted.error);
+  assert.deepEqual(permitted.result, { authorized: true });
+  const stranger = await answerOf(check, { subject: 'other@example.test', scope }, { records: given.kept });
+  assert.equal(stranger.status, 0, stranger.error);
+  assert.deepEqual(stranger.result, { authorized: false });
+  // An independent door represents another seller's records, not a native
+  // proof of grantor identity. Names alone cannot move the first door's grant.
+  const anotherDoor = await answerOf(check, { subject, scope });
+  assert.equal(anotherDoor.status, 0, anotherDoor.error);
+  assert.deepEqual(anotherDoor.result, { authorized: false });
+  const ended = await answerOf(grant, { grants: [], revoke: [{ subject, grant_ref: `grant:${access}` }] }, { records: given.kept });
+  assert.equal(ended.status, 0, ended.error);
+  assert.deepEqual(ended.result, { written: 1, already: 0, refused: [] });
+  const after = await answerOf(read, { subject }, { records: ended.kept });
+  assert.equal(after.status, 0, after.error);
+  assert.deepEqual(after.result.held_access_refs, []);
+  const closed = await answerOf(check, { subject, scope }, { records: ended.kept });
+  assert.equal(closed.status, 0, closed.error);
+  assert.deepEqual(closed.result, { authorized: false });
+});
+
+test('the authorization row reads its own records rather than caller-supplied holdings', async () => {
+  const check = rowOf(rows, 'tool:check-a-buyer-may-open');
+  const subject = 'member@example.test', access = 'access:synthetic-member';
+  const scope = {
+    schema: 'addressed-expiring-value-scope/v1',
+    value_ref: 'page:synthetic-event', instance_ref: 'page:synthetic-event:1',
+    required_access_refs: [access],
+  };
+  const answer = await answerOf(check, {
+    subject, scope,
+    grants: [{ kind: 'license_access', subject, object: access, material: { grant_ref: 'invented' } }],
+    held_access_refs: [access], account_id: 'another-account', records_resource: '@another-records',
+  });
+  assert.equal(answer.status, 0, answer.error);
+  assert.deepEqual(answer.result, { authorized: false });
+  assert.ok(answer.calls.some(call => call.method === 'records:list' && call.input.type === 'access-grant'));
+  assert.ok(!answer.calls.some(call => call.method === 'records:write'));
+});
+
+test('grant write denial propagates without creating a grant', async () => {
+  const readonly = structuredClone(grant);
+  readonly.invoke.records.rights = [{ kind: 'access-grant', operations: ['records:read'] }];
+  const answer = await answerOf(readonly, { grants: [{ subject: 'member@example.test', access_ref: 'access:synthetic-member' }] });
+  assert.equal(answer.status, 1);
+  assert.deepEqual(answer.kept, []);
+  assert.ok(answer.calls.some(call => call.method === 'records:write'));
+});
