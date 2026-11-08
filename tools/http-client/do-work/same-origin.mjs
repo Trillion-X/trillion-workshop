@@ -10,8 +10,11 @@
 //   Case and one trailing dot are not part of a name (DNS reads "Example.com." as example.com), so both are dropped
 //   before comparing; letters from other scripts stay their punycode form and so never equal a Latin name.
 // - A path is under a base only on a whole-segment boundary: "/a/b" and "/a/b/c" are under "/a/b/", "/a/bc" is not.
-// - An address carrying a user name or password is never trusted. Pure, with no imports, so a browser page, the
-//   extension and a Worker all read the same rule.
+// - An address carrying a user name or password is never trusted. Pure, with no I/O, so a browser page, the
+//   extension and a Worker all read the same rule. Cookie-domain selection uses the maintained public suffix data
+//   from tldts, including private hosting suffixes.
+
+import { getDomain } from 'tldts';
 
 const parsed = value => {
   if (value instanceof URL) return value;
@@ -20,11 +23,16 @@ const parsed = value => {
 
 /** The host a value names, lower case with no trailing dot: from a URL, an address, or a bare host name; else null. */
 export function hostOf(value) {
+  if (value instanceof URL && (value.username || value.password)) return null;
   const text = value instanceof URL ? value.hostname : String(value ?? '').trim();
   if (!text) return null;
   let host = text;
   if (!(value instanceof URL)) {
-    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(text)) host = parsed(text)?.hostname ?? '';
+    if (/^[a-z][a-z0-9+.-]*:\/\//i.test(text)) {
+      const url = parsed(text);
+      if (url?.username || url?.password) return null;
+      host = url?.hostname ?? '';
+    }
     else if (/[/@\\?#]/.test(text)) return null;
     else {
       try { host = new URL(`https://${text}`).hostname; } catch { return null; }
@@ -39,6 +47,20 @@ export function hostWithin(host, domain) {
   const name = hostOf(host);
   const parent = hostOf(domain);
   return !!name && !!parent && (name === parent || name.endsWith(`.${parent}`));
+}
+
+/** The parent domain an app may share a visitor cookie across, when its public origin is under that parent. */
+export function sharedCookieDomain(origin, primary) {
+  let address;
+  try { address = new URL(primary); } catch { return null; }
+  if (!['https:', 'http:'].includes(address.protocol) || address.username || address.password) return null;
+  const hostname = address.hostname.toLowerCase().replace(/\.$/, '');
+  // One final dot is canonical DNS spelling; a second is malformed. IPs, localhost and public suffixes have no
+  // registrable parent cookie domain; private suffixes are treated as boundaries so tenant cookies stay isolated.
+  if (!hostname || hostname.endsWith('.') || hostname.includes(':') || hostname.startsWith('[') || /^\d{1,3}(?:\.\d{1,3}){3}$/.test(hostname)) return null;
+  const parent = hostname.split('.').slice(1).join('.');
+  if (!parent.includes('.') || !getDomain(parent, { allowPrivateDomains: true })) return null;
+  return hostWithin(origin, parent) ? parent : null;
 }
 
 /** Whether `address` is at exactly `origin`. An address with a user name or password is never at a trusted origin. */
