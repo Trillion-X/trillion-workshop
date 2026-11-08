@@ -463,7 +463,111 @@
     "provenance": {
      "source": "the app's Waiting on you answer, with its sources as the person's own rows"
     },
-    "verify": []
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {},
+      "records": [
+       {
+        "id": "source:voices",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "voices",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:given",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "given",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:approve",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "approve",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:look",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "look",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:decide",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "decide",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:stuck",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "stuck",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:turn-on-notices",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "turn-on-notices",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:sign-in",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "sign-in",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "source:answer",
+        "type": "record:waiting-sources",
+        "value": {
+         "id": "answer",
+         "applicable": false,
+         "because": "Outside this synthetic source scope."
+        }
+       },
+       {
+        "id": "record:waiting-on-you:sample-signed-form",
+        "type": "record:waiting-on-you",
+        "value": {
+         "what": "Sign the sample paper form",
+         "status": "Waiting",
+         "needs": "sign by hand",
+         "only_you_because": "Their own signature",
+         "response": {
+          "kind": "press",
+          "label": "I signed the paper"
+         }
+        }
+       }
+      ],
+      "output_selector": "$.sections.1.cards.0.id",
+      "contains": "record:waiting-on-you:sample-signed-form"
+     }
+    ]
    }
   },
   {
@@ -617,7 +721,35 @@
     "provenance": {
      "source": "the app's Waiting on you answer, with its sources as the person's own rows"
     },
-    "verify": []
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "ids": [
+        "record:waiting-on-you:sample-signed-form"
+       ],
+       "request_key": "sample-completion"
+      },
+      "records": [
+       {
+        "id": "record:waiting-on-you:sample-signed-form",
+        "type": "record:waiting-on-you",
+        "value": {
+         "what": "Sign the sample paper form",
+         "status": "Waiting",
+         "needs": "sign by hand",
+         "only_you_because": "Their own signature",
+         "response": {
+          "kind": "press",
+          "label": "I signed the paper"
+         }
+        }
+       }
+      ],
+      "output_selector": "$.completed.0",
+      "contains": "record:waiting-on-you:sample-signed-form"
+     }
+    ]
    }
   },
   {
@@ -762,7 +894,44 @@
     "provenance": {
      "source": "the app's Waiting on you answer, with its sources as the person's own rows"
     },
-    "verify": []
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "ids": [
+        "record:waiting-on-you:sample-signed-form"
+       ],
+       "request_key": "sample-completion"
+      },
+      "records": [
+       {
+        "id": "record:waiting-on-you:sample-signed-form",
+        "type": "record:waiting-on-you",
+        "value": {
+         "what": "Sign the sample paper form",
+         "status": "Done",
+         "needs": "sign by hand",
+         "only_you_because": "Their own signature",
+         "response": {
+          "kind": "press",
+          "label": "I signed the paper"
+         },
+         "waiting_finish": {
+          "key": "sample-completion",
+          "signature": "1f:1b7b696bb1ab652f6f04aeb3a4f7178d261cbee2c47ae4dd54ab8eb0f81fcdd7",
+          "next_round": false,
+          "effect_fields": [
+           "status"
+          ],
+          "effect_identity": "1f:32c51e0ad2d56d3375a1c8119fb51c86d67028d73df92eafef7d9a5fe2fd7d7c"
+         }
+        }
+       }
+      ],
+      "output_selector": "$.completed.0",
+      "contains": "record:waiting-on-you:sample-signed-form"
+     }
+    ]
    }
   }
  ]

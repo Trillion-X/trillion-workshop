@@ -56,7 +56,9 @@ export function weighCards(rows, { settings, weigh = null, opensScreen = () => t
       // A generic completion button acknowledges an action; it does not establish an action that only the
       // person must do. An otherwise empty ask goes back for assessment, while explicit needs, reasons and
       // actual response, screen or checklist controls retain their existing meaning.
-      const onlyAcknowledgement = control?.kind === 'press' && !step.needs.length && !step.reason && !card.only_you_because
+      const finish = (settings.finishes ?? []).find(item => item.choice === (card.finish ?? row.section?.finish));
+      const onlyAcknowledgement = control?.kind === 'press' && typeof control.press === 'string' && !finish?.form
+        && !step.needs.length && !step.reason && !card.only_you_because
         && !controlOf({ ...settings, finishes: [] }, row.section, card, opensScreen);
       if (!control || onlyAcknowledgement) {
         const words = settings.hold.no_control;
