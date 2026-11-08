@@ -2,13 +2,14 @@
 // upstream, a stand-in source, and the command run the way the engine runs it (granted folder in argv, request on stdin).
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import childProcess from 'node:child_process';
 import { syncBuiltinESMExports } from 'node:module';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, renameSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
+import { chmodSync, closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, renameSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { askedAddress, judgeRow, movePathToTrash, run, shapeOf, sourceAnswers } from '../do-work/free-what-the-list-says-can-be-got-back.mjs';
+import { createServer } from 'node:http';
+import { askedAddress, judgeRow, run, shapeOf, sourceAnswers } from '../do-work/free-what-the-list-says-can-be-got-back.mjs';
 
 const folder = resolve(import.meta.dirname, '..');
 const rows = JSON.parse(readFileSync(resolve(folder, 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
@@ -16,13 +17,22 @@ const SAVED = 'Way back is saved: Mac copy can be freed';
 const shape = shapeOf();
 const OLD = new Date(Date.now() - 48 * 3600 * 1000);
 
+function syntheticParent(dispose) {
+  return { async trashSource({ path, expected_generation }) {
+    assert.equal(typeof expected_generation, 'string');
+    assert.ok(JSON.parse(expected_generation).length > 0);
+    dispose(path);
+    return { outcome: 'moved' };
+  } };
+}
+
 const gitEnvironment = () => ({ ...Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_'))), LC_ALL: 'C' });
 function git(cwd, ...args) { return execFileSync('git', ['-C', cwd, ...args], { env: gitEnvironment(), encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
 
 async function keptOnRealRun(work, candidate, reason, deps = {}) {
   const before = readFileSync(join(work, 'scratch', 'dough-1.bin'));
   let disposals = 0;
-  const out = await run(work, { rows: [candidate], dry_run: false }, { answers, ...deps, trash: () => { disposals++; } });
+  const out = await run(work, { rows: [candidate], dry_run: false }, { answers, ...deps, parentActions: syntheticParent(() => { disposals++; }) });
   assert.equal(out.rows[0].eligible_for_trash, false, JSON.stringify(out));
   assert.match(out.rows[0].reason, reason);
   assert.equal(disposals, 0);
@@ -35,7 +45,7 @@ async function keptOnRealRun(work, candidate, reason, deps = {}) {
 /** A bakery folder that is a git repository with an upstream: a recipe file (pushed), big scratch files and a kept loaf. */
 function bakery(t) {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'free-')));
-  if (process.platform === 'darwin') t.after(() => movePathToTrash(root));
+  // Retain this small synthetic fixture for normal host temp retention; tests never invoke real Trash.
   const remote = join(root, 'remote.git');
   const work = join(root, 'work');
   mkdirSync(work);
@@ -83,7 +93,7 @@ test('a folder whose recipe is tracked, unchanged and pushed is eligible; a dry 
 test('a real run moves to recoverable Trash, returns the moved state, and claims no physical space freed', async t => {
   const { work, trash, dispose } = bakery(t);
   const original = readFileSync(join(work, 'scratch', 'dough-1.bin'));
-  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { trash: dispose });
+  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { parentActions: syntheticParent(dispose) });
   assert.equal(out.rows[0].trashed, true);
   assert.equal(existsSync(join(work, 'scratch')), false);
   assert.equal(out.rows[0].next_value.state, 'Mac copy moved to Trash');
@@ -101,7 +111,7 @@ test('a real run moves only rows whose check passed; a held row stays without a 
   mkdirSync(join(work, 'kept'));
   writeFileSync(join(work, 'kept', 'loaf.bin'), 'k');
   utimesSync(join(work, 'kept', 'loaf.bin'), OLD, OLD); utimesSync(join(work, 'kept'), OLD, OLD);
-  const out = await run(work, { rows: [row(work, 'scratch'), row(work, 'kept', { hold_reason: 'needs the originals' })], dry_run: false }, { trash: dispose });
+  const out = await run(work, { rows: [row(work, 'scratch'), row(work, 'kept', { hold_reason: 'needs the originals' })], dry_run: false }, { parentActions: syntheticParent(dispose) });
   assert.equal(out.rows[0].trashed, true);
   assert.equal(out.rows[1].eligible_for_trash, false);
   assert.equal(out.rows[1].next_value, undefined);
@@ -110,20 +120,20 @@ test('a real run moves only rows whose check passed; a held row stays without a 
 
 test('the disposal route cannot permanently delete or empty Trash', () => {
   const code = readFileSync(resolve(folder, 'do-work', 'free-what-the-list-says-can-be-got-back.mjs'), 'utf8').replace(/^\s*\/\/.*$/gm, '');
-  assert.match(code, /execFileSync\('\/usr\/bin\/trash'/);
-  assert.doesNotMatch(code, /rmSync|unlinkSync|rmdirSync|\/bin\/rm|emptyTrash/);
+  assert.match(code, /parent\.trashSource\(/);
+  assert.doesNotMatch(code, /rmSync|unlinkSync|rmdirSync|\/bin\/rm|emptyTrash|\/usr\/bin\/trash|movePathToTrash/);
 });
 
 test('a denied or ineffective Trash move preserves eligibility separately and never marks the row moved', async t => {
   const { work } = bakery(t);
-  for (const trash of [() => { throw new Error('synthetic permission denial'); }, () => {}]) {
-    const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { trash });
+  for (const dispose of [() => { throw Object.assign(new Error('synthetic permission denial'), { outcome: 'not_started' }); }, () => {}]) {
+    const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { parentActions: syntheticParent(dispose) });
     assert.equal(out.rows[0].eligible_for_trash, true);
     assert.equal(out.rows[0].trashed, false);
     assert.equal(out.rows[0].next_value, undefined);
     assert.equal(out.trashed_count, 0);
     assert.equal(out.freed_bytes, null);
-    assert.match(out.rows[0].reason, /not confirmed/);
+    assert.match(out.rows[0].reason, /not confirmed|unknown/);
     assert.equal(readFileSync(join(work, 'scratch', 'dough-1.bin'), 'utf8'), 'x'.repeat(2000));
   }
 });
@@ -132,7 +142,7 @@ test('an existing Trash destination is never overwritten and both originals rema
   const { work, trash, dispose } = bakery(t);
   mkdirSync(join(trash, 'scratch'));
   writeFileSync(join(trash, 'scratch', 'prior.bin'), 'prior');
-  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { trash: dispose });
+  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false }, { parentActions: syntheticParent(dispose) });
   assert.equal(out.rows[0].trashed, false);
   assert.equal(out.rows[0].next_value, undefined);
   assert.equal(readFileSync(join(trash, 'scratch', 'prior.bin'), 'utf8'), 'prior');
@@ -151,7 +161,7 @@ test('a path replaced during its source check is kept even with old modification
       utimesSync(join(work, 'scratch'), OLD, OLD);
       return true;
     },
-    trash: () => { moves++; },
+    parentActions: syntheticParent(() => { moves++; }),
   });
   assert.equal(out.rows[0].eligible_for_trash, false);
   assert.match(out.rows[0].reason, /path changed/);
@@ -160,46 +170,53 @@ test('a path replaced during its source check is kept even with old modification
   assert.ok(existsSync(join(work, 'prior-scratch', 'dough-1.bin')));
 });
 
-test('native macOS Trash accepts two synthetic files with the same name and the real runner confirms a synthetic folder move', async t => {
-  if (process.platform !== 'darwin') return t.skip('requires the macOS native Trash API');
-  const { root, work } = bakery(t);
-  const name = `workshop-trash-synthetic-${root.split('/').at(-1)}.txt`;
-  const places = [join(root, 'first'), join(root, 'second')];
-  for (const [index, place] of places.entries()) {
-    mkdirSync(place);
-    const file = join(place, name);
-    writeFileSync(file, `synthetic ${index}`);
-    movePathToTrash(file);
-    assert.equal(existsSync(file), false);
-  }
-  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false });
-  assert.equal(out.rows[0].eligible_for_trash, true);
-  assert.equal(out.rows[0].trashed, true);
-  assert.equal(out.rows[0].next_value.state, 'Mac copy moved to Trash');
-  assert.equal(out.freed_bytes, null);
-  assert.equal(existsSync(join(work, 'scratch')), false);
-  t.diagnostic(`Synthetic native consumer readback: ${JSON.stringify({ eligible_for_trash: out.rows[0].eligible_for_trash, trashed: out.rows[0].trashed, state: out.rows[0].next_value.state, trashed_count: out.trashed_count, freed_bytes: out.freed_bytes })}`);
+test('two eligible rows send distinct source observations through the parent and preserve recoverable bytes', async t => {
+  const { work, trash, dispose } = bakery(t);
+  mkdirSync(join(work, 'second'));
+  writeFileSync(join(work, 'second', 'dough-1.bin'), 'second source');
+  utimesSync(join(work, 'second', 'dough-1.bin'), OLD, OLD);
+  utimesSync(join(work, 'second'), OLD, OLD);
+  const inputs = [];
+  const parentActions = { async trashSource(input) { inputs.push(input); dispose(input.path); return { outcome: 'moved' }; } };
+  const out = await run(work, { rows: [row(work, 'scratch'), row(work, 'second')], dry_run: false }, { parentActions });
+  assert.equal(out.trashed_count, 2);
+  assert.deepEqual(out.rows.map(answer => answer.trash_outcome), ['moved', 'moved']);
+  assert.deepEqual(inputs.map(input => Object.keys(input)), [['path', 'expected_generation'], ['path', 'expected_generation']]);
+  assert.notEqual(inputs[0].expected_generation, inputs[1].expected_generation);
+  assert.equal(readFileSync(join(trash, 'second', 'dough-1.bin'), 'utf8'), 'second source');
 });
 
-test('a supplied native sandbox DATA profile keeps the synthetic source when Trash is outside the grant', t => {
-  const dataPath = process.env.TRASH_PROOF_SANDBOX_DATA;
-  if (process.platform !== 'darwin' || !dataPath) return t.skip('set TRASH_PROOF_SANDBOX_DATA to the current native owner DATA on macOS');
-  const { root, work } = bakery(t);
-  const data = JSON.parse(readFileSync(dataPath, 'utf8'));
-  const granted = data.capabilities.find(c => c.id === 'change-a-folder');
-  const fill = rule => rule.replaceAll('{private}', root).replaceAll('{folder}', work);
-  // Native header/base/grant composition, executing the operation itself. No added destination or service allow.
-  const profile = '(version 1)(deny default)(allow process-exec file-read* (literal "/usr/bin/trash"))'
-    + data.base.map(fill).join('') + granted.sandbox.map(fill).join('');
-  const path = join(work, 'synthetic-contained.txt');
-  writeFileSync(path, 'synthetic source remains on denial');
-  const readable = spawnSync('/usr/bin/sandbox-exec', ['-p', profile, '/bin/cat', path], { encoding: 'utf8', timeout: 10000 });
-  assert.equal(readable.status, 0, readable.stderr);
-  assert.equal(readable.stdout, 'synthetic source remains on denial');
-  const attempt = spawnSync('/usr/bin/sandbox-exec', ['-p', profile, '/usr/bin/trash', '-s', path], { encoding: 'utf8', timeout: 10000 });
-  assert.notEqual(attempt.status, 0, 'the supplied folder grant must not silently gain Trash destination access');
-  assert.equal(readFileSync(path, 'utf8'), 'synthetic source remains on denial');
-  t.diagnostic(`Native sandbox Trash status=${attempt.status}; ${attempt.stderr.trim()}`);
+test('a real run without its native parent descriptor leaves eligible source bytes in place', async t => {
+  const { work } = bakery(t);
+  const out = await run(work, { rows: [row(work, 'scratch')], dry_run: false });
+  assert.equal(out.rows[0].eligible_for_trash, true);
+  assert.equal(out.rows[0].trashed, false);
+  assert.equal(out.rows[0].trash_outcome, 'not_started');
+  assert.equal(out.rows[0].next_value, undefined);
+  assert.equal(readFileSync(join(work, 'scratch', 'dough-1.bin'), 'utf8'), 'x'.repeat(2000));
+});
+
+test('an uncertain parent effect stops further disposal even when the first source disappeared', async t => {
+  const { work, trash, dispose } = bakery(t);
+  mkdirSync(join(work, 'second'));
+  writeFileSync(join(work, 'second', 'dough-1.bin'), 'second source');
+  utimesSync(join(work, 'second', 'dough-1.bin'), OLD, OLD);
+  utimesSync(join(work, 'second'), OLD, OLD);
+  let calls = 0;
+  const parentActions = { async trashSource({ path }) {
+    calls++;
+    dispose(path);
+    throw Object.assign(new Error('synthetic-private-error'), { outcome: 'unknown' });
+  } };
+  const out = await run(work, { rows: [row(work, 'scratch'), row(work, 'second')], dry_run: false }, { parentActions });
+  assert.equal(calls, 1);
+  assert.deepEqual(out.rows.map(answer => answer.trash_outcome), ['unknown', 'not_started']);
+  assert.ok(out.rows.every(answer => answer.next_value === undefined));
+  assert.equal(out.trashed_count, 0);
+  assert.doesNotMatch(JSON.stringify(out), /synthetic-private-error/);
+  assert.equal(existsSync(join(work, 'scratch')), false);
+  assert.ok(existsSync(join(trash, 'scratch', 'dough-1.bin')));
+  assert.ok(existsSync(join(work, 'second', 'dough-1.bin')));
 });
 
 test('every refusal leaves the path where it is and says why', async t => {
@@ -430,11 +447,71 @@ test('the command runs as the engine runs the row: folder in argv, request on st
   assert.match(JSON.parse(bad.stdout.trim().split('\n').at(-1)).error, /1 to 100/);
 });
 
+test('the actual CLI sends its unchanged observation over fd3 and stops after uncertain transport answers', async t => {
+  for (const outcome of ['moved', 'refused', 'unknown', 'busy', 'lost']) {
+    const { root, work, dispose } = bakery(t);
+    const candidate = row(work, 'scratch');
+    const expected = await judgeRow(candidate, { folder: work, shape });
+    assert.equal(expected.free, true);
+    const calls = [];
+    const server = createServer(async (request, response) => {
+      let body = '';
+      for await (const chunk of request) body += chunk;
+      calls.push({ authorization: request.headers.authorization, body: JSON.parse(body) });
+      if (outcome === 'lost') { request.socket.destroy(); return; }
+      if (outcome === 'busy') { response.writeHead(503); response.end(); return; }
+      response.setHeader('content-type', 'application/json');
+      if (outcome === 'moved') {
+        dispose(calls.at(-1).body.params.arguments.input.path);
+        response.end(JSON.stringify({ result: { structuredContent: { outcome: 'moved' } } }));
+      } else {
+        response.end(JSON.stringify({ result: { isError: true, structuredContent: {
+          code: outcome === 'refused' ? 'computer_action_refused' : 'computer_action_unknown',
+          outcome: outcome === 'refused' ? 'not_started' : 'unknown',
+        } } }));
+      }
+    });
+    await new Promise(done => server.listen(0, '127.0.0.1', done));
+    const descriptor = join(root, 'parent-descriptor.json');
+    writeFileSync(descriptor, JSON.stringify({ url: `http://127.0.0.1:${server.address().port}/mcp`,
+      resource: '@own-records', capability: 'synthetic-run-parent',
+      computer_actions: { resource: '@synthetic-parent', trash_source: 'synthetic:trash-source' } }));
+    const handle = openSync(descriptor, 'r');
+    try {
+      const request = { rows: ['unknown', 'busy', 'lost'].includes(outcome) ? [candidate, candidate] : [candidate], dry_run: false };
+      const ran = await new Promise((done, fail) => {
+        const child = spawn(process.execPath, [resolve(folder, 'do-work', 'free-what-the-list-says-can-be-got-back.mjs'), work,
+          '--parent-actions-fd', '3'], { stdio: ['pipe', 'pipe', 'pipe', handle] });
+        let output = '', stderr = '';
+        child.stdout.on('data', chunk => { output += chunk; });
+        child.stderr.on('data', chunk => { stderr += chunk; });
+        child.on('error', fail);
+        child.on('close', status => done({ status, answer: JSON.parse(output.trim()).result, stderr }));
+        child.stdin.end(JSON.stringify(request));
+      });
+      assert.equal(ran.status, 0, ran.stderr);
+      assert.equal(calls.length, 1, `${outcome}: one parent attempt`);
+      assert.equal(calls[0].authorization, 'Bearer synthetic-run-parent');
+      const sent = calls[0].body.params.arguments;
+      assert.equal(sent.address, '@synthetic-parent');
+      assert.equal(sent.method, 'synthetic:trash-source');
+      assert.deepEqual(sent.input, { path: expected.path, expected_generation: expected.observed });
+      assert.equal(ran.answer.rows[0].trash_outcome, outcome === 'moved' ? 'moved' : outcome === 'refused' ? 'not_started' : 'unknown');
+      assert.equal(ran.answer.trashed_count, outcome === 'moved' ? 1 : 0);
+      if (outcome !== 'moved') assert.equal(ran.answer.rows[0].next_value, undefined);
+      if (request.rows.length === 2) assert.equal(ran.answer.rows[1].trash_outcome, 'not_started');
+      assert.equal(existsSync(join(work, 'scratch')), outcome !== 'moved');
+    } finally { closeSync(handle); await new Promise(done => server.close(done)); }
+  }
+});
+
 test('the row asks for the folder grant and the internet, runs on the person\'s computer, and names the fields it reads', () => {
   const [tool] = rows;
   assert.equal(tool.id, 'tool:free-what-the-list-says-can-be-got-back');
   assert.deepEqual(tool.invoke.capabilities, ['change-a-folder']);
   assert.equal(tool.invoke.internet, true);
+  assert.deepEqual(tool.invoke.parent_actions, { fd: 3 });
+  assert.ok(tool.invoke.files.package_files.some(file => file.package === 'records-door'));
   assert.deepEqual(tool.placements, ['placement:your-computer']);
   assert.equal(tool.input_schema.properties.dry_run.type, 'boolean');
   assert.equal(shape.states.saved, SAVED);

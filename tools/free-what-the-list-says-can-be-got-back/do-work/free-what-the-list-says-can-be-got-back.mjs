@@ -11,13 +11,14 @@
 //   and no file under it is tracked by git; at least one proof exists and every proof holds: each source address answers,
 //   and each recipe file is tracked, unchanged since its last commit, and pushed; nothing under the path changed in the
 //   quiet hours. Anything else stays, with the reason.
-// - Disposal uses the existing native /usr/bin/trash route only. A denial has no permanent-delete fallback.
+// - Disposal asks this run's authenticated native parent once. Unknown stops further disposal; no CLI fallback.
 //   Moving to Trash keeps recovery and does not establish that any physical disk space was freed.
 // - Each successful answer carries `next_value`, with the moved-to-Trash state. The tool does not write the list.
 import { execFileSync } from 'node:child_process';
 import { lstatSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { openParentActions } from '../../records-door/read-data/records-door.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const DEFAULT_SHAPE = JSON.parse(readFileSync(join(HERE, '..', 'read-data', 'kept-file-shape.json'), 'utf8'));
@@ -228,12 +229,6 @@ export async function judgeRow(row, { folder, shape, now = Date.now(), answers =
   return { id: row.id, free: true, bytes: bytesUnder(path), path, observed };
 }
 
-/** Native recoverable move. It chooses a non-overwriting Trash destination; never empty Trash or delete on failure. */
-export function movePathToTrash(path) {
-  execFileSync('/usr/bin/trash', ['-s', path], { timeout: GIT_TIMEOUT_MS, stdio: ['ignore', 'pipe', 'pipe'] });
-  if (pathExists(path)) throw new Refusal('the native Trash move did not take the path out of its place');
-}
-
 export async function run(folder, request, deps = {}) {
   if (!Array.isArray(request?.rows) || !request.rows.length || request.rows.length > MAX_ROWS) {
     throw new Refusal(`rows must be a list of 1 to ${MAX_ROWS} list rows, each { id, value }; send the list in pages of ${MAX_ROWS}`);
@@ -242,6 +237,7 @@ export async function run(folder, request, deps = {}) {
   const shape = shapeOf(request.shape);
   const results = [];
   let trashedBytes = 0;
+  let uncertain = false;
   for (const row of request.rows) {
     let verdict;
     try { verdict = await judgeRow(row, { folder, shape, now: deps.now, answers: deps.answers }); }
@@ -249,18 +245,32 @@ export async function run(folder, request, deps = {}) {
     const answer = { id: verdict.id, eligible_for_trash: verdict.free, path_bytes: verdict.free ? verdict.bytes : null };
     if (verdict.reason) answer.reason = verdict.reason;
     if (verdict.free && !dryRun) {
+      if (uncertain) {
+        answer.trashed = false;
+        answer.trash_outcome = 'not_started';
+        answer.reason = 'disposal stopped after an earlier unknown move; this path was not attempted';
+        results.push(answer);
+        continue;
+      }
       try {
         if (insideFolder(folder, verdict.path) !== verdict.path || observePath(verdict.path) !== verdict.observed) {
           throw new Refusal('the path changed after its check');
         }
-        await (deps.trash ?? movePathToTrash)(verdict.path);
-        if (pathExists(verdict.path)) throw new Refusal('the Trash move left the path in its place');
+        const parent = deps.parentActions;
+        if (!parent || typeof parent.trashSource !== 'function') throw new Refusal('this run has no native parent action descriptor');
+        const moved = await parent.trashSource({ path: verdict.path, expected_generation: verdict.observed });
+        if (moved?.outcome !== 'moved' || pathExists(verdict.path)) throw new Error('the move was not confirmed');
         answer.trashed = true;
+        answer.trash_outcome = 'moved';
         trashedBytes += verdict.bytes;
         answer.next_value = { ...row.value, [shape.fields.state]: shape.states.trashed, [shape.fields.checked]: new Date().toISOString().slice(0, 10) };
       } catch (error) {
         answer.trashed = false;
-        answer.reason = `the Trash move was not confirmed: ${error.message}`;
+        answer.trash_outcome = error instanceof Refusal || error?.outcome === 'not_started' ? 'not_started' : 'unknown';
+        uncertain ||= answer.trash_outcome === 'unknown';
+        answer.reason = error instanceof Refusal ? `the Trash move was not confirmed: ${error.message}`
+          : uncertain ? 'the Trash move outcome is unknown; disposal stopped without retrying'
+            : 'the native parent refused the Trash move; it was not confirmed';
       }
     }
     results.push(answer);
@@ -271,9 +281,14 @@ export async function run(folder, request, deps = {}) {
 
 async function main() {
   try {
-    const folder = process.argv[2];
+    const [folder, ...options] = process.argv.slice(2);
     if (!folder) throw new Refusal('the granted folder is missing from the command line');
-    process.stdout.write(JSON.stringify({ result: await run(folder, JSON.parse(readFileSync(0, 'utf8'))) }) + '\n');
+    const fd = options.length === 0 ? 3
+      : options.length === 2 && options[0] === '--parent-actions-fd' && /^\d+$/.test(options[1]) ? Number(options[1]) : NaN;
+    if (!Number.isSafeInteger(fd) || fd < 3) throw new Refusal('the row must name its parent action descriptor');
+    let parentActions;
+    const deps = { get parentActions() { return parentActions ??= openParentActions({ descriptor: fd }); } };
+    process.stdout.write(JSON.stringify({ result: await run(folder, JSON.parse(readFileSync(0, 'utf8')), deps) }) + '\n');
   } catch (error) {
     process.stdout.write(JSON.stringify({ error: error instanceof Refusal ? error.message : `could not run: ${error.message}` }) + '\n');
     process.exitCode = 1;

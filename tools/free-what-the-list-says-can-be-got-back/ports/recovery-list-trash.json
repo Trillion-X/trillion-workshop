@@ -13,7 +13,7 @@
   "targets": [
     {
       "path": "tools/free-what-the-list-says-can-be-got-back/do-work/free-what-the-list-says-can-be-got-back.mjs",
-      "role": "List recovery-availability, recipe, confinement and quiet-age eligibility plus a native Trash caller; no new OS disposal, Namespace-copy, permission or storage mechanism."
+      "role": "List recovery-availability, recipe, confinement and quiet-age eligibility plus an authenticated native parent-action caller; no new OS disposal, Namespace-copy, permission or storage mechanism."
     }
   ],
   "preserve": [
@@ -21,18 +21,21 @@
     "Dry run by default, per-row eligibility separate from disposal, and list writeback owned by the caller.",
     "Availability answers and tracked/pushed recipes are not recovery-byte proofs; observed path allocation is not measured physical disk space reclaimed.",
     "A denied contained move retains the source and returns no successful next_value; no wider grant is introduced.",
+    "The frozen 43380fa0 eligibility and exact observePath generation producer remain unchanged; only disposal and its caller are adapted.",
     "Unavailable Git observations remain unreadable rather than proving outside-Git, untracked or unchanged; inherited Git environment selectors cannot redirect the proof reads."
   ],
   "allowed_deltas": [
     "Adopt and repair the stopped uncommitted prototype while preserving its original bytes as authorship/recovery evidence only.",
-    "Retain the list eligibility checks and use the existing native Trash API through a narrow caller rather than implement a disposal engine.",
+    "Retain the list eligibility checks and use the existing native Trash API through a narrow authenticated parent caller rather than implement a disposal engine.",
+    "Pack the public records-door SDK, declare parent_actions fd3 and send only path plus expected_generation once; stop later disposal on unknown with no moved-state writeback.",
     "Refuse failed repository discovery, tracking, recipe-status or upstream reads; keep those observations distinct from an established outside-Git path and scope Git reads to the selected repository."
   ],
   "banned_substitutions": [
     "Calling an uncommitted prototype blob a committed or published source-only copy baseline.",
     "Claiming native Trash, verified Namespace-copy disposal or generic record deletion has no prior owner.",
     "Converting source availability into a byte-recovery proof, or reporting a Trash move as measured disk space freed.",
-    "Broadening the sandbox grant, falling back to permanent deletion, or presenting uncontained synthetic tests as contained customer proof."
+    "Broadening the sandbox grant, falling back to permanent deletion, or presenting uncontained synthetic tests as contained customer proof.",
+    "A child-side Trash command fallback, physical-action automatic retries, or claimed native end-to-end proof from a synthetic HTTP parent."
   ],
   "baseline": {
     "scope": "No source-first copy baseline is claimed. The stopped prototype was uncommitted and its original authorship is unverified."
@@ -167,7 +170,8 @@
   ],
   "proof": {
     "test_refs": [
-      "tools/free-what-the-list-says-can-be-got-back/test/free.test.mjs"
+      "tools/free-what-the-list-says-can-be-got-back/test/free.test.mjs",
+      "tools/records-door/test/records-door.test.mjs"
     ],
     "search": {
       "phrasings": [
