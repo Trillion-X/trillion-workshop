@@ -98,7 +98,17 @@ function indexHistory(text) {
     if (!incoming.has(path)) incoming.set(path, []);
     incoming.get(path).push(group);
   }
-  return { parents, paths, incoming };
+  // Copy groups help retain complete history, but never establish an in-place
+  // identity. That needs the actual unique Git rename output at each step.
+  const identityIncoming = new Map();
+  for (const edge of renames) {
+    const group = groups.get(`${edge.revision}\0${edge.object}`);
+    if (!identityIncoming.has(edge.to)) identityIncoming.set(edge.to, new Map());
+    identityIncoming.get(edge.to).set(`${edge.revision}\0${edge.from}`, {
+      ...edge, unique: group?.from.size === 1 && group.outputs?.size === 1,
+    });
+  }
+  return { parents, paths, incoming, identityIncoming };
 }
 
 function repositoryGit(root, args, { bytes = false, index = false, history = false, environment } = {}) {
@@ -172,6 +182,34 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     if (!judgedRead) { judged = resolveCommit(here, tree === undefined || tree === ':' ? 'HEAD' : tree); judgedRead = true; }
     return judged;
   };
+  let parentSnapshot;
+  const pendingParents = () => {
+    const head = git(here, ['rev-parse', '--verify', '-q', 'HEAD^{commit}'])?.trim() ?? null;
+    const location = git(here, ['rev-parse', '--git-path', 'MERGE_HEAD'])?.trim();
+    if (!location) throw new Error('the staged merge parents could not be read');
+    let raw = '', present = false;
+    try {
+      const path = resolve(here, location);
+      if (!lstatSync(path).isFile()) throw new Error('the staged merge parents are not a regular file');
+      raw = readFileSync(path, 'utf8');
+      present = true;
+    } catch (error) { if (error.code !== 'ENOENT') throw error; }
+    const merge = raw ? raw.replace(/\n$/, '').split('\n') : [];
+    if (present && !merge.length) throw new Error('the staged merge parents are empty');
+    if (merge.some((one) => !/^(?:[0-9a-f]{40}|[0-9a-f]{64})$/.test(one)
+        || resolveCommit(here, one) !== one) || (merge.length && !head)) {
+      throw new Error('the staged merge parents are not genuine commits');
+    }
+    return { stamp: `${head}\0${present}\0${raw}`, tips: [...new Set([...(head ? [head] : []), ...merge])] };
+  };
+  const historyTips = () => {
+    if (tree !== ':') { const tip = judgedCommit(); return tip ? [tip] : []; }
+    if (!parentSnapshot) {
+      parentSnapshot = pendingParents();
+      if ((parentSnapshot.tips[0] ?? null) !== judgedCommit()) throw new Error('the staged parents changed during the repository judgment');
+    } else if (pendingParents().stamp !== parentSnapshot.stamp) throw new Error('the staged parents changed during the repository judgment');
+    return [...parentSnapshot.tips];
+  };
   const grafts = git(here, ['rev-parse', '--git-path', 'info/grafts'])?.trim();
   const shallow = git(here, ['rev-parse', '--git-path', 'shallow'])?.trim();
   const completeHistory = () => {
@@ -183,9 +221,9 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     if (!completeHistory()) return null;
     if (!historyRead) {
       historyRead = true;
-      const tip = judgedCommit();
-      const text = tip && git(here, ['log', '--root', '--topo-order', '--full-history', '--always', '-m', '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', '--format=%x00@%H %P%x00', tip]);
-      history = text === null || !tip ? null : indexHistory(text);
+      const tips = historyTips();
+      const text = tips.length && git(here, ['log', '--root', '--topo-order', '--full-history', '--always', '-m', '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', '--format=%x00@%H %P%x00', ...tips]);
+      history = text === null || !tips.length ? null : indexHistory(text);
     }
     return history;
   };
@@ -233,10 +271,17 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
   };
   const renameLineage = (commit, path) => {
     commit = resolveCommit(here, commit);
-    return lineages(`${commit}\0${path}`, () => {
-      const index = historyIndex(), tip = judgedCommit();
-      if (!index || !tip || !ancestor(commit, tip)) return null;
+    const staged = tree === ':' ? stagedMoves() : null;
+    if (tree === ':' && !staged) return null;
+    return lineages(`${commit}\0${path}\0${staged?.generation ?? ''}`, () => {
+      const index = historyIndex(), tips = historyTips();
+      if (!index || !tips.some((tip) => ancestor(commit, tip))) return null;
       const names = new Set([path]), pending = [path];
+      // The index is a view after its real parents, not a fabricated commit.
+      // Project only this current path through the actual pending move.
+      for (const group of staged?.incoming.get(path) ?? []) for (const from of group.from) {
+        if (!names.has(from)) { names.add(from); pending.push(from); }
+      }
       // Close over every historical name first, including merge parents and delete/reintroduce histories.
       while (pending.length) {
         for (const group of index.incoming.get(pending.pop()) ?? []) for (const from of group.from) {
@@ -259,6 +304,54 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     if (exact !== null || !followRenames) return copiedBytes(exact);
     const lineage = renameLineage(commit, path);
     return lineage ? copiedBytes(regularAtCommit(commit, lineage.then)) : null;
+  };
+  const sameFileIdentity = (commit, sourcePath, targetPath) => {
+    if (!relativeParts(sourcePath) || !relativeParts(targetPath) || !completeHistory()) return false;
+    const base = resolveCommit(here, commit), tips = historyTips(), index = historyIndex();
+    if (!base || !index || !tips.some((tip) => ancestor(base, tip)) || regularAtCommit(base, sourcePath) === null) return false;
+    if (sourcePath === targetPath) return true;
+    // A historical name already occupied at the snapshot, or reused now,
+    // cannot become an alias merely because some bytes happen to match.
+    if (regularAtCommit(base, targetPath) !== null || inspectTarget(sourcePath).state !== 'absent') return false;
+    const staged = tree === ':' ? stagedMoves() : null;
+    if (tree === ':' && !staged) return false;
+    const moves = staged?.renames.filter((edge) => edge.to === targetPath) ?? [];
+    if (moves.some((edge) => !edge.unique || !edge.regular)) return false;
+    if (!moves.length && !tips.some((tip) => regularAtCommit(tip, targetPath) !== null)) return false;
+    const reaches = (revision, tips) => tips.some((tip) => ancestor(revision, tip));
+    const introducedBetween = (path, from, tips, allowed = new Set()) => [...(index.paths.get(path)?.values() ?? [])]
+      .some((event) => event.introduced && event.revision !== from
+        && !allowed.has(event.revision) && ancestor(from, event.revision) && reaches(event.revision, tips));
+    // Audit the original spelling too: a later A there is an unrelated copy,
+    // while a real rename back must trace through its own earlier file version.
+    const pending = [targetPath, sourcePath].map((path) => ({ path, later: tips, initial: true,
+      moves: path === targetPath ? moves : [] })), seen = new Set();
+    while (pending.length) {
+      const { path, later, initial, moves = [] } = pending.pop();
+      const original = path === sourcePath;
+      if (!original && regularAtCommit(base, path) !== null) return false;
+      const key = `${path}\0${[...later].sort().join('\0')}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const edges = [...(index.identityIncoming.get(path)?.values() ?? [])]
+        .filter((edge) => edge.revision !== base && ancestor(base, edge.revision)
+          && later.some((after) => (initial || edge.revision !== after) && ancestor(edge.revision, after)));
+      if ((!original && !edges.length && !moves.length) || edges.some((edge) => !edge.unique)) return false;
+      // A merge can repeat a move, or combine independent moves of the same
+      // original through different intermediate names. Every branch must
+      // reach the declared original, without borrowing another baseline file.
+      if (!original && [...(index.paths.get(path)?.values() ?? [])].some((event) => event.content
+        && reaches(event.revision, later) && !edges.some((edge) => ancestor(edge.revision, event.revision)))) return false;
+      if (introducedBetween(path, base, later, new Set(edges.map((edge) => edge.revision)))) return false;
+      const origins = new Map();
+      for (const edge of edges) {
+        if (!origins.has(edge.from)) origins.set(edge.from, []);
+        origins.get(edge.from).push(edge.revision);
+      }
+      for (const [from, revisions] of origins) pending.push({ path: from, later: revisions, initial: false });
+      for (const edge of moves) pending.push({ path: edge.from, later: [edge.parent], initial: true });
+    }
+    return true;
   };
   const pathOf = (source) => {
     if (source?.path) return source.path;
@@ -297,6 +390,52 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
   };
   const assertScope = () => {
     if (judgedIndexStamp !== undefined && indexGeneration() !== judgedIndexStamp) throw new Error('the staged index changed during the repository judgment');
+    if (parentSnapshot && pendingParents().stamp !== parentSnapshot.stamp) throw new Error('the staged parents changed during the repository judgment');
+  };
+  let movesStamp, movesCache;
+  const stagedMoves = () => {
+    assertScope();
+    const generation = indexGeneration();
+    if (generation === null) return null;
+    if (generation === movesStamp) return movesCache;
+    const groups = new Map(), renames = [];
+    const tips = historyTips();
+    for (const parent of tips.length ? tips : [null]) {
+      const raw = git(here, ['diff', '--cached', '--no-ext-diff', '--no-textconv', '--no-color',
+        '--find-renames', '-l0', '--raw', '--no-abbrev', '-z', ...(parent ? [parent] : [])], { index: true });
+      if (raw === null) return null;
+      const fields = raw.split('\0');
+      for (let at = 0; at < fields.length; at += 1) {
+        if (!fields[at]) continue;
+        const match = /^:(\d{6}) (\d{6}) ([0-9a-f]+) ([0-9a-f]+) ([AMDTURC]\d*)$/.exec(fields[at]);
+        if (!match) return null;
+        const [, oldMode, newMode, , object, status] = match, from = fields[++at];
+        if (!from) return null;
+        const to = /^[RC]/.test(status) ? fields[++at] : from;
+        if (!to) return null;
+        if (/^[ARC]/.test(status)) {
+          const key = `${parent}\0${object}`;
+          if (!groups.has(key)) groups.set(key, { from: new Set(), outputs: new Set() });
+          const group = groups.get(key);
+          group.outputs.add(to);
+          if (status.startsWith('R')) {
+            group.from.add(from);
+            renames.push({ parent, from, to, group, regular: /^100(?:644|755)$/.test(oldMode) && /^100(?:644|755)$/.test(newMode) });
+          }
+        }
+      }
+    }
+    assertScope();
+    if (generation !== indexGeneration()) return null;
+    const incoming = new Map();
+    for (const group of groups.values()) if (group.from.size) for (const path of group.outputs) {
+      if (!incoming.has(path)) incoming.set(path, []);
+      incoming.get(path).push(group);
+    }
+    movesStamp = generation;
+    movesCache = { generation, incoming, renames: renames.map(({ group, ...edge }) => ({ ...edge,
+      unique: group.from.size === 1 && group.outputs.size === 1 })) };
+    return movesCache;
   };
   const snapshotSpan = (span) => {
     if (span.staged) {
@@ -304,7 +443,9 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       const generation = indexGeneration();
       if (generation === null) throw new Error('the staged index generation could not be read');
       judgedIndexStamp = generation;
-      return { ...span, head: judgedCommit() ?? EMPTY_TREE };
+      const head = historyTips()[0] ?? EMPTY_TREE;
+      assertScope();
+      return { ...span, head };
     }
     return { ...span, to: judgedCommit(), ...(span.from === undefined ? {} : { from: resolveCommit(here, span.from) ?? (span.from === EMPTY_TREE ? EMPTY_TREE : null) }) };
   };
@@ -371,6 +512,18 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     repositoryName,
     checkout,
     mainOf,
+    repositoryOrigin(name) {
+      const folder = checkout(name);
+      return folder ? git(folder, ['remote', 'get-url', 'origin'])?.trim() ?? null : null;
+    },
+    sourcePaths(source) {
+      const folder = checkout(source?.repository);
+      const prefix = relativeParts(source?.path);
+      const metadata = folder && prefix && treeAt(folder, source?.commit);
+      if (!metadata || metadata.entries.get(source.path)?.type !== 'tree') return null;
+      return [...metadata.entries].filter(([path, entry]) => path.startsWith(`${source.path}/`)
+        && entry.type === 'blob' && /^100(?:644|755)$/.test(entry.mode)).map(([path]) => path).sort();
+    },
     repositoryCommit(name, commit) {
       if (!repositoryLabel(name) || !/^[0-9a-f]{7,64}$/.test(commit ?? '')) return null;
       // Historical captures can outlive a branch or a replacement of main.
@@ -432,20 +585,21 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       return state.state === 'regular' ? { state: 'regular', bytes: copiedBytes(state.bytes) } : { state: state.state };
     },
     targetAtCommit,
+    sameFileIdentity,
     baselineHistory(commit, paths) {
       if (!completeHistory()) return null;
       const base = resolveCommit(here, commit);
-      const judged = judgedCommit();
-      if (!base && !judged && commit === 'HEAD' && (tree === undefined || tree === ':')
+      const tips = historyTips();
+      if (!base && !tips.length && commit === 'HEAD' && (tree === undefined || tree === ':')
           && git(here, ['symbolic-ref', '--quiet', 'HEAD'])
           && git(here, ['rev-list', '--all', '--reflog', '--max-count=1']) === '') {
         return { ancestor: true, allEarlierOrParallelContent: true,
           targets: paths.map((path) => ({ path, atBaseline: null, before: [], parallel: [], introductionsOrdered: true })) };
       }
-      if (!base || !judged) return null;
+      if (!base || !tips.length) return null;
       const index = historyIndex();
       if (!index) return null;
-      if (!ancestor(base, judged)) return { ancestor: false, targets: [] };
+      if (!tips.some((tip) => ancestor(base, tip))) return { ancestor: false, targets: [] };
       const targets = paths.map((path) => {
         const lineage = renameLineage(base, path);
         if (!lineage) return null;
@@ -463,7 +617,7 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
           introductionsOrdered: events.filter((one) => one.introduced).every((one) => ancestor(one.revision, base) || ancestor(base, one.revision)),
         };
       });
-      return targets.some((one) => one === null) ? null : { ancestor: ancestor(base, judged), allEarlierOrParallelContent: true, targets };
+      return targets.some((one) => one === null) ? null : { ancestor: true, allEarlierOrParallelContent: true, targets };
     },
     lives(repository, path) {
       const folder = checkout(repository);

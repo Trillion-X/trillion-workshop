@@ -12,6 +12,8 @@ Both locator forms verify that the captured commit is an immutable object readab
 
 Feature coverage and target admission are separate. The existing feature rules still select which changed files need contracts and which files can supply retention and mechanisms. Every declared target must also be readable as a current regular file, so coupled JSON or other DATA can accompany code without expanding feature coverage or supplying archived source lines. A contract's own explicit `baseline.path` identifies its separate artifact; a legacy archive-first target outside the feature scope is likewise refused. Neither can supply that contract's retention or mechanisms. A path named as another contract's historical baseline is not evidence that the path is archival in the current tree.
 
+An in-place source can follow actual Git renames from its original pre-policy snapshot to the current target. Each contributing branch must trace unique moves back to that same original file; branches can use different intermediate names. Matching bytes or a copy-group history are insufficient. The witness refuses ambiguous move outputs, unrelated destination history and incomplete history; the validator still requires a one-to-one complete source/target set, the original pre-policy commit, and all earlier and parallel history checks. A staged judgment includes actual index rename records and every pending merge parent's history; changing the index or the ordered parents during the judgment refuses it.
+
 ## Files
 
 | File | Purpose |

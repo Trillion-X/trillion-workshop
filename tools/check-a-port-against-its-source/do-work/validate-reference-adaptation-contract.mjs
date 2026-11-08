@@ -353,9 +353,13 @@ function oldCopyLives(source, part, options) {
   const path = options.readers?.pathOf?.(source) ?? source.path;
   return part ? partLives(source, part, options) : path ? options.readers?.lives?.(source.repository, path) ?? null : null;
 }
+function ownTargetIdentity(source, targetPath, options) {
+  return typeof source?.path === 'string' && source.repository === options.repository && (source.path === targetPath
+    || options.readers?.sameFileIdentity?.(source.commit, source.path, targetPath) === true);
+}
 function checkOldCopy(source, contract, options, errors, deferred, part) {
   const old = source.old_copy;
-  const sameFile = source.repository === options.repository && (contract.targets ?? []).some((target) => target?.path === source.path);
+  const sameFile = (contract.targets ?? []).some((target) => ownTargetIdentity(source, target?.path, options));
   if (old === 'same-file' || (old === undefined && sameFile)) {
     if (!sameFile) errors.push(`source ${named(source)}: old_copy "same-file" needs the source to be a target's own path in this repository`);
     return;
@@ -652,16 +656,18 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
         const copies = new Set([copied, ...(fullSourceBaseline ? [source.multihash] : []), ...sources.slice(1).map((one) => one?.multihash)]);
         const sourcePaths = new Set(sources.map((one) => one?.path));
         const targetPaths = new Set(activeTargets.map((one) => one?.path));
-        const inPlaceClaim = sources.some((one) => one?.old_copy === 'same-file'
-          || (one?.repository === options.repository && targetPaths.has(one?.path)));
+        const sourceTargets = sources.map((one) => activeTargets.filter((target) => ownTargetIdentity(one, target?.path, options)));
+        const mappedTargets = sourceTargets.flat().map((target) => target.path);
+        const inPlaceClaim = sources.some((one, index) => one?.old_copy === 'same-file' || sourceTargets[index].length);
         const genuineInPlace = sources.length === sourcePaths.size && sources.length === activeTargets.length && targetPaths.size === sourcePaths.size
-          && options.policySince && sources.every((one) => one?.repository === options.repository && targetPaths.has(one?.path)
+          && sourceTargets.every((targets) => targets.length === 1) && new Set(mappedTargets).size === activeTargets.length
+          && options.policySince && sources.every((one) => one?.repository === options.repository
             && one.commit === contract?.baseline?.commit && (one.old_copy === 'same-file' || one.old_copy === undefined)
             && options.readers.isAncestor?.(one.commit, options.policySince));
         if (inPlaceClaim && !genuineInPlace) errors.push('same-file provenance requires the complete original source/target set at a snapshot no later than policySince; mixed or post-policy self-sources cannot certify an imported adaptation');
         for (const one of history.targets) {
           const exact = (bytes) => bytes !== null && copies.has(multihash(bytes));
-          const sameFile = genuineInPlace && one.atBaseline !== null && sources.some((source) => source?.repository === options.repository && source.path === one.path
+          const sameFile = genuineInPlace && one.atBaseline !== null && sources.some((source) => ownTargetIdentity(source, one.path, options)
             && source.multihash === multihash(one.atBaseline) && (source.old_copy === 'same-file' || source.old_copy === undefined));
           const initial = !contract?.baseline?.commit;
           const bytes = initial ? readTargetBytes(one.path, options) : one.atBaseline;
