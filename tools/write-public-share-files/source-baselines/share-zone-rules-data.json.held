@@ -1,0 +1,25 @@
+    {
+      "id": "hour",
+      "label": "Hour of the day",
+      "kind": "number",
+      "from": "clock",
+      "part": "hour",
+      "zoned": true
+    },
+    {
+      "id": "weekday",
+      "label": "Day of the week",
+      "kind": "choice",
+      "from": "clock",
+      "part": "weekday",
+      "zoned": true,
+      "choices": [
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+        "sunday"
+      ]
+    },
