@@ -18,6 +18,34 @@
   ],
   "capabilities": [
     {
+      "capability": "merge evidence-backed source inventories and search their entries",
+      "entry": "design-systems/component-catalog/build-index.mjs",
+      "lives_at": [
+        "design-systems/component-catalog/build-index.mjs",
+        "design-systems/component-catalog/search.mjs"
+      ],
+      "moves_to": "tools/merge-and-search-source-inventories/",
+      "evidence": "Existing unversioned source, not a new catalogue: component-catalog/build-index.mjs (4759 bytes) pinned 1f:d1cfaeebd41992f71955aa2c8c6e5a287db510d31a5cc0d3ec6023b1688beedb; search.mjs (1314 bytes) pinned 1f:34f2169dc40a4832873664622ff8164f0cb8b890ea9f23c6244fd4ebeca279cd. Keep existing DATA catalogue and source inventories; executable source-only migration/adaptation and consumer proof remain unqualified until checked.",
+      "distinct_from": [
+        {
+          "job": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps",
+          "why": "That reads/ranks a prebuilt file index with required nonempty query and filesystem/type/root semantics; this existing builder validates source identities, evidence hashes and entry uniqueness, merges the source inventory in order, and exposes stable entry/source/kind/license-evidence filters. It neither walks files nor builds a second search engine for account records."
+        },
+        {
+          "job": "gate a piece's delivery checklist: answers per check and per option with evidence, machine rows pinned to what measured them, and an audit of what is linked to watch",
+          "why": "That validates/rebuilds a record library according to its schemas and builders and stores question/evidence journals; it does not implement this existing ordered source-inventory catalogue construction or its entry search. It may validate the produced DATA without becoming a duplicate catalogue."
+        },
+        {
+          "job": "read one page of what a person's list or saved view shows: the list's own rows, then the rows of each row source it declares (each read by running the source's tool), kept and ordered by the view's rules and sort",
+          "why": "That owner reads a person's stored list and source-tool pages, with saved-view rules, ID ordering and bounded coverage. This existing constructor validates source/evidence inventories on disk and its direct read-only query preserves inventory order, all-term matching, filter-only browsing and total matches without refreshing account list records."
+        },
+        {
+          "job": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
+          "why": "That owner finds and merges people and scores their activity. This existing job constructs a source-inventory catalogue from source identities and pinned evidence, then queries its entry metadata; it neither merges people nor computes activity scores."
+        }
+      ]
+    },
+    {
       "capability": "compare plans side by side and tell a person what a feature needs when their plan lacks it",
       "owner": ["tools/compare-plans-side-by-side-and-tell-a-person/"],
       "entry": "tools/compare-plans-side-by-side-and-tell-a-person/moved-from.json",
