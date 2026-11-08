@@ -219,6 +219,8 @@ test('the host owner is installed with its layout beside it, the layout first, h
   assert.deepEqual(Object.keys(JSON.parse(calls[0].input)).sort(), ['ingress', 'receptionist', 'state']);
   assert.ok(calls[1].command.endsWith("mv '/usr/local/lib/example/tls-host-owner.py.next' '/usr/local/lib/example/tls-host-owner.py'"));
   assert.ok(calls[1].input.startsWith('#!/usr/bin/python3'));
+  assert.ok(calls[2].command.endsWith("mv '/usr/local/lib/example/tls-host-owner-core.py.next' '/usr/local/lib/example/tls-host-owner-core.py'"));
+  assert.match(calls[2].input, /def main\(\):/);
   assert.equal(installHostOwner(c, { run }).packages_installed, true);
   for (const owner of ["/usr/local/lib/x'; rm -rf /.py", '/usr/local/lib/example/owner.sh', 'relative/owner.py']) {
     assert.throws(() => installHostOwner({ ...c, host: { ...host, owner } }, { run: () => { throw new Error('reached host'); } }), /layout \(host\) was refused/);

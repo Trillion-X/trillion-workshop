@@ -8,9 +8,12 @@ Every row runs one process on the person's computer that reaches the server as i
 
 | File | Purpose |
 |------|---------|
-| `do-work/renew-a-tls-certificate.mjs` | The Mac side: checks the input, pins the server's key for the run, and runs each action on the server (`hostCommand`); writes the public host's nginx configuration (`publicProxy`); installs the host owner and its layout (`installHostOwner`); keeps a download and moves its pointer (`publishDownload`). As a command: `node renew-a-tls-certificate.mjs <action> <administration key file>` with the request on standard input and the DNS key on descriptor 3. |
+| `do-work/renew-a-tls-certificate.mjs` | Public command and export facade. It supplies the shared host-administration and content-identity owners, then delegates to `renew-a-tls-certificate-core.mjs`. As a command: `node renew-a-tls-certificate.mjs <action> <administration key file>` with the request on standard input and the DNS key on descriptor 3. |
+| `do-work/renew-a-tls-certificate-core.mjs` | Active Mac-side owner: checks the input, pins the server's key for the run, runs each action on the server, writes the public host's nginx configuration, installs its host owner, and publishes downloads. The source-grounded adaptation is measured against this core; the public facade has an older adapted history. |
 | `do-work/publish-download.py` | The existing download action's server-side byte check: stages stdin privately, locks publications, keeps a new name without replacing it, compares every byte on retries, and changes the pointer only after a match. A collision or incomplete transfer leaves the pointer unchanged. |
-| `do-work/tls-host-owner.py` | The server side, installed at `host.owner`: certificate status, issue and renew (certbot DNS-01 with the key in an anonymous memory file), setup, the public host's configuration and services, and starting the receptionist as its own account with its certificate on descriptors 3 and 4. Reads every product fact from its layout file beside it (`host.owner` with `.json`). |
+| `do-work/tls-host-owner.py` | Thin server-side entry installed at `host.owner`; it delegates to the sidecar core and reads the host layout beside itself. |
+| `do-work/tls-host-owner-core.py` | Active server-side owner for certificate status, DNS-01 issuance and renewal, setup, public host configuration and services, and starting the receptionist as its own account with its certificate on descriptors 3 and 4. The installer deploys it beside the wrapper as `<owner>-core.py`. |
+| `source-baselines/*.held` | Immutable byte copies of the declared old Trillion source at the commit recorded in the port contracts. They are provenance evidence and are not included in runtime bundles. |
 | `ports/*.json` | The port contracts: these files were moved from an older owner, byte copy first. |
 | `test/renew-a-tls-certificate.test.mjs` | The Mac side's tests, on a made-up server, and the host owner's tests run here. |
 | `test/tls-host-owner.test.py` | The host owner's tests; the Linux-only ones (memory file, provider failure, dry run) run on the server through `tool:check-a-servers-tls-owner-on-the-server`. |
@@ -68,6 +71,16 @@ A made-up request:
   }
 }
 ```
+
+## Receptionist paths and front page
+
+`host.receptionist.paths` names exact paths. Optional `prefixes` names non-root URL prefixes ending in `/`, such as `/accounts/`; each request keeps its method, full path, query and body. Both use the same verified TLS receptionist connection. Prefixes cannot take health, downloads, site pages or a public export mount.
+
+Optional `host.receptionist.root_cookie` names a public routing cookie, using letters, digits, underscores and hyphens. With this field, requests to `/` with no cookies, or with that exact cookie name, go to the receptionist. Other-cookie requests keep the engine route. Bare, malformed and duplicate routing cookies also reach the receptionist: it must validate their values and actual sessions, and refuse or clear them when needed. A cookie value never supplies an upstream address. Root requests retain their methods and bodies; the receptionist decides which methods it accepts. Without this field the existing root behavior is unchanged.
+
+Optional `host.ingress.engine_keepalive` is `{ "connections": 16, "timeout_seconds": 60 }`: positive integers chosen by the host owner. It creates an engine upstream pool and leaves the non-upgrade Connection header empty so those connections can be reused. Omit it to retain the existing close behavior. These values are input DATA, not tool defaults.
+
+The generator's full request is distinct from the minimal installed Python layout above. The generated nginx configuration remains the host's operational routing DATA. Applying a request must preserve the host's current exact paths, prefixes, downloads, site pages and connection settings; a fixture alone proves no live route.
 
 ## Public export folders
 

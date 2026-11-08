@@ -22,10 +22,7 @@
     }
   ],
   "targets": [
-    {
-      "path": "tools/renew-a-tls-certificate/do-work/tls-host-owner.py",
-      "baseline_commit_message": "renew-a-tls-certificate, step one: the older owner's certificate owner and host owner, copied byte for byte before they are adapted"
-    }
+    { "path": "tools/renew-a-tls-certificate/do-work/tls-host-owner-core.py" }
   ],
   "preserve": [
     "the DNS credential lives only in an anonymous memory file handed to certbot as an inherited descriptor, never on disk, in argv or the environment",
@@ -48,11 +45,12 @@
     "a product's names written into this owner"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T21:10:00Z",
+    "path": "tools/renew-a-tls-certificate/source-baselines/portable-tls-host.py.held",
+    "recorded_at": "2026-11-07T19:05:41-06:00",
     "copied_before_adaptation": true,
     "source_multihash": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1",
     "target_multihash_at_baseline": "1f:f3d3714ffecca83027d8483d98ced8c002a2c07c39bb55c9cc92d894743b7fb1",
-    "commit": "4a56725363a4db0df01c54c62b4af1c8b393850a"
+    "commit": "ce0dfdd6fe50ba2521641a7dbd7993774c9caab3"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

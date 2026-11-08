@@ -24,13 +24,7 @@
     }
   ],
   "targets": [
-    {
-      "path": "tools/renew-a-tls-certificate/do-work/renew-a-tls-certificate.mjs",
-      "baseline_commit_message": "renew-a-tls-certificate, step one: the older owner's certificate owner and host owner, copied byte for byte before they are adapted"
-    },
-    {
-      "path": "tools/renew-a-tls-certificate/do-work/publish-download.py"
-    }
+    { "path": "tools/renew-a-tls-certificate/do-work/renew-a-tls-certificate-core.mjs" }
   ],
   "preserve": [
     "the DNS credential reaches the host only on the SSH process's private input, never in argv or the environment",
@@ -58,11 +52,12 @@
     "a product's server facts written into this tool"
   ],
   "baseline": {
-    "recorded_at": "2026-11-03T21:10:00Z",
+    "path": "tools/renew-a-tls-certificate/source-baselines/portable-tls.mjs.held",
+    "recorded_at": "2026-11-07T19:05:41-06:00",
     "copied_before_adaptation": true,
     "source_multihash": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
     "target_multihash_at_baseline": "1f:86bbe2c637aede3c8f478913fde22a2c1c5c9669e38a328d52550e92db1e2cc8",
-    "commit": "4a56725363a4db0df01c54c62b4af1c8b393850a"
+    "commit": "ce0dfdd6fe50ba2521641a7dbd7993774c9caab3"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,

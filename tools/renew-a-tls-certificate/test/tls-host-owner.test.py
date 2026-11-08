@@ -4,13 +4,14 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import unittest
 from unittest.mock import patch
 
 # Beside the owner on its server (host-test installs this file as <owner>.test.py), or in the tool folder here.
-source = Path(__file__).with_name(Path(__file__).name.replace('.test.py', '.py'))
+source = Path(__file__).with_name(Path(__file__).name.replace('.test.py', '-core.py'))
 if not source.exists():
-    source = Path(__file__).parent.parent / 'do-work' / 'tls-host-owner.py'
+    source = Path(__file__).parent.parent / 'do-work' / 'tls-host-owner-core.py'
 spec = importlib.util.spec_from_file_location('portable_tls', source)
 owner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(owner)
@@ -25,6 +26,14 @@ def made_up_layout(state):
 
 
 class TLS(unittest.TestCase):
+    def test_public_host_owner_entry_loads_the_installed_core_and_keeps_json_errors(self):
+        wrapper = source.with_name(source.name.replace('-core.py', '.py'))
+        result = subprocess.run([sys.executable, str(wrapper), 'unknown'],
+                                input=json.dumps({'hostname': 'app.example.com'}), text=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=5)
+        self.assertEqual(1, result.returncode)
+        self.assertEqual({'error': 'TLS action refused'}, json.loads(result.stdout))
+
     def test_activation_requires_real_canonical_metadata_readback(self):
         good = {'resource': 'https://app.example.com/mcp', 'authorization_servers': ['https://app.example.com']}
         calls = []
