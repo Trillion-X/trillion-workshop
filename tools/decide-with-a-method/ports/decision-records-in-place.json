@@ -27,6 +27,7 @@
   "the file's own lines from before the port rules: tools/decide-with-a-method/read-data/decision-records.mjs kept 80.4% of its meaningful lines at e854b028bb when this contract was written"
  ],
  "allowed_deltas": [
+  "Lifecycle repair in the existing owner: stage immutable BLAKE3-addressed values and root-field parts, publish logical record pointers only under the original root fence, preserve legacy logical reads and exact-retry recovery, and retain a server-supplied opaque root identity without deriving it from content. The native compact condition remains an independently verified runtime dependency.",
   "a5b0db2982 (+62): decide-with-a-method: lay a root's largest fields apart when the root alone is over record_bytes",
   "3eaae0d8d2 (+54): decide-with-a-method: the join of a laid-apart decision is one pure synchronous function, so a reader that reads synchronously calls it instead of copying it",
   "ed92f87b79 (+29): tool:end-a-decision: size laid-apart parts and writes by what the door can make of them, so a 67 KB evidence claim ends",
@@ -47,6 +48,10 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
-  "test_refs": []
+  "test_refs": [
+   "tools/decide-with-a-method/test/judging-holds-no-other-decision.test.mjs",
+   "tools/decide-with-a-method/test/decisions.test.mjs",
+   "tools/keep-and-wake-ai-sessions-on-this-computer/test/checklist-kept-once.test.mjs"
+  ]
  }
 }

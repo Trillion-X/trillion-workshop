@@ -27,6 +27,7 @@
   "the file's own lines from before the port rules: tools/decide-with-a-method/read-data/decisions.mjs kept 93.0% of its meaningful lines at e854b028bb when this contract was written"
  ],
  "allowed_deltas": [
+  "Lifecycle repair in the existing owner: guidance and confirmation readiness keep accepted decision-phase obligations blocked just as make-the-decision does; concurrent answer conflicts are judged from the current persisted accepted answer, with identical replay and differing-answer refusal. The restored public regression assertions remain unchanged.",
   "07017f8f6f (+54): decide-with-a-method: read a method and its step's checks by id, never by a scan of the Checks list",
   "0a9d0ee8cd (+42): End a decision too large for one conditioned write through its layout",
   "1baf372fe7 (+18): decide-with-a-method: a decision waiting on a decision-phase run is not ready",
@@ -53,6 +54,10 @@
  "proof": {
   "minimum_meaningful_line_retention": 0.6,
   "source_record": "the source is this file itself at the commit the port rules began; every change since is a change in place",
-  "test_refs": []
+  "test_refs": [
+   "tools/decide-with-a-method/test/decision-workflow-phases.test.mjs",
+   "tools/decide-with-a-method/test/judging-holds-no-other-decision.test.mjs",
+   "tools/decide-with-a-method/test/decisions.test.mjs"
+  ]
  }
 }

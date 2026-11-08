@@ -6,6 +6,7 @@
 // quotes it once more as a JSON string, the most any re-encoding on the way can make of it.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { itemsIn, joinLaid, recordKeyIn, rootFieldsIn } from '../read-data/decision-records.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
 export const DOOR_CAP = 64 * 1024;
@@ -45,14 +46,33 @@ export function memoryDoor() {
   const records = new Map();
   const writes = [];
   const lists = [];
+  const roots = new Set();
+  const identities = new Map();
+  let writeMark = 9007199254740992n;
+  const advance = id => identities.set(id, String(++writeMark));
+  const raw = (type, key) => records.get(key)?.type === type ? records.get(key).value : null;
+  const physical = key => {
+    for (const id of roots) {
+      const root = records.get(id)?.value;
+      if (!root || id === key) continue;
+      const resolved = recordKeyIn(id, root, key, raw);
+      if (resolved !== key) return resolved;
+    }
+    return key;
+  };
   const view = (kept, fields) => (fields ? Object.fromEntries(fields.filter(name => name in kept.value).map(name => [name, kept.value[name]])) : kept.value);
   // `where` keeps the rows whose fields equal it as JSON, as the door does.
   const matches = (kept, where) => !where || Object.entries(where).every(([name, value]) => JSON.stringify(kept.value?.[name]) === JSON.stringify(value));
   return {
     records, writes, lists,
-    put(id, type, value) { records.set(id, { type, value: structuredClone(value) }); },
-    value(id) { return structuredClone(records.get(id)?.value ?? null); },
+    put(id, type, value) { if (type === 'decision') roots.add(id); const key = physical(id) ?? id; records.set(key, { type, value: structuredClone(value) }); advance(key); },
+    value(id) { return structuredClone(records.get(physical(id))?.value ?? null); },
     async read(type, id) { const kept = records.get(id); return kept && kept.type === type ? structuredClone(kept.value) : null; },
+    async readRecord(type, id) {
+      const identity = records.get(id)?.type === type ? identities.get(id) : undefined;
+      const value = await this.read(type, id);
+      return value === null ? null : { type, value, ...(identity !== undefined ? { identity } : {}) };
+    },
     async *list({ type, order, prefix = '', fields, where }) {
       lists.push({ type, ...(where ? { where } : {}) });
       const rows = [...records.entries()].filter(([id, kept]) => kept.type === type && id.startsWith(prefix) && matches(kept, where));
@@ -65,11 +85,17 @@ export function memoryDoor() {
       assert.ok(size <= DOOR_CAP, `a write of ${size} bytes is over the door's 64 KiB cap (413)`);
       // A record carrying `expected` is written only if it still holds exactly that ({ type, value }, or null when absent), as the engine checks: otherwise the whole write is refused and nothing changes.
       const sorted = value => JSON.stringify(value, (name, item) => (item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : item));
-      if (list.some(record => 'expected' in record && sorted(record.expected) !== sorted(records.get(record.id) ?? null))) throw Object.assign(new Error('changed'), { code: 'original_command_conflict' });
+      if (list.some(record => {
+        if (!('expected' in record)) return false;
+        if (record.expected && Object.hasOwn(record.expected, 'identity')) return records.get(record.id)?.type !== record.expected.type || identities.get(record.id) !== record.expected.identity;
+        return sorted(record.expected) !== sorted(records.get(record.id) ?? null);
+      })) throw Object.assign(new Error('changed'), { code: 'original_command_conflict' });
       writes.push({ key, ids: list.map(record => record.id), bytes: size, carried: carried({ records: list, key }), largest: Math.max(...list.map(bytes)) });
       for (const { id, type, value } of list) {
         assert.ok(typeof type === 'string' && type, `${id} carries its type`);
-        if (value === null) records.delete(id); else records.set(id, { type, value: structuredClone(value) });
+        if (value === null) { records.delete(id); if (type === 'decision') roots.delete(id); }
+        else { records.set(id, { type, value: structuredClone(value) }); if (type === 'decision') roots.add(id); }
+        advance(id);
       }
       return { changed: true, write_count: list.length };
     },
@@ -82,25 +108,12 @@ export function memoryDoor() {
 export function caseView(door, id) {
   const kept = door.value(id);
   if (!kept?.counts) return kept;
-  const { part } = settings.records;
-  const partsOf = (key, count) => Array.from({ length: count }, (_, n) => door.value(`${key}${part.suffix}${String(n).padStart(part.digits, '0')}`).text).join('');
-  // A root too large for one record keeps its largest fields in parts, named in `fields_in_parts`; they are put back.
-  const { fields_in_parts: moved, root_fields_in_parts: count, ...own } = kept;
-  const root = Array.isArray(moved) ? { ...own, ...JSON.parse(partsOf(`${id}:root-fields`, count)) } : kept;
-  const whole = key => {
-    const value = door.value(key);
-    if (!Number.isInteger(value?.kept_in_parts)) return value;
-    return JSON.parse(partsOf(key, value.kept_in_parts));
+  const get = (type, key) => door.records.get(key)?.type === type ? structuredClone(door.records.get(key).value) : null;
+  const root = rootFieldsIn(id, kept, get);
+  const read = (type, key) => {
+    const physical = Object.hasOwn(root.record_keys ?? {}, key) ? root.record_keys[key] : key;
+    return physical === null ? null : get(type, physical);
   };
-  const items = list => {
-    const { type, digits } = settings.records.laid_apart[list];
-    return Array.from({ length: root.counts[list] ?? 0 }, (_, n) => whole(`${type}:${id}:${String(n).padStart(digits, '0')}`));
-  };
-  const view = { ...root, input: { ...root.input, evidence: items('evidence') }, answered_steps: items('answered_steps') };
-  if (root.counts.options) view.input.options = items('options');
-  for (const list of ['candidates', 'reports', 'carried_out', 'decision_history']) if (root.counts[list]) view[list] = items(list);
-  if (root.counts.cited_pursuits) view.cited_pursuits = Object.fromEntries(items('cited_pursuits').map(item => [item.ref, item.said]));
-  if (root.method_identity) view.method = whole(`${settings.records.method}:${root.method_identity}`)?.method;
-  delete view.counts;
-  return view;
+  const { record } = joinLaid(id, kept, get, undefined, { method: true });
+  return { ...record, answered_steps: itemsIn(read, id, 'answered_steps', root.counts.answered_steps ?? 0) };
 }

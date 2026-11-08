@@ -67,3 +67,44 @@ test('a store moved to the log engine reads every checklist it kept', () => {
   for (let steps = 0; store.eeaf.engine() === 'eeaf'; steps += 1) { move.step(); assert.ok(steps < 200, 'the move ends'); }
   assert.deepEqual(store.readStep('case:a', 'outcome').replay.checklist, CHECKS);
 });
+
+test('the existing store reads one immutable Workshop view despite orphan calls and a later root', () => {
+  for (const decomposed of [false, true]) {
+    const { store } = opened({ decomposed });
+    const id = `case:immutable-reader-${decomposed}`;
+    const logical = { step: `decision-step:${id}:000`, summary: `decision-answered-step:${id}:000`, call: `decision-call:${id}:000000` };
+    // These are explicit DATA fixtures for this reader ABI. The actual writer/concurrent-publication controls live
+    // with decision-records; this test does not implement another writer or pointer decoder.
+    const accepted = { step_id: 'scope', answer, checklist: { checks: CHECKS }, answered_at: '2026-01-01T00:01:00Z', version: 1 };
+    const summary = { step_id: 'scope', answered_at: accepted.answered_at, version: 1 };
+    const call = { route: 'guide', step_id: 'scope', accepted: true, at: '2026-01-01T00:02:00Z' };
+    const alternate = { ...accepted, answer: { desired_result: 'A later accepted root names another answer' } };
+    const physical = (key, value) => `${key}:content:${identityOf(JSON.stringify(value))}`;
+    const keys = { [logical.step]: physical(logical.step, accepted), [logical.summary]: physical(logical.summary, summary), [logical.call]: physical(logical.call, call) };
+    const root = { id, source_id: id, input_identity: 'synthetic-input', input: { goal: 'Read one accepted view', evidence: [], options: [] },
+      method: { id: 'universal' }, status: 'needs_decision', created_at: '2026-01-01T00:00:00Z', counts: { answered_steps: 1 }, call_count: 1, record_keys: keys };
+    store.eeaf.write([
+      { id: keys[logical.step], type: 'decision-step', value: accepted },
+      { id: keys[logical.summary], type: 'decision-answered-step', value: summary },
+      { id: keys[logical.call], type: 'decision-call', value: call },
+      { id: logical.step, type: 'decision-step', value: alternate },
+      { id: physical(logical.call, { ...call, accepted: false }), type: 'decision-call', value: { ...call, accepted: false } },
+      { id, type: 'decision', value: root },
+    ], { actor: { by: 'synthetic-fixture' } });
+    const read = store.read({ cases: [id] }).cases[id];
+    assert.deepEqual(read.guidance[0].answer, answer, 'a legacy logical slot cannot replace the root-selected value');
+    assert.deepEqual(read.guidance[0].checklist, CHECKS);
+    assert.equal(read.calls.length, 1);
+    assert.equal(read.calls[0].accepted, true);
+    assert.deepEqual(store.readStep(id, 'scope').replay.answer, answer);
+    assert.equal(store.callsAt(id, 'scope').record.calls.length, 1, 'an orphan physical call is not counted as accepted');
+    const view = store.contentOf(id, { acceptOwn: () => {
+      const nextKey = physical(logical.step, alternate);
+      store.eeaf.write([{ id: nextKey, type: 'decision-step', value: alternate },
+        { id, type: 'decision', value: { ...root, record_keys: { ...keys, [logical.step]: nextKey } } }], { actor: { by: 'synthetic-new-root' } });
+      return true;
+    } });
+    assert.deepEqual(view.guidance[0].answer, answer, 'the admitted content keeps its original loaded map');
+    assert.deepEqual(store.readStep(id, 'scope').replay.answer, alternate.answer, 'a later read follows the later root');
+  }
+});

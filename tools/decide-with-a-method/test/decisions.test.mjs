@@ -51,8 +51,8 @@ async function answered(door) {
 function keptBeforeVerdicts(door, id) {
   const step = `decision-step:${id}:001`;
   const summary = `decision-answered-step:${id}:001`;
-  door.put(step, door.records.get(step).type, { ...door.value(step), verdicts: { given: [] } });
-  door.put(summary, door.records.get(summary).type, { ...door.value(summary), graded: 0, graded_by: '' });
+  door.put(step, 'decision-step', { ...door.value(step), verdicts: { given: [] } });
+  door.put(summary, 'decision-answered-step', { ...door.value(summary), graded: 0, graded_by: '' });
 }
 
 test('one source opens one decision: the same input is that decision, different input is refused', async () => {
@@ -109,7 +109,8 @@ test('a change too large for one door message is written in parts, the root last
   door.writes.length = 0;
   await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: long, verdicts: judged }, { door });
   assert.deepEqual(door.writes.at(-1).ids, [id], 'the root alone, last');
-  assert.deepEqual(door.writes.map(write => write.key), [...door.writes.slice(0, -1).map((_, at) => `answer-a-decision-question:${id}:1:part:${at}`), `answer-a-decision-question:${id}:1`]);
+  assert.ok(door.writes.slice(0, -1).every(write => write.key.startsWith(`answer-a-decision-question:${id}:1:1f:`) && write.key.includes(':part:1f:')), 'immutable staged batches have distinct content-bound retry identities');
+  assert.match(door.writes.at(-1).key, new RegExp(`^answer-a-decision-question:${id}:1:1f:[a-f0-9]{64}:root$`));
   const head = door.value(`decision-step:${id}:001`);
   assert.equal(head.step_id, 'outcome', 'a step too large for one record keeps its short fields');
   assert.ok(head.kept_in_parts >= 2, 'and its whole value in parts');
@@ -120,6 +121,120 @@ test('a change too large for one door message is written in parts, the root last
   const [kept] = step.checklist;
   assert.deepEqual(Object.keys(kept), ['id', 'check', 'identity']);
   assert.match(kept.identity, /^1f:[0-9a-f]{64}$/);
+});
+
+test('concurrent large answers stage immutable bytes and only the winning root publishes its answer', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  const first = { ...outcomeAnswer, current_state: 'First measured state remains below its required result. '.repeat(1000) };
+  const second = { ...outcomeAnswer, current_state: 'Another measured state remains below its required result. '.repeat(1000) };
+  const answers = await Promise.allSettled([first, second].map(answer => answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer, verdicts: judged }, { door })));
+  assert.equal(answers[0].status, 'fulfilled');
+  assert.equal(answers[1].status, 'rejected');
+  assert.match(answers[1].reason.message, /different answer/);
+  const current = await readDecision(door, id, ['outcome']);
+  assert.deepEqual(current.guidance[1].answer, first);
+  assert.deepEqual((await readStep(door, `decision-step:${id}:001`)).answer, first, 'canonical logical step reads follow the accepted root, never a losing staged value');
+});
+
+test('a disjoint losing write leaves only unreferenced staging and can recover on a fresh root', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const first = await readDecision(door, id);
+  const second = await readDecision(door, id);
+  first.input.evidence.push({ ref: 'new-measure', claim: 'An independently measured new fact' });
+  const report = { result: 'observed', summary: 'An independently retained report' };
+  second.reports = [report];
+  const writes = await Promise.allSettled([
+    writeDecision(door, recordsOf(first), 'disjoint-evidence'),
+    writeDecision(door, recordsOf(second), 'disjoint-report'),
+  ]);
+  assert.equal(writes.filter(result => result.status === 'fulfilled').length, 1);
+  assert.equal(writes.filter(result => result.status === 'rejected').length, 1);
+  const current = await readDecision(door, id);
+  const evidenceWon = current.input.evidence.some(item => item.ref === 'new-measure');
+  assert.equal(Boolean(current.reports?.length), !evidenceWon, 'a failed commit cannot publish its disjoint staged field');
+  if (evidenceWon) current.reports = [report];
+  else current.input.evidence.push({ ref: 'new-measure', claim: 'An independently measured new fact' });
+  await writeDecision(door, recordsOf(current), 'disjoint-recovered');
+  const recovered = await readDecision(door, id);
+  assert.ok(recovered.input.evidence.some(item => item.ref === 'new-measure'));
+  assert.deepEqual(recovered.reports, [report]);
+});
+
+test('interrupted immutable staging resumes the same write without publishing an unfinished step', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const record = await readDecision(door, id);
+  record.input.evidence.push({ ref: 'retained-stage', claim: 'The staged observation is retained for its exact retry' });
+  const records = recordsOf(record);
+  const write = door.write.bind(door);
+  let stop = true;
+  door.write = async (batch, options) => {
+    if (stop && batch.some(item => item.id === id)) { stop = false; throw new Error('Synthetic interruption before root commit'); }
+    return write(batch, options);
+  };
+  await assert.rejects(writeDecision(door, records, 'interrupted-decision'), /Synthetic interruption/);
+  assert.ok(!(await readDecision(door, id)).input.evidence.some(item => item.ref === 'retained-stage'));
+  await writeDecision(door, records, 'interrupted-decision');
+  assert.ok((await readDecision(door, id)).input.evidence.some(item => item.ref === 'retained-stage'));
+});
+
+test('the server root identity is retained losslessly and refuses an identical deleted-and-recreated root', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const original = await door.readRecord('decision', id);
+  assert.ok(BigInt(original.identity) > BigInt(Number.MAX_SAFE_INTEGER));
+  const record = await readDecision(door, id);
+  record.input.evidence.push({ ref: 'stale-basis', claim: 'A result from an earlier root instance' });
+  const pending = recordsOf(record);
+  door.records.delete(id);
+  door.put(id, 'decision', original.value);
+  const write = door.write.bind(door);
+  let sent;
+  door.write = async (batch, options) => { sent = batch.find(item => item.id === id)?.expected ?? sent; return write(batch, options); };
+  await assert.rejects(writeDecision(door, pending, 'old-instance-write'), { code: 'original_command_conflict' });
+  assert.deepEqual(sent, { type: 'decision', identity: original.identity });
+  assert.ok(!(await readDecision(door, id)).input.evidence.some(item => item.ref === 'stale-basis'));
+});
+
+test('an oversized legacy root without a server identity refuses publication rather than weakening its fence', async () => {
+  const door = memoryDoor();
+  const id = 'source:no-compact-root-proof';
+  const original = oldLargeRoot(id);
+  door.put(id, 'decision', original);
+  door.readRecord = async (type, key) => { const value = await door.read(type, key); return value === null ? null : { type, value }; };
+  const record = await readDecision(door, id);
+  record.status = 'ended';
+  await assert.rejects(writeDecision(door, recordsOf(record), 'legacy-without-proof'), /64 KiB cap/);
+  assert.deepEqual(door.value(id), original, 'staged data does not publish or migrate an unproved root');
+});
+
+test('large immutable reference maps use root-field parts and preserve canonical step reads', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  const record = await readDecision(door, id);
+  for (let n = 0; n < 220; n += 1) record.input.evidence.push({ ref: `bounded-${n}`, claim: `A distinct measured observation ${n}` });
+  await writeDecision(door, recordsOf(record), 'large-reference-map');
+  assert.ok(door.value(id).fields_in_parts.includes('record_keys'));
+  const fresh = await readDecision(door, id);
+  assert.equal(fresh.input.evidence.length, opened.evidence.length + 220);
+  assert.deepEqual((await readStep(door, `decision-step:${id}:000`)).answer, scope);
+  assert.ok(door.writes.every(write => write.bytes <= 64 * 1024));
+  const head = door.value(id);
+  const parts = Array.from({ length: head.root_fields_in_parts }, (_, n) => {
+    const key = `${head.root_fields_key}:part:${String(n).padStart(3, '0')}`;
+    return [key, door.records.get(key)];
+  });
+  for (const [n, [key, kept]] of parts.entries()) door.records.set(key, { ...kept, value: { ...kept.value, text: n === 0 ? '{}' : '' } });
+  await assert.rejects(readDecision(door, id), /immutable record references could not be read/, 'valid JSON missing the named map cannot fall back to legacy aliases');
+  await assert.rejects(readStep(door, `decision-step:${id}:000`), /immutable record references could not be read/);
+  for (const [key, kept] of parts) door.records.set(key, kept);
+  door.records.delete(`${head.root_fields_key}:part:000`);
+  await assert.rejects(readDecision(door, id), /immutable record references could not be read/);
+  await assert.rejects(readStep(door, `decision-step:${id}:000`), /immutable record references could not be read/);
 });
 
 test('a call reads only the checks of the step it asks, and a check\'s whole words come by id on request', async () => {
@@ -287,6 +402,17 @@ test('a decision kept whole is laid apart at its next change, its calls kept as 
 const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type];
 
 test('the tool rows reach only the decision records, the person\'s pursuits and their method lists', () => {
+  const model = rows.flatMap(row => row.record_model?.kinds ?? []);
+  for (const [type, fields] of Object.entries({ decision: { record_keys: 'object', root_fields_key: 'text', input: 'object', workflow_plan: 'object' }, 'decision-step': { parts_of: 'text', answer: 'object' }, 'decision-call': { parts_of: 'text', accepted: 'boolean' } })) {
+    const matching = model.filter(kind => kind.type === type);
+    assert.equal(matching.length, 1, `${type} has one declaration`);
+    for (const [field, kind] of Object.entries(fields)) assert.equal(matching[0].guard_properties[field], kind);
+  }
+  for (const type of [settings.records.method, ...Object.entries(settings.records.laid_apart).filter(([name]) => name !== 'options').map(([, item]) => item.type)]) {
+    const matching = model.filter(kind => kind.type === type);
+    assert.equal(matching.length, 1, `${type} has one declaration`);
+    assert.deepEqual(matching[0].guard_properties, { parts_of: 'text' }, `${type} adds only its oversized-value header metadata`);
+  }
   const tools = ['tool:start-a-decision', 'tool:next-decision-question', 'tool:answer-a-decision-question', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done', 'tool:end-a-decision'];
   for (const id of tools) {
     const row = rows.find(each => each.id === id);
@@ -832,7 +958,8 @@ test('a root written while options were laid apart reads them back and folds the
   const folded = door.value(id);
   assert.deepEqual(folded.input.options, opened.options, 'its options are back on the root');
   assert.equal(folded.counts.options, undefined);
-  assert.equal(door.value(`decision-option:${id}:000`), null, 'and their records are removed');
+  assert.equal(door.value(`decision-option:${id}:000`), null, 'their logical keys are retired by the new root');
+  assert.equal(door.records.has(`decision-option:${id}:000`), true, 'prior snapshots retain their legacy bytes; they are not mutated during publication');
   assert.equal((await startADecision(opened, { door })).case_id, id, 'the same start is still that decision');
 });
 

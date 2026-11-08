@@ -530,8 +530,10 @@
             "outcome_revision": "number",
             "pursuits_known": "boolean",
             "recheck_on": "text",
+            "record_keys": "object",
             "reopened": "objects",
             "reports": "objects",
+            "root_fields_key": "text",
             "scratchpad": "list",
             "source_id": "text",
             "source_provenance": "object",
@@ -548,6 +550,7 @@
             "at": "text",
             "bytes": "number",
             "problems": "texts",
+            "parts_of": "text",
             "reason": "text",
             "route": "text",
             "step_id": "text",
@@ -560,6 +563,7 @@
             "answer": "object",
             "answered_at": "text",
             "checklist": "any",
+            "parts_of": "text",
             "step_id": "text",
             "usage": "object"
           }
@@ -569,6 +573,38 @@
           "guard_properties": {
             "checks": "objects"
           }
+        },
+        {
+          "type": "decision-evidence",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-answered-step",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-candidate",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-report",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-carried-out",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-history",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-cited-pursuit",
+          "guard_properties": { "parts_of": "text" }
+        },
+        {
+          "type": "decision-method",
+          "guard_properties": { "parts_of": "text" }
         },
         {
           "type": "decision/method",
