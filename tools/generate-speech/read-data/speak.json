@@ -27,7 +27,8 @@
       "label": "Qwen3-TTS",
       "model": "mlx-community/Qwen3-TTS-12Hz-1.7B-Base-bf16",
       "takes": "reference",
-      "produced_by": "Qwen3-TTS 1.7B on this computer"
+      "produced_by": "Qwen3-TTS 1.7B on this computer",
+      "_measured": "2026-10-07 on an M5 Max at load average about 36: a 7.5 s sentence in a cloned voice took 9.6-12.7 s with the model loaded (26 s the first time); streamed, its first sound came after 0.54 s at a real-time factor of 0.95. Cloned from a reference that ends on a sentence end, every take transcribed word for word."
     },
     {
       "id": "kokoro",
@@ -35,7 +36,8 @@
       "model": "mlx-community/Kokoro-82M-bf16",
       "takes": "speaker",
       "lang_code": "a",
-      "produced_by": "Kokoro 82M on this computer"
+      "produced_by": "Kokoro 82M on this computer",
+      "_measured": "2026-10-07 on the same Mac: an 8.2 s sentence took 0.63-1.6 s with the model loaded (real-time factor 0.08-0.2, about 16-20 s the first time), word for word, no clipping."
     }
   ],
   "most_seconds": 300,

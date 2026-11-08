@@ -114,7 +114,8 @@
    ],
    "run": [
     "python3",
-    "{here}/speak-with-mlx.py"
+    "{here}/../do-work/speak-with-mlx.py",
+    "once"
    ]
   }
  ],
@@ -212,6 +213,26 @@
     "ollama-gemma3-4b"
    ],
    "most_tokens": 512
+  },
+  "dictation-polish": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 400,
+   "timeout_seconds": 25,
+   "response_format": {
+    "type": "json_object"
+   }
+  },
+  "meeting-notes": {
+   "models": [
+    "ollama-gemma3-4b"
+   ],
+   "most_tokens": 1500,
+   "timeout_seconds": 60,
+   "response_format": {
+    "type": "json_object"
+   }
   },
   "site-articles": {
    "models": [
