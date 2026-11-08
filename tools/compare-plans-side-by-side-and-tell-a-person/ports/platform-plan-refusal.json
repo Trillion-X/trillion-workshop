@@ -32,7 +32,7 @@
   ],
   "allowed_deltas": [
     "Lift the three complete PersonStore methods into one owner-supplied composition with explicit trusted access, allowance, fact, workshop-row, feature-predicate, word and upgrade-arm suppliers",
-    "Reject absent or malformed authoritative access and catalogue supplies explicitly, without inventing a free plan or converting an auth/reach refusal into a plan denial",
+    "Reject absent or malformed authoritative access and catalogue supplies explicitly, without inventing a free plan or converting an auth/reach refusal into a plan denial; a supplied runnable tool must have at least one admitted placement, matching the original catalogue decoder, while mixed admitted/unresolved refs and descriptor-only rows retain their original non-exempt behavior",
     "Compose the retained methods as refusalFor(request), returning the original refusal body or null; HTTP and MCP transports remain their existing owners",
     "Test the actual preserved predicate with synthetic catalogue DATA and test the producer through opposing placement, policy and unavailable-source controls"
   ],

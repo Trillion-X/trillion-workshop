@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { platformPlanRefusalFor, PlanPolicyUnavailable } from '../read-data/platform-plan-refusal.mjs';
 import { withheldFeature } from './platform-policy-fixture.mjs';
 import comparison from '../src/plan-comparison.json' with { type: 'json' };
+import { readToolData } from 'trillion-workshop/tools/ai-tool-catalog/read-data/read-ai-tool-catalog.ts';
 
 const workshop = comparison.features.find(row => row.id === 'workshop');
 const paid = () => ({ capabilities: [workshop.access], limits: {} });
@@ -151,4 +152,38 @@ test('supplied owner methods keep their receiver rather than borrowing the plan 
   owners.loadWorkshopRows = async function () { assert.equal(this, owners); seen.push('catalogue'); return state.catalogue; };
   assert.equal((await platformPlanRefusalFor(owners).refusalFor(request())).upgrade_needed, true);
   assert.deepEqual(seen, ['access', 'predicate', 'allowance', 'fact', 'arm', 'words', 'catalogue']);
+});
+
+const decodedCatalogue = placements => readToolData([
+  { payload: { kind: 'ai-tool-descriptor', id: 'tool:synthetic', invoke: { kind: 'container' }, placements } },
+  { payload: {
+    kind: 'tool-placement', id: 'included', label: 'Synthetic included placement', executor: 'synthetic',
+    reachable_from: ['hosted'], settings: { included_in_every_plan: true },
+  } },
+]);
+
+test('the actual catalogue decoder retains mixed placement refs but refuses a runnable tool with none admitted', async () => {
+  const mixed = decodedCatalogue(['included', 'missing']);
+  assert.equal(mixed.tools.length, 1);
+  assert.equal((await fixture({ catalogue: mixed }).producer.refusalFor(request())).upgrade_needed, true);
+  const missing = decodedCatalogue(['missing']);
+  assert.equal(missing.tools.length, 0);
+  assert.ok(missing.refused.some(row => row.id === 'tool:synthetic'));
+  assert.equal((await fixture({ catalogue: missing }).producer.refusalFor(request())).upgrade_needed, true,
+    'a complete decoded catalogue without this tool gives no every-plan exemption');
+  assert.equal(await fixture({ catalogue: decodedCatalogue(['included']) }).producer.refusalFor(request()), null);
+});
+
+test('a known runnable tool contradicting the decoder placement contract is unavailable rather than an upgrade', async () => {
+  const { producer } = fixture({ catalogue: {
+    tools: [{ id: 'tool:synthetic', invoke: { kind: 'container' }, placements: ['missing'] }], placements: [],
+  } });
+  await assert.rejects(producer.refusalFor(request()), error => error instanceof PlanPolicyUnavailable && error.upgrade_needed === undefined);
+});
+
+test('an unknown tool request and a descriptor-only unresolved ref retain the original non-exempt behavior', async () => {
+  assert.equal((await fixture({ catalogue: decodedCatalogue(['included']) }).producer.refusalFor(request('tool:unknown'))).upgrade_needed, true);
+  const descriptorOnly = readToolData([{ payload: { kind: 'ai-tool-descriptor', id: 'tool:synthetic', placements: ['missing'] } }]);
+  assert.equal(descriptorOnly.tools.length, 1);
+  assert.equal((await fixture({ catalogue: descriptorOnly }).producer.refusalFor(request())).upgrade_needed, true);
 });

@@ -50,6 +50,12 @@ export function platformPlanRefusalFor(owners) {
     if (rows.tools.some(row => row.placements != null && (!Array.isArray(row.placements) || !row.placements.every(text)))) {
       unavailable('tool placements');
     }
+    // loadWorkshopRows decodes runnable tools against these admitted placements.
+    // The decoder requires at least one known placement, not that every ref resolves.
+    const admitted = new Set(rows.placements.map(row => row.id));
+    if (rows.tools.some(row => row.invoke && !(row.placements ?? []).some(id => admitted.has(id)))) {
+      unavailable('runnable tool placements');
+    }
     return rows;
   };
   const withheldFeature = (access, path, method) => {
