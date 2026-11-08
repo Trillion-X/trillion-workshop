@@ -1,0 +1,25 @@
+{
+  "schema": "committed-source-manifest/v1",
+  "repository": "trillion",
+  "origin": "git@github.com:Trillion-X/trillion.git",
+  "commit": "775166f635cd91daedaa51693ff40fb29b02f762",
+  "root": "parts",
+  "files": {
+    "parts/record-log/do-work/record-log-store.mjs": "1f:ad4487710710636d9f5aa42516b07de1b0004c264776911d6f2c05e4cac79683",
+    "parts/record-log/do-work/record-tables.mjs": "1f:83fb05bfec4a2a2ce24ee178f9662fe2d74294bddb253187c09922f31279cccb"
+  },
+  "relocated_paths": {
+    "parts/record-log/do-work/record-log-store.mjs": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs",
+    "parts/record-log/do-work/record-tables.mjs": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-tables.mjs",
+    "parts/record-log/do-work/kept-runs.mjs": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/kept-runs.mjs",
+    "parts/record-log/do-work/json-members.mjs": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/json-members.mjs",
+    "parts/record-log/do-work/erasable.mjs": "tools/keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/erasable.mjs",
+    "parts/record-log/do-work/maintenance-pacing.json": "tools/record-log/do-work/maintenance-pacing.json",
+    "parts/record-log/do-work/record-digest.mjs": "tools/record-log/do-work/record-digest.mjs",
+    "parts/record-log/do-work/record-stamps.mjs": "tools/record-log/do-work/record-stamps.mjs",
+    "parts/record-log/do-work/record-model.mjs": "tools/record-log/do-work/record-model.mjs",
+    "parts/slot-table/do-work/slot-table.mjs": "tools/slot-table/do-work/slot-table.mjs",
+    "parts/json-expansion.mjs": "tools/json-expansion.mjs",
+    "parts/sql-statement-execution.mjs": "tools/sql-statement-execution.mjs"
+  }
+}

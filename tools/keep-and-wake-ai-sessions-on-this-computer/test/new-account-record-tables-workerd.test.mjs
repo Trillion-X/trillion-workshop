@@ -19,25 +19,56 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation, or from loosening the rule it states.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { Miniflare } from 'miniflare';
 import { RECORD_INDEXES, RECORD_MODEL } from '../src/record-engine.mjs';
+import { gitReaders } from 'trillion-workshop/tools/check-a-port-against-its-source/do-work/read-from-repositories.mjs';
+import { makeHashCodeHexFromBytes } from 'trillion-workshop/tools/content-identity/read-data/identity.mjs';
+import { isRelative, replaceRequests, requestFor, requestsIn, targetOf } from 'trillion-workshop/tools/move-code-between-trees/read-data/imports.mjs';
+import earlierSource from './fixtures/earlier-record-table-source.json' with { type: 'json' };
 
 const root = new URL('..', import.meta.url).pathname;
 const { records } = JSON.parse(readFileSync(new URL('./fixtures/new-account-own-records.json', import.meta.url), 'utf8'));
 // The earlier owner: the two files as they were before this change, every other source byte the same as the current road.
 const EARLIER_COMMIT = '775166f635cd91daedaa51693ff40fb29b02f762';
-const committed = path => execFileSync('git', ['show', `${EARLIER_COMMIT}:${path}`], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
 const EARLIER = ['parts/record-log/do-work/record-log-store.mjs', 'parts/record-log/do-work/record-tables.mjs'];
 
+function earlierBytes() {
+  assert.equal(earlierSource.schema, 'committed-source-manifest/v1');
+  assert.equal(earlierSource.commit, EARLIER_COMMIT);
+  assert.deepEqual(Object.keys(earlierSource.files), EARLIER, 'only the two historical owners replace current bytes');
+  const repository = dirname(fileURLToPath(import.meta.resolve('trillion-workshop/package.json')));
+  const readers = gitReaders({ root: repository });
+  assert.equal(readers.repositoryOrigin(earlierSource.repository), earlierSource.origin, 'the immutable baseline belongs to its declared repository');
+  const homes = earlierSource.relocated_paths;
+  return new Map(EARLIER.map(path => {
+    const bytes = readers.readSource({ repository: earlierSource.repository, commit: EARLIER_COMMIT, path });
+    assert.ok(bytes, `the authentic committed baseline is available: ${path}`);
+    assert.equal(makeHashCodeHexFromBytes(bytes), earlierSource.files[path], `every historical byte is authenticated: ${path}`);
+    const text = bytes.toString('utf8');
+    const changes = requestsIn(text).filter(request => isRelative(request.specifier)).map(request => {
+      const target = targetOf(path, request.specifier, name => Object.hasOwn(homes, name));
+      assert.ok(target && homes[target], `the mover's declared current home exists for ${path}: ${request.specifier}`);
+      return { ...request, specifier: requestFor(homes[path], homes[target], request.specifier, target) };
+    });
+    // The shared mover changes import spans only. All dependencies other than
+    // the two authenticated historical files keep their current maintained bytes.
+    return [join(repository, homes[path]), replaceRequests(text, changes)];
+  }));
+}
+
 async function bundle(road) {
-  const earlier = new Map(EARLIER.map(path => [root + path, committed(path)]));
+  const earlier = road === 'earlier' ? earlierBytes() : new Map();
   const result = await build({ stdin: { contents: "export { recordLogStore } from './parts/record-log/do-work/record-log-store.mjs';", resolveDir: root, loader: 'js' },
     bundle: true, format: 'esm', platform: 'browser', write: false, logLevel: 'error',
     plugins: road === 'earlier' ? [{ name: 'earlier-record-tables-owner', setup(builder) {
-      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-(log-store|tables)\.mjs$/ }, args => ({ contents: earlier.get(args.path), loader: 'js', resolveDir: root + 'parts/record-log/do-work' }));
+      builder.onLoad({ filter: /\/parts\/record-log\/do-work\/record-(log-store|tables)\.mjs$/ }, args => {
+        assert.ok(earlier.has(args.path), `only the declared historical owner is overlaid: ${args.path}`);
+        return { contents: earlier.get(args.path), loader: 'js', resolveDir: dirname(args.path) };
+      });
     } }] : [] });
   return result.outputFiles[0].text;
 }
