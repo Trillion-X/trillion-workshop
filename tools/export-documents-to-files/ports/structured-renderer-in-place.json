@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-STRUCTURED-FILE-RENDERER-IN-PLACE",
-  "status": "VERIFIED",
+  "status": "ADAPTED",
   "directive": {
     "thread_id": "source:Y29kZXg6MDFhMWI3ZGUtMTgyNi03NDUxLTg1ZDktOTczM2Q3ODBjODA2OnJldmlzaW9uMTA3LXByaXZhdGUtZGVsaXZlcnk",
     "message_multihash": "1f:41f10cf64e18e1fcf097bfa64e97f7db6a96f9edf0be5e6cd035503d605eb854",
@@ -31,7 +31,8 @@
     "Allow DATA-selected literal whitespace and nesting metadata; preserve native DOCX tabs/newlines and use a readable monospace PDF literal style.",
     "Refuse ragged tables and unsupported literal/indent targets rather than flattening them.",
     "Keep oversized literal lines refused by default; permit explicit caller-DATA soft wrapping with source-hardline character ranges, separate continuation prefixes and selected-boundary refusal.",
-    "Offer an optional intended-payload identity through the existing content-identity owner and emit source-bound literal layout provenance for the private consumer."
+    "Offer an optional intended-payload identity through the existing content-identity owner and emit source-bound literal layout provenance for the private consumer.",
+    "Read optional boolean paragraph keep metadata only through caller-DATA keep_with_next_path, preserving generic caller vocabulary. Apply the selected value through native Word w:keepNext and ReportLab keepWithNext for ordinary and literal paragraphs; refuse invalid values and pagination on unsupported template targets rather than silently losing the relationship. No manuscript-specific text rule or new renderer is added."
   ],
   "banned_substitutions": [
     "A second file renderer, Markdown parser or identity algorithm.",
@@ -46,7 +47,29 @@
     "target_multihash_at_baseline": "1f:94654ddbf42d7c10f45520ceae6d4d4879af62b8958575107eb9ea01dd4a461a"
   },
   "proof": {
-    "verification_scope": "Seven local synthetic source-to-renderer tests and the existing synthetic DOCX/PDF suites passed. Actual private artifacts and whole-book page review are outside this evidence.",
+    "pagination_consumer_verification": {
+      "implementation_commit": "6bcd7986e7d330ba76312dec9f5f641ba211ea3b",
+      "test_refs": ["tools/export-documents-to-files/test/test_markdown_source_projection.py", "tools/export-documents-to-files/test/test-structured-file-export-docx.py", "tools/export-documents-to-files/test/test-structured-file-export-pdf.py"],
+      "synthetic_scope": "Eleven source-projection/consumer tests and the existing structured Word/PDF suites passed. Actual PDF page readback proves a parent that would otherwise end page one moves to its child's page two, while an equal-depth sibling at the same physical boundary can still break. Native Word paragraph properties retain the same selected keep flags.",
+      "private_receipt": {
+        "basename": "V17-V3-FOUR-CONSUMER-TEXT-GEOMETRY.json",
+        "multihash": "1f:2d82e83289ac29f007ddd1a23676aa856f88702b9376570a3fb4c10eecab3e7b",
+        "kind": "book3-private-consumer-check-v1",
+        "readback": "Exact receipt bytes were read locally and identified with the existing tools/content-identity stdin bridge; no manuscript text or private artifact paths are copied into this contract.",
+        "consumers": [
+          {"variant": "compact", "format": "native PDF", "pages": 66, "source_blocks": 825, "mapped": 825},
+          {"variant": "compact", "format": "Word via native rendering", "pages": 114, "source_blocks": 825, "mapped": 825},
+          {"variant": "detailed", "format": "native PDF", "pages": 131, "source_blocks": 1811, "mapped": 1811},
+          {"variant": "detailed", "format": "Word via native rendering", "pages": 224, "source_blocks": 1811, "mapped": 1811}
+        ],
+        "all_four": {"exact_text": true, "raw_api_exact": true, "geometry_reorderings": 0, "out_of_page_boxes": 0},
+        "visual_review": "pending_all_pages",
+        "voice_qualification": "not_established",
+        "delivery_eligible": false
+      },
+      "qualification": "The receipt establishes local rendered text/geometry only. The current work is recorded as ADAPTED; no whole-book visual, voice, author or final-delivery approval is inferred."
+    },
+    "verification_scope": "Initial renderer proof covered seven local synthetic source-to-renderer tests and the existing synthetic DOCX/PDF suites. The separately pinned v3 pagination receipt records four actual private consumers' text/geometry; whole-book visual review, voice qualification and final-delivery approval remain outside this evidence.",
     "minimum_meaningful_line_retention": 0.6,
     "required_mechanisms": ["def project(", "def render_docx(", "def render_pdf(", "def read_json_file(", "if written_data != data:"],
     "test_refs": [

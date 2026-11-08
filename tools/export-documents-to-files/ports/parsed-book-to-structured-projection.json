@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-PARSED-BOOK-TO-STRUCTURED-PROJECTION",
-  "status": "VERIFIED",
+  "status": "ADAPTED",
   "directive": {
     "thread_id": "source:Y29kZXg6MDFhMWI3ZGUtMTgyNi03NDUxLTg1ZDktOTczM2Q3ODBjODA2OnJldmlzaW9uMTA3LXByaXZhdGUtZGVsaXZlcnk",
     "message_multihash": "1f:41f10cf64e18e1fcf097bfa64e97f7db6a96f9edf0be5e6cd035503d605eb854",
@@ -22,7 +22,9 @@
   ],
   "allowed_deltas": [
     "Add the missing Book-model-to-canonical-projection bridge within the current export owner; no second Markdown lexer, readback acquisition, runtime or renderer.",
-    "Forward the maintained parser's container indentation for paragraph and literal blocks through the existing generic indent rule path; synthetic nested-list consumer tests check native Word indentation."
+    "Forward the maintained parser's container indentation for paragraph and literal blocks through the existing generic indent rule path; synthetic nested-list consumer tests check native Word indentation.",
+    "Project the maintained owner's introductory pagination relationship as optional keep_with_next DATA in ordered blocks and tree props: a list parent followed by a deeper item, container paragraph or literal keeps with that child across adjacent or blank-separated parser blocks. Reuse the same owner's standalone-emphasis-label behavior; equal-depth siblings, dedents and heading boundaries do not acquire a list keep chain.",
+    "Expose the same exact-snapshot adapter through --source, --source-identity and --output. Read a bounded stable regular-file snapshot and verify its existing identity binding; create a new 0600 JSON output in an existing private caller-owned directory, refusing identity mismatches, public parents and overwrites. No admission, rendering or qualification is added to this bridge."
   ],
   "banned_substitutions": [
     "Claiming the untracked old Documents producer is committed source, assigning it an invented historical commit or asserting its readback-acquisition/reparser job has no prior owner.",
@@ -100,6 +102,17 @@
     }
   ],
   "proof": {
+    "pagination_and_cli_verification": {
+      "implementation_commit": "6bcd7986e7d330ba76312dec9f5f641ba211ea3b",
+      "scope": "Existing Book-to-tree adapter extended in place; no new owner, parser or renderer. Eleven focused source-projection/consumer tests passed, including the installed projection CLI and native Word paragraph-property readback.",
+      "test_ref": "tools/export-documents-to-files/test/test_markdown_source_projection.py",
+      "opposing_controls": [
+        "Parent-to-child relationships survive both contiguous lists and blank-separated child list, prose and literal blocks; equal-depth siblings, dedents, ordinary inline emphasis and heading boundaries retain ordinary flow.",
+        "The generic renderer reads only the DATA-selected keep_with_next_path; renamed caller vocabulary works, an absent path leaves pagination unconfigured and nonboolean metadata is refused.",
+        "The CLI output equals the in-memory exact-source projection and has mode 0600; repeated output, changed source identity and nonprivate output parents are refused without replacing an existing result."
+      ],
+      "actual_consumer_evidence": "The private v3 four-consumer receipt is pinned in REF-STRUCTURED-FILE-RENDERER-IN-PLACE.proof.pagination_consumer_verification; its text/geometry counts do not establish all-page visual approval or voice qualification."
+    },
     "container_repair_verification": {
       "scope": "Synthetic source-bound projection and native Word indentation checks; no private manuscript fixture or final-delivery claim.",
       "opposing_controls": [
@@ -109,7 +122,7 @@
       ],
       "tests_passed": {"parser_and_docx": 42, "projection_and_consumers": 8, "private_layout_admission": 19, "source_verification": 20}
     },
-    "verification_scope": "Seven local synthetic projection/renderer tests and existing synthetic DOCX/PDF suites passed. This does not assert live Marketplace completeness, actual private artifact creation, all-page review, voice qualification or final delivery.",
+    "verification_scope": "Initial bridge proof covered seven local synthetic projection/renderer tests and existing synthetic DOCX/PDF suites. The separately recorded pagination/CLI evidence extends that scope without asserting live Marketplace completeness, all-page review, voice qualification or final delivery.",
     "search": {
       "phrasings": [
         "adapt the existing parsed Book model into a canonical structured file projection with ordered source bindings",
