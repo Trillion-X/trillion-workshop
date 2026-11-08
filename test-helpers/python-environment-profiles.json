@@ -1,0 +1,4 @@
+{
+  "default": { "file": "python-environment.json", "runtimes": ["python3.14", "python3"] },
+  "classifier": { "file": "python-classifier-environment.json", "runtimes": ["python3.14", "python3"] }
+}
