@@ -51,5 +51,5 @@ export function markdownChatExport(text) {
 }
 
 export function isMarkdownChatExport(text) {
-  return typeof text === 'string' && /^#\s+.+\r?\n/.test(text) && /\*\*Link:\*\*\s*\[https?:\/\/chatgpt\.com\/c\//i.test(text.slice(0, 2000));
+  return typeof text === 'string' && /^#\s+.+\r?\n/.test(text) && new RegExp(`\\*\\*Link:\\*\\*\\s*\\[https?://chatgpt\\.com/c/${UUID}\\]\\(https?://chatgpt\\.com/c/${UUID}\\)`, 'i').test(text.slice(0, 2000));
 }
