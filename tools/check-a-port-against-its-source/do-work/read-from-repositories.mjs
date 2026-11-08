@@ -17,6 +17,7 @@
 //     readSource(source)            Buffer | null   the bytes of that path at source.commit
 //     readTarget(path)              Buffer | null   the bytes of a path of `root` in `tree` (a commit, ':' for the staged
 //                                                   index, or undefined for the file on disk)
+//     targetState(path)             { state, mode?, bytes? } absent, unreadable or regular; known leaf modes are Git mode strings
 //     targetAtCommit(commit, path)  Buffer | null   the bytes of a path of `root` at a commit
 //     baselineHistory(commit, paths) object | null ancestry and each active path's history before the byte copy
 //     retirementOf(source)          { state: 'absent' | 'regular' | 'unreadable', bytes? } candidate for self, else published main
@@ -262,9 +263,9 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     }
     const entry = metadata.entries.get(path);
     if (!entry) return { state: 'absent' };
-    if (!/^100(?:644|755)$/.test(entry.mode) || entry.type !== 'blob') return { state: 'unreadable' };
+    if (!/^100(?:644|755)$/.test(entry.mode) || entry.type !== 'blob') return { state: 'unreadable', mode: entry.mode };
     const bytes = blobAt(folder, entry.object);
-    return bytes === null ? { state: 'unreadable' } : { state: 'regular', bytes };
+    return bytes === null ? { state: 'unreadable', mode: entry.mode } : { state: 'regular', mode: entry.mode, bytes };
   };
   let indexLocation, indexStamp, indexMetadata, judgedIndexStamp;
   const indexGeneration = () => {
@@ -317,25 +318,37 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     const parts = relativeParts(path);
     if (!parts) return { state: 'unreadable' };
     if (tree === undefined) {
-      let file = here;
+      let file = here, mode;
       try {
         for (let index = 0; index < parts.length; index += 1) {
           file = join(file, parts[index]);
           const stat = lstatSync(file);
-          if (stat.isSymbolicLink() || (index < parts.length - 1 ? !stat.isDirectory() : !stat.isFile())) return { state: 'unreadable' };
+          if (index === parts.length - 1) mode = stat.isSymbolicLink() ? '120000' : stat.isDirectory() ? '040000'
+            : stat.isFile() ? ((stat.mode & 0o100) ? '100755' : '100644') : undefined;
+          if (stat.isSymbolicLink() || (index < parts.length - 1 ? !stat.isDirectory() : !stat.isFile())) return { state: 'unreadable', ...(mode ? { mode } : {}) };
         }
-        return { state: 'regular', bytes: readFileSync(file) };
-      } catch (error) { return { state: error.code === 'ENOENT' ? 'absent' : 'unreadable' }; }
+        return { state: 'regular', mode, bytes: readFileSync(file) };
+      } catch (error) { return error.code === 'ENOENT' ? { state: 'absent' } : { state: 'unreadable', ...(mode ? { mode } : {}) }; }
     }
     if (tree !== ':') return inspectAtCommit(here, judgedCommit(), path);
     const metadata = stagedIndex();
     if (!metadata) return { state: 'unreadable' };
     if (parentPaths(parts).some((parent) => metadata.entries.has(parent))) return { state: 'unreadable' };
     const rows = metadata.entries.get(path);
-    if (!rows) return { state: metadata.directories.has(path) ? 'unreadable' : 'absent' };
-    if (rows.length !== 1 || rows[0].stage !== '0' || !/^100(?:644|755)$/.test(rows[0].mode)) return { state: 'unreadable' };
+    if (!rows) return metadata.directories.has(path) ? { state: 'unreadable', mode: '040000' } : { state: 'absent' };
+    if (rows.length !== 1) return { state: 'unreadable' };
+    const mode = rows[0].mode;
+    if (rows[0].stage !== '0' || !/^100(?:644|755)$/.test(mode)) return { state: 'unreadable', mode };
     const bytes = blobAt(here, rows[0].object);
-    return bytes === null ? { state: 'unreadable' } : { state: 'regular', bytes };
+    return bytes === null ? { state: 'unreadable', mode } : { state: 'regular', mode, bytes };
+  };
+  const targetState = (path) => {
+    assertScope();
+    const before = tree === ':' ? indexGeneration() : undefined;
+    const state = inspectTarget(path);
+    assertScope();
+    if (tree === ':' && (before === null || before !== indexGeneration())) return { state: 'unreadable' };
+    return state.state === 'regular' ? { ...state, bytes: copiedBytes(state.bytes) } : { ...state };
   };
   return {
     self,
@@ -344,6 +357,7 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     pathOf,
     snapshotSpan,
     assertScope,
+    targetState,
     isAncestor: ancestor,
     hasCommit(ref) { return Boolean(resolveCommit(here, ref)); },
     mergeBase(before, after) { return git(here, ['merge-base', before, after])?.trim() ?? null; },
@@ -381,15 +395,15 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       return path ? copiedBytes(regularAtCommit(source.commit, path, checkout(source.repository))) : null;
     },
     readTarget(path) {
-      const state = inspectTarget(path);
-      return state.state === 'regular' ? copiedBytes(state.bytes) : null;
+      const state = targetState(path);
+      return state.state === 'regular' ? state.bytes : null;
     },
     retirementOf(source) {
       const path = pathOf(source);
       if (!path) return { state: 'unreadable' };
       const state = source.repository === self ? inspectTarget(path)
         : inspectAtCommit(checkout(source.repository), mainOf(source.repository), path);
-      return state.state === 'regular' ? { state: 'regular', bytes: copiedBytes(state.bytes) } : state;
+      return state.state === 'regular' ? { state: 'regular', bytes: copiedBytes(state.bytes) } : { state: state.state };
     },
     targetAtCommit,
     baselineHistory(commit, paths) {

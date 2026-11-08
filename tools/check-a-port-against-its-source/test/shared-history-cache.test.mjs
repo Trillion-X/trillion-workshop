@@ -3,7 +3,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import childProcess, { execFileSync } from 'node:child_process';
 import { syncBuiltinESMExports } from 'node:module';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { gitReaders } from '../do-work/read-from-repositories.mjs';
@@ -271,4 +271,91 @@ test('a staged judgment refuses an index generation changed during discovery and
   assert.equal(stable.valid, false);
   assert.equal(stable.judged[0].path, path);
   assert.match(stable.judged[0].errors.join('\n'), /no contract/);
+});
+
+test('targetState preserves absent, regular and unreadable modes across disk, index and committed views', (t) => {
+  const { root } = fixture(t);
+  write(root, { 'src/regular.mjs': SOURCE, 'src/executable.mjs': SOURCE, 'src/other-executable.mjs': SOURCE, 'src/folder/child.mjs': SOURCE });
+  chmodSync(join(root, 'src/executable.mjs'), 0o755);
+  chmodSync(join(root, 'src/other-executable.mjs'), 0o645);
+  symlinkSync('regular.mjs', join(root, 'src/alias.mjs'));
+  symlinkSync('folder', join(root, 'src/alias-folder'));
+  const tip = commit(root);
+  for (const tree of [undefined, ':', tip]) {
+    const reader = gitReaders({ root, tree });
+    for (const [path, mode] of [['src/regular.mjs', '100644'], ['src/executable.mjs', '100755'], ['src/other-executable.mjs', '100644']]) {
+      const state = reader.targetState(path);
+      assert.equal(state.state, 'regular'); assert.equal(state.mode, mode); assert.equal(state.bytes.toString(), SOURCE);
+      state.bytes.fill(0); state.state = 'absent';
+      assert.equal(reader.targetState(path).bytes.toString(), SOURCE, 'public state bytes cannot alter cached evidence');
+    }
+    assert.deepEqual(reader.targetState('src/absent.mjs'), { state: 'absent' });
+    assert.deepEqual(reader.targetState('src/alias.mjs'), { state: 'unreadable', mode: '120000' });
+    assert.deepEqual(reader.targetState('src/folder'), { state: 'unreadable', mode: '040000' });
+    assert.deepEqual(reader.targetState('src/alias-folder/child.mjs'), { state: 'unreadable' });
+    assert.deepEqual(reader.targetState('../outside.mjs'), { state: 'unreadable' });
+    assert.equal(reader.readTarget('src/alias.mjs'), null, 'the existing collapsed API stays compatible');
+  }
+  assert.deepEqual(gitReaders({ root, tree: 'f'.repeat(40) }).targetState('src/regular.mjs'), { state: 'unreadable' });
+});
+
+test('targetState keeps unreadable Git blobs distinct from absent paths and preserves their known mode', (t) => {
+  const { root } = fixture(t);
+  const tip = commit(root, { 'src/core.mjs': SOURCE });
+  const original = childProcess.execFileSync;
+  childProcess.execFileSync = function (file, args, options) {
+    if (file === 'git' && args.includes('cat-file') && args.includes('blob')) throw new Error('synthetic object read failure');
+    return original.call(this, file, args, options);
+  };
+  syncBuiltinESMExports();
+  try {
+    for (const tree of [':', tip]) assert.deepEqual(gitReaders({ root, tree }).targetState('src/core.mjs'), { state: 'unreadable', mode: '100644' });
+  } finally { childProcess.execFileSync = original; syncBuiltinESMExports(); }
+});
+
+test('targetState refuses an index changed during blob reading and keeps committed reads bound when HEAD moves', (t) => {
+  const { root, initial } = fixture(t);
+  const tip = commit(root, { 'src/core.mjs': SOURCE });
+  const staged = gitReaders({ root, tree: ':' }); staged.snapshotSpan({ staged: true });
+  const committed = gitReaders({ root, tree: tip });
+  const original = childProcess.execFileSync;
+  let changed = false;
+  childProcess.execFileSync = function (file, args, options) {
+    const out = original.call(this, file, args, options);
+    if (!changed && file === 'git' && args.includes('cat-file') && args.includes('blob')) {
+      changed = true;
+      original('git', ['-C', root, 'read-tree', initial]);
+      original('git', ['-C', root, 'update-ref', 'refs/heads/main', initial]);
+    }
+    return out;
+  };
+  syncBuiltinESMExports();
+  try { assert.throws(() => staged.targetState('src/core.mjs'), /staged index changed/); }
+  finally { childProcess.execFileSync = original; syncBuiltinESMExports(); }
+  assert.equal(changed, true);
+  assert.throws(() => staged.targetState('src/core.mjs'), /staged index changed/);
+  assert.equal(committed.targetState('src/core.mjs').bytes.toString(), SOURCE);
+  assert.deepEqual(gitReaders({ root, tree: 'HEAD' }).targetState('src/core.mjs'), { state: 'absent' });
+});
+
+test('an unpinned targetState read returns unreadable for a changing index and refreshes on its next read', (t) => {
+  const { root, initial } = fixture(t);
+  commit(root, { 'src/core.mjs': SOURCE });
+  const staged = gitReaders({ root, tree: ':' });
+  const original = childProcess.execFileSync;
+  let changed = false;
+  childProcess.execFileSync = function (file, args, options) {
+    const out = original.call(this, file, args, options);
+    if (!changed && file === 'git' && args.includes('cat-file') && args.includes('blob')) {
+      changed = true;
+      original('git', ['-C', root, 'read-tree', initial]);
+    }
+    return out;
+  };
+  syncBuiltinESMExports();
+  try { assert.deepEqual(staged.targetState('src/core.mjs'), { state: 'unreadable' }); }
+  finally { childProcess.execFileSync = original; syncBuiltinESMExports(); }
+  assert.equal(changed, true);
+  assert.deepEqual(staged.targetState('src/core.mjs'), { state: 'absent' });
+  assert.equal(gitReaders({ root }).targetState('src/core.mjs').bytes.toString(), SOURCE);
 });
