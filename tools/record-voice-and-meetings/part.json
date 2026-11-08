@@ -5,6 +5,9 @@
   ],
   "public": [
     "show/record-in-the-browser.ts",
+    "show/adaptation-ladder.ts",
+    "show/live-audio-encoding.ts",
+    "show/live-audio-stream.ts",
     "read-data/capture-sources.json",
     "read-data/heard-words.mjs",
     "show/edit-recording.ts",
