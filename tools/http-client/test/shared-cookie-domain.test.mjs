@@ -4,6 +4,27 @@ import { build } from 'esbuild';
 import { fileURLToPath } from 'node:url';
 import { hostOf, hostWithin, sharedCookieDomain } from '../do-work/same-origin.mjs';
 
+test('bare and bracketed IPv6 hosts share the URL parser canonical identity', () => {
+  for (const address of ['::1', '[::1]', '0:0:0:0:0:0:0:1', new URL('https://[::1]:8443/path')]) {
+    assert.equal(hostOf(address), '[::1]');
+    assert.equal(hostWithin(address, '::1'), true);
+  }
+  assert.equal(hostOf('2001:DB8:0:0:0:0:0:1'), '[2001:db8::1]');
+  assert.equal(hostWithin('2001:DB8::1', '[2001:db8:0:0:0:0:0:1]'), true);
+  assert.equal(hostOf('::ffff:192.0.2.1'), '[::ffff:c000:201]');
+  assert.equal(hostWithin('::2', '::1'), false);
+  assert.equal(hostWithin('example.test', '::1'), false);
+  assert.equal(hostOf('Example.TEST:8443'), 'example.test', 'ordinary host/port parsing is preserved');
+});
+
+test('IPv6 parsing does not admit malformed literals or hide an address suffix or credentials', () => {
+  for (const address of ['::gg', '1::2::3', '1:2:3:4:5:6:7:8:9', '[::1', '::1]', '[::1]:bad',
+    '::ffff:999.1.1.1', '::1@evil.test', '::1/path', '::1?query', '::1#fragment', 'example.test:bad']) {
+    assert.equal(hostOf(address), null, address);
+    assert.equal(hostWithin(address, '::1'), false, address);
+  }
+});
+
 test('host boundary checks refuse credentialed URL addresses', () => {
   for (const address of ['https://trillion.example@evil.test/', 'https://user:pass@trillion.example/']) {
     assert.equal(hostOf(address), null);

@@ -35,7 +35,11 @@ export function hostOf(value) {
     }
     else if (/[/@\\?#]/.test(text)) return null;
     else {
-      try { host = new URL(`https://${text}`).hostname; } catch { return null; }
+      // A bare IPv6 literal needs URL brackets. Let the same parser validate and
+      // canonicalize that spelling; ordinary names, ports and bracketed hosts
+      // retain their existing parse first.
+      const url = parsed(`https://${text}`) ?? parsed(`https://[${text}]`);
+      host = url?.hostname ?? '';
     }
   }
   host = host.toLowerCase().replace(/\.$/, '');
