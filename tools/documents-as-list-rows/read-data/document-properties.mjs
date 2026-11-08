@@ -59,10 +59,12 @@ const lower = keys => new Set(keys.map(key => key.toLowerCase()));
 const TAG_KEYS = lower(data.tag_keys);
 const ALIAS_KEYS = lower(data.alias_keys);
 
-/** A refusal in this tool's words (document-properties.json refusals), its `code` the refusal's name. */
+export class DocumentPropertiesError extends Error {}
+
+/** A refusal in this tool's words, carrying the code and input facts for an API consumer. */
 export function say(code, values = {}) {
   const words = (data.refusals[code] ?? code).replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? `{${name}}`));
-  return Object.assign(new Error(words), { code });
+  return Object.assign(new DocumentPropertiesError(words), { code, status: 400, detail: { code, ...values } });
 }
 
 // ---- frontmatter --------------------------------------------------------------------------------------------------
@@ -251,6 +253,14 @@ export const folderKey = folder => {
   return trimmed.startsWith('/') ? trimmed || '/' : `/${trimmed}`;
 };
 
+/** The folder of a list's documents source, or a refusal naming how to give it one. */
+export function documentsFolderOf(list, listId = list?.id) {
+  if (!list) throw say('no_list', { list_id: listId });
+  const source = (list.row_sources ?? []).find(row => row.source === data.source);
+  if (!source) throw say('not_documents', { list_id: list.id ?? listId ?? '', source: data.source });
+  return folderKey(source.of ?? '/');
+}
+
 /** A folder's sidecar: { folder, name, identity (null when there is none), types, formulas }. */
 export async function readDocumentTypes(files, folder) {
   const at = folderKey(folder);
@@ -261,6 +271,17 @@ export async function readDocumentTypes(files, folder) {
   let parsed;
   try { parsed = JSON.parse(read.text); } catch { throw say('bad_document_types', { kinds: [...PROPERTY_KINDS].join(', '), formulas: limits.formulas_per_folder, what: `${name} (not JSON)` }); }
   return { folder: at, name, identity: entry.identity, ...checkDocumentTypes(parsed) };
+}
+
+/** A folder's complete sidecar object, including another consumer's metadata, or null when none is readable. */
+export async function readSidecar(files, folder) {
+  const name = sidecarName(folderKey(folder));
+  const entry = await files.entry(name);
+  if (!entry || entry.folder) return null;
+  try {
+    const parsed = JSON.parse((await files.read(entry.identity, limits.sidecar_bytes, name)).text);
+    return isObject(parsed) ? parsed : null;
+  } catch { return null; }
 }
 
 /** Writes a folder's sidecar (the whole of it, so a type or formula left out is removed), if it is still what was read. */
