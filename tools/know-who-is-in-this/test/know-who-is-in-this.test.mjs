@@ -18,6 +18,24 @@ test('the pure readers pass on made-up voices and faces', { skip }, () => {
   assert.equal(run.status, 0, run.stderr);
 });
 
+test('a recording alone uses the shared speech owner and preserves real times, refusal and cleanup', () => {
+  assert.ok(process.env.WORKSHOP_TEST_PYTHON, 'Supply the verified WORKSHOP_TEST_PYTHON binding; tests do not install dependencies.');
+  const run = spawnSync(process.env.WORKSHOP_TEST_PYTHON, ['-B', join(folder, 'test', 'test_recording_composition.py'), '-v'], { encoding: 'utf8', timeout: 60_000 });
+  assert.equal(run.status, 0, run.stderr);
+  assert.match(run.stderr, /Ran 10 tests/);
+});
+
+test('the recording tool can hear a file alone through its existing audio owner', () => {
+  const row = rows.find(row => row.id === 'tool:who-is-in-this');
+  assert.deepEqual(row.input_schema.required, ['file']);
+  assert.equal(row.input_schema.properties.segments.minItems, 1);
+  assert.deepEqual(row.input_schema.properties.segments.items.required, ['start', 'end']);
+  assert.equal(row.screen.inputs.file.file.takes, 'recording');
+  assert.ok(row.invoke.files.package_files.some(part => part.package === 'audio-transcription'
+    && part.paths.includes('do-work/whisper_here.py') && part.at === '/opt/audio-transcription'));
+  assert.equal(row.needs.network_egress, true);
+});
+
 test('enrol-a-print refuses without consent words or a known kind, before it measures anything', { skip }, () => {
   const enrol = input => spawnSync('python3', ['-B', join(folder, 'do-work', 'enrol-a-print.py')], { input: JSON.stringify(input), encoding: 'utf8' });
   const noWords = enrol({ kind: 'voice', name: 'Ann', consent: '  ', file: '/does/not/exist.wav' });
@@ -29,7 +47,7 @@ test('enrol-a-print refuses without consent words or a known kind, before it mea
 });
 
 test('every row that reads or keeps a print kind says in its description that the kind stays on the device it was made on', () => {
-  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:find-faces', 'tool:people-listening-can-name', 'tool:who-is-in-this']);
+  assert.deepEqual(rows.map(row => row.id).sort(), ['tool:enrol-a-voice-or-face', 'tool:enroll-someone', 'tool:find-faces', 'tool:people-listening-can-name', 'tool:who-is-in-this']);
   for (const row of rows) {
     const text = JSON.stringify(row);
     for (const kind of ['voice-print', 'face-print', 'listening-voices']) {
