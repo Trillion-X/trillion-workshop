@@ -1,0 +1,351 @@
+"""Answer one fixed set of decider questions about many lines on Apple's GPU, through MLX.
+
+ai-command-center/.claude/hooks/judges/decide_in_batches_on_mlx.py
+
+Why this exists beside the PyTorch server
+    The decider's own questions-first path (decider/schema_engine.py) runs
+    each question once and keeps its state, so a line only pays for its own
+    tokens. That path is built on CUDA graphs: on Apple's GPU the package
+    builds no engine, and the PyTorch reference it falls back to runs the
+    gated-delta layers as a Python loop over chunks (84% of a line's time,
+    measured 2026-11-04). This module is the same computation in MLX: the
+    decider's own prompt pieces (decider/prompt.py, decider/systemone.py), the
+    Qwen3.5 weights and layers from mlx_lm, and one Metal kernel for the
+    gated-delta scan whose start state is shared by every line.
+
+The computation, in the package's own words
+    A question's block ("Question: ...\\nOptions:\\n(A) no\\n(B) yes") is a
+    prefix that does not depend on the line. Its state (attention keys and
+    values of the 6 full-attention layers, conv and recurrent state of the 18
+    gated-delta layers) is computed once per question. A line then runs only
+    its own tokens and one answer slot, each question in its own row, so no
+    question can change another's answer (independent=True).
+    "\\n\\nContext:\\n" opens every line's suffix and depends on nothing but
+    the question, so it is run once with the question's prefix too.
+
+Invariants
+    - Token ids are the decider package's (schema_prefix_ids,
+      schema_suffix_ids); answers are assembled by its own assemble().
+    - Temperature is the package's temperature_schema_first.
+    - Lines are right-padded: every layer is causal, so padding after a slot
+      never reaches it.
+    - The zero-centred norms compute as transformers' Qwen3_5RMSNorm does:
+      in float32 with (1 + weight) in float32, rounded once at the end. mlx_lm
+      adds the 1 to the bfloat16 weight, which moves P(yes) by up to 0.007.
+"""
+
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+import mlx.core as mx
+import mlx.nn as nn
+from mlx_lm.models import qwen3_5
+from mlx_lm.models.gated_delta import compute_g
+
+
+CONTEXT_OPENING = "\n\nContext:\n"
+CENTRED_NORMS = (".input_layernorm.weight", ".post_attention_layernorm.weight", "model.norm.weight",
+                 ".q_norm.weight", ".k_norm.weight")
+
+
+def _scan_kernel(keep_state):
+    """The gated-delta recurrence of mlx_lm's kernel, with one start state per head shared by every row.
+
+    mlx_lm's kernel reads a start state per row and writes a final state per
+    row. Every line asked one question starts from that question's state and
+    nothing needs the state after the line, so this kernel reads the one
+    shared start and writes only the outputs; a question's own prefix (one
+    row) keeps its final state.
+    """
+    keep = """
+        auto o_state = state_out + (hv_idx * Dv + dv_idx) * Dk;
+        for (int i = 0; i < n_per_t; ++i) {
+          o_state[n_per_t * dk_idx + i] = state[i];
+        }
+    """ if keep_state else ""
+    source = """
+        auto n = thread_position_in_grid.z;
+        auto b_idx = n / Hv;
+        auto hv_idx = n % Hv;
+        auto hk_idx = hv_idx / (Hv / Hk);
+        constexpr int n_per_t = Dk / 32;
+
+        auto q_ = q + b_idx * T * Hk * Dk + hk_idx * Dk;
+        auto k_ = k + b_idx * T * Hk * Dk + hk_idx * Dk;
+        auto v_ = v + b_idx * T * Hv * Dv + hv_idx * Dv;
+        y += b_idx * T * Hv * Dv + hv_idx * Dv;
+
+        auto dk_idx = thread_position_in_threadgroup.x;
+        auto dv_idx = thread_position_in_grid.y;
+
+        // state_in: [Hv, Dv, Dk], the same start for every row
+        auto i_state = state_in + (hv_idx * Dv + dv_idx) * Dk;
+
+        float state[n_per_t];
+        for (int i = 0; i < n_per_t; ++i) {
+          state[i] = static_cast<float>(i_state[n_per_t * dk_idx + i]);
+        }
+
+        auto g_ = g + b_idx * T * Hv;
+        auto beta_ = beta + b_idx * T * Hv;
+
+        for (int t = 0; t < T; ++t) {
+          float kv_mem = 0.0f;
+          for (int i = 0; i < n_per_t; ++i) {
+            auto s_idx = n_per_t * dk_idx + i;
+            state[i] = state[i] * g_[hv_idx];
+            kv_mem += state[i] * k_[s_idx];
+          }
+          kv_mem = simd_sum(kv_mem);
+
+          auto delta = (v_[dv_idx] - kv_mem) * beta_[hv_idx];
+
+          float out = 0.0f;
+          for (int i = 0; i < n_per_t; ++i) {
+            auto s_idx = n_per_t * dk_idx + i;
+            state[i] = state[i] + k_[s_idx] * delta;
+            out += state[i] * q_[s_idx];
+          }
+          out = simd_sum(out);
+          if (thread_index_in_simdgroup == 0) {
+            y[dv_idx] = static_cast<InT>(out);
+          }
+          q_ += Hk * Dk;
+          k_ += Hk * Dk;
+          v_ += Hv * Dv;
+          y += Hv * Dv;
+          g_ += Hv;
+          beta_ += Hv;
+        }
+    """ + keep
+    return mx.fast.metal_kernel(
+        name="gated_delta_shared_start" + ("_keep" if keep_state else ""),
+        input_names=["q", "k", "v", "g", "beta", "state_in", "T"],
+        output_names=["y", "state_out"] if keep_state else ["y"],
+        source=source,
+    )
+
+
+_SCAN = {False: _scan_kernel(False), True: _scan_kernel(True)}
+
+
+class _CentredNorm(nn.Module):
+    """transformers' Qwen3_5RMSNorm: normalise in float32, scale by (1 + weight) kept in float32, round once."""
+
+    def __init__(self, weight, eps):
+        super().__init__()
+        self.weight, self.eps = weight, eps
+
+    def __call__(self, x):
+        return mx.fast.rms_norm(x.astype(mx.float32), self.weight, self.eps).astype(x.dtype)
+
+
+class _Keys:
+    """Attention cache for one pass: the question's keys and values (none for the question itself) before each row's own."""
+
+    def __init__(self, keys, values, rows):
+        self.offset = keys.shape[2]
+        self.keys = mx.broadcast_to(keys, (rows, *keys.shape[1:]))
+        self.values = mx.broadcast_to(values, (rows, *values.shape[1:]))
+
+    def update_and_fetch(self, keys, values):
+        self.keys = mx.concatenate([self.keys, keys], axis=2)
+        self.values = mx.concatenate([self.values, values], axis=2)
+        return self.keys, self.values
+
+
+def _mix(layer, x, conv_start, state_start, keep):
+    """mlx_lm's GatedDeltaNet.__call__ for rows that all continue one start (conv_start [1,3,C], state_start [Hv,Dv,Dk]).
+
+    q and k are scaled to unit length with transformers' l2norm epsilon (on the
+    sum of squares, so eps / Dk on the mean). -> (output, (conv tail, final state)) when keep, else output.
+    """
+    B, S, _ = x.shape
+    qkv = layer.in_proj_qkv(x)
+    z = layer.in_proj_z(x).reshape(B, S, layer.num_v_heads, layer.head_v_dim)
+    b = layer.in_proj_b(x)
+    a = layer.in_proj_a(x)
+    conv_input = mx.concatenate([mx.broadcast_to(conv_start, (B, *conv_start.shape[1:])), qkv], axis=1)
+    conv_out = nn.silu(layer.conv1d(conv_input))
+    q, k, v = [
+        t.reshape(B, S, h, d)
+        for t, h, d in zip(
+            mx.split(conv_out, [layer.key_dim, 2 * layer.key_dim], -1),
+            [layer.num_k_heads, layer.num_k_heads, layer.num_v_heads],
+            [layer.head_k_dim, layer.head_k_dim, layer.head_v_dim],
+        )
+    ]
+    dk = layer.head_k_dim
+    q = mx.fast.rms_norm(q.astype(mx.float32), None, 1e-6 / dk) * (dk ** -1.0)
+    k = mx.fast.rms_norm(k.astype(mx.float32), None, 1e-6 / dk) * (dk ** -0.5)
+    beta = mx.sigmoid(b).astype(mx.float32)
+    g = compute_g(layer.A_log, a.astype(mx.float32), layer.dt_bias)
+    outputs = _SCAN[keep](
+        inputs=[q, k, v.astype(mx.float32), g, beta, state_start, S],
+        template=[("InT", mx.float32), ("Dk", dk), ("Dv", layer.head_v_dim),
+                  ("Hk", layer.num_k_heads), ("Hv", layer.num_v_heads)],
+        grid=(32, layer.head_v_dim, B * layer.num_v_heads),
+        threadgroup=(32, 4, 1),
+        output_shapes=[(B, S, layer.num_v_heads, layer.head_v_dim)] + ([state_start.shape] if keep else []),
+        output_dtypes=[mx.float32] * (2 if keep else 1),
+    )
+    out = layer.out_proj(layer.norm(outputs[0].astype(x.dtype), z).reshape(B, S, -1))
+    return (out, (conv_input[:, -(layer.conv_kernel_size - 1):], outputs[1])) if keep else out
+
+
+class Question:
+    """One prepared question: its token count, every layer's state after its prefix, and its option count."""
+
+    def __init__(self, tokens, states, options):
+        self.tokens, self.states, self.options = tokens, states, options
+
+
+class MlxDecider:
+    """Load the decider snapshot into MLX; prepare(questions) once, then answer lines against them."""
+
+    def __init__(self, path, dtype=mx.bfloat16):
+        self.path = str(path)
+        if self.path not in sys.path:
+            sys.path.insert(0, self.path)
+        from transformers import AutoTokenizer
+        from decider.prompt import letter_ids
+        config = json.loads(Path(self.path, "config.json").read_text())
+        settings = json.loads(Path(self.path, "decider_config.json").read_text())
+        self.temperature = float(settings.get("temperature_schema_first", settings.get("temperature", 1.0)))
+        self.isolated_levels = bool(settings.get("isolated_levels", False))
+        self.name = "decider-" + str(settings.get("version", "dev"))
+        self.dtype = dtype
+        model = qwen3_5.Model(qwen3_5.ModelArgs.from_dict(config))
+        weights = model.sanitize({key: value.astype(mx.float32) if key.endswith(CENTRED_NORMS) else value
+                                  for key, value in mx.load(str(Path(self.path, "model.safetensors"))).items()})
+        centred = {key: value for key, value in weights.items() if key.endswith(CENTRED_NORMS)}
+        model.load_weights(list(weights.items()))
+        model.set_dtype(dtype)
+        self.core = model.language_model.model
+        eps = config["rms_norm_eps"]
+        self.core.norm = _CentredNorm(centred["language_model.model.norm.weight"], eps)
+        for i, layer in enumerate(self.core.layers):
+            at = f"language_model.model.layers.{i}."
+            layer.input_layernorm = _CentredNorm(centred[at + "input_layernorm.weight"], eps)
+            layer.post_attention_layernorm = _CentredNorm(centred[at + "post_attention_layernorm.weight"], eps)
+            if not layer.is_linear:
+                layer.self_attn.q_norm = _CentredNorm(centred[at + "self_attn.q_norm.weight"], eps)
+                layer.self_attn.k_norm = _CentredNorm(centred[at + "self_attn.k_norm.weight"], eps)
+            else:
+                layer.linear_attn.A_log = layer.linear_attn.A_log.astype(mx.float32)
+        model.eval()
+        mx.eval(model.parameters())
+        self.tok = AutoTokenizer.from_pretrained(self.path)
+        self.letters = self.core.embed_tokens.weight[mx.array(letter_ids(self.tok))]          # [MAX_OPTIONS, H]
+        self.opening = self.tok.encode(CONTEXT_OPENING, add_special_tokens=False)
+        self.blank = []                                                                         # the start before any token
+        for layer in self.core.layers:
+            if layer.is_linear:
+                m = layer.linear_attn
+                self.blank.append((mx.zeros((1, m.conv_kernel_size - 1, m.conv_dim), dtype),
+                                   mx.zeros((m.num_v_heads, m.head_v_dim, m.head_k_dim), mx.float32)))
+            else:
+                a = layer.self_attn
+                self.blank.append((mx.zeros((1, a.num_key_value_heads, 0, a.head_dim), dtype),) * 2)
+
+    def _forward(self, ids, starts, offset, keep=False):
+        """ids [B, T] continuing `starts` (one state per layer, `offset` tokens long).
+        -> final hidden states [B, T, H], and with keep (B = 1) every layer's state after these tokens."""
+        B, T = ids.shape
+        x = self.core.embed_tokens(ids)
+        mask = mx.arange(offset + T)[None, :] <= (offset + mx.arange(T))[:, None]
+        kept = []
+        for layer, (first, second) in zip(self.core.layers, starts):
+            h = layer.input_layernorm(x)
+            if layer.is_linear:
+                r = _mix(layer.linear_attn, h, first, second, keep)
+                if keep:
+                    r, state = r
+                    kept.append(state)
+            else:
+                keys = _Keys(first, second, B)
+                r = layer.self_attn(h, mask, keys)
+                kept.append((keys.keys, keys.values))
+            x = x + r
+            x = x + layer.mlp(layer.post_attention_layernorm(x))
+        return x, kept
+
+    def prepare(self, rows):
+        """rows: [{"question", "options"}] (decider.systemone.plan_rows order) -> one Question per row."""
+        from decider.infer import Q
+        from decider.prompt import schema_prefix_ids
+        prepared = []
+        for row in rows:
+            ids = schema_prefix_ids(self.tok, [Q(row["question"], list(row["options"]))]) + self.opening
+            _, states = self._forward(mx.array(ids)[None], self.blank, 0, keep=True)
+            mx.eval([s for pair in states for s in pair])
+            prepared.append(Question(len(ids), states, len(row["options"])))
+        return prepared
+
+    def line_tokens(self, line, max_tokens=32768):
+        """A line's suffix after the shared opening: its own tokens, then the answer slot. -> ids (the slot is the last)."""
+        from decider.prompt import schema_suffix_ids
+        ids, slots = schema_suffix_ids(self.tok, line, 1, max_tokens)
+        assert ids[:len(self.opening)] == self.opening and slots == [len(ids) - 1]
+        return ids[len(self.opening):]
+
+    def _answer(self, question, ids, last):
+        """ids [B, T] right-padded suffixes, last [B] slot positions -> [B, options] probabilities (lazy)."""
+        x, _ = self._forward(ids, question.states, question.tokens)
+        slot = self.core.norm(x[mx.arange(ids.shape[0]), last])
+        logits = (slot @ self.letters.T).astype(mx.float32)[:, :question.options]
+        return mx.softmax(logits / self.temperature, axis=-1)
+
+    def answer(self, prepared, lines, tokens_per_pass=8192):
+        """-> probabilities[line][question] as lists, every line asked every prepared question."""
+        suffixes = [self.line_tokens(line) for line in lines]
+        order = sorted(range(len(lines)), key=lambda i: len(suffixes[i]))
+        groups, at = [], 0
+        while at < len(order):                       # similar lengths share a pass, so little of it is padding
+            longest = len(suffixes[order[at]]); take = 1
+            while at + take < len(order) and max(longest, len(suffixes[order[at + take]])) * (take + 1) <= tokens_per_pass:
+                longest = max(longest, len(suffixes[order[at + take]])); take += 1
+            groups.append(order[at:at + take]); at += take
+        padded = []
+        pad = self.tok.pad_token_id if self.tok.pad_token_id is not None else 0
+        for group in groups:
+            T = max(len(suffixes[i]) for i in group)
+            padded.append((group, mx.array([suffixes[i] + [pad] * (T - len(suffixes[i])) for i in group]),
+                           mx.array([len(suffixes[i]) - 1 for i in group])))
+        found = [[None] * len(prepared) for _ in lines]
+        pending = []
+        for q_index, question in enumerate(prepared):
+            for group, ids, last in padded:
+                probs = self._answer(question, ids, last)
+                mx.async_eval(probs)
+                pending.append((q_index, group, probs))
+            if len(pending) > 2 * len(padded):           # keep the GPU fed one question ahead while Python reads back
+                self._collect(pending[:len(padded)], found)
+                del pending[:len(padded)]
+        self._collect(pending, found)
+        return found
+
+    @staticmethod
+    def _collect(pending, found):
+        for q_index, group, probs in pending:
+            for line, p in zip(group, probs.tolist()):
+                found[line][q_index] = p
+
+
+def answer_lines(decider, questions, lines):
+    """The decider's systemone shape: questions {id: spec}, lines [state] -> [{"model", "answers"}], one per line."""
+    from decider.systemone import assemble, plan_rows, render_question, render_state
+    rendered = {key: render_question(spec) for key, spec in questions.items()}
+    rows, index = plan_rows(rendered, decider.isolated_levels)
+    prepared = decider.prepare(rows)
+    probs = decider.answer(prepared, [render_state(line) for line in lines])
+    return [{"model": decider.name, "answers": assemble(rendered, index, p)} for p in probs]
+
+
+if __name__ == "__main__":
+    started = time.time()
+    loaded = MlxDecider(os.environ.get("SERVE_MODEL_PATH") or sys.argv[1])
+    print(f"loaded in {time.time() - started:.1f}s", flush=True)
