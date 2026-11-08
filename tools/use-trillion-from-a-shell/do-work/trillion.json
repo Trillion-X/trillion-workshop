@@ -46,6 +46,7 @@
     "folder": "~/.trillion/cli/program",
     "files": [
       "trillion.mjs",
+      "shell-program.mjs",
       "trillion.json",
       "trillion-skill.md",
       "ag-ui-agent.mjs",
@@ -417,5 +418,18 @@
     "changed_codes": [
       "original_command_conflict"
     ]
-  }
+  },
+  "protocol": {
+    "environment": {
+      "agent": "TRILLION_AGENT",
+      "key": "TRILLION_KEY",
+      "job_id": "TRILLION_JOB_ID",
+      "origin": "TRILLION_ORIGIN"
+    },
+    "quiet_fields": [
+      "ai_instructions",
+      "trillion/screen"
+    ]
+  },
+  "skill_file": "trillion-skill.md"
 }

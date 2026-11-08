@@ -1,17 +1,23 @@
 import assert from 'node:assert/strict';
+import { execFile, execFileSync } from 'node:child_process';
+import { EventEmitter } from 'node:events';
 import { createHash } from 'node:crypto';
 import { lstatSync, mkdirSync, mkdtempSync, readFileSync, readlinkSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
+import { PassThrough } from 'node:stream';
+import { promisify } from 'node:util';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
 import settings from '../do-work/trillion.json' with { type: 'json' };
+import * as cliWrapper from '../do-work/trillion.mjs';
 import {
-  TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
-  installSkills, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
-  serveOnce, signInWithBrowser, stateOf, trillionClient, waitFor, workCall,
+  TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, connectionOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
+  installSkills, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote, skillText,
+  runJob, serveOnce, signInWithBrowser, stateOf, trillionClient, waitFor, workCall,
 } from '../do-work/trillion.mjs';
 
+const execFileAsync = promisify(execFile);
 const KEY = `nm_${'ab'.repeat(32)}`;
 const ACCOUNT = 'f'.repeat(64);
 const me = { agent_id: 'claude-code-on-mac', ai_id: 'ai:claude-code-on-mac', held_as: [], harness: 'Claude Code', app: 'Claude Code', model: null, provider: 'Anthropic', computer: 'Mac' };
@@ -279,6 +285,51 @@ test('the door: the Mac app\'s local door for the key when this computer has one
   assert.equal(doorFor({ asked: 'http://127.0.0.1:9', credential: keyCredential, localMcp: local }).mcp, 'http://127.0.0.1:9/mcp');
 });
 
+test('stable protocol names are DATA: default names survive an executable alias rename and alternate settings work', async () => {
+  const homeDir = home(), defaultDoor = await fakeDoor();
+  const renamedRules = { ...settings, install: { ...settings.install, link: join(homeDir, 'custom/bin/ai-client') } };
+  installProgram({ home: homeDir, rules: renamedRules });
+  try {
+    const { stdout: output } = await execFileAsync(process.execPath, [join(homeDir, 'custom/bin/ai-client'), 'whoami', '--json'], {
+      encoding: 'utf8', env: { HOME: homeDir, PATH: process.env.PATH, TRILLION_AGENT: 'stable-agent', TRILLION_KEY: KEY, TRILLION_ORIGIN: defaultDoor.origin },
+    });
+    assert.equal(JSON.parse(output).agent_id, 'stable-agent', 'the public agent/key/origin protocol remains stable when only the executable alias changes');
+  } finally { await defaultDoor.close(); }
+
+  const alternateDoor = await fakeDoor();
+  const alternateRules = JSON.parse(JSON.stringify(settings));
+  alternateRules.install.link = join(homeDir, 'custom/bin/alternate-client');
+  alternateRules.protocol = { environment: { agent: 'CLI_ACTOR', key: 'CLI_BEARER', job_id: 'CLI_JOB', origin: 'CLI_ROOT' }, quiet_fields: ['private_prompt', 'private/screen'] };
+  installProgram({ home: homeDir, rules: alternateRules });
+  writeFileSync(join(homeDir, '.trillion/cli/program/trillion.json'), JSON.stringify(alternateRules));
+  try {
+    const { stdout: output } = await execFileAsync(process.execPath, [join(homeDir, 'custom/bin/alternate-client'), 'whoami', '--json'], {
+      encoding: 'utf8', env: { HOME: homeDir, PATH: process.env.PATH, CLI_ACTOR: 'alternate-agent', CLI_BEARER: KEY, CLI_ROOT: alternateDoor.origin },
+    });
+    assert.equal(JSON.parse(output).agent_id, 'alternate-agent');
+    const alternateCredential = await credentialFor({ rules: alternateRules, env: { CLI_BEARER: KEY }, store: { where: 'empty', read: () => null }, grants: noGrants });
+    assert.deepEqual([alternateCredential.bearer, alternateCredential.where], [KEY, 'CLI_BEARER']);
+    const connection = connectionOf({ rules: alternateRules, origin: alternateDoor.origin, store: { where: 'test store' } });
+    assert.equal(connection.key_source.env, 'CLI_BEARER');
+    assert.deepEqual(JSON.parse(render('other', { private_prompt: 'hidden', 'private/screen': 'hidden', shown: true }, alternateRules)), { shown: true });
+
+    let spawned = null;
+    const spawnImpl = (_program, _args, options) => {
+      spawned = options.env;
+      const child = new EventEmitter();
+      child.stdin = new PassThrough(); child.stdout = new PassThrough(); child.stderr = new PassThrough(); child.kill = () => {};
+      setImmediate(() => { child.stdout.end('done'); child.emit('close', 0); });
+      return child;
+    };
+    const stableResult = await runJob(['worker'], { id: 'job-6', job: 'do the work' }, { rules: renamedRules, me: { agent_id: 'stable-agent' }, spawnImpl });
+    assert.equal(stableResult.output, 'done');
+    assert.deepEqual([spawned.TRILLION_JOB_ID, spawned.TRILLION_AGENT], ['job-6', 'stable-agent'], 'stable child environment names are unchanged when the executable alias changes');
+    const result = await runJob(['worker'], { id: 'job-7', job: 'do the work' }, { rules: alternateRules, me: { agent_id: 'alternate-agent' }, spawnImpl });
+    assert.equal(result.output, 'done');
+    assert.deepEqual([spawned.CLI_JOB, spawned.CLI_ACTOR], ['job-7', 'alternate-agent']);
+  } finally { await alternateDoor.close(); }
+});
+
 test('the engine road: replies in JSON or events, one request key on every retry, refusals that name the door and never say log in', async () => {
   assert.deepEqual(repliesOf('event: message\ndata: {"id":1}\n\n'), [{ id: 1 }]);
   let busy = 2;
@@ -307,9 +358,87 @@ test('the engine road: replies in JSON or events, one request key on every retry
   await assert.rejects(gone.whoami(), error => error.status === 4 && /could not be reached/.test(error.message) && !/log ?in/i.test(error.message));
 });
 
+test('HTTP 429 honors bounded Retry-After seconds and dates; invalid hints use backoff and every attempt keeps the exact request', async () => {
+  const run = async (hint, expectedWait, { timeout = 120, expectedCalls = 2 } = {}) => {
+    let clock = Date.parse('2026-11-07T18:00:00.000Z');
+    const waits = [], bodies = [];
+    let calls = 0;
+    const client = trillionClient({ door: doorAt('https://synthetic.test/mcp'), credential: keyCredential,
+      rules: { ...quick, call_timeout_seconds: timeout, retry_seconds: [2, 5, 15] }, now: () => clock,
+      wait: async ms => { waits.push(ms); clock += ms; },
+      fetchImpl: async (_url, request) => {
+        calls += 1;
+        bodies.push(request.body);
+        if (calls === 1) return { status: 429, ok: false, headers: { get: name => name === 'retry-after' ? hint : null }, text: async () => 'busy' };
+        const { id } = JSON.parse(request.body);
+        return { status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id, result: { structuredContent: { changed: true } } }) };
+      },
+    });
+    if (expectedCalls === 1) await assert.rejects(client.op('@own-records', 'records:write', { records: [{ id: 'row:1', value: 'kept' }] }, { requestKey: 'stable-retry-key' }));
+    else assert.deepEqual(await client.op('@own-records', 'records:write', { records: [{ id: 'row:1', value: 'kept' }] }, { requestKey: 'stable-retry-key' }), { changed: true });
+    assert.deepEqual(waits, expectedWait);
+    assert.equal(calls, expectedCalls);
+    const expected = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: settings.engine.tool,
+      arguments: { address: '@own-records', method: 'records:write', request_key: 'stable-retry-key', input: { records: [{ id: 'row:1', value: 'kept' }] } } } });
+    assert.ok(bodies.every(body => body === expected), 'the serialized request key and body are identical on each attempt');
+  };
+
+  await run('60', [60_000]);
+  await run(new Date(Date.parse('2026-11-07T18:00:30.000Z')).toUTCString(), [30_000]);
+  await run('invalid', [2_000]);
+  await run(new Date(Date.parse('2026-11-07T17:59:00.000Z')).toUTCString(), [0]);
+  await run('121', [], { timeout: 120, expectedCalls: 1 });
+});
+
+test('ambiguous mutations stop after one transport loss or HTTP 5xx; structured sign-in limit sends one tools/call and no initialize', async () => {
+  for (const outcome of ['transport', 'http-503']) {
+    let calls = 0;
+    const client = trillionClient({ door: doorAt('https://synthetic.test/mcp'), credential: keyCredential, rules: { ...quick, retry_seconds: [0, 0, 0] }, wait: noWait,
+      fetchImpl: async () => {
+        calls += 1;
+        if (outcome === 'transport') throw new TypeError('synthetic connection closed');
+        return { status: 503, ok: false, headers: { get: () => null }, text: async () => 'busy' };
+      },
+    });
+    await assert.rejects(client.op('@own-records', 'records:write', { records: [{ id: 'row:1', value: 'kept' }] }, { requestKey: `unknown-${outcome}` }),
+      error => error.outcomeUnknown === true && error.message.includes(`Retry the exact request with --request-key unknown-${outcome}.`));
+    assert.equal(calls, 1, `${outcome} does not automatically resend a non-idempotent write`);
+  }
+
+  const requests = [];
+  const client = trillionClient({ door: doorAt('https://synthetic.test/mcp'), credential: keyCredential, rules: { ...quick, retry_seconds: [0, 0, 0] }, wait: noWait,
+    fetchImpl: async (_url, request) => {
+      const message = JSON.parse(request.body);
+      requests.push(message);
+      return { status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id: message.id, result: {
+        isError: true, content: [{ type: 'text', text: 'Sign in limit reached.' }],
+        structuredContent: { code: 'sign_in_too_many_calls', error: { code: 'sign_in_too_many_calls', message: 'Sign in limit reached.', retryable: true, retry_after_seconds: 1 } },
+      } }) };
+    },
+  });
+  await assert.rejects(client.op('@own-records', 'records:write', { records: [] }, { requestKey: 'sign-in-limit' }), error => error.code === 'sign_in_too_many_calls');
+  assert.equal(requests.length, 1);
+  assert.deepEqual(requests.map(request => request.method), ['tools/call'], 'the refusal uses one call and never initializes a session');
+
+  let unknownCalls = 0;
+  const unknown = trillionClient({ door: doorAt('https://synthetic.test/mcp'), credential: keyCredential, rules: { ...quick, retry_seconds: [0, 0, 0] }, wait: noWait,
+    fetchImpl: async (_url, request) => {
+      unknownCalls += 1;
+      const message = JSON.parse(request.body);
+      return { status: 200, ok: true, headers: { get: () => null }, text: async () => JSON.stringify({ jsonrpc: '2.0', id: message.id, result: {
+        isError: true, content: [{ type: 'text', text: 'Outcome unknown.' }],
+        structuredContent: { code: 'original_command_outcome_unknown', outcome: 'unknown', error: { retryable: true, retry_after_seconds: 1 } },
+      } }) };
+    },
+  });
+  await assert.rejects(unknown.op('@own-records', 'records:write', { records: [] }, { requestKey: 'structured-unknown' }),
+    error => error.outcomeUnknown === true && error.message.includes('Retry the exact request with --request-key structured-unknown.'));
+  assert.equal(unknownCalls, 1, 'a retryable marker cannot override an unknown mutation outcome');
+});
+
 test('ambiguous op and call outcomes print the original retry key; exact retries reuse it and changed input remains refused', async () => {
   const operations = new Map();
-  let unknownResponses = settings.retry_seconds.length + 1;
+  let unknownResponses = 1;
   const fake = await fakeDoor({ ops: {
     '@own-records records:write': (_input, args) => {
       const signature = JSON.stringify({ address: args.address, method: args.method, input: args.input });
@@ -329,9 +458,10 @@ test('ambiguous op and call outcomes print the original retry key; exact retries
     await assert.rejects(main(write, seams), error => error.message.includes(`Retry the exact request with --request-key ${key}.`)
       && !error.message.includes('safe') && !error.message.includes(KEY));
     assert.deepEqual(JSON.parse(await main(write, seams)), { changed: true, write_count: 1 }, 'a retry returns the result saved by the owner');
-    assert.deepEqual(fake.calls.filter(call => call.method === 'records:write').map(call => call.request_key), Array(settings.retry_seconds.length + 2).fill(key));
+    assert.deepEqual(fake.calls.filter(call => call.method === 'records:write').map(call => call.request_key), [key, key], 'one uncertain response is followed by only the explicit exact replay');
     await assert.rejects(main(['op', '@own-records', 'records:write', '{"records":[{"id":"note:1","value":{"text":"changed"}}]}', '--request-key', key], seams),
       error => error.code === 'original_command_conflict' && !error.message.includes('--request-key'));
+    assert.deepEqual(fake.calls.filter(call => call.method === 'records:write').map(call => call.request_key), [key, key, key], 'the changed-input probe is a separate explicit call');
     const callKey = 'retry-call-2026-11-07';
     assert.deepEqual(JSON.parse(await main(['call', 'tool:example', '{"x":1}', '--request-key', callKey], seams)), { tool: 'tool:example', ran: true });
     assert.equal(fake.calls.at(-1).request_key, callKey, 'call also accepts the explicit retry key');
@@ -340,14 +470,14 @@ test('ambiguous op and call outcomes print the original retry key; exact retries
 
   let pending = true;
   const unknown = await fakeDoor({ ops: { '@own-records records:write': () => {
-    if (pending) { pending = false; return { code: 'outcome_unknown' }; }
+    if (pending) { pending = false; return { code: 'original_command_outcome_unknown', outcome: 'unknown' }; }
     return { changed: true };
   } } });
   try {
     const seams = seamsFor(home(), { localDoor: () => unknown.mcp, wait: noWait });
     const key = 'retry-unknown-outcome';
     const request = ['op', '@own-records', 'records:write', '{"records":[]}', '--request-key', key];
-    await assert.rejects(main(request, seams), error => error.code === 'outcome_unknown' && error.message.includes(`--request-key ${key}.`));
+    await assert.rejects(main(request, seams), error => error.code === 'original_command_outcome_unknown' && error.message.includes(`--request-key ${key}.`));
     assert.deepEqual(JSON.parse(await main(request, seams)), { changed: true });
     assert.deepEqual(unknown.calls.map(call => call.request_key), [key, key]);
   } finally { await unknown.close(); }
@@ -631,6 +761,17 @@ test('logout never ends or removes the Mac app\'s key', async () => {
   assert.equal(store.read(), KEY);
 });
 
+test('skill text reads its named file from settings and keeps the default rendered text', () => {
+  assert.equal(settings.skill_file, 'trillion-skill.md');
+  assert.ok(settings.install.files.includes(settings.skill_file));
+  const defaultSource = readFileSync(new URL('../do-work/trillion-skill.md', import.meta.url), 'utf8');
+  assert.equal(skillText(), defaultSource.replaceAll('{command}', 'trillion'));
+  const from = home(), skillFile = 'assistant-steps.md';
+  writeFileSync(join(from, skillFile), 'Start with {command} help.\n');
+  const alternateRules = { ...settings, skill_file: skillFile };
+  assert.equal(skillText({ from, command: 'alternate-shell', rules: alternateRules }), 'Start with alternate-shell help.\n');
+});
+
 test('setup: the program is copied and linked, each app gets its skill once, and nothing it did not make is replaced', () => {
   const folder = home();
   mkdirSync(join(folder, '.claude'));
@@ -638,12 +779,20 @@ test('setup: the program is copied and linked, each app gets its skill once, and
   const first = installProgram({ home: folder });
   assert.deepEqual(first.map(row => row.outcome), Array.from({ length: settings.install.files.length + 1 }, () => 'written'), 'each declared program file and the link are installed (an owner marker only when one ships beside the program)');
   assert.ok(settings.install.files.includes('local-door.mjs'), 'the program\'s door reader is installed with it');
+  assert.ok(settings.install.files.includes('shell-program.mjs'), 'the source-first implementation is installed beside the command wrapper');
+  assert.equal(Object.keys(cliWrapper).length, 51, 'the wrapper re-exports the complete established CLI API');
   const installedProgram = settings.install.folder.startsWith('~/') ? join(folder, settings.install.folder.slice(2)) : settings.install.folder;
   for (const file of settings.install.files) assert.deepEqual(readFileSync(join(installedProgram, file)), readFileSync(new URL(`../do-work/${file}`, import.meta.url)), `${file} is the current source installed for the command consumer`);
   const link = join(folder, '.local/bin/trillion');
   assert.equal(readlinkSync(link), join(folder, '.trillion/cli/program/trillion.mjs'));
+  const installedHelp = execFileSync(process.execPath, [link, 'help'], { encoding: 'utf8' });
+  assert.match(installedHelp, /^trillion: see your AIs and their work/);
   assert.ok(lstatSync(link).isSymbolicLink());
   assert.ok(installProgram({ home: folder }).every(row => row.outcome === 'unchanged'));
+  const renamedHome = home();
+  const renamedRules = { ...settings, install: { ...settings.install, link: join(renamedHome, 'custom', 'bin', 'renamed') } };
+  installProgram({ home: renamedHome, rules: renamedRules });
+  assert.equal(readlinkSync(join(renamedHome, 'custom/bin/renamed')), join(renamedHome, '.trillion/cli/program/trillion.mjs'), 'the executable filename comes from the entry in install.files, independent of the PATH link name');
 
   const skills = installSkills({ home: folder, env: {}, text: 'name: trillion-cli\nbody\n' });
   assert.deepEqual(skills.map(row => [row.app, row.outcome]), [['Claude Code', 'written'], ['Codex', 'written']]);
