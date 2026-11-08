@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-CONTENT-IDENTITY-COMPRESSOR",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "quote": "If this is the ordinary same-owner extraction needed to express genuine existing single-source lineage, carry out the exact copy-before-adapt refactor in its real owner with truthful baseline/retirement/source ranges and coupled six manifest entries, preserving peer derive behavior and every consumer.",
     "message_multihash": "1f:126cc2fef703ce0a31d99a1784c8b0d246888bb5513848d88a5c96f10ba1f51d"
@@ -45,7 +45,8 @@
     "recorded_at": "2026-11-08T06:46:11.977922-06:00",
     "copied_before_adaptation": true,
     "source_multihash": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372",
-    "target_multihash_at_baseline": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372"
+    "target_multihash_at_baseline": "1f:ccd57c83f8afdb633ba90d2eca211c77c8145e32e55281525a75e11b776c0372",
+    "commit": "1296b0c7169386d56168cb9c848bdf4e4c581ee2"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
@@ -56,7 +57,9 @@
     ],
     "test_refs": [
       "tools/content-identity/test/identity.test.mjs",
-      "tools/keep-and-wake-ai-sessions-on-this-computer/test/blake3-allocation-compat.test.mjs"
+      "tools/keep-and-wake-ai-sessions-on-this-computer/test/blake3-allocation-compat.test.mjs",
+      "test/content-identity-packs.test.mjs",
+      "test/content-identity-source-contracts.test.mjs"
     ]
   },
   "supporting_evidence": [

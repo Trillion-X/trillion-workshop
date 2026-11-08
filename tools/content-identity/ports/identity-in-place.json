@@ -1,0 +1,77 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-CONTENT-IDENTITY-IN-PLACE",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "If this is the ordinary same-owner extraction needed to express genuine existing single-source lineage, carry out the exact copy-before-adapt refactor in its real owner with truthful baseline/retirement/source ranges and coupled six manifest entries, preserving peer derive behavior and every consumer.",
+    "message_multihash": "1f:126cc2fef703ce0a31d99a1784c8b0d246888bb5513848d88a5c96f10ba1f51d"
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+      "path": "tools/content-identity/read-data/identity.mjs",
+      "multihash": "1f:0b5566e990c07f23fd78b5484f836d113813160adb5bba929f417505e0450c12",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/content-identity/read-data/identity.mjs"
+    }
+  ],
+  "preserve": [
+    "Canonical JSON ordering and input validation; exact-byte, ordered-chunk and JSON BLAKE3 identities",
+    "The existing streaming hasher, keyed-message-code API and peer derived-key byte API",
+    "The public AllocationAwareBLAKE3 and blake3 exports consumed by Namespace checkpoints"
+  ],
+  "allowed_deltas": [
+    "Keep the original identity API in place and delegate compression to the independently source-bound exact-copy read-data/blake3.mjs module",
+    "Retain later streaming/keyed APIs introduced by genuine identity-owner evolution at commit 78d6d2fcd79d0bd93d54d21cc31e8cd4c3baa70d",
+    "Retain makeDerivedKeyBytes as the existing caller-facing facade over Noble context mode, preserving the original free-decision key derivation; its byte/context validation is an API adaptation, not a claimed literal copy of that caller"
+  ],
+  "banned_substitutions": [
+    "Inlining the imported compressor under this same-file claim instead of its separate genuine source contract",
+    "A changed digest, request key, keyed/context mode, API shape, checkpoint state or XOF/clone behavior",
+    "A relaxed 128MB bound, rights change or retrospective source snapshot"
+  ],
+  "baseline": {
+    "commit": "e854b028bb7ba2ed3163f9987ca7edf8daf667cd",
+    "recorded_at": "2026-11-03T02:35:50-07:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:0b5566e990c07f23fd78b5484f836d113813160adb5bba929f417505e0450c12",
+    "target_multihash_at_baseline": "1f:0b5566e990c07f23fd78b5484f836d113813160adb5bba929f417505e0450c12"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "canonicalJson",
+      "makeHashCodeHexFromJson",
+      "makeHashCodeHexFromBytes",
+      "makeHashCodeHexFromChunks",
+      "makeHashCodeHasher",
+      "makeKeyedHashHexFromBytes",
+      "makeDerivedKeyBytes"
+    ],
+    "test_refs": [
+      "tools/content-identity/test/identity.test.mjs",
+      "tools/keep-and-wake-ai-sessions-on-this-computer/test/blake3-allocation-compat.test.mjs",
+      "tools/check-against-a-persons-rules-and-verdicts/test/at-the-size-of-a-real-list.test.mjs",
+      "test/content-identity-packs.test.mjs",
+      "test/content-identity-source-contracts.test.mjs"
+    ],
+    "behavior_reference": {
+      "read_only": true,
+      "repository": "trillion",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "path": "src/free-run.mjs",
+      "lines": [
+        17,
+        21
+      ],
+      "multihash": "1f:e36c6ac5dc828864ea86017b2bae8175224658e89aa4c23db4e81faebd2adeeb"
+    }
+  }
+}

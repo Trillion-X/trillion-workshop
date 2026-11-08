@@ -27,7 +27,7 @@ async function runHeld(row, input, sample) {
   try {
     const ran = await runRow(row, input, { doorOptions: door, ...sample });
     const peak = Number(ran.stderr.match(/peak_rss_kb (\d+)/)?.[1]);
-    return { ...ran, peak_mb: Math.round(peak / 1024), ms: Date.now() - started, answer_bytes: Buffer.byteLength(ran.stdout.trim().split('\n').at(-1)) };
+    return { ...ran, peak_kb: peak, peak_mb: Math.round(peak / 1024), ms: Date.now() - started, answer_bytes: Buffer.byteLength(ran.stdout.trim().split('\n').at(-1)) };
   } finally {
     if (before === undefined) delete process.env.NODE_OPTIONS; else process.env.NODE_OPTIONS = before;
   }
@@ -144,6 +144,7 @@ for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024]]) {
     const want = pieceRows([{ text, file: name }]);
     const row = rowOf('tool:split-a-document-into-pieces');
     const ran = await runHeld(row, { name }, { records: [], door_files: { [name]: text } });
+    t.diagnostic(`${label}: peak_rss_kb ${ran.peak_kb}; configured limit ${row.needs.memory_mb} MB; reported peak ${ran.peak_mb} MB`);
     assert.equal(ran.code, 0, ran.stdout + ran.stderr);
     const answer = ran.last.result;
     assert.equal(answer.pieces, want.length);

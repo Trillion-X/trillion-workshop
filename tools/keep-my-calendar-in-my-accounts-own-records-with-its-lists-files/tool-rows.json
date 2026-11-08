@@ -65,7 +65,8 @@
               {
                 "package": "content-identity",
                 "paths": [
-                  "read-data/identity.mjs"
+                  "read-data/identity.mjs",
+                  "read-data/blake3.mjs"
                 ],
                 "at": "/opt/content-identity"
               },
