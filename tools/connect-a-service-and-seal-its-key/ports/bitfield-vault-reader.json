@@ -47,7 +47,8 @@
     "The source paths are private and represented by BLAKE3 path identities; source bytes are named by the private repository and exact source commit.",
     "The source files and synthetic stand-in test were copied byte-for-byte in baseline commit 41424e7d553ab3e2d0b6e15febead9fbb2e33969.",
     "An explicit CREDENTIAL_HOME_COMMAND selects the native secrets where metadata projection; the legacy declared DATA route remains available only when no native command is selected. A failed native projection never selects another vault.",
-    "The native projection supplies the resolved settings file, store and account. Reader and writer keep the existing command/private-pipe protocol; no vault, key or account is opened by metadata discovery."
+    "The native projection supplies the resolved settings file, store and account. Reader and writer keep the existing command/private-pipe protocol; no vault, key or account is opened by metadata discovery.",
+    "The reader's where CLI exposes the existing metadata operation only, for human, AI and automation consumers; it neither lists holders nor reads values."
   ],
   "banned_substitutions": [
     "a plaintext file fallback for the vault",

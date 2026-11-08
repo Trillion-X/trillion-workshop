@@ -6,6 +6,8 @@ Vault access belongs to this tool. `read-data/ask-the-vault-for-one-secret.mjs` 
 
 A launcher can select its qualified native command with `CREDENTIAL_HOME_COMMAND`. The reader first asks that command for `secrets where`, which returns resolved command, verb, store, account and settings-file metadata without opening the vault or reading a key. The same resolved settings binding is used for names, private reads and writes. An unsupported or malformed metadata answer refuses; it never switches to another vault. Without this selector, the existing declared `PRODUCT_DATA_ROOT/credential-home.json` route remains available until its callers migrate. Installed commands must prove support before a caller removes that legacy declaration; passing synthetic tests does not establish installed support.
 
+`node tools/connect-a-service-and-seal-its-key/read-data/ask-the-vault-for-one-secret.mjs where` reads this metadata through the same reader used by callers. Supply the launcher's selected command and its required settings environment. This entry calls only metadata discovery and returns no holder names, handles or credential values.
+
 ## Tools
 
 | Tool | What it does | Runs |

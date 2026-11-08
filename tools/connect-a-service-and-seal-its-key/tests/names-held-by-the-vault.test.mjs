@@ -184,3 +184,21 @@ test('the writer uses the same native metadata and settings without printing its
     'secrets where', `secrets ${home.store} ${ACCOUNT} put synthetic-holder`,
   ]);
 }));
+
+test('the metadata CLI calls only native where and leaves failures without a partial answer', () => withStandIn(({ folder }) => {
+  const home = resolvedHome(folder);
+  process.env.CREDENTIAL_HOME_COMMAND = standIn;
+  process.env.STAND_IN_VAULT_WHERE = JSON.stringify(home);
+  delete process.env.PRODUCT_DATA_ROOT;
+  const command = fileURLToPath(new URL('../read-data/ask-the-vault-for-one-secret.mjs', import.meta.url));
+  const result = spawnSync(process.execPath, [command, 'where'], { encoding: 'utf8' });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(JSON.parse(result.stdout).store, home.store);
+  assert.deepEqual(JSON.parse(result.stdout).settings, home.settings);
+  process.env.STAND_IN_VAULT_WHERE_REFUSED = 'yes';
+  const refused = spawnSync(process.execPath, [command, 'where'], { encoding: 'utf8' });
+  assert.equal(refused.status, 1);
+  assert.equal(refused.stdout, '');
+  assert.match(refused.stderr, /metadata discovery/);
+  assert.deepEqual(readFileSync(join(folder, 'asked.txt'), 'utf8').trim().split('\n'), ['secrets where', 'secrets where']);
+}));

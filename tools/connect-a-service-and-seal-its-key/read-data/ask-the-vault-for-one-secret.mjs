@@ -36,6 +36,7 @@ import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const PRODUCT_DATA_ROOT_SETTING = 'PRODUCT_DATA_ROOT';
 const COMMAND_SETTING = 'CREDENTIAL_HOME_COMMAND';
@@ -240,4 +241,15 @@ export function shapeHeldByTheVault(holder) {
 export async function fieldNamesHeldByTheVault(holder) {
   const shape = shapeHeldByTheVault(holder);
   return Array.isArray(shape?.fields) ? [...shape.fields].sort() : [];
+}
+
+// This entry reads metadata only; value operations stay on the private-pipe API.
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  try {
+    if (process.argv.length !== 3 || process.argv[2] !== 'where') throw new Error('usage: ask-the-vault-for-one-secret.mjs where');
+    process.stdout.write(`${JSON.stringify(credentialHome())}\n`);
+  } catch (error) {
+    process.stderr.write(`${error.message}\n`);
+    process.exitCode = 1;
+  }
 }
