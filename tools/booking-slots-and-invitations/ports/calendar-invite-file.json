@@ -1,0 +1,72 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-BOOKING-CALENDAR-INVITE-FILE-SOURCE-FIRST",
+  "status": "ADAPTED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
+      "path": "parts/calendar-booker/do-work/calendar-invite-file.ts",
+      "multihash": "1f:7ea64ec2fd68b4f76a758d97ad672ec22f01004d9409abcec8e9a949524792e7",
+      "ownership": "repository-owned",
+      "old_copy": { "deleted_by": "2026-11-03T17:06:08-07:00" }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/booking-slots-and-invitations/do-work/calendar-invite-file.ts",
+      "role": "Active shared RFC 5545 serializer, adapted from the original byte-identical port."
+    }
+  ],
+  "preserve": [
+    "The host remains ORGANIZER and invitees remain ATTENDEE properties.",
+    "REQUEST creates or updates the same UID and CANCEL removes it with the existing status semantics.",
+    "A zero-duration DATE-TIME VEVENT omits DTEND so its end remains equal to DTSTART under RFC 5545 §3.6.1.",
+    "UTC DATE-TIME values, event text escaping and valid ASCII output remain stable where possible.",
+    "This public serializer uses synthetic fixtures only and performs no provider, account, email or grant writes."
+  ],
+  "allowed_deltas": [
+    "Reject control characters in structural UID and email values before serialization.",
+    "Validate runtime method, sequence, timestamps, reject negative event duration, and validate reminder values before interpolation.",
+    "Omit DTEND for equal start and end timestamps to preserve zero-duration event semantics.",
+    "Escape CRLF, LF and lone CR in text values; encode CN parameter punctuation without creating a new property.",
+    "Fold serialized lines on Unicode code points using UTF-8 octet budgets."
+  ],
+  "banned_substitutions": [
+    "Do not add arbitrary new length bounds or a package dependency.",
+    "Do not change the organizer or attendee role, UID update identity, or cancellation behavior.",
+    "Do not test by writing to a calendar, provider, email account or grant."
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:7ea64ec2fd68b4f76a758d97ad672ec22f01004d9409abcec8e9a949524792e7",
+    "target_multihash_at_baseline": "1f:7ea64ec2fd68b4f76a758d97ad672ec22f01004d9409abcec8e9a949524792e7",
+    "commit": "a9ee2580ee189318d68436451760e084e7bc6ebb",
+    "recorded_at": "2026-11-03T17:03:22-07:00",
+    "scope": "In-place adaptation of the existing byte-identical Workshop copy. Its moved-from record identifies the original public source path and commit. No archive or new copy claim."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "test_refs": [
+      "tools/booking-slots-and-invitations/test/calendar-invite-file.test.mjs"
+    ],
+    "render_refs": [],
+    "active_target": {
+      "path": "tools/booking-slots-and-invitations/do-work/calendar-invite-file.ts",
+      "multihash": "1f:769ac5ffa104b149a6a1d995b839d8bffe202f9e241e314bcca9692270c0e0ce",
+      "archive_bytes_excluded": true,
+      "measurements": {
+        "sourceMeaningfulLines": 58,
+        "retainedMeaningfulLines": 50,
+        "meaningfulLineRetention": 0.8621
+      }
+    }
+  }
+}
