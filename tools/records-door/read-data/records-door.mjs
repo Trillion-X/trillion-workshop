@@ -23,6 +23,8 @@
 // A busy account (503, or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the same
 // request key after a growing wait. Safe reads also retry fetch/body transport failures; writes do not. A refusal comes
 // back as RecordsDoorError with the door's code and outcome. Large answers use byte pages (read-data/byte-pages.mjs).
+// openParentActions({ descriptor: 3 }) uses the same transport for a native run's declared computer_actions route;
+// its trashSource({ path, expected_generation }) makes one attempt and never retries or reads byte pages.
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { pagedCall } from './byte-pages.mjs';
@@ -68,8 +70,8 @@ function isTransportFailure(error) {
   return !/failed to parse url|invalid url|invalid argument|invalid header/i.test(String(error?.message ?? ''));
 }
 
-export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
-  const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource } = JSON.parse(readFileSync(descriptor, 'utf8'));
+function openBearerDoor({ descriptor = 3, fetchImpl = fetch, wait = ms => new Promise(done => setTimeout(done, ms)) } = {}) {
+  const { url, resource, capability, files_resource: filesResource, tools_resource: toolsResource, computer_actions: computerActions } = JSON.parse(readFileSync(descriptor, 'utf8'));
   if (typeof url !== 'string' || typeof resource !== 'string' || typeof capability !== 'string') {
     throw new RecordsDoorError('no_door', 'This run was not handed a records door.');
   }
@@ -81,10 +83,10 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     return paged(method, input, key, address, retryTransport);
   }
 
-  async function callOnce(method, input, key, address, retryTransport = false) {
+  async function callOnce(method, input, key, address, retryTransport = false, retryBusy = true) {
     const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: key, input } } });
     for (let attempt = 0; ; attempt += 1) {
-      const again = attempt < BUSY_RETRIES;
+      const again = retryBusy && attempt < BUSY_RETRIES;
       let response;
       try {
         response = await fetchImpl(url, {
@@ -118,7 +120,53 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     }
   }
 
+  return { call, callOnce, filesResource, resource, toolsResource, computerActions };
+}
+
+export function openRecordsDoor(options) {
+  const { call, filesResource, resource, toolsResource } = openBearerDoor(options);
   return recordsDoorFromCall(call, { filesResource, resource, toolsResource });
+}
+
+// The native runner hands this route through the same private pipe as a records door. Route metadata is not
+// authority: the parent independently checks this exact live run and its current folder grant at the effect.
+// Physical actions never use byte pages or any busy, unknown, fetch or response-body retry policy.
+export function openParentActions(options) {
+  let door;
+  try { door = openBearerDoor(options); }
+  catch { throw new RecordsDoorError('no_parent_actions', 'This run was not handed native parent actions.', 'not_started'); }
+  const { callOnce, computerActions } = door;
+  if (typeof computerActions?.resource !== 'string' || !computerActions.resource
+    || typeof computerActions.trash_source !== 'string' || !computerActions.trash_source) {
+    throw new RecordsDoorError('no_parent_actions', 'This run was not handed native parent actions.', 'not_started');
+  }
+  return {
+    async trashSource(input) {
+      if (!input || typeof input !== 'object' || Array.isArray(input)
+        || Object.keys(input).length !== 2 || !Object.hasOwn(input, 'path') || !Object.hasOwn(input, 'expected_generation')
+        || typeof input.path !== 'string' || !input.path.startsWith('/') || input.path.includes('\0')
+        || Buffer.byteLength(input.path) > 4096 || typeof input.expected_generation !== 'string'
+        || !input.expected_generation || Buffer.byteLength(input.expected_generation) > 16 * 1024 * 1024) {
+        throw new RecordsDoorError('original_input_refused', 'Supply only an absolute path and its exact generation observation.', 'not_started');
+      }
+      try {
+        const answer = await callOnce(computerActions.trash_source, input,
+          `trash-source:${randomUUID()}`, computerActions.resource, false, false);
+        if (answer?.outcome === 'moved') return { outcome: 'moved' };
+      } catch (error) {
+        if (error instanceof RecordsDoorError && error.outcome === 'not_started'
+          && ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused'].includes(error.code)) {
+          throw new RecordsDoorError(error.code, 'The native parent refused the Trash move.', 'not_started');
+        }
+        if (error instanceof RecordsDoorError && error.code === 'capability_gone') {
+          throw new RecordsDoorError('capability_gone', 'This run\'s native parent has closed.', 'not_started');
+        }
+      }
+      // A missing, malformed or lost answer cannot establish that the effect did not happen. Never echo a
+      // transport/RPC error: it can contain private descriptor bytes. The caller must stop without retrying.
+      throw new RecordsDoorError('computer_action_unknown', 'The Trash move outcome is unknown. Stop without retrying.', 'unknown');
+    },
+  };
 }
 
 // Shared record operations for a bearer door or an operator's authenticated MCP client.

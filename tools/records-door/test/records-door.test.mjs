@@ -5,13 +5,86 @@ import { closeSync, mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { createServer } from 'node:http';
+import { openRecordsDoor, openParentActions, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 import { writeBatches } from '../read-data/write-batches.mjs';
 
 const ALL = ['records:read', 'records:list', 'records:write'];
 const noWait = async () => {};
+
+function parentDescriptor(extra = {}) {
+  const descriptor = join(mkdtempSync(join(tmpdir(), 'parent-action-')), 'descriptor.json');
+  writeFileSync(descriptor, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@own-records',
+    capability: 'synthetic-private-bearer', computer_actions: { resource: '@synthetic-parent', trash_source: 'synthetic:trash' }, ...extra }));
+  return descriptor;
+}
+const sourceObservation = { path: '/synthetic/source', expected_generation: '[["","1","2"]]' };
+const parentResult = value => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: value }),
+  { headers: { 'content-type': 'application/json' } });
+
+test('parent actions use the descriptor route and exact observation through the existing MCP transport', async () => {
+  const calls = [];
+  const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async (url, options) => {
+    calls.push({ url, ...options, body: JSON.parse(options.body) });
+    return new Response('event: message\ndata: ' + JSON.stringify({ result: { structuredContent: { outcome: 'moved' } } }) + '\n\n',
+      { headers: { 'content-type': 'text/event-stream' } });
+  } });
+  assert.deepEqual(await actions.trashSource(sourceObservation), { outcome: 'moved' });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].headers.authorization, 'Bearer synthetic-private-bearer');
+  assert.equal(calls[0].headers['mcp-protocol-version'], '2025-06-18');
+  assert.deepEqual(calls[0].body.params.arguments, { address: '@synthetic-parent', method: 'synthetic:trash',
+    request_key: calls[0].body.params.arguments.request_key, input: sourceObservation });
+  assert.match(calls[0].body.params.arguments.request_key, /^trash-source:/);
+  assert.deepEqual(Object.keys(actions), ['trashSource']);
+});
+
+test('parent actions never repeat busy, unknown, lost, malformed or paged answers and never echo private errors', async () => {
+  const answers = [
+    () => new Response(null, { status: 503 }),
+    () => parentResult({ isError: true, structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } }),
+    () => parentResult({ isError: true, structuredContent: { code: 'computer_action_unknown', outcome: 'unknown' } }),
+    () => { throw new TypeError('synthetic-private-bearer transport lost'); },
+    () => ({ ok: true, headers: new Headers(), text: async () => { throw new TypeError('synthetic-private-bearer body lost'); } }),
+    () => new Response('synthetic-private-bearer invalid JSON'),
+    () => new Response(JSON.stringify({ error: { message: 'synthetic-private-bearer RPC error' } })),
+    () => parentResult({ structuredContent: { byte_page: { next_after_byte: 1 } } }),
+    () => parentResult({ structuredContent: { outcome: 'refused' } }),
+  ];
+  for (const answer of answers) {
+    let calls = 0, waits = 0;
+    const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => { calls++; return answer(); },
+      wait: async () => { waits++; } });
+    await assert.rejects(actions.trashSource(sourceObservation), error => {
+      assert.equal(error.code, 'computer_action_unknown');
+      assert.equal(error.outcome, 'unknown');
+      assert.doesNotMatch(error.message, /synthetic-private-bearer/);
+      return true;
+    });
+    assert.equal(calls, 1);
+    assert.equal(waits, 0);
+  }
+});
+
+test('parent refusals and absent descriptors stay distinct from uncertain effects; JSON cannot supply authority', async () => {
+  for (const code of ['computer_action_refused', 'current_workspace_rights_refused', 'original_input_refused']) {
+    const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () =>
+      parentResult({ isError: true, structuredContent: { code, outcome: 'not_started' } }) });
+    await assert.rejects(actions.trashSource(sourceObservation), { code, outcome: 'not_started' });
+  }
+  const gone = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => new Response(null, { status: 401 }) });
+  await assert.rejects(gone.trashSource(sourceObservation), { code: 'capability_gone', outcome: 'not_started' });
+  assert.throws(() => openParentActions({ descriptor: parentDescriptor({ computer_actions: null }) }), { code: 'no_parent_actions' });
+  let calls = 0;
+  const actions = openParentActions({ descriptor: parentDescriptor(), fetchImpl: async () => { calls++; } });
+  for (const input of [null, {}, { ...sourceObservation, resource: '@forged' }, { ...sourceObservation, grant: 'forged' },
+    { ...sourceObservation, path: 'relative/source' }, { ...sourceObservation, expected_generation: '' }]) {
+    await assert.rejects(actions.trashSource(input), { code: 'original_input_refused', outcome: 'not_started' });
+  }
+  assert.equal(calls, 0);
+});
 
 test('the selected resource is read-only metadata and input cannot change its call target', async () => {
   const calls = [];
@@ -464,6 +537,42 @@ test('files operations go to the files resource the run was handed, and a run wi
   writeFileSync(none, JSON.stringify({ url: 'http://127.0.0.1:9/mcp', resource: '@made-up-records', capability: 'run_made_up' }));
   await assert.rejects(openRecordsDoor({ descriptor: none, fetchImpl }).files('list_files', {}), { code: 'no_files' });
   assert.equal(sent.length, 1);
+});
+
+test('run-an-export lazily reads parent actions on the row-declared fd, independently of records', async () => {
+  const calls = [];
+  const server = createServer(async (request, response) => {
+    let body = '';
+    for await (const chunk of request) body += chunk;
+    calls.push({ authorization: request.headers.authorization, body: JSON.parse(body) });
+    response.setHeader('content-type', 'application/json');
+    response.end(JSON.stringify({ jsonrpc: '2.0', id: 1, result: { structuredContent: { outcome: 'moved' } } }));
+  });
+  await new Promise(done => server.listen(0, '127.0.0.1', done));
+  try {
+    for (const fd of [3, 7]) {
+      const descriptor = parentDescriptor({ url: `http://127.0.0.1:${server.address().port}/mcp` });
+      const handle = openSync(descriptor, 'r');
+      const stdio = ['pipe', 'pipe', 'pipe'];
+      while (stdio.length <= fd) stdio.push('ignore');
+      stdio[fd] = handle;
+      try {
+        const answer = await new Promise((done, fail) => {
+          const child = spawn(process.execPath, [driver, sample, 'trashOne', ...(fd === 3 ? [] : ['--parent-actions-fd', String(fd)])], { stdio });
+          let output = '', stderr = '';
+          child.stdout.on('data', chunk => { output += chunk; });
+          child.stderr.on('data', chunk => { stderr += chunk; });
+          child.on('error', fail);
+          child.on('close', status => done({ status, answer: JSON.parse(output.trim()), stderr }));
+          child.stdin.end(JSON.stringify(sourceObservation));
+        });
+        assert.deepEqual(answer, { status: 0, answer: { result: { outcome: 'moved' } }, stderr: '' });
+      } finally { closeSync(handle); }
+    }
+    assert.equal(calls.length, 2);
+    assert.ok(calls.every(call => call.authorization === 'Bearer synthetic-private-bearer'));
+    assert.ok(calls.every(call => call.body.params.arguments.address === '@synthetic-parent'));
+  } finally { await new Promise(done => server.close(done)); }
 });
 
 test('writes are cut to fit one message: at most rows records and bytes of JSON each, a larger record alone', () => {
