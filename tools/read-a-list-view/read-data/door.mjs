@@ -16,22 +16,19 @@
 //   4. A call is sent again only with its own request key (the records door's contract, tools/records-door README).
 //
 //   openDoor({ transport: { url, credential: { keychain_item } | { key_file } }, records, tools, local_tools? }, { keyOf? })
-//     → { read, list, run, write, history? }; records may name write_method and history_method
+//     → { readRecord, read, list, run, write, history? }; records may name write_method and history_method
+//     readRecord preserves the native { type, value, identity? } envelope; identity is an opaque root token,
+//     not a content hash or a snapshot of linked records. read remains value-only.
 //   local_tools: { <tool id>: { module, export, input? } }: the module's path under the Workshop's tools folder, the
 //   function it exports, and the input every run of it gets; its answer comes back as a run's `result`.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { lstat, readFile, realpath } from 'node:fs/promises';
-import { randomUUID } from 'node:crypto';
 import { isAbsolute, resolve } from 'node:path';
-import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
+import { openBearerCall, recordsDoorFromCall, RecordsDoorError } from '../../records-door/read-data/records-door.mjs';
 
-const PROTOCOL = '2025-06-18';
-const BUSY_RETRIES = 5;
-const FIRST_WAIT_MS = 200;
 // The Workshop's tools folder, where a local tool's module is found.
 const TOOLS = new URL('../', new URL('../', import.meta.url));
-const wait = ms => new Promise(done => setTimeout(done, ms));
 const say = (code, words) => Object.assign(new Error(words), { code });
 
 /** The key a credential handle names: { keychain_item } is read with the computer's `security` program. */
@@ -64,53 +61,22 @@ export async function credentialKey(handle) {
   return KEY_READERS[named[0]](handle);
 }
 
-// The JSON-RPC reply in a door's answer: the body, or the last `data:` line of a streamed answer.
-function replyOf(text, contentType) {
-  if (!contentType.includes('text/event-stream')) return JSON.parse(text);
-  const line = text.split('\n').reverse().find(one => one.startsWith('data:'));
-  return JSON.parse(line ? line.slice(5).trim() : '');
-}
-
-export async function openDoor(config, { keyOf = credentialKey } = {}) {
+export async function openDoor(config, { keyOf = credentialKey, signal } = {}) {
   const { transport, records, tools, local_tools: localTools = {} } = config ?? {};
   if (!transport?.url?.startsWith('http') || !records?.address || !records.read_method || !records.list_method || !tools?.address || !tools.run_method) {
     throw say('bad_config', 'The door config is { transport: { url, credential }, records: { address, read_method, list_method }, tools: { address, run_method } }.');
   }
   const key = await keyOf(transport.credential);
-  let step = 0;
-  // A busy door (HTTP 503 or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the
-  // same request key after a growing wait, never a new key, so a call that did happen answers its first answer.
-  const callOnce = async (address, method, input, request_key) => {
-    for (let attempt = 0; ; attempt += 1) {
-      step += 1;
-      const again = attempt < BUSY_RETRIES;
-      const body = JSON.stringify({ jsonrpc: '2.0', id: step, method: 'tools/call',
-        params: { name: 'run_resource_operation', arguments: { address, method, request_key, input } } });
-      const response = await fetch(transport.url, { method: 'POST', body, headers: {
-        Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', 'MCP-Protocol-Version': PROTOCOL } });
-      const text = await response.text();
-      if (text.includes(key)) throw say('key_in_answer', `The door's answer to ${method} held the key; nothing of it is kept.`);
-      if (response.status === 503 && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-      let reply;
-      try { reply = replyOf(text, response.headers.get('content-type') ?? ''); } catch { throw say('not_json_rpc', `The door's answer to ${method} is not JSON-RPC (HTTP ${response.status}).`); }
-      if (reply.error) throw say('refused', `${method}: ${JSON.stringify(reply.error).slice(0, 300)}`);
-      const result = reply.result ?? {};
-      const answer = result.structuredContent ?? result;
-      if (!result.isError) return answer;
-      if ((answer?.code === 'selected_owner_unavailable' || answer?.outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-      throw Object.assign(say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`),
-        { outcome: answer?.outcome });
-    }
-  };
-  // A record too big for one message comes as pages of its own bytes (tools/records-door byte-pages.mjs); the same
-  // call with after_byte reads on, and the joined answer is held to the same rule as any answer: it never holds the key.
-  const call = async (address, method, input, request_key = `read-a-list-view-${randomUUID()}`) => {
-    const first = await callOnce(address, method, input, request_key);
-    const whole = await wholeAnswer(first, after => callOnce(address, method, { ...input, after_byte: after }, `read-a-list-view-${randomUUID()}`));
-    if (whole !== first && JSON.stringify(whole).includes(key)) throw say('key_in_answer', `The door's answer to ${method} held the key; nothing of it is kept.`);
-    return whole;
-  };
+  // Credentials and operation names stay configured here. HTTP, byte pages
+  // and read/effect retry policy have one shared owner.
+  const { call: send } = openBearerCall({ url: transport.url, resource: records.address,
+    capability: key, signal, rejectCredentialInAnswer: true });
+  const call = (address, method, input, requestKey, read = false) => send(method, input, requestKey, address, read);
   const run = async (tool, input) => {
+    const active = () => {
+      if (signal?.aborted) throw new RecordsDoorError('transport_unavailable', 'The caller interrupted this local tool request.', 'not_started');
+    };
+    active();
     const local = localTools[tool];
     if (local) {
       const ran = (await import(new URL(local.module, TOOLS)))[local.export];
@@ -135,18 +101,23 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
         }
         given.root = resolve(base, input.root);
       }
+      active();
       return { result: await ran(given) };
     }
     const answer = await call(tools.address, tools.run_method, { tool, input });
     if (answer?.error !== undefined || (answer?.exit_code ?? 0) !== 0) throw say('tool_failed', `${tool}: ${String(answer?.error ?? `exit ${answer?.exit_code}`).slice(0, 300)}`);
     return answer;
   };
+  // Keep the shared records door's native envelope semantics while retaining this operator config's declared route.
+  const reader = recordsDoorFromCall((_method, input, requestKey) => call(records.address, records.read_method, input, requestKey, true),
+    { resource: records.address });
   return {
-    read: async (type, id) => (await call(records.address, records.read_method, { type, id }))?.value ?? null,
-    list: query => call(records.address, records.list_method, query),
+    readRecord: reader.readRecord,
+    read: reader.read,
+    list: query => call(records.address, records.list_method, query, undefined, true),
     // A record's newest versions with their times, for the two-way sync of a list that is the original (list-copy.mjs);
     // absent when the config names no history_method, and the sync then decides nothing by time.
-    ...(records.history_method ? { history: id => call(records.address, records.history_method, { id, limit: 2 }) } : {}),
+    ...(records.history_method ? { history: id => call(records.address, records.history_method, { id, limit: 2 }, undefined, true) } : {}),
     run,
     // A refresh's write, sent with the key it names so a write sent again answers its first answer.
     write: async (rows, { key }) => {

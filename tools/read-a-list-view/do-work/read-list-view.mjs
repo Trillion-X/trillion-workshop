@@ -23,6 +23,7 @@
 // The config is JSON: the door (read-data/door.mjs: transport, records, tools, filter), `names` as
 // read-data/list-view.mjs takes them, and optionally `source_answer_bytes` (the room a source tool's answer has in the
 // door's reply, for a refresh). The bounds are the reader's own (read-data/list-view.json `limits`), never a caller's.
+// --deadline-ms optionally supplies the caller's existing absolute Unix-millisecond deadline. It creates no budget.
 //
 // Prints the page, or what the refresh wrote, as one JSON answer. Exit 0 done, 2 with the reason on standard error.
 import { readFile } from 'node:fs/promises';
@@ -34,17 +35,46 @@ import { copyReadable } from '../read-data/copy-readable.mjs';
 const flags = {};
 const rest = process.argv.slice(2);
 for (let index = 0; index < rest.length; index += 2) flags[rest[index].replace(/^--/, '')] = rest[index + 1];
+let deadlineTimer;
+let operationStarted = false;
 
 try {
+  let signal;
+  if (Object.keys(flags).some(name => name.startsWith('deadline-ms') && name !== 'deadline-ms')
+      || rest.filter(value => value === '--deadline-ms').length > 1) {
+    throw Object.assign(new Error('--deadline-ms must appear once with one absolute Unix-millisecond integer.'), { outcome: 'not_started' });
+  }
+  if (Object.hasOwn(flags, 'deadline-ms')) {
+    const value = flags['deadline-ms'];
+    if (typeof value !== 'string' || !/^[0-9]+$/.test(value) || !Number.isSafeInteger(Number(value))) {
+      throw Object.assign(new Error('--deadline-ms is an absolute Unix-millisecond integer.'), { outcome: 'not_started' });
+    }
+    const deadline = Number(value), controller = new AbortController();
+    if (deadline <= Date.now()) {
+      throw Object.assign(new Error('The list-reader deadline elapsed before its request started.'), { outcome: 'not_started' });
+    }
+    const expire = () => {
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) controller.abort();
+      else {
+        // Node's timer range is finite; recheck the same absolute deadline rather than extending it.
+        deadlineTimer = setTimeout(expire, Math.min(remaining, 2147483647));
+        deadlineTimer.unref();
+      }
+    };
+    expire();
+    signal = controller.signal;
+  }
   if (!flags.config) throw new Error('usage: read-list-view.mjs --config FILE ((--list ID | --view ID) [--after CURSOR] [--limit N] | --refresh ID [--sources JSON] [--paths JSON] [--dry-run yes] | --write-joined SPEC [--dry-run yes] | --copy-readable LIST_ID)');
   const config = JSON.parse(await readFile(flags.config, 'utf8'));
-  const door = await openDoor(config);
+  const door = await openDoor(config, { signal });
+  operationStarted = true;
   const answer = flags['copy-readable']
     ? await copyReadable({ list: flags['copy-readable'], names: config.names }, door)
     : flags['write-joined']
-    ? await writeJoinedCopy({ ...JSON.parse(flags['write-joined']), ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
+    ? await writeJoinedCopy({ ...JSON.parse(flags['write-joined']), signal, ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
     : flags.refresh
-    ? await refreshRowSources({ list: flags.refresh, names: config.names, source_answer_bytes: config.source_answer_bytes,
+    ? await refreshRowSources({ list: flags.refresh, names: config.names, source_answer_bytes: config.source_answer_bytes, signal,
       ...(flags.sources !== undefined ? { source_ids: JSON.parse(flags.sources) } : {}),
       ...(flags.changes !== undefined ? { changes: JSON.parse(flags.changes) } : {}),
       ...(flags['run-id'] !== undefined ? { run_id: flags['run-id'] } : {}),
@@ -53,5 +83,10 @@ try {
   console.log(JSON.stringify(answer));
 } catch (error) {
   console.error(error.message);
+  // A later no-send call cannot prove this multi-step operation had no earlier effects.
+  const outcome = operationStarted ? 'unknown' : error.outcome;
+  if (outcome === 'unknown' || outcome === 'not_started') console.error(`read-list-view: outcome=${outcome}`);
   process.exitCode = 2;
+} finally {
+  clearTimeout(deadlineTimer);
 }

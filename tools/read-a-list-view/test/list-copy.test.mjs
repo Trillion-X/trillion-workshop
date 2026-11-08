@@ -495,7 +495,7 @@ test('a multipart original with mixed source identities is refused without writi
   } finally { await b.done(); }
 });
 
-test('an unknown conditional response retries only the same original tuple and never splits or refreshes it', { timeout: 15000 }, async () => {
+test('an unknown conditional response stops after the original tuple without splitting or refreshing it', async () => {
   let armed = false;
   const requests = [];
   const name = 'ada/ledger.md';
@@ -510,8 +510,7 @@ test('an unknown conditional response retries only the same original tuple and n
     await writeFile(join(b.root, 'notes', name), 'New file\n');
     armed = true;
     await assert.rejects(b.sync(), error => error.code === 'original_command_conflict' && error.outcome === 'unknown');
-    assert.ok(requests.length > 1, 'the transport actually retried the unknown result');
-    for (const request of requests) assert.deepEqual(request, requests[0]);
+    assert.equal(requests.length, 1, 'an unknown effect is not an automatic retry opportunity');
     assert.deepEqual(requests[0].input.records[0].expected, { type: TYPE, value: previous });
     assert.deepEqual(b.records.get(id), previous);
   } finally { await b.done(); }

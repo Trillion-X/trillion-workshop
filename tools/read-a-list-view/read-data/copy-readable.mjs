@@ -16,14 +16,16 @@
 //   copyReadable({ names, list }, door) → { readable, list, because, code? }
 //     names: { list_type, list_record } as list-view.mjs takes them; door: read-data/door.mjs (only read is used)
 import data from './list-view.json' with { type: 'json' };
+import { isRecordsDoorTransportFailure } from '../../records-door/read-data/records-door.mjs';
 
 const rule = data.copies_when_unreachable;
 
 /** True when an error is the door or the list answering that it cannot answer now. */
 function unavailable(error) {
   if (rule.answers.includes(error?.code)) return true;
-  // fetch() fails with a TypeError when nothing listens or the network is down: no holder answered at all.
-  return rule.transport_failures === true && error?.code === undefined && error?.name === 'TypeError';
+  // Only the actual transport can establish a network failure. Neither a
+  // server's code, a caller deadline nor a same-named exception grants fallback.
+  return rule.transport_failures === true && isRecordsDoorTransportFailure(error);
 }
 
 export async function copyReadable(input, door) {
@@ -36,7 +38,7 @@ export async function copyReadable(input, door) {
     await door.read(names.list_type, id);
   } catch (error) {
     if (unavailable(error)) {
-      return { readable: true, list, code: error.code ?? 'unreachable',
+      return { readable: true, list, code: isRecordsDoorTransportFailure(error) ? 'unreachable' : error.code ?? 'unreachable',
         because: 'the list is unavailable now, so its file copy may be read, read-only, until it answers again' };
     }
     return { readable: false, list, code: error.code ?? 'refused',

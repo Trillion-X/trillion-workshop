@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:http';
-import { openRecordsDoor, openParentActions, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { openBearerCall, openRecordsDoor, openParentActions, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 import { writeBatches } from '../read-data/write-batches.mjs';
@@ -23,6 +23,76 @@ function parentDescriptor(extra = {}) {
 const sourceObservation = { path: '/synthetic/source', expected_generation: '[["","1","2"]]' };
 const parentResult = value => new Response(JSON.stringify({ jsonrpc: '2.0', id: 1, result: value }),
   { headers: { 'content-type': 'application/json' } });
+
+test('caller cancellation ends a stalled fetch or body as unknown without another effect attempt', async () => {
+  for (const stage of ['fetch', 'body']) {
+    const controller = new AbortController();
+    let calls = 0, started;
+    const ready = new Promise(resolve => { started = resolve; });
+    const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+      signal: controller.signal, fetchImpl: async (_url, options) => {
+        calls++;
+        assert.equal(options.signal, controller.signal);
+        if (stage === 'fetch') { started(); return new Promise(() => {}); }
+        return { ok: true, status: 200, headers: new Headers(), text: () => { started(); return new Promise(() => {}); } };
+      } });
+    const effect = transport.call('records:write', { records: [] }, 'synthetic-original');
+    await ready;
+    controller.abort(new Error('private caller interruption'));
+    await assert.rejects(effect, error => {
+      assert.equal(error.code, 'transport_unavailable');
+      assert.equal(error.outcome, 'unknown');
+      assert.doesNotMatch(error.message, /private caller/);
+      return true;
+    });
+    assert.equal(calls, 1, stage);
+  }
+});
+
+test('an expired caller signal prevents the first network attempt', async () => {
+  const controller = new AbortController();
+  controller.abort();
+  let calls = 0;
+  const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+    signal: controller.signal, fetchImpl: async () => { calls++; } });
+  await assert.rejects(transport.call('records:write', { records: [] }, 'original'), { code: 'transport_unavailable', outcome: 'not_started' });
+  assert.equal(calls, 0);
+});
+
+test('caller cancellation interrupts a read backoff without a further request', async () => {
+  const controller = new AbortController();
+  let calls = 0, paused;
+  const ready = new Promise(resolve => { paused = resolve; });
+  const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+    signal: controller.signal,
+    fetchImpl: async () => { calls++; return new Response(null, { status: 503 }); },
+    wait: () => { paused(); return new Promise(() => {}); } });
+  const read = transport.call('records:read', { id: 'synthetic' }, 'original', undefined, true);
+  await ready;
+  controller.abort();
+  await assert.rejects(read, { code: 'transport_unavailable', outcome: 'unknown' });
+  assert.equal(calls, 1);
+});
+
+test('canceling the caller also removes the default retry timer and releases an unread error body', async () => {
+  const before = process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length;
+  const controller = new AbortController();
+  let calls = 0, canceled = 0;
+  const transport = openBearerCall({ url: 'http://synthetic.invalid', resource: '@synthetic', capability: 'synthetic-bearer',
+    signal: controller.signal, fetchImpl: async () => {
+      calls++;
+      return { ok: false, status: 503, body: { cancel: async () => { canceled++; } } };
+    } });
+  const read = transport.call('records:read', { id: 'synthetic' }, 'original', undefined, true);
+  await new Promise(done => setImmediate(done));
+  assert.equal(process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length, before + 1);
+  controller.abort();
+  await assert.rejects(read, { code: 'transport_unavailable', outcome: 'unknown' });
+  await new Promise(done => setImmediate(done));
+  assert.equal(process.getActiveResourcesInfo().filter(kind => kind === 'Timeout').length, before);
+  assert.equal(calls, 1);
+  assert.equal(canceled, 1);
+});
 
 test('parent actions use the descriptor route and exact observation through the existing MCP transport', async () => {
   const calls = [];
@@ -322,7 +392,8 @@ test('fetch transport failures retry safe reads, while malformed JSON fails imme
         throw new TypeError('socket closed');
       },
     });
-    await assert.rejects(writeClient.write([{ id: 'note:1', type: 'note', value: {} }]), TypeError);
+    await assert.rejects(writeClient.write([{ id: 'note:1', type: 'note', value: {} }]),
+      { code: 'transport_unavailable', outcome: 'unknown' });
     assert.equal(writeAttempts, 1, 'writes do not gain transport retries');
   } finally { await door.close(); }
 });
@@ -386,14 +457,23 @@ test('a list sends fields and where to the door, and keeps paging past pages whe
   } finally { await door.close(); }
 });
 
-test('a busy account is asked again, and the same write key answers the saved receipt', async () => {
-  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], busyFirst: 2, eventStream: true });
+test('an explicitly not-started busy account is asked again with the same write key and body', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], eventStream: true });
   try {
-    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    const sent = [];
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait, fetchImpl: async (url, options) => {
+      sent.push(JSON.parse(options.body).params.arguments);
+      if (sent.length <= 2) return new Response(JSON.stringify({ result: { isError: true,
+        structuredContent: { code: 'selected_owner_unavailable', outcome: 'not_started' } } }),
+      { headers: { 'content-type': 'application/json' } });
+      return fetch(url, options);
+    } });
     const first = await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-a' });
     const again = await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-a' });
     assert.deepEqual(again, first);
-    assert.equal(door.calls.filter(call => call.key === 'write-note-a').length, 4, 'two busy answers, then the write, then the repeat');
+    assert.equal(sent.length, 4, 'two not-started answers, then the write, then the known-success repeat');
+    assert.ok(sent.every(call => JSON.stringify(call) === JSON.stringify(sent[0])), 'the key and body never change');
+    assert.equal(door.calls.filter(call => call.key === 'write-note-a').length, 2, 'only the started writes reach the owner');
   } finally { await door.close(); }
 });
 
@@ -437,12 +517,14 @@ test('one write carries at most the row\'s most_writes, and never more than the 
   } finally { await door.close(); await capped.close(); }
 });
 
-test('a write whose outcome is unknown is sent again with the same key and answers the receipt it made', async () => {
+test('a write whose outcome is unknown is not sent again even when its effect already happened', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], unknownFirst: 1 });
   try {
     const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
-    assert.deepEqual(await client.write([{ id: 'note:u', type: 'note', value: { n: 1 } }], { key: 'write-note-u' }), { changed: 1, write_count: 1 });
-    assert.deepEqual(door.calls.map(call => call.key), ['write-note-u', 'write-note-u']);
+    await assert.rejects(client.write([{ id: 'note:u', type: 'note', value: { n: 1 } }], { key: 'write-note-u' }),
+      { code: 'original_workspace_source_unavailable', outcome: 'unknown' });
+    assert.deepEqual(door.calls.map(call => call.key), ['write-note-u']);
+    assert.deepEqual(await client.read('note', 'note:u'), { n: 1 }, 'unknown cannot be treated as no effect');
   } finally { await door.close(); }
 });
 
