@@ -1,3 +1,3 @@
 {
-  "public": ["read-data/public-door-rows.mjs", "read-data/door-receipts.mjs"]
+  "public": ["read-data/public-door-rows.mjs", "read-data/door-receipts.mjs", "do-work/portable-host-lease.mjs"]
 }
