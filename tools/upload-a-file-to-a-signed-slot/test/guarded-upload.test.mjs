@@ -10,10 +10,17 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkSlot, makeGuardedUploads, uploadFromFolder, uploadSettings } from '../read-data/guarded-upload.mjs';
+import * as compatibility from '../read-data/guarded-upload.mjs';
+import * as core from '../read-data/guarded-upload-core.mjs';
 
 const settings = { ...uploadSettings(), destinations: [{ host: 'storage.example.test', path_prefix: '/diagnostics-bucket', max_fields: 4, content_types: ['application/zip'] }] };
 const good = { url: 'https://storage.example.test/diagnostics-bucket', fields: { key: 'a/b.zip', policy: 'p', signature: 's' } };
 const refused = (call, status, words) => assert.throws(call, error => { assert.equal(error.status, status); assert.match(error.message, words); return true; });
+
+test('the compatibility entry preserves its export set and the canonical upload bindings', () => {
+  assert.deepEqual(Object.keys(compatibility).sort(), ['checkSlot', 'makeGuardedUploads', 'uploadFromFolder', 'uploadSettings']);
+  for (const name of ['checkSlot', 'makeGuardedUploads', 'uploadSettings']) assert.equal(compatibility[name], core[name], name);
+});
 
 test('the shipped list uploads nowhere', () => {
   assert.deepEqual(uploadSettings().destinations, []);

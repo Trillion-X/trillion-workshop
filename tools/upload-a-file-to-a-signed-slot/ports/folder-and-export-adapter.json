@@ -1,0 +1,801 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-SIGNED-UPLOAD-FOLDER-AND-EXPORT-ADAPTER",
+  "status": "ADAPTED",
+  "directive": {
+    "quote": "Own Workshop main repair and shared tool packaging",
+    "message_multihash": "1f:65a801908b64a002349e257f67356280ccc3fb91799273b435309f9d7127fb3f"
+  },
+  "mode": "NO_PRIOR_OWNER",
+  "job": "Adapt a file in a granted folder to the existing signed upload implementation and keep the established module export bindings.",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/upload-a-file-to-a-signed-slot/read-data/guarded-upload.mjs",
+      "role": "Granted-folder input adapter and exact compatibility export forwarding; the source-first core owns slot checks and file holding."
+    }
+  ],
+  "preserve": [
+    "The established four exported module names, and exact core binding identity for the three historical exports.",
+    "The existing granted-folder restrictions, size check and one-file handoff, without implementing another slot validator or holder."
+  ],
+  "allowed_deltas": [
+    "Move only the historical algorithm into its source-first core and import its shared message/refusal helpers."
+  ],
+  "banned_substitutions": [
+    "Claiming the upload validator, holder, Namespace sender or native file reader has no older owner.",
+    "An alternate upload algorithm, different grant policy or a second module ABI."
+  ],
+  "baseline": {},
+  "authorship": {
+    "introduced_with_descriptor_at": "78457d647a2250857d3d262728a6710023ed3d5e",
+    "scope": "This is authorship of the folder entry, not a source-only baseline for the mixed original module."
+  },
+  "distinct_from": [
+    {
+      "repository": "trillion",
+      "path": "computer/guarded-upload.mjs",
+      "why": "This is the historical slot validator and holder, preserved by the SOURCE_FIRST_PORT canonical core contract. The folder/export adapter delegates those algorithms instead of claiming them as new."
+    },
+    {
+      "repository": "trillion",
+      "path": "README.md",
+      "why": "This repository record documents past code homes, scenarios or capabilities; it is not an executable granted-folder adapter. The actual removed upload algorithm owner is named separately and preserved by its source-first contract."
+    },
+    {
+      "repository": "trillion",
+      "path": "dev/deleted-code-homes.json",
+      "why": "This repository record documents past code homes, scenarios or capabilities; it is not an executable granted-folder adapter. The actual removed upload algorithm owner is named separately and preserved by its source-first contract."
+    },
+    {
+      "repository": "trillion",
+      "path": "scripts/customer-conversation-scenarios.json",
+      "why": "This repository record documents past code homes, scenarios or capabilities; it is not an executable granted-folder adapter. The actual removed upload algorithm owner is named separately and preserved by its source-first contract."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/from-old-trillion/scripts/deploy-worker.mjs",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "docs/from-old-trillion/src/s3-compatible-origin.mjs",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/account_files/copier/carry-on-a-cloud-server.sh",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "src/account_files/moves.rs",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "tests/fixtures/retired-snapshot/workspace-rust-shell/surfaces.json",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "tests/fixtures/workspace-f4-missing-mount/surfaces.json",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-rust",
+      "path": "tests/fixtures/workspace-shell-current/surfaces.json",
+      "why": "This is account-store migration/installation code, an inert historical deployment/origin module or a surface fixture. Those jobs send account/service bytes or describe screens, rather than adapt a granted folder file into the signed-slot Node module API."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "README.md",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "capabilities.json",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/browse-and-upload-my-files/do-work/send-a-folder-to-a-namespace.mjs",
+      "why": "This sender recursively transfers a folder into a Namespace through its checked chunk sender and names each file there; it does not adapt one granted file to an externally supplied signed POST slot."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-on-a-persons-computer/from-old-trillion/README.md",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-on-a-persons-computer/from-old-trillion/computer/diagnostics.mjs.held",
+      "why": "The held diagnostics caller reads the one configured sealed log and passes its bytes to the old holder; it is not the general granted-folder tool entry or a module export facade."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/run-on-a-persons-computer/from-old-trillion/moved-from.json",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/README.md",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/read-data/guarded-upload.json",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/read-data/guarded-upload.mjs",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/test/guarded-upload.test.mjs",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/upload-a-file-to-a-signed-slot/tool-rows.json",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/workflows/published/tools.json",
+      "why": "This is this tool's existing documentation, DATA, declaration, tests or previous combined entry. Its historical validator and holder remain owned by the source-first core; the current claim covers only the folder input and export-forwarding seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "admission/cis-independent-checker-20261027/current-library-and-alex-frontier-append-20261027/BEFORE-SNAPSHOT-MANIFEST.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "admission/nmb-cq0022-label-scope-correction-20261029/BEFORE-CQ0022.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "consolidation/data/trillion-payloads/findings-devices-002.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "data/tools.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/combine-answers/assets/js/tiles.js",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/one-place/assets/js/tiles.js",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/reference-0Rqoe5quCJQ/evidence/adoption-6814-6877-20261031/BEFORE-SOURCE-EVIDENCE-CIS-INVESTIGATION.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/reference-0Rqoe5quCJQ/evidence/adoption-8492-8555-20261031/BEFORE-SOURCE-EVIDENCE-CIS-INVESTIGATION.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/reference-0Rqoe5quCJQ/evidence/adoption-8492-8555-20261031/REVISION-2-BEFORE-SOURCE-EVIDENCE-CIS-INVESTIGATION.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/reference-0Rqoe5quCJQ/evidence/adoption-8556-8589-20261031/BEFORE-SOURCE-EVIDENCE-CIS-INVESTIGATION.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "films/reference-0Rqoe5quCJQ/evidence/native-8556-8589-20261031/RETENTION-RUN.jsonl",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "hf-v2/assets/js/tiles.js",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "hf-v2/measure/marketplace-public-catalog-response-2026-10-19.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "hf/assets/js/tiles.js",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/fills/_catalog/pages/tool-offset-0.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/fills/_catalog/pages/tool-offset-400.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/fills/_catalog/pages/tool-offset-500.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/knowledge/flat/UCK7tptUDHh-RYDsdxO1-5QQ-shorts.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/knowledge/flat/UCVneetxSKb5lwa2_6c-qO8Q-videos.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/knowledge/podcast-transcripts/feed_rdm-capitalism_6bbd93781306.whisper.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/knowledge/podcast-transcripts/feed_rdm-capitalism_c87d56a0f6fe.whisper.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/knowledge/podcast-transcripts/feed_sweat-equity_4feea1c01d93.whisper.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/knowledge/podcast-transcripts/feed_sweat-equity_f784b8f0c84f.whisper.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/videos/ayushsoni_io-2092554774910828544.info.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/videos/bevel_health-2105313843559772160.info.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/videos/linearityhq-2110362925877608448.info.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/videos/usewonder-2044095731724861440.info.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/viewer-questions/raw/youtube-comments/_k5_wyge33g.info.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "library/viewer-questions/raw/youtube-comments/tG2GJZcBKOE.info.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "tools/copy-gate/book-voice/SOURCE-BOUND-64-DEVELOPMENT-EVENTS-20261024.jsonl",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "tools/copy-gate/book-voice/expanded-feedback-20261023/source-context-20261023/before-root-repair/context-export.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "tools/copy-gate/book-voice/expanded-feedback-20261023/source-context-20261023/complete-preflight/EVALUATOR-INPUT.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "tools/copy-gate/book-voice/expanded-feedback-20261023/source-context-20261023/complete-preflight/REQUEST-PLANS.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "trillion-launch-video",
+      "path": "tools/copy-gate/book-voice/expanded-feedback-20261023/source-context-20261023/context-export.json",
+      "why": "This is retained film/library/catalogue/evidence material or a browser tile script. The separate identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload implementation here; it does not own the Node granted-folder/export seam."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/access-scoped-content/built-stored-bytes/entry-bytes-access-scoped-content",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/account-dashboard/built-stored-bytes/entry-bytes-account-dashboard-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/account-session/built-stored-bytes/entry-bytes-account-session-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/account-session/built-stored-bytes/hosted-sign-in-island",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/ai-execution-history/built-stored-bytes/entry-bytes-ai-execution-history-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/chat/built-stored-bytes/entry-bytes-chat",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/choose-per-observer/built-stored-bytes/entry-bytes-scoreboard",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/commander-triage/built-stored-bytes/entry-bytes-visual-database-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/documents/built-stored-bytes/entry-bytes-authored-note",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/documents/built-stored-bytes/entry-bytes-composition-scene",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/documents/built-stored-bytes/entry-bytes-documents",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/documents/built-stored-bytes/entry-bytes-selected-composition",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/file-content-renderer/built-stored-bytes/entry-bytes-file-content-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/founder-growth-engine-screens/built-stored-bytes/entry-bytes-visual-database-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/funnel-offer-graph/built-stored-bytes/entry-bytes-funnel-canvas",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/ideas/built-stored-bytes/entry-bytes-ideas",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/investment-command/built-stored-bytes/entry-bytes-investment-command",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/item-record/built-stored-bytes/entry-bytes-item-composer",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/item-record/built-stored-bytes/entry-bytes-item-record",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/live-namespace/do-work/send-a-folder-to-a-namespace.mjs",
+      "why": "This earlier Namespace sender was read directly: it walks all regular files, hashes/chunks them through sendFile and writes their Namespace names. It does not accept the page's one signed POST slot or expose this module compatibility entry."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/media-playback/built-stored-bytes/entry-bytes-media-playback",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/media-playback/built-stored-bytes/entry-bytes-media-playback-surface",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/permission-lease/built-stored-bytes/entry-bytes-permission-lease",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/polymarket/built-stored-bytes/entry-bytes-polymarket",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/portfolio-connector/built-stored-bytes/entry-bytes-portfolio-connector",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/record-audio/built-stored-bytes/entry-bytes-record-audio",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/research-workspace/built-stored-bytes/entry-bytes-research-board",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/screen-arrangement/built-stored-bytes/entry-bytes-screen-arrangement",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/screen-arrangement/built-stored-bytes/entry-bytes-worker-console",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/service-connections/built-stored-bytes/entry-bytes-connect-service",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/service-connections/built-stored-bytes/entry-bytes-disconnect-service",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/service-connections/built-stored-bytes/entry-bytes-publish-service-connections",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/service-connections/built-stored-bytes/entry-bytes-service-connections-settings",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/tasks/proof/2026-07-04-jobs-board/styled-jobs.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/three-dimensional-scene/built-stored-bytes/entry-bytes-three-dimensional-scene",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/trade-order/built-stored-bytes/entry-bytes-trade-order",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/traffic-attribution/built-stored-bytes/entry-bytes-traffic-attribution",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/built-stored-bytes/built-show-mount-visual-database",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/built-stored-bytes/entry-bytes-record-form",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/built-stored-bytes/entry-bytes-selected-visual-database",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/built-stored-bytes/entry-bytes-visual-database",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/2026-07-18-w7-grid-dense-desktop.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/2026-07-18-w7-grid-empty-desktop.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/2026-07-18-w7-grid-readonly-desktop.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/2026-07-18-w7-grid-sparse-desktop.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/2026-07-18-w7-grid-sparse-mobile.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/2026-07-24-w7-canvas-desktop.html",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "repository": "bitfield-packages",
+      "path": "packages/visual-database/proof/harness/w7-grid-2026-07-18/out/bundle.js",
+      "why": "This hit is a stored web bundle or proof page, not a maintained Node folder-adapter source module. A separate full-tree identifier search found no uploadFromFolder, makeGuardedUploads, checkSlot or guarded-upload owner in this repository; upload UI/text is not the claimed adapter."
+    },
+    {
+      "capability": "upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows",
+      "why": "The overall upload capability owns the historical validator and holder, now kept once in the source-first core. This claim is only its existing folder input and API forwarding seam, introduced with the Workshop descriptor in 78457d647a2250857d3d262728a6710023ed3d5e."
+    }
+  ],
+  "proof": {
+    "test_refs": [
+      "tools/upload-a-file-to-a-signed-slot/test/guarded-upload.test.mjs"
+    ],
+    "search": {
+      "phrasings": [
+        "Adapt a file in a granted folder to the existing signed upload implementation and keep the established module export bindings.",
+        "Forward the guarded upload module API and pass a permitted folder file to its existing slot validator and single-use holder."
+      ],
+      "capability_rows": [
+        {
+          "capability": "upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/upload-a-file-to-a-signed-slot/"
+          ],
+          "words": 0.415,
+          "near": false
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.203,
+          "near": false
+        },
+        {
+          "capability": "read a run of the person's own AI command line as normalised live events with a bounded progress file, and keep the tools they allow it in one folder",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/follow-my-ai-command-line-runs/"
+          ],
+          "words": 0.164,
+          "near": false
+        },
+        {
+          "capability": "browse, upload, open, rename, move and delete my files and folders: list, card and board views, a folders tree, a file opened in its own tab, drag-and-drop upload with progress",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/browse-and-upload-my-files/"
+          ],
+          "words": 0.162,
+          "near": false
+        },
+        {
+          "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pin-files-by-content/"
+          ],
+          "words": 0.161,
+          "near": false
+        },
+        {
+          "capability": "export a document tree to Word, PDF or other file formats",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/export-documents-to-files/"
+          ],
+          "words": 0.159,
+          "near": false
+        },
+        {
+          "capability": "space out when a record book settles ended usage grants, so one resource that keeps opening grants does not keep the book busy",
+          "repository": "trillion",
+          "owner": [
+            "src/alarm-pace.mjs"
+          ],
+          "words": 0.147,
+          "near": false
+        },
+        {
+          "capability": "read the words written inside my PDFs, Word and Excel files, decks, spreadsheets and text files once, and keep them beside each file so search finds them",
+          "repository": "trillion",
+          "owner": [
+            "src/file-words.mjs"
+          ],
+          "words": 0.141,
+          "near": false
+        },
+        {
+          "capability": "find the exact seconds a quoted passage starts and ends in a recording's word times, read word times as timed sentences, and keep word times in the one words-file shape",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/find-a-spoken-passage-in-word-times/"
+          ],
+          "words": 0.139,
+          "near": false
+        },
+        {
+          "capability": "keep a person's files in step between their computers: say where one computer's sync stands, fill a file from another computer of the same account on the same network, and back up a local folder into a Trillion folder",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/sync-files-between-my-computers/"
+          ],
+          "words": 0.136,
+          "near": false
+        },
+        {
+          "capability": "upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/upload-a-file-to-a-signed-slot/"
+          ],
+          "words": 0.311,
+          "near": false
+        },
+        {
+          "capability": "browse, upload, open, rename, move and delete my files and folders: list, card and board views, a folders tree, a file opened in its own tab, drag-and-drop upload with progress",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/browse-and-upload-my-files/"
+          ],
+          "words": 0.152,
+          "near": false
+        },
+        {
+          "capability": "choose which guard tests a release must pass before it goes live and which may run after, from what each test reaches",
+          "repository": "trillion",
+          "owner": [
+            "scripts/guard-selection.mjs"
+          ],
+          "words": 0.149,
+          "near": false
+        },
+        {
+          "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/pin-files-by-content/"
+          ],
+          "words": 0.145,
+          "near": false
+        },
+        {
+          "capability": "work out open slots, busy times and calendar invitation files for bookings",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/booking-slots-and-invitations/"
+          ],
+          "words": 0.124,
+          "near": false
+        },
+        {
+          "capability": "switch an installed site's serving on or off, with or without receiving email, keeping its existing files",
+          "repository": "trillion",
+          "owner": [
+            "scripts/set-site-worker-backend.mjs"
+          ],
+          "words": 0.122,
+          "near": false
+        },
+        {
+          "capability": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/fill-a-template-without-changing-its-words/"
+          ],
+          "words": 0.122,
+          "near": false
+        },
+        {
+          "capability": "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/check-new-names/"
+          ],
+          "words": 0.12,
+          "near": false
+        },
+        {
+          "capability": "guard an AI's spending: budgets, reservations, a spend ledger and resets",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/guard-ai-spending/"
+          ],
+          "words": 0.115,
+          "near": false
+        },
+        {
+          "capability": "say whether a captured text was already seen, exactly or nearly, before it is kept or uploaded, and forget what was seen in an erased span",
+          "repository": "trillion-workshop",
+          "owner": [
+            "tools/tell-a-repeated-capture-from-a-new-one/"
+          ],
+          "words": 0.115,
+          "near": false
+        }
+      ],
+      "code_patterns": [
+        "uploadFromFolder|makeGuardedUploads|checkSlot|guarded.upload"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion",
+          "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
+        },
+        {
+          "repository": "trillion-rust",
+          "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+        },
+        {
+          "repository": "trillion-workshop",
+          "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+        },
+        {
+          "repository": "trillion-site",
+          "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+        },
+        {
+          "repository": "trillion-launch-video",
+          "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+        },
+        {
+          "repository": "bitfield-packages",
+          "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
+        }
+      ]
+    }
+  },
+  "private_evidence_reference": {
+    "kind": "private_original_command_evidence",
+    "conversation_id": "01a1b8e6-7a28-7fb3-9f68-0858a6e3bfbc",
+    "ordinals": [
+      623,
+      636,
+      647,
+      658,
+      674,
+      720,
+      735
+    ],
+    "scope": "Complete original broad and identifier six-repository search stdout streams and both native capability query outputs; private where fields remain there before this public projection. The identifier query is re-run by the contract reader; the broader discovery evidence and all its distinctions are retained."
+  }
+}
