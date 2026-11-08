@@ -1,0 +1,17 @@
+  async spaceEvents({ relay, community_id: id, holds = [], from = null, to = null }) {
+    const community = this.readCommunity(id);
+    const member = this.activeMember(community, relay, holds);
+    if (!seesMeetings(community.config, member)) return { space_id: id, title: community.config.title, events: [] };
+    const start = at(from) ?? '0000';
+    const end = at(to) ?? '9999';
+    const rows = this.sql.exec("SELECT id, title, about, starts_at, ends_at, created_by FROM memberships WHERE parent_id = ? AND label = 'event' AND starts_at < ? AND COALESCE(ends_at, starts_at) >= ? ORDER BY starts_at", id, end, start).toArray();
+    const mayPutOn = member && rows.length ? Boolean((await this.mayIn(this.sql.exec('SELECT id, label, title, about, created_by, created_at FROM memberships WHERE id = ?', id).toArray()[0], relay, ['put_on_events'])).put_on_events) : false;
+    return {
+      space_id: id, title: community.config.title,
+      events: rows.map(row => ({
+        event_id: row.id, title: row.title, about: row.about, starts_at: row.starts_at, ends_at: row.ends_at,
+        you_are_going: member ? this.isMemberNow(row.id, relay) : false,
+        may_move: mayPutOn || row.created_by === relay,
+      })),
+    };
+  },

@@ -1,0 +1,16 @@
+  async createEvent({ relay, community_id: id, holds = [], title, about = null, starts_at: startsAt, ends_at: endsAt = null, size_limit: sizeLimit = null, repeats = null }) {
+    const community = await this.checkedMay(id, relay, 'put_on_events', holds);
+    const times = this.eventTimes(at(startsAt) ?? (() => { throw new Error('starts_at is needed'); })(), at(endsAt), repeats);
+    const series = times.length > 1 ? newId('series') : null;
+    const now = new Date().toISOString();
+    const ids = times.map(time => {
+      const eventId = newId('event');
+      this.sql.exec("INSERT INTO memberships (id, label, title, about, starts_at, ends_at, size_limit, created_by, created_at, parent_id, series_id) VALUES (?, 'event', ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        eventId, text(title, 'A title', 200), typeof about === 'string' ? about.trim().slice(0, 2000) : null, time.starts_at, time.ends_at, Number.isInteger(sizeLimit) ? sizeLimit : null, relay, now, id, series);
+      return eventId;
+    });
+    this.spaceChanged(id, now);
+    // Each member it is for gets it on their own calendar (src/space-calendars.mjs), without holding this answer up.
+    this.tellEventCalendars(id, ids);
+    return { event_id: ids[0], ...(series ? { series_id: series, event_ids: ids } : {}) };
+  },

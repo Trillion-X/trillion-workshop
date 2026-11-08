@@ -1,0 +1,12 @@
+  async cancelEvent({ relay, community_id: id, holds = [], event_id: eventId }) {
+    const event = this.sql.exec("SELECT * FROM memberships WHERE id = ? AND parent_id = ? AND label = 'event'", eventId, id).toArray()[0];
+    if (!event) throw new Error('No event with that id in this space.');
+    if (event.created_by === relay) this.checkedMember(id, relay, holds);
+    else await this.checkedMay(id, relay, 'put_on_events', holds);
+    this.tellEventCalendars(id, [eventId], null, { cancelled: true });
+    this.sql.exec('DELETE FROM members WHERE membership_id = ?', eventId);
+    this.sql.exec('DELETE FROM memberships WHERE id = ?', eventId);
+    this.spaceChanged(id);
+    await this.tellMembersOfMeetingChange({ relay, space_id: id, change: 'cancelled', title: event.title });
+    return { event_id: eventId, cancelled: true };
+  },
