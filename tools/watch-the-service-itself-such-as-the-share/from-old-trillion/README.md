@@ -2,6 +2,8 @@
 
 Files of old trillion whose job is this tool's (watch the service itself, such as the share of calls each store failed and whether what landed on main went live, on its own schedule). They are the bytes of tag `old-trillion-before-worker-retire` (b6ae0ebf81), moved here unchanged under their old paths, so they import each other as they did; only import paths differ, where a file they import is already in this repository. `../moved-from.json` names each file's source path and commit and the BLAKE3 identity of its bytes there and here. Nothing here is wired into `tool-rows.json` yet: wiring a file is adapting it into this tool's own folders and rows, in a commit that names this receipt. A file that cannot load or pass here is held: its name ends in `.held` (the same bytes), and it runs again when what it imports is here.
 
+The unheld service-work guard tests remain active checks. Their counter reads maintained Git source trees rather than this archive's empty old source folders. `test/service-work-sources.json` records the audit scope; the canonical candidate's selected Git tree supplies its source, and the original repository's Git history supplies the shrinking baselines. The original eight shapes, allowance and four policy tests remain. Source/history failures are errors. This adaptation does not run held service code or grant a new allowance.
+
 | Old path | Here | Status |
 |---|---|---|
 | `src/service-watch.mjs` | `src/service-watch.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/resource-host.mjs (at the tag, not moved here yet), src/tool-run-call.mjs (at the tag, not moved here yet), src/own-record-resource.mjs (at the tag, not moved here yet), src/interactions.mjs (at the tag, not moved here yet) and 1 more |

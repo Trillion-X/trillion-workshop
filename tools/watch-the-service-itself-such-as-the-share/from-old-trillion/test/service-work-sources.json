@@ -1,0 +1,18 @@
+{
+  "_what": "Source-audit test evidence, not product selection DATA. The guard reads exact maintained Git source trees and the immutable original history; missing roots or history fail. The eight original shapes and shrinking allowance are unchanged.",
+  "read_by": "service-work-sources.mjs beside the retained guard tests",
+  "current_repository": "Trillion-X/trillion-workshop",
+  "current_package": "trillion-workshop",
+  "history_repository": "Trillion-X/trillion",
+  "excluded_parts": ["from-old-trillion", "source-baselines", "test", "tests", "__tests__", "node_modules"],
+  "sources": [
+    { "repository": "Trillion-X/trillion-workshop", "folders": ["tools"], "capabilities": "capabilities.json", "anchors": [], "require_entry": true },
+    { "repository": "Trillion-X/trillion-apps", "folders": ["src", "parts", "computer", "web/src", "web/parts", "web/harness", "web/records"], "anchors": ["web/records/workshop-tray-tool-records.json"], "legacy_keys": {"web/records/workshop-tray-tool-records.json": "records/workshop-tray-tool-records.json"} },
+    { "repository": "Trillion-X/trillion-rust", "folders": ["src", "crates", "product"], "capabilities": "capabilities.json", "anchors": ["src/local_account/service_records.rs"] }
+  ],
+  "scope_evidence": [
+    "The declared Apps source root holds app composition and the report-recipient DATA; its exact old allowance key follows that same row into web/records without raising its count.",
+    "Workshop capability rows own the moved tools. Held originals and source-baseline/test evidence are not live service source.",
+    "The native record capability explicitly owns src/local_account/service_records.rs. No old Worker or PersonStore is restored."
+  ]
+}

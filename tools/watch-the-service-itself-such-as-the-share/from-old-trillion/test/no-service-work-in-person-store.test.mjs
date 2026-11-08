@@ -21,9 +21,9 @@
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation, or from loosening the rule it states.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { serviceWorkCounts } from './service-work-counts.mjs';
+import { serviceWorkHistory } from './service-work-sources.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const ALLOWANCE = 'test/service-work-allowance.json';
@@ -32,27 +32,26 @@ const allowance = () => JSON.parse(readFileSync(`${root}/${ALLOWANCE}`, 'utf8'))
 // The shapes the first allowance was measured with, before allowances named them.
 const FIRST_PATTERNS = ['operator-store', 'operator-person-get', 'operator-person-for'];
 const SHAPES = 'test/service-work-shapes.json';
-const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+const git = args => serviceWorkHistory(args);
 const patternsOf = recorded => recorded.patterns ?? FIRST_PATTERNS;
 // The first allowance recorded with each set of shapes (oldest commit first): every one keeps binding the counts of its
 // own shapes, so widening the measurement starts a baseline for the new shapes and never frees the old ones.
 const recordedBaselines = () => {
-  try {
     const baselines = new Map();
-    for (const commit of git(['log', '--reverse', '--format=%H', '--', ALLOWANCE]).trim().split('\n').filter(Boolean)) {
+    const commits = git(['log', '--all', '--reverse', '--format=%H', '--', ALLOWANCE]).trim().split('\n').filter(Boolean);
+    assert.ok(commits.length, 'the original allowance history must be available');
+    for (const commit of commits) {
       const recorded = JSON.parse(git(['show', `${commit}:${ALLOWANCE}`]));
       const key = JSON.stringify(patternsOf(recorded));
       if (!baselines.has(key)) baselines.set(key, { patterns: patternsOf(recorded), files: recorded.files });
     }
     return [...baselines.values()];
-  } catch { return []; }
 };
 // The shapes as first recorded: every one of them must still be read exactly as it was, so a measurement only widens.
 const firstShapes = () => {
-  try {
-    const added = git(['log', '--diff-filter=A', '--format=%H', '--', SHAPES]).trim().split('\n').filter(Boolean).at(-1);
-    return added ? JSON.parse(git(['show', `${added}:${SHAPES}`])) : null;
-  } catch { return null; }
+    const added = git(['log', '--all', '--diff-filter=A', '--format=%H', '--', SHAPES]).trim().split('\n').filter(Boolean).at(-1);
+    assert.ok(added, 'the original shape history must be available');
+    return JSON.parse(git(['show', `${added}:${SHAPES}`]));
 };
 const firstRecordedShapes = () => firstShapes()?.patterns ?? null;
 const firstRecordedFolders = () => firstShapes()?.folders ?? null;
@@ -77,7 +76,7 @@ test('the allowance names the shapes it was measured with, and the shapes only w
   const shapes = JSON.parse(readFileSync(`${root}/${SHAPES}`, 'utf8')).patterns;
   assert.deepEqual(JSON.parse(readFileSync(`${root}/${ALLOWANCE}`, 'utf8')).patterns, shapes.map(shape => shape.id), 'name every shape the counts were read with');
   const first = firstRecordedShapes();
-  if (!first) return;
+  assert.ok(first, 'the original shapes must be available');
   const now = new Map(shapes.map(shape => [shape.id, JSON.stringify(shape)]));
   assert.deepEqual(first.filter(shape => now.get(shape.id) !== JSON.stringify(shape)).map(shape => shape.id), [], 'a shape once read is never removed or narrowed');
   const folders = JSON.parse(readFileSync(`${root}/${SHAPES}`, 'utf8')).folders;
@@ -88,7 +87,7 @@ test('the allowance only shrinks from what was first recorded', () => {
   // Each baseline bounds the counts of the shapes it was measured with; today's allowance never exceeds its own first one.
   const raised = [];
   for (const baseline of recordedBaselines()) {
-    for (const [file, count] of Object.entries(serviceWorkCounts(root, { only: baseline.patterns }))) {
+    for (const [file, count] of Object.entries(serviceWorkCounts(undefined, { only: baseline.patterns }))) {
       if (count > (baseline.files[file]?.count ?? 0)) raised.push(`${file}: ${count} by ${baseline.patterns.join(', ')} exceeds first recorded ${baseline.files[file]?.count ?? 'nothing'}`);
     }
   }
