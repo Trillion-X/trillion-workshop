@@ -29,7 +29,8 @@
   ],
   "allowed_deltas": [
     "Adapt the command boundary for the Workshop tool row after the exact byte-copy baseline.",
-    "Use the declared shared content identity owner for new internal plan identities."
+    "Use the declared shared content identity owner for new internal plan identities.",
+    "Require caller-supplied formats instead of shipping the original request's preset DATA; test examples are synthetic."
   ],
   "banned_substitutions": [
     "A rewrite in place of the retained source.",
@@ -47,7 +48,8 @@
     "test_refs": [
       "tools/generate-content-drafts/test/presentation-input-contract.test.mjs",
       "tools/generate-content-drafts/test/presentation-readiness.test.mjs",
-      "tools/generate-content-drafts/do-work/__tests__/media-classify.test.mjs"
+      "tools/generate-content-drafts/do-work/__tests__/media-classify.test.mjs",
+      "tools/generate-content-drafts/test/workshop-rows.test.mjs"
     ],
     "required_mechanisms": [
       "compilePresentationPlan",

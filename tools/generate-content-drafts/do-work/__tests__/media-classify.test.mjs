@@ -18,7 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const SCRIPT = join(here, '..', 'media-classify.mjs');
 
 function classify(extra) {
-  const stdout = execFileSync(process.execPath, [SCRIPT, ...extra], { encoding: 'utf8' });
+  const stdout = execFileSync(process.execPath, [SCRIPT, '--rules', join(here, '../../test/fixtures/classify-rules.json'), ...extra], { encoding: 'utf8' });
   return JSON.parse(stdout.trim().split('\n').at(-1));
 }
 
@@ -55,7 +55,7 @@ test('adding a rule is one DATA row — a synthetic rules file changes selection
   const { tmpdir } = await import('node:os');
   const dir = mkdtempSync(join(tmpdir(), 'classify-'));
   const rulesFile = join(dir, 'rules.json');
-  const liveExecution = JSON.parse(readFileSync(join(here, '..', '..', 'classify-rules.json'), 'utf8')).execution;
+  const liveExecution = JSON.parse(readFileSync(join(here, '../../test/fixtures/classify-rules.json'), 'utf8')).execution;
   writeFileSync(rulesFile, JSON.stringify({
     execution: liveExecution,
     rules: [{ when: { hologram: true }, definition: 'action:style-hologram' }],

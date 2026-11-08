@@ -20,6 +20,7 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export function compilePresentationPlan(material, formatId, formatDocument) {
+if (!formatDocument || !Array.isArray(formatDocument.formats)) fail("formats must contain a formats array");
 const format = (formatDocument.formats ?? []).find((candidate) => candidate.id === formatId);
 if (!format) fail(`unknown format "${formatId}"`);
 
@@ -206,7 +207,7 @@ function required(arguments_, name) {
   const value = arguments_.get(name);
   if (typeof value !== "string" || value.trim().length === 0) {
     console.error(
-      "usage: compile-presentation-plan.mjs --material <json> --format <id> --out <json> [--formats <json>]",
+      "usage: compile-presentation-plan.mjs --material <json> --format <id> --formats <json> --out <json>",
     );
     process.exit(2);
   }
@@ -221,7 +222,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   try {
     if (process.argv.includes("--json")) {
       const input = JSON.parse(readFileSync(0, "utf8"));
-      const formats = input.formats ?? JSON.parse(readFileSync(new URL("../presentation-formats.json", import.meta.url), "utf8"));
+      const formats = input.formats;
       console.log(JSON.stringify({ result: compilePresentationPlan(input.material, input.format_id, formats) }));
     } else {
     const arguments_ = new Map();
@@ -231,7 +232,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const materialPath = required(arguments_, "material");
     const formatId = required(arguments_, "format");
     const outputPath = required(arguments_, "out");
-    const formatsPath = arguments_.get("formats") ?? new URL("../presentation-formats.json", import.meta.url);
+    const formatsPath = required(arguments_, "formats");
     const material = JSON.parse(readFileSync(materialPath, "utf8"));
     const plan = compilePresentationPlan(material, formatId, JSON.parse(readFileSync(formatsPath, "utf8")));
     mkdirSync(dirname(outputPath), { recursive: true });

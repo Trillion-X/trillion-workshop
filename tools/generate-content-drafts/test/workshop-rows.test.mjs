@@ -118,6 +118,20 @@ test('deterministic container selection never executes caller-supplied AI argv',
   });
 });
 
+test('rows require caller DATA and never recover an absent document from old presets', () => {
+  const compiler = rows.find(row => row.id === 'tool:compile-a-presentation-plan');
+  const classifier = rows.find(row => row.id === 'tool:choose-a-content-style');
+  for (const [row, input, message] of [[compiler, { material, format_id: format.id }, /formats must contain/],
+    [classifier, { shape: {} }, /rules must be an object/]]) {
+    packaged(row, root => {
+      const result = runRow(row, input, root);
+      assert.equal(result.status, 1);
+      assert.match(result.stderr, message);
+      assert.equal(result.stdout, '');
+    });
+  }
+});
+
 test('the authorized local classifier accepts one complete definition and rejects ambiguous text', () => {
   const root = mkdtempSync(join(tmpdir(), 'content-local-ai-'));
   try {

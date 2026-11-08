@@ -26,13 +26,14 @@
         "id": "tool:compile-a-presentation-plan",
         "label": "Compile a presentation plan",
         "job": "Compile source material and a selected format into a presentation plan with its claims and setup requirements",
-        "description": "Give material (id, title, claims and fields), format_id and optionally formats (a document with a formats array). Returns rendered beats, the unchanged claim snapshot, source references, capabilities and setup requirements. Missing fields and claims are refused together. It neither saves the plan nor grants recording or publication authority.",
+        "description": "Give material (id, title, claims and fields), format_id and formats (a document with a formats array). Returns rendered beats, the unchanged claim snapshot, source references, capabilities and setup requirements. Missing fields and claims are refused together. It neither saves the plan nor grants recording or publication authority.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
             "material",
-            "format_id"
+            "format_id",
+            "formats"
           ],
           "properties": {
             "material": {
@@ -76,9 +77,7 @@
               {
                 "package": "generate-content-drafts",
                 "paths": [
-                  "do-work",
-                  "classify-rules.json",
-                  "presentation-formats.json"
+                  "do-work"
                 ],
                 "at": "/opt/parts/generate-content-drafts"
               },
@@ -228,9 +227,7 @@
               {
                 "package": "generate-content-drafts",
                 "paths": [
-                  "do-work",
-                  "classify-rules.json",
-                  "presentation-formats.json"
+                  "do-work"
                 ],
                 "at": "/opt/parts/generate-content-drafts"
               }
@@ -284,12 +281,13 @@
         "id": "tool:choose-a-content-style",
         "label": "Choose a content style",
         "job": "Choose a content style manually or from ordered rules for the supplied media shape",
-        "description": "Give shape (the available input properties), optionally rules (the rules document), mode (manual or rule), and definition for manual selection. Returns the first matching definition, mode and unchanged shape. The container row runs no local AI or caller-supplied program. An unmatched rule reports local_ai_required; authorized local CLI callers retain the original AI mode with their rules file.",
+        "description": "Give shape (the available input properties), rules (the rules document), optionally mode (manual or rule), and definition for manual selection. Returns the first matching definition, mode and unchanged shape. The container row runs no local AI or caller-supplied program. An unmatched rule reports local_ai_required; authorized local CLI callers retain the original AI mode with their rules file.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "shape"
+            "shape",
+            "rules"
           ],
           "properties": {
             "shape": {
@@ -334,9 +332,7 @@
               {
                 "package": "generate-content-drafts",
                 "paths": [
-                  "do-work",
-                  "classify-rules.json",
-                  "presentation-formats.json"
+                  "do-work"
                 ],
                 "at": "/opt/parts/generate-content-drafts"
               }
@@ -354,6 +350,10 @@
               "shape": {
                 "video": true,
                 "audio": true
+              },
+              "rules": {
+                "execution": { "default_mode": "rule" },
+                "rules": [{ "when": { "video": true, "audio": true }, "definition": "action:sample-video" }]
               }
             },
             "output_selector": "$.mode",

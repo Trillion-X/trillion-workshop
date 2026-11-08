@@ -1,0 +1,7 @@
+{
+  "execution": { "default_mode": "rule", "timeout_ms": 1000 },
+  "rules": [
+    { "when": { "video": true, "audio": true }, "definition": "action:style-talking-head-aroll-slides" },
+    { "when": { "video": false, "audio": true }, "definition": "action:style-audio-slides-dominant" }
+  ]
+}

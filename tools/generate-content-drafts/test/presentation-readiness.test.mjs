@@ -8,7 +8,7 @@ import { join } from "node:path";
 const packageDirectory = new URL("..", import.meta.url).pathname;
 const compiler = join(packageDirectory, "do-work", "compile-presentation-plan.mjs");
 const evaluator = join(packageDirectory, "do-work", "evaluate-presentation-readiness.mjs");
-const formats = join(packageDirectory, "presentation-formats.json");
+const formats = join(packageDirectory, "test", "fixtures", "presentation-formats.json");
 
 function makePlan(directory) {
   const materialPath = join(directory, "material.json");
@@ -31,7 +31,7 @@ function makePlan(directory) {
   execFileSync(process.execPath, [
     compiler,
     "--material", materialPath,
-    "--format", "F57-SOLO",
+    "--format", "sample-video",
     "--formats", formats,
     "--out", planPath,
   ], { encoding: "utf8" });

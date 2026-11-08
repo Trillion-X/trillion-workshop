@@ -22,10 +22,8 @@
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const here = dirname(fileURLToPath(import.meta.url));
 export function chooseContentStyle(shape, rulesDoc, options = {}) {
 if (!shape || typeof shape !== 'object' || Array.isArray(shape)) throw new Error('shape must be an object');
 if (!rulesDoc || typeof rulesDoc !== 'object' || Array.isArray(rulesDoc)) throw new Error('rules must be an object');
@@ -37,6 +35,7 @@ if (!MODE) {
 if (!['manual', 'rule', 'ai'].includes(MODE)) throw new Error(`unknown execution mode ${MODE}`);
 
 function emit(definition, mode) {
+  if (typeof definition !== 'string' || !definition.trim()) throw new Error('selected definition must be nonempty text');
   return { definition, mode, shape };
 }
 
@@ -100,9 +99,10 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     const args = new Map();
     for (let i = 2; !jsonMode && i < process.argv.length; i += 2) args.set(process.argv[i].replace(/^--/, ''), process.argv[i + 1]);
     const input = jsonMode ? JSON.parse(readFileSync(0, 'utf8')) : {};
-    const RULES_PATH = args.get('rules') ?? join(here, '..', 'classify-rules.json');
+    const RULES_PATH = args.get('rules');
     const shape = jsonMode ? input.shape : JSON.parse(args.get('shape') ?? '{}');
-    const rulesDoc = input.rules ?? JSON.parse(readFileSync(RULES_PATH, 'utf8'));
+    if (!jsonMode && !RULES_PATH) throw new Error('--rules must name the authorized rules DATA file');
+    const rulesDoc = jsonMode ? input.rules : JSON.parse(readFileSync(RULES_PATH, 'utf8'));
     const result = chooseContentStyle(shape, rulesDoc, {
       mode: input.mode ?? args.get('mode'), definition: input.definition ?? args.get('definition'),
       definitions: (args.get('definitions') ?? '').split(',').map((d) => d.trim()).filter(Boolean),

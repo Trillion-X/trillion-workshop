@@ -29,7 +29,9 @@
   ],
   "allowed_deltas": [
     "Adapt the command boundary for the Workshop tool row after the exact byte-copy baseline.",
-    "Use the declared shared content identity owner for new internal plan identities."
+    "Use the declared shared content identity owner for new internal plan identities.",
+    "Require caller-supplied rule DATA and local command selection instead of the original default model command; tests use synthetic rule fixtures.",
+    "The deterministic container row refuses local command execution. The authorized local CLI retains AI selection and requires exactly one complete supplied definition in its answer."
   ],
   "banned_substitutions": [
     "A rewrite in place of the retained source.",
@@ -47,7 +49,8 @@
     "test_refs": [
       "tools/generate-content-drafts/test/presentation-input-contract.test.mjs",
       "tools/generate-content-drafts/test/presentation-readiness.test.mjs",
-      "tools/generate-content-drafts/do-work/__tests__/media-classify.test.mjs"
+      "tools/generate-content-drafts/do-work/__tests__/media-classify.test.mjs",
+      "tools/generate-content-drafts/test/workshop-rows.test.mjs"
     ],
     "required_mechanisms": [
       "chooseContentStyle",

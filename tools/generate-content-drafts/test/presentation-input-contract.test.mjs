@@ -64,7 +64,9 @@ check("non-text templates produce a contract error", () => {
 const materialArg = process.argv.indexOf("--material");
 if (materialArg >= 0) {
   const sourceMaterial = JSON.parse(readFileSync(process.argv[materialArg + 1], "utf8"));
-  const formats = JSON.parse(readFileSync("presentation-formats.json", "utf8"));
+  const formatsArg = process.argv.indexOf("--formats");
+  assert.ok(formatsArg >= 0, "supply the caller's --formats document");
+  const formats = JSON.parse(readFileSync(process.argv[formatsArg + 1], "utf8"));
   check("real source material reports the complete mismatch without inventing text", () => {
     assert.throws(() => compilePresentationPlan(sourceMaterial, "F57-TEXT", formats), error => {
       for (const field of ["title", "scene", "mechanism", "boundary", "ending"]) {
@@ -99,7 +101,9 @@ if (collectionArg >= 0) {
   });
   check("every selected format compiles without changing source material", () => {
     const before = JSON.stringify(selected);
-    const formats = JSON.parse(readFileSync("presentation-formats.json", "utf8"));
+    const formatsArg = process.argv.indexOf("--formats");
+    assert.ok(formatsArg >= 0, "supply the caller's --formats document");
+    const formats = JSON.parse(readFileSync(process.argv[formatsArg + 1], "utf8"));
     for (const id of new Set(Object.values(selected.requested_output_formats))) {
       const plan = compilePresentationPlan(sourceMaterial, id, formats);
       assert.ok(plan.beats.some(beat => beat.text.trim()));
