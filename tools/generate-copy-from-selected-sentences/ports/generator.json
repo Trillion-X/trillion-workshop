@@ -79,7 +79,7 @@
     "originality_ref": null,
     "active_target": {
       "path": "tools/generate-copy-from-selected-sentences/do-work/generate-listing-copies.mjs",
-      "multihash": "1f:93b8b2e67aa15bd84b74b4087bd9db5096d41d4519749cb1f8d9c8040915f6ff",
+      "multihash": "1f:eb12b77eba0f31e2e888ae201516a59cafc04c3a82dbaa50e4420b0530e27dfd",
       "archive_bytes_excluded": true,
       "method": "Trim lines and count source lines of at least 24 characters present in the active target line set. Baseline excluded.",
       "measurements": {

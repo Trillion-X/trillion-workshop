@@ -2,9 +2,9 @@
 // The source name is closed over so nested errors and block markers retain the caller's attribution.
 function renderer(SOURCE) {
   const blockMarks = id => [`<!-- how-to-start:${id} begin: written from ${SOURCE}; edit there -->`, `<!-- how-to-start:${id} end -->`];
-  
+
   const lookup = (source, path) => path.split('.').reduce((at, key) => (at === null || typeof at !== 'object' ? undefined : at[key]), source);
-  
+
   /** A sentence's words with every `{path.to.text}` replaced by the text at that path in the source. */
   function words(source, text, trail = []) {
     return text.replace(/\{([\w.]+)\}/g, (_, path) => {
@@ -14,7 +14,7 @@ function renderer(SOURCE) {
       return words(source, found, [...trail, path]);
     });
   }
-  
+
   /** The words of a `say` list: each entry a sentence id, or a list of ids kept together in one paragraph. */
   function say(source, ids, join, limit, where) {
     const one = id => {
@@ -26,7 +26,7 @@ function renderer(SOURCE) {
     if (limit && text.length > limit) throw new Error(`${where} is ${text.length} characters, over its limit of ${limit}.`);
     return text;
   }
-  
+
   /** One value of a `json` place: a literal, a `say`, a `from_json`, or the permissions with their reasons. */
   function value(source, node, read, where) {
     if (Array.isArray(node)) return node.map((item, index) => value(source, item, read, `${where}[${index}]`));
@@ -53,7 +53,7 @@ function renderer(SOURCE) {
     }
     return Object.fromEntries(Object.entries(node).map(([key, item]) => [key, value(source, item, read, `${where}.${key}`)]));
   }
-  
+
   /** `text` with the block called `id` replaced by `body` (markers kept, written when first needed). */
   function withBlock(text, id, body, file) {
     const [begin, end] = blockMarks(id);
@@ -62,12 +62,12 @@ function renderer(SOURCE) {
     if (start < 0 || stop < start) throw new Error(`${file} has no "${id}" block: put ${begin} and ${end} around where it goes.`);
     return `${text.slice(0, start)}${begin}\n${body}\n${text.slice(stop)}`;
   }
-  
+
   const setPath = (object, path, text) => {
     const parent = path.slice(0, -1).reduce((at, key) => at[key], object);
     parent[path.at(-1)] = text;
   };
-  
+
   /** Every selected copy as a Map. Pure: nothing is read or written outside the supplied reader. */
   function generate(source, read, outputs) {
     const ownedOutputs = new Set(outputs);
