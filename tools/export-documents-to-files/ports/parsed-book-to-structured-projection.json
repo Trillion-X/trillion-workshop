@@ -17,10 +17,12 @@
   "preserve": [
     "All Markdown parsing, inline normalization and independent source parity remain delegated to the existing export_markdown_book_to_word.py parse_markdown, _plain_inline and _check owners.",
     "Exact source identity is computed through the existing writing-gate bridge to tools/content-identity; no second identity implementation.",
-    "The adapter maps the existing Book block model to canonical structured-file tree DATA and ordered source-block/item bindings; literal text is copied exactly, list markers and nesting remain explicit, and rectangular table cell boundaries remain intact."
+    "The adapter maps the existing Book block model to canonical structured-file tree DATA and ordered source-block/item bindings; literal text is copied exactly, list markers and nesting remain explicit, and rectangular table cell boundaries remain intact.",
+    "Parser-owned paragraph and literal container indentation passes through the existing indent_level property and renderer rule path, without another Markdown lexer or renderer-specific manuscript branches."
   ],
   "allowed_deltas": [
-    "Add the missing Book-model-to-canonical-projection bridge within the current export owner; no second Markdown lexer, readback acquisition, runtime or renderer."
+    "Add the missing Book-model-to-canonical-projection bridge within the current export owner; no second Markdown lexer, readback acquisition, runtime or renderer.",
+    "Forward the maintained parser's container indentation for paragraph and literal blocks through the existing generic indent rule path; synthetic nested-list consumer tests check native Word indentation."
   ],
   "banned_substitutions": [
     "Claiming the untracked old Documents producer is committed source, assigning it an invented historical commit or asserting its readback-acquisition/reparser job has no prior owner.",
@@ -98,6 +100,15 @@
     }
   ],
   "proof": {
+    "container_repair_verification": {
+      "scope": "Synthetic source-bound projection and native Word indentation checks; no private manuscript fixture or final-delivery claim.",
+      "opposing_controls": [
+        "Blank-separated nested list paragraphs and relative fenced literals have independently specified semantic blocks and existing-renderer indentation.",
+        "Genuine top-level and list-relative indented code retain Markdown symbols, tab columns and literal whitespace.",
+        "The independent source checker rejects leaked fences, code/prose kind changes, wrong container indentation and wrong list nesting."
+      ],
+      "tests_passed": {"parser_and_docx": 42, "projection_and_consumers": 8, "private_layout_admission": 19, "source_verification": 20}
+    },
     "verification_scope": "Seven local synthetic projection/renderer tests and existing synthetic DOCX/PDF suites passed. This does not assert live Marketplace completeness, actual private artifact creation, all-page review, voice qualification or final delivery.",
     "search": {
       "phrasings": [

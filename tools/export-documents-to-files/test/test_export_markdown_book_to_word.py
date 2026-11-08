@@ -213,6 +213,64 @@ class ParserFidelityTests(unittest.TestCase):
             builder._check(parsed, source)
         return parsed
 
+    def test_blank_list_containers_have_relative_fences_and_paragraphs(self):
+        source = ("# Fixture\n\n- **Outer**\n\n  A **paragraph**.\n\n"
+                  "  + **Middle**\n\n    ```text\n      **literal**\n"
+                  "    - literal marker\n    ```\n\n    Middle continuation.\n\n"
+                  "    7) **Inner**\n\n       Deep **paragraph**.\n\n"
+                  "  - **Other**\n\nAfter.\n\n"
+                  "    ```text\n    - **genuine code**\n    ```\n")
+        # These blocks are an independently specified semantic oracle. In
+        # particular, the final four-space fence is literal indented code.
+        golden = builder.ParsedBook("Fixture", [
+            builder.Block("list", items=[(0, "**Outer**", False)], list_markers=["-"]),
+            builder.Block("paragraph", "A **paragraph**.", indent_level=1),
+            builder.Block("list", items=[(1, "**Middle**", False)], list_markers=["+"]),
+            builder.Block("code", "  **literal**\n- literal marker", indent_level=2),
+            builder.Block("paragraph", "Middle continuation.", indent_level=2),
+            builder.Block("list", items=[(2, "**Inner**", True)], list_markers=["7)"]),
+            builder.Block("paragraph", "Deep **paragraph**.", indent_level=3),
+            builder.Block("list", items=[(1, "**Other**", False)], list_markers=["-"]),
+            builder.Block("paragraph", "After."),
+            builder.Block("code", "```text\n- **genuine code**\n```"),
+        ])
+        self.assertEqual(builder.parse_markdown(source), golden)
+        self.check(source, golden)
+        for mutation in ("fence_leak", "paragraph_as_code", "container_indent", "list_depth"):
+            broken = copy.deepcopy(golden)
+            if mutation == "fence_leak":
+                broken.blocks[3].text = "```text\n" + broken.blocks[3].text + "\n```"
+            elif mutation == "paragraph_as_code":
+                broken.blocks[6].kind = "code"
+            elif mutation == "container_indent":
+                broken.blocks[3].indent_level = 0
+            else:
+                broken.blocks[5].items[0] = (0, "**Inner**", True)
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                self.check(source, broken)
+
+    def test_list_relative_indented_code_preserves_literal_markdown(self):
+        source = ("# Fixture\n\n- Parent\n\n      - **literal**\n"
+                  "        child_name\n\n  Normal **continuation**.\n")
+        golden = builder.ParsedBook("Fixture", [
+            builder.Block("list", items=[(0, "Parent", False)], list_markers=["-"]),
+            builder.Block("code", "- **literal**\n  child_name", indent_level=1),
+            builder.Block("paragraph", "Normal **continuation**.", indent_level=1),
+        ])
+        self.assertEqual(builder.parse_markdown(source), golden)
+        self.check(source, golden)
+
+    def test_tab_crossing_container_boundary_keeps_literal_remainder(self):
+        source = "# Fixture\n\n- Parent\n\n\t\t**literal**  \n\nOutside.\n\n  \t_raw_\n"
+        golden = builder.ParsedBook("Fixture", [
+            builder.Block("list", items=[(0, "Parent", False)], list_markers=["-"]),
+            builder.Block("code", "  **literal**  ", indent_level=1),
+            builder.Block("paragraph", "Outside."),
+            builder.Block("code", "_raw_"),
+        ])
+        self.assertEqual(builder.parse_markdown(source), golden)
+        self.check(source, golden)
+
     def test_fence_is_a_literal_block_and_does_not_consume_adjacent_prose(self):
         source = ("# Fixture\n\nBefore.\n```text\n  root_name\n    |-- **literal**\n"
                   "\t+-- `tick` _raw_\n\n# code heading\n- code item\n"

@@ -50,8 +50,8 @@ def project_source_snapshot(source_bytes, expected_identity, *, parsed=None):
             emit({"kind": "heading", "text": text, "level": block.level},
                  {"text": text, "heading_level": block.level}, source_index)
         elif block.kind == "code":
-            emit({"kind": "literal", "text": block.text},
-                 {"text": block.text, "text_mode": "literal"}, source_index)
+            emit({"kind": "literal", "text": block.text, "indent_level": block.indent_level},
+                 {"text": block.text, "text_mode": "literal", "indent_level": block.indent_level}, source_index)
         elif block.kind == "list":
             if len(block.list_markers) != len(block.items):
                 raise ValueError("Exact list marker provenance is required")
@@ -66,7 +66,8 @@ def project_source_snapshot(source_bytes, expected_identity, *, parsed=None):
             emit({"kind": "table", "rows": rows}, {}, source_index, rows=rows)
         elif block.kind in {"paragraph", "quote"}:
             text = plain(block.text)
-            emit({"kind": "paragraph", "text": text}, {"text": text}, source_index)
+            emit({"kind": "paragraph", "text": text, "indent_level": block.indent_level},
+                 {"text": text, "indent_level": block.indent_level}, source_index)
         else:
             raise ValueError(f"Structured target cannot preserve source kind {block.kind}")
     return {"schema": "documents-structured-file-projection-v1", "source_identity": identity,

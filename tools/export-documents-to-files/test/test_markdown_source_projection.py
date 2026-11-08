@@ -47,6 +47,32 @@ class SourceProjectionTests(unittest.TestCase):
         self.sections = RENDER["project"](self.projection["tree"], self.rules)
         self.literal = "\n  A → B\n\tC  D  \n\n  End\n"
 
+    def test_container_semantics_reach_existing_render_indent_path(self):
+        source = ("# Synthetic\n\n- **Outer**\n\n  - **Middle**\n\n"
+                  "    ```text\n      **literal**\n    - raw item\n    ```\n\n"
+                  "    A **continuation**.\n\n    - **Inner**\n\n"
+                  "      Deep **continuation**.\n\nAfter.\n").encode()
+        projection = PROJECT(source, identity(source))
+        expected = [
+            ("list_item", "- Outer", 0),
+            ("list_item", "- Middle", 1),
+            ("literal", "  **literal**\n- raw item", 2),
+            ("paragraph", "A continuation.", 2),
+            ("list_item", "- Inner", 2),
+            ("paragraph", "Deep continuation.", 3),
+            ("paragraph", "After.", 0),
+        ]
+        self.assertEqual([(b["kind"], b["text"], b.get("indent_level", 0))
+                          for b in projection["ordered_blocks"]], expected)
+        sections = RENDER["project"](projection["tree"], self.rules)
+        blocks = [b for section in sections for b in section["blocks"]]
+        self.assertEqual([(b["text"], b.get("indent_level", 0)) for b in blocks],
+                         [(text, indent) for _, text, indent in expected])
+        word = Document(BytesIO(RENDER["render_docx"]("Synthetic", sections, self.rules["formats"]["docx"])))
+        for text, indent in [(text, depth) for _, text, depth in expected if depth]:
+            paragraph = next(p for p in word.paragraphs if p.text == text)
+            self.assertEqual(paragraph.paragraph_format.left_indent.pt, indent * 18)
+
     def test_order_identity_markers_and_boundaries(self):
         self.assertEqual(self.projection["source_identity"], identity(SOURCE))
         self.assertEqual([b["kind"] for b in self.projection["ordered_blocks"]],

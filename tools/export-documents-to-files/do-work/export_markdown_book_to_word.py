@@ -38,6 +38,7 @@ class Block:
     ordered: bool = False
     items: list[tuple[int, str, bool]] = field(default_factory=list)
     list_markers: list[str] = field(default_factory=list)
+    indent_level: int = 0
 
 
 @dataclass
@@ -89,11 +90,28 @@ def _fence_start(line: str):
 
 
 def _code_indent(line: str) -> str | None:
-    if line.startswith("    "):
-        return line[4:]
-    if line.startswith("\t"):
-        return line[1:]
+    if _leading_columns(line) >= 4:
+        return _remove_columns(line, 4)
     return None
+
+
+def _leading_columns(line: str) -> int:
+    return len(re.match(r"^[ \t]*", line)[0].expandtabs(4))
+
+
+def _remove_columns(line: str, count: int) -> str:
+    """Remove container indentation, preserving tabs after that boundary."""
+    prefix = re.match(r"^[ \t]*", line)[0]
+    if count % 4 and "\t" in prefix:
+        # A shifted tab stop cannot retain its character representation and
+        # its columns simultaneously. Expand this leading prefix only.
+        return " " * max(0, len(prefix.expandtabs(4)) - count) + line[len(prefix):]
+    column = 0
+    for index, char in enumerate(line):
+        if column >= count or char not in " \t":
+            return " " * max(0, column - count) + line[index:]
+        column += 4 - column % 4 if char == "\t" else 1
+    return " " * max(0, column - count)
 
 
 def parse_markdown(text: str) -> ParsedBook:
@@ -101,13 +119,45 @@ def parse_markdown(text: str) -> ParsedBook:
     lines = text.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     blocks: list[Block] = []
     title = ""
+    containers: list[tuple[int, int]] = []  # marker column, item content column
+    last_list_line = -2
     i = 0
     while i < len(lines):
-        raw = lines[i]
+        original = lines[i]
+        raw = original
         line = raw.strip()
         if not line:
             i += 1
             continue
+        marker_match = re.match(r"^([ \t]*)([-*+]|\d+[.)])([ \t]+)(.*)$", original)
+        column = _leading_columns(original)
+        parents = [entry for entry in containers if entry[0] < column]
+        # The manuscript subset retains its existing two-column nested-list
+        # convention, including ordered markers wider than two columns.
+        list_start = bool(marker_match and (column <= 3 or parents
+                          and column >= parents[-1][0] + 2
+                          and column <= parents[-1][1] + 3))
+        if list_start:
+            containers = parents
+            content_column = len((marker_match[1] + marker_match[2] + marker_match[3]).expandtabs(4))
+            containers.append((column, content_column))
+            item = (column // 2, marker_match[4].strip(), marker_match[2][0].isdigit())
+            if blocks and blocks[-1].kind == "list" and last_list_line == i - 1:
+                block = blocks[-1]
+            else:
+                block = Block("list")
+                blocks.append(block)
+            block.items.append(item)
+            block.list_markers.append(marker_match[2])
+            last_list_line = i
+            i += 1
+            continue
+        while containers and column < containers[-1][1]:
+            containers.pop()
+        base = containers[-1][1] if containers else 0
+        raw = _remove_columns(original, base)
+        line = raw.strip()
+        block_indent = base // 2
         fence = _fence_start(raw)
         if fence:
             marker = fence.group(1)
@@ -115,23 +165,31 @@ def parse_markdown(text: str) -> ParsedBook:
             closing = re.compile(r"^ {0,3}" + re.escape(marker[0]) + "{" + str(len(marker)) + r",}\s*$")
             literal = []
             i += 1
-            while i < len(lines) and not closing.fullmatch(lines[i]):
+            while i < len(lines):
+                if lines[i].strip() and _leading_columns(lines[i]) < base:
+                    break
+                candidate = _remove_columns(lines[i], base)
+                if closing.fullmatch(candidate):
+                    i += 1
+                    break
                 # Markdown removes only the opening fence's indentation.
-                remove = min(indent, len(lines[i]) - len(lines[i].lstrip(" ")))
-                literal.append(lines[i][remove:])
+                remove = min(indent, len(candidate) - len(candidate.lstrip(" ")))
+                literal.append(candidate[remove:])
                 i += 1
-            blocks.append(Block("code", "\n".join(literal)))
-            i += int(i < len(lines))
+            blocks.append(Block("code", "\n".join(literal), indent_level=block_indent))
             continue
         if _code_indent(raw) is not None:
             literal = []
-            while i < len(lines) and (not lines[i].strip() or _code_indent(lines[i]) is not None):
-                value = _code_indent(lines[i])
+            while i < len(lines):
+                candidate = _remove_columns(lines[i], base)
+                if candidate.strip() and (_leading_columns(lines[i]) < base or _code_indent(candidate) is None):
+                    break
+                value = _code_indent(candidate)
                 literal.append(value if value is not None else "")
                 i += 1
             while literal and not literal[-1].strip():
                 literal.pop()
-            blocks.append(Block("code", "\n".join(literal)))
+            blocks.append(Block("code", "\n".join(literal), indent_level=block_indent))
             continue
         heading = re.match(r"^(#{1,6})\s+(.+?)(?:\s+#+)?\s*$", line)
         if heading:
@@ -158,21 +216,6 @@ def parse_markdown(text: str) -> ParsedBook:
                 i += 1
             blocks.append(Block("table", rows=rows))
             continue
-        if re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", line):
-            items: list[tuple[int, str, bool]] = []
-            markers: list[str] = []
-            while i < len(lines):
-                current = lines[i]
-                match = re.match(r"^(\s*)([-*+]\s+|\d+[.)]\s+)(.*)$", current)
-                if not match:
-                    break
-                indent = len(match.group(1).expandtabs(4))
-                is_ordered = bool(re.match(r"\d", match.group(2)))
-                items.append((indent // 2, match.group(3).strip(), is_ordered))
-                markers.append(match.group(2).rstrip())
-                i += 1
-            blocks.append(Block("list", items=items, list_markers=markers))
-            continue
         if line.startswith("> ") or line == ">":
             quote_lines = []
             while i < len(lines) and (lines[i].strip().startswith(">") or not lines[i].strip()):
@@ -185,13 +228,16 @@ def parse_markdown(text: str) -> ParsedBook:
         paragraph = [line]
         i += 1
         while i < len(lines) and lines[i].strip():
-            candidate = lines[i].strip()
-            if (_fence_start(lines[i]) or re.match(r"^#{1,6}\s", candidate) or candidate.startswith("|")
+            if _leading_columns(lines[i]) < base:
+                break
+            local = _remove_columns(lines[i], base)
+            candidate = local.strip()
+            if (_fence_start(local) or re.match(r"^#{1,6}\s", candidate) or candidate.startswith("|")
                     or re.match(r"^(?:[-*+]\s+|\d+[.)]\s+|>)", candidate)):
                 break
             paragraph.append(candidate)
             i += 1
-        blocks.append(Block("paragraph", " ".join(paragraph)))
+        blocks.append(Block("paragraph", " ".join(paragraph), indent_level=block_indent))
     return ParsedBook(title or "Manuscript", blocks)
 
 
@@ -630,22 +676,65 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
     source_headings: list[str] = []
     source_tables: list[list[list[str]]] = []
     source_code: list[str] = []
+    source_code_indents: list[int] = []
+    source_paragraph_indents: list[int] = []
     source_list_markers: list[list[str]] = []
+    source_list_depths: list[list[int]] = []
     has_title = False
     lines = source.replace("\r\n", "\n").replace("\r", "\n").split("\n")
     prose: list[str] = []
+    prose_indent = 0
+    item_columns: list[tuple[int, int]] = []
+    previous_item_line = -2
+    def source_view(value, offset):
+        # Independent coordinate walk, not the parser's indentation helpers.
+        whitespace = re.match(r"^[ \t]*", value)[0]
+        if offset % 4 != 0 and "\t" in whitespace:
+            return " " * max(0, len(whitespace.expandtabs(4)) - offset) + value[len(whitespace):]
+        position, column = 0, 0
+        while position < len(value) and column < offset and value[position] in " \t":
+            column = ((column // 4 + 1) * 4) if value[position] == "\t" else column + 1
+            position += 1
+        return " " * max(0, column - offset) + value[position:]
     def flush():
         if prose:
             expected.append(_plain_inline(" ".join(prose)))
+            source_paragraph_indents.append(prose_indent)
             prose.clear()
     i = 0
     while i < len(lines):
+        source_line_index = i
         line = lines[i]
         stripped = line.strip()
         i += 1
         if not stripped:
             flush()
             continue
+        leading = re.match(r"^[ \t]*", line)[0]
+        column = len(leading.expandtabs(4))
+        item = re.match(r"^([ \t]*)([-*+]|\d+[.)])([ \t]+)(.*)$", line)
+        ancestors = [entry for entry in item_columns if entry[0] < column]
+        is_item = item is not None and (column < 4 or bool(ancestors)
+                  and column - ancestors[-1][0] >= 2
+                  and column - ancestors[-1][1] <= 3)
+        if is_item:
+            flush()
+            item_columns = ancestors + [(column, len((item[1] + item[2] + item[3]).expandtabs(4)))]
+            if previous_item_line != source_line_index - 1:
+                source_list_markers.append([])
+                source_list_depths.append([])
+            source_list_markers[-1].append(item[2])
+            source_list_depths[-1].append(column // 2)
+            previous_item_line = source_line_index
+            expected.append(_plain_inline(item[4].strip()))
+            continue
+        while item_columns and column < item_columns[-1][1]:
+            item_columns.pop()
+        offset = item_columns[-1][1] if item_columns else 0
+        line = source_view(line, offset)
+        stripped = line.strip()
+        if prose and prose_indent != offset // 2:
+            flush()
         # This source scanner does not call the block parser or its fence and
         # indentation helpers: a broken parser must not define its own oracle.
         fence = re.match(r"^( {0,3})(`{3,}|~{3,})([^\n]*)$", line)
@@ -656,6 +745,9 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
             literal = []
             while i < len(lines):
                 candidate = lines[i]
+                if candidate.strip() and len(re.match(r"^[ \t]*", candidate)[0].expandtabs(4)) < offset:
+                    break
+                candidate = source_view(candidate, offset)
                 closing = candidate.lstrip(" ")
                 if (len(candidate) - len(closing) <= 3 and closing.rstrip()
                         and set(closing.rstrip()) == {fence[2][0]}
@@ -669,16 +761,18 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
                 i += 1
             value = "\n".join(literal)
             source_code.append(value)
+            source_code_indents.append(offset // 2)
             expected.append(value)
             continue
-        if not prose and (line.startswith("    ") or line.startswith("\t")):
-            literal = [line[1:] if line.startswith("\t") else line[4:]]
+        if not prose and len(re.match(r"^[ \t]*", line)[0].expandtabs(4)) >= 4:
+            literal = [source_view(line, 4)]
             while i < len(lines):
                 candidate = lines[i]
-                if candidate.startswith("\t"):
-                    literal.append(candidate[1:])
-                elif candidate.startswith("    "):
-                    literal.append(candidate[4:])
+                if candidate.strip() and len(re.match(r"^[ \t]*", candidate)[0].expandtabs(4)) < offset:
+                    break
+                candidate = source_view(candidate, offset)
+                if len(re.match(r"^[ \t]*", candidate)[0].expandtabs(4)) >= 4:
+                    literal.append(source_view(candidate, 4))
                 elif not candidate.strip():
                     literal.append("")
                 else:
@@ -688,6 +782,7 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
                 literal.pop()
             value = "\n".join(literal)
             source_code.append(value)
+            source_code_indents.append(offset // 2)
             expected.append(value)
             continue
         if stripped.startswith("|") and i < len(lines) and _is_table_separator(lines[i]):
@@ -707,18 +802,6 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
                 source_headings.append(heading_match[2])
             has_title = has_title or len(heading_match[1]) == 1
             expected.append(_plain_inline(heading_match[2]))
-        elif re.match(r"^(?:[-*+]\s+|\d+[.)]\s+)", stripped):
-            flush()
-            markers = [re.match(r"^([-*+]|\d+[.)])\s+", stripped)[1]]
-            expected.append(_plain_inline(re.sub(r"^(?:[-*+]\s+|\d+[.)]\s+)", "", stripped)))
-            # A nested item belongs to the uninterrupted list, even at four
-            # spaces. At a new block boundary that same indent remains code.
-            while i < len(lines) and re.match(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)", lines[i]):
-                markers.append(re.match(r"^\s*([-*+]|\d+[.)])\s+", lines[i])[1])
-                value = re.sub(r"^\s*(?:[-*+]\s+|\d+[.)]\s+)", "", lines[i]).strip()
-                expected.append(_plain_inline(value))
-                i += 1
-            source_list_markers.append(markers)
         elif stripped.startswith("> ") or stripped == ">":
             flush()
             quote = [re.sub(r"^\s*> ?", "", line).strip()]
@@ -729,6 +812,7 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
         else:
             if stripped.startswith("|"):
                 flush()
+            prose_indent = offset // 2
             prose.append(stripped)
     flush()
     if not has_title:
@@ -739,8 +823,14 @@ def _check(parsed: ParsedBook, source: str, *, report: bool = True) -> None:
         raise ValueError("Table count, row count, or cell boundaries differ from Markdown source")
     if source_list_markers != [block.list_markers for block in parsed.blocks if block.kind == "list"]:
         raise ValueError("List markers or list boundaries differ from Markdown source")
+    if source_list_depths != [[depth for depth, _, _ in block.items] for block in parsed.blocks if block.kind == "list"]:
+        raise ValueError("List nesting differs from Markdown source")
     if source_code != [block.text for block in parsed.blocks if block.kind == "code"]:
         raise ValueError("Literal code text or indentation differs from Markdown source")
+    if source_code_indents != [block.indent_level for block in parsed.blocks if block.kind == "code"]:
+        raise ValueError("Literal code container indentation differs from Markdown source")
+    if source_paragraph_indents != [block.indent_level for block in parsed.blocks if block.kind == "paragraph"]:
+        raise ValueError("Paragraph container indentation differs from Markdown source")
     expected_text = " ".join(expected)
     collapse = lambda value: re.sub(r"\s+", " ", value).strip()
     if collapse(actual) != collapse(expected_text):

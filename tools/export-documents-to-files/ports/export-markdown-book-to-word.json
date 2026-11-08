@@ -28,13 +28,15 @@
  ],
  "preserve": [
   "the Markdown subset parse (headings, GFM tables with escaped pipes, nested ordered and unordered lists, quotes, wrapped paragraphs) and the H1 title",
+  "List item content columns remain active across blank lines: continuation paragraphs and fences use container-relative indentation, while genuine top-level and list-relative indented code retain literal Markdown and whitespace. Exact list markers and nesting remain independently checked.",
   "inline projection keeps literal underscores, escaped delimiters and code text",
   "the template's styles; clickable contents with PAGEREF fields and BookHeadingN bookmarks; BookBody marker; footer page field; updateFields",
   "separate numbered lists restart; standalone emphasis labels keep with next; comparison signs drawn in Arial",
   "no DOCX without the writing gate and a current source snapshot; the saved DOCX is read back against the source"
  ],
  "allowed_deltas": [
-  "the manuscript, template and output come from arguments or the book's settings row (tools/settings); the gate is handed the settings and the checks receipt; the last line is one JSON answer"
+  "the manuscript, template and output come from arguments or the book's settings row (tools/settings); the gate is handed the settings and the checks receipt; the last line is one JSON answer",
+  "Repair container context in the maintained parser and independent source scanner; expose paragraph and literal container indentation through the existing Book model. This corrects four-space list content previously classified as top-level literal code and adds opposing synthetic semantic controls."
  ],
  "banned_substitutions": [
   "a DOCX written before the gate admits the exact bytes",
