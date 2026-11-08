@@ -236,8 +236,10 @@ export async function runRow(row, sampleInput, sample = {}) {
     const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
     // A sample may require the declared Python dependency environment. Keep its stand-in (which creates made-up
     // inputs) and hand it the verified interpreter explicitly; never put a dependency runtime into PATH.
-    if (sample.python_environment === true) {
-      const python = pythonForTests();
+    if (sample.python_environment !== undefined && sample.python_environment !== false) {
+      const profile = sample.python_environment === true ? 'default' : sample.python_environment;
+      if (typeof profile !== 'string') throw new Error('python_environment must name a declared profile or be a boolean');
+      const python = pythonForTests(profile);
       environment.WORKSHOP_TEST_PYTHON = python;
       if (argv[0] === 'python3' && !Object.hasOwn(standIns, 'python3')) argv[0] = python;
     }
