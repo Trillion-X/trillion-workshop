@@ -113,6 +113,7 @@
           ],
           "say": "This runs on the person's own computer from the root of the Workshop checkout, and changes a file in their home folder. Run inspect first and tell the person what apply would change; apply or remove only when they asked for it. Write the input as JSON to a file and pass it on standard input. Report the status and the file's path."
         },
+        "result_selector": "$.result",
         "maker": "maker:tell-ais-how-to-act",
         "licence_class": "licence:maker-own",
         "placements": [
