@@ -13,5 +13,7 @@ globalThis.fetch = async (url, init = {}) => {
   const headers = Object.fromEntries(Object.entries(init.headers ?? {}).map(([name, value]) => [name.toLowerCase(), String(value)]));
   appendFileSync(process.env.STUB_LOG, `${JSON.stringify({ url: String(url), method: init.method, headers, body: String(init.body ?? ''), argv: process.argv })}\n`);
   if (process.env.STUB_THROW_AFTER_REQUEST === '1') throw new Error('connection reset after request reached provider');
-  return new Response(reply.body, { status: reply.status });
+  const response = new Response(reply.body, { status: reply.status });
+  if (process.env.STUB_THROW_ON_RESPONSE_TEXT === '1') response.text = async () => { throw new Error('response body stream failed'); };
+  return response;
 };

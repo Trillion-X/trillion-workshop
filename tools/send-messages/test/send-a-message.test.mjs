@@ -31,12 +31,13 @@ after(() => rmSync(work, { recursive: true, force: true }));
 
 let counter = 0;
 // Runs the real adapter script with the stand-in fetch; returns what it would have sent.
-function stubbed(reply = { status: 200, body: '{}' }, { throwAfterRequest = false } = {}) {
+function stubbed(reply = { status: 200, body: '{}' }, { throwAfterRequest = false, throwOnResponseText = false } = {}) {
   const log = join(work, `requests-${counter += 1}.jsonl`);
   writeFileSync(log, '');
   const run = (provider, input, env) => runAdapter(provider, input, {
     ...env, NODE_OPTIONS: `--import=${stub}`, STUB_LOG: log, STUB_REPLY: JSON.stringify(reply),
     STUB_THROW_AFTER_REQUEST: throwAfterRequest ? '1' : '0',
+    STUB_THROW_ON_RESPONSE_TEXT: throwOnResponseText ? '1' : '0',
   });
   const requests = () => readFileSync(log, 'utf8').split('\n').filter(Boolean).map(line => JSON.parse(line));
   return { run, requests };
@@ -128,20 +129,22 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
     const row = JSON.parse(readFileSync(join(folder, 'tool-rows.json'), 'utf8')).records
       .map(record => record.payload).find(item => item.id === 'tool:send-a-text-with-twilio');
     assert.equal(row.input_schema.additionalProperties, false);
+    assert.equal(row.output_schema.properties.sent.items.properties.messageId.pattern, '^(SM|MM)[0-9a-fA-F]{32}$');
     for (const field of Object.keys(input)) {
       assert.equal(row.input_schema.properties[field]?.type, 'string', `the sign-in field ${field} is declared`);
     }
     for (const field of row.input_schema.required) assert.ok(Object.hasOwn(input, field), field);
-    const { run, requests } = stubbed({ status: 201, body: '{"sid":"SMcode1"}' });
+    const messageSid = `SM${'0'.repeat(32)}`;
+    const { run, requests } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
     const answer = await sendMessage(input, { providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run });
-    assert.equal(answer.sent[0].messageId, 'SMcode1');
+    assert.equal(answer.sent[0].messageId, messageSid);
     assert.deepEqual(Object.fromEntries(new URLSearchParams(requests()[0].body)), {
       From: input.from, To: input.to, Body: input.text,
     });
   });
 
   it('marks a connection loss after the request as unknown, not as a definite rejection', async () => {
-    const { run, requests } = stubbed({ status: 201, body: '{"sid":"SMaccepted"}' }, { throwAfterRequest: true });
+    const { run, requests } = stubbed({ status: 201, body: JSON.stringify({ sid: `SM${'1'.repeat(32)}` }) }, { throwAfterRequest: true });
     const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'Your code is 123456' }, {
       providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
     });
@@ -164,6 +167,44 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
     }
   });
 
+  it('accepts the documented SM and MM Message SID forms and rejects malformed or wrong-prefix ids as unknown', async () => {
+    for (const messageSid of [`SM${'a'.repeat(32)}`, `MM${'B'.repeat(32)}`]) {
+      const { run } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].messageId, messageSid);
+      assert.equal(answer.sent[0].unknown, undefined);
+    }
+    const malformed = [
+      ` SM${'a'.repeat(32)}`,
+      `SM${'a'.repeat(32)} `,
+      'not-a-sid',
+      `SM${'a'.repeat(31)}`,
+      `AC${'a'.repeat(32)}`,
+    ];
+    for (const messageSid of malformed) {
+      const { run } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].messageId, undefined, messageSid);
+      assert.equal(answer.sent[0].unknown, true, messageSid);
+      assert.match(answer.sent[0].error, /valid message SID/, messageSid);
+    }
+  });
+
+  it('keeps a body-read failure definite after an explicit client rejection, but unknown after success', async () => {
+    for (const [status, unknown] of [[400, false], [201, true]]) {
+      const { run } = stubbed({ status, body: '' }, { throwOnResponseText: true });
+      const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
+        providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      });
+      assert.equal(answer.sent[0].unknown, unknown ? true : undefined, String(status));
+      assert.match(answer.sent[0].error, /response could not be read/, String(status));
+    }
+  });
+
   it('keeps an explicit Twilio client rejection definite', async () => {
     const { run } = stubbed({ status: 400, body: '{"message":"Invalid To number"}' });
     const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
@@ -180,7 +221,7 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
     const answer = await sendMessage(input, {
       providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' },
       run: async () => ({ code: 0, stderr: '', stdout: JSON.stringify({ sent: [
-        { recipient: '+15550100', messageId: 'SMsent' },
+        { recipient: '+15550100', messageId: `SM${'2'.repeat(32)}` },
         { recipient: '+15550101', error: 'Twilio 400: Invalid To number' },
         { recipient: '+15550102', error: 'Twilio outcome unknown: fetch failed', unknown: true },
       ] }) }),
@@ -192,9 +233,10 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
   });
 
   it('sends a text with the account id, number and held token', async () => {
-    const { run, requests } = stubbed({ status: 201, body: '{"sid":"SM0001"}' });
+    const messageSid = `SM${'3'.repeat(32)}`;
+    const { run, requests } = stubbed({ status: 201, body: JSON.stringify({ sid: messageSid }) });
     const answer = await sendMessage({ recipients: ['+15550100'], from: '+15550199', account_sid: 'AC0000example', text: 'Running late' }, { providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run });
-    assert.equal(answer.sent[0].messageId, 'SM0001');
+    assert.equal(answer.sent[0].messageId, messageSid);
     const [request] = requests();
     assert.equal(request.url, 'https://api.twilio.com/2010-04-01/Accounts/AC0000example/Messages.json');
     assert.equal(request.headers.authorization, `Basic ${Buffer.from('AC0000example:test-token-twilio').toString('base64')}`);

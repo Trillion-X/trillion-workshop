@@ -249,7 +249,7 @@
           "required": ["provider", "sent", "said"],
           "properties": {
             "provider": { "type": "string" },
-            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string" }, "error": { "type": "string" }, "unknown": { "type": "boolean" } } } },
+            "sent": { "type": "array", "items": { "type": "object", "required": ["recipient"], "properties": { "recipient": { "type": "string" }, "messageId": { "type": "string", "pattern": "^(SM|MM)[0-9a-fA-F]{32}$" }, "error": { "type": "string" }, "unknown": { "type": "boolean" } } } },
             "said": { "type": "string" }
           }
         },
@@ -271,7 +271,7 @@
         "licence_class": "licence:maker-own",
         "placements": ["placement:your-computer"],
         "provenance": { "source": "bitfield-packages broadcast-delivery (Twilio text adapter), ported" },
-        "verify": [{"kind": "sample-run", "input": {"to": "+15550100101", "from": "+15550100100", "account_sid": "ACsample00000000000000000000000000", "text": "Hello there"}, "replies": [{"request": {"method": "POST", "url": "https://api.twilio.com/2010-04-01/Accounts/ACsample00000000000000000000000000/Messages.json"}, "status": 201, "body": {"sid": "SMsample00000000000000000000000000", "account_sid": "ACsample00000000000000000000000000", "status": "queued", "to": "+15550100101", "from": "+15550100100", "body": "Hello there"}}], "shape_read_at": "2026-11-03"}]
+        "verify": [{"kind": "sample-run", "input": {"to": "+15550100101", "from": "+15550100100", "account_sid": "AC00000000000000000000000000000000", "text": "Hello there"}, "replies": [{"request": {"method": "POST", "url": "https://api.twilio.com/2010-04-01/Accounts/AC00000000000000000000000000000000/Messages.json"}, "status": 201, "body": {"sid": "SM00000000000000000000000000000000", "account_sid": "AC00000000000000000000000000000000", "status": "queued", "to": "+15550100101", "from": "+15550100100", "body": "Hello there"}}], "shape_read_at": "2026-11-03"}]
       }
     },
     {

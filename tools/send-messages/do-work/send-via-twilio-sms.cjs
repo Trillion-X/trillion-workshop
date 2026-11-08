@@ -74,10 +74,10 @@ async function sendViaTwilioSms(input) {
       continue;
     }
 
-    if (typeof parsed?.sid !== "string" || parsed.sid === "") {
+    if (typeof parsed?.sid !== "string" || !/^(SM|MM)[0-9a-fA-F]{32}$/.test(parsed.sid)) {
       results.push({
         recipient,
-        error: `Twilio ${response.status}: response did not contain a message SID`,
+        error: `Twilio ${response.status}: response did not contain a valid message SID`,
         unknown: true
       });
       continue;
