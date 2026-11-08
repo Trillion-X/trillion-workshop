@@ -10,9 +10,97 @@
 //
 // Every answer says `complete: false` when a bound in record-graph.json cut it (rows not read, records not visited,
 // steps not taken), so what is not shown reads as not known yet, never as absent. Nothing here writes.
-import { MODEL, listBounded, activityRows, object } from './graph-records.mjs';
+import { MODEL, listBounded, activityRows, object, word } from './graph-records.mjs';
 
 const order = (a, b) => a.to < b.to ? -1 : a.to > b.to ? 1 : a.by < b.by ? -1 : a.by > b.by ? 1 : a.side < b.side ? -1 : a.side > b.side ? 1 : 0;
+
+// The two projections (door walks and a supplied record feed) share this topology.
+// An activity keeps its own identity as a hub, never a pairwise expansion.
+function relationSteps(id, value, { roles = null, ended = false } = {}) {
+  if (!word(id) || !object(value) || !word(value.subject) || !word(value.object) || !word(value.role)
+    || (!ended && value.alive === false) || (roles && !roles.includes(value.role))) return [];
+  return [
+    { from: value.subject, to: value.object, by: id, kind: 'relation', role: value.role, side: 'subject' },
+    { from: value.object, to: value.subject, by: id, kind: 'relation', role: value.role, side: 'object' },
+  ];
+}
+
+function activitySteps(id, value, { kinds = null, activities = true } = {}, model = MODEL) {
+  if (!activities || !word(id) || !object(value) || !Array.isArray(value.participants)
+    || (kinds && !kinds.includes(value.kind))) return { steps: [], complete: true, participants: [] };
+  const participants = value.participants.slice(0, model.activities.participants_most);
+  const steps = participants.flatMap(part => {
+    if (!object(part) || !word(part.record)) return [];
+    const role = word(part.role) ? part.role : 'participant';
+    return [
+      { from: part.record, to: id, by: id, kind: 'activity', role, side: 'participant' },
+      { from: id, to: part.record, by: id, kind: 'activity', role, side: 'activity' },
+    ];
+  });
+  return { steps, participants, complete: participants.length === value.participants.length };
+}
+
+/** Pure record-feed projection, over the same DATA and topology as loadGraph.
+ * Input is records-door {id,type,value}, or scoped-feed {address,payload} with
+ * an explicit type on the row or its payload (type/kind). No descriptor grammar
+ * or identity inference from an address. Only actual supplied records become
+ * nodes; absent endpoints remain references for the consumer's missing-record
+ * view. Each category is bounded by graph.scan_most, with complete:false on a cut.
+ * A producer can supply {records: rows, complete:false} to carry an upstream cut.
+ * Completeness concerns this supplied scope, never the whole account.
+ * No I/O and no writes. Extra record fields stay opaque attributes. */
+export function projectGraphRecords(rows, options = {}, model = MODEL) {
+  const records = new Map(), relations = new Map(), activities = new Map();
+  const source = Array.isArray(rows) ? rows : object(rows) && Array.isArray(rows.records) ? rows.records : [];
+  let complete = !(object(rows) && rows.complete === false);
+  const supplied = new Set();
+  for (const row of source) {
+    if (!object(row)) continue;
+    const value = row.value ?? row.payload ?? row.record;
+    const id = word(row.id) ?? word(row.address);
+    if (!id || !object(value) || supplied.has(id)) continue;
+    if ((word(row.id) && word(row.address) && row.id !== row.address)
+      || (word(row.type) && word(value.type) && row.type !== value.type)) { complete = false; continue; }
+    const type = word(row.type) ?? word(value.type) ?? word(value.kind);
+    if (!type) { complete = false; continue; }
+    // Match the door's role/kind filtering before applying its per-kind bound.
+    if (type === model.relations.type && options.roles && !options.roles.includes(value.role)) continue;
+    if (type === model.activities.type && (options.activities === false || (options.kinds && !options.kinds.includes(value.kind)))) continue;
+    const target = type === model.relations.type ? relations : type === model.activities.type ? activities : records;
+    if (target.has(id)) continue;
+    if (target.size >= model.graph.scan_most) { complete = false; continue; }
+    supplied.add(id);
+    target.set(id, value);
+  }
+  const nodes = new Map(), connections = [];
+  const keepRecord = id => {
+    if (records.has(id) && !nodes.has(id)) nodes.set(id, { id, attributes: records.get(id) });
+  };
+  for (const [id, value] of relations) {
+    const steps = relationSteps(id, value, options);
+    if (!steps.length) continue;
+    keepRecord(value.subject); keepRecord(value.object);
+    connections.push({ id, endpoints: [{ node_id: value.subject, role: 'subject' }, { node_id: value.object, role: 'object' }],
+      attributes: { ...value, relation: value.role } });
+  }
+  for (const [id, value] of activities) {
+    const activity = activitySteps(id, value, options, model);
+    complete &&= activity.complete;
+    const steps = activity.steps.filter(step => step.side === 'activity' && step.to !== id);
+    if (!steps.length) continue;
+    nodes.set(id, { id, attributes: { ...value, participants: activity.participants, label: word(value.label) ?? word(value.summary) ?? word(value.kind) ?? id } });
+    const seen = new Set();
+    for (const step of steps) {
+      const key = JSON.stringify([step.to, step.role]);
+      if (seen.has(key)) continue;
+      seen.add(key); keepRecord(step.to);
+      connections.push({ id: `${id}:participant:${seen.size - 1}`,
+        endpoints: [{ node_id: id, role: 'activity' }, { node_id: step.to, role: step.role }],
+        attributes: { kind: value.kind, role: step.role } });
+    }
+  }
+  return { nodes: [...nodes.values()], connections, complete, read: { relations: relations.size, activities: activities.size, records: records.size } };
+}
 
 /** Reads the graph: { edges: Map<record id, [{ to, by, kind, role, side }]>, complete, read: { relations, activities } }.
  *  roles keeps only relations of these roles; kinds only activities of these kinds; ended keeps ended relations too;
@@ -34,10 +122,7 @@ export async function loadGraph(door, { roles = null, kinds = null, ended = fals
     if (!page.complete) { complete = false; break; }
   }
   for (const { id, value } of relations) {
-    if (!object(value) || typeof value.subject !== 'string' || typeof value.object !== 'string' || typeof value.role !== 'string') continue;
-    if (!ended && value.alive === false) continue;
-    add(value.subject, { to: value.object, by: id, kind: 'relation', role: value.role, side: 'subject' });
-    add(value.object, { to: value.subject, by: id, kind: 'relation', role: value.role, side: 'object' });
+    for (const { from, ...edge } of relationSteps(id, value, { roles, ended })) add(from, edge);
   }
   let happened = [];
   if (activities) {
@@ -45,12 +130,9 @@ export async function loadGraph(door, { roles = null, kinds = null, ended = fals
     happened = page.rows;
     complete &&= page.complete;
     for (const { id, value } of happened) {
-      for (const part of value.participants) {
-        if (!object(part) || typeof part.record !== 'string') continue;
-        const role = typeof part.role === 'string' ? part.role : 'participant';
-        add(part.record, { to: id, by: id, kind: 'activity', role, side: 'participant' });
-        add(id, { to: part.record, by: id, kind: 'activity', role, side: 'activity' });
-      }
+      const activity = activitySteps(id, value, { kinds, activities }, model);
+      complete &&= activity.complete;
+      for (const { from, ...edge } of activity.steps) add(from, edge);
     }
   }
   for (const list of edges.values()) list.sort(order);

@@ -18,7 +18,7 @@ import { connectionGraphToFeedModel } from './knowledge-graph-adapter.ts';
 import { foldKnowledgeGraphFeed } from './knowledge-graph-feed.ts';
 import { forceDirectedLayout, type GraphNode, type GraphEdge } from '../show/graph-layout.ts';
 // Type-only imports (erased at runtime — no graph-canvas coupling in this leaf).
-import type { CanvasNodeFrame, EdgeRoute } from '../../graph-canvas/show/types';
+import type { CanvasNodeFrame, EdgeRoute } from '../../draw-lists-on-a-canvas/show/types';
 
 export type KnowledgeGraphNodeView = {
   readonly id: string;
@@ -34,11 +34,14 @@ export type KnowledgeGraphView = {
   readonly edgeRoutes: EdgeRoute[];
   readonly nodes: Map<string, KnowledgeGraphNodeView>;
   readonly diagnostics: { nodeCount: number; edgeCount: number; hubCount: number; missingEndpointCount: number };
+  /** Completeness of the supplied-record projection; absent upstream evidence stays unknown. */
+  readonly complete: boolean | undefined;
+  readonly read: Readonly<Record<string, number>> | undefined;
 };
 
 /**
  * Build the graph-canvas prop-shapes from a raw connection-graph projection
- * (delivered as DATA from relationship-graph's readConnectionGraph). Pure:
+ * (delivered as DATA by the maintained record graph). Pure:
  * same input → same output; empty input → an honest empty view (no fake nodes).
  */
 export function buildKnowledgeGraphView(rawProjection: unknown): KnowledgeGraphView {
@@ -85,5 +88,12 @@ export function buildKnowledgeGraphView(rawProjection: unknown): KnowledgeGraphV
     edgeRoutes.push({ edge_id: c.memberId, points: [from, to] });
   }
 
-  return { frames, edgeRoutes, nodes, diagnostics: feed.diagnostics };
+  const source = rawProjection !== null && typeof rawProjection === 'object'
+    ? rawProjection as Record<string, unknown> : {};
+  const complete = typeof source.complete === 'boolean' ? source.complete : undefined;
+  const rawRead = source.read;
+  const read = rawRead !== null && typeof rawRead === 'object' && !Array.isArray(rawRead)
+    && Object.values(rawRead).every(count => typeof count === 'number' && Number.isFinite(count) && count >= 0)
+    ? rawRead as Record<string, number> : undefined;
+  return { frames, edgeRoutes, nodes, diagnostics: feed.diagnostics, complete, read };
 }

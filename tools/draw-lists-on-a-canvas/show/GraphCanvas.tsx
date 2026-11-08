@@ -427,6 +427,7 @@ export const GraphCanvas: React.FC<GraphCanvasProps> = ({
             width={node.width}
             height={node.height}
             isDragging={draggedNodeId === node.id}
+            selected={selectedNodeId === node.id}
             onPointerDown={e => handleNodePointerDown(e, node.id, node)}
             onClick={e => handleNodeClick(e, node.id)}
           >
