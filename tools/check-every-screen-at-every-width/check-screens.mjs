@@ -165,8 +165,13 @@ async function platformFonts({ page, held, cache, items }) {
   if (!held.session) {
     held.session = await page.context().newCDPSession(page);
     await held.session.send('DOM.enable');
+  }
+  // The accessibility reader may have opened this session first. Its DOM/AX
+  // domains do not enable CSS, which the platform-font query also requires.
+  if (!held.fontDomainsReady) {
     await held.session.send('CSS.enable');
     await held.session.send('DOM.getDocument', { depth: 0 });
+    held.fontDomainsReady = true;
   }
   const { session } = held;
   await Promise.all([...asked].map(async ([key, mark]) => {
@@ -190,7 +195,9 @@ const decidedOf = (views, colours) => (views.decided_colours ?? []).find(row => 
 async function readScreen({ page, decoder, width, mode, screen, views, fontsAllowed, clock, held, fontCache }) {
   const t = views.thresholds;
   const failures = [];
-  const add = (probe, item, detail) => failures.push({ probe, selector: item?.selector ?? null, text: item?.text ?? null, detail, mark: item?.mark ?? null });
+  const add = (probe, item, detail) => failures.push({ probe, selector: item?.selector ?? null,
+    ...(item?.displaySelector ? { displaySelector: item.displaySelector } : {}),
+    text: item?.text ?? null, detail, mark: item?.mark ?? null });
   // Contrast on a decided colour: its own bar for its words, and what still fails is reported, never refused.
   const judge = (item, ratio, need, colours, detail) => {
     const decided = decidedOf(views, colours);
