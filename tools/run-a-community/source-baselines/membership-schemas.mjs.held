@@ -1,0 +1,7 @@
+    this.sql.exec('CREATE TABLE IF NOT EXISTS relay_holds (relay TEXT PRIMARY KEY, holds TEXT NOT NULL)');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS requests (id TEXT PRIMARY KEY, from_relay TEXT NOT NULL, to_relay TEXT NOT NULL, why TEXT NOT NULL, membership_id TEXT, status TEXT NOT NULL, cost INTEGER NOT NULL, created_at TEXT NOT NULL, answered_at TEXT)');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS memberships (id TEXT PRIMARY KEY, label TEXT NOT NULL, title TEXT NOT NULL, starts_at TEXT, ends_at TEXT, size_limit INTEGER, created_by TEXT NOT NULL, created_at TEXT NOT NULL)');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS members (membership_id TEXT NOT NULL, relay TEXT NOT NULL, role TEXT NOT NULL, state TEXT NOT NULL, changed_at TEXT NOT NULL, PRIMARY KEY (membership_id, relay))');
+    // A person's membership reads seek their own rows, including when they belong to no Space.
+    this.sql.exec('CREATE INDEX IF NOT EXISTS members_by_relay_state ON members (relay, state, membership_id)');
+    if (!this.sql.exec('PRAGMA table_info(members)').toArray().some(row => row.name === 'admitted_by_invitation')) this.sql.exec('ALTER TABLE members ADD COLUMN admitted_by_invitation INTEGER NOT NULL DEFAULT 0');

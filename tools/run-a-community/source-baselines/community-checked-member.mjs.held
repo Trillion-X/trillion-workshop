@@ -1,0 +1,11 @@
+  checkedMember(id, relay, holds = []) {
+    const community = this.readCommunity(id);
+    if (!this.activeMember(community, relay, holds)) throw new Error(`Only members of ${community.config.title} can do this. ${this.joinWords(joinRows(community))}`);
+    return community;
+  },
+
+  joinWords(rows) {
+    if (rows.some(row => row.free)) return 'Anyone can join.';
+    if (onlyInvited(rows)) return 'Joining is by an invitation or an invite link from someone in it.';
+    return `Joining comes with: ${rows.map(row => row.says ?? row.access ?? 'an invite link from someone in it').join(' or ')}.`;
+  },

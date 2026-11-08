@@ -1,0 +1,22 @@
+{
+  "schema": "source-first-copy/v1",
+  "about": "Exact complete historical membership and community-read spans copied from the pinned source before adapting the community-events consumer. These .held files are inactive evidence, never an authorization owner. Permission decisions remain with the generic Space permission owner; this baseline only establishes membership, invitation, and configuration read semantics.",
+  "artifacts": [
+    {"artifact":"community-read.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/community.mjs","lines":[261,266],"identity":"1f:4cf0d08049c11da28dc952d6555897b512096fc1357b05a2b0871f16eeae8609","uses":["memberships","communities","membership_labels DATA","joinedByRules"]},
+    {"artifact":"community-join-helpers.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/community.mjs","lines":[127,142],"identity":"1f:e310432f09fb5949d68bf57f50f6945a1883bcee0e638a3f24e34028e5d792e5","uses":["activeMember","checkedMember"]},
+    {"artifact":"community-active-member.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/community.mjs","lines":[318,325],"identity":"1f:4ec6bcab42edf548173458589d40c1540cc8b9ecc3816305b52f9052bc143b2b","uses":["isMemberNow","mayJoin","takesInvited","cameByInvitation"]},
+    {"artifact":"community-checked-member.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/community.mjs","lines":[327,337],"identity":"1f:e4a42e2f18d2c03b2e9aae3905d41df645c889ce1a7da465e78d90005315890d","uses":["readCommunity","activeMember","joinRows","onlyInvited"]},
+    {"artifact":"community-joined-by-rules.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/spaces.mjs","lines":[647,653],"identity":"1f:9cb16842715e5fc5ab3b9c825f6ac62636e0a225eaa50fc43898e4e332fba60d","uses":["memberships.parent_id","membership_labels DATA"]},
+    {"artifact":"membership-is-member-now.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/network.mjs","lines":[2662,2664],"identity":"1f:1a1dcbf888bca71ba3fdf4392b86985eae3595b1acf1b52375a28adf14e5f379","uses":["members(membership_id, relay, state)"]},
+    {"artifact":"community-came-by-invitation.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/community-own.mjs","lines":[72,77],"identity":"1f:adba0606e10d09f3cfb3d50b85eea8fd898ced7031f3135b7c3e661164099693","uses":["members.admitted_by_invitation","requests"]},
+    {"artifact":"membership-schemas.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/network.mjs","lines":[330,336],"identity":"1f:2490bb1172d98739eaa9f70f2bce331de6d48d60a24be8cf232b98e00f18593b","uses":["relay_holds","requests","memberships","members"]},
+    {"artifact":"community-schemas.mjs.held","commit":"ed3dac1c2ea9c80d34696e40f4b5a00828248dfd","path":"src/community.mjs","lines":[182,189],"identity":"1f:175d0d8c69928e433387a4c1eeeeef58485a1452cd60a50aa2cf9f9362f9ae2d","uses":["memberships.parent_id","memberships.about","communities.config"]}
+  ],
+  "binding_notes": [
+    "Event identity stays membership label 'event' with its event_id and parent community id; RSVPs stay rows keyed by (membership_id, relay) in the shared member owner.",
+    "Community configuration lives in communities.config; an absent row falls back to membership_labels DATA. This evidence does not create another configuration or membership store.",
+    "Membership is active only when its row has state 'member'; rule-joined communities additionally check owner-scoped access holds or accepted-invitation evidence. Owner identity comes from the stored community record, never caller account_id or grant_person.",
+    "Action authorization is not included here. Bind it to the existing generic Space permission owner, which evaluates the rule graph with deny-wins semantics; do not substitute config.roles[*].may as the decision engine.",
+    "The future adapter target is tools/run-a-community/read-data/community-memberships.mjs. No active source is changed by these baseline artifacts."
+  ]
+}

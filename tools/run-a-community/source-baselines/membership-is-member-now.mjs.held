@@ -1,0 +1,3 @@
+  isMemberNow(membershipId, relay) {
+    return this.sql.exec("SELECT 1 FROM members WHERE membership_id = ? AND relay = ? AND state = 'member'", membershipId, relay).toArray().length > 0;
+  }

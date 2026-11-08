@@ -1,0 +1,8 @@
+    const columns = columnsOf(this.sql, 'memberships');
+    if (!columns.includes('parent_id')) this.sql.exec('ALTER TABLE memberships ADD COLUMN parent_id TEXT');
+    if (!columns.includes('about')) this.sql.exec('ALTER TABLE memberships ADD COLUMN about TEXT');
+    // A Space's descendants (src/space-partition-inventory.mjs) walk memberships by parent_id; without this index each step scanned every
+    // membership. On 2026-10-19 the shared directory held 7,479, a single Space's freeze read 67,739 rows against its 67,584 bound,
+    // and one founder Space could never be mounted: its bootstrap was retried every minute for four hours.
+    this.sql.exec('CREATE INDEX IF NOT EXISTS memberships_by_parent ON memberships(parent_id)');
+    this.sql.exec('CREATE TABLE IF NOT EXISTS communities (id TEXT PRIMARY KEY, config TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)');
