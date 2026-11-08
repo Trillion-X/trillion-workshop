@@ -1,0 +1,19 @@
+/** The named type and every type it inherits, in parent-first order, once each. */
+export function inheritedMemberTypes(types, held) {
+  const byId = new Map(types.map(type => [type.id, type]));
+  const active = new Set();
+  const included = new Set();
+  const result = [];
+  const visit = id => {
+    if (!byId.has(id)) throw new Error(`Member type ${id} inherits a type that is not in this space.`);
+    if (active.has(id)) throw new Error(`Member type inheritance contains a cycle at ${id}.`);
+    if (included.has(id)) return;
+    active.add(id);
+    for (const parent of byId.get(id).inherits ?? []) visit(parent);
+    active.delete(id);
+    included.add(id);
+    result.push(id);
+  };
+  for (const id of Array.isArray(held) ? held : [held]) if (id) visit(id);
+  return result;
+}

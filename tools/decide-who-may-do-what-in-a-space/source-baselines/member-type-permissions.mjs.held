@@ -1,0 +1,38 @@
+  /** A space's member types in the order they are offered: its label's, then its own. */
+  memberTypesOf(space, communityConfigOverride) {
+    const types = this.baseMemberTypesOf(space);
+    // Community roles are types under the same rule owner. A role may inherit another role's permissions.
+    const stored = communityConfigOverride === undefined ? this.sql.exec('SELECT config FROM communities WHERE id = ? LIMIT 1', space.id).toArray()[0] : null;
+    const config = communityConfigOverride === undefined ? (stored ? JSON.parse(stored.config) : null) : communityConfigOverride;
+    if (config) {
+      const roles = config.roles ?? {};
+      for (const [id, role] of Object.entries(roles)) {
+        const index = types.findIndex(type => type.id === id);
+        const row = { id, label: role.label ?? id, inherits: role.inherits ?? [], may: role.may ?? [], source: 'community', own: index >= 0 && types[index].own };
+        if (index < 0) types.push(row);
+        else types[index] = { ...types[index], ...row };
+      }
+    }
+    // Malformed/cyclic stored inheritance fails closed instead of granting ambiguous access.
+    for (const type of types) inheritedMemberTypes(types, type.id);
+    return types;
+  },
+
+  /** Effective member type ids, including every inherited parent, for the common permission evaluator. */
+  memberTypeIdsOf(space, typeId, override) {
+    const types = override ?? this.memberTypesOf(space);
+    // A legacy role already stored on a member stays an exact leaf until an owner maps it to a declared type.
+    if (typeId && !types.some(type => type.id === typeId)) types.push({ id: typeId, label: typeId, inherits: [] });
+    return inheritedMemberTypes(types, typeId);
+  },
+
+  // Which of `ids` the person may do in the space, to `thing` when named; asked of the space's own rules.
+  async mayIn(space, relay, ids, thing) {
+    const decided = await Promise.all(ids.map(async id => [id, (await this.decideInSpace(space, relay, id, thing)).allowed]));
+    return Object.fromEntries(decided);
+  },
+
+  /** What the reader may do in the space itself: the actions offered on the space. */
+  async mayInSpace(space, relay) {
+    return this.mayIn(space, relay, SPACE_ACTIONS);
+  },

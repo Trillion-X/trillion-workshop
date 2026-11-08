@@ -1,0 +1,5 @@
+  /** The label and pursuit-owned rows before community overlays; validate only once the entire graph is assembled. */
+  baseMemberTypesOf(space) {
+    const own = ownMemberTypesOf(this.sql, space.id);
+    return [...setupOf(space.label).types.map(type => ({ ...type, own: false })), ...own.map(type => ({ ...type, own: true }))];
+  },
