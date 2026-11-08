@@ -8,7 +8,7 @@
   "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "say which document each page of Write opens, so everyone in a pursuit edits the same document together",
+ "job": "validate a list of shared document pages and return the existing Write screen input resolver results refusals and distinct rooms",
  "sources": [],
  "targets": [
   {
@@ -22,40 +22,107 @@
  "distinct_from": [
   {
    "repository": "trillion-workshop",
-   "path": "tools/edit-a-document-together/",
-   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+   "path": "tools/edit-a-document-together/show/write-screen-input.mjs",
+   "why": "Owns writeScreenInput and its pursuit-room address validation. The adapter validates the pages list, runs that existing resolver per page, catches refusals and collects distinct room addresses."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/edit-a-document-together/show/write-screen.tsx",
+   "why": "The Write screen consumes writeScreenInput while opening the editor. This adapter returns a batch of resolver results and refusals; it does not implement the screen or collaborative editing."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/edit-a-document-together/test/company-write-input.test.mjs",
+   "why": "Tests the existing Write input resolver and its shared-room rules, not a separate batch tool adapter."
+  },
+  {
+   "repository": "trillion",
+   "path": "parts/documents/show/write-screen-input.mjs",
+   "why": "Historical writeScreenInput owner at 5cd0dc3103e4f54b30b1784f0d77a67de0147064:3, moved to the imported resolver. This adapter does not claim that resolver or collaborative editing as new."
   },
   {
    "repository": "trillion",
    "path": "test/company-write-input.test.mjs",
-   "why": "a test of the moved code this file runs, not a second owner of the job"
+   "why": "Tests the moved Write input resolver; it is not an implementation of batch validation, per-page refusals and distinct-room result shaping."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "Published tool catalogue data names the Write input operation. It is a descriptor, not a second implementation of this adapter."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/edit-a-document-together/README.md",
+   "why": "Documents this adapter and its existing delegated owners; documentation is not a second implementation."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/edit-a-document-together/tool-rows.json",
+   "why": "Declares how to invoke this adapter and its sample; the descriptor does not implement the delegated algorithms or a second adapter."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "capabilities.json",
+   "why": "Catalogue rows index the adapter or its delegated owner. They advertise the existing implementation rather than implementing another request adapter."
+  },
+  {
+   "capability": "say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+   "why": "The existing tool-folder capability includes the delegated algorithm and this adapter. This contract claims only the adapter validation and result shaping; the algorithm remains in the imported owner named above."
   }
  ],
  "proof": {
   "search": {
    "phrasings": [
-    "say which document each page of Write opens, so everyone in a pursuit edits the same document together",
+    "validate a list of shared document pages and return the existing Write screen input resolver results refusals and distinct rooms",
     "open a shared document",
     "write screen input"
    ],
-   "capability_rows": [],
+   "capability_rows": [
+    {
+     "capability": "say which document each page of Write opens, so everyone in a pursuit edits the same document together and a personal page stays personal",
+     "repository": "trillion-workshop",
+     "owner": [
+      "tools/edit-a-document-together/"
+     ],
+     "words": 0.522,
+     "near": true
+    }
+   ],
    "code_patterns": [
     "openASharedDocument",
     "writeScreenInput"
    ],
    "repositories": [
     {
-     "repository": "trillion-workshop",
-     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+     "repository": "trillion",
+     "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
     },
     {
-     "repository": "trillion",
-     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+     "repository": "trillion-rust",
+     "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+    },
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    },
+    {
+     "repository": "trillion-site",
+     "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+    },
+    {
+     "repository": "trillion-launch-video",
+     "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+    },
+    {
+     "repository": "bitfield-packages",
+     "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
     }
-   ]
+   ],
+   "capability_rows_scope": "Distinct near:true rows returned by the native capability search for the recorded phrasings. Complete unfiltered stdout and stderr were retained privately before this public projection."
   },
   "test_refs": [
    "tools/edit-a-document-together/tool-rows.json sample run (tool:open-the-document-a-pursuit-edits-together)"
-  ]
+  ],
+  "owner_boundary": "NO_PRIOR_OWNER applies only to the request adapter described by job. Existing algorithms are imported from the owners in distinct_from, whose historical source locations remain named there; no source-copy baseline is asserted for this separately authored adapter."
  }
 }

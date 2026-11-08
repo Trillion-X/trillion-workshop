@@ -8,7 +8,7 @@
   "quote": "For the other 31 it searched trillion-workshop tools/, trillion-apps web/ and trillion main, and found zero importers. The every-tool-row test stays red until each of them has a tool row."
  },
  "mode": "NO_PRIOR_OWNER",
- "job": "share one record by a sealed link whose key rides only in the part after the #, and open it again from that link",
+ "job": "validate a sealed record share or open request and return the existing sealed link operations results and roundtrip check",
  "sources": [],
  "targets": [
   {
@@ -22,34 +22,81 @@
  "distinct_from": [
   {
    "repository": "trillion-workshop",
-   "path": "tools/keep-records-only-my-devices-can-read/",
-   "why": "this file only hands a row's input to the folder's own moved code and gives its answer back; the job's code is the folder's"
+   "path": "tools/keep-records-only-my-devices-can-read/do-work/sealed-records.mjs",
+   "why": "Owns sealForLink, linkWithKey, checkedLinkCopy and openFromLink, including cryptography and fragment-key behavior. The adapter validates the requested operation and fields, delegates seal or open and shapes the answer and roundtrip check."
+  },
+  {
+   "repository": "trillion",
+   "path": "parts/sealed-records/do-work/sealed-records.mjs",
+   "why": "Historical sealForLink owner at b6ae0ebf815f2f5271eed34e6e023c7e1767ec04:144, moved to the imported sealed-records module. Neither cryptography nor the sealed link format is claimed as new."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-records-only-my-devices-can-read/README.md",
+   "why": "Documents this adapter and its existing delegated owners; documentation is not a second implementation."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/keep-records-only-my-devices-can-read/tool-rows.json",
+   "why": "Declares how to invoke this adapter and its sample; the descriptor does not implement the delegated algorithms or a second adapter."
+  },
+  {
+   "capability": "share one of my records by a sealed link whose key rides only in the part after the #, so the store keeps only ciphertext it cannot read, and open it again from that link",
+   "why": "The existing tool-folder capability includes the delegated algorithm and this adapter. This contract claims only the adapter validation and result shaping; the algorithm remains in the imported owner named above."
   }
  ],
  "proof": {
   "search": {
    "phrasings": [
-    "share one record by a sealed link whose key rides only in the part after the #, and open it again from that link",
+    "validate a sealed record share or open request and return the existing sealed link operations results and roundtrip check",
     "share a sealed record",
     "seal for link and open from link"
    ],
-   "capability_rows": [],
+   "capability_rows": [
+    {
+     "capability": "share one of my records by a sealed link whose key rides only in the part after the #, so the store keeps only ciphertext it cannot read, and open it again from that link",
+     "repository": "trillion-workshop",
+     "owner": [
+      "tools/keep-records-only-my-devices-can-read/"
+     ],
+     "words": 0.625,
+     "near": true
+    }
+   ],
    "code_patterns": [
     "shareASealedRecord"
    ],
    "repositories": [
     {
-     "repository": "trillion-workshop",
-     "commit": "50d1c7c077ab2e41fd173a5dac4b61ac76214dd2"
+     "repository": "trillion",
+     "commit": "ed5e8d0389729321ca4263294b6a377235829e5e"
     },
     {
-     "repository": "trillion",
-     "commit": "27b458af2635254d67845c9a1c9f995cce2edd58"
+     "repository": "trillion-rust",
+     "commit": "b80b5b9662c056268a3569c9ae1a5a7ab4e0e07f"
+    },
+    {
+     "repository": "trillion-workshop",
+     "commit": "1083a00ae322107c47e76d82e9c641789d0fd176"
+    },
+    {
+     "repository": "trillion-site",
+     "commit": "14cb42dff1ab465388331616f82ca51f50761aab"
+    },
+    {
+     "repository": "trillion-launch-video",
+     "commit": "abc0f45c9bdddd67cbfab06c1e12ff66eda79a20"
+    },
+    {
+     "repository": "bitfield-packages",
+     "commit": "e89e776fcb3cd200f4327c599fd646e1778ef3a4"
     }
-   ]
+   ],
+   "capability_rows_scope": "Distinct near:true rows returned by the native capability search for the recorded phrasings. Complete unfiltered stdout and stderr were retained privately before this public projection."
   },
   "test_refs": [
    "tools/keep-records-only-my-devices-can-read/tool-rows.json sample run (tool:share-a-record-by-a-sealed-link)"
-  ]
+  ],
+  "owner_boundary": "NO_PRIOR_OWNER applies only to the request adapter described by job. Existing algorithms are imported from the owners in distinct_from, whose historical source locations remain named there; no source-copy baseline is asserted for this separately authored adapter."
  }
 }
