@@ -1,0 +1,6 @@
+  async readableSpaces(relay) {
+    const rows = this.sql.exec(`SELECT m.id, m.label, m.title, m.about, m.created_by, m.created_at FROM memberships m JOIN members me ON me.membership_id = m.id LEFT JOIN space_partition_routes route ON route.space_id = m.id WHERE me.relay = ? AND me.state = 'member' AND route.state IS NOT 'active' ORDER BY m.created_at DESC`, relay).toArray();
+    const decided = await Promise.all(rows.map(row => this.decideInSpace(row, relay, 'read_space')));
+    const content = this.sql.exec("SELECT space_id FROM space_content_identity WHERE state = 'sealed'").toArray()[0];
+    return rows.filter((row, index) => decided[index].allowed && (!content || row.id === content.space_id));
+  },

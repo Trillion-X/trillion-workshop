@@ -1,0 +1,143 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-COMMUNITY-EVENT-ROUTE",
+  "status": "ADMITTED",
+  "directive": {
+    "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+    "message_multihash": "1f:70524c0bd6533fbbd09cfb092478711cf741a707579582993cc739265d37d50f",
+    "quote": "Fix shared method and opposing DST/timezone controls while preserving original meaning and complete relevant event actions.",
+    "attribution": "Actual initial delegated continuation input read from Codex chat 01a1b8b2-6270-7971-a062-2d08917374e3; not a new human message or quote."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        87,
+        87
+      ],
+      "multihash": "1f:6282b2127bc50696544045e120584455ccbfe9564aae8463e8be460af7a270c2",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        88,
+        88
+      ],
+      "multihash": "1f:da12e3ede318d295042c247a952de666055a33d6b7e7009f643ff4049c9d7811",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        89,
+        89
+      ],
+      "multihash": "1f:91fdff51d890d7fdc1e16b6c23fd5f6fe1ac1b21ad1253c6531be9cf0c2a74eb",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        90,
+        96
+      ],
+      "multihash": "1f:4f2f5f58839f754ee2d5a089ee1c95d7e91c2ed7f3000d2af39b1a4f3d30f037",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        107,
+        107
+      ],
+      "multihash": "1f:92bb71e24bd96dc569b74f52bfcbcc5137cf72a56fa405d0322e2219e53411ca",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    },
+    {
+      "repository": "trillion",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        113,
+        113
+      ],
+      "multihash": "1f:8dad36ba28fc8f11e80fd4c9f18ff8786b229400e18d1afb89e6ea65a74e8262",
+      "ownership": "repository-owned",
+      "old_copy": {
+        "deleted_by": "2026-11-03T19:11:31-07:00"
+      }
+    }
+  ],
+  "targets": [
+    {
+      "path": "tools/run-a-community/do-work/community-event-route.mjs"
+    }
+  ],
+  "preserve": [
+    "Original event HTTP routes for creation, global collection reads, moving, cancelling, RSVP and calendar files, calling the shared current event owner",
+    "Actual actor-space collection lookup followed by per-space event overlap/visibility reads, with space_id and space_title flattened onto each event",
+    "Exact event and parent identifiers, explicit null end, original membership permissions and stable calendar UID namespace"
+  ],
+  "allowed_deltas": [
+    "Bind existing shared event, membership and permission owners through actual native task.context and records-door source capabilities; never caller-supplied actor fields",
+    "Unknown failed reads remain explicit failures instead of silently omitted event collections",
+    "Preserve coded denial/unavailability and postcommit result metadata through the native route response and existing durable recovery owner",
+    "Use generic native file-response support for calendar downloads once available, preserving text/calendar and attachment semantics"
+  ],
+  "banned_substitutions": [
+    "Archived attempted draft, raw source artifacts, tests or DATA counted as active retained code",
+    "Fake callbacks, injected evaluators/exporters, guessed account-to-relay mapping, invented record kinds, no-op calendar delivery, or a new receipt store",
+    "JSON-quoted calendar text claimed as a working calendar download",
+    "Retired PersonStore, PERSON transport or legacy SQL activated as the native backend"
+  ],
+  "baseline": {
+    "path": "tools/run-a-community/source-baselines/route-rsvp.mjs.held",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:6282b2127bc50696544045e120584455ccbfe9564aae8463e8be460af7a270c2",
+    "target_multihash_at_baseline": "1f:6282b2127bc50696544045e120584455ccbfe9564aae8463e8be460af7a270c2",
+    "scope": "Future fresh active target only. The separately preserved preliminary draft predates these copies and is not qualified."
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "nativeCommunityEvents",
+      "createCommunityMemberships",
+      "nativeSpacePermissions",
+      "handleCommunityEventRequest",
+      "spaceEvents",
+      "eventFile"
+    ],
+    "test_refs": [
+      "tools/run-a-community/test/community-event-route.test.mjs"
+    ],
+    "render_refs": []
+  },
+  "_state": "ADMITTED future-target contract only. Exact originals and prior-draft chronology are preserved. Active target is absent; native identity/resource, actor-space, calendar and durable recovery bindings remain unresolved. No installation or behavior qualification is claimed."
+}

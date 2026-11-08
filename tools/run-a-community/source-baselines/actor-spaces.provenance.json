@@ -1,0 +1,44 @@
+{
+  "schema": "source-first-copy/v1",
+  "about": "Exact complete historical readableSpaces and spaces methods, preserved before any fresh actor-space collection adaptation. They document the permission-gated collection called by the original event route; inactive evidence only.",
+  "recorded_at": "2026-11-07T20:48:59-06:00",
+  "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+  "files": [
+    {
+      "artifact": "actor-readable-spaces.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/spaces.mjs",
+      "lines": [
+        667,
+        672
+      ],
+      "identity": "1f:f21f8cf12ed18a376302274a432c4345fbfadab6d5470e78788de64a3c0820db"
+    },
+    {
+      "artifact": "actor-spaces.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/spaces.mjs",
+      "lines": [
+        674,
+        688
+      ],
+      "identity": "1f:bae3b2328ee315a858848443eddcb97b00a7a3cd6377fa2d93d0ddd3ed7668eb"
+    }
+  ],
+  "consumer": {
+    "path": "src/person-community.mjs",
+    "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+    "lines": [
+      90,
+      96
+    ],
+    "needs": "A current permission-gated {spaces:[{space_id,title,...}]} for the admitted actor, before per-space event reads. Unknown reads or decisions cannot become an empty collection."
+  },
+  "binding_requirements": [
+    "Use current declared membership/member record identities and by-relay active-member indexing, never a parallel actor-space store or guessed record kind.",
+    "Check canonical read_space decisions for each candidate and retain current authority/visibility fences.",
+    "Do not activate retired SQL, route/mount transports or PersonStore dependencies.",
+    "The future active owner and contract must be chosen by the membership/space owner before its adaptation; this manifest makes no implementation or installation claim."
+  ],
+  "state": "Raw originals prepared; no actor-space adapter has been authored by this lane."
+}

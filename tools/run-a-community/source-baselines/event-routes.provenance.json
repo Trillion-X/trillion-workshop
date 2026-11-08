@@ -1,0 +1,77 @@
+{
+  "schema": "source-first-copy/v1",
+  "about": "Exact complete original event route clauses from immutable source. These copies were prepared after the separately recorded unqualified draft was quarantined and before the future fresh active target. No before-draft claim is made.",
+  "recorded_at": "2026-11-07T20:48:59-06:00",
+  "source_id": "source:bGVhZC02NiAyMDI2LTExLTAzIDIxOjAwIE1TVDogcmVzdG9yZSBsYW5lcyBhZnRlciB0aGUgYWNjb3VudCByZXN0b3JlIChvbmUgZGVjaXNpb24tZW5naW5lIHRyZWUsIHZvaWNlLCBtZW1vcmllcywgbG9zdCBsaXN0cyk",
+  "files": [
+    {
+      "artifact": "route-rsvp.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        87,
+        87
+      ],
+      "identity": "1f:6282b2127bc50696544045e120584455ccbfe9564aae8463e8be460af7a270c2"
+    },
+    {
+      "artifact": "route-cancel.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        88,
+        88
+      ],
+      "identity": "1f:da12e3ede318d295042c247a952de666055a33d6b7e7009f643ff4049c9d7811"
+    },
+    {
+      "artifact": "route-move.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        89,
+        89
+      ],
+      "identity": "1f:91fdff51d890d7fdc1e16b6c23fd5f6fe1ac1b21ad1253c6531be9cf0c2a74eb"
+    },
+    {
+      "artifact": "route-list.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        90,
+        96
+      ],
+      "identity": "1f:4f2f5f58839f754ee2d5a089ee1c95d7e91c2ed7f3000d2af39b1a4f3d30f037"
+    },
+    {
+      "artifact": "route-create.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        107,
+        107
+      ],
+      "identity": "1f:92bb71e24bd96dc569b74f52bfcbcc5137cf72a56fa405d0322e2219e53411ca"
+    },
+    {
+      "artifact": "route-calendar.mjs.held",
+      "commit": "ed3dac1c2ea9c80d34696e40f4b5a00828248dfd",
+      "path": "src/person-community.mjs",
+      "lines": [
+        113,
+        113
+      ],
+      "identity": "1f:8dad36ba28fc8f11e80fd4c9f18ff8786b229400e18d1afb89e6ea65a74e8262"
+    }
+  ],
+  "prior_attempt": {
+    "path": "tools/run-a-community/attempts/community-event-route.pre-baseline.mjs.held",
+    "identity": "1f:91e1f84d4e219a3581924cc202b7df29a04c0ee6db7d7a9abbbfe97ef0ae7b1a",
+    "provenance": "tools/run-a-community/attempts/community-event-route.pre-baseline.provenance.json",
+    "counts_as_source": false,
+    "counts_as_active_retention": false
+  },
+  "future_target": "tools/run-a-community/do-work/community-event-route.mjs",
+  "state": "Raw originals prepared; normal baseline commit required before fresh active route."
+}

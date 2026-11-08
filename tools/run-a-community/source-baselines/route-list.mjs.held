@@ -1,0 +1,7 @@
+    if ((found = call('GET', /^\/community\/events$/))) {
+      // Every space I am in is asked; a space with no events, or none I may see, answers an empty list.
+      const span = { from: url.searchParams.get('from'), to: url.searchParams.get('to') };
+      const { spaces } = await network.spaces({ relay: me.relay });
+      const read = await Promise.all(spaces.map(space => network.spaceEvents({ ...me, community_id: space.space_id, ...span }).catch(() => null)));
+      return json({ ...span, events: read.filter(Boolean).flatMap(space => space.events.map(event => ({ ...event, space_id: space.space_id, space_title: space.title }))) });
+    }

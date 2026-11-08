@@ -192,6 +192,22 @@ describe('the mail rules (older owner: mail-sender.mjs, mail-admission.mjs)', ()
 });
 
 describe('the mail row and the email rows', () => {
+  it('a read-only consumer reads current settings without creating a mail policy on absence', async () => {
+    const fake = await startFakeDoor({ rights: [{ kind: SETTINGS, operations: ['records:read'] }] });
+    doors.push(fake);
+    const door = openRecordsDoor({ descriptor: fake.descriptor });
+    assert.deepEqual(await mailSettings(door, undefined, { initialize: false }), SHIPPED);
+    assert.equal(fake.kept.size, 0);
+    const changed = settingsWith();
+    fake.kept.set(SETTINGS_ID, { id: SETTINGS_ID, type: SETTINGS, value: changed });
+    assert.deepEqual(await mailSettings(door, undefined, { initialize: false }), changed);
+    assert.equal(fake.kept.size, 1);
+    const denied = await startFakeDoor({ rights: [] });
+    doors.push(denied);
+    await assert.rejects(mailSettings(openRecordsDoor({ descriptor: denied.descriptor }), undefined, { initialize: false }));
+    assert.equal(denied.kept.size, 0);
+  });
+
   it('the account\'s mail row is copied from the shipped row once and then only the account\'s own is read', async () => {
     const { door, fake } = await doorFor();
     assert.deepEqual(await mailSettings(door), SHIPPED);

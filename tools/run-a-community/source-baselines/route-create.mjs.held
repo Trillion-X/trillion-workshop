@@ -1,0 +1,1 @@
+    if ((found = call('POST', /^\/community\/([^/]+)\/events$/))) return json(await network.createEvent({ ...me, community_id: found[0], title: body.title, about: body.about, starts_at: body.starts_at, ends_at: body.ends_at, size_limit: body.size_limit, repeats: body.repeats ?? null }));

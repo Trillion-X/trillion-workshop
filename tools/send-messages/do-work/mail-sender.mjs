@@ -151,10 +151,11 @@ function mailAdmission(door, settings, dayKey) {
 }
 
 /** The account's mail row: its own, copied from the shipped one the first time (a copy another run made at once is
- * read back, never replaced). */
-export async function mailSettings(door, shipped = SHIPPED) {
+ * read back, never replaced). Readers may disable initialization; confirmed absence then returns the shipped row. */
+export async function mailSettings(door, shipped = SHIPPED, { initialize = true } = {}) {
   const read = await door.read(SETTINGS, SETTINGS_ID);
   if (read) return read;
+  if (!initialize) return shipped;
   try {
     await door.write([{ id: SETTINGS_ID, type: SETTINGS, value: shipped, expected: null }], { key: 'mail-settings:first-copy' });
   } catch (error) {
