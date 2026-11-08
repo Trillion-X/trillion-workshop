@@ -13,7 +13,8 @@ a form, checks and records its answers, and writes the same `owner-action-reques
 owner, so a form submission uses that tool. Not carried: the document-to-form publisher (documents' own job), the trigger
 rule that fires on a submission (the engine's wake), the structured session-selection submission (it depends on the
 session catalog), the reopen planner for a failed outcome (it plans work in the old engine's task and process-session
-records), the request projection and the iOS surface (screens).
+records), the original request screen model and the iOS surface. `tool:my-requests` provides the linked-receipt read
+projection through the records door.
 
 ## Tools
 
