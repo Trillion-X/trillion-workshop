@@ -175,11 +175,12 @@ test('public validator preserves legacy sequential literal replacements and unch
   }
 });
 
-test('byte redaction requires exactly one complete immutable source rather than selected ranges', t => {
+test('byte redaction requires exactly one immutable source and binds selected bytes', t => {
   const f = fixture(t, Buffer.from('export const generic_source = 7;\n'), [{ from_bytes: [0, 6], to: 'export' }], 'export const generic_source = 7;\n');
   valid(f);
   const multiple = structuredClone(f.contract); multiple.sources.push(structuredClone(multiple.sources[0])); invalid(f, multiple);
-  const selected = structuredClone(f.contract); selected.sources[0].lines = [1, 1]; invalid(f, selected);
+  const selected = structuredClone(f.contract); selected.sources[0].lines = [1, 1]; valid(f, selected);
+  selected.sources[0].lines = [1, 1, 1]; invalid(f, selected);
 });
 
 test('full admission keeps raw-source retention separate from an exact redacted baseline copy', t => {

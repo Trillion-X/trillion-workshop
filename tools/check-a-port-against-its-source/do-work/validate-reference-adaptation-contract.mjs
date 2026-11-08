@@ -44,11 +44,11 @@ function words(text) { return new Set(String(text ?? '').replace(/([a-z0-9])([A-
 function redacted(text, redactions) {
   return redactions.reduce((out, one) => (typeof one?.from === 'string' && one.from && typeof one?.to === 'string' ? out.split(one.from).join(one.to) : out), text);
 }
-// The existing source-copy owner also accepts positions in the complete pinned
-// UTF-8 source. The declaration discloses positions, never the removed text or
+// The existing source-copy owner also accepts positions in the pinned UTF-8
+// source bytes (the selected lines when declared). Positions never disclose the removed text or
 // an extra digest of a private fragment. This does not prove port admission.
 function redactSourceCopy(source, redactions = [], { sourceMultihash } = {}) {
-  const refused = () => new TypeError('Source copy redactions are invalid or do not bind the complete pinned source.');
+  const refused = () => new TypeError('Source copy redactions are invalid or do not bind the pinned source bytes.');
   const own = (value, key) => Object.hasOwn(value, key);
   const data = (value, key) => Object.getOwnPropertyDescriptor(value, key)?.value;
   const validText = text => typeof text === 'string' && Buffer.from(text, 'utf8').toString('utf8') === text;
@@ -396,7 +396,27 @@ function validateVisualPixelLock(contract, stage, errors) {
 // its multihash and its line retention are those lines only, and its old copy is gone when their whitespace-folded
 // text no longer appears in the file on its repository's main line, while the rest of the file stays.
 const folded = (text) => text.replace(/\s+/g, ' ').trim();
-function sourceLines(source, bytes, errors) {
+function sourceLines(source, bytes, errors, { rawUtf8 = false } = {}) {
+  if (rawUtf8) {
+    // Validate before decoding: replacement characters must never normalize a
+    // malformed Git blob into the hash the contract claims to have selected.
+    try { new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes); }
+    catch { errors.push('byte redactions require valid original UTF-8 source bytes'); return null; }
+    if (source.lines === undefined) return bytes;
+    const range = source.lines;
+    const first = Object.getOwnPropertyDescriptor(range ?? {}, '0')?.value;
+    const last = Object.getOwnPropertyDescriptor(range ?? {}, '1')?.value;
+    if (!Array.isArray(range) || range.length !== 2 || Reflect.ownKeys(range).length !== 3
+        || !Number.isSafeInteger(first) || !Number.isSafeInteger(last) || first < 1 || last < first) {
+      errors.push('byte redaction source lines must be an exact [first, last] pair'); return null;
+    }
+    const starts = [0];
+    for (let at = 0; at < bytes.length; at += 1) if (bytes[at] === 0x0a) starts.push(at + 1);
+    if (last > starts.length) { errors.push('byte redaction source lines are outside the pinned source'); return null; }
+    // Preserve CRLF, BOM and a missing final LF exactly. Offsets are relative to
+    // this original selection, never the complete file or a transformed copy.
+    return bytes.subarray(starts[first - 1], starts[last] ?? bytes.length);
+  }
   if (source.lines === undefined) return bytes;
   const [first, last] = Array.isArray(source.lines) ? source.lines : [];
   const all = bytes.toString('utf8').split('\n');
@@ -624,9 +644,9 @@ function readContractEvidence(contract, options) {
   const redactions = Array.isArray(contract?.baseline?.redactions) ? contract.baseline.redactions : [];
   const declarations = Array.from({ length: redactions.length }, (_, index) => Object.getOwnPropertyDescriptor(redactions, String(index))?.value);
   const byteRedactions = declarations.some(one => isRecord(one) && Object.hasOwn(one, 'from_bytes'));
-  const completeByteSource = sources.length === 1 && source?.repository && source?.commit && source?.lines === undefined;
-  if (byteRedactions && (contract.mode !== 'SOURCE_FIRST_PORT' || !completeByteSource)) {
-    errors.push('byte redactions require SOURCE_FIRST_PORT with exactly one complete immutable repository source and no selected lines');
+  const immutableByteSource = sources.length === 1 && source?.repository && source?.commit;
+  if (byteRedactions && (contract.mode !== 'SOURCE_FIRST_PORT' || !immutableByteSource)) {
+    errors.push('byte redactions require SOURCE_FIRST_PORT with exactly one immutable repository source');
   }
   if (!byteRedactions) for (const one of declarations) {
     const from = isRecord(one) ? Object.getOwnPropertyDescriptor(one, 'from')?.value : null;
@@ -650,7 +670,7 @@ function readContractEvidence(contract, options) {
         deferred.push(`source ${named(one)} has no unambiguous caller-declared repository`);
       }
       const file = resolvedRepository ? options.readers?.readSource?.(one) ?? null : null;
-      const bytes = file && sourceLines(one, file, errors);
+      const bytes = file && sourceLines(one, file, errors, { rawUtf8: byteRedactions });
       if (file === null && resolvedRepository && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
       else if (file === null && resolvedRepository) deferred.push(`source ${named(one)} is not readable here`);
       else if (bytes) {
@@ -661,13 +681,13 @@ function readContractEvidence(contract, options) {
         }
         if (multihash(bytes) !== one.multihash) errors.push(`source multihash drift: ${named(one)}`);
         let retentionText = bytes.toString('utf8');
-        if (one === source && (!byteRedactions || completeByteSource)) {
+        if (one === source && (!byteRedactions || immutableByteSource)) {
           try {
             const copy = redactSourceCopy(bytes, redactions, { sourceMultihash: one.multihash });
             sourceCopyBytes = copy.bytes;
             if (copy.mode !== 'bytes') retentionText = copy.bytes.toString('utf8');
           } catch {
-            errors.push('Source copy redactions are invalid or do not bind the complete pinned source.');
+            errors.push('Source copy redactions are invalid or do not bind the pinned source bytes.');
           }
         }
         // Byte redactions never shrink the original retention denominator.

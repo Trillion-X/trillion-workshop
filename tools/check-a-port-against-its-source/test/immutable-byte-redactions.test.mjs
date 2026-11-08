@@ -73,9 +73,10 @@ test('an altered declared output hash or source pin is refused independently', t
   const f = fixture(t); f.contract.baseline.target_multihash_at_baseline = identity('different copy'); invalid(f);
   f.contract.baseline.target_multihash_at_baseline = identity(COPY); f.contract.sources[0].multihash = identity('different original'); invalid(f);
 });
-test('selected ranges, multiple sources and non-repository inputs cannot use byte offsets', t => {
+test('selected ranges bind their own bytes while multiple sources and non-repository inputs refuse byte offsets', t => {
   const f = fixture(t); const original = structuredClone(f.contract.sources);
-  f.contract.sources[0].lines = [1, 13]; invalid(f);
+  f.contract.sources[0].lines = [1, 13]; pass(evidence(f)); pass(full(f));
+  f.contract.sources[0].lines = [2, 13]; invalid(f);
   f.contract.sources = [...structuredClone(original), ...structuredClone(original)]; invalid(f);
   f.contract.sources = [{ path: OLD, multihash: identity(SOURCE), ownership: 'repository-owned' }]; invalid(f);
 });

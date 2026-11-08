@@ -59,7 +59,8 @@
     "Read same-repository source retirement from the judged candidate or staged index, keeping unreadable state distinct and external published main authoritative",
     "Bind reader and judge Git operations to their declared repository, freeze committed diff endpoints, and preserve the caller's private staged index while refusing generation changes during a judgment",
     "Expose publication-only remote-tracking main without local fallback and retain earlier-or-parallel content events through historical rename and cycle names",
-    "Consume the maintained synchronous verified-context API for a source-qualified read-only staged probe, rechecking its root, ordered parents and lifetime before cached public reads without granting transaction authority"
+    "Consume the maintained synchronous verified-context API for a source-qualified read-only staged probe, rechecking its root, ordered parents and lifetime before cached public reads without granting transaction authority",
+    "Bind byte redactions to one exact immutable source selection with original UTF-8 offsets and an unredacted selected-source retention denominator, preserving genuine baseline history"
   ],
   "banned_substitutions": [
     "A rewritten validator or application-specific bypass",
@@ -86,7 +87,8 @@
       "tools/check-a-port-against-its-source/test/check-my-reference-contract-row.test.mjs",
       "tools/check-a-port-against-its-source/test/judged-source-retirement.test.mjs",
       "tools/check-a-port-against-its-source/test/shared-history-cache.test.mjs",
-      "tools/check-a-port-against-its-source/test/verified-git-context.test.mjs"
+      "tools/check-a-port-against-its-source/test/verified-git-context.test.mjs",
+      "tools/check-a-port-against-its-source/test/selected-byte-redactions.test.mjs"
     ]
   }
 }
