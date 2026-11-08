@@ -1,1 +1,1 @@
-{"public": ["read-data/decision-outcome.mjs"]}
+{"public": ["read-data/decision-outcome.mjs", "read-data/decision-records.mjs"]}
