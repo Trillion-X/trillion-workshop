@@ -78,7 +78,7 @@ export function setupPythonEnvironment() {
     return { python, identity, versions: published.versions, reused: false };
   } finally { rmSync(stage, { recursive: true, force: true }); }
 }
-if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (process.argv[1] && existsSync(process.argv[1]) && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   if (process.argv[2] !== 'setup') throw new Error('Use setup to prepare the declared Python test environment');
   console.log(JSON.stringify(setupPythonEnvironment()));
 }

@@ -2,10 +2,20 @@
 // wrong package version, missing import or module from another prefix cannot turn into a ready environment.
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import { spawnSync } from 'node:child_process';
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { configuration, pythonForTests, pythonRuntime, verifyPythonEnvironment } from '../test-helpers/python-environment.mjs';
+
+test('a module consumer imported from either stdin form does not run setup or inspect a nonexistent caller file', () => {
+  const source = `await import(${JSON.stringify(new URL('../test-helpers/python-environment.mjs', import.meta.url).href)}); console.log('imported');`;
+  for (const argv of [['--input-type=module', '-'], ['--input-type=module']]) {
+    const result = spawnSync(process.execPath, argv, { input: source, encoding: 'utf8', timeout: 30_000 });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.stdout.trim(), 'imported');
+  }
+});
 
 test('the default runtime and prepared environment have their declared versions', () => {
   assert.deepEqual(pythonRuntime().version.slice(0, 2), configuration.python);
