@@ -5,15 +5,18 @@
 // shape a Namespace name has, so the row source reads a computer folder and a Namespace folder alike.
 //
 // Non-Negotiable Invariants:
-//   1. Nothing outside the folder is read or written: every name is resolved to its real path and refused unless that
-//      path is under the folder's real path (a link pointing out is not followed). Folders whose names start with `.`
-//      are not listed.
+//   1. Under externally serialized cooperating writers and stable directory bindings, names resolve to their real paths and are refused
+//      unless under the folder's real path. These path checks are not an OS directory capability against arbitrary
+//      concurrent parent replacement; strict atomic/confined publication is unsupported and refused. Folders whose
+//      names start with `.` are not listed.
 //   2. A document's identity is `1f:` and the BLAKE3 of its exact bytes (tools/content-identity), worked out when the
 //      document is read, so a listing reads no document.
-//   3. A conditional write puts the new bytes in place only if the document still has the identity the caller read
-//      (null: there is no document yet, and its folders are made): it reads and hashes the document again, answers
-//      { conflict, current } when it differs, and otherwise writes the bytes beside it and renames them over it in one
-//      step, so a reader sees the old document or the new one. A conditional removal checks the same way, then unlinks.
+//   3. The ordinary-folder adapter requires externally serialized writers: it compares the read identity, then publishes
+//      with rename (or removes with unlink). POSIX does not make that comparison atomic with publication, and path
+//      checks cannot confine an arbitrary concurrent symlink replacement. A caller requiring atomic, confined
+//      publication is refused BEFORE directory creation, staging, writing or removal; there is no silent downgrade.
+//      Stable-path checks resolve the nearest existing ancestor before creating missing directories, never a lexical
+//      fallback through an unresolved link. This is not a claim of arbitrary-writer filesystem CAS.
 //
 //   folderFiles(root) → { foldersUnder, list, entry, read, writeIfUnchanged, removeIfUnchanged }
 import { lstat, mkdir, mkdtemp, open, readdir, readFile, realpath, rename, rmdir, stat, unlink, writeFile } from 'node:fs/promises';
@@ -28,10 +31,31 @@ export async function folderFiles(root) {
   let contentSnapshot = null;
   const inside = path => path === base || path.startsWith(base.endsWith(sep) ? base : base + sep);
   const nameOf = path => `/${relative(base, path).split(sep).join('/')}`;
+  const absentOnly = error => { if (error.code === 'ENOENT') return null; throw error; };
   const pathOf = async name => {
     const wanted = join(base, ...String(name).split('/').filter(Boolean));
-    // A name that does not exist yet is judged by the real path of its folder.
-    const real = await realpath(wanted).catch(async () => join(await realpath(dirname(wanted)).catch(() => dirname(wanted)), basename(wanted)));
+    if (!inside(wanted)) throw Object.assign(new Error(`${name} is not in the folder.`), { code: 'not_a_document' });
+    // Resolve the nearest existing ancestor. A missing immediate parent is not evidence that its lexical path is
+    // confined: an earlier component can already be a link outside the root, including a dangling link.
+    let ancestor = wanted;
+    const missing = [];
+    let real;
+    for (;;) {
+      try { real = join(await realpath(ancestor), ...missing.reverse()); break; }
+      catch (error) {
+        const existing = error.code === 'ENOENT' ? await lstat(ancestor).catch(failure => {
+          if (failure.code === 'ENOENT') return null;
+          throw failure;
+        }) : true;
+        if (existing) {
+          throw Object.assign(new Error(`${name} has no qualified path in the folder.`), { code: 'not_a_document' });
+        }
+        const parent = dirname(ancestor);
+        if (parent === ancestor) throw Object.assign(new Error(`${name} has no existing ancestor.`), { code: 'not_a_document' });
+        missing.push(basename(ancestor));
+        ancestor = parent;
+      }
+    }
     if (!inside(real)) throw Object.assign(new Error(`${name} is not in the folder.`), { code: 'not_a_document' });
     return real;
   };
@@ -47,6 +71,7 @@ export async function folderFiles(root) {
   };
 
   return {
+    capabilities: { atomic_confined_publication: false, concurrency: 'external_serialization_required' },
     async foldersUnder(folder) {
       const found = [];
       const walk = async path => {
@@ -73,9 +98,10 @@ export async function folderFiles(root) {
     },
     async entry(name, { identity = true } = {}) {
       const path = await pathOf(name);
-      const facts = await stat(path).catch(() => null);
+      const facts = await stat(path).catch(absentOnly);
       if (!facts) return null;
       if (facts.isDirectory()) return { name, folder: true };
+      if (!facts.isFile()) throw Object.assign(new Error(`${name} is not a regular document file.`), { code: 'not_a_document' });
       return { name, ...(identity ? { identity: makeHashCodeHexFromBytes(await readFile(path)) } : {}), byte_length: facts.size, modified_at_ms: facts.mtimeMs };
     },
     // The first `most` bytes of the named document as text: { identity, text, complete, facts }. `identity` is ignored
@@ -94,9 +120,13 @@ export async function folderFiles(root) {
       }
       return { identity: contentSnapshot.identity, bytes: contentSnapshot.bytes.subarray(offset, offset + length) };
     },
-    async writeIfUnchanged(name, text, expected) {
+    async writeIfUnchanged(name, text, expected, _mediaType, { require_atomic = false } = {}) {
+      if (require_atomic) throw Object.assign(new Error('This ordinary folder has no atomic confined publication owner.'), { code: 'not_written' });
+      if (_mediaType !== undefined && typeof _mediaType !== 'string') throw Object.assign(new Error('Publication options belong in the options argument.'), { code: 'bad_input' });
       const path = await pathOf(name);
-      const now = await readFile(path).catch(() => null);
+      const facts = await lstat(path).catch(absentOnly);
+      if (facts && !facts.isFile()) throw Object.assign(new Error(`${name} is not a regular document file.`), { code: 'not_a_document' });
+      const now = await readFile(path).catch(absentOnly);
       const current = now ? makeHashCodeHexFromBytes(now) : null;
       if (current !== expected) return { conflict: true, current };
       if (now && (await lstat(path)).isSymbolicLink()) throw Object.assign(new Error(`${name} is a link; change the document it points to.`), { code: 'not_a_document' });
@@ -114,9 +144,10 @@ export async function folderFiles(root) {
       await rmdir(scratch);
       return { identity: makeHashCodeHexFromBytes(bytes) };
     },
-    async removeIfUnchanged(name, expected) {
+    async removeIfUnchanged(name, expected, { require_atomic = false } = {}) {
+      if (require_atomic) throw Object.assign(new Error('This ordinary folder has no atomic confined publication owner.'), { code: 'not_written' });
       const path = await pathOf(name);
-      const now = await readFile(path).catch(() => null);
+      const now = await readFile(path).catch(absentOnly);
       const current = now ? makeHashCodeHexFromBytes(now) : null;
       if (!now || current !== expected) return { conflict: true, current };
       if ((await lstat(path)).isSymbolicLink()) throw Object.assign(new Error(`${name} is a link; remove the document it points to.`), { code: 'not_a_document' });

@@ -112,6 +112,10 @@ function sourcesOf(list) {
     }
     if (row.original !== undefined && !['list', 'source'].includes(row.original)) throw say('bad_list', 'Source original is "list" or "source".');
     if (row.original === 'list' && (!served.change || !served.copy)) throw say('bad_list', `The row source ${row.source} has no copy a list can write.`);
+    if (row.require_atomic !== undefined && typeof row.require_atomic !== 'boolean') throw say('bad_list', 'Source require_atomic is a boolean.');
+    if (row.require_atomic && served.change?.input?.require_atomic !== '{require_atomic}') {
+      throw say('bad_list', 'This source cannot forward its atomic publication requirement to its change owner.');
+    }
     if (row.adopt_own_rows !== undefined && (typeof row.adopt_own_rows !== 'boolean' || (row.adopt_own_rows && row.original !== 'list'))) {
       throw say('bad_list', 'Source adopt_own_rows is a boolean, and only a list-original source adopts rows.');
     }
@@ -420,11 +424,17 @@ async function writeAll(door, records, key, signal) {
     try {
       await door.write(batch, { key: `${key}:${index}` });
     } catch (error) {
+      if (error.outcome === 'unknown') throw error;
+      if (error.code === 'original_command_conflict' && error.outcome === 'not_started') {
+        refused.push(...batch.map(record => record.id));
+        continue;
+      }
       if (error.code !== 'original_input_refused') throw error;
       for (const record of batch) {
         signal?.throwIfAborted();
         await door.write([record], { key: `${key}:${index}:${record.id}` }).catch(one => {
-          if (one.code !== 'original_input_refused') throw one;
+          if (one.outcome === 'unknown' || (one.code !== 'original_input_refused' &&
+              !(one.code === 'original_command_conflict' && one.outcome === 'not_started'))) throw one;
           refused.push(record.id);
         });
       }

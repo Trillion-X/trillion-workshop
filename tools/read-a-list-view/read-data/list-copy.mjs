@@ -23,8 +23,9 @@
 // own fields (a check's switch) are kept on the row and never reach the file.
 //
 // Non-Negotiable Invariants:
-//   1. Nothing is overwritten silently. A file is written or removed only if it is still the one read (the source's
-//      change tool checks its identity), and a row is overwritten only by a write the engine keeps as a new version.
+//   1. Every row effect carries the native owner's exact expected type/value (or expected absence). Unknown outcomes
+//      retain the original tuple. A file publication's actual concurrency boundary belongs to its change owner;
+//      require_atomic is forwarded without downgrade and unsupported publication is refused, not called CAS.
 //   2. Nothing is removed from the list for a file the source has not answered: rows of documents not seen are judged
 //      only after the source answered its last page, as in a one-way refresh.
 //   3. A run with `paths` settles only those documents (the write a file-writing app just made); without, every one.
@@ -70,10 +71,12 @@ function copyNames(source) {
   }
   // A copy whose rows hold its fields bare (list_only named: a row of many in one file) owns every field but the
   // list's own ones and its meta prefixes; any other copy owns the fields under its prefixes.
-  const meta = field => named.owned_prefixes.some(prefix => field.startsWith(prefix));
+  const contentFields = new Set(['field', 'parent_field', 'index_field', 'count_field', 'identity_field', 'changed_field',
+    'complete_field', 'source_field', 'section_field', 'offset_field'].map(key => named[key]).filter(value => typeof value === 'string'));
+  const meta = field => contentFields.has(field) || named.owned_prefixes.some(prefix => field.startsWith(prefix));
   return { ...named,
     own: Array.isArray(named.list_only) ? field => !named.list_only.includes(field) && !meta(field) : field => field.startsWith(named.properties_prefix),
-    kept: Array.isArray(named.list_only) ? field => named.list_only.includes(field) : field => !meta(field) };
+    kept: Array.isArray(named.list_only) ? field => !meta(field) && named.list_only.includes(field) : field => !meta(field) };
 }
 
 // One document from its rows (the whole document, or its numbered parts): its text when every part is there.
@@ -81,7 +84,8 @@ function documentOf(rows, names) {
   const sorted = [...rows].sort((a, b) => (Number(a.value[names.index_field] ?? 1) - Number(b.value[names.index_field] ?? 1)));
   const first = sorted[0].value;
   const parts = Number(first[names.count_field] ?? 1);
-  const whole = sorted.length === parts && sorted.every((row, index) => Number(row.value[names.index_field] ?? 1) === index + 1 &&
+  const whole = Number.isSafeInteger(parts) && parts > 0 && sorted.length === parts && sorted.every((row, index) => Number(row.value[names.index_field] ?? 1) === index + 1 &&
+    Number(row.value[names.count_field] ?? 1) === parts && row.value[names.identity_field] === first[names.identity_field] &&
     typeof row.value[names.field] === 'string');
   const text = whole ? sorted.map(row => row.value[names.field]).join('') : null;
   return { rows: sorted, first, text, textIdentity: text === null ? null : textIdentity(text),
@@ -110,10 +114,19 @@ export async function syncRowSource(input, door) {
   const stamped = typeof door.read === 'function' ? await door.read(restore.record_type, restore.record) : null;
   const restoredAt = Number.isFinite(Date.parse(at(stamped, restore.restored_at))) ? Date.parse(at(stamped, restore.restored_at)) : null;
   let writeIndex = 0;
+  const snapshots = new Map();
   const plan = (action, document) => { if (dryRun && report.planned.length < data.limits.planned_shown) report.planned.push({ action, document }); };
   const write = async records => {
     if (!records.length || dryRun) return [];
-    const refused = await writeAll(door, records, `${key}:${writeIndex++}`, signal);
+    // These are fresh effects from this admitted read. Conditional refusal never refreshes the body or key;
+    // transport/unknown errors still end the run with the original request tuple unchanged.
+    const guarded = records.map(record => ({ ...record, expected: snapshots.has(record.id)
+      ? { type, value: structuredClone(snapshots.get(record.id)) } : null }));
+    const refused = await writeAll(door, guarded, `${key}:${writeIndex++}`, signal);
+    for (const record of records) if (!refused.includes(record.id)) {
+      if (record.value === null) snapshots.delete(record.id);
+      else snapshots.set(record.id, structuredClone(record.value));
+    }
     for (const id of refused) report.refused.push({ document: id, because: 'the door refused its values' });
     return refused;
   };
@@ -124,13 +137,21 @@ export async function syncRowSource(input, door) {
   const changeFiles = async request => at(await door.run(change.tool, { ...changeInput, ...request }), change.answer_at);
 
   // ---- the list's side ----------------------------------------------------------------------------------------------
-  const held = new Map(), own = [];
+  const held = new Map(), own = [], documentNames = new Map();
   const otherPrefixes = sources.filter(one => one.id !== source.id).map(one => prefixOf(one.id));
   const take = record => {
     if (record.id.startsWith(prefixOf(source.id))) {
       const name = nameOf(record);
-      if (!paths || paths.includes(name)) (held.get(name) ?? held.set(name, []).get(name)).push(record);
+      if (!paths || paths.includes(name)) {
+        if (documentNames.has(record.id) && documentNames.get(record.id) !== name) {
+          throw say('records_unanswered', `Listing ${record.id} answered different document owners.`);
+        }
+        documentNames.set(record.id, name);
+        snapshots.set(record.id, structuredClone(record.value));
+        (held.get(name) ?? held.set(name, []).get(name)).push(record);
+      }
     } else if (!paths && source.adopt_own_rows && !otherPrefixes.some(prefix => record.id.startsWith(prefix)) && record.value) {
+      snapshots.set(record.id, structuredClone(record.value));
       own.push(record);
     }
   };
@@ -158,10 +179,35 @@ export async function syncRowSource(input, door) {
     return rows;
   };
   const asRecords = rows => rows.map(row => ({ id: recordId(row.id), value: projectedValues(source, row) }));
+  const sourceNameOf = row => {
+    const parent = row.values[names.parent_field];
+    // A multipart row without its parent cannot establish which held document is present. Refuse the source
+    // before effects rather than mistaking that original for a file the source did not answer.
+    if ((parent !== undefined && (typeof parent !== 'string' || !parent)) || (parent === undefined &&
+      (Object.hasOwn(row.values, names.count_field) || Object.hasOwn(row.values, names.index_field) ||
+        typeof row.values[names.field] !== 'string' || typeof row.values[names.identity_field] !== 'string' || !row.values[names.identity_field]))) {
+      throw say('source_unanswered', `The row source ${source.id} answered a document part without an identifiable parent.`);
+    }
+    return parent ?? row.id;
+  };
+  const sourceDocument = (rows, name) => {
+    if (!rows.length || new Set(rows.map(row => row.id)).size !== rows.length || rows.some(row => sourceNameOf(row) !== name ||
+      (documentNames.has(recordId(row.id)) && documentNames.get(recordId(row.id)) !== name))) return null;
+    const file = documentOf(rows.map(row => ({ value: row.values })), names);
+    return file.text !== null && typeof file.baseline === 'string' && file.baseline ? file : null;
+  };
+  const refuseSource = (name, rows) => report.refused.push({ document: name,
+    because: `the folder answered ${rows.length} parts without one complete document, source identity and record ownership` });
+  // Bind a record id to its admitted document for the whole run. Accepted value snapshots may advance, but they
+  // must never turn a part of another original into this document's own publication or later absence deletion.
+  const claimSource = (rows, name) => { for (const row of rows) documentNames.set(recordId(row.id), name); };
 
   // The file's rows written over the list's rows of that document: values outside the copy's own prefixes that the
   // list's rows hold (a field an AI added in the list) stay on the row of the same id. Rows the file no longer has go.
-  const push = async (fileRows, listRows = []) => {
+  const push = async (fileRows, listRows = [], name) => {
+    // Also applies to fresh reads after a pull or adoption: a missing or invalid readback never removes originals.
+    if (!sourceDocument(fileRows, name)) { refuseSource(name, fileRows); return 0; }
+    claimSource(fileRows, name);
     const before = new Map(listRows.map(record => [record.id, record.value]));
     const records = asRecords(fileRows).map(record => {
       const kept = Object.fromEntries(Object.entries(before.get(record.id) ?? {})
@@ -170,8 +216,8 @@ export async function syncRowSource(input, door) {
     });
     const writes = records.filter(record => !before.has(record.id) || !sameValues(before.get(record.id), record.value));
     const gone = [...before.keys()].filter(id => !records.some(record => record.id === id)).map(id => ({ id, type, value: null }));
-    await write([...writes, ...gone]);
-    return writes.length + gone.length;
+    const refused = await write([...writes, ...gone]);
+    return refused.length ? 0 : writes.length + gone.length;
   };
 
   // The list's text written into the folder while the file is still `expected` (null: there is none), then its rows.
@@ -184,8 +230,9 @@ export async function syncRowSource(input, door) {
       report.refused.push({ document: name, because: `the folder refused the write: ${error.message.slice(0, 200)}` });
       return false;
     }
-    await push(await fileRowsOf(name), listRows);
-    return true;
+    const beforeRefusals = report.refused.length;
+    await push(await fileRowsOf(name), listRows, name);
+    return report.refused.length === beforeRefusals;
   };
 
   const newestRowTime = async id => {
@@ -199,8 +246,9 @@ export async function syncRowSource(input, door) {
 
   const settle = async (name, fileRows, listRows) => {
     report.documents += 1;
-    const file = fileRows?.length ? documentOf(fileRows.map(row => ({ value: row.values })), names) : null;
+    const file = fileRows?.length ? sourceDocument(fileRows, name) : null;
     const row = listRows?.length ? documentOf(listRows, names) : null;
+    if (fileRows?.length && !file) { refuseSource(name, fileRows); return; }
     if (row && row.text === null) {
       report.refused.push({ document: name, because: `the list holds ${listRows.length} of its ${row.first[names.count_field]} parts` });
       return;
@@ -215,8 +263,7 @@ export async function syncRowSource(input, door) {
         }
         if (row.baseline === row.textIdentity) {
           plan('push', name);
-          await push(fileRows, listRows);
-          report.pushed += 1;
+          if (await push(fileRows, listRows, name)) report.pushed += 1;
           return;
         }
         // Both changed since the row was made from the file: the later change wins, the other stays a row version.
@@ -230,8 +277,11 @@ export async function syncRowSource(input, door) {
           because: `both changed; the ${listWins ? 'list' : 'file'} changed last (${listWins ? rowAt : file.changed}); the other text is the row's previous version` });
         plan(listWins ? 'conflict-pull' : 'conflict-push', name);
         if (dryRun) return;
-        await push(fileRows, listRows);
-        if (listWins) await pull(name, { text: row.text, if_identity: fileIdentity }, asRecords(fileRows).map(record => ({ ...record, type })));
+        const beforeRefusals = report.refused.length;
+        await push(fileRows, listRows, name);
+        if (report.refused.length !== beforeRefusals) return;
+        if (listWins) await pull(name, { text: row.text, if_identity: fileIdentity }, asRecords(fileRows)
+          .map(record => ({ ...record, type, value: snapshots.get(record.id) ?? record.value })));
         return;
       }
       // Same text. A value only the list changed (a frontmatter property) goes to the file when the file is the one
@@ -245,8 +295,9 @@ export async function syncRowSource(input, door) {
         return;
       }
       if (dryRun) { report.unchanged += 1; return; }
-      if (await push(fileRows, listRows)) report.pushed += 1;
-      else report.unchanged += 1;
+      const beforeRefusals = report.refused.length;
+      if (await push(fileRows, listRows, name)) report.pushed += 1;
+      else if (report.refused.length === beforeRefusals) report.unchanged += 1;
       return;
     }
     if (row) {
@@ -257,8 +308,8 @@ export async function syncRowSource(input, door) {
           return;
         }
         plan('remove-rows', name);
-        await write(listRows.map(record => ({ id: record.id, type, value: null })));
-        report.removed_rows += 1;
+        const refused = await write(listRows.map(record => ({ id: record.id, type, value: null })));
+        if (!refused.length) report.removed_rows += 1;
         return;
       }
       plan('pull', name);
@@ -270,8 +321,9 @@ export async function syncRowSource(input, door) {
     const removedFromList = versions[0]?.deleted && versions.slice(1).find(version => !version.deleted)?.value?.[names.identity_field] === file.first[names.identity_field];
     if (removedFromList && beforeRestore(versions[0].at)) {
       plan('carry-after-restore', name);
-      await push(fileRows);
-      report.carried_after_restore += 1;
+      const beforeRefusals = report.refused.length;
+      await push(fileRows, [], name);
+      if (report.refused.length === beforeRefusals) report.carried_after_restore += 1;
       return;
     }
     if (removedFromList) {
@@ -287,34 +339,40 @@ export async function syncRowSource(input, door) {
       return;
     }
     plan('push', name);
-    await push(fileRows);
-    report.pushed += 1;
+    if (await push(fileRows, [], name)) report.pushed += 1;
   };
 
   // ---- both sides, document by document ------------------------------------------------------------------------------
-  const pending = new Map();
+  const pending = new Map(), sourceNames = new Map();
   for await (const page of sourcePages(door, scoped, input.source_answer_bytes, signal)) {
     for (const fileRow of page) {
-      const name = typeof fileRow.values?.[names.parent_field] === 'string' ? fileRow.values[names.parent_field] : fileRow.id;
+      const name = sourceNameOf(fileRow);
+      if (sourceNames.has(fileRow.id) && sourceNames.get(fileRow.id) !== name) {
+        throw say('source_unanswered', `The row source ${source.id} answered one part id for different documents.`);
+      }
+      sourceNames.set(fileRow.id, name);
       const rows = pending.get(name) ?? pending.set(name, []).get(name);
       rows.push(fileRow);
-      if (rows.length >= Number(rows[0].values?.[names.count_field] ?? 1)) {
-        pending.delete(name);
-        await settle(name, rows, held.get(name));
-        held.delete(name);
-      }
     }
   }
-  // The source ended: what it did not answer is not in the folder (invariant 2).
-  for (const [name, rows] of pending) report.refused.push({ document: name, because: `the folder answered ${rows.length} of its parts` });
+  // Finish and validate the source frame before effects: a later part may duplicate or contradict an earlier
+  // complete count. A refused frame cannot establish a complete absence inventory or permit adoption either.
+  for (const [name, rows] of pending) if (!sourceDocument(rows, name)) refuseSource(name, rows);
+  if (report.refused.length) return report;
+  for (const [name, rows] of pending) claimSource(rows, name);
+  for (const [name, rows] of pending) {
+    await settle(name, rows, held.get(name));
+    held.delete(name);
+  }
+  // Only documents not answered at all are absent (invariant 2).
   for (const [name, listRows] of held) await settle(name, null, listRows);
 
   // ---- rows any AI wrote into the list ---------------------------------------------------------------------------
   const isCopyOf = async (name, set, body) => {
     const rows = await fileRowsOf(name);
     if (!rows.length) return false;
-    const file = documentOf(rows.map(row => ({ value: row.values })), names);
-    return sameValues(properties(file.first, names), set) && file.text !== null && file.text.endsWith(body);
+    const file = sourceDocument(rows, name);
+    return file !== null && sameValues(properties(file.first, names), set) && file.text.endsWith(body);
   };
   for (const record of own) {
     const values = record.value;
@@ -363,9 +421,10 @@ export async function syncRowSource(input, door) {
       report.refused.push({ document: record.id, because: `${named} was written, but the source does not read it (copy_name is outside its match)` });
       continue;
     }
-    await push(made);
-    await write([{ id: record.id, type, value: null }]);
-    report.adopted += 1;
+    const beforeRefusals = report.refused.length;
+    await push(made, [], named);
+    if (report.refused.length !== beforeRefusals) continue;
+    if (!(await write([{ id: record.id, type, value: null }])).length) report.adopted += 1;
   }
   return report;
 }

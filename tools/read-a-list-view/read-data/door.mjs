@@ -21,8 +21,9 @@
 //   function it exports, and the input every run of it gets; its answer comes back as a run's `result`.
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { readFile } from 'node:fs/promises';
+import { lstat, readFile, realpath } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
+import { isAbsolute, resolve } from 'node:path';
 import { wholeAnswer } from '../../records-door/read-data/byte-pages.mjs';
 
 const PROTOCOL = '2025-06-18';
@@ -97,7 +98,8 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
       const answer = result.structuredContent ?? result;
       if (!result.isError) return answer;
       if ((answer?.code === 'selected_owner_unavailable' || answer?.outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-      throw say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`);
+      throw Object.assign(say(answer?.code ?? 'refused', `${method} was refused: ${JSON.stringify(answer).slice(0, 300)}`),
+        { outcome: answer?.outcome });
     }
   };
   // A record too big for one message comes as pages of its own bytes (tools/records-door byte-pages.mjs); the same
@@ -113,7 +115,27 @@ export async function openDoor(config, { keyOf = credentialKey } = {}) {
     if (local) {
       const ran = (await import(new URL(local.module, TOOLS)))[local.export];
       if (typeof ran !== 'function') throw say('bad_config', `local_tools: ${local.module} exports no ${local.export}.`);
-      return { result: await ran({ ...(local.input ?? {}), ...input }) };
+      const given = { ...(local.input ?? {}), ...input };
+      // A source may name a sibling owned folder relative to the local tool's runtime root. The host resolves
+      // that default root, so list DATA carries no person's home path and another invocation directory cannot
+      // silently change the source. Remote tools retain their own placement/grant handling.
+      if (typeof input?.root === 'string' && !isAbsolute(input.root)) {
+        if (typeof local.input?.root !== 'string' || !isAbsolute(local.input.root)) {
+          throw say('bad_config', 'A relative source root needs the local tool\'s resolved absolute default root.');
+        }
+        let base;
+        try {
+          const declared = await lstat(local.input.root, { bigint: true });
+          if (!declared.isDirectory() || declared.isSymbolicLink()) throw new Error('not a directory');
+          base = await realpath(local.input.root);
+          const canonical = await lstat(base, { bigint: true });
+          if (!canonical.isDirectory() || canonical.dev !== declared.dev || canonical.ino !== declared.ino) throw new Error('changed root');
+        } catch {
+          throw say('bad_config', 'A relative source root needs an existing canonical local-tool directory, not a missing or linked base.');
+        }
+        given.root = resolve(base, input.root);
+      }
+      return { result: await ran(given) };
     }
     const answer = await call(tools.address, tools.run_method, { tool, input });
     if (answer?.error !== undefined || (answer?.exit_code ?? 0) !== 0) throw say('tool_failed', `${tool}: ${String(answer?.error ?? `exit ${answer?.exit_code}`).slice(0, 300)}`);

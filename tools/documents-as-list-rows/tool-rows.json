@@ -124,14 +124,20 @@
         "placements": ["placement:your-computer"],
         "needs": {"expected_seconds": 2, "network_egress": false},
         "label": "Change fields of documents in my folder list",
-        "job": "Change or remove fields of documents' frontmatter in a folder I granted, write a whole document or remove one, each only if the document is still the one I read",
-        "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the frontmatter lines of the keys named: a value sets the key, null removes it, and other keys, comments and the body stay byte for byte. A value must fit the kind the folder's property-types.json gives the property; file facts cannot be written. When if_identity is given and the document changed since it was read, the change is refused and nothing is merged. A row with text { id, text, values?, if_identity } writes the whole document (if_identity null: only when no document is there, its folders made), and remove: [{ id, if_identity }] removes one; both are refused, never made again, when the document is no longer the one read. This is how a list that is the original writes its folder copy (tools/read-a-list-view). The new bytes replace the document in one rename, and the answer is each changed document's new values and identity, and the documents removed.",
+        "job": "Change document frontmatter, write whole text or remove a document in a granted folder, using its read identity and publication requirements",
+        "description": "For each row { id, values: { note.<key>: value or null }, if_identity } rewrites only the named frontmatter keys; other keys, comments and body remain. Values must fit the folder's declared property kinds; file facts cannot be written. Whole text and removals require the read identity (null for creating an absent document). Exact paths with declared text_extensions may select other UTF-8 text files, which accept whole text only, without note properties. Ordinary folders compare identity before rename or unlink and require externally serialized cooperating writers: they do not provide arbitrary-writer filesystem CAS or an OS-confined path handle. require_atomic demands a genuine atomic confined publication owner and refuses before filesystem effects when the adapter cannot supply one; it is never downgraded. List-original sources pass this requirement to their change owner. The answer names kept identities and removed documents.",
         "input_schema": {
           "type": "object",
           "anyOf": [{"required": ["rows"]}, {"required": ["remove"]}],
           "additionalProperties": false,
           "properties": {
             "folder": {"type": "string", "description": "A folder inside the granted folder the ids are under; the granted folder itself when left out."},
+            "require_atomic": {"type": "boolean", "description": "Require an actual atomic confined publication owner; unsupported adapters refuse before any filesystem effect."},
+            "match": {"type": "string", "description": "The same source path glob used by the read."},
+            "exclude": {"type": "array", "items": {"type": "string"}, "description": "The same excluded source path globs used by the read."},
+            "paths": {"type": "array", "items": {"type": "string"}, "description": "Exact selected text documents; non-markdown writes require this positive selection and text_extensions."},
+            "paths_file": {"type": "string", "description": "The same bounded positive path catalogue used by the read, inside the granted root."},
+            "text_extensions": {"type": "array", "items": {"type": "string"}, "description": "Declared text extensions for exact selected paths; whole UTF-8 text and a read identity are required."},
             "rows": {
               "type": "array",
               "items": {

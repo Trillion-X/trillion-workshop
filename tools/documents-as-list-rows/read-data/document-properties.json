@@ -57,6 +57,7 @@
     "document_changed": "The document {document} changed after it was read ({expected} is now {current}); read it again and make the change on what it says now.",
     "not_a_document": "{document} is not a text document in this folder.",
     "bad_page": "A page of rows holds 1 to {most} rows.",
-    "bad_input": "{what}"
+    "bad_input": "{what}",
+    "not_written": "{what}"
   }
 }

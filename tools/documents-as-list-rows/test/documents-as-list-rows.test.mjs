@@ -4,7 +4,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, readdir, symlink, writeFile } from 'node:fs/promises';
+import { watch } from 'node:fs';
+import { mkdir, mkdtemp, readFile, readdir, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +17,125 @@ import { contentRows } from '../read-data/content-rows.mjs';
 
 const command = fileURLToPath(new URL('../do-work/documents.mjs', import.meta.url));
 const scratch = () => mkdtemp(join(tmpdir(), 'documents-as-list-rows-'));
+
+test('a missing intermediate parent never turns an outside or dangling symlink into a write path', async t => {
+  const parent = await scratch();
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const root = join(parent, 'root'), outside = join(parent, 'outside');
+  await mkdir(root); await mkdir(outside);
+  await symlink(outside, join(root, 'escape'));
+  await symlink(join(outside, 'absent'), join(root, 'dangling'));
+  const files = await folderFiles(root);
+  const parentNames = (await readdir(parent)).sort();
+  for (const name of ['/', '']) {
+    await assert.rejects(files.writeIfUnchanged(name, 'not a document', null));
+    assert.deepEqual((await readdir(parent)).sort(), parentNames, 'a refused directory write cannot stage beside the granted root');
+  }
+  for (const name of ['/escape/not-yet-created/config.json', '/dangling/not-yet-created/config.json']) {
+    await assert.rejects(changeDocumentRows({ root, paths: [name], text_extensions: ['json'],
+      rows: [{ id: name, text: '{"outside_effect":true}', if_identity: null }] }));
+    await assert.rejects(files.writeIfUnchanged(name, 'outside effect', null));
+    assert.deepEqual(await readdir(outside), [], 'even a refused command must have no outside side effect');
+  }
+});
+
+test('strict publication refuses unsupported folders before staging, creation, removal or a swapped-parent effect', async t => {
+  const parent = await scratch();
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const root = join(parent, 'root'), outside = join(parent, 'outside');
+  await mkdir(root); await mkdir(outside); await mkdir(join(root, 'inside'));
+  await writeFile(join(root, 'config.json'), '{"original":true}\n');
+  const files = await folderFiles(root);
+  assert.equal(files.capabilities.atomic_confined_publication, false);
+  const identity = (await files.entry('/config.json')).identity;
+  const staging = [];
+  const observer = watch(root, (_event, name) => { if (String(name).startsWith('.writing-')) staging.push(String(name)); });
+  try {
+    const refused = assert.rejects(changeDocumentRows({ root, paths: ['/config.json'], text_extensions: ['json'],
+      require_atomic: true, rows: [{ id: '/config.json', text: '{"stale":true}\n', if_identity: identity }] }),
+      error => error.code === 'not_written' && /cannot provide atomic confined/.test(error.message));
+    await writeFile(join(root, 'config.json'), '{"competitor":true}\n');
+    await refused;
+    assert.equal(await readFile(join(root, 'config.json'), 'utf8'), '{"competitor":true}\n');
+    await assert.rejects(files.writeIfUnchanged('/missing/child/config.json', '{}', null, 'text/plain', { require_atomic: true }),
+      error => error.code === 'not_written');
+    await assert.rejects(files.removeIfUnchanged('/config.json', identity, { require_atomic: true }), error => error.code === 'not_written');
+    await assert.rejects(changeDocumentRows({ root, paths: ['/config.json'], text_extensions: ['json'], require_atomic: true,
+      remove: [{ id: '/config.json', if_identity: identity }] }), error => error.code === 'not_written');
+    const cli = spawnSync(process.execPath, [command, 'set', '--root', root, '--stdin'], {
+      encoding: 'utf8', input: JSON.stringify({ paths: ['/config.json'], text_extensions: ['json'], require_atomic: true,
+        rows: [{ id: '/config.json', text: '{"must_not_publish":true}', if_identity: identity }] }),
+    });
+    assert.equal(cli.status, 2, 'the CLI reserves exit 1 for a changed-document conflict; unavailable publication is refused');
+    assert.match(cli.stderr, /cannot provide atomic confined publication/);
+    assert.equal(await readFile(join(root, 'config.json'), 'utf8'), '{"competitor":true}\n');
+    assert.deepEqual((await readdir(root)).sort(), ['config.json', 'inside']);
+    await rename(join(root, 'inside'), join(parent, 'moved-inside'));
+    await symlink(outside, join(root, 'inside'));
+    await assert.rejects(files.writeIfUnchanged('/inside/not-yet/config.json', '{}', null, 'text/plain', { require_atomic: true }),
+      error => error.code === 'not_written');
+    await assert.rejects(files.removeIfUnchanged('/inside/config.json', identity, { require_atomic: true }), error => error.code === 'not_written');
+    assert.deepEqual(await readdir(outside), []);
+    await new Promise(done => setImmediate(done));
+    assert.deepEqual(staging, [], 'strict refusal never starts the publication window the late writer would race');
+  } finally { observer.close(); }
+});
+
+test('explicit JSON text selection shares read/write scope, byte fences and root confinement', async t => {
+  const parent = await scratch();
+  t.after(() => rm(parent, { recursive: true, force: true }));
+  const root = join(parent, 'root');
+  await mkdir(root);
+  const original = '{"settings":{"retain":true},"items":[{"id":"opaque","owner":["src/files"]}]}\n';
+  await writeFile(join(root, 'config.json'), original);
+  const files = await folderFiles(root);
+  const identity = (await files.entry('/config.json')).identity;
+  const selected = { root, paths: ['/config.json'], text_extensions: ['json'] };
+  const read = await readDocumentRows({ ...selected, content: true });
+  assert.equal(read.rows.length, 1);
+  assert.equal(read.rows[0].values['document.text'], original);
+  const row = { id: '/config.json', text: '{"changed":true}\n', if_identity: identity };
+  for (const scope of [
+    { root }, { root, paths: ['/config.json'] },
+    { ...selected, paths: ['/other.json'] }, { ...selected, exclude: ['config.json'] },
+    { ...selected, paths: ['/../outside.json'] },
+  ]) {
+    await assert.rejects(changeDocumentRows({ ...scope, rows: [row] }));
+    assert.equal(await readFile(join(root, 'config.json'), 'utf8'), original);
+  }
+  for (const bad of [
+    { ...row, values: { 'note.status': 'on' } }, { id: row.id, values: { 'note.status': 'on' }, if_identity: identity },
+    { ...row, text: 'binary\u0000text' }, { ...row, text: '\ud800' }, { id: row.id, text: row.text },
+  ]) await assert.rejects(changeDocumentRows({ ...selected, rows: [bad] }), error => error.code === 'bad_input');
+  assert.equal(await readFile(join(root, 'config.json'), 'utf8'), original);
+  const changed = await changeDocumentRows({ ...selected, rows: [row] });
+  assert.equal(changed.kept.length, 1);
+  assert.equal(await readFile(join(root, 'config.json'), 'utf8'), row.text);
+  await assert.rejects(changeDocumentRows({ ...selected, rows: [{ ...row, text: 'stale' }] }), error => error.code === 'document_changed');
+  await assert.rejects(changeDocumentRows({ ...selected, remove: [{ id: row.id, if_identity: identity }] }), error => error.code === 'document_changed');
+
+  const binary = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0, 0xff]);
+  await writeFile(join(root, 'binary.json'), binary);
+  const binaryId = (await files.entry('/binary.json')).identity;
+  for (const change of [{ rows: [{ id: '/binary.json', text: '{}', if_identity: binaryId }] },
+    { remove: [{ id: '/binary.json', if_identity: binaryId }] }]) {
+    await assert.rejects(changeDocumentRows({ root, paths: ['/binary.json'], text_extensions: ['json'], ...change }),
+      error => error.code === 'not_a_document');
+    assert.deepEqual(await readFile(join(root, 'binary.json')), binary);
+  }
+  await writeFile(join(parent, 'outside.json'), '{"outside":true}');
+  await symlink(join(parent, 'outside.json'), join(root, 'escape.json'));
+  await assert.rejects(changeDocumentRows({ root, paths: ['/escape.json'], text_extensions: ['json'],
+    rows: [{ id: '/escape.json', text: '{}', if_identity: null }] }));
+  assert.equal(await readFile(join(parent, 'outside.json'), 'utf8'), '{"outside":true}');
+
+  const newScope = { root, paths: ['/new.json'], text_extensions: ['json'] };
+  await changeDocumentRows({ ...newScope, rows: [{ id: '/new.json', text: '{}\n', if_identity: null }] });
+  assert.equal((await readDocumentRows({ ...newScope, content: true })).rows[0].values['document.text'], '{}\n');
+  const current = (await files.entry('/new.json')).identity;
+  assert.deepEqual((await changeDocumentRows({ ...newScope, remove: [{ id: '/new.json', if_identity: current }] })).removed, ['/new.json']);
+  assert.equal(await files.entry('/new.json'), null);
+});
 
 test('frontmatter: scalars, lists, block lists and quoted text are read', () => {
   const text = '---\nstatus: open\ncount: 3\ndone: false\ntags: [kitchen, weekly]\nsteps:\n  - wash\n  - dry\nquote: "a: b"\n---\nbody\n';

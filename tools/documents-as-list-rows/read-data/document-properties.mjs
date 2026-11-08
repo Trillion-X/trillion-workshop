@@ -17,14 +17,13 @@
 // Non-Negotiable Invariants:
 //   1. The documents stay where they are. A row is read from the files through `files`; nothing is copied into list
 //      records.
-//   2. A property change rewrites only that property's frontmatter lines, and the new bytes are named only if the
-//      document is still what was read (`files.writeIfUnchanged` with the identity read), so a change made meanwhile is
-//      never lost: the change is made again on what the document now says, at most limits.write_attempts times. A
-//      caller that names the identity it read (if_identity) is refused instead when the document changed.
+//   2. A property change rewrites only that property's frontmatter lines and passes its read identity to the files
+//      owner. Ordinary folders require callers to serialize cooperating writers; their pre-check and rename are not
+//      arbitrary-writer CAS. require_atomic refuses before effects unless the actual backend supplies atomic,
+//      confined publication. A caller's if_identity is never silently replaced after a conflict.
 //   3. A value is written only if it fits its property's kind (kind_values); file facts and formulas are worked out and
-//      never written. A whole document (`text`, the copy a list that is the original writes) and a removal (`remove`)
-//      each name the identity they read (`if_identity`, null for a document not there yet) and are refused, never
-//      retried, when the document is no longer that one, so nothing written meanwhile is overwritten or removed.
+//      never written. A whole document or removal names the read identity. A strict publication requirement is
+//      checked at the actual backend and is not downgraded to the ordinary folder's cooperative pre-check.
 //   4. A formula may read another formula; each row's formulas are worked out once each (a per-row cache), and a formula
 //      that reaches itself is refused with the formulas it passed through, both when the sidecar is saved and when it is
 //      read (a sidecar written by hand is checked the same way).
@@ -525,9 +524,35 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
   // Property changes: each row { id: document name, values: { 'note.<key>': value | null }, if_identity? } (invariants 2-3).
   read.write = async ({ source, rows = [], remove = [] }) => {
     const refuse = what => say('bad_document_property', { properties: NS.properties, what });
+    if (source?.require_atomic !== undefined && typeof source.require_atomic !== 'boolean') throw say('bad_input', { what: 'require_atomic is a boolean.' });
+    if (source?.require_atomic && files.capabilities?.atomic_confined_publication !== true) {
+      throw say('not_written', { what: 'The selected files owner cannot provide atomic confined publication; no filesystem effect was started.' });
+    }
     const folder = sourceFolder(source);
-    const named = name => {
-      if (typeof name !== 'string' || !isDocument(name) || !(folder === '/' || name.startsWith(`${folder}/`))) throw say('not_a_document', { document: JSON.stringify(name) });
+    const selection = await documentSelection(files, source);
+    const matches = globTest(selection.match);
+    const excludes = (selection.exclude ?? []).map(globTest);
+    const explicitlySelected = name => Array.isArray(selection.paths) && selection.paths.includes(name);
+    const named = async name => {
+      const relative = typeof name === 'string' ? (folder === '/' ? name.slice(1) : name.slice(folder.length + 1)) : '';
+      if (typeof name !== 'string' || leafOf(name) === data.sidecar_name ||
+          !(folder === '/' || name.startsWith(`${folder}/`)) ||
+          !matches(relative) || excludes.some(test => test(relative)) ||
+          (selection.paths !== undefined && !explicitlySelected(name)) ||
+          (!isDocument(name) && !explicitlySelected(name))) throw say('not_a_document', { document: JSON.stringify(name) });
+      if (!isDocument(name)) {
+        // Positive text selection is shared with the reader, not a broader global document extension list.
+        // Qualify existing bytes as bounded UTF-8 text before accepting a non-markdown write or removal.
+        const entry = await files.entry(name);
+        if (entry) {
+          if (entry.folder) throw say('not_a_document', { document: name });
+          const current = await files.readSlice(entry.identity, 0, limits.bytes_per_document + 1, name);
+          if (current.identity !== entry.identity) throw say('document_changed', { document: name, expected: entry.identity, current: current.identity });
+          let text;
+          try { text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(current.bytes); } catch { throw say('not_a_document', { document: name }); }
+          if (current.bytes.length > limits.bytes_per_document || text.includes('\u0000')) throw say('not_a_document', { document: name });
+        }
+      }
       return name;
     };
     // A whole document and a removal name the identity they read: a string, or null for a document not there yet.
@@ -541,7 +566,11 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
     const sidecar = await readDocumentTypes(files, folder);
     const kept = [], removed = [];
     for (const row of rows) {
-      const name = named(row?.id);
+      const name = await named(row?.id);
+      if (!isDocument(name) && (typeof row.text !== 'string' || Object.keys(row.values ?? {}).length || row.text.includes('\u0000') ||
+          new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(new TextEncoder().encode(row.text)) !== row.text)) {
+        throw say('bad_input', { what: 'An explicitly selected text file needs a whole text write without note properties and with its read identity.' });
+      }
       const set = {}, gone = [];
       for (const [id, value] of Object.entries(row.values ?? {})) {
         const key = id.startsWith(`${NS.properties}.`) ? id.slice(NS.properties.length + 1) : null;
@@ -556,7 +585,7 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
         if (typeof row.text !== 'string') throw say('bad_input', { what: `The text of ${name} is a string.` });
         const expected = readIdentity(row, 'whole document');
         const text = Object.keys(set).length || gone.length ? writeFrontmatter(row.text, { set, remove: gone }) : row.text;
-        const written = await files.writeIfUnchanged(name, text, expected, 'text/markdown; charset=utf-8');
+        const written = await files.writeIfUnchanged(name, text, expected, isDocument(name) ? 'text/markdown; charset=utf-8' : 'text/plain; charset=utf-8', { require_atomic: source?.require_atomic === true });
         if (written.conflict) throw say('document_changed', { document: name, expected: expected ?? 'nothing', current: written.current ?? 'nothing' });
         kept.push({ name, identity: written.identity });
         continue;
@@ -568,16 +597,16 @@ export function documentRowSources({ files, evaluateBinding = null } = {}) {
         if (row.if_identity !== undefined && row.if_identity !== entry.identity) throw say('document_changed', { document: name, expected: row.if_identity, current: entry.identity });
         const now = await files.read(entry.identity, limits.bytes_per_document, name);
         if (!now.complete) throw say('not_a_document', { document: `${name} (longer than ${limits.bytes_per_document} bytes)` });
-        const written = await files.writeIfUnchanged(name, writeFrontmatter(now.text, { set, remove: gone }), entry.identity, 'text/markdown; charset=utf-8');
+        const written = await files.writeIfUnchanged(name, writeFrontmatter(now.text, { set, remove: gone }), entry.identity, 'text/markdown; charset=utf-8', { require_atomic: source?.require_atomic === true });
         if (!written.conflict) { identity = written.identity; break; }
         if (row.if_identity !== undefined || attempt >= limits.write_attempts) throw say('document_changed', { document: name, expected: entry.identity, current: written.current ?? 'nothing' });
       }
       kept.push({ name, identity });
     }
     for (const row of remove) {
-      const name = named(row.id);
+      const name = await named(row.id);
       const expected = readIdentity(row, 'removal');
-      const gone = await files.removeIfUnchanged(name, expected);
+      const gone = await files.removeIfUnchanged(name, expected, { require_atomic: source?.require_atomic === true });
       if (gone.conflict) throw say('document_changed', { document: name, expected, current: gone.current ?? 'nothing' });
       removed.push(name);
     }
