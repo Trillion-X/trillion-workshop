@@ -103,3 +103,46 @@ test('call-to-action links: one page, primary first, malformed dropped', () => {
   assert.equal(links[0].attribution, 'utm_source=x');
   assert.equal(resolveCtaLinks(records).length, 3);
 });
+
+test('a different node or a partial variant key cannot decide this node\'s price', () => {
+  const variants = [{ id: 'variant:v2', amount_cents: 9900 }, { id: 'variant:v', amount_cents: 900 }];
+  const test = { id: 'exp:1', state: 'settled', node_ref: 'node:pro', result: { winner: 'v' } };
+  assert.equal(resolveExperimentWinnerAmount('pro', [{ ...test, node_ref: 'node:program' }], variants), null);
+  assert.equal(resolveExperimentWinnerAmount('pro', [{ ...test, node_ref: undefined, id: 'experiment:pro' }], variants), null);
+  assert.equal(resolveExperimentWinnerAmount('pro', [test], variants).amount_cents, 900);
+  assert.equal(resolveExperimentWinnerAmount('pro', [test], variants.slice(0, 1)), null);
+  assert.equal(resolveExperimentWinnerAmount('pro', [test], [{ id: 'one:v', amount_cents: 100 }, { id: 'two:v', amount_cents: 200 }]), null);
+});
+
+test('a node link uses whole identity and a missing experiment state proves no settled price', () => {
+  const experiment = { id: 'exp:1', state: 'settled', idea_ref: 'idea-a', result: { winner: 'v' } };
+  const variants = [{ variant_key: 'v', amount_cents: 900 }];
+  const link = { node_ref: 'node:program', outcome_links: { outcome: 'idea-ref:idea-a' } };
+  assert.equal(resolveExperimentWinnerAmount('pro', [experiment], variants, [link]), null);
+  assert.equal(resolveExperimentWinnerAmount('pro', [experiment], variants, [{ ...link, node_ref: 'node:pro' }]).amount_cents, 900);
+  assert.equal(resolveExperimentWinnerAmount('pro', [{ ...experiment, state: undefined, node_ref: 'pro' }], variants), null);
+});
+
+test('a settled experiment can price its own named arm without guessing a numeric key', () => {
+  const experiment = { id: 'exp:1', state: 'settled', node_ref: 'pro', result: { winner: '47' } };
+  assert.equal(resolveExperimentWinnerAmount('pro', [experiment], []), null);
+  assert.equal(resolveExperimentWinnerAmount('pro', [{ ...experiment, arms: [{ id: '47', amount_cents: 2500 }] }], []).amount_cents, 2500);
+});
+
+test('graph selection refuses partial and ambiguous identities', () => {
+  const alternatives = [{ id: 'graph:program' }, { id: 'graph:pro' }];
+  assert.equal(resolveFunnelFlow(alternatives, nodes, [], [], [], 'pro').graph_id, 'graph:pro');
+  assert.equal(resolveFunnelFlow(alternatives, nodes, [], [], [], 'rog'), null);
+  assert.equal(resolveFunnelFlow([...alternatives, { id: 'other:pro' }], nodes, [], [], [], 'pro'), null);
+});
+
+test('a declared local arm set never borrows a same-key global variant price', () => {
+  const experiment = { id: 'exp:1', state: 'settled', node_ref: 'pro', result: { winner: 'v' } };
+  const variants = [{ variant_key: 'v', amount_cents: 99900 }];
+  for (const arms of [
+    [{ id: 'v', variant: { headline: 'A content-only arm' } }],
+    [{ id: 'v', amount_cents: 100 }, { id: 'v', amount_cents: 200 }],
+    [{ id: 'another', amount_cents: 300 }], [], null,
+  ]) assert.equal(resolveExperimentWinnerAmount('pro', [{ ...experiment, arms }], variants), null);
+  assert.equal(resolveExperimentWinnerAmount('pro', [experiment], variants).amount_cents, 99900);
+});

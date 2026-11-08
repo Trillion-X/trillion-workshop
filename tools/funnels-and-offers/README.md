@@ -46,6 +46,8 @@ A person's sales funnels, read from their own records: the offers in order, the 
 - A stage with several price options shows the option it names; with none named it shows no price. A position in a list is never a price.
 - A winner of a price experiment decides a price only through a variant record that carries `amount_cents`. The package also read a bare winner key such as "47" as dollars; that guess is not carried.
 - Only a settled (graduated, settled, concluded) experiment can decide a live price.
+- References match whole identities. An exact address takes precedence over an unambiguous owner-qualified alias; a prefix collision or ambiguous alias stays unresolved. A fragment names its child, never its parent.
+- A settled experiment may carry its winner's price in its own named arm or a variant record. A winner key without an authored amount never becomes a price.
 - Growing a funnel keeps every field of the person's record, including ones this tool does not read.
 - The decided version of a surface comes from decisions handed in (what `tools/run-experiments` gives back); this folder decides nothing.
 
