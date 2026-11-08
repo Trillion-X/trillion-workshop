@@ -17,6 +17,7 @@
     "./package.json": "./package.json",
     "./licence-classes.json": "./licence-classes.json",
     "./tools/*": "./tools/*",
+    "./test-helpers/python-environment.mjs": "./test-helpers/python-environment.mjs",
     "./test-helpers/passkey-account.mjs": "./test-helpers/passkey-account.mjs",
     "./test-helpers/sign-in-methods.json": "./test-helpers/sign-in-methods.json"
   },
@@ -28,7 +29,8 @@
     "test-helpers/passkey-account.mjs",
     "test-helpers/chromium.mjs",
     "test-helpers/customer-signup-observation.mjs",
-    "test-helpers/sign-in-methods.json"
+    "test-helpers/sign-in-methods.json",
+    "test-helpers/python-*"
   ],
   "scripts": {
     "test": "node --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'"
