@@ -11,7 +11,7 @@ import { keptRuns } from '../parts/record-log/do-work/kept-runs.mjs';
 // read still has those pages in its precomputed missing list. Both reads must
 // count their one resident page once and leave the correctly sized LRU warm.
 // This is an extension-boundary regression, not a claim about a live allocator.
-function exercise(keptRuns, host, meter = () => {}) {
+function exercise(keptRuns, host, meter = () => {}, { legacy = false } = {}) {
   const { sql, transaction } = host;
   const settings = { prefix: 'seed', transaction, page_bytes: 512, cache_bytes: 0, filter_bytes: 0, max_runs: 1000 };
   let space = keptRuns(sql, settings);
@@ -23,18 +23,27 @@ function exercise(keptRuns, host, meter = () => {}) {
   const run = space.held().runs[0];
   const rows = sql.exec(`SELECT page, first, body FROM seed_run_${run.run} WHERE page >= 0 ORDER BY page LIMIT 64`).toArray();
   if (rows.length !== run.pages || rows.length < 4) throw Error('fixture needs a bounded multi-page run');
+  // Current packed values decode only after all selected pages are seeded, so reentry at a value no longer
+  // overlaps that producer. Supported legacy page decoding still runs before its outer seed: reconstruct those
+  // same immutable logical pages to exercise the authentic replacement bug at that live decoder boundary.
+  if (legacy) for (const [at, row] of rows.entries()) {
+    const first = JSON.parse(row.first), next = rows[at + 1] ? JSON.parse(rows[at + 1].first) : null;
+    row.body = JSON.stringify(expected.filter(([key]) => key >= first && (next === null || key < next)));
+    sql.exec(`UPDATE seed_run_${run.run} SET body = ? WHERE page = ?`, row.body, row.page);
+  }
   // Keys in a page's header: its suffixes follow the offsets' JSON after \u0002 (kept-runs.mjs), or an earlier page's s array.
   const keysInHeader = body => {
     const end = body.indexOf('\n'), sep = body.indexOf('\u0002');
     return sep < 0 || sep > end ? JSON.parse(body.slice(0, end)).s.length : body.slice(sep + 1, end).split('\u0003').length;
   };
-  const bytes = rows.map(row => 64 + row.body.length * 2 + keysInHeader(row.body) * 16);
+  const bytes = rows.map(row => legacy ? 64 + row.body.length * 3 : 64 + row.body.length * 2 + keysInHeader(row.body) * 16);
   const totalBytes = bytes.reduce((a, b) => a + b, 0);
   const capacity = Math.max(totalBytes, 4 * Math.max(...bytes));
   const firstKeys = rows.map(row => JSON.parse(row.first));
   let armed = true, reentries = 0;
   const parseJson = (text, context) => {
-    if (armed && context?.kind === 'value' && context.key === firstKeys[0]) {
+    if (armed && (legacy ? context?.kind === 'page' && JSON.parse(text)[0]?.[0] === firstKeys[0]
+      : context?.kind === 'value' && context.key === firstKeys[0])) {
       armed = false; reentries++;
       for (const key of firstKeys.slice(1)) space.get(key);
     }
@@ -152,7 +161,11 @@ test('actual Workerd replacement accounting avoids warm page reads with identica
   assert.ok(start >= 0 && end > start, 'exact cache owner source boundary');
   // Authentic original cache owner, frozen at 2f4b7e67 before this patch.
   const original = "  function cached(key, load, bytesOf) {\n    const hit = cache.get(key);\n    if (hit) { cache.delete(key); cache.set(key, hit); return hit.value; }\n    const value = load();\n    const bytes = bytesOf(value);\n    if (bytes > settings.cache_bytes) return value;\n    cache.set(key, { value, bytes });\n    cacheBytes += bytes;\n    while (cacheBytes > settings.cache_bytes && cache.size > 1) {\n      const [oldest, entry] = cache.entries().next().value;\n      cache.delete(oldest);\n      cacheBytes -= entry.bytes;\n    }\n    noteSpan(key, value);\n    return value;\n  }\n  function seed(key, value, bytes) {\n    if (bytes > settings.cache_bytes / 4) return;\n    cache.delete(key);\n    cache.set(key, { value, bytes });\n    cacheBytes += bytes;\n    while (cacheBytes > settings.cache_bytes && cache.size > 1) {\n      const [oldest, entry] = cache.entries().next().value;\n      cache.delete(oldest);\n      cacheBytes -= entry.bytes;\n    }\n    noteSpan(key, value);\n  }\n  const dropCached = run => {\n    spans.delete(run);\n    for (const key of [...cache.keys()]) if (key.startsWith(`${run}:`)) { cacheBytes -= cache.get(key).bytes; cache.delete(key); }\n  };\n";
-  const before = (source.slice(0, start) + original + source.slice(end)).replaceAll('forgetCached(`big:${big[0]}`)', 'cache.delete(`big:${big[0]}`)');
+  const helperStart = source.indexOf('  function forgetCached(key) {', start), helperEnd = source.indexOf('  function cached(', helperStart);
+  assert.ok(helperStart > start && helperEnd > helperStart, 'current invalidation helper has one exact source boundary');
+  // Later successor-fence accounting also calls this helper. Keep that independent owner valid while restoring
+  // the frozen pre-fix cached/seed bookkeeping that this counterfactual measures.
+  const before = (source.slice(0, start) + source.slice(helperStart, helperEnd) + original + source.slice(end)).replaceAll('forgetCached(`big:${big[0]}`)', 'cache.delete(`big:${big[0]}`)');
   const modules = {};
   for (const [kind, contents] of [['before', before], ['after', source]]) {
     const bundle = await build({ stdin: { contents, resolveDir: new URL('../parts/record-log/do-work/', import.meta.url).pathname, loader: 'js' }, bundle: true, write: false, format: 'esm', platform: 'browser', logLevel: 'error' });
@@ -174,7 +187,7 @@ export class Probe extends DurableObject {
         if(query.includes('body')&&query.includes('FROM seed_run_'))cost.body_statements++;}
       return{toArray:()=>rows,[Symbol.iterator]:()=>rows[Symbol.iterator]()};
     }};
-    const result=exercise(kind==='before'?before:after,{sql,transaction:fn=>this.ctx.storage.transactionSync(fn)},value=>{measuring=value;});
+    const result=exercise(kind==='before'?before:after,{sql,transaction:fn=>this.ctx.storage.transactionSync(fn)},value=>{measuring=value;},{legacy:true});
     const invalidation=exerciseInvalidation(kind==='before'?before:after,{sql,transaction:fn=>this.ctx.storage.transactionSync(fn)});
     return Response.json({result,cost,invalidation});
   }

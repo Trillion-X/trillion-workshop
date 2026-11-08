@@ -136,10 +136,13 @@ test('a refused message does not spin on an execution-only page whose progress w
     context: messageContext, execution_offset: 0, execution_context: {} }));
   const captured = [];
   const refused = [];
+  // This checks persisted progress across a 100ms drain budget, not the host allocator's pause duration. The real
+  // recorder collects after each page; a concurrent suite can spend that entire wall-clock window in GC alone.
+  let clock = 0;
   const result = await drainTranscript({ transcript_path: f.path, session_id: f.session }, {
     rules: { ...f.rules, historical: false }, key: () => 'fictional-test-key', sourceReturn: () => {},
     send: async batch => { refused.push(batch); return false; },
-    sendExecution: async value => { captured.push(value); return true; }, until: Date.now() + 100,
+    sendExecution: async value => { captured.push(value); return true; }, now: () => clock++, until: 100,
   });
   assert.equal(result.pending, 1, 'the message refusal remains unfinished');
   assert.deepEqual(captured.map(value => value.claimed.tool_call_id), ['original-call'], 'the later execution was accepted exactly once');
