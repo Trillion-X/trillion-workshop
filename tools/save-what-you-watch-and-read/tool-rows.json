@@ -143,13 +143,22 @@
       }
      },
      "files": {
-      "package_files": {
-       "package": "save-what-you-watch-and-read",
-       "paths": [
-        "do-work"
-       ],
-       "at": "/opt/save-what-you-watch-and-read"
-      }
+      "package_files": [
+       {
+        "package": "save-what-you-watch-and-read",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/save-what-you-watch-and-read"
+       },
+       {
+        "package": "headless-browser",
+        "paths": [
+         "quiet-switches.json"
+        ],
+        "at": "/opt/headless-browser"
+       }
+      ]
      },
      "connection": {
       "vendor": "x",

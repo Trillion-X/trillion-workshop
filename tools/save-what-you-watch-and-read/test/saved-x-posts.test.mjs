@@ -3,9 +3,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { readFromApi, tokenFrom } from '../do-work/api-source.mjs';
-import { pageFor } from '../do-work/browser-source.mjs';
+import { browserSwitches, pageFor } from '../do-work/browser-source.mjs';
 import { readSaved } from '../do-work/read-saved-x-posts.mjs';
-import { collector, savedPost } from '../do-work/saved-source.mjs';
+import { collector, conventions, savedPost } from '../do-work/saved-source.mjs';
+import quiet from '../../headless-browser/quiet-switches.json' with { type: 'json' };
 import { apiPostsIn, linksOf, postsIn } from '../do-work/x-posts.mjs';
 
 function tweet(id, text, extra = {}) {
@@ -18,6 +19,22 @@ function tweet(id, text, extra = {}) {
 }
 
 const entry = result => ({ content: { itemContent: { tweet_results: { result } } } });
+
+test('reading and visible sign-in retain the shared quiet switches and the applicable reader settings', () => {
+  const before = [...conventions.browser.switches];
+  const reading = browserSwitches();
+  const visible = browserSwitches({ visible: true });
+  for (const flag of quiet.switches) {
+    assert.ok(reading.includes(flag), `reading retains ${flag}`);
+    assert.ok(visible.includes(flag), `sign-in retains ${flag}`);
+  }
+  for (const flag of before) {
+    assert.ok(reading.includes(flag), `reading retains the requested ${flag}`);
+    if (!flag.startsWith('--headless')) assert.ok(visible.includes(flag), `sign-in retains the requested ${flag}`);
+  }
+  assert.ok(!visible.some(flag => flag.startsWith('--headless')), 'sign-in remains visible');
+  assert.deepEqual(conventions.browser.switches, before, 'choosing a visible window does not change later reads');
+});
 
 test('an answer becomes posts in the order X listed them, each once', () => {
   const answer = { data: { timeline: { instructions: [{ entries: [entry(tweet('1', 'first')), entry(tweet('2', 'second')), entry(tweet('1', 'first again'))] }] } } };

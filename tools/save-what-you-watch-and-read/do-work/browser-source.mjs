@@ -13,10 +13,17 @@ import { spawn } from 'node:child_process';
 import { existsSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
+import quiet from '../../headless-browser/quiet-switches.json' with { type: 'json' };
 import { conventions, listFor } from './saved-source.mjs';
 import { postsIn } from './x-posts.mjs';
 
 const wait = ms => new Promise(done => setTimeout(done, ms));
+
+/** Shared quiet switches plus this reader's settings; sign-in keeps a visible window. */
+export function browserSwitches({ visible = false } = {}) {
+  const requested = visible ? conventions.browser.switches.filter(name => !name.startsWith('--headless')) : conventions.browser.switches;
+  return [...quiet.switches, ...requested];
+}
 
 /** Where a Chromium-family browser is on this computer: the request's own path, the named variables, then the usual places. */
 export function findBrowser(asked) {
@@ -40,7 +47,7 @@ export function findBrowser(asked) {
 /** Starts the browser on the person's profile folder; answers its DevTools address and how to end it. */
 function startBrowser(executable, profileDir) {
   const { browser } = conventions;
-  const child = spawn(executable, [...browser.switches, '--remote-debugging-port=0', `--user-data-dir=${profileDir}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
+  const child = spawn(executable, [...browserSwitches(), '--remote-debugging-port=0', `--user-data-dir=${profileDir}`, 'about:blank'], { stdio: ['ignore', 'ignore', 'pipe'] });
   const end = () => { try { child.kill('SIGKILL'); } catch { /* already ended */ } };
   process.once('exit', end);
   return new Promise((found, failed) => {
@@ -149,11 +156,10 @@ export function pageFor(request) {
 
 /** Opens a visible window on X's sign-in page with the person's profile folder and waits until they close it. */
 export function signIn(request) {
-  const { browser, sign_in_page: page } = conventions;
+  const { sign_in_page: page } = conventions;
   if (!request.profile_dir) throw new Error('profile_dir must be the browser profile folder to sign in to X with.');
   const executable = findBrowser(request.browser?.executable);
-  const switches = browser.switches.filter(name => !name.startsWith('--headless'));
-  const child = spawn(executable, [...switches, `--user-data-dir=${request.profile_dir}`, page], { stdio: 'ignore' });
+  const child = spawn(executable, [...browserSwitches({ visible: true }), `--user-data-dir=${request.profile_dir}`, page], { stdio: 'ignore' });
   return new Promise((done, failed) => {
     child.on('error', error => failed(new Error(`The browser ${executable} could not start: ${error.message}`)));
     child.on('exit', () => done());
