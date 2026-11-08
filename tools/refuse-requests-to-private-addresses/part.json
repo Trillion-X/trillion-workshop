@@ -2,5 +2,9 @@
   "imported_by": [
     "tools/ai-tool-catalog",
     "Trillion-X/trillion-apps"
+  ],
+  "public": [
+    "public-address.mjs",
+    "public-address.json"
   ]
 }
