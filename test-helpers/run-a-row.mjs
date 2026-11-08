@@ -19,6 +19,7 @@ import { root, tools } from './tool-rows.mjs';
 import { settings as egress, startStandInEgress } from './stand-in-egress.mjs';
 import { startFakeDoor } from '../tools/records-door/test/fake-door.mjs';
 import { createServer } from 'node:http';
+import { pythonForTests } from './python-environment.mjs';
 
 // A stand-in model server on loopback answering Ollama's embedding replies with one made-up `vector`: POST
 // /api/embeddings answers { embedding }, POST /api/embed answers { embeddings } with one vector per input. Anything
@@ -233,6 +234,13 @@ export async function runRow(row, sampleInput, sample = {}) {
     // Each held value the row mounts, made up: on its own descriptor, in its environment, or as a private file.
     const mounts = invoke.credential_mounts ?? [];
     const environment = { ...process.env, HOME: there, ...(outside?.environment ?? {}) };
+    // A sample may require the declared Python dependency environment. Keep its stand-in (which creates made-up
+    // inputs) and hand it the verified interpreter explicitly; never put a dependency runtime into PATH.
+    if (sample.python_environment === true) {
+      const python = pythonForTests();
+      environment.WORKSHOP_TEST_PYTHON = python;
+      if (argv[0] === 'python3' && !Object.hasOwn(standIns, 'python3')) argv[0] = python;
+    }
     if (standInFolder) environment.PATH = `${standInFolder}:${environment.PATH}`;
     for (const item of mounts) {
       const value = heldValue(item, held);

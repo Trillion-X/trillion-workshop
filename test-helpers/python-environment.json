@@ -1,0 +1,211 @@
+{
+  "python": [
+    3,
+    14
+  ],
+  "description": "CPython test dependencies declared by the media, face and voice sample rows; exact versions and publisher wheel SHA-256 pins were read from official PyPI metadata. No model weights are fetched.",
+  "packages": [
+    {
+      "name": "blake3",
+      "version": "1.0.11",
+      "module": "blake3",
+      "source": "https://pypi.org/pypi/blake3/1.0.11/json",
+      "hashes": [
+        "0e73a067d47d89693bbbb0735af271a6510eab3374b8c0482126c2258185484f",
+        "1454994740029eea25816c3be31845590aa7bb628eeb5ff4c270b8f56531c40e",
+        "1664f6c19fcba54924b04599930ade0e955d1320bb4a31235d5a818ff18a86ad",
+        "1d1b43d1daec35a715556808bc2db2c103b678b2c8c9e62975adb4e42b5dfb02",
+        "235bbfdd1dd3b0bf82aee8de8df01c55ade5648daf978d41527763786d3b5aa8",
+        "37efa250f2e4b00ffae40dd097720985b795e7ab1ecb7586f691df8b62efa5b7",
+        "51bc27bf5feccc7d1646e17e46aa045859820dea76d95bb9d26bce09c96a25d6",
+        "5d101a022ad2714bcf0188391b050905933287711cc2cb262f2ae9a6ad87aa69",
+        "8ce6c3d777f34716814ccb25f502f621f5567cd82da87d9e8d0894a4177eeb63",
+        "937443acfda4d5b53f257eeb08bf0bbbc01493a5c9561ad6c985e7bda5d0ec67",
+        "9cad8fbd9a1634205adccb91663354dc148fdc4f18a0ef033a2ccc6b3ab61d4d",
+        "abc74f7ba46f0763c7d890569d1602a59b6d029f5db65fa1510b72c8ccb8e937",
+        "b1e850674703280bde3ab3fca1ca413ed43decc98774c359ca3b00c1ff6cdea4",
+        "eb0ee342ef35ea2965d84321dc38ac40aca71ca6c023f76d126f22520beeaa26"
+      ]
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "module": "cffi",
+      "source": "https://pypi.org/pypi/cffi/2.1.1/json",
+      "hashes": [
+        "1a18a57b58cfb21fc28d72e876acf10eaed67a1ed96226f92af4df681d571c4c",
+        "3222ba5d678f80a030e6afbcc33dc1ae5cb45facabb61cee2c7016b8432fde48",
+        "456a61fa52d579ebf9df2e9552ead5129855dbaff6c1e5a9b1bc408809bdc062",
+        "58acb8ab8e295e6c5ea12f888cbb13cf21511ef2a3303a23f4325c29d17fe5c1",
+        "5c58fe613dc5e5336357eff555824a314d8e43282600435c8d1cb6a7a2fedd13",
+        "64faea20f4e2613363a1a9b9c7dd73058f3ecd00133a511e72ad7c511658f527",
+        "661c298b4821edebead0c91edd2b00374d67ad7c5a1f7a91d4442633b79d6a72",
+        "7dbb61fe3a7699468030f71bbe5f8a0e326a151daa91beb11a6fc1f980c55e1c",
+        "a4f00aa42f75d6e4595e8866e748cc1705adc0cddfeb2ca86d0d03993d63ba03",
+        "ab36d55f9ed2d067327667c2fea18dda018eb628dd6347aa01dda6cf1f5d3836",
+        "b0431303acaea1089ad4b3e9ce4e6518193def1118d4073ca848635ee4ea2e96",
+        "d28630f5854ab07ab1fd4aba756de52326c82e6be15d414b12793f1975048b54",
+        "f24fb43132a4c6b4cb4eb029492919b2db645be6808d738f244fd146c03c32cb"
+      ]
+    },
+    {
+      "name": "flatbuffers",
+      "version": "25.12.19",
+      "module": "flatbuffers",
+      "source": "https://pypi.org/pypi/flatbuffers/25.12.19/json",
+      "hashes": [
+        "7634f50c427838bb021c2d66a3d1168e9d199b0607e6329399f04846d42e20b4"
+      ]
+    },
+    {
+      "name": "kaldi-native-fbank",
+      "version": "1.23.0",
+      "module": "kaldi_native_fbank",
+      "source": "https://pypi.org/pypi/kaldi-native-fbank/1.23.0/json",
+      "hashes": [
+        "56012eb1f867ec8903db76b8e2c2a861be2c3259e3405deae8463298f104099f",
+        "663918f6393ec46146eaa9f20010347d47adb36f1f7bafd8575997bb036098ef",
+        "7dade3520b9ad335ea27441c3753f2a979d6f6d1346f0258d7dc2fcd33d5353f",
+        "872f56fc64d8b6696de7d7b9133242a47ac37088ec802d178b0a0e61949e9cbd",
+        "8b0ad1a72d1e4d76b9d747634544f2e59eecf2e3a3990446bc7b3a36e70c82bb",
+        "9a2b3380e72bdafd323c18f84242954c8fb082e1363c9145781434ad0ec93863",
+        "b5201247a74125c89dc1af94f867b87693fd12afcef517e8dce5958f72154c6b",
+        "e0e35ffb2b7dce19030514c4fd0b62a545f5f483c4c5e22b65d4dba91ee69eda",
+        "e574ce7a7370c6ee5137644c0fb3e0a888de57fa1a3e0bb8bdbd9e893c02d1f8",
+        "ea6063dc88b4c29c9a2b6a3bf557116a4238230f7aa08c6293e1e57f19c04295",
+        "f1eb3d9778c2d89e546207721fcd95d88b7519aa635ee3aa574a51dc0f4e5a29",
+        "f420393f0cc8bbc24dd61395e2858ca1909a2b85a508b7f552cbf43fa59c4ab5"
+      ]
+    },
+    {
+      "name": "numpy",
+      "version": "2.5.4",
+      "module": "numpy",
+      "source": "https://pypi.org/pypi/numpy/2.5.4/json",
+      "hashes": [
+        "2c2c4afffdeb7920e445028dd71eb932cac3e704792e964bc2a232426d4f1255",
+        "2ca144f15135b6212a5c47b1e2aeca6e412f102f95a2d5d88d8aec77eb255de3",
+        "4054173604cd8658796053f1f3bc0befb68ec1c0762c57fdad61e199256a8617",
+        "468397ba3c64427474706e5c9123fe266395496714dc684294eac75cd4930d1e",
+        "4e263278bfb5ee6409db8aedbc4cc32973b1b82bc1e8d3c668551d04d83a7e37",
+        "823874a507a84af050493b622affde94b6f7c3a0dc22cb2801381bc03b871c00",
+        "956555e0603a4d38019ae6925711cb9dc43195c076a928accf7ea5d50bddfe53",
+        "c668b2f0d651605b58892644b0e302c7157f7159544227758c896982ef384b18",
+        "cfd73180400042a7c532d30c5e287bdd03c59ff9ee1b4c0316af0539e29dfe23",
+        "d549420b8858885cea8838a727842249218b9c1da24dd517e25c9c7a948310a3",
+        "ffa6ce09a1c6a08e9667dd9c97aa0b14184e8d18f2a14b78b2a2328c9147f076"
+      ]
+    },
+    {
+      "name": "onnxruntime",
+      "version": "1.31.1",
+      "module": "onnxruntime",
+      "source": "https://pypi.org/pypi/onnxruntime/1.31.1/json",
+      "hashes": [
+        "0a3998e18cb667ef54287556bd62291a788ed235723dd90c83b2294b24e71d81",
+        "8536ac43682caa7492c46d6cfd4c3c8db288dcf0619508431a22170b670ee1d0",
+        "c20d7f15d84427db070b163f78c2c7146cc93edd6113fa7327671259a24184fe",
+        "c878686b75cade1ed59131aa018ab004b1e64368b0d54041912450b9642cf04f",
+        "fc01b4e7c0a81778fb741bcf5c16b7871d196275f6240720a8b8bfd9f0c0af14"
+      ]
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "module": "packaging",
+      "source": "https://pypi.org/pypi/packaging/26.3/json",
+      "hashes": [
+        "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+      ]
+    },
+    {
+      "name": "pillow",
+      "version": "13.0.0",
+      "module": "PIL",
+      "source": "https://pypi.org/pypi/pillow/13.0.0/json",
+      "hashes": [
+        "2e31c4e68cffd7b1f116127626813b82fcba19edf6b940a7b0c266d6484d0055",
+        "44629d4498c9cb6b2051806155f22141df0d8a929c56134b166655232dfb2f8c",
+        "49c12af515073e9bf511e4ef736743bf70d531a643668722279314b937742ba4",
+        "5933fcea5a5ba64c686f55c886a115cbfd92f2900460784a1e79909fdbafd7b6",
+        "7f6299e494e46253d40c34653cac369412f44ca53b5f85d848d3f95b1ed0546c",
+        "a6aaa7871aebca081eb5c45f83e845bbd9712ae99fa9286dbfdcee835e63f4b4",
+        "aa694c49787040943570d61c9b8fc01271bd2a2cfdd55f0d896f8aecdce1a981",
+        "bf97ba1b5542050e9b0c74e632323b6d8136cc99d64e193abebee22fe6013c76",
+        "d9b0a2bee3f3e03e9f29057aedb807dbf1e1d96ee1b9d0f422d9db6c8583271d",
+        "e91c2b1cbeae768c98752e67e717e283d68dae45717b41f2d91eaee648e37b7d",
+        "f7cbb7a64e7ec664775195e4f81923bc8a93d9451b963f844e59118f63147a7a",
+        "f9bd7d260d986f3553518c5d723544346fa48031f8aef3265d786aeb59845bc0"
+      ]
+    },
+    {
+      "name": "protobuf",
+      "version": "7.36.2",
+      "module": "google.protobuf",
+      "source": "https://pypi.org/pypi/protobuf/7.36.2/json",
+      "hashes": [
+        "89f23aa53c24553a2416fd4fd1ec06f74fa42b14b546d8883128813f775bbfd2",
+        "912c1221170e16c08d1f086762f563dd61ff83c18b5fa6652952dfaded66f728",
+        "a300819d441e078a5608c0d3c709796bb548136058fda017ae51d425b44fd353",
+        "bdb3a345d48db958e6ce1f18e508beb0cc981d64f24088427549c866cd039f1e",
+        "cbc70b17ee27e28894c7fee8bb04be1abead49e936bc70eb60052531eee2079e",
+        "e11e1f0180583a2af89db6a2ecd9e8dc40aa6d2988ca175bfd0e6d12ea72d74e",
+        "f4fee11ec330d238b34a05c9b675f693c20415d1c5bd7d5320cc2f8a798eb9cf"
+      ]
+    },
+    {
+      "name": "pycparser",
+      "version": "3.12",
+      "module": "pycparser",
+      "source": "https://pypi.org/pypi/pycparser/3.12/json",
+      "hashes": [
+        "a076f3f489b39b43ed13563a1dafe42447445bec2e294154ec5c57fcdda4c85e"
+      ]
+    },
+    {
+      "name": "soundfile",
+      "version": "0.14.0",
+      "module": "soundfile",
+      "source": "https://pypi.org/pypi/soundfile/0.14.0/json",
+      "hashes": [
+        "0a6ae43c50c71b4e020cc55382925cb89451c1ed1a0c3d0f5d802da269226849",
+        "19be05428da76ed61a4cad29b8e4bcf43a3e5c100089d2ec81dc961eed1b0dd4",
+        "1e38bac1853412871318e82a1ba69a8be677619b56025bbfcccdb41b6cafe82d",
+        "299491d3499460fb1b74bb4bd78b57ffc2d243a5fafa7b6ec1b264875c78453e",
+        "8ba81ae3a89fd5ab3bef8a8eb481fbbe794e806309675a89b4df48b8d31908a8",
+        "d828d35a059626da52f1415b5faee610aeab393319cb3fc4a9aef47b619fc14c",
+        "e090704718e124e7c844695236f1fce8d18a5e761eaf7c82dfcd124620805f98",
+        "e85724a90bc99a6e8062c0b4ddf725f53b2a3b70afd4da875e9d2cfc4e92f377"
+      ]
+    },
+    {
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "module": "typing_extensions",
+      "source": "https://pypi.org/pypi/typing-extensions/4.16.0/json",
+      "hashes": [
+        "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+      ]
+    },
+    {
+      "name": "webrtcvad-wheels",
+      "version": "2.0.14.post1",
+      "module": "webrtcvad",
+      "source": "https://pypi.org/pypi/webrtcvad-wheels/2.0.14.post1/json",
+      "hashes": [
+        "53230d2967e350133968c8b7231b2c3ea3707443ce10091fe00dbd097f229256",
+        "5762df66871d6fd7de64bc5bfe383f7e7b64168547a47957eec219718c661649",
+        "597cfb86cd4fa70f1500a45bf305267cc769ee91823c313ef14e8313ca1b3a1a",
+        "5c331cadec3605451ceac7aff4004d8214e9d62a307b63d3e0b1254a260349a2",
+        "5dc4e8d8e0d09899b3047e97a86c23f62693d0f7a1686b815b84f1b0af583fea",
+        "81299c26ea7eacc9bef03320150a6a71437bdfca0fe7056637918fd93f0176f4",
+        "83db815981a2d21df1f4ab19956108073b29bd85735c6f0736f782e021235ebd",
+        "951732c032fcb4953bd2f1216a9c97392d28299b487ac4ca5b39c0d3c94546f6",
+        "c68e65130a12579cf7ccc56ff62d4befcd6c6377f0102216094b0040435e7686",
+        "e4074b41d4d8113ad4cef0a372c321468ed5469430ddb2190aa6aa94bf5aecc5",
+        "e8c82057365e9c97a359a8367df885ffc892108c1e07d511438f02a0ed530846",
+        "e95bf20941aa757ca9546ce695a85bb4d241f51a8c0f85cac002061a95fb7f0f"
+      ]
+    }
+  ]
+}
