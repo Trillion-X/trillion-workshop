@@ -10,6 +10,11 @@
 //
 //     node harness/read-cloud-sessions.mjs list <config-folder> <out.json>
 //     node harness/read-cloud-sessions.mjs read <config-folder> <list.json> <out-folder> [at-once]
+//     node harness/read-cloud-sessions.mjs read-first <config-folder> <session-id> [offset] [length] [snapshot]
+//   read-first reads only that session, printing a bounded base64 page of the first actual user's decoded UTF-8
+//   text. Continue at next_after_byte with the returned snapshot. It never substitutes a later text-only ask for
+//   a non-text first message. Text blocks are joined with newlines, as in the existing summary projection; this
+//   is not a lossless copy of attachments, block boundaries or the provider's original JSON wire bytes.
 //     node harness/read-cloud-sessions.mjs send <config-folder> <session-id> [<brief>]
 //     node harness/read-cloud-sessions.mjs start <config-folder> <owner/repo[,owner/repo...]> <title> [<brief>]
 //
@@ -44,6 +49,7 @@ import { text as readAll } from 'node:stream/consumers';
 import { fileURLToPath } from 'node:url';
 import { requireAccountKey } from './account-key.mjs';
 import { localDoorAddress } from './local-door.mjs';
+import { makeHashCodeHexFromBytes, makeHashCodeHexFromJson } from '../../content-identity/read-data/identity.mjs';
 
 const API = 'https://api.anthropic.com';
 const PR_URL = /https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d+/g;
@@ -57,9 +63,9 @@ function signIn(folderName) {
   return { org, token: oauth.accessToken };
 }
 
-async function get(account, path, body) {
+async function get(account, path, body, { request = fetch, includeErrorBody = true } = {}) {
   for (let attempt = 0; ; attempt++) {
-    const response = await fetch(API + path, {
+    const response = await request(API + path, {
       method: body ? 'POST' : 'GET',
       headers: {
         authorization: `Bearer ${account.token}`,
@@ -75,17 +81,23 @@ async function get(account, path, body) {
       await new Promise(resolve => setTimeout(resolve, 2000 * 2 ** attempt));
       continue;
     }
-    throw new Error(`${path}: HTTP ${response.status} ${(await response.text()).slice(0, 300)}`);
+    throw new Error(`${path}: HTTP ${response.status}${includeErrorBody ? ` ${(await response.text()).slice(0, 300)}` : ''}`);
   }
 }
 
-async function everyPage(account, path, limit) {
+async function everyPage(account, path, limit, { request = fetch, until = () => false, includeErrorBody = true, strict = false } = {}) {
   const all = [];
+  const seen = new Set();
   let after = null;
   for (;;) {
-    const page = await get(account, `${path}?limit=${limit}${after ? `&after_id=${after}` : ''}`);
+    const page = await get(account, `${path}?limit=${limit}${after ? `&after_id=${encodeURIComponent(after)}` : ''}`, undefined, { request, includeErrorBody });
+    if (strict && (!page || typeof page !== 'object' || Array.isArray(page) || typeof page.has_more !== 'boolean')) throw new Error('The session events page is incomplete: has_more must be a boolean.');
+    if (!Array.isArray(page.data)) throw new Error('The session events page has no data array.');
+    if (strict && page.has_more && (!page.data.length || typeof page.last_id !== 'string' || !page.last_id || seen.has(page.last_id))) throw new Error('The session events cursor did not advance; the first user source is incomplete.');
     all.push(...page.data);
-    if (!page.has_more || !page.data.length || page.last_id === after) return all;
+    if (until(all) || !page.has_more) return all;
+    if (!page.data.length || page.last_id === after) return all;
+    seen.add(page.last_id);
     after = page.last_id;
   }
 }
@@ -111,7 +123,64 @@ function sessionRow(session) {
 function textOf(content) {
   if (typeof content === 'string') return content;
   if (!Array.isArray(content)) return '';
-  return content.filter(block => block.type === 'text').map(block => block.text).join('\n');
+  return content.filter(block => block?.type === 'text').map(block => block.text).join('\n');
+}
+
+const firstUserIndex = events => events.findIndex(event => event?.type === 'user' && event.message
+  && (event.message.role === undefined || event.message.role === 'user')
+  && !event.parent_tool_use_id && !(Array.isArray(event.message.content) && event.message.content.some(block => block?.type === 'tool_result')));
+const FIRST_TEXT_BYTES = 16 * 1024;
+const MOST_TEXT_BYTES = 64 * 1024;
+
+function checkTextPage({ offset = 0, length = FIRST_TEXT_BYTES, snapshot } = {}) {
+  if (!Number.isSafeInteger(offset) || offset < 0 || !Number.isSafeInteger(length) || length < 1 || length > MOST_TEXT_BYTES) throw new Error(`offset must be a nonnegative byte integer; length must be 1..${MOST_TEXT_BYTES}.`);
+  if (snapshot !== undefined && !/^1f:[a-f0-9]{64}$/.test(snapshot)) throw new Error('snapshot must be the returned BLAKE3 identity.');
+  if (offset > 0 && snapshot === undefined) throw new Error('Continuing text requires the first page’s snapshot.');
+}
+
+/** Raw text bytes only; the snapshot pins the full decoded source event, including its non-text content. */
+export function firstUserTextPage(events, { session, offset = 0, length = FIRST_TEXT_BYTES, snapshot } = {}) {
+  if (!Array.isArray(events)) throw new TypeError('events must be an array.');
+  checkTextPage({ offset, length, snapshot });
+  const index = firstUserIndex(events);
+  if (index < 0) {
+    if (offset || snapshot !== undefined) throw new Error('The first user source changed or is unavailable.');
+    return { status: 'no-user-message', source: null, byte_page: null };
+  }
+  const event = events[index];
+  const pinned = makeHashCodeHexFromJson({ session: session ?? null, event });
+  if (snapshot !== undefined && snapshot !== pinned) throw new Error('The first user source changed; restart at byte zero.');
+  const content = event.message.content;
+  const blocks = Array.isArray(content) ? content.filter(block => block?.type === 'text') : [];
+  if (blocks.some(block => typeof block.text !== 'string')) throw new Error('The first user message has an invalid text block.');
+  const hasText = typeof content === 'string' || blocks.length > 0;
+  const nonText = Array.isArray(content) ? content.length - blocks.length : typeof content === 'string' ? 0 : 1;
+  const text = hasText ? textOf(content) : '';
+  if (!text.isWellFormed()) throw new Error('The first user text contains an unpaired surrogate and cannot be represented losslessly as UTF-8.');
+  const bytes = Buffer.from(text, 'utf8');
+  if (offset > bytes.length) throw new Error('offset is past the end of the first user text.');
+  const part = bytes.subarray(offset, Math.min(offset + length, bytes.length));
+  const next = offset + part.length;
+  return {
+    status: hasText ? nonText ? 'mixed-user-message' : 'text-user-message' : 'non-text-user-message',
+    source: { session: session ?? null, event_id: typeof event.uuid === 'string' ? event.uuid : typeof event.id === 'string' ? event.id : null, event_index: index, snapshot: pinned,
+      projection: typeof content === 'string' ? 'text-string' : 'text-blocks-joined-with-newlines',
+      non_text_blocks: nonText, whole_message: typeof content === 'string' },
+    byte_page: { total: bytes.length, blake3: makeHashCodeHexFromBytes(bytes).slice(3), offset, length: part.length,
+      base64: part.toString('base64'), next_after_byte: next < bytes.length ? next : null, complete: next === bytes.length },
+  };
+}
+
+/** One exact session, using the existing header-authenticated GET transport; never lists or changes sessions. */
+export async function readFirstUserText(folder, session, page, { authenticate = signIn, request = fetch } = {}) {
+  if (typeof folder !== 'string' || !/^[A-Za-z0-9._-]+$/.test(folder) || ['.', '..'].includes(folder)) throw new Error('Name one config folder directly under the home folder.');
+  if (typeof session !== 'string' || !/^[A-Za-z0-9_-]{1,200}$/.test(session)) throw new Error('Name one exact session id without path or query characters.');
+  // Validate bounds before touching the sign-in or the provider.
+  checkTextPage(page);
+  const account = await authenticate(folder);
+  const events = await everyPage(account, `/v1/sessions/${session}/events`, 1000,
+    { request, includeErrorBody: false, strict: true, until: events => firstUserIndex(events) >= 0 });
+  return firstUserTextPage(events, { ...page, session });
 }
 
 // What a finished session says: the task it was given, the person's later messages, its messages to the person
@@ -147,6 +216,10 @@ export function whatItSaid(events) {
   const sinceLastAsked = answered.filter(message => message.at >= lastAsked);
   return {
     first_task: asked[0]?.text.slice(0, 4000) ?? '',
+    first_task_is_summary: true,
+    first_task_truncated: (asked[0]?.text.length ?? 0) > 4000,
+    first_task_limit_utf16_units: 4000,
+    first_task_total_utf16_units: asked[0]?.text.length ?? 0,
     later_user_messages: asked.slice(1).slice(-3).map(message => ({ at: message.at, text: message.text.slice(0, 1500) })),
     final_messages: (sinceLastAsked.length ? sinceLastAsked : answered).slice(-4).map(message => ({ at: message.at, text: message.text.slice(-6000) })),
     pull_requests: [...pullRequests],
@@ -156,7 +229,15 @@ export function whatItSaid(events) {
   };
 }
 
-async function main([command, folderName, ...rest]) {
+export async function dispatchCloudSessions([command, folderName, ...rest], { authenticate = signIn, request = fetch, print = console.log } = {}) {
+  if (command === 'read-first') {
+    if (rest.length < 1 || rest.length > 4) throw new Error('usage: read-first <config-folder> <session-id> [offset] [length] [snapshot]');
+    const [session, offset = '0', length = String(FIRST_TEXT_BYTES), snapshot] = rest;
+    if (!/^\d+$/.test(offset) || !/^\d+$/.test(length)) throw new Error('offset and length must be decimal byte integers.');
+    const answer = await readFirstUserText(folderName, session, { offset: Number(offset), length: Number(length), snapshot }, { authenticate, request });
+    print(JSON.stringify(answer));
+    return answer;
+  }
   const account = signIn(folderName);
   if (command === 'list') {
     const rows = (await everyPage(account, '/v1/sessions', 100)).map(sessionRow);
@@ -233,7 +314,7 @@ async function main([command, folderName, ...rest]) {
     console.log(JSON.stringify({ session: session.id, status: session.session_status, repositories: names, url: session.session_url ?? null }));
     return;
   }
-  throw new Error('usage: read-cloud-sessions.mjs list|read|send|start <config-folder> ...');
+  throw new Error('usage: read-cloud-sessions.mjs list|read|read-first|send|start <config-folder> ...');
 }
 
 // A record id of the person's Trillion: a type and a name, `record:brief:release-plan`, never a path.
@@ -290,4 +371,4 @@ const isEntryScript = () => {
     return false;
   }
 };
-if (isEntryScript()) await main(process.argv.slice(2));
+if (isEntryScript()) await dispatchCloudSessions(process.argv.slice(2));
