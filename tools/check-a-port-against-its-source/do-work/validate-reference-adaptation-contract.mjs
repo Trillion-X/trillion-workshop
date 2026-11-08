@@ -33,6 +33,13 @@ function repositoryRelativePath(path) {
   return typeof path === 'string' && path.length > 0 && !/[:\\\x00-\x1f\x7f]/.test(path)
     && path.split('/').every((part) => part && part !== '.' && part !== '..');
 }
+function capabilityOwnerMatches(path, owner) {
+  if (!repositoryRelativePath(path) || typeof owner !== 'string') return false;
+  const directory = owner.endsWith('/');
+  const named = directory ? owner.slice(0, -1) : owner;
+  if (!repositoryRelativePath(named)) return false;
+  return (directory && path.startsWith(owner)) || matchesGlob(path, directory ? `${named}/**` : named);
+}
 function words(text) { return new Set(String(text ?? '').replace(/([a-z0-9])([A-Z])/g, '$1 $2').toLowerCase().match(/[a-z][a-z0-9]{3,}/g) ?? []); }
 function redacted(text, redactions) {
   return redactions.reduce((out, one) => (typeof one?.from === 'string' && one.from && typeof one?.to === 'string' ? out.split(one.from).join(one.to) : out), text);
@@ -449,7 +456,7 @@ function checkNoPriorOwner(contract, options, errors, deferred) {
         continue;
       }
       for (const row of rows.filter((one) => one.near)) {
-        const ownRow = row.repository === options.repository && (row.owner ?? []).some((glob) => [...own].some((path) => matchesGlob(path, glob)));
+        const ownRow = row.repository === options.repository && (Array.isArray(row.owner) ? row.owner : []).some((owner) => [...own].some((path) => capabilityOwnerMatches(path, owner)));
         if (ownRow || namesRow(row)) continue;
         rowsNear.push(row.capability);
         errors.push(`the capability search for "${phrase}" finds "${row.capability}" (${row.where ?? row.repository}): port it, or name it in distinct_from with why it is a different job`);
