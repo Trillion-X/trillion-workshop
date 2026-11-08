@@ -18,8 +18,10 @@ function fixture(t) {
   mkdirSync(join(folder, 'session'));
   writeFileSync(join(folder, 'session', 'creds.json'), JSON.stringify({ registered: true }));
   let clock = Date.parse('2026-10-07T20:00:00Z');
-  const sockets = [], connections = [];
+  const sockets = [], connections = [], ready = new WeakMap();
   function create(self = '15550000001:4@s.whatsapp.net') {
+    let socketReady;
+    const socketAvailable = new Promise(resolve => { socketReady = resolve; });
     const instance = whatsapp({ ...connectionRow, keep: 2, open_within_ms: 20, reconnect_after_ms: 5 }, {
       folder, now: () => clock,
       load: async () => ({
@@ -29,21 +31,24 @@ function fixture(t) {
           const events = new Map();
           const socket = { user: { id: self }, ev: { on: (name, handler) => events.set(name, handler) }, end() {} };
           sockets.push({ socket, events });
+          socketReady({ socket, events });
           return socket;
         },
       }),
     });
     connections.push(instance);
+    ready.set(instance, socketAvailable);
     return instance;
   }
-  async function start(instance) { const result = instance.start(); await turn(); sockets.at(-1).events.get('connection.update')({ connection: 'open' }); assert.equal((await result).carried, true); }
+  async function open(instance) { const { events } = await ready.get(instance); events.get('connection.update')({ connection: 'open' }); }
+  async function start(instance) { const result = instance.start(); await open(instance); assert.equal((await result).carried, true); }
   const emit = (items, type = 'notify') => sockets.at(-1).events.get('messages.upsert')({ messages: items, type });
   const file = join(folder, connectionRow.incoming.file);
   const carrier = { ...sourceRow.read, store: file };
   const stateFile = join(folder, 'reader.json');
   function reader(account, options = {}) { return readNewItems({ carriers: [carrier], stateFile, now: () => new Date(clock), readers: READERS, keep: async () => { throw new Error('text needs no files'); }, account, turnedAway: { ask_again_minutes: 1 }, ...options }); }
   t.after(() => connections.forEach(instance => instance.stop()));
-  return { create, start, emit, reader, file, folder, sockets, advance: ms => { clock += ms; } };
+  return { create, start, open, emit, reader, file, folder, sockets, advance: ms => { clock += ms; } };
 }
 
 test('incoming WhatsApp text reaches the existing door once, with source/sender/time intact and never as owner instructions', async t => {
@@ -213,7 +218,7 @@ test('constructing an unused duplicate carrier cannot disable the live owner bef
   assert.equal(f.sockets.length, 1);
   const restart = duplicate.start();
   assert.throws(() => readIncomingItems(f.file), /offline/, 'the owning start marks liveness unknown until its new socket opens');
-  await turn(); f.sockets.at(-1).events.get('connection.update')({ connection: 'open' });
+  await f.open(duplicate);
   assert.equal((await restart).carried, true);
 });
 
