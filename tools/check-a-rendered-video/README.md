@@ -28,7 +28,7 @@ The person's AI gets these rows from the person's own records (through the recor
 | `do-work/rendercheck/pins.py` | The list of checks and, for each, the limit sections it reads; a check's pin is the BLAKE3 of those, its own code and the shared code. |
 | `do-work/rendercheck/sfx.py`, `media.py`, `report.py`, `jsonio.py`, `config.py` | Shared: the added sound effects, ffmpeg reading, findings and the printout, JSON, limits loading. |
 | `do-work/rendercheck/review_pack.py` | `review-pack`: per video, contact sheets, a transcript and the rules of one kind, for a reviewer who has seen nothing else. |
-| `do-work/rendercheck/vision_landmarks.py` | Face landmarks (eye and mouth openness) of still images from Apple Vision, run by `held-face` with a macOS python that has the Vision bindings. |
+| `do-work/rendercheck/vision_landmarks.py` | Face landmarks (eye and mouth openness) of still images from Apple Vision, run by `held-face` with a macOS python that has the Vision bindings. JSON remains the default. `--output text` reports the first face as `eyes … (L … R …) mouth … box x y w h`; the box uses decoded image pixels and a top-left origin. |
 | `test/fixtures/limits-for-generated-videos.json` | A worked example of the limits file, with synthetic numbers chosen for the generated test videos. It is not a recommendation and the tool never reads it outside the tests. |
 | `test/test_*.py` | One passing and one failing case per check on small synthetic videos made with ffmpeg. |
 | `test/run_tests.py` | Runs them all: `python3 test/run_tests.py` (or one file: `python3 test/run_tests.py test_checks.py`). |
@@ -121,6 +121,8 @@ The overlay is `--overlay` or the spec's `overlay_file`, with its timeline (the 
 ## Dependencies
 
 **Depends on:** Python 3.10+, ffmpeg, numpy, OpenCV (`cv2`), Pillow, SciPy (`scipy.ndimage`), blake3 (or `b3sum` on the path), and for speech timings `mlx-whisper` (Apple silicon) or a `--words` file. `bridge` asks a local ollama model (the limits name it and its endpoint); `held-face` runs `vision_landmarks.py` with the python named by the env `LANDMARKS_PYTHON` or the limits' `held_face.python` (macOS with `pyobjc-framework-Vision`). Without them those checks say not measured.
+
+The landmark helper's optional text mode also needs the AppKit and Quartz bindings. Like its source reference, it decodes through AppKit and passes that CGImage to the same `faces()` detector, using that image's pixel dimensions. It takes the first observation and averages both eye ratios. A missing contour, a contour of at most two points, or zero contour width contributes `-1`, including in that mean. No face or a first face without landmarks prints `no face`; an unreadable image prints `unreadable`. The JSON mode keeps its URL input, all observations and normalized bottom-left boxes; missing contours are `null` rather than a crash. Its source-derived formatting, input and coordinate checks are part of the existing `test/test_held_face.py` runner.
 
 **Depended on by:** `tool-rows.json` (`tool:check-a-rendered-video`), run on the person's computer by their AI.
 
