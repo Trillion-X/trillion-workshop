@@ -411,6 +411,7 @@
         ],
         "at": "/opt/http-client"
        },
+       { "module": "tldts", "paths": ["LICENSE", "package.json", "dist/cjs"], "at": "/opt/node_modules/tldts" },
        {
         "package": "records-door",
         "paths": [
