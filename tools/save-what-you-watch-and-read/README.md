@@ -1,10 +1,10 @@
 # tools/save-what-you-watch-and-read/
 
-Reads what a person saved elsewhere so their AI can put it in their lists. Today: the posts a person bookmarked or liked on X, newest first, with the full words, who wrote each post, every real link it carries (the short t.co forms replaced by the address behind them), its pictures and the post it quotes. It posts, likes, follows and changes nothing on X. The other sources named in `capabilities.json` (Pinterest pins, files that match a pattern) are old `bitfield-packages` connectors and are not brought here yet.
+Reads what a person saved or observed elsewhere so their AI can put it in their lists. This package provides X bookmark and like reads through X's API or a signed-in browser, decoding of exported X bookmarks and Pinterest pins and boards, observations of things watched or read, and observations of files matching a pattern. X API reads return posts newest first, with their full words, authors, links, pictures, and quoted posts. Pinterest API pulls use the generic connected-accounts engine in `tools/pull-from-connected-accounts/do-work/pull.mjs`; this package's Pinterest reader handles export files. These are current source capabilities; this description does not imply that every legacy caller has moved. The tools here read and observe; they do not post, like, follow, or change anything on X.
 
-Two ways in, one shape out:
+The X post reader has two ways in, one shape out:
 
-- **`api`**: X's API with the access token the person's X connection holds. This replaces the old Bitfield `x-bookmarks-connector` and `x-bookmarks-decoder` (a snapshot file with a saved cursor, for a ledger that no longer runs) and Trillion's hosted `tool:x-list_bookmarks` / `save_x_bookmarks` (retired with the hosted app; it kept only the post text). The API read asks for entities, notes, referenced tweets and media, so links and quoted posts come from it too.
+- **`api`**: X's API with the access token the person's X connection holds. The API read asks for entities, notes, referenced tweets and media, so links and quoted posts come from it too.
 - **`browser`**: the person's own signed-in X session in a browser profile folder, for a person whose API plan does not allow bookmarks or likes, or whose token has expired.
 
 The tool only reads. Turning the posts into list rows is the job of `tools/export-records-as-list-rows/` with a mapping the person writes (the mapping and the list definitions are the person's own, kept with their library): the posts file below is that tool's staged input.
