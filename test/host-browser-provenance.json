@@ -140,5 +140,69 @@
       "assertion_identity": "1f:7a0fb1dd18d6653e7f3ce1511a2fb5ed8f6a59711536e7090b7acb25bfb213e5",
       "pointer_identity": "1f:a87d2189ebdd7f2628f48b33258a31de9a9b80054ba1747bcbb59686974704b0"
     }
-  ]
+  ],
+  "cover": {
+    "receipt": {
+      "pull_request": "https://github.com/Trillion-X/trillion-apps/pull/109",
+      "pull_request_head": "3cca347079395fddd2b3331a05b4956af3829449",
+      "ci_merge_checkout": "78ecdf401ec6f63076386635de9276c85c3cbc94",
+      "ci_checkout_kind": "pull-request merge of the exact PR head into the prior published main",
+      "ci_base": "8c4bfb0c3aa77355fecb72ff5c45c8c720930daf",
+      "merge_commit": "4106a2cd5358c2ad89834cbbf7e09c6958c50842",
+      "run_id": "42480062743",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "platform": "ubuntu-latest",
+          "job_id": "128729848199",
+          "url": "https://github.com/Trillion-X/trillion-apps/actions/runs/42480062743/job/128729848199",
+          "tests": 32,
+          "passed": 32,
+          "failed": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        {
+          "platform": "macos-latest",
+          "job_id": "128729848422",
+          "url": "https://github.com/Trillion-X/trillion-apps/actions/runs/42480062743/job/128729848422",
+          "tests": 6,
+          "passed": 6,
+          "failed": 0,
+          "cancelled": 0,
+          "skipped": 0
+        }
+      ],
+      "original_cover_tests": 4,
+      "original_assertions": 10,
+      "cover_custody_tests": 1,
+      "workflow": ".github/workflows/check-workshop-browser-custody.yml",
+      "workflow_identity": "1f:19b59f15e8250982f9dd5e54fc8a094a0ad828673ba0f59a45a13e6773784952",
+      "custody_checker": "test/thread-cover-provenance.test.mjs",
+      "custody_checker_identity": "1f:d087ab85c888c0c46abae2da33e5748ed9a401656547efbe6da6166ff5508d49",
+      "proof": "Apps CI checked the PR merge checkout, retaining the four original cover titles and all ten complete assertion token streams against the immutable original snapshot. The tests compare current iPhone artifact bytes with the public generator output."
+    },
+    "files": [
+      {
+        "original": "tools/organize-my-files/test/thread-cover.test.mjs",
+        "source_commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+        "source_identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1",
+        "consumer": "test/thread-cover.test.mjs",
+        "consumer_identity": "1f:c360303c3d61bde56d3977d352a3dc191a59ab855e87ffc5313ffcf77f093a68",
+        "consumer_url": "https://github.com/Trillion-X/trillion-apps/blob/3cca347079395fddd2b3331a05b4956af3829449/test/thread-cover.test.mjs",
+        "original_snapshot": "test/workshop-cover-provenance/thread-cover.test.mjs.source",
+        "original_snapshot_identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1",
+        "test_names": [
+          "a workspace page opens under the cover, ahead of its script file; other pages carry none",
+          "the cover script stands alone and, under a host app, hands the lift to the host",
+          "every quote has words and who said them, and the cover's colours are colours",
+          "the iPhone app carries the current cover and needle"
+        ],
+        "assertions": 10,
+        "assertion_identity": "1f:6ecde9f34e4515e38e95b7d367094a8b9f35fd141d3067ef250f139c24ac0a88",
+        "assertion_identity_kind": "exact original assertion source spans",
+        "pointer_identity": "1f:52495803562bd7924c858fb4e00113e534a2df49a6d82a178e4fcdcfd07e386d"
+      }
+    ]
+  }
 }

@@ -309,7 +309,14 @@
       "commit": "1e886c3f68828439c545f34bbef0e415055a800f",
       "to": "tools/organize-my-files/test/thread-cover.test.mjs",
       "source_identity": "1f:311f68154aea6f8fa5709ae5fac7044f207ef3b6d38bf3236b6ea06413691521",
-      "identity": "1f:1dca6acb82f1275482f61d433d6ce5a154c99d923234f999e63e7fbcfd8df1b1"
+      "identity": "1f:52495803562bd7924c858fb4e00113e534a2df49a6d82a178e4fcdcfd07e386d",
+      "adaptations": [
+        "All four original cover bodies and ten complete assertion calls run in their published consumer owner. Original source commit/identity remain unchanged. The consumer coordinates and immutable hosted proof are recorded once in the cover cohort of test/host-browser-provenance.json."
+      ],
+      "published_test_custody": {
+        "receipt": "test/host-browser-provenance.json",
+        "entry": "tools/organize-my-files/test/thread-cover.test.mjs"
+      }
     },
     {
       "from": "records/workshop-file-tidy-tool-records.json",
