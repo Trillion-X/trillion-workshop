@@ -66,7 +66,7 @@ export function makeGuardedUploads({ settings = uploadSettings(), fetchImpl = fe
       for (const [name, value] of Object.entries(slot.fields ?? {})) form.append(name, value);
       form.append('file', new Blob([item.bytes], { type: item.contentType }), item.name);
       held.delete(id);
-      const answer = await fetchImpl(url.href, { method: 'POST', body: form });
+      const answer = await fetchImpl(url.href, { method: 'POST', body: form, redirect: 'error' });
       if (!answer.ok) throw Object.assign(refusal(fill(settings.words.refused, { status: answer.status }), 502), { retry: true });
       return { sent: true, size: item.bytes.length, said: fill(settings.words.sent, { bytes: item.bytes.length }) };
     },

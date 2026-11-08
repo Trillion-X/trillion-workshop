@@ -26,6 +26,7 @@ Moved one to one from Trillion-X/trillion `computer/guarded-upload.mjs` and `com
 
 - No host or bucket is named in code; destinations are DATA, and this public repository ships none.
 - The signed fields are never logged and never in an answer or an error message.
+- A storage redirect is refused; the held file is never forwarded to a different address.
 - The file's bytes never reach the page; it learns the size.
 
 ## Dependencies

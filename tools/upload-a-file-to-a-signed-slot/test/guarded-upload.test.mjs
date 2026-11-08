@@ -64,6 +64,25 @@ test('a refused slot does not use the file up; a held file expires; a storage re
   assert.throws(() => uploads.prepare({ bytes: Buffer.alloc(settings.max_hold_bytes + 1), contentType: 'application/zip' }), error => error.status === 413);
 });
 
+test('a checked slot cannot redirect the held file to another address', async () => {
+  const destinations = [];
+  // A transport receiving a 307 preserves the POST body unless the request refuses redirects.
+  const fetchImpl = async (url, init) => {
+    const request = new Request(url, init);
+    destinations.push(request.url);
+    const redirect = Response.redirect('https://other.example.test/collect', 307);
+    if (request.redirect === 'error') throw new TypeError('fetch failed');
+    if (request.redirect === 'manual') return redirect;
+    destinations.push(redirect.headers.get('location'));
+    return new Response(null, { status: 204 });
+  };
+  const uploads = makeGuardedUploads({ settings, fetchImpl });
+  const held = uploads.prepare({ bytes: Buffer.from('private archive'), contentType: 'application/zip' });
+  await assert.rejects(uploads.send({ id: held.id, slot: good }));
+  assert.deepEqual(destinations, [good.url]);
+  await assert.rejects(uploads.send({ id: held.id, slot: good }), error => error.status === 404);
+});
+
 // A granted folder with one file in it, a folder beside it the tool was not granted, and a link out of the granted one.
 function aGrantedFolder(t) {
   const place = mkdtempSync(join(tmpdir(), 'guarded-upload-'));
