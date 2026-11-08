@@ -1,4 +1,5 @@
 import unittest
+from io import BytesIO
 import json
 import os
 from pathlib import Path
@@ -9,7 +10,7 @@ from types import SimpleNamespace
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "do-work"))
-from inspect_private_document_pdf import inspect_pdf, text_mapping
+from inspect_private_document_pdf import geometry_readback, inspect_pdf, text_mapping
 import writing_gate
 from writing_gate import _PrivateInput
 
@@ -20,6 +21,101 @@ def projection(blocks):
 
 
 class TextMappingTests(unittest.TestCase):
+    def test_real_pdfium_geometry_keeps_correct_tokens_and_does_not_fill_missing_words(self):
+        import pypdfium2 as pdfium
+        import pypdfium2.raw as raw
+        from reportlab.pdfgen.canvas import Canvas
+        data = BytesIO()
+        canvas = Canvas(data)
+        canvas.setFont("Helvetica", 12)
+        canvas.drawString(72, 700, "Alpha")
+        canvas.drawString(150, 700, "Beta")
+        canvas.setFont("Courier", 12)
+        canvas.drawString(120, 700, "X")
+        canvas.save()
+        with pdfium.PdfDocument(data.getvalue()) as document:
+            page = document[0]
+            textpage = page.get_textpage()
+            actual, _, _ = geometry_readback(
+                textpage, textpage.get_text_range(), textpage.get_text_bounded(),
+                lambda at: raw.FPDFText_GetCharIndexFromTextIndex(textpage, at))
+            self.assertEqual(actual, "Alpha X Beta")
+            self.assertFalse(text_mapping(projection([
+                {"kind": "paragraph", "text": "Alpha X Beta 20"}
+            ]), ["Proof\n" + actual], "Proof")["exact_ordered_text_after_whitespace_normalization"])
+            textpage.close()
+            page.close()
+
+    def test_geometry_orders_only_actual_same_line_tokens_without_source_text(self):
+        text = "Alpha Beta X\nCell one\nCell two\n"
+        boxes = {}
+        starts = {"Alpha": (0, 700), "Beta": (80, 700), "X": (55, 700),
+                  "Cell one": (0, 680), "Cell two": (100, 680)}
+        position = 0
+        for line in text.splitlines(keepends=True):
+            value = line.rstrip("\n")
+            if value.startswith("Alpha"):
+                for word, (x, y) in list(starts.items())[:3]:
+                    offset = value.index(word)
+                    for i, _ in enumerate(word):
+                        boxes[position + offset + i] = (x + i * 5, y, x + i * 5 + 4, y + 8)
+            else:
+                x, y = starts[value]
+                for i, _ in enumerate(value):
+                    boxes[position + i] = (x + i * 5, y, x + i * 5 + 4, y + 8)
+            position += len(line)
+        page = SimpleNamespace(get_charbox=lambda at: boxes[at])
+        actual, changes, _ = geometry_readback(page, text, text, lambda at: at)
+        self.assertEqual(actual, "Alpha X Beta\nCell one\nCell two\n")
+        self.assertEqual(len(changes), 1)
+        self.assertEqual(changes[0]["token_order"], [0, 2, 1])
+        source = projection([{"kind": "heading", "text": "Alpha X Beta"},
+                             {"kind": "paragraph", "text": "Cell one Cell two"}])
+        self.assertTrue(text_mapping(source, ["Proof\n" + actual], "Proof")
+                        ["exact_ordered_text_after_whitespace_normalization"])
+        missing = projection([{"kind": "heading", "text": "Alpha X Beta 20"}])
+        self.assertFalse(text_mapping(missing, ["Proof\n" + actual], "Proof")
+                         ["exact_ordered_text_after_whitespace_normalization"])
+
+    def test_geometry_abstains_on_overlap_rtl_and_unaligned_apis(self):
+        page = SimpleNamespace(get_charbox=lambda at: (0, 0, 20, 8))
+        for text, bounded in [("Beta Alpha", "Beta Alpha"), ("אב Alpha", "אב Alpha"),
+                              ("Alpha", "Different")]:
+            with self.subTest(text=text):
+                actual, changes, unavailable = geometry_readback(page, text, bounded, lambda at: at)
+                self.assertEqual(actual, bounded)
+                self.assertEqual(changes, [])
+                self.assertTrue(unavailable)
+
+    def test_displaced_heading_cannot_match_inside_prose_and_jump_to_repeated_appendix(self):
+        source = projection([
+            {"kind": "heading", "text": "Action → Skill"},
+            {"kind": "paragraph", "text": "Choose a repeatable action."},
+            {"kind": "paragraph", "text": "In Action → Skill, observe a result."},
+            {"kind": "heading", "text": "Appendix"},
+            {"kind": "paragraph", "text": "Choose a repeatable action."},
+        ])
+        result = text_mapping(source, [
+            "Proof\nAction Skill →\nChoose a repeatable action.\nIn Action → Skill, observe a result.",
+            "Appendix\nChoose a repeatable action.",
+        ], "Proof")
+        self.assertFalse(result["exact_ordered_text_after_whitespace_normalization"])
+        self.assertFalse(result["blocks"][0]["mapped"])
+        self.assertEqual(result["blocks"][1]["first_page"], 1)
+        self.assertEqual(result["blocks"][2]["first_page"], 1)
+        self.assertEqual(result["blocks"][4]["first_page"], 2)
+
+    def test_complete_wrapped_heading_lines_are_still_mapped(self):
+        source = projection([
+            {"kind": "heading", "text": "A complete wrapped heading"},
+            {"kind": "paragraph", "text": "Its following paragraph."},
+        ])
+        result = text_mapping(source, [
+            "Proof\nA complete wrapped\nheading\nIts following paragraph."
+        ], "Proof")
+        self.assertTrue(result["exact_ordered_text_after_whitespace_normalization"])
+        self.assertTrue(result["blocks"][0]["mapped"])
+
     def test_whole_text_and_cross_page_source_mapping(self):
         source = projection([{"kind": "paragraph", "text": "Pay at least 10000 and keep three evenings."}])
         result = text_mapping(source, ["Proof\nPay at least 10000", "and keep three evenings."], "Proof")

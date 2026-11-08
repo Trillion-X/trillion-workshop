@@ -34,7 +34,10 @@
   "allowed_deltas": [
     "admission through the current private_layout_admission policy path",
     "held PDF bytes through writing_gate._PrivateInput with the exact admitted input_root",
-    "current content identity in the 1f:<BLAKE3> form"
+    "current content identity in the 1f:<BLAKE3> form",
+    "heading mapping requires complete measured extraction lines, preventing a heading substring in later prose from advancing the ordered-block cursor",
+    "source-independent ordering of complete PDF API tokens only within one measured horizontal line with non-overlapping glyph regions; retain original API text and report every change or abstention",
+    "separate raw-API comparison alongside geometry comparison; ambiguous, overlapping, RTL, unaligned, and hyphen-marker lines retain their original API order"
   ],
   "banned_substitutions": [
     "fixed repository-root ownership or an implicit project root",
@@ -54,6 +57,12 @@
     "minimum_meaningful_line_retention": 0.6,
     "test_refs": [
       "tools/export-documents-to-files/test/test_private_pdf_text_mapping.py"
-    ]
+    ],
+    "consumer_evidence": {
+      "scope": "Private revision107 v17 layout proofs; no voice, author, presentation or final-delivery approval",
+      "v1": "Measured geometry mapping recovers displaced font-run token order without supplying source words; genuine missing glyphs still fail. Complete-line heading boundaries prevent the later prose/appendix false match.",
+      "v2": "Both compact Word and native PDF map all 825 source blocks; both detailed outputs map all 1811. Raw API text is also exact in all four outputs, with zero geometry reorderings and zero out-of-page boxes.",
+      "tests": "23 focused tests pass, including actual ReportLab/PDFium extraction, displaced heading and repeated appendix, missing word/changed quantity, overlap, RTL and unaligned API opposing controls."
+    }
   }
 }
