@@ -82,7 +82,7 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   repositories = {}, capabilitySearchArgv, now } = {}) {
   const here = resolve(root);
   const tree = span.staged ? ':' : span.to;
-  const readers = gitReaders({ root: here, repositories, tree });
+  const readers = gitReaders({ root: here, repositories, repositoryNames: searchRepositories, tree });
   span = readers.snapshotSpan(span);
   if (!rules) {
     const bytes = readers.readTarget(rulesPath);

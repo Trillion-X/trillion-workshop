@@ -46,7 +46,24 @@ function redacted(text, redactions) {
 }
 function named(source) {
   const lines = Array.isArray(source.lines) ? ` lines ${source.lines.join('-')}` : '';
-  return `${source.repository}@${String(source.commit).slice(0, 12)}:${source.path ?? `path ${source.path_multihash}`}${lines}`;
+  const repository = typeof source.repository === 'string' ? source.repository
+    : repositoryIdentity(source.repository) ?? '(invalid repository locator)';
+  return `${repository}@${String(source.commit).slice(0, 12)}:${source.path ?? `path ${source.path_multihash}`}${lines}`;
+}
+
+// A typed locator preserves the identity of the UTF-8 name without publishing it.
+// Identity comparison does not resolve or grant a checkout; the source read below
+// separately requires the real reader's caller-declared name scope.
+function repositoryIdentity(reference) {
+  if (typeof reference === 'string' && reference.length) return multihash(Buffer.from(reference));
+  return isRecord(reference) && Reflect.ownKeys(reference).length === 1
+    && Object.hasOwn(reference, 'repository_multihash') && typeof reference.repository_multihash === 'string'
+    && BLAKE3_MULTIHASH.test(reference.repository_multihash)
+    ? reference.repository_multihash : null;
+}
+function sameRepository(left, right) {
+  const identity = repositoryIdentity(left);
+  return identity !== null && identity === repositoryIdentity(right);
 }
 
 function readPngDimensions(path) {
@@ -354,12 +371,12 @@ function oldCopyLives(source, part, options) {
   return part ? partLives(source, part, options) : path ? options.readers?.lives?.(source.repository, path) ?? null : null;
 }
 function ownTargetIdentity(source, targetPath, options) {
-  return typeof source?.path === 'string' && source.repository === options.repository && (source.path === targetPath
+  return typeof source?.path === 'string' && sameRepository(source.repository, options.repository) && (source.path === targetPath
     || options.readers?.sameFileIdentity?.(source.commit, source.path, targetPath) === true);
 }
 function checkOldCopy(source, contract, options, errors, deferred, part) {
   const old = source.old_copy;
-  const sameFile = (contract.targets ?? []).some((target) => ownTargetIdentity(source, target?.path, options));
+  const sameFile = (Array.isArray(contract.targets) ? contract.targets : []).some((target) => ownTargetIdentity(source, target?.path, options));
   if (old === 'same-file' || (old === undefined && sameFile)) {
     if (!sameFile) errors.push(`source ${named(source)}: old_copy "same-file" needs the source to be a target's own path in this repository`);
     return;
@@ -462,7 +479,7 @@ function checkNoPriorOwner(contract, options, errors, deferred) {
   const namesFile = (repository, path) => distinct.some((one) => one?.repository === repository
     && (one.path === path || (String(one.path ?? '').endsWith('/') && path.startsWith(one.path))));
   const namesRow = (row) => distinct.some((one) => one?.capability === row.capability);
-  const own = new Set((contract?.targets ?? []).map((target) => target?.path));
+  const own = new Set((Array.isArray(contract?.targets) ? contract.targets : []).map((target) => target?.path));
   const isContract = options.isContract ?? (() => false);
 
   const unnamed = new Map();
@@ -511,7 +528,8 @@ function readTargetBytes(path, options) {
   return existsSync(file) ? readFileSync(file) : null;
 }
 
-export function validateReferenceAdaptationContract(contract, options = {}) {
+// Shared source and declaration evidence. No current target, retirement or history verdict is made here.
+function readContractEvidence(contract, options) {
   const errors = [];
   const deferred = [];
   contract = contract && typeof contract === 'object' && !Array.isArray(contract) ? contract : {};
@@ -533,25 +551,15 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   const noPriorOwner = contract?.mode === 'NO_PRIOR_OWNER';
   if (!noPriorOwner && (!Array.isArray(contract?.sources) || contract.sources.length === 0)) errors.push('sources must be non-empty');
   if (!Array.isArray(contract?.targets) || contract.targets.length === 0) errors.push('targets must be non-empty');
-  const ownsTarget = (row) => (options.readers ? row?.path === targetNeedle : absolute(row?.path ?? '') === targetNeedle);
-  if (targetNeedle && !contract?.targets?.some(ownsTarget)) errors.push(`contract does not own target ${targetNeedle}`);
-
   const sources = Array.isArray(contract?.sources) ? contract.sources : [];
   const targets = Array.isArray(contract?.targets) ? contract.targets : [];
+  const ownsTarget = (row) => (options.readers ? row?.path === targetNeedle : absolute(row?.path ?? '') === targetNeedle);
+  if (targetNeedle && !targets.some(ownsTarget)) errors.push(`contract does not own target ${targetNeedle}`);
+
   const source = sources[0];
   const target = targets[0];
   const separateBaseline = isRecord(contract.baseline) && Object.hasOwn(contract.baseline, 'path');
   const baselinePath = separateBaseline ? contract.baseline.path : target?.path;
-  const activeScope = Array.isArray(options.activeTargetPaths) ? new Set(options.activeTargetPaths) : null;
-  const artifacts = new Set();
-  if (separateBaseline) artifacts.add(baselinePath);
-  // In a legacy archive-first contract the first target is also its claimed
-  // original-copy artifact. It cannot become active merely because it exists.
-  if (contract.mode === 'SOURCE_FIRST_PORT' && !separateBaseline && activeScope && !activeScope.has(baselinePath)) artifacts.add(baselinePath);
-  const activeTargets = targets.filter((one) => !artifacts.has(one?.path) && (!activeScope || activeScope.has(one?.path)));
-  const ambiguousTargets = contract.mode === 'SOURCE_FIRST_PORT' && targets.length > 1 && !separateBaseline && !activeScope;
-  if (ambiguousTargets) errors.push('multiple targets require baseline.path or activeTargetPaths to prove active retention');
-  if (targets.some((one) => artifacts.has(one?.path))) errors.push('targets must not name baseline artifacts; a separate artifact belongs in baseline.path');
   if ((options.readers || separateBaseline || source?.repository) && targets.some((one) => !repositoryRelativePath(one?.path))) errors.push('targets must use canonical repository-relative paths without traversal');
   if (separateBaseline) {
     if (!repositoryRelativePath(baselinePath)) errors.push('baseline.path must be a non-empty repository-relative path without traversal');
@@ -565,19 +573,24 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
     if (!isRecord(one) || typeof one.from !== 'string' || !one.from || typeof one.to !== 'string') errors.push('baseline.redactions are { from, to } literal replacements');
   }
   const sourceTexts = [];
+  const sourceChecks = [];
   let sourceArtifact = null;
   let sourceArtifactCount = 0;
   let sourceArtifactsMatch = true;
   for (const one of sources) {
     if (one?.repository !== undefined || one?.commit !== undefined) {
-      if (typeof one?.repository !== 'string' || !one.repository || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !(one?.path || BLAKE3_MULTIHASH.test(String(one?.path_multihash ?? '')))) {
+      if (!repositoryIdentity(one?.repository) || !/^[0-9a-f]{7,64}$/.test(String(one?.commit ?? '')) || !(one?.path || BLAKE3_MULTIHASH.test(String(one?.path_multihash ?? '')))) {
         errors.push('a source named by repository needs repository, commit (a commit identity) and path, or path_multihash for a private repository');
         continue;
       }
-      const file = options.readers?.readSource?.(one) ?? null;
+      const resolvedRepository = typeof one.repository === 'string' || Boolean(options.readers?.repositoryName?.(one.repository));
+      if (!resolvedRepository) {
+        deferred.push(`source ${named(one)} has no unambiguous caller-declared repository`);
+      }
+      const file = resolvedRepository ? options.readers?.readSource?.(one) ?? null : null;
       const bytes = file && sourceLines(one, file, errors);
-      if (file === null && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
-      else if (file === null) deferred.push(`source ${named(one)} is not readable here`);
+      if (file === null && resolvedRepository && options.readers?.checkout?.(one.repository)) errors.push(`source ${named(one)} is not in that commit`);
+      else if (file === null && resolvedRepository) deferred.push(`source ${named(one)} is not readable here`);
       else if (bytes) {
         if (separateBaseline && source?.lines !== undefined && !redactions.length) {
           if (sourceArtifact === null) sourceArtifact = Buffer.from(file);
@@ -587,7 +600,7 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
         sourceTexts.push(one === source ? redacted(bytes.toString('utf8'), redactions) : bytes.toString('utf8'));
         if (multihash(bytes) !== one.multihash) errors.push(`source multihash drift: ${named(one)}`);
       }
-      if (one.lines === undefined || bytes) checkOldCopy(one, contract, options, errors, deferred, one.lines === undefined ? null : bytes);
+      sourceChecks.push({ source: one, bytes: one.lines === undefined ? null : bytes });
     } else if (options.requireRepositorySources) {
       errors.push(`source ${one?.path ?? '(no path)'} must be named by repository, commit and path, so every checkout reads the same bytes`);
     } else {
@@ -599,6 +612,65 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
       } else if (sourcePath) errors.push(`source missing: ${sourcePath}`);
     }
   }
+  let fullSourceBaseline = false;
+  let copied = source?.multihash;
+  if (contract?.mode === 'SOURCE_FIRST_PORT') {
+    if (!['user-owned', 'repository-owned', 'licensed'].includes(source?.ownership)) errors.push('SOURCE_FIRST_PORT requires owned or licensed source');
+    if (!contract?.baseline?.copied_before_adaptation) errors.push('SOURCE_FIRST_PORT requires copied_before_adaptation=true');
+    if (contract?.baseline?.source_multihash !== source?.multihash) errors.push('baseline source multihash must equal declared source multihash');
+    // A complete, unchanged snapshot of this same pinned source also proves its selected ranges.
+    // Bind the whole artifact, not merely matching slices from an unrelated or changed file.
+    fullSourceBaseline = separateBaseline && source?.repository && source?.lines !== undefined && !redactions.length
+      && sourceArtifactCount === sources.length && sourceArtifactCount > 0 && sourceArtifactsMatch
+      && sources.every((one) => sameRepository(one.repository, source.repository) && one.commit === source.commit
+        && one.path === source.path && one.path_multihash === source.path_multihash)
+      && multihash(sourceArtifact) === contract?.baseline?.target_multihash_at_baseline;
+    copied = redactions.length || fullSourceBaseline ? contract?.baseline?.target_multihash_at_baseline : source?.multihash;
+    if (!redactions.length && !fullSourceBaseline && copied !== contract?.baseline?.target_multihash_at_baseline) errors.push('baseline target multihash must equal source multihash');
+    if (redactions.length && sourceTexts.length && multihash(Buffer.from(sourceTexts[0])) !== copied) {
+      errors.push('baseline target multihash must equal the source with exactly baseline.redactions applied');
+    }
+    if (!Array.isArray(contract?.preserve) || contract.preserve.length === 0) errors.push('SOURCE_FIRST_PORT requires preserved mechanisms');
+    if (!Array.isArray(contract?.banned_substitutions) || contract.banned_substitutions.length === 0) errors.push('SOURCE_FIRST_PORT requires banned substitutions');
+  }
+  if (contract?.mode === 'BEHAVIORAL_PORT' && !(contract?.proof?.test_refs?.length > 0 && contract?.preserve?.length > 0)) errors.push('BEHAVIORAL_PORT requires preserved behaviors and test refs');
+  if (contract?.mode === 'VISUAL_REPLICA' && !(contract?.proof?.render_refs?.length > 0)) errors.push('VISUAL_REPLICA requires render refs');
+  if (contract?.mode === 'INSPIRATION_ONLY' && !contract?.proof?.originality_ref) errors.push('INSPIRATION_ONLY requires originality_ref');
+  if (contract?.mode === 'ANTI_REFERENCE' && !(contract?.banned_substitutions?.length > 0)) errors.push('ANTI_REFERENCE requires explicit excluded patterns');
+  return { contract, errors, deferred, stage, noPriorOwner, sources, targets, source, target,
+    separateBaseline, baselinePath,
+    sourceTexts, sourceChecks, fullSourceBaseline, copied };
+}
+
+/** Pinned source bytes and declared copy identities, without claiming that a copy completed or a port is admitted. */
+export function validateReferenceAdaptationEvidence(contract, options = {}) {
+  const evidence = readContractEvidence(contract, { ...options, requireRepositorySources: true });
+  if (evidence.noPriorOwner) evidence.errors.push('NO_PRIOR_OWNER requires fresh searches outside immutable contract evidence');
+  return {
+    scope: 'immutable-contract-evidence', admission: false,
+    valid: evidence.errors.length === 0, errors: evidence.errors, deferred: evidence.deferred,
+    id: evidence.contract?.id ?? null, mode: evidence.contract?.mode ?? null,
+    status: evidence.contract?.status ?? null, measurements: null,
+  };
+}
+
+export function validateReferenceAdaptationContract(contract, options = {}) {
+  const evidence = readContractEvidence(contract, options);
+  const { errors, deferred, stage, noPriorOwner, sources, targets, source, target,
+    separateBaseline, baselinePath,
+    sourceTexts, sourceChecks, fullSourceBaseline, copied } = evidence;
+  contract = evidence.contract;
+  const activeScope = Array.isArray(options.activeTargetPaths) ? new Set(options.activeTargetPaths) : null;
+  const artifacts = new Set();
+  if (separateBaseline) artifacts.add(baselinePath);
+  // In a legacy archive-first contract the first target is also its claimed
+  // original-copy artifact. It cannot become active merely because it exists.
+  if (contract.mode === 'SOURCE_FIRST_PORT' && !separateBaseline && activeScope && !activeScope.has(baselinePath)) artifacts.add(baselinePath);
+  const activeTargets = targets.filter((one) => !artifacts.has(one?.path) && (!activeScope || activeScope.has(one?.path)));
+  const ambiguousTargets = contract.mode === 'SOURCE_FIRST_PORT' && targets.length > 1 && !separateBaseline && !activeScope;
+  if (ambiguousTargets) errors.push('multiple targets require baseline.path or activeTargetPaths to prove active retention');
+  if (targets.some((one) => artifacts.has(one?.path))) errors.push('targets must not name baseline artifacts; a separate artifact belongs in baseline.path');
+  for (const one of sourceChecks) checkOldCopy(one.source, contract, options, errors, deferred, one.bytes);
   const targetTexts = [];
   let targetBytes = null;
   for (const one of targets) {
@@ -618,23 +690,6 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
   if (stage === 'completion' && contract?.status !== 'VERIFIED') errors.push('completion requires VERIFIED status');
 
   if (contract?.mode === 'SOURCE_FIRST_PORT') {
-    if (!['user-owned', 'repository-owned', 'licensed'].includes(source?.ownership)) errors.push('SOURCE_FIRST_PORT requires owned or licensed source');
-    if (!contract?.baseline?.copied_before_adaptation) errors.push('SOURCE_FIRST_PORT requires copied_before_adaptation=true');
-    if (contract?.baseline?.source_multihash !== source?.multihash) errors.push('baseline source multihash must equal declared source multihash');
-    // A complete, unchanged snapshot of this same pinned source also proves its selected ranges.
-    // Bind the whole artifact, not merely matching slices from an unrelated or changed file.
-    const fullSourceBaseline = separateBaseline && source?.repository && source?.lines !== undefined && !redactions.length
-      && sourceArtifactCount === sources.length && sourceArtifactCount > 0 && sourceArtifactsMatch
-      && sources.every((one) => one.repository === source.repository && one.commit === source.commit
-        && one.path === source.path && one.path_multihash === source.path_multihash)
-      && multihash(sourceArtifact) === contract?.baseline?.target_multihash_at_baseline;
-    const copied = redactions.length || fullSourceBaseline ? contract?.baseline?.target_multihash_at_baseline : source?.multihash;
-    if (!redactions.length && !fullSourceBaseline && copied !== contract?.baseline?.target_multihash_at_baseline) errors.push('baseline target multihash must equal source multihash');
-    if (redactions.length && sourceTexts.length && multihash(Buffer.from(sourceTexts[0])) !== copied) {
-      errors.push('baseline target multihash must equal the source with exactly baseline.redactions applied');
-    }
-    if (!Array.isArray(contract?.preserve) || contract.preserve.length === 0) errors.push('SOURCE_FIRST_PORT requires preserved mechanisms');
-    if (!Array.isArray(contract?.banned_substitutions) || contract.banned_substitutions.length === 0) errors.push('SOURCE_FIRST_PORT requires banned substitutions');
     // The immutable baseline is the byte copy, either at the first target's historical path or at an explicitly
     // separate path. A separate artifact requires committed proof; its current bytes cannot stand in for history.
     const copyNow = targetBytes && multihash(targetBytes) === copied;
@@ -661,7 +716,7 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
         const inPlaceClaim = sources.some((one, index) => one?.old_copy === 'same-file' || sourceTargets[index].length);
         const genuineInPlace = sources.length === sourcePaths.size && sources.length === activeTargets.length && targetPaths.size === sourcePaths.size
           && sourceTargets.every((targets) => targets.length === 1) && new Set(mappedTargets).size === activeTargets.length
-          && options.policySince && sources.every((one) => one?.repository === options.repository
+          && options.policySince && sources.every((one) => sameRepository(one?.repository, options.repository)
             && one.commit === contract?.baseline?.commit && (one.old_copy === 'same-file' || one.old_copy === undefined)
             && options.readers.isAncestor?.(one.commit, options.policySince));
         if (inPlaceClaim && !genuineInPlace) errors.push('same-file provenance requires the complete original source/target set at a snapshot no later than policySince; mixed or post-policy self-sources cannot certify an imported adaptation');
@@ -701,14 +756,10 @@ export function validateReferenceAdaptationContract(contract, options = {}) {
     }
     retention = { sourceMeaningfulLines: sourceLines.length, retainedMeaningfulLines: retained, meaningfulLineRetention: ratio };
   }
-  if (contract?.mode === 'BEHAVIORAL_PORT' && !(contract?.proof?.test_refs?.length > 0 && contract?.preserve?.length > 0)) errors.push('BEHAVIORAL_PORT requires preserved behaviors and test refs');
   let visualMeasurements = null;
   if (contract?.mode === 'VISUAL_REPLICA') {
-    if (!(contract?.proof?.render_refs?.length > 0)) errors.push('VISUAL_REPLICA requires render refs');
     visualMeasurements = validateVisualPixelLock(contract, stage, errors);
   }
-  if (contract?.mode === 'INSPIRATION_ONLY' && !contract?.proof?.originality_ref) errors.push('INSPIRATION_ONLY requires originality_ref');
-  if (contract?.mode === 'ANTI_REFERENCE' && !(contract?.banned_substitutions?.length > 0)) errors.push('ANTI_REFERENCE requires explicit excluded patterns');
   const search = noPriorOwner ? checkNoPriorOwner(contract, options, errors, deferred) : null;
   if (stage === 'completion' && !(contract?.proof?.test_refs?.length > 0)) errors.push('completion requires test refs');
 

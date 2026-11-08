@@ -133,7 +133,7 @@ function repositoryGit(root, args, { bytes = false, index = false, history = fal
   }
 }
 
-export function gitReaders({ root, repositories = {}, tree } = {}) {
+export function gitReaders({ root, repositories = {}, repositoryNames = [], tree } = {}) {
   const here = resolve(root ?? process.cwd());
   const environment = { ...process.env };
   const git = (folder, args, options = {}) => repositoryGit(folder, args, { ...options, environment, history: folder === here });
@@ -142,11 +142,12 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
   const self = basename(owner);
   const repositoryLabel = (name) => typeof name === 'string' && name.length > 0
     && name.trim().length > 0 && !/[/\\:\x00-\x1f\x7f]/.test(name) && name !== '.' && name !== '..';
-  const declaredNames = [self, ...Object.keys(repositories)].filter(repositoryLabel);
+  const declaredNames = [self, ...Object.keys(repositories), ...repositoryNames].filter(repositoryLabel);
   const repositoryName = (reference, allowedNames = []) => {
     if (typeof reference === 'string') return repositoryLabel(reference) ? reference : null;
     if (!reference || Array.isArray(reference) || typeof reference !== 'object'
-      || Object.keys(reference).length !== 1 || !/^1f:[0-9a-f]{64}$/.test(reference.repository_multihash ?? '')) return null;
+      || Reflect.ownKeys(reference).length !== 1 || !Object.hasOwn(reference, 'repository_multihash')
+      || typeof reference.repository_multihash !== 'string' || !/^1f:[0-9a-f]{64}$/.test(reference.repository_multihash)) return null;
     // A content identity selects only a caller-declared name. It never discovers
     // siblings, decodes a path, or adds a checkout to the reader's scope.
     const names = [...new Set([...declaredNames, ...allowedNames].filter(repositoryLabel))];
@@ -525,7 +526,7 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
         && entry.type === 'blob' && /^100(?:644|755)$/.test(entry.mode)).map(([path]) => path).sort();
     },
     repositoryCommit(name, commit) {
-      if (!repositoryLabel(name) || !/^[0-9a-f]{7,64}$/.test(commit ?? '')) return null;
+      if (!repositoryName(name) || !/^[0-9a-f]{7,64}$/.test(commit ?? '')) return null;
       // Historical captures can outlive a branch or a replacement of main.
       // Resolve their immutable object here; the fresh search binds main apart.
       return resolveCommit(checkout(name), commit);
@@ -578,9 +579,10 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       const path = pathOf(source);
       if (!path) return { state: 'unreadable' };
       // The local main/HEAD fallback used by searches is not proof of external publication.
-      const folder = source.repository === self ? null : checkout(source.repository);
+      const sameRepository = repositoryName(source.repository) === self;
+      const folder = sameRepository ? null : checkout(source.repository);
       const published = folder && resolveCommit(folder, 'refs/remotes/origin/main');
-      const state = source.repository === self ? inspectTarget(path)
+      const state = sameRepository ? inspectTarget(path)
         : published ? inspectAtCommit(folder, published, path) : { state: 'unreadable' };
       return state.state === 'regular' ? { state: 'regular', bytes: copiedBytes(state.bytes) } : { state: state.state };
     },

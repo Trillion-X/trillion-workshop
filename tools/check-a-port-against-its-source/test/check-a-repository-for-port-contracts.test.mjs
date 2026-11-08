@@ -737,10 +737,14 @@ test('typed private repository identities preserve exact search scope and histor
   assert.deepEqual(unreadableTyped.errors, []);
   assert.ok(unreadableTyped.deferred.length > 0, 'unreadable capture and fresh search remain unqualified');
 
-  const unsupportedSourceForm = portContract({ oldCommit, baselineCommit: since });
-  unsupportedSourceForm.sources[0].repository = { repository_multihash: identity('old-owner') };
-  assert.match(judge(unsupportedSourceForm).errors.join('\n'), /a source named by repository needs repository/,
-    'a typed search receipt does not silently add a new source-contract form');
+  const namedSource = portContract({ oldCommit, baselineCommit: since });
+  const typedSource = structuredClone(namedSource);
+  typedSource.sources[0].repository = { repository_multihash: identity('old-owner') };
+  const namedAdmission = judge(namedSource), typedAdmission = judge(typedSource);
+  assert.equal(typedAdmission.valid, false, 'the supported typed source still fails actual admission gates');
+  assert.deepEqual(typedAdmission.errors, namedAdmission.errors.map(error => error.replaceAll('old-owner', identity('old-owner'))),
+    'typed and named source forms retain the same retirement, baseline and retention refusals');
+  assert.deepEqual(typedAdmission.deferred, namedAdmission.deferred);
 
   const later = commit(old, { 'README.md': 'later published source\n' });
   git(old, 'update-ref', 'refs/remotes/origin/main', later);
