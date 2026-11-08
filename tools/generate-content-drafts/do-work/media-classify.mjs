@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * file: packages/content-production/do-work/media-classify.mjs
+ * file: tools/generate-content-drafts/do-work/media-classify.mjs
  *
  * PURPOSE: The media.classify capability (plan §9/§15 T06) — selects the
  * workflow-definition (the style) for a set of inputs. Three DATA-driven
@@ -26,38 +26,27 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const args = new Map();
-for (let i = 2; i < process.argv.length; i += 2) args.set(process.argv[i].replace(/^--/, ''), process.argv[i + 1]);
-
-const RULES_PATH = args.get('rules') ?? join(here, '..', 'classify-rules.json');
-const shape = JSON.parse(args.get('shape') ?? '{}');
-const rulesDoc = JSON.parse(readFileSync(RULES_PATH, 'utf8'));
+export function chooseContentStyle(shape, rulesDoc, options = {}) {
+if (!shape || typeof shape !== 'object' || Array.isArray(shape)) throw new Error('shape must be an object');
+if (!rulesDoc || typeof rulesDoc !== 'object' || Array.isArray(rulesDoc)) throw new Error('rules must be an object');
 const execution = rulesDoc.execution ?? {};
-const MODE = args.get('mode') ?? execution.default_mode;
+const MODE = options.mode ?? execution.default_mode;
 if (!MODE) {
-  console.error(JSON.stringify({ error: 'missing_execution_mode', required: 'execution.default_mode or --mode' }));
-  process.exit(2);
+  throw new Error('missing_execution_mode: execution.default_mode or --mode');
 }
+if (!['manual', 'rule', 'ai'].includes(MODE)) throw new Error(`unknown execution mode ${MODE}`);
 
 function emit(definition, mode) {
-  console.log(`[media.classify] inputs=${JSON.stringify(shape)} -> def=${definition} mode=${mode}`);
-  const result = JSON.stringify({ definition, mode, shape });
-  console.log(result);
-  // Declared-output file: the workflow boundary reads THIS (a binding can't
-  // parse a log-prefixed stdout) — same contract as every proven capability.
-  const outFile = args.get('out');
-  if (outFile) writeFileSync(outFile, result + '\n');
+  return { definition, mode, shape };
 }
 
 // manual — pass-through
 if (MODE === 'manual') {
-  const definition = args.get('definition');
+  const definition = options.definition;
   if (!definition) {
-    console.error('manual mode requires --definition');
-    process.exit(2);
+    throw new Error('manual mode requires --definition');
   }
-  emit(definition, 'manual');
-  process.exit(0);
+  return emit(definition, 'manual');
 }
 
 // rule — first rule whose every `when` key matches the shape wins
@@ -72,39 +61,62 @@ function matchRule() {
 if (MODE === 'rule') {
   const definition = matchRule();
   if (definition) {
-    emit(definition, 'rule');
-    process.exit(0);
+    return emit(definition, 'rule');
   }
   // No rule matched — fall through to AI mode (the rules file declares how).
 }
 
 // ai — the local CLI picks among the published definitions
-const definitions = (args.get('definitions') ?? '').split(',').map((d) => d.trim()).filter(Boolean);
+if (!options.allowAi) throw new Error('local_ai_required: no deterministic selection; use the local CLI with the authorized rules file');
+const definitions = options.definitions ?? [];
 if (definitions.length === 0) {
-  console.error('no rule matched and no --definitions provided for ai mode');
-  process.exit(3);
+  throw new Error('no rule matched and no --definitions provided for ai mode');
 }
 const ai = rulesDoc.ai_mode;
 if (!ai?.argv || !Array.isArray(ai.argv) || ai.argv.length === 0 || typeof ai.argv[0] !== 'string') {
-  console.error(JSON.stringify({ error: 'missing_ai_argv', required: 'ai_mode.argv' }));
-  process.exit(5);
+  throw new Error('missing_ai_argv: ai_mode.argv');
 }
 if (!ai.prompt_template || typeof ai.prompt_template !== 'string') {
-  console.error(JSON.stringify({ error: 'missing_ai_prompt_template', required: 'ai_mode.prompt_template' }));
-  process.exit(5);
+  throw new Error('missing_ai_prompt_template: ai_mode.prompt_template');
 }
 const prompt = ai.prompt_template
   .replace('{shape}', JSON.stringify(shape))
   .replace('{definitions}', definitions.join(', '));
 const timeoutMs = Number(execution.timeout_ms);
 if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
-  console.error(JSON.stringify({ error: 'missing_timeout_ms', required: 'execution.timeout_ms' }));
-  process.exit(5);
+  throw new Error('missing_timeout_ms: execution.timeout_ms');
 }
 const reply = execFileSync(ai.argv[0], [...ai.argv.slice(1), prompt], { encoding: 'utf8', timeout: timeoutMs });
-const picked = definitions.find((d) => reply.includes(d));
+const picked = definitions.find((d) => reply.trim() === d);
 if (!picked) {
-  console.error(`ai mode reply named no known definition: ${reply.slice(-200)}`);
-  process.exit(4);
+  throw new Error('ai mode reply must name exactly one supplied definition');
 }
-emit(picked, 'ai');
+return emit(picked, 'ai');
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  try {
+    const jsonMode = process.argv.includes('--json');
+    const args = new Map();
+    for (let i = 2; !jsonMode && i < process.argv.length; i += 2) args.set(process.argv[i].replace(/^--/, ''), process.argv[i + 1]);
+    const input = jsonMode ? JSON.parse(readFileSync(0, 'utf8')) : {};
+    const RULES_PATH = args.get('rules') ?? join(here, '..', 'classify-rules.json');
+    const shape = jsonMode ? input.shape : JSON.parse(args.get('shape') ?? '{}');
+    const rulesDoc = input.rules ?? JSON.parse(readFileSync(RULES_PATH, 'utf8'));
+    const result = chooseContentStyle(shape, rulesDoc, {
+      mode: input.mode ?? args.get('mode'), definition: input.definition ?? args.get('definition'),
+      definitions: (args.get('definitions') ?? '').split(',').map((d) => d.trim()).filter(Boolean),
+      allowAi: !jsonMode,
+    });
+    if (jsonMode) console.log(JSON.stringify({ result }));
+    else {
+      console.log(`[media.classify] inputs=${JSON.stringify(shape)} -> def=${result.definition} mode=${result.mode}`);
+      console.log(JSON.stringify(result));
+      const outFile = args.get('out');
+      if (outFile) writeFileSync(outFile, JSON.stringify(result) + '\n');
+    }
+  } catch (error) {
+    console.error(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  }
+}

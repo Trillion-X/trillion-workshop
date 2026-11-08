@@ -1,7 +1,7 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
   "id": "REF-CONTENT-PRODUCTION-MEDIA-CLASSIFY",
-  "status": "BASELINED",
+  "status": "ADAPTED",
   "directive": {
     "message_multihash": "1f:2ded00d7730bf9fbcab2b482a143ad89bd86bc216290846cadcbfce920ee5e9b",
     "quote": "Continue unfinished capability moves from the existing 126 source-ID / 77 destination-group inventory, prioritizing work independent of blocked Workshop public imports."
@@ -39,7 +39,8 @@
     "recorded_at": "2026-11-08T02:24:50.306Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:861108c0b51c4ab50ef9cab98b3622d5bed0d97bd4eea29dbda84c871d4af6c3",
-    "target_multihash_at_baseline": "1f:861108c0b51c4ab50ef9cab98b3622d5bed0d97bd4eea29dbda84c871d4af6c3"
+    "target_multihash_at_baseline": "1f:861108c0b51c4ab50ef9cab98b3622d5bed0d97bd4eea29dbda84c871d4af6c3",
+    "commit": "9427b9a0a1a7d2ff28c0c12e67193e3628050e70"
   },
   "proof": {
     "minimum_meaningful_line_retention": 0.6,
@@ -47,6 +48,11 @@
       "tools/generate-content-drafts/test/presentation-input-contract.test.mjs",
       "tools/generate-content-drafts/test/presentation-readiness.test.mjs",
       "tools/generate-content-drafts/do-work/__tests__/media-classify.test.mjs"
+    ],
+    "required_mechanisms": [
+      "chooseContentStyle",
+      "matchRule",
+      "execFileSync"
     ]
   }
 }

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * file: packages/content-production/do-work/compile-presentation-plan.mjs
+ * file: tools/generate-content-drafts/do-work/compile-presentation-plan.mjs
  *
  * PURPOSE: Compile one source material object and one presentation-format DATA
  * row into an executable production plan. A format is DATA; this compiler never
@@ -14,7 +14,7 @@
  * - no format-specific branch
  */
 
-import { createHash } from "node:crypto";
+import { makeHashCodeHexFromBytes } from "../../content-identity/read-data/identity.mjs";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -132,7 +132,7 @@ const identity = JSON.stringify({
   format_id: format.id,
   format_revision: format.revision ?? 1,
 });
-const planId = `PLAN-${createHash("sha256").update(identity).digest("hex").slice(0, 24)}`;
+const planId = `PLAN-${makeHashCodeHexFromBytes(Buffer.from(identity))}`;
 const adapter = format.execution.adapter;
 const capabilities = [...new Set([...(format.capabilities ?? []), adapter])];
 
@@ -219,6 +219,11 @@ function fail(message) {
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   try {
+    if (process.argv.includes("--json")) {
+      const input = JSON.parse(readFileSync(0, "utf8"));
+      const formats = input.formats ?? JSON.parse(readFileSync(new URL("../presentation-formats.json", import.meta.url), "utf8"));
+      console.log(JSON.stringify({ result: compilePresentationPlan(input.material, input.format_id, formats) }));
+    } else {
     const arguments_ = new Map();
     for (let index = 2; index < process.argv.length; index += 2) {
       arguments_.set(process.argv[index].replace(/^--/, ""), process.argv[index + 1]);
@@ -233,6 +238,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     writeFileSync(outputPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
     console.log(JSON.stringify({ plan_id: plan.id, format: plan.format_id, material: plan.material_id,
       beats: plan.beats.length, requirements: plan.requirements.length, capabilities: plan.capabilities, output: outputPath }));
+    }
   } catch (error) {
     console.error(JSON.stringify(error.diagnostic ?? { error: error.message }));
     process.exitCode = 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * file: packages/content-production/do-work/evaluate-presentation-readiness.mjs
+ * file: tools/generate-content-drafts/do-work/evaluate-presentation-readiness.mjs
  *
  * PURPOSE: Evaluate one compiled presentation plan against declared capabilities
  * and fresh observations. It never converts an operator statement into sensor
@@ -8,21 +8,12 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 
-const arguments_ = new Map();
-for (let index = 2; index < process.argv.length; index += 2) {
-  arguments_.set(process.argv[index].replace(/^--/, ""), process.argv[index + 1]);
-}
-
-const planPath = required("plan");
-const outputPath = required("out");
-const plan = JSON.parse(readFileSync(planPath, "utf8"));
-const capabilities = JSON.parse(readFileSync(required("capabilities"), "utf8"));
-const observations = JSON.parse(readFileSync(required("observations"), "utf8"));
-const nowArgument = arguments_.get("now-ms");
-const nowMs = nowArgument && nowArgument !== "null" ? Number(nowArgument) : Date.now();
+export function evaluatePresentationReadiness(plan, capabilities, observations, nowMs = Date.now()) {
 if (!Number.isFinite(nowMs)) fail("now-ms must be a finite epoch millisecond value");
 
+if (!plan || typeof plan !== "object" || Array.isArray(plan)) fail("plan must be an object");
 if (!Array.isArray(capabilities)) fail("capabilities must be an array");
 if (!observations || typeof observations !== "object" || Array.isArray(observations)) {
   fail("observations must be an object keyed by requirement key");
@@ -38,8 +29,15 @@ const availableCapabilities = new Set(
 );
 const problems = [];
 const evaluatedRequirements = [];
+const requirementKeys = new Set();
 
 for (const requirement of plan.requirements) {
+  if (!requirement || typeof requirement !== "object" || Array.isArray(requirement)) fail("every requirement must be an object");
+  if (typeof requirement.key !== "string" || !requirement.key.trim()) fail("every requirement needs a key");
+  if (requirementKeys.has(requirement.key)) fail(`duplicate requirement key ${requirement.key}`);
+  requirementKeys.add(requirement.key);
+  if (!Array.isArray(requirement.methods) || !requirement.methods.length || requirement.methods.some(method => typeof method !== "string" || !method.trim())) fail(`requirement ${requirement.key} needs accepted evidence methods`);
+  if (!Number.isFinite(requirement.max_age_seconds) || requirement.max_age_seconds < 0) fail(`requirement ${requirement.key} needs a finite nonnegative max_age_seconds`);
   const problem = requirementProblem(requirement);
   evaluatedRequirements.push({
     ...requirement,
@@ -67,20 +65,14 @@ const result = {
   format_id: plan.format_id,
   state: ready ? "ready_to_authorize" : "awaiting_setup",
   physical_setup_independently_verified: ready
-    && evaluatedRequirements.some((requirement) => requirement.methods?.includes("sensor") && requirement.satisfied),
+    && evaluatedRequirements.some((requirement) => requirement.expected !== false && requirement.satisfied && observations[requirement.key]?.method === "sensor"),
   problems,
   requirements: evaluatedRequirements,
   next_action: problems[0]?.instruction ?? "Authorize this one operation; authorization is separate from readiness.",
   note: "An operator confirmation can request a recheck only where the format accepts operator evidence. It cannot replace a required sensor observation.",
 };
 
-writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
-console.log(JSON.stringify({
-  plan_id: plan.id,
-  state: result.state,
-  problems: problems.length,
-  output: outputPath,
-}));
+return result;
 
 function requirementProblem(requirement) {
   if (requirement.expected === false) return null;
@@ -106,7 +98,7 @@ function requirementProblem(requirement) {
       instruction: `${requirement.instruction} Accepted evidence: ${requirement.methods.join(", ")}.`,
     };
   }
-  const observedAt = Number(observation.observed_at_ms);
+  const observedAt = observation.observed_at_ms;
   if (!Number.isFinite(observedAt)) {
     return {
       kind: "invalid_observation_time",
@@ -124,8 +116,9 @@ function requirementProblem(requirement) {
   }
   return null;
 }
+}
 
-function required(name) {
+function required(arguments_, name) {
   const value = arguments_.get(name);
   if (typeof value !== "string" || value.trim().length === 0) {
     console.error(
@@ -137,6 +130,32 @@ function required(name) {
 }
 
 function fail(message) {
-  console.error(JSON.stringify({ error: message }));
-  process.exit(1);
+  throw new Error(message);
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
+  try {
+    if (process.argv.includes("--json")) {
+      const input = JSON.parse(readFileSync(0, "utf8"));
+      console.log(JSON.stringify({ result: evaluatePresentationReadiness(input.plan, input.capabilities, input.observations, input.now_ms) }));
+    } else {
+      const arguments_ = new Map();
+      for (let index = 2; index < process.argv.length; index += 2) {
+        arguments_.set(process.argv[index].replace(/^--/, ""), process.argv[index + 1]);
+      }
+      const planPath = required(arguments_, "plan");
+      const outputPath = required(arguments_, "out");
+      const plan = JSON.parse(readFileSync(planPath, "utf8"));
+      const capabilities = JSON.parse(readFileSync(required(arguments_, "capabilities"), "utf8"));
+      const observations = JSON.parse(readFileSync(required(arguments_, "observations"), "utf8"));
+      const nowArgument = arguments_.get("now-ms");
+      const nowMs = nowArgument && nowArgument !== "null" ? Number(nowArgument) : Date.now();
+      const result = evaluatePresentationReadiness(plan, capabilities, observations, nowMs);
+      writeFileSync(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+      console.log(JSON.stringify({ plan_id: plan.id, state: result.state, problems: result.problems.length, output: outputPath }));
+    }
+  } catch (error) {
+    console.error(JSON.stringify({ error: error.message }));
+    process.exitCode = 1;
+  }
 }
