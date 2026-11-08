@@ -190,3 +190,18 @@ test('external source retirement stays tied to origin/main despite disk, index a
   git(state.owner, 'update-ref', 'refs/remotes/origin/main', retired);
   assertQualified(validate(state, state.activeCommit));
 });
+
+test('an external local-only retirement stays unreadable when its published main is missing', (t) => {
+  const state = fixture(t, { external: true });
+  const retired = commit(state.owner, { [OLD_PATH]: 'export const legacyModuleVersion = 2;\n' }, 'retire external source slice locally');
+  git(state.owner, 'update-ref', '-d', 'refs/remotes/origin/main');
+  assert.equal(git(state.owner, 'rev-parse', 'refs/heads/main'), retired);
+
+  const readers = gitReaders({ root: state.root, tree: state.activeCommit });
+  assert.equal(readers.retirementOf(state.contract.sources[0]).state, 'unreadable',
+    'local main and HEAD are not evidence of an external published retirement');
+  assert.match(validate(state, state.activeCommit).deferred.join('\n'), /old copy.*not readable/);
+
+  git(state.owner, 'update-ref', 'refs/remotes/origin/main', retired);
+  assertQualified(validate(state, state.activeCommit));
+});

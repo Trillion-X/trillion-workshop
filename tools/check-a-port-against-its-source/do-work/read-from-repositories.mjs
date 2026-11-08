@@ -401,8 +401,11 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     retirementOf(source) {
       const path = pathOf(source);
       if (!path) return { state: 'unreadable' };
+      // The local main/HEAD fallback used by searches is not proof of external publication.
+      const folder = source.repository === self ? null : checkout(source.repository);
+      const published = folder && resolveCommit(folder, 'refs/remotes/origin/main');
       const state = source.repository === self ? inspectTarget(path)
-        : inspectAtCommit(checkout(source.repository), mainOf(source.repository), path);
+        : published ? inspectAtCommit(folder, published, path) : { state: 'unreadable' };
       return state.state === 'regular' ? { state: 'regular', bytes: copiedBytes(state.bytes) } : { state: state.state };
     },
     targetAtCommit,
