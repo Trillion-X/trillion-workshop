@@ -1,0 +1,69 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-PLATFORM-PLAN-REFUSAL-PRODUCER",
+  "status": "VERIFIED",
+  "directive": {
+    "speaker": "agent",
+    "task_path": "/root/import_review",
+    "message_path": "tools/compare-plans-side-by-side-and-tell-a-person/ports/directives/platform-producer-recovery.txt",
+    "message_multihash": "1f:1229637c16cb648fb8ceef1b79aeb9fcbd2670a1eed7534aff12b8a539025c37",
+    "quote": "Capture exact complete old method spans as inert SOURCE_FIRST_PORT baseline in plan owner and normal commit before adapting (actual old source still Gitreadable; old current path retirement separately judge)."
+  },
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [{
+    "repository": "trillion",
+    "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+    "path": "src/person-store.mjs",
+    "lines": [11485, 11510],
+    "multihash": "1f:e9d7d30a12d9434b1595629db750bf313514238f3a9d44ad6b9f87c3deb9948c",
+    "ownership": "repository-owned",
+    "old_copy": {
+      "deleted_by": "2026-11-03T19:11:31-07:00",
+      "deleted_with": "4ffa1dc4a2265484f1ddf071e3dfc477e0e935f7 retired the old Worker and removed src/person-store.mjs; current retirement is checked against the source repository's published main."
+    }
+  }],
+  "targets": [{"path": "tools/compare-plans-side-by-side-and-tell-a-person/read-data/platform-plan-refusal.mjs"}],
+  "preserve": [
+    "Only POST /tools/run may receive the every-plan placement exemption; the tool must name at least one placement and every placement must explicitly have settings.included_in_every_plan true",
+    "withheld reads the account owner's access and applies the existing withheldFeature predicate with the actual path and method",
+    "A refusal's words come from withheldWords with the actual feature, decisionAllowance, origin and upgradeOfferFor result; the body retains upgrade_needed and the feature",
+    "A named upgrade offer wins; otherwise the original account-owner fact and upgrade-arm supplier are consulted, retaining the optional arm lookup fallback",
+    "The original refusal precedes the placement exemption, preserving source-unavailable failures rather than treating unavailable access as an included plan"
+  ],
+  "allowed_deltas": [
+    "Lift the three complete PersonStore methods into one owner-supplied composition with explicit trusted access, allowance, fact, workshop-row, feature-predicate, word and upgrade-arm suppliers",
+    "Reject absent or malformed authoritative access and catalogue supplies explicitly, without inventing a free plan or converting an auth/reach refusal into a plan denial",
+    "Compose the retained methods as refusalFor(request), returning the original refusal body or null; HTTP and MCP transports remain their existing owners",
+    "Test the actual preserved predicate with synthetic catalogue DATA and test the producer through opposing placement, policy and unavailable-source controls"
+  ],
+  "banned_substitutions": [
+    "A second platform plan policy or guessed capabilities",
+    "Seller content grants or generic authentication/reach failures standing in for platform entitlement",
+    "A blanket paid gate over tools whose placements all include every plan",
+    "Restoring the old JavaScript MCP transport or changing held public consumers",
+    "Live account, grant, plan, payment or credential mutations"
+  ],
+  "baseline": {
+    "path": "tools/compare-plans-side-by-side-and-tell-a-person/ports/source-baselines/person-store-plan-refusal.b6ae0eb.mjs.txt",
+    "commit": "058dd1655f68895ee3cdd624297cdc57bb176b4c",
+    "recorded_at": "2026-11-07T20:56:57-06:00",
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:e9d7d30a12d9434b1595629db750bf313514238f3a9d44ad6b9f87c3deb9948c",
+    "target_multihash_at_baseline": "1f:e9d7d30a12d9434b1595629db750bf313514238f3a9d44ad6b9f87c3deb9948c"
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "Boolean(tool?.placements?.length) && tool.placements.every(id => byId.get(id)?.settings?.included_in_every_plan === true)",
+      "const access = this.access();",
+      "const feature = withheldFeature(access, path, method);",
+      "upgrade_needed: true, feature",
+      "upgradeArmFor(this.env, owner).catch(() => null)"
+    ],
+    "test_refs": [
+      "tools/compare-plans-side-by-side-and-tell-a-person/test/platform-plan-predicate.test.mjs",
+      "tools/compare-plans-side-by-side-and-tell-a-person/test/platform-plan-refusal.test.mjs"
+    ]
+  },
+  "qualification_boundary": "Source-only producer composition. The current canonical native account.access read, owner-controlled operation entitlement and original service/publisher exemptions still require their qualified active binding. This contract supplies no current runtime, native MCP, public import or account-policy admission claim."
+}
