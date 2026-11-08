@@ -41,11 +41,12 @@ test('absent endpoint is visibly Missing record rather than synthesized source t
   assert.equal(view.diagnostics.missingEndpointCount, 1);
 });
 
-test('empty or malformed input stays an honest empty visible view', () => {
-  for (const input of [undefined, null, {}, [], [{ id: 'r', type: 'relation', value: { object: 'c' } }]]) {
+test('known empty feeds stay complete and unavailable or malformed feeds stay incomplete in the real view', () => {
+  for (const [input, complete] of [[[], true], [{ records: [] }, true], [undefined, false], [null, false], [{}, false], [[{ id: 'r', type: 'relation', value: { object: 'c' } }], false]]) {
     const projection = projectKnowledgeGraph(input);
-    assert.equal(projection.complete, true);
+    assert.equal(projection.complete, complete);
     const view = buildKnowledgeGraphView(projection);
+    assert.equal(view.complete, complete);
     assert.equal(view.frames.length, 0);
     assert.equal(view.edgeRoutes.length, 0);
   }
@@ -68,4 +69,13 @@ test('producer-scoped partial empty and nonempty feeds reach the actual view hon
     assert.equal(view.complete, false);
     assert.equal(view.frames.length, source.length ? 4 : 0);
   }
+});
+
+
+test('conflicting current node identities reach the view as unresolved, never an arbitrary person label', () => {
+  const view = buildKnowledgeGraphView(projectKnowledgeGraph([...rows, { id: 'a', type: 'person', value: { name: 'Other Ada' } }]));
+  assert.equal(view.complete, false);
+  assert.equal(view.nodes.get('kg-node:a')?.missing, true);
+  assert.equal(view.nodes.get('kg-node:a')?.label, 'Missing record');
+  assert.equal([...view.nodes.values()].some(node => node.label === 'Ada' || node.label === 'Other Ada'), false);
 });

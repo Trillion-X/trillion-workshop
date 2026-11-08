@@ -133,3 +133,91 @@ test('both graph readers honor the editable per-activity participant bound and p
   assert.equal(projected.connections.length, 2);
   assert.equal(projected.nodes[0].attributes.participants.length, 2);
 });
+
+
+test('known empty feeds are complete; unavailable, unsupported and corrupt feeds are not false absence', () => {
+  for (const source of [[], { records: [] }, { records: [], complete: true }]) {
+    const graph = projectGraphRecords(source);
+    assert.equal(graph.complete, true);
+    assert.deepEqual(graph.nodes, []);
+    assert.deepEqual(graph.connections, []);
+  }
+  for (const source of [undefined, null, {}, { records: null }, { records: 'bad', complete: true },
+    { records: [], complete: 'yes' }, [null], [{ type: 'relation', value: {} }],
+    [{ id: 'r', type: 'relation', value: { subject: 'a', object: 'b' } }],
+    [{ id: 'r', type: 'relation', value: { subject: 'a', object: 'b', role: 'member', alive: 'false' } }],
+    [{ id: 'm', type: 'activity', value: { kind: 'meeting', participants: [] } }],
+    [{ id: 'm', type: 'activity', value: { participants: [{ record: 'a' }] } }],
+    [{ id: 'm', type: 'activity', value: { kind: 'meeting', participants: [null, { record: '' }, { record: 'a', role: '' }] } }]]) {
+    const graph = projectGraphRecords(source);
+    assert.equal(graph.complete, false);
+    assert.deepEqual(graph.nodes, []);
+    assert.deepEqual(graph.connections, []);
+  }
+});
+
+test('valid filtered and ended rows remain legitimate complete exclusions', () => {
+  for (const [source, options] of [
+    [[rows[4]], {}],
+    [[rows[3]], { roles: ['colleague'] }],
+    [[rows[5]], { kinds: ['call'] }],
+    [[rows[5]], { activities: false }],
+  ]) {
+    const graph = projectGraphRecords(source, options);
+    assert.equal(graph.complete, true);
+    assert.deepEqual(graph.connections, []);
+  }
+  const mixed = projectGraphRecords([...rows, { id: 'broken', type: 'relation', value: {} }]);
+  assert.equal(mixed.complete, false);
+  assert.equal(mixed.connections.length, projectGraphRecords(rows).connections.length);
+  const partialActivity = projectGraphRecords([{ id: 'm', type: 'activity', value: { kind: 'meeting', participants: [{ record: 'a' }, null] } }]);
+  assert.equal(partialActivity.complete, false);
+  assert.equal(partialActivity.connections.length, 1, 'the valid participant survives without inventing the missing one');
+});
+
+
+test('identical duplicate identities dedupe, but conflicting current values or types choose neither row', () => {
+  const original = { id: 'a', type: 'person', value: { name: 'Ada', details: { one: 1, two: 2 } } };
+  const reordered = { address: 'a', type: 'person', payload: { details: { two: 2, one: 1 }, name: 'Ada' } };
+  const relation = { id: 'r', type: 'relation', value: { subject: 'a', object: 'b', role: 'member' } };
+  const base = [original, relation];
+  assert.deepEqual(projectGraphRecords([...base, reordered]), projectGraphRecords(base));
+  for (const conflicting of [
+    { ...original, value: { name: 'Other Ada' } },
+    { ...original, type: 'group' },
+    { ...original, value: null },
+    { ...original, address: 'conflicting-address' },
+  ]) {
+    for (const source of [[...base, conflicting, original], [conflicting, ...base]]) {
+      const graph = projectGraphRecords(source);
+      assert.equal(graph.complete, false);
+      assert.equal(graph.nodes.some(node => node.id === 'a'), false, 'neither conflicting record is authoritative');
+      assert.equal(graph.connections.length, 1, 'the valid relation retains its unresolved endpoint');
+    }
+  }
+  const otherRelation = { ...relation, value: { subject: 'a', object: 'c', role: 'member' } };
+  assert.equal(projectGraphRecords([relation, otherRelation]).connections.length, 0);
+  const filtered = { ...relation, value: { ...relation.value, role: 'excluded' } };
+  const graph = projectGraphRecords([filtered, relation], { roles: ['member'] });
+  assert.equal(graph.complete, false);
+  assert.equal(graph.connections.length, 0, 'filters cannot conceal a conflicting current identity');
+});
+
+test('stored row and endpoint identities keep exact admitted bytes instead of trimming into another record', () => {
+  const graph = projectGraphRecords([
+    { id: ' a ', type: 'person', value: { name: 'Spaced Ada' } },
+    { id: 'a', type: 'person', value: { name: 'Other Ada' } },
+    { address: ' b ', type: 'person', payload: { name: 'Spaced Bo' } },
+    { id: ' r ', type: 'relation', value: { subject: ' a ', object: ' b ', role: 'member' } },
+    { id: ' m ', type: 'activity', value: { kind: 'meeting', participants: [{ record: ' a ' }] } },
+  ]);
+  assert.equal(graph.complete, true);
+  assert.deepEqual(graph.nodes.map(node => node.id), [' a ', ' b ', ' m ']);
+  assert.equal(graph.connections[0].id, ' r ');
+  assert.deepEqual(graph.connections[0].endpoints.map(end => end.node_id), [' a ', ' b ']);
+  assert.equal(graph.connections[1].endpoints[0].node_id, ' m ');
+  assert.equal(graph.connections[1].endpoints[1].node_id, ' a ');
+  const blank = projectGraphRecords([{ id: '   ', type: 'person', value: { name: 'Invalid' } }]);
+  assert.equal(blank.complete, false);
+  assert.deepEqual(blank.nodes, []);
+});

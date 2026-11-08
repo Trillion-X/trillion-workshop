@@ -87,7 +87,7 @@ export function KnowledgeGraphRoot({ recordsInput }: KnowledgeGraphInputs) {
         <Container layout="vertical" gap="md" alignItems="center" data-reach-role="empty-state">
           <Text variant="heading-sm" color="muted">{view.complete === false ? 'Only part of the map is shown.' : 'No connections yet'}</Text>
           <Text variant="body-xs" color="muted" align="center">
-            {view.complete === false ? 'Some records were not read.' : 'As your people, messages, and work connect, the map fills in here.'}
+            {view.complete === false ? 'Some records could not be shown.' : 'As your people, messages, and work connect, the map fills in here.'}
           </Text>
         </Container>
       )}
