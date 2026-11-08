@@ -200,17 +200,20 @@ describe('text through Twilio and email through Amazon SES (carried adapters)', 
       const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
         providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
       });
-      assert.equal(answer.sent[0].unknown, unknown ? true : undefined, String(status));
+      assert.equal(answer.sent[0].unknown, unknown, String(status));
       assert.match(answer.sent[0].error, /response could not be read/, String(status));
     }
   });
 
   it('keeps an explicit Twilio client rejection definite', async () => {
-    const { run } = stubbed({ status: 400, body: '{"message":"Invalid To number"}' });
+    const { run: invoke } = stubbed({ status: 400, body: '{"message":"Invalid To number"}' });
+    let childExitCode;
     const answer = await sendMessage({ to: '+15550100', from: '+15550199', account_sid: 'AC0000example', text: 'hello' }, {
-      providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' }, run,
+      providerId: 'twilio-sms', credentials: { TWILIO_AUTH_TOKEN: 'test-token-twilio' },
+      run: async (...args) => { const reply = await invoke(...args); childExitCode = reply.code; return reply; },
     });
-    assert.equal(answer.sent[0].unknown, undefined);
+    assert.equal(childExitCode, 1, 'the Twilio child reports the rejection with a non-zero exit');
+    assert.equal(answer.sent[0].unknown, false, 'the send-a-message wrapper preserves the explicit false');
     assert.match(answer.sent[0].error, /Twilio 400: Invalid To number/);
     assert.match(answer.said, /Sent to 0 of 1/);
     assert.match(answer.said, /Not sent:/);

@@ -52,7 +52,7 @@ async function sendViaTwilioSms(input) {
       results.push({
         recipient,
         error: `Twilio ${response.status}: response could not be read: ${errorMessage}`,
-        ...(response.status >= 500 || response.ok ? { unknown: true } : {})
+        unknown: response.status >= 500 || response.ok
       });
       continue;
     }
@@ -69,7 +69,7 @@ async function sendViaTwilioSms(input) {
       results.push({
         recipient,
         error: `Twilio ${response.status}: ${message}`,
-        ...(response.status >= 500 ? { unknown: true } : {})
+        unknown: response.status >= 500
       });
       continue;
     }
