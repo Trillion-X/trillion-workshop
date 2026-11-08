@@ -1,1 +1,7 @@
-{ "public": [] }
+{
+  "public": [
+    "read-data/funnel-definition.mjs",
+    "read-data/funnel-flow.mjs",
+    "read-data/stage-measures.mjs"
+  ]
+}

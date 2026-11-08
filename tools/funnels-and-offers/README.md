@@ -17,7 +17,7 @@ A person's sales funnels, read from their own records: the offers in order, the 
 | `do-work/draft-a-funnel.mjs` | The command of `tool:draft-a-funnel`. |
 | `records.json` | The four tool rows. |
 | `tool-rows.json` | Lists `records.json`'s rows into the Workshop (`source:funnel-and-offer-tools`). |
-| `part.json` | No public files: only the tools run this code. |
+| `part.json` | Public pure reference, flow and measure readers for other consumers; the commands keep using these same readers. |
 | `read-data/offer-variants.mjs` | `resolveOfferVariants`: a row with `variant_of` (a price-test arm) reads as the row it varies, with `replace_words` applied to inherited words and its own fields winning. The reader resolves every row through it. |
 | `test/offer-variants.test.mjs` | Variants, quantity, checkout note and retired offers through the reader. |
 | `test/funnel-flow.test.mjs` | The package's resolver cases on a made-up bakery ladder. |
