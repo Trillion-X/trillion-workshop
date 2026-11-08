@@ -4,7 +4,7 @@ import { authenticate } from '@passwordless-id/webauthn/dist/esm/client.js';
 import { makePasskey, PASSKEY_STEP, passkeyStepEnded } from '../passkey-step.mjs';
 import { passwordStrengthSaid } from './password-strength.mjs';
 import { loadingMark, startWork } from '../../parts/ui/show/server-rendered-page/page-work.mjs';
-import SIGN_IN_METHODS from '../sign-in-methods.json' with { type: 'json' };
+import SIGN_IN_METHODS from '../../test-helpers/sign-in-methods.json' with { type: 'json' };
 import PASSWORD_WORDS from './passwords.json' with { type: 'json' };
 import { signInAgainAddress } from '../sign-in-again.mjs';
 import { suppliedProfileNames } from '../profile-names.mjs';
