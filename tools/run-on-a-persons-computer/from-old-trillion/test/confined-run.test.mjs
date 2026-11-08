@@ -68,14 +68,5 @@ test('an unknown tier and a pin that does not match are refused before anything 
   assert.equal(run.stdout.trim(), 'hello');
 });
 
-test('the link reader runs confined when the DATA switch is on, and as before when it is off', mac, async () => {
-  const { runFetcher } = await import('trillion-workshop/tools/run-on-a-persons-computer/hear-a-link.mjs');
-  const { workspace, outside } = await places();
-  const row = part => ({ check: ['x'], info: ['/bin/sh', '-c', part] });
-  const on = { enabled: true, tier: 'workspace-online' };
-  assert.equal((await runFetcher(row(`echo fetched > {folder}/page.vtt; echo ok`), 'info', { folder: workspace }, 20, on)).trim(), 'ok');
-  assert.equal((await readFile(join(workspace, 'page.vtt'), 'utf8')).trim(), 'fetched');
-  await assert.rejects(runFetcher(row(`echo bad > ${outside}/x && echo ok`), 'info', { folder: workspace }, 20, on), error => /Operation not permitted/.test(error.message));
-  assert.equal((await runFetcher(row(`echo bad > ${outside}/x && echo ok`), 'info', { folder: workspace }, 20, { enabled: false })).trim(), 'ok');
-  assert.equal(await readFile(join(outside, 'x'), 'utf8'), 'bad\n');
-});
+// The link-reader integration keeps its original body and assertions in test/link-fetcher-confinement.test.mjs:
+// it joins the transcription producer and this constrained runner at the repository QA boundary.
