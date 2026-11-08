@@ -23,7 +23,9 @@ import { localModelSettings } from '../../run-on-a-persons-computer/local-models
 const oauthRecords = { records: golden.oauth_clients.map(payload => ({ id: `oauth-client:${payload.clientId}`, kind: 'oauth-client', payload })) };
 
 test('c. each program reads its settings with its tables in place', () => {
-  assert.deepEqual(linkSettings().fetchers, golden.hear_fetchers);
+  // The repository-wide channel-table test checks the complete frozen row, including the list-only command.
+  // Hearing checks every field it consumes; the golden keeps that list command unchanged.
+  assert.deepEqual(linkSettings().fetchers, golden.hear_fetchers.map(({ list, ...hearing }) => hearing));
   const speak = speakSettings();
   assert.deepEqual(speak.programs, golden.speech_programs);
   assert.deepEqual(speak.engines, golden.speech_engines);
