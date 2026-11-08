@@ -34,6 +34,7 @@
     "test": "node --test --test-force-exit 'test/**/*.test.mjs' 'tools/**/*.test.mjs' 'tools/**/*.test.ts'"
   },
   "dependencies": {
+    "@babel/parser": "7.28.5",
     "@electric-sql/pglite": "0.5.9",
     "@noble/ciphers": "^2.4.0",
     "@noble/hashes": "^2.4.0",
