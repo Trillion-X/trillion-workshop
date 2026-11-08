@@ -50,9 +50,19 @@ test('replacement, same-size mutation with restored mtime, and deletion invalida
   assert.equal(replaced.reused, false);
   assert.equal(replaced.bytes, makeHashCodeHexFromBytes(Buffer.from('bravo')));
 
-  const replacedStat = statSync(input);
+  // Whole seconds avoid Date/microsecond rounding silently changing mtime
+  // while the test claims it was restored.
+  const restoredSeconds = 1_700_000_000;
+  utimesSync(input, restoredSeconds, restoredSeconds);
+  assert.equal(session.identity(input).reused, false);
+  const replacedStat = statSync(input, { bigint: true });
   writeFileSync(input, 'delta');
-  utimesSync(input, replacedStat.atime, replacedStat.mtime);
+  utimesSync(input, restoredSeconds, restoredSeconds);
+  const changedStat = statSync(input, { bigint: true });
+  assert.equal(changedStat.ino, replacedStat.ino);
+  assert.equal(changedStat.size, replacedStat.size);
+  assert.equal(changedStat.mtimeNs, replacedStat.mtimeNs, 'mtime is restored exactly, not only to the same Date value');
+  assert.notEqual(changedStat.ctimeNs, replacedStat.ctimeNs, 'the fixture isolates status-change time as the invalidator');
   const mutated = session.identity(input);
   assert.equal(mutated.reused, false, 'ctime invalidates a same-size edit even when mtime is restored');
   assert.equal(mutated.bytes, makeHashCodeHexFromBytes(Buffer.from('delta')));
