@@ -22,10 +22,6 @@
   ],
   "targets": [
     {
-      "path": "tools/move-the-public-door/portable-dns-cutover.mjs",
-      "note": "where the source byte copy landed at baseline.commit a9ee2580; 2138b2f4 added the adapted file under do-work/ and 8d3d6cb5 removed this path"
-    },
-    {
       "path": "tools/move-the-public-door/do-work/portable-dns-cutover.mjs"
     }
   ],
@@ -50,6 +46,7 @@
     "the token in a receipt, an error or an answer"
   ],
   "baseline": {
+    "path": "tools/move-the-public-door/portable-dns-cutover.mjs",
     "recorded_at": "2026-11-04T00:03:22Z",
     "copied_before_adaptation": true,
     "source_multihash": "1f:9ac4fdf8dd3d886a2178e34eb31540d0de1d7bbc2f830d902ee284c659adf31d",
