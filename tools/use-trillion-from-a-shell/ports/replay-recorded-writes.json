@@ -22,6 +22,16 @@
    "repository": "trillion-workshop",
    "path": "tools/use-trillion-from-a-shell/",
    "why": "This tool itself: its command program passes its own argument parser, home expansion and settings, so shell lines are read as the command reads them, and --write goes through the command's own client and request keys."
+  },
+  {
+   "repository": "trillion-workshop",
+   "path": "tools/workflows/published/tools.json",
+   "why": "The published tool inventory describes this command's replay-from-transcripts operation; it contains no transcript parser or replay implementation."
+  },
+  {
+   "repository": "trillion-rust",
+   "path": "src/native_entry/home.json",
+   "why": "The native home declares the replay inventory folder and explicitly names this Workshop tool as its writer and source. It stores no implementation of recorded-write replay."
   }
  ],
  "proof": {
