@@ -16,11 +16,15 @@
 import { readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import settings from './offered-endpoints.json' with { type: 'json' };
+import { hostWithin } from '../http-client/do-work/same-origin.mjs';
 
 const fill = (template, values) => String(template).replace(/\{(\w+)\}/g, (whole, name) => (values[name] === undefined ? whole : String(values[name])));
 const home = path => path.replace(/^~(?=\/|$)/, homedir());
 const isObject = value => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-const hostMatches = (host, pattern) => (pattern.startsWith('*.') ? host.endsWith(pattern.slice(1)) && host.length > pattern.length - 1 : host === pattern);
+const sameHost = (host, pattern) => host === pattern || (hostWithin(host, pattern) && hostWithin(pattern, host));
+const hostMatches = (host, pattern) => pattern.startsWith('*.')
+  ? hostWithin(host, pattern.slice(2)) && !sameHost(host, pattern.slice(2))
+  : sameHost(host, pattern);
 
 /** The person's sets (an empty list when they keep none). */
 export function setsIn(file = settings.file, read = readFileSync) {

@@ -21,6 +21,7 @@ import { createConnection, isIP } from 'node:net';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { hostWithin } from '../http-client/do-work/same-origin.mjs';
 
 export const egressRelaySettings = () => JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), 'egress-relay.json'), 'utf8'));
 const fill = (text, values) => text.replace(/\{(\w+)\}/g, (_, name) => String(values[name] ?? ''));
@@ -58,7 +59,7 @@ export function blockedRange(address, settings = egressRelaySettings()) {
  * `resolve(host)` → [{ address }] (dns.lookup all by default).
  */
 export async function decideOpen({ host, port }, settings = egressRelaySettings(), resolve = name => lookup(name, { all: true })) {
-  if (settings.allowed_hosts.length && !settings.allowed_hosts.some(allowed => host === allowed || host.endsWith(`.${allowed}`))) return { ok: false, why: fill(settings.words.host_not_allowed, { host }) };
+  if (settings.allowed_hosts.length && !settings.allowed_hosts.some(allowed => host === allowed || hostWithin(host, allowed))) return { ok: false, why: fill(settings.words.host_not_allowed, { host }) };
   const found = isIP(host) ? [{ address: host }] : await Promise.resolve(resolve(host)).catch(() => []);
   if (!found.length) return { ok: false, why: fill(settings.words.unresolved, { host }) };
   if (settings.allow_private_targets !== true) {

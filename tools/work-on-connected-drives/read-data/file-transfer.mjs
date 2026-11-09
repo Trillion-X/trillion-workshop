@@ -100,7 +100,7 @@ const hashFile = async file => {
 
 const moveToTrash = file => new Promise((resolve, reject) => execFile('/usr/bin/trash', [file], error => error ? reject(new Error(`${path.basename(file)} could not be moved to the Trash.`)) : resolve()));
 
-export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash }) {
+export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash, noteWritten = () => {} }) {
   const job = readJson(path.join(stateDir, 'job.json'));
   if (!job) throw new Error('This transfer has no request.');
   // What the transfer is, in words its progress card reads (computer/report-progress.json drive-transfer row), and the
@@ -134,6 +134,7 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
       if (item.rename) {
         if (!done.has(item.source)) {
           await fsp.rename(item.source, item.targets[0]);
+          await noteWritten(item.targets[0]);
           await fsp.appendFile(doneFile, `${item.source}\n`); done.add(item.source);
         }
         progress.files_done += 1;
@@ -178,6 +179,7 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
         }
         await fsp.utimes(partial, stat.atime, stat.mtime);
         await fsp.rename(partial, target); partials.delete(partial);
+        await noteWritten(target);
       }
       await fsp.appendFile(doneFile, `${file.key}\n`); done.add(file.key);
       progress.files_done += 1;
@@ -200,6 +202,7 @@ export async function runTransfer({ stateDir, pollMs = 500, trash = moveToTrash 
 
 export function createTransfers({ folder, runWorker = runHere }) {
   const stateOf = id => path.join(folder, id);
+  const notesById = new Map();
 
   async function validate({ sources, destinations, mode, devices }) {
     if (!MODES.has(mode)) throw Object.assign(new Error('Choose copy or move.'), { status: 400 });
@@ -228,12 +231,13 @@ export function createTransfers({ folder, runWorker = runHere }) {
     return { ready: true, ...checked };
   }
 
-  async function start(input) {
+  async function start(input, { noteWritten } = {}) {
     const { sources: realSources, destinations: realDestinations, mode } = await validate(input);
     const id = crypto.randomUUID();
     await fsp.mkdir(stateOf(id), { recursive: true });
     await writeAtomic(path.join(stateOf(id), 'job.json'), { id, sources: realSources, destinations: realDestinations, mode, created_at: new Date().toISOString() });
-    return { id, ...(await runWorker(stateOf(id))) };
+    if (typeof noteWritten === 'function') notesById.set(id, noteWritten);
+    return { id, ...(await runWorker(stateOf(id), { noteWritten })) };
   }
 
   function list() {
@@ -249,7 +253,7 @@ export function createTransfers({ folder, runWorker = runHere }) {
   async function restart(id) {
     const transfer = list().find(row => row.id === id);
     if (!transfer || transfer.running || ['finished'].includes(transfer.progress?.state)) return false;
-    await runWorker(transfer.stateDir);
+    await runWorker(transfer.stateDir, { noteWritten: notesById.get(id) });
     return true;
   }
 
@@ -257,8 +261,8 @@ export function createTransfers({ folder, runWorker = runHere }) {
 }
 
 // The worker inside this run, its pid kept in <state>/worker.pid while it works so list() reads it as running.
-async function runHere(stateDir) {
+async function runHere(stateDir, { noteWritten } = {}) {
   const pidFile = path.join(stateDir, 'worker.pid');
   await fsp.writeFile(pidFile, String(process.pid));
-  try { return await runTransfer({ stateDir }); } finally { await fsp.rm(pidFile, { force: true }); }
+  try { return await runTransfer({ stateDir, noteWritten }); } finally { await fsp.rm(pidFile, { force: true }); }
 }
