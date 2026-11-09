@@ -26,6 +26,35 @@ def made_up_layout(state):
 
 
 class TLS(unittest.TestCase):
+    def test_plain_http_on_any_public_listener_is_refused_before_any_effect(self):
+        import tempfile
+        for bad in [
+            'listen 443;',
+            'listen 443; # ssl',
+            'listen 443; set $hint "listen 443 ssl;";',
+            'listen 443; server { listen 9443 ssl; }',
+            'listen 443 ssl; server { listen [::]:443; }',
+            'listen 127.0.0.1:443;',
+            'listen *:443;',
+            'listen https;',
+            '# listen 443 ssl;\nlisten 80;',
+        ]:
+            with self.subTest(config=bad), tempfile.TemporaryDirectory() as root:
+                owned = Path(root) / 'owner'
+                with patch.object(owner, 'layout', lambda: made_up_layout(owned)), \
+                     patch.object(owner, 'run') as run, patch.object(owner, 'certificate_status') as status:
+                    with self.assertRaises(ValueError):
+                        owner.configure({'hostname': 'app.example.com', 'nginx': 'events {} http { server { ' + bad + ' } }'})
+                    run.assert_not_called()
+                    status.assert_not_called()
+                    self.assertFalse(owned.exists())
+
+    def test_public_tls_words_handle_comments_quotes_and_address_forms(self):
+        for listen in ['443 ssl', '0.0.0.0:443 ssl', '[::]:443 ssl', '*:443 ssl', '443 default_server ssl']:
+            config = 'events{} http{server{listen ' + listen + '; set $text "listen 443; # { }";}}'
+            self.assertEqual(owner.checked_public_tls(config), config)
+        self.assertEqual(owner.checked_public_tls('listen 443 # comment\n ssl;'), 'listen 443 # comment\n ssl;')
+
     def test_public_host_owner_entry_loads_the_installed_core_and_keeps_json_errors(self):
         wrapper = source.with_name(source.name.replace('-core.py', '.py'))
         result = subprocess.run([sys.executable, str(wrapper), 'unknown'],
@@ -92,7 +121,7 @@ class TLS(unittest.TestCase):
             with patch.object(owner, 'layout', lambda: made_up_layout(owned)), patch.object(owner, 'run', lambda args, **k: calls.append(args)), \
                  patch.object(owner, 'certificate_status', lambda host: None), patch.object(owner, 'startable', lambda binary: binary), \
                  patch.object(owner, 'Path', path):
-                answer = owner.configure({'hostname': 'app.example.com', 'nginx': 'events {}',
+                answer = owner.configure({'hostname': 'app.example.com', 'nginx': 'events {} http { server { listen 443 ssl; } }',
                                           'receptionistBinary': '/opt/example/source/' + 'b' * 40 + '/target/release/example-receptionist'})
             self.assertTrue(answer['receptionist_configured'])
             ingress = (units / 'example-public-tls.service').read_text()

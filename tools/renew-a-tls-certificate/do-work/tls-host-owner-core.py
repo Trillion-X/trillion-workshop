@@ -18,6 +18,7 @@ from pathlib import Path
 import re
 import pwd
 import secrets
+import shlex
 import stat
 import subprocess
 import sys
@@ -201,17 +202,52 @@ def receptionist_binary(binary):
     return binary
 
 
+def checked_public_tls(config):
+    """nginx -t accepts plain HTTP on 443; refuse it before writing any candidate.
+
+    Read nginx words, comments and quoted strings rather than searching for an
+    `ssl` substring (another listener or a comment cannot secure this listener).
+    nginx itself still validates the complete grammar and certificate bindings.
+    """
+    if not isinstance(config, str) or len(config) > 65536:
+        raise ValueError('Public proxy configuration refused')
+    lexer = shlex.shlex(config, posix=True, punctuation_chars='{};')
+    lexer.whitespace_split = True
+    lexer.commenters = '#'
+    words = []
+    public = False
+    try:
+        for token in lexer:
+            # shlex can group adjacent structural characters, e.g. `;}`.
+            if token and all(char in '{};' for char in token):
+                for char in token:
+                    if char == ';' and words[:1] == ['listen'] and len(words) > 1:
+                        address = words[1]
+                        if address in ('443', 'https') or address.rsplit(':', 1)[-1] in ('443', 'https'):
+                            public = True
+                            if 'ssl' not in words[2:]:
+                                raise ValueError('Public port 443 must listen with ssl')
+                    words = []
+            else:
+                words.append(token)
+    except ValueError as error:
+        if str(error) == 'Public port 443 must listen with ssl':
+            raise
+        raise ValueError('Public proxy configuration refused') from None
+    if not public:
+        raise ValueError('Public proxy must declare a port 443 ssl listener')
+    return config
+
+
 def configure(data):
     host = hostname(data['hostname'])
     # Checked before anything is replaced, so a receptionist that cannot start never takes the public paths.
     if data.get('receptionistBinary'):
         startable(receptionist_binary(data['receptionistBinary']))
+    config = checked_public_tls(data['nginx'])
     certificate_status(host)
     OWNER = owner_folder()
     OWNER.mkdir(mode=0o700, exist_ok=True)
-    config = data['nginx']
-    if not isinstance(config, str) or len(config) > 65536:
-        raise ValueError('Public proxy configuration refused')
     candidate = OWNER / 'nginx.next.conf'
     candidate.write_text(config); candidate.chmod(0o600)
     run(['nginx', '-t', '-c', str(candidate)])
