@@ -111,6 +111,7 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   const listed = contractReader.listPaths({ untracked: true });
   const contracts = [];
   const errors = [];
+  contractReader.prepareTargetReads?.(listed.filter(one => contractsMatch.test(one)));
   for (const path of listed.filter((one) => contractsMatch.test(one))) {
     try {
       contracts.push({ path, contract: JSON.parse(contractReader.readTarget(path).toString('utf8')) });
@@ -118,6 +119,18 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
       errors.push(`${path} is not a readable contract: ${error.message}`);
     }
   }
+
+  // A union identifies candidate paths once per immutable repository revision. Each answer still uses
+  // Git's original per-pattern expression and flags on those paths; filename matches remain independent.
+  const changes = readers.changesOf(resolved);
+  const selected = new Set(changes.filter(change => featureRule(rules, change)).map(change => change.path));
+  const selectedSearches = contracts.filter(({contract}) => contract?.mode === 'NO_PRIOR_OWNER'
+    && (contract.targets ?? []).some(target => selected.has(target?.path))).map(({contract}) => contract.proof?.search);
+  const searchScope = [...searchRepositories, ...selectedSearches.flatMap(search =>
+    Array.isArray(search?.repositories) ? search.repositories.map(row => row?.repository ??
+      (row?.repository_multihash ? {repository_multihash: row.repository_multihash} : null)).filter(Boolean) : [])];
+  readers.prepareCodeSearch?.(searchScope, selectedSearches.flatMap(search =>
+    Array.isArray(search?.code_patterns) ? search.code_patterns : []));
 
   const options = {
     readers,
@@ -135,7 +148,7 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
   };
   const judged = [];
   const validated = new Map();
-  for (const change of readers.changesOf(resolved)) {
+  for (const change of changes) {
     const kind = featureRule(rules, change);
     if (!kind) continue;
     const claiming = contracts.filter(({ contract }) => (contract?.targets ?? []).some((target) => target?.path === change.path));

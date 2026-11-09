@@ -17,7 +17,7 @@ function git(root, ...args) { return execFileSync('git', ['--no-replace-objects'
 function write(root, files) {
   for (const [path, text] of Object.entries(files)) {
     mkdirSync(dirname(join(root, path)), { recursive: true });
-    writeFileSync(join(root, path), typeof text === 'string' ? text : JSON.stringify(text));
+    writeFileSync(join(root, path), typeof text === 'string' || Buffer.isBuffer(text) ? text : JSON.stringify(text));
   }
 }
 function commit(root, files = {}) {
@@ -358,4 +358,89 @@ test('an unpinned targetState read returns unreadable for a changing index and r
   assert.equal(changed, true);
   assert.deepEqual(staged.targetState('src/core.mjs'), { state: 'absent' });
   assert.equal(gitReaders({ root }).targetState('src/core.mjs').bytes.toString(), SOURCE);
+});
+
+
+test('prepared searches preserve exact per-pattern Git semantics and scan all source paths only once', (t) => {
+  const {root} = fixture(t);
+  const paths = ['src/a.mjs', 'src/[literal]*.mjs', 'src/tab\tline\n.mjs', 'src/filename_only.mjs'];
+  const tip = commit(root, {
+    [paths[0]]: 'export const alpha = "aa";\n',
+    [paths[1]]: 'export const beta = "bb";\n',
+    [paths[2]]: 'export const both = "alpha beta";\n',
+    [paths[3]]: 'export const unrelated = true;\n',
+    'src/binary.bin': Buffer.from([0, 97, 108, 112, 104, 97]),
+    'src/duplicate-a.txt': 'alpha\nalpha\n',
+    'src/duplicate-b.txt': 'alpha\n',
+  });
+  const patterns = ['alpha', 'beta', '(a)\\1', '(b)\\1', 'filename_only', '.*', '^export const alpha', 'true;$', 'alpha.*beta'];
+  const ordinary = gitReaders({root, tree: tip});
+  const expected = patterns.map(pattern => ordinary.searchCode('tools-repo', pattern));
+  const calls = traceGit(t), prepared = gitReaders({root, tree: tip});
+  prepared.prepareCodeSearch(['tools-repo'], patterns);
+  for (let index = 0; index < patterns.length; index += 1) {
+    assert.deepEqual(prepared.searchCode('tools-repo', patterns[index]), expected[index]);
+  }
+  const greps = calls.filter(args => args.includes('grep'));
+  assert.equal(greps.filter(args => args.at(-1) === '--').length, 1, 'only the union scans every path');
+  assert.ok(greps.filter(args => args.includes('--no-index')).length === patterns.length, 'Git itself classifies the retained complete lines');
+  assert.deepEqual(prepared.searchCode('tools-repo', 'unrelated'), ordinary.searchCode('tools-repo', 'unrelated'),
+    'a pattern outside the prepared set keeps the original full search');
+  const copy = prepared.searchCode('tools-repo', 'alpha'); copy.length = 0;
+  assert.deepEqual(prepared.searchCode('tools-repo', 'alpha'), expected[0]);
+});
+
+
+test('the judge warms only contracts that claim an actual declared feature change', (t) => {
+  const {root} = fixture(t), active = 'tools/rows/do-work/core.mjs', unused = 'tools/rows/do-work/unchanged.mjs';
+  const initial = commit(root, {[active]: 'export const before = true;\n', [unused]: 'export const stable = true;\n'});
+  const contract = (path, pattern) => ({schema: 'reference-adaptation-contract/reference-grounded-adaptation',
+    id: 'REF-' + pattern, status: 'ADAPTED', mode: 'NO_PRIOR_OWNER', targets: [{path}],
+    proof: {search: {job: pattern, phrasings: [pattern], code_patterns: [pattern], repositories: []}}});
+  const tip = commit(root, {[active]: 'export const marker_active = true;\n',
+    'tools/rows/ports/active.json': contract(active, 'marker_active'),
+    'tools/rows/ports/unused.json': contract(unused, 'must_never_be_warmed')});
+  const rules = {schema: 'port-contracts/feature-files', feature_files: [{matches: '^tools/[^/]+/do-work/[^/]+[.]mjs$', added: true, grown_lines_over: 0}],
+    contracts_match: '^tools/[^/]+/ports/[^/]+[.]json$', modes: ['NO_PRIOR_OWNER']};
+  const calls = traceGit(t);
+  const result = judgeRepository({root, span: {from: initial, to: tip}, rules, searchRepositories: ['tools-repo']});
+  assert.deepEqual(result.judged.map(change => change.path), [active]);
+  const greps = calls.filter(args => args.includes('grep'));
+  assert.ok(greps.some(args => args.includes('marker_active')), 'the claimed change is searched');
+  assert.ok(greps.every(args => !args.includes('must_never_be_warmed')), 'an unchanged unjudged contract adds no search work');
+});
+
+
+test('immutable target batches keep byte-exact copied blobs without per-contract subprocesses', t => {
+  const {root} = fixture(t);
+  const files = {'ports/first.json': '{"id":"one"}\n', 'ports/tab\tline\n.json': '{"id":"two"}\n',
+    'ports/binary.json': Buffer.from([0, 255, 10, 65])};
+  const tip = commit(root, files), calls = traceGit(t), reader = gitReaders({root, tree: tip});
+  reader.prepareTargetReads([...Object.keys(files), 'ports/missing.json']);
+  for (const [path, bytes] of Object.entries(files)) assert.deepEqual(reader.readTarget(path), Buffer.from(bytes));
+  reader.readTarget('ports/first.json').fill(0);
+  assert.equal(reader.readTarget('ports/first.json').toString(), files['ports/first.json']);
+  assert.equal(calls.filter(args => args.includes('--batch')).length, 1);
+  assert.equal(calls.filter(args => args.includes('cat-file') && args.includes('blob')).length, 0);
+  const staged = gitReaders({root, tree: ':'});
+  staged.prepareTargetReads(Object.keys(files));
+  assert.equal(calls.filter(args => args.includes('--batch')).length, 1, 'private index generation stays on its fresh read route');
+});
+
+test('a malformed optional batch seeds no partial target cache and falls back to original blob reads', t => {
+  const {root} = fixture(t), files = {'ports/a.json': '{"id":"a"}\n', 'ports/b.json': '{"id":"b"}\n'};
+  const tip = commit(root, files), original = childProcess.execFileSync;
+  let batches = 0, singles = 0;
+  childProcess.execFileSync = function (file, args, options) {
+    const out = original.call(this, file, args, options);
+    if (file === 'git' && args.includes('--batch')) { batches++; return out.subarray(0, out.length - 1); }
+    if (file === 'git' && args.includes('cat-file') && args.includes('blob')) singles++;
+    return out;
+  };
+  syncBuiltinESMExports();
+  try {
+    const reader = gitReaders({root, tree: tip}); reader.prepareTargetReads(Object.keys(files));
+    for (const [path, bytes] of Object.entries(files)) assert.equal(reader.readTarget(path).toString(), bytes);
+    assert.equal(batches, 1); assert.equal(singles, 2);
+  } finally { childProcess.execFileSync = original; syncBuiltinESMExports(); }
 });

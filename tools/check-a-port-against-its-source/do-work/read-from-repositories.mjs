@@ -22,11 +22,12 @@
 //     baselineHistory(commit, paths) object | null ancestry and all earlier/parallel content, with explicit coverage
 //     retirementOf(source)          { state: 'absent' | 'regular' | 'unreadable', bytes? } candidate for self, else published main
 //     lives(repository, path)       boolean | null  whether the path is in that repository's main line now
+//     prepareCodeSearch(repositories, patterns)  optional exact search warming on the same immutable scopes
 //     searchCode(repository, pattern)  string[] | null  paths in that repository's main line whose text or path matches
 //     mainOf(repository)            string | null   the commit searched
 //   }
 import { execFileSync } from 'node:child_process';
-import { existsSync, lstatSync, readFileSync, statSync } from 'node:fs';
+import { chmodSync, existsSync, lstatSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
@@ -114,7 +115,7 @@ function indexHistory(text) {
   return { parents, paths, incoming, identityIncoming };
 }
 
-function repositoryGit(root, args, { bytes = false, index = false, history = false, environment, verifiedContext } = {}) {
+function repositoryGit(root, args, { bytes = false, index = false, history = false, environment, verifiedContext, maxBuffer = MAX_BUFFER, input } = {}) {
   try {
     // -C does not override Git's inherited repository/object/namespace selectors. Bind every read to its declared
     // checkout; only self staged operations use the caller's private index. Keep self history overrides visible to
@@ -137,7 +138,7 @@ function repositoryGit(root, args, { bytes = false, index = false, history = fal
       env.GIT_CONFIG_KEY_0 = 'core.hooksPath';
       env.GIT_CONFIG_VALUE_0 = dirname(verifiedContext.hooks['reference-transaction'].path);
     }
-    const out = execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { env, maxBuffer: MAX_BUFFER, stdio: ['ignore', 'pipe', 'ignore'] });
+    const out = execFileSync('git', ['--no-replace-objects', '-C', root, ...args], { env, maxBuffer, input, stdio: [input === undefined ? 'ignore' : 'pipe', 'pipe', 'ignore'] });
     return bytes ? out : out.toString('utf8');
   } catch (error) {
     // git grep answers 1 when nothing matched; every other failure is "not readable here".
@@ -276,6 +277,33 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
     });
   };
   const blobAt = (folder, object) => blobs(`${folder}\0${object}`, () => git(folder, ['cat-file', 'blob', object], { bytes: true }));
+
+  const prepareTargetReads = (paths) => {
+    // The immutable target tree already binds these object IDs. Staged/private-index reads keep their existing
+    // fresh generation route; an unavailable/malformed optional batch never seeds even a partial cache.
+    if (tree === ':' || tree === undefined || !Array.isArray(paths) || paths.length > 4096) return;
+    const metadata = treeAt(here, judgedCommit());
+    if (!metadata) return;
+    const objects = [...new Set(paths.map(path => metadata.entries.get(path))
+      .filter(entry => entry?.type === 'blob' && /^100(?:644|755)$/.test(entry.mode)).map(entry => entry.object))];
+    if (!objects.length) return;
+    const wire = git(here, ['cat-file', '--batch'], {bytes: true, input: objects.join('\n') + '\n', maxBuffer: 1 << 26});
+    if (wire === null) return;
+    let at = 0;
+    const values = [];
+    for (const object of objects) {
+      const end = wire.indexOf(10, at);
+      if (end < at) return;
+      const header = new RegExp('^' + object + ' blob ([0-9]+)$').exec(wire.subarray(at, end).toString('ascii'));
+      if (!header) return;
+      const size = Number(header[1]), start = end + 1;
+      if (!Number.isSafeInteger(size) || start + size >= wire.length || wire[start + size] !== 10) return;
+      values.push([object, wire.subarray(start, start + size)]);
+      at = start + size + 1;
+    }
+    if (at !== wire.length) return;
+    for (const [object, content] of values) blobs(here + '\0' + object, () => Buffer.from(content));
+  };
   const regularAtCommit = (commit, path, folder = here) => {
     const entry = folder && treeAt(folder, commit)?.entries.get(path);
     return entry && /^100(?:644|755)$/.test(entry.mode) && entry.type === 'blob' ? blobAt(folder, entry.object) : null;
@@ -537,7 +565,89 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
     if (tree === ':' && (before === null || before !== indexGeneration())) return { state: 'unreadable' };
     return state.state === 'regular' ? { ...state, bytes: copiedBytes(state.bytes) } : { ...state };
   };
+  const preparedSearches = new Map();
+  let preparedSearchBytes = 0;
+  // Git's own regex engine classifies exactly the complete lines its union matched. This avoids reading the
+  // same large committed files for every pattern; no JS regex substitutes for Git's text semantics.
+  const grepLines = (wire, prefix) => {
+    const rows = [];
+    for (let at = 0; at < wire.length;) {
+      const nameEnd = wire.indexOf(0, at), numberEnd = wire.indexOf(0, nameEnd + 1);
+      if (nameEnd < at || numberEnd <= nameEnd) return null;
+      const name = wire.subarray(at, nameEnd).toString('utf8');
+      const number = wire.subarray(nameEnd + 1, numberEnd).toString('ascii');
+      if (!name.startsWith(prefix) || name.includes('\uFFFD') || !/^[1-9][0-9]*$/.test(number)) return null;
+      const end = wire.indexOf(10, numberEnd + 1), next = end < 0 ? wire.length : end + 1;
+      rows.push({path: name.slice(prefix.length), number: Number(number),
+        text: end < 0 ? Buffer.concat([wire.subarray(numberEnd + 1), Buffer.from('\n')]) : wire.subarray(numberEnd + 1, next)});
+      at = next;
+    }
+    return rows;
+  };
+  const prepareCodeSearch = (references, patterns) => {
+    if (!Array.isArray(references) || !Array.isArray(patterns)) return;
+    const unique = [...new Set(patterns.filter(pattern => typeof pattern === 'string' && pattern.length))];
+    if (!unique.length || unique.length > 1024 || unique.reduce((sum, pattern) => sum + Buffer.byteLength(pattern) + 4, 0) > 32768) return;
+    for (const reference of [...new Set(references)]) {
+      const folder = checkout(reference), main = mainOf(reference);
+      if (!folder || !main) continue;
+      const scope = JSON.stringify([folder, main]);
+      const flags = ['--null', '--line-number', '--no-column', '--no-heading', '--no-break', '--color=never', '-i', '-E'];
+      const wire = git(folder, ['grep', ...flags, '-I', ...unique.flatMap(pattern => ['-e', pattern]), main, '--'],
+        {bytes: true, maxBuffer: MAX_BUFFER});
+      let lines = wire === null ? null : grepLines(wire, main + ':');
+      if (lines === null) continue;
+      const groups = new Map();
+      for (const line of lines) {
+        const identity = makeHashCodeHexFromBytes(line.text);
+        if (!groups.has(identity)) groups.set(identity, []);
+        const bucket = groups.get(identity);
+        let group = bucket.find(one => one.text.equals(line.text));
+        if (!group) { group = {text: line.text, paths: new Set()}; bucket.push(group); }
+        group.paths.add(line.path);
+      }
+      lines = [...groups.values()].flat();
+      if (lines.reduce((sum, line) => sum + line.text.length, 0) > 1 << 26) continue;
+      const answers = new Map();
+      let workspace;
+      try {
+        if (lines.length) {
+          // Only the reader owns this bounded, private, short-lived corpus. No caller supplies its location.
+          const common = git(here, ['rev-parse', '--path-format=absolute', '--git-common-dir'])?.trim();
+          if (!common || !statSync(common).isDirectory()) continue;
+          workspace = mkdtempSync(join(common, 'port-search-lines-'));
+          chmodSync(workspace, 0o700);
+          writeFileSync(join(workspace, 'lines'), Buffer.concat(lines.map(line => line.text)), {mode: 0o600, flag: 'wx'});
+        }
+        for (const pattern of unique) {
+          const found = lines.length ? git(workspace,
+            ['grep', '--no-index', '--text', ...flags, '-e', pattern, '--', 'lines'], {bytes: true, maxBuffer: 1 << 24}) : Buffer.alloc(0);
+          const matches = found === null ? null : grepLines(found, '');
+          if (matches === null || matches.some(line => line.path !== 'lines' || !lines[line.number - 1])) { answers.clear(); break; }
+          answers.set(pattern, [...new Set(matches.flatMap(line => [...lines[line.number - 1].paths]))]);
+        }
+      } catch { continue; }
+      finally { if (workspace) rmSync(workspace, {recursive: true, force: true}); }
+      if (answers.size !== unique.length) continue;
+      const size = [...answers].reduce((sum, [pattern, paths]) => sum + pattern.length * 2 + 64
+        + paths.reduce((one, path) => one + path.length * 2 + 32, 0), 0);
+      if (size > 1 << 24) continue;
+      if (preparedSearches.has(scope)) { preparedSearchBytes -= preparedSearches.get(scope).size; preparedSearches.delete(scope); }
+      while (preparedSearches.size && (preparedSearches.size >= 16 || preparedSearchBytes + size > 1 << 24)) {
+        const first = preparedSearches.keys().next().value;
+        preparedSearchBytes -= preparedSearches.get(first).size; preparedSearches.delete(first);
+      }
+      preparedSearches.set(scope, {answers, size}); preparedSearchBytes += size;
+    }
+  };
+  const searchText = (folder, main, pattern) => {
+    const prepared = preparedSearches.get(JSON.stringify([folder, main]));
+    if (!prepared?.answers.has(pattern)) return git(folder, ['grep', '-z', '-l', '-i', '-I', '-E', '-e', pattern, main, '--']);
+    return prepared.answers.get(pattern).map(path => main + ':' + path + '\0').join('');
+  };
   const api = {
+    prepareCodeSearch,
+    prepareTargetReads,
     self,
     repositoryName,
     checkout,
@@ -667,7 +777,7 @@ export function gitReaders({ root, repositories = {}, repositoryNames = [], tree
       const main = mainOf(repository);
       if (!folder || !main) return null;
       const found = searches(`${folder}\0${main}\0${pattern}`, () => {
-        const byText = git(folder, ['grep', '-z', '-l', '-i', '-I', '-E', '-e', pattern, main, '--']);
+        const byText = searchText(folder, main, pattern);
         const metadata = treeAt(folder, main);
         if (byText === null || metadata === null) return null;
         const hits = new Set(byText.split('\0').filter(Boolean).map((line) => line.slice(main.length + 1)));
