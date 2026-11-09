@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { closeSync, mkdirSync, mkdtempSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -201,4 +201,34 @@ test('the metadata CLI calls only native where and leaves failures without a par
   assert.equal(refused.stdout, '');
   assert.match(refused.stderr, /metadata discovery/);
   assert.deepEqual(readFileSync(join(folder, 'asked.txt'), 'utf8').trim().split('\n'), ['secrets where', 'secrets where']);
+}));
+
+test('the command refuses a value read to a regular file and emits no synthetic value', () => withStandIn(({ folder }) => {
+  const target = join(folder, 'not-a-private-pipe');
+  const descriptor = openSync(target, 'wx');
+  let result;
+  try {
+    result = spawnSync(standIn, ['held-values', HOME.store, ACCOUNT, 'read', 'bare-token'], {
+      encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe', descriptor],
+    });
+  } finally { closeSync(descriptor); }
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /descriptor 3 is not a pipe/);
+  assert.equal(result.stderr.includes('private'), false);
+  assert.equal(readFileSync(target, 'utf8'), '');
+}));
+
+test('the writer propagates a failed input read without a saved answer', () => withStandIn(({ folder }) => {
+  const home = resolvedHome(folder);
+  process.env.CREDENTIAL_HOME_COMMAND = standIn;
+  process.env.STAND_IN_VAULT_WHERE = JSON.stringify(home);
+  process.env.STAND_IN_VAULT_SETTINGS = home.settings.file;
+  const command = fileURLToPath(new URL('../do-work/put-one-secret-in-the-vault.mjs', import.meta.url));
+  const result = spawnSync(process.execPath, [command, '--name', 'synthetic-holder', '--from-file',
+    join(folder, 'never-created-input.json')], { encoding: 'utf8' });
+  assert.equal(result.status, 1);
+  assert.equal(result.stdout, '');
+  assert.match(result.stderr, /the vault did not answer put synthetic-holder/);
+  assert.equal(result.stderr.includes('synthetic-value-not-for-output'), false);
 }));
