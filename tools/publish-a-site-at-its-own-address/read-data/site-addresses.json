@@ -59,6 +59,7 @@
     "account": "Give your account's address: the 64 characters after /a/ in your Trillion address.",
     "too_many": "A site list holds at most 64 addresses. Let one go first.",
     "unknown_host": "None of your sites uses that address.",
+    "from_files": "A file named from your Files is not in them, or is too large to publish in one go.",
     "site": "Give the site as files by path (index.html first), or the name of a site.json in your files, such as one copy_a_site left.",
     "live_when": "Your computer hands the new address to the forwarder within a few seconds; it answers while your computer is on. Publish the site again to list its pages for AI apps at its new address (llms.txt).",
     "domain_when": "Add both DNS records at your domain's DNS host; the address answers once the TXT record is visible and a certificate is made for it.",
