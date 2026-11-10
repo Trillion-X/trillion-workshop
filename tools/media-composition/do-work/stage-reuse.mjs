@@ -75,16 +75,30 @@ export function stageIdentity(args) {
   return makeHashCodeHexFromBytes(Buffer.from(JSON.stringify({ args, inputs })));
 }
 
-/** Write the sidecar for `out`. Pass identity null before a run so a failed run cannot leave a sidecar vouching for the clobbered file. */
-export function markStage(out, identity) {
-  writeFileSync(sidecarOf(out), JSON.stringify({ identity }) + '\n');
+/** The BLAKE3 identity of the bytes `out` holds now, read in bounded chunks (the same owner as the inputs). */
+function outputIdentity(out) {
+  return makeHashCodeHexFromChunks(stageInputChunks(out));
 }
 
-/** True only when `out` is non-empty and its sidecar identity equals the identity of these exact args and inputs now. */
+/**
+ * Write the sidecar for `out`: the recipe identity (`identity`, the args and input bytes that made it) and the BLAKE3 of
+ * the output bytes (`output`). Pass identity null before a run so a failed run cannot leave a sidecar vouching for the
+ * clobbered file.
+ */
+export function markStage(out, identity) {
+  const made = identity === null ? { identity } : { identity, output: outputIdentity(out) };
+  writeFileSync(sidecarOf(out), JSON.stringify(made) + '\n');
+}
+
+/**
+ * True only when `out` is non-empty, its sidecar identity equals the identity of these exact args and inputs now, and its
+ * bytes still hash to the sidecar's `output` (a damaged or swapped output is never reused).
+ */
 export function reusable(out, args) {
   try {
     const made = JSON.parse(readFileSync(sidecarOf(out), 'utf8'));
-    return statSync(out).size > 0 && typeof made.identity === 'string' && made.identity === stageIdentity(args);
+    return statSync(out).size > 0 && typeof made.identity === 'string' && made.identity === stageIdentity(args)
+      && typeof made.output === 'string' && made.output === outputIdentity(out);
   } catch {
     return false;
   }
