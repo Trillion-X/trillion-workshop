@@ -67,6 +67,15 @@ test('publishing keeps each file under its installation with its media type and 
   assert.equal(fromCopy.stored.get(`/installations/${OTHER}/index.html`).toString(), '<h1>copied</h1>');
 });
 
+test('a file named from the person\'s Files is read from there, so its bytes never travel in the request', async () => {
+  const files = door({ '/Assets/logo.png': 'png-bytes' });
+  const published = await publishSite({ files: { 'index.html': '<title>Field Notes</title>', 'img/logo.png': { from_files: '/Assets/logo.png' } } }, { door: files, newId: () => INSTALL });
+  assert.equal(published.files, 2);
+  assert.equal(files.stored.get(`/installations/${INSTALL}/img/logo.png`).toString(), 'png-bytes');
+  assert.equal(files.media.get(`/installations/${INSTALL}/img/logo.png`), 'image/png');
+  await assert.rejects(publishSite({ files: { 'index.html': 'x', 'a.png': { from_files: '/Assets/missing.png' } } }, { door: files }));
+});
+
 test('a site with an address lists its pages for AI apps at /llms.txt when it is published again', async () => {
   const files = door({ [`/installations/${INSTALL}/index.html`]: 'x' });
   await nameSite({ installation: INSTALL, name: 'field-notes' }, { door: files });

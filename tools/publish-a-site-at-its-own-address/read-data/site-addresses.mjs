@@ -21,7 +21,7 @@
 import { randomBytes } from 'node:crypto';
 import settings from './site-addresses.json' with { type: 'json' };
 import { readWholeFile, writeWholeFile } from '../../records-door/read-data/whole-file.mjs';
-import { checkedPublicAppFiles } from '../../shared-code/src/public-app-files.mjs';
+import { checkedPublicAppFiles, publicAppMediaType } from '../../shared-code/src/public-app-files.mjs';
 import { answerSiteLlms } from '../../choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs';
 
 const words = settings.words;
@@ -126,6 +126,20 @@ const shown = origins => origins.map(({ host, installation, moved_to: movedTo })
  * or `site` (the name of a site.json in the person's files, { files }); `installation` to publish a new version of a
  * site already published, else a new installation id.
  */
+// A file named by its place in the person's Files (`{ from_files: "<name>" }`) is read from there, so its bytes never
+// travel in the request. Its media type comes from its path, as every other file's does.
+async function filesWithNamedBytes(files, door) {
+  const out = {};
+  for (const [path, content] of Object.entries(files)) {
+    if (content !== null && typeof content === 'object' && typeof content.from_files === 'string') {
+      const { bytes } = await readWholeFile(door, content.from_files);
+      if (!bytes) refuse(words.from_files);
+      out[path] = `data:${publicAppMediaType(path)};base64,${Buffer.from(bytes).toString('base64')}`;
+    } else out[path] = content;
+  }
+  return out;
+}
+
 export async function publishSite(input = {}, { door, newId = () => randomBytes(settings.installation_hex / 2).toString('hex') } = {}) {
   let files = input.files;
   if (!files && typeof input.site === 'string') {
@@ -133,7 +147,7 @@ export async function publishSite(input = {}, { door, newId = () => randomBytes(
     files = JSON.parse(Buffer.from(bytes ?? []).toString('utf8'))?.files;
   }
   if (!files || typeof files !== 'object') refuse(words.site);
-  const checked = checkedPublicAppFiles(files);
+  const checked = checkedPublicAppFiles(await filesWithNamedBytes(files, door));
   const installation = input.installation === undefined ? newId() : checkedInstallation(input.installation);
   let bytes = 0;
   for (const [path, file] of Object.entries(checked)) {
