@@ -224,6 +224,116 @@
           }
         ]
       }
+    },
+    {
+      "id": "package::sync-files-between-my-computers::tool::keep-a-local-file-in-my-files",
+      "address": "package::sync-files-between-my-computers::tool::keep-a-local-file-in-my-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-local-file-in-my-files",
+        "label": "Keep a file from my computer in my Files",
+        "status": "active",
+        "job": "Keep one file from the person's computer in their Files under a name they choose, written in pieces that each fit one request",
+        "description": "Runs on the person's computer with the drives they granted it to see and the folder changes they granted. Reads one regular file (not a link, not a folder, at most the whole-file bound) and writes it into the person's Files as the name given. Returns name, bytes, media_type and the records door's finish answer. Deletes and moves nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "name"
+          ],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The file's full path on this computer"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name in Files: folders by slash; letters, digits, dots, dashes and underscores only"
+            },
+            "media_type": {
+              "type": "string",
+              "description": "A type like video/mp4; application/octet-stream when left out"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "name",
+            "bytes",
+            "media_type",
+            "finished"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "bytes": {
+              "type": "integer"
+            },
+            "media_type": {
+              "type": "string"
+            },
+            "finished": {
+              "type": "object"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives",
+            "change-a-folder"
+          ],
+          "workdir": "/opt/sync-files-between-my-computers",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/sync-files-between-my-computers/do-work/keep-a-local-file.mjs",
+            "keepALocalFile"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "sync-files-between-my-computers",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/sync-files-between-my-computers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": false
+        },
+        "maker": "maker:sync-files-between-my-computers",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
     }
   ]
 }
