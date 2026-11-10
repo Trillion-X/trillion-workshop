@@ -1126,7 +1126,19 @@
        "media_type": "video/mp4",
        "max_bytes": 4000000000
       }
-     ]
+     ],
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "find_file",
+         "read_file"
+        ]
+       }
+      ]
+     }
     },
     "needs": {
      "expected_seconds": 240,
@@ -1858,7 +1870,19 @@
         }
        ]
       }
-     ]
+     ],
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "find_file",
+         "read_file"
+        ]
+       }
+      ]
+     }
     },
     "needs": {
      "expected_seconds": 240,
@@ -2358,7 +2382,19 @@
         }
        ]
       }
-     ]
+     ],
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "find_file",
+         "read_file"
+        ]
+       }
+      ]
+     }
     },
     "needs": {
      "expected_seconds": 240,
@@ -2921,7 +2957,19 @@
        "media_type": "video/mp4",
        "max_bytes": 4000000000
       }
-     ]
+     ],
+     "records": {
+      "fd": 3,
+      "rights": [
+       {
+        "files": "/",
+        "operations": [
+         "find_file",
+         "read_file"
+        ]
+       }
+      ]
+     }
     },
     "needs": {
      "expected_seconds": 300,
