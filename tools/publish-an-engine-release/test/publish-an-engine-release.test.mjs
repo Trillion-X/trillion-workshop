@@ -11,7 +11,7 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, newSigningKey, publicKeyHex, readFeed, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
 import { CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
-import { makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
+import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
@@ -251,6 +251,46 @@ test('while a publish runs, only the newest asked commit waits', async () => {
   release();
   while (queue.running()) await queue.running();
   assert.deepEqual(ran, ['one', 'three']);
+});
+
+test('the catch-up queues the branch tip only while a target of the feed is behind it, and stops after its attempts', async () => {
+  const tip = 'c'.repeat(40), old = 'b'.repeat(40), state = folder();
+  const feedWith = releases => ({ releases });
+  const entry = (commit, target) => ({ commit, sequence: 1, target, url: `https://builder.example/${commit}/${target}.tar.gz`, content: `1f:${'d'.repeat(64)}`, bytes: 1, urgent: false, signature: 'e'.repeat(128) });
+  assert.equal(behindFeed(feedWith([entry(tip, 'x86_64-unknown-linux-gnu'), entry(tip, 'aarch64-apple-darwin')]), tip, ['x86_64-unknown-linux-gnu', 'aarch64-apple-darwin']), false);
+  assert.equal(behindFeed(feedWith([entry(tip, 'x86_64-unknown-linux-gnu'), entry(old, 'aarch64-apple-darwin')]), tip, ['x86_64-unknown-linux-gnu', 'aarch64-apple-darwin']), true);
+  assert.equal(behindFeed(feedWith([]), tip, ['x86_64-unknown-linux-gnu']), true);
+  assert.equal(countAttempt(state, tip), 1);
+  assert.equal(countAttempt(state, tip), 2);
+  assert.equal(attemptsOf(state, tip), 2);
+  const asked = [];
+  const queue = { running: () => null, ask: commit => asked.push(commit) };
+  const token = '';
+  const feedFile = join(folder(), 'feed.json');
+  // A repository with its branch at `tip` and a feed holding an older release: the tip is queued.
+  const repo = folder();
+  sh(repo, 'init', '-q', '-b', 'main');
+  sh(repo, 'commit', '-q', '--allow-empty', '-m', 'one');
+  const headCommit = sh(repo, 'rev-parse', 'HEAD');
+  const url = `file://${repo}`;
+  const target = 'x86_64-unknown-linux-gnu';
+  writeFileSync(feedFile, JSON.stringify({ releases: [entry(old, target)] }));
+  const logged = [];
+  assert.equal(await catchUp({ repository: url, branch: 'main', feedFile, targets: [target], stateFolder: state, token, queue, log: line => logged.push(line) }), headCommit);
+  assert.deepEqual(asked, [headCommit]);
+  // The feed is at the tip: nothing is queued.
+  writeFileSync(feedFile, JSON.stringify({ releases: [entry(headCommit, target)] }));
+  assert.equal(await catchUp({ repository: url, branch: 'main', feedFile, targets: [target], stateFolder: state, token, queue, log: () => {} }), null);
+  // A commit tried its full attempts waits for a push: nothing more is queued for it.
+  writeFileSync(feedFile, JSON.stringify({ releases: [entry(old, target)] }));
+  countAttempt(state, headCommit);
+  countAttempt(state, headCommit);
+  assert.equal(countAttempt(state, headCommit), 3);
+  assert.equal(await catchUp({ repository: url, branch: 'main', feedFile, targets: [target], stateFolder: state, token, queue, log: () => {} }), null);
+  // A run in progress is left to finish: the check answers nothing while the queue runs.
+  assert.equal(await catchUp({ repository: url, branch: 'main', feedFile, targets: [target], stateFolder: state, token, queue: { running: () => Promise.resolve(), ask() {} }, log: () => {} }), null);
+  assert.deepEqual(asked, [headCommit]);
+  assert.equal(logged.length, 1);
 });
 
 test('install sets the builder up over SSH, and the token and secret travel only on standard input', async () => {

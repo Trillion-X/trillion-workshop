@@ -6,6 +6,11 @@
 // the newest push waits (an older one would be refused by the feed anyway). The answer is 202 at once, because
 // GitHub gives up on a delivery after ten seconds; how each run went is in the state folder's last-run.json.
 //
+// The receiver also checks the branch's tip every `catch_up_minutes` and at start: a tip that a target of the feed is
+// not at is queued like a push, so a crash or restart (an out-of-memory kill takes the queue with it) never drops a
+// release. A commit publish has been started for `attempts_at_most` times waits for the next push instead
+// (attempts.json in the state folder).
+//
 // When the config names `accept_entries_from`, it also takes other builders' signed releases (one builder per target
 // it builds for) at `entry_path`: the entry in a header, checked against those keys before the body is read, the
 // tar.gz as the body; each target has its own queue, and `accept` (publish-an-engine-release.mjs) adds it to the feed.
@@ -16,12 +21,12 @@
 // usage: receive-pushes.mjs serve CONFIG_FILE
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { createServer } from 'node:http';
-import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { privateInput, readRequest, writeAtomically } from './publish-an-engine-release.mjs';
-import { checkTarget, settings, signerOf } from './release-feed.mjs';
+import { CREDENTIAL_HELPER, hostTarget, privateInput, readRequest, runProgram, writeAtomically } from './publish-an-engine-release.mjs';
+import { checkCommit, checkTarget, newestFor, readFeed, settings, signerOf } from './release-feed.mjs';
 import { readEntryHeader } from './contribute-an-engine-release.mjs';
 
 const PUBLISH = fileURLToPath(new URL('./publish-an-engine-release.mjs', import.meta.url));
@@ -45,6 +50,47 @@ export function readDelivery(event, body, branch) {
   return { commit: push.after };
 }
 
+/** The branch's tip on the repository (its token on descriptor 3, as fetch reads it), or null when the branch is gone. */
+export async function remoteTip({ repository, branch, token }) {
+  const line = await runProgram('git', ['-c', 'credential.helper=', '-c', `credential.helper=${CREDENTIAL_HELPER}`, '-c', 'core.askPass=true',
+    'ls-remote', '--heads', repository, `refs/heads/${branch}`], { token: token ?? '', env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } });
+  const [sha] = line.trim().split(/\s+/);
+  return sha ? checkCommit(sha) : null;
+}
+
+/** Whether some target's newest feed release is not `tip`: the feed is behind the branch for that target. */
+export function behindFeed(feed, tip, targets) {
+  return targets.some(target => newestFor(feed, target)?.commit !== tip);
+}
+
+/** How many publish runs have been started for `commit`, kept in attempts.json (the newest 64 commits). */
+const attemptsFile = stateFolder => join(stateFolder, 'attempts.json');
+const readAttempts = stateFolder => { try { return JSON.parse(readFileSync(attemptsFile(stateFolder), 'utf8')); } catch { return {}; } };
+export const attemptsOf = (stateFolder, commit) => readAttempts(stateFolder)[commit] ?? 0;
+export function countAttempt(stateFolder, commit) {
+  const ledger = readAttempts(stateFolder);
+  const count = (ledger[commit] ?? 0) + 1;
+  delete ledger[commit];
+  const kept = Object.fromEntries([...Object.entries(ledger), [commit, count]].slice(-64));
+  mkdirSync(stateFolder, { recursive: true });
+  writeAtomically(attemptsFile(stateFolder), `${JSON.stringify(kept, null, 1)}\n`);
+  return count;
+}
+
+/** One catch-up check: queue the branch's tip when a target of the feed is behind it, unless it has been tried
+ *  `attempts_at_most` times already. Answers the commit queued, or null. A run in progress is left to finish first. */
+export async function catchUp({ repository, branch, feedFile, targets, stateFolder, token, queue, log }) {
+  if (queue.running()) return null;
+  const tip = await remoteTip({ repository, branch, token });
+  if (!tip) return null;
+  const feed = readFeed(existsSync(feedFile) ? readFileSync(feedFile, 'utf8') : null);
+  if (!behindFeed(feed, tip, targets)) return null;
+  if (attemptsOf(stateFolder, tip) >= settings.attempts_at_most) return null;
+  log(`catch-up: the feed is behind ${branch} at ${tip}; queued it`);
+  queue.ask(tip);
+  return tip;
+}
+
 /** One run at a time; while it runs only the newest asked commit waits. */
 export function makeQueue(runOne) {
   let running = null, waiting = null;
@@ -62,6 +108,7 @@ export function makeQueue(runOne) {
 export function runPublish({ configFile, token, stateFolder, node = process.execPath, publishFile = PUBLISH, log = line => process.stdout.write(`${line}\n`) }) {
   return commit => new Promise(resolve => {
     const started = new Date().toISOString();
+    countAttempt(stateFolder, commit);
     const child = spawn(node, [publishFile, 'publish', configFile, '--commit', commit], { stdio: ['ignore', 'pipe', 'pipe', 'pipe'] });
     let out = '', err = '';
     child.stdout.on('data', bytes => { out = (out + bytes).slice(-65536); });
@@ -196,13 +243,20 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (!secret) throw new Error('Descriptor 4 holds no push secret: install stores it; run install again with the secret on descriptor 4.');
     const log = line => process.stdout.write(`${line}\n`);
     const queue = makeQueue(runPublish({ configFile: resolvePath(configFile), token, stateFolder: config.state_folder, log }));
+    const targets = [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(config.darwin?.targets ?? [])];
+    const check = () => catchUp({ repository: config.repository, branch: config.branch, feedFile: join(config.feed_folder, settings.feed_file), targets, stateFolder: config.state_folder, token, queue, log })
+      .catch(error => log(`catch-up could not check ${config.branch}: ${error.message}`));
     const [host, port] = [config.receiver?.host ?? '127.0.0.1', config.receiver?.port ?? settings.receiver_port];
     const accepted = config.accept_entries_from ?? [];
     const entries = accepted.length ? {
       accepted, path: config.receiver?.entry_path ?? settings.entry_path, folder: join(config.state_folder, 'entries'),
       queue: makeTargetQueues(runAccept({ configFile: resolvePath(configFile), token, stateFolder: config.state_folder, log })),
     } : null;
-    makeReceiver({ secret, branch: config.branch, path: config.receiver?.path ?? settings.push_path, queue, log, entries }).listen(port, host, () => log(`receiving pushes to ${config.branch} on ${host}:${port}`));
+    makeReceiver({ secret, branch: config.branch, path: config.receiver?.path ?? settings.push_path, queue, log, entries }).listen(port, host, () => {
+      log(`receiving pushes to ${config.branch} on ${host}:${port}`);
+      check();
+      setInterval(check, settings.catch_up_minutes * 60_000);
+    });
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.exit ?? 1;
