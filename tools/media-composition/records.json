@@ -985,6 +985,52 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffmpeg",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffprobe",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       }
+     },
      "argv": [
       "node",
       "do-work/reframe-to-a-size.mjs",
@@ -1653,6 +1699,52 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffmpeg",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffprobe",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       }
+     },
      "argv": [
       "node",
       "do-work/cut-and-caption.mjs",
@@ -2061,6 +2153,52 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffmpeg",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffprobe",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       }
+     },
      "argv": [
       "node",
       "do-work/cut-and-caption.mjs",
@@ -2569,6 +2707,52 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffmpeg",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-x86_64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           },
+           "linux-aarch64": {
+             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+           }
+         },
+         "search": "ffprobe",
+         "search_path": [
+           "/opt/homebrew/bin",
+           "/usr/local/bin",
+           "/opt/local/bin"
+         ]
+       }
+     },
      "argv": [
       "node",
       "do-work/render-an-edit.mjs",
