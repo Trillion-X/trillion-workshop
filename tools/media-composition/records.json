@@ -985,6 +985,76 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "80d607f60e1b5933f87285899371738c406fe17e9a9285912dbc06d5b22add67",
+             "executable": "ffmpeg",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "96bd09469eed759c5377e5e040b5f8e583a67bc2e62eb4ea4882f88f710a572c",
+             "executable": "ffprobe",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       }
+     },
      "argv": [
       "node",
       "do-work/reframe-to-a-size.mjs",
@@ -1653,6 +1723,76 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "80d607f60e1b5933f87285899371738c406fe17e9a9285912dbc06d5b22add67",
+             "executable": "ffmpeg",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "96bd09469eed759c5377e5e040b5f8e583a67bc2e62eb4ea4882f88f710a572c",
+             "executable": "ffprobe",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       }
+     },
      "argv": [
       "node",
       "do-work/cut-and-caption.mjs",
@@ -2061,6 +2201,76 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "80d607f60e1b5933f87285899371738c406fe17e9a9285912dbc06d5b22add67",
+             "executable": "ffmpeg",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "96bd09469eed759c5377e5e040b5f8e583a67bc2e62eb4ea4882f88f710a572c",
+             "executable": "ffprobe",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       }
+     },
      "argv": [
       "node",
       "do-work/cut-and-caption.mjs",
@@ -2569,6 +2779,76 @@
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
+     "programs": {
+       "ffmpeg": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "80d607f60e1b5933f87285899371738c406fe17e9a9285912dbc06d5b22add67",
+             "executable": "ffmpeg",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffmpeg.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffmpeg",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       },
+       "ffprobe": {
+         "fetch": {
+           "macos-aarch64": {
+             "url": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip",
+             "version": "N-128220-gbea9d176f7",
+             "blake3": "96bd09469eed759c5377e5e040b5f8e583a67bc2e62eb4ea4882f88f710a572c",
+             "executable": "ffprobe",
+             "format": "zip",
+             "top_folder": false,
+             "checked_against": "https://ffmpeg.martin-riedl.de/download/macos/arm64/1793460248_N-128220-gbea9d176f7/ffprobe.zip.sha256"
+           },
+           "macos-x86_64": {
+             "unverified": "No pinned download yet: the publisher's x86_64 macOS build (ffmpeg.martin-riedl.de amd64) has not been read and checked for this entry."
+           },
+           "linux-x86_64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "ad07d341795193a09def397278730bdc1fb7bd0fc7afc2983b461fdbec416fec",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz.md5"
+           },
+           "linux-aarch64": {
+             "url": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz",
+             "version": "7.0.2",
+             "blake3": "8e6cd5132091f68c703de98134f634d12636b1ab965e503c15249d9693415416",
+             "executable": "ffprobe",
+             "format": "tar.xz",
+             "top_folder": true,
+             "checked_against": "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-arm64-static.tar.xz.md5"
+           }
+         }
+       }
+     },
      "argv": [
       "node",
       "do-work/render-an-edit.mjs",
