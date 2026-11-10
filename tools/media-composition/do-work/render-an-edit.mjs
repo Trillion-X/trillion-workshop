@@ -49,6 +49,21 @@ export function editWithItsOwnSize(edl) {
   return { ...edl, encode: { ...encode, resolution: 'source' } };
 }
 
+/**
+ * The edit with each source named by an identity of `files` (the account files the run was given, each copied into
+ * `folder` under its name) replaced by that file's local path. A source the files do not name is left as it is.
+ */
+export function withFilePaths(edl, files, folder) {
+  const paths = new Map((files ?? []).map(file => [file.identity, join(folder, file.name)]));
+  const walk = value => {
+    if (typeof value === 'string') return paths.get(value) ?? value;
+    if (Array.isArray(value)) return value.map(walk);
+    if (value && typeof value === 'object') return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, walk(item)]));
+    return value;
+  };
+  return walk(edl);
+}
+
 /** Render `edl` to `output` with video-compose (its pieces made in `workdir` when given) and return the measured result. */
 export function renderEdl(edl, output, { workdir } = {}) {
   try {
@@ -68,6 +83,9 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     if (!args.get('edl') || !args.get('output')) throw new Error('usage: render-an-edit.mjs --edl JSON --output FILE [--workdir DIR]');
     let edl;
     try { edl = JSON.parse(args.get('edl')); } catch { throw new Error('The edit is not JSON.'); }
+    let files = [];
+    try { files = args.get('files') ? JSON.parse(args.get('files')) : []; } catch { throw new Error('The files are not JSON.'); }
+    edl = withFilePaths(edl, files, '/input');
     process.stdout.write(`${JSON.stringify(renderEdl(edl, args.get('output'), { workdir: args.get('workdir') }))}\n`);
   } catch (error) {
     process.stderr.write(`${error.message}\n`);

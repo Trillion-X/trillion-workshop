@@ -830,14 +830,38 @@
     "input_schema": {
      "type": "object",
      "required": [
-      "video"
+      "files"
      ],
      "additionalProperties": false,
      "properties": {
-      "video": {
-       "type": "string",
-       "format": "namespace-file",
-       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      "files": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 1,
+       "description": "The one clip to edit, pulled from your Namespace files by its identity (its bytes are copied in before the run). name is always source.mp4; bytes is its exact length.",
+       "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+         "name",
+         "identity",
+         "bytes"
+        ],
+        "properties": {
+         "name": {
+          "const": "source.mp4"
+         },
+         "identity": {
+          "type": "string",
+          "pattern": "^1f:[0-9a-f]{64}$",
+          "description": "The clip's identity in your files (1f: then 64 hex)"
+         },
+         "bytes": {
+          "type": "integer",
+          "minimum": 1
+         }
+        }
+       }
       },
       "aspect_w": {
        "type": "number",
@@ -980,63 +1004,74 @@
         ],
         "at": "/opt/node_modules/@noble/hashes"
        }
-      ]
+      ],
+      "account_files": {
+       "items": {
+        "fill": {
+         "from": "input",
+         "field": "files"
+        }
+       },
+       "at": "/input",
+       "max_files": 1,
+       "max_bytes": 2147483648
+      }
      },
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
      "programs": {
-       "ffmpeg": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffmpeg",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
+      "ffmpeg": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
        },
-       "ffprobe": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffprobe",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
-       }
+       "search": "ffmpeg",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      },
+      "ffprobe": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffprobe",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      }
      },
      "argv": [
       "node",
       "do-work/reframe-to-a-size.mjs",
       "--video",
       {
-       "from": "video"
+       "const": "/input/source.mp4"
       },
       "--output",
       "/opt/media-composition/reframed.mp4",
@@ -1402,15 +1437,39 @@
     "input_schema": {
      "type": "object",
      "required": [
-      "video",
+      "files",
       "transcript"
      ],
      "additionalProperties": false,
      "properties": {
-      "video": {
-       "type": "string",
-       "format": "namespace-file",
-       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      "files": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 1,
+       "description": "The one clip to edit, pulled from your Namespace files by its identity (its bytes are copied in before the run). name is always source.mp4; bytes is its exact length.",
+       "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+         "name",
+         "identity",
+         "bytes"
+        ],
+        "properties": {
+         "name": {
+          "const": "source.mp4"
+         },
+         "identity": {
+          "type": "string",
+          "pattern": "^1f:[0-9a-f]{64}$",
+          "description": "The clip's identity in your files (1f: then 64 hex)"
+         },
+         "bytes": {
+          "type": "integer",
+          "minimum": 1
+         }
+        }
+       }
       },
       "transcript": {
        "type": [
@@ -1694,63 +1753,74 @@
         ],
         "at": "/opt/node_modules/@noble/hashes"
        }
-      ]
+      ],
+      "account_files": {
+       "items": {
+        "fill": {
+         "from": "input",
+         "field": "files"
+        }
+       },
+       "at": "/input",
+       "max_files": 1,
+       "max_bytes": 2147483648
+      }
      },
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
      "programs": {
-       "ffmpeg": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffmpeg",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
+      "ffmpeg": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
        },
-       "ffprobe": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffprobe",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
-       }
+       "search": "ffmpeg",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      },
+      "ffprobe": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffprobe",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      }
      },
      "argv": [
       "node",
       "do-work/cut-and-caption.mjs",
       "--video",
       {
-       "from": "video"
+       "const": "/input/source.mp4"
       },
       "--transcript",
       {
@@ -1845,16 +1915,40 @@
     "input_schema": {
      "type": "object",
      "required": [
-      "video",
+      "files",
       "from",
       "to"
      ],
      "additionalProperties": false,
      "properties": {
-      "video": {
-       "type": "string",
-       "format": "namespace-file",
-       "description": "The video's identity in your files (1f: then 64 hex), as find_file or list_files returns it"
+      "files": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 1,
+       "description": "The one clip to edit, pulled from your Namespace files by its identity (its bytes are copied in before the run). name is always source.mp4; bytes is its exact length.",
+       "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+         "name",
+         "identity",
+         "bytes"
+        ],
+        "properties": {
+         "name": {
+          "const": "source.mp4"
+         },
+         "identity": {
+          "type": "string",
+          "pattern": "^1f:[0-9a-f]{64}$",
+          "description": "The clip's identity in your files (1f: then 64 hex)"
+         },
+         "bytes": {
+          "type": "integer",
+          "minimum": 1
+         }
+        }
+       }
       },
       "from": {
        "type": "number",
@@ -2148,63 +2242,74 @@
         ],
         "at": "/opt/node_modules/@noble/hashes"
        }
-      ]
+      ],
+      "account_files": {
+       "items": {
+        "fill": {
+         "from": "input",
+         "field": "files"
+        }
+       },
+       "at": "/input",
+       "max_files": 1,
+       "max_bytes": 2147483648
+      }
      },
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
      "programs": {
-       "ffmpeg": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffmpeg",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
+      "ffmpeg": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
        },
-       "ffprobe": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffprobe",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
-       }
+       "search": "ffmpeg",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      },
+      "ffprobe": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffprobe",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      }
      },
      "argv": [
       "node",
       "do-work/cut-and-caption.mjs",
       "--video",
       {
-       "from": "video"
+       "const": "/input/source.mp4"
       },
       "--from",
       {
@@ -2580,10 +2685,40 @@
     "input_schema": {
      "type": "object",
      "required": [
+      "files",
       "edl"
      ],
      "additionalProperties": false,
      "properties": {
+      "files": {
+       "type": "array",
+       "minItems": 1,
+       "maxItems": 1,
+       "description": "The one clip to edit, pulled from your Namespace files by its identity (its bytes are copied in before the run). name is always source.mp4; bytes is its exact length.",
+       "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+         "name",
+         "identity",
+         "bytes"
+        ],
+        "properties": {
+         "name": {
+          "const": "source.mp4"
+         },
+         "identity": {
+          "type": "string",
+          "pattern": "^1f:[0-9a-f]{64}$",
+          "description": "The clip's identity in your files (1f: then 64 hex)"
+         },
+         "bytes": {
+          "type": "integer",
+          "minimum": 1
+         }
+        }
+       }
+      },
       "edl": {
        "type": "object",
        "format": "namespace-file",
@@ -2702,56 +2837,67 @@
         ],
         "at": "/opt/node_modules/@noble/hashes"
        }
-      ]
+      ],
+      "account_files": {
+       "items": {
+        "fill": {
+         "from": "input",
+         "field": "files"
+        }
+       },
+       "at": "/input",
+       "max_files": 1,
+       "max_bytes": 2147483648
+      }
      },
      "workdir": "/opt/media-composition",
      "internet": true,
      "stdout": "json",
      "programs": {
-       "ffmpeg": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffmpeg",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
+      "ffmpeg": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
        },
-       "ffprobe": {
-         "fetch": {
-           "macos-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "macos-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-x86_64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           },
-           "linux-aarch64": {
-             "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
-           }
-         },
-         "search": "ffprobe",
-         "search_path": [
-           "/opt/homebrew/bin",
-           "/usr/local/bin",
-           "/opt/local/bin"
-         ]
-       }
+       "search": "ffmpeg",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      },
+      "ffprobe": {
+       "fetch": {
+        "macos-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "macos-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-x86_64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        },
+        "linux-aarch64": {
+         "unverified": "No pinned download yet: no publisher of a gzip tar of ffmpeg for this system was read and checked from where this row was written."
+        }
+       },
+       "search": "ffprobe",
+       "search_path": [
+        "/opt/homebrew/bin",
+        "/usr/local/bin",
+        "/opt/local/bin"
+       ]
+      }
      },
      "argv": [
       "node",
@@ -2759,6 +2905,10 @@
       "--edl",
       {
        "from": "edl"
+      },
+      "--files",
+      {
+       "from": "files"
       },
       "--output",
       "/opt/media-composition/edit.mp4"
@@ -3725,20 +3875,20 @@
      }
     ],
     "record_model": {
-      "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
-      "kinds": [
-        {
-          "type": "record:media-voice-cluster",
-          "guard_properties": {
-            "embedding": "numbers",
-            "files": "texts",
-            "id": "text",
-            "kind": "text",
-            "sample_count": "number",
-            "voice_id": "text"
-          }
-        }
-      ]
+     "_what": "The record kinds, indexes and links this tool keeps (moved unchanged from trillion-rust's one record model: src/record_model_policy/record-model.json, src/record_indexes/record-indexes.json, product/lists.json field_kinds and product/record-sharing.json links).",
+     "kinds": [
+      {
+       "type": "record:media-voice-cluster",
+       "guard_properties": {
+        "embedding": "numbers",
+        "files": "texts",
+        "id": "text",
+        "kind": "text",
+        "sample_count": "number",
+        "voice_id": "text"
+       }
+      }
+     ]
     }
    }
   },
@@ -4134,7 +4284,13 @@
       "input": {
        "voice_id": "voice-1",
        "person_name": "Sam Example",
-       "known_voices": [{ "value": { "voice_id": "voice-1" } }]
+       "known_voices": [
+        {
+         "value": {
+          "voice_id": "voice-1"
+         }
+        }
+       ]
       }
      }
     ]
@@ -4889,10 +5045,17 @@
      {
       "kind": "sample-run",
       "input": {
-       "moves": [{ "from": "/work/sample/Card/CLIP", "to": "/work/sample/Drive/Clips" }],
+       "moves": [
+        {
+         "from": "/work/sample/Card/CLIP",
+         "to": "/work/sample/Drive/Clips"
+        }
+       ],
        "projects": []
       },
-      "stand_in_programs": { "python3": "cat >/dev/null; exit 1" }
+      "stand_in_programs": {
+       "python3": "cat >/dev/null; exit 1"
+      }
      }
     ],
     "screen": {
