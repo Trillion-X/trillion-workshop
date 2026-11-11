@@ -79,17 +79,6 @@
      }
     },
     "invoke": {
-      "records": {
-        "fd": 3,
-        "rights": [
-          {
-            "kind": "person-activity",
-            "operations": [
-              "records:list"
-            ]
-          }
-        ]
-      },
      "kind": "container",
      "files": {
       "package_files": {
