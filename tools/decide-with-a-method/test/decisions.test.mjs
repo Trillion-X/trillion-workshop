@@ -6,7 +6,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, endDecisions, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
+import { addDecisionEvidence, answerADecisionQuestion, caseIdFor, inheritableFrom, endDecisions, makeTheDecision, nextDecisionQuestion, reportADecisionResult, sayWhatWasDone, startADecision } from '../read-data/decisions.mjs';
 import { shareADecision } from '../read-data/share-a-decision.mjs';
 import { joinDecision, readDecision, readStep, recordsOf, writeDecision } from '../read-data/decision-records.mjs';
 import { similarDecisions } from '../read-data/similar-decisions.mjs';
@@ -1323,4 +1323,17 @@ test('every decision tool declares the revision record beside its root, with the
     assert.ok(record, `${row.id} declares ${revision}, or its read of a case is refused as not granted`);
     assert.deepEqual(record.operations, root.operations.filter(operation => operation !== 'records:list'), `${row.id} grants the revision as its root does`);
   }
+});
+
+test('a child decision names its parent, refuses a missing or its own parent, and is offered a parent\'s standing answer only for a step the method lists as standing', async () => {
+  const door = account();
+  const parent = await answered(door);
+  const { case_id: child } = await startADecision({ ...opened, source_id: 'chat:pottery-child', parent_decision_id: parent }, { door });
+  assert.equal(caseView(door, child).parent.decision_id, parent, 'the child names its parent');
+  await assert.rejects(startADecision({ ...opened, source_id: 'chat:pottery-missing', parent_decision_id: 'source:not-kept' }, { door }), /No decision has that id/, 'a missing parent is refused');
+  await assert.rejects(startADecision({ ...opened, source_id: 'chat:pottery-empty', parent_decision_id: '' }, { door }), /parent/i, 'an empty parent is refused');
+  const record = await readDecision(door, child);
+  assert.equal(await inheritableFrom(door, record, { step_id: 'scope' }), null, 'no step is offered while the method lists none as standing');
+  assert.deepEqual(await inheritableFrom(door, record, { step_id: 'scope' }, ['scope']), { decision_id: parent, step_id: 'scope', version: 1 }, 'a standing step the parent answered is offered at its version');
+  assert.equal(await inheritableFrom(door, record, { step_id: 'outcome' }, ['scope']), null, 'a step the list does not name is never offered');
 });

@@ -78,6 +78,9 @@
     "grader": "second-judge",
     "words": "Hand each check of this answer to a second judge with fresh context: a subagent, or a different model where your host offers one, on the same subscription. Give it the check, this answer and the evidence of the case, and nothing of how the answer was drafted. Send its verdicts beside this answer as verdicts: [{ check, meets, rests_on, missing?, graded_by }]. check is the id of a checklist item above; meets says whether the answer meets that check; rests_on quotes words of this answer (at least eight characters) or names an evidence ref of the case; missing, only when meets is false, copies exactly the words of the check the answer does not address; graded_by names that second judge (its model or agent name). A verdict that does not meet these rules is ignored."
   },
+  "inherit": {
+    "standing_steps": []
+  },
   "words": {
     "ready": "Every question is answered, so make the decision now with tool:make-the-decision, in this turn: a decision left open changes nothing. Choose the option the evidence supports and send its id from options as option_id. Leave a question to the person only when its answer is their own values, drive or budget, and then ask them that one question; settle every product, architecture, placement, naming or build question from the facts yourself, even when they have objected to every option.",
     "resume": "Do this now: {next_action}. How you will know it worked: {success_measure}. If it does not, bring back what actually happened: a failed result is a fact, and the fastest way to the right next move. Once it works, bring the larger change it makes possible as the next decision.",
@@ -112,6 +115,7 @@
     "from_and_answer": "Send an answer or from, not both: from brings in another decision's answer as it stood.",
     "from_shape": "from is { decision_id, step_id, version? }: one of your other decisions, the step to bring in and, optionally, its version.",
     "from_self": "from names this decision: to change its own answer, revise it instead.",
+    "parent_invalid": "A parent decision has to be another of your decisions, and not this one.",
     "from_not_found": "No decision has that id to bring an answer or evidence from.",
     "from_step_missing": "That decision has no answer to \"{step}\" at version {version}.",
     "recheck_note": "\"{step}\" was revised after this answer was given. Confirm it unchanged (confirm: true, alone), or send a revised answer with revise.because.",

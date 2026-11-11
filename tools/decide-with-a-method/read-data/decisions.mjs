@@ -279,12 +279,33 @@ export async function startADecision(input, { door }) {
     return guideReply(door, await catalogueAt(door, methods, current), current);
   }
   optionsFit(input.options);
+  const parent = await parentOf(door, input.parent_decision_id, id);
   const record = {
     id, source_id: input.source_id, input, input_identity: inputIdentity(input), method, scratchpad: [], status: 'needs_decision', decision: null, actions: [], checks: [],
     pursuits_known: (await currentPursuits(door, 0)).length > 0, created_at: new Date().toISOString(), guidance: [],
+    ...(parent ? { parent: { decision_id: parent.id } } : {}),
   };
   await writeDecision(door, recordsOf(record), `start-a-decision:${id}`);
   return guideReply(door, await catalogueAt(door, methods, record), record);
+}
+
+/** The parent a child decision names: another of the person's decisions, never itself. Null when none is named. */
+async function parentOf(door, parentId, id) {
+  if (parentId === undefined) return null;
+  if (!nonempty(parentId) || parentId === id) refuse('parent_invalid');
+  const parent = await readDecision(door, parentId);
+  if (!parent) refuse('from_not_found');
+  return parent;
+}
+
+/** A standing step the parent answered, offered to the child (never taken): the parent's answer at its current version. Only a
+ * step the method lists as standing (`inherit.standing_steps` in DATA) qualifies, so a change-specific step is never offered. */
+export async function inheritableFrom(door, record, question, standing = settings.inherit.standing_steps) {
+  if (!record.parent || !question || !standing.includes(question.step_id)) return null;
+  const parent = await readDecision(door, record.parent.decision_id, [question.step_id]);
+  const kept = parent?.guidance?.find(item => item.step_id === question.step_id && !item.lost);
+  if (!kept) return null;
+  return { decision_id: parent.id, step_id: question.step_id, version: kept.version ?? 1 };
 }
 
 /** tool:next-decision-question. input { decision_id, explain? | versions_of? }: `explain` names checks of the current question,
@@ -298,7 +319,11 @@ export async function nextDecisionQuestion(input, { door }) {
   }
   const record = await decisionOrRefuse(door, decisionId(input));
   const cat = await catalogueAt(door, await methodsOf(door, methodIdOf(record)), record);
-  if (input.explain === undefined) return guideReply(door, cat, record);
+  if (input.explain === undefined) {
+    const reply = await guideReply(door, cat, record);
+    const inherit = await inheritableFrom(door, record, reply.question);
+    return inherit ? { ...reply, inherit } : reply;
+  }
   if (!Array.isArray(input.explain) || !input.explain.length || input.explain.length > settings.most_explained || !input.explain.every(nonempty)) refuse('explain_shape', { count: settings.most_explained });
   const { texts, unknown } = cat.checkTexts(record, input.explain);
   if (unknown.length) refuse('explain_unknown', { ids: unknown.join(', ') });
