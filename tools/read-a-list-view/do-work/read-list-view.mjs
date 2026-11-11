@@ -5,7 +5,7 @@
 // from their computer:
 //
 //   node do-work/read-list-view.mjs --config FILE (--list ID | --view ID) [--after CURSOR] [--limit N]
-//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]'] [--paths '["/a/b.md"]'] [--dry-run yes]
+//   node do-work/read-list-view.mjs --config FILE --refresh ID [--sources '["source-id"]'] [--changes '{"source-id":{"paths":["/a/b.md"],"removed":["/c.md"]}}'] [--run-id COMMIT] [--deadline-ms MS] [--paths '["/a/b.md"]'] [--dry-run yes]
 //
 // A refresh of a list whose source is declared original: "list" writes both ways (read-data/list-copy.mjs); --paths
 // settles only those documents (a file an app just wrote) and --dry-run yes plans without writing.
@@ -24,6 +24,11 @@
 // read-data/list-view.mjs takes them, and optionally `source_answer_bytes` (the room a source tool's answer has in the
 // door's reply, for a refresh). The bounds are the reader's own (read-data/list-view.json `limits`), never a caller's.
 //
+// --changes reconciles only the named documents of a selected document source (a commit's changed files). --run-id is the
+// full commit a refresh is made for: a refresh sent again for it keys its writes the same, so the door answers their
+// first answers. --deadline-ms is the caller's absolute Unix-millisecond deadline: a refresh that has not started when
+// it passes is refused as not_started; one still running at it is ended and reported as outcome=unknown.
+//
 // Prints the page, or what the refresh wrote, as one JSON answer. Exit 0 done, 2 with the reason on standard error.
 import { readFile } from 'node:fs/promises';
 import { openDoor } from '../read-data/door.mjs';
@@ -35,7 +40,27 @@ const flags = {};
 const rest = process.argv.slice(2);
 for (let index = 0; index < rest.length; index += 2) flags[rest[index].replace(/^--/, '')] = rest[index + 1];
 
+let deadlineTimer;
+
 try {
+  if (flags['deadline-ms'] !== undefined) {
+    const deadline = Number(flags['deadline-ms']);
+    if (!/^[0-9]+$/.test(flags['deadline-ms']) || !Number.isSafeInteger(deadline)) {
+      throw Object.assign(new Error('--deadline-ms is an absolute Unix-millisecond integer.'), { outcome: 'not_started' });
+    }
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) {
+      throw Object.assign(new Error('The list-reader deadline elapsed before its request started.'), { outcome: 'not_started' });
+    }
+    // The deadline bounds the whole process, including a request the door has not answered: the process ends there,
+    // and every write is keyed, so the caller's retry answers its first answers.
+    deadlineTimer = setTimeout(() => {
+      console.error('The list-reader deadline elapsed while the request was running.');
+      console.error('read-list-view: outcome=unknown');
+      process.exit(2);
+    }, Math.min(remaining, 2147483647));
+    deadlineTimer.unref();
+  }
   if (!flags.config) throw new Error('usage: read-list-view.mjs --config FILE ((--list ID | --view ID) [--after CURSOR] [--limit N] | --refresh ID [--sources JSON] [--paths JSON] [--dry-run yes] | --write-joined SPEC [--dry-run yes] | --copy-readable LIST_ID)');
   const config = JSON.parse(await readFile(flags.config, 'utf8'));
   const door = await openDoor(config);
@@ -46,10 +71,15 @@ try {
     : flags.refresh
     ? await refreshRowSources({ list: flags.refresh, names: config.names, source_answer_bytes: config.source_answer_bytes,
       ...(flags.sources !== undefined ? { source_ids: JSON.parse(flags.sources) } : {}),
+      ...(flags.changes !== undefined ? { changes: JSON.parse(flags.changes) } : {}),
+      ...(flags['run-id'] !== undefined ? { run_id: flags['run-id'] } : {}),
       ...(flags.paths !== undefined ? { paths: JSON.parse(flags.paths) } : {}), ...(flags['dry-run'] === 'yes' ? { dry_run: true } : {}) }, door)
     : await readListView({ list: flags.list, view: flags.view, after: flags.after ?? null, limit: flags.limit ? Number(flags.limit) : undefined, names: config.names }, door);
   console.log(JSON.stringify(answer));
 } catch (error) {
   console.error(error.message);
+  if (error.outcome !== undefined) console.error(`read-list-view: outcome=${error.outcome}`);
   process.exitCode = 2;
+} finally {
+  clearTimeout(deadlineTimer);
 }
