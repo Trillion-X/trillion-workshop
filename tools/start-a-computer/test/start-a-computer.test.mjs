@@ -394,8 +394,8 @@ function madeUpComputer(l, { units = [] } = {}) {
   for (const [name, text] of units) writeFileSync(join(root, 'etc/systemd/system', name), text);
   for (const dir of [l.release, 'opt/build/new']) { writeFileSync(join(root, dir, 'trillion-local'), fakeEngine); chmodSync(join(root, dir, 'trillion-local'), 0o755); }
   symlinkSync(l.release, join(root, l.base, 'current'));
-  // systemctl: each call is written down; the service is not active when its current link names FAKE_REFUSED_RELEASE.
-  writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT${l.base}/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
+  // systemctl: each call is written down; the service is not active when releases/current names FAKE_REFUSED_RELEASE.
+  writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT${l.base}/releases/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
   chmodSync(join(bin, 'systemctl'), 0o755);
   const lease = join(root, 'lease.json');
   writeFileSync(lease, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'computer.example.com' }));
