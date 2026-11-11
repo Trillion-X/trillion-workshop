@@ -107,6 +107,28 @@ const HOST_LAYOUT = {
   unmanaged: [],
 };
 
+test('an install on a running place is judged by its health row, read from its own config, and a status by the public row', async () => {
+  const { installOnPlace, placeStatus } = await import('../do-work/start-a-computer.mjs');
+  const dir = mkdtempSync(join(tmpdir(), 'install-on-place-'));
+  const leaseFile = join(dir, 'lease.json');
+  writeFileSync(leaseFile, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
+  const asked = [];
+  const run = async (machine, command) => {
+    if (command === 'cat /var/lib/place/place.json') return JSON.stringify({ listen: '127.0.0.1:7199' });
+    return '';
+  };
+  const fetchImpl = async address => { asked.push(address); return { status: address === 'https://place.example.com/readyz' ? 200 : 404 }; };
+  const engine = { file: 'trillion-local', release_name: 'r2', release: { on_machine: '/opt/build/release' } };
+  const answer = await installOnPlace(leaseFile, { ssh: {}, engine, name: { host_name: 'place.example.com' } }, { fetchImpl, wait: async () => {}, tries: 1, run });
+  assert.equal(answer.sign_up_status, 200);
+  assert.deepEqual(asked, ['https://place.example.com/readyz']);
+  asked.length = 0;
+  const status = await placeStatus(leaseFile, { fetchImpl });
+  assert.equal(status.sign_up_status, 200, 'a status asks the same public row');
+  assert.deepEqual(asked, ['https://place.example.com/readyz']);
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test('the rows name every provider call and their credentials by vault handle only', () => {
   const rows = JSON.parse(readFileSync(new URL('../read-data/providers.json', import.meta.url), 'utf8'));
   for (const row of [...rows.machines, ...rows.names].filter(r => r.base)) {

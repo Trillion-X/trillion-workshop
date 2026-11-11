@@ -299,17 +299,6 @@ async function healthStatus(machine, config, host, health, { fetchImpl, wait, tr
   return status;
 }
 
-async function signUpStatus(hostName, { fetchImpl, wait, tries }) {
-  let status = null;
-  for (let i = 1; i <= tries; i++) {
-    try { status = (await fetchImpl(`https://${hostName}/sign-up`, { redirect: 'manual', signal: AbortSignal.timeout(10000) })).status; }
-    catch { status = null; }
-    if (status === 200) return status;
-    if (i < tries) await wait(5000);
-  }
-  return status;
-}
-
 const asEngine = (engine, argv) => `runuser -u place -- env ${productSettings.launch_setting}=${q(productSettings.file)} ${engine.data_env}=/opt/place/current/${q(engine.data_dir)} /opt/place/current/${q(engine.file)} ${argv.map(q).join(' ')}`;
 
 /** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
@@ -372,7 +361,9 @@ export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wa
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
   const release = await installRelease(machine, request.engine, run);
   await run(machine, 'systemctl restart place.service && sleep 3 && systemctl is-active place.service');
-  return { release, sign_up_status: await signUpStatus(lease.hostName ?? request.name.host_name, { fetchImpl, wait, tries }) };
+  const config = JSON.parse(await run(machine, 'cat /var/lib/place/place.json'));
+  const host = lease.hostName ?? request.name.host_name;
+  return { release, sign_up_status: await healthStatus(machine, config, host, healthOf(config, request), { fetchImpl, wait, tries, run }) };
 }
 
 /** The update of a running computer, in a backup folder named for this moment, inside its own state folder. */
@@ -498,7 +489,9 @@ export async function priceOfAPlace(request, { machineToken, fetchImpl = fetch }
 export async function placeStatus(leaseFile, { machineToken, fetchImpl = fetch } = {}) {
   const file = absolute(leaseFile, 'LEASE_FILE'), lease = readLease(file), row = machineProvider(lease.provider);
   const machine = await readMachine({ request: row.base ? providerClient(row, machineToken, { fetchImpl }) : null, file, provider: row });
-  const signUp = lease.hostName ? await signUpStatus(lease.hostName, { fetchImpl, wait: pause, tries: 1 }) : null;
+  const health = healthOf({});
+  if (health.where !== 'public') throw refused('A status reads the public health row only: the place is not asked on its machine.');
+  const signUp = lease.hostName ? await healthStatus(machine, {}, lease.hostName, health, { fetchImpl, wait: pause, tries: 1 }) : null;
   return { name: lease.name, provider: lease.provider, lease_state: lease.state, machine, host_name: lease.hostName ?? null, sign_up_status: signUp };
 }
 
