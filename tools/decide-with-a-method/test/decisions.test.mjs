@@ -108,8 +108,10 @@ test('a change too large for one door message is written in parts, the root last
   const long = { ...outcomeAnswer, current_state: 'The old price no longer covers the kiln costs. '.repeat(1200) };
   door.writes.length = 0;
   await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: long, verdicts: judged }, { door });
-  assert.deepEqual(door.writes.at(-1).ids, [id], 'the root alone, last');
-  assert.deepEqual(door.writes.map(write => write.key), [...door.writes.slice(0, -1).map((_, at) => `answer-a-decision-question:${id}:1:part:${at}`), `answer-a-decision-question:${id}:1`]);
+  assert.deepEqual(door.writes.at(-1).ids, [id, `decision-revision:${id}`], 'the root and its revision, last');
+  const keys = door.writes.map(write => write.key);
+  assert.ok(keys.slice(0, -1).every((key, at) => key.startsWith(`answer-a-decision-question:${id}:1:`) && key.endsWith(`:part:${at}`)), 'each part is keyed by its content');
+  assert.ok(keys.at(-1).startsWith(`answer-a-decision-question:${id}:1:`) && !keys.at(-1).includes(':part:'), 'the root is keyed by its content');
   const head = door.value(`decision-step:${id}:001`);
   assert.equal(head.step_id, 'outcome', 'a step too large for one record keeps its short fields');
   assert.ok(head.kept_in_parts >= 2, 'and its whole value in parts');
@@ -280,7 +282,7 @@ test('a decision kept whole is laid apart at its next change, its calls kept as 
   assert.equal(door.value(`decision-step:${id}:000`).step_id, 'scope');
   assert.equal(door.value(`decision-call:${id}:000299`).route, 'guide');
   assert.equal(door.value(`decision-call:${id}:000000`).submission, undefined, 'a call keeps no payload');
-  assert.deepEqual(door.writes.at(-1).ids, [id], 'the root is written after its parts');
+  assert.deepEqual(door.writes.at(-1).ids, [id, `decision-revision:${id}`], 'the root and its revision are written after their parts');
 });
 
 // Every record kind a decision is laid out in (read-data/decision-records.mjs).
@@ -574,9 +576,9 @@ test('a verdict confirmation is replayed when sent again, refuses a grounded ref
   await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: refused }, { door }), /checklist\.outcome-before-after: .*which state it should end up in/);
   assert.equal(door.value(`decision-step:${id}:001`).version, 1, 'a refused confirmation writes nothing');
   const restsOnNothing = [{ check: 'outcome-before-after', meets: true, rests_on: 'nothing of this answer', graded_by: 'second-judge-test' }];
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: restsOnNothing }, { door })).replayed, true, 'a verdict that rests on nothing is not taken, as a typed one is not');
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: restsOnNothing }, { door }), /needs a second judge's verdict/, 'a verdict that rests on nothing is not taken, so the step stays ungraded and is refused, not replayed');
   const ungroundedRefusal = [{ check: 'outcome-before-after', meets: false, rests_on: 'e2', missing: 'a spreadsheet of costs', graded_by: 'second-judge-test' }];
-  assert.equal((await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: ungroundedRefusal }, { door })).replayed, true, 'an ungrounded refusal is ignored');
+  await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: ungroundedRefusal }, { door }), /needs a second judge's verdict/, 'an ungrounded refusal is ignored, and the step stays ungraded');
   const meets = [{ check: 'outcome-before-after', meets: true, rests_on: 'e2', graded_by: 'second-judge-test' }];
   await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', confirm: true, verdicts: meets }, { door });
   door.writes.length = 0;
@@ -998,8 +1000,12 @@ test('a single conditioned record the door still refuses as 413 is ended through
   const id = 'source:camp-a';
   door.put(id, 'decision', { status: 'needs_outcome', goal: 'A made-up goal', input: { goal: 'A made-up goal', evidence: [{ ref: 'e1', claim: 'A made-up fact' }] } });
   const write = door.write.bind(door);
+  let refusedOnce = false;
   door.write = async (list, options) => {
-    if (list.some(record => 'expected' in record)) throw Object.assign(new Error('413'), { code: 'http_413' });
+    if (!refusedOnce && list.some(record => record.type === 'decision')) {
+      refusedOnce = true;
+      throw Object.assign(new Error('413'), { code: 'http_413' });
+    }
     return write(list, options);
   };
   const answer = await endDecisions({ decisions: [{ decision_id: id, because: 'Done with it.' }], by: 'test-agent' }, { door });
@@ -1103,7 +1109,7 @@ test('a large old-layout decision whose first end failed partway is ended by the
   const keyed = door.write;
   let refuseRoot = true;
   door.write = async (list, options) => {
-    if (refuseRoot && list.length === 1 && list[0].id === id) throw Object.assign(new Error('The records door answered 413.'), { code: 'http_413' });
+    if (refuseRoot && list.some(record => record.id === id)) throw Object.assign(new Error('The records door answered 413.'), { code: 'http_413' });
     return keyed(list, options);
   };
   const first = await endDecisions({ decisions: [{ decision_id: id, because: 'No one will carry it on.' }], by: 'test-agent' }, { door });
@@ -1242,4 +1248,33 @@ test('a copied answer leaves out the source decision\'s workflow runs, and the w
   const copied = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: judged }, { door });
   assert.equal(copied.question.step_id, 'proof');
   assert.equal(door.value(`decision-step:${id}:001`).answer.workflow_runs, undefined, 'the copy holds no run of the source decision');
+});
+
+test('a write made from an older read of the case is refused as changed, and nothing of it is written', async () => {
+  const door = account();
+  const id = await answered(door);
+  const read = door.read.bind(door);
+  let bumped = false;
+  door.read = async (type, key) => {
+    const value = await read(type, key);
+    if (!bumped && type === 'decision-revision') {
+      bumped = true;
+      door.put(`decision-revision:${id}`, 'decision-revision', { revision: 99 });
+    }
+    return value;
+  };
+  await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact added late' }] }, { door }), /case changed/);
+  assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept');
+});
+
+test('a write is keyed by what it writes, so a different write under the same name is never a conflict', async () => {
+  const door = memoryDoor();
+  const keys = [];
+  const write = door.write.bind(door);
+  door.write = async (list, options) => { keys.push(options?.key); return write(list, options); };
+  await writeDecision(door, [{ id: 'decision:k', type: 'decision', value: { a: 1 } }, { id: 'decision-revision:k', type: 'decision-revision', value: { revision: 1 } }], 'same-name');
+  await writeDecision(door, [{ id: 'decision:k', type: 'decision', value: { a: 2 } }, { id: 'decision-revision:k', type: 'decision-revision', value: { revision: 2 } }], 'same-name');
+  assert.equal(keys.length, 2);
+  assert.notEqual(keys[0], keys[1], 'different content under one name gets different keys');
+  assert.ok(keys.every(key => key.startsWith('same-name:')));
 });
