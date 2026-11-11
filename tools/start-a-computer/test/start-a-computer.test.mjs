@@ -478,20 +478,20 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     assert.ok(!existsSync(file(`${l.state}/backups`)), 'nothing is backed up or staged');
   });
 
-  test(`a ${kind} place declares the health check it really serves (its own address, a 403) and an update is judged by it, never by the public name`, async () => {
+  test(`a ${kind} place declares the health check it really serves (its own address, /readyz, 200) and an update is judged by it, never by the public name`, async () => {
     const { root, lease, file } = madeUpComputer(l);
     const seen = runHere(root);
-    const healthy = async (machine, command, input) => (command.includes('curl') ? '403' : seen(machine, command, input));
+    const healthy = async (machine, command, input) => (command.includes('curl') ? '200' : seen(machine, command, input));
     const never = async () => { throw new Error('the public name is not asked'); };
-    const answer = await updateAComputer(lease, { ...updateRequest, health: { path: '/sign-up', status: 403, where: 'machine' } }, { ...asHere(root, { fetchImpl: never }), run: healthy, now: new Date('2026-11-04T17:50:00Z') });
-    assert.equal(answer.sign_up_status, 403);
-    assert.deepEqual(JSON.parse(read(file, `${l.state}/place.json`)).health, { path: '/sign-up', status: 403, where: 'machine' }, 'the declared check is written into the place\'s config');
-    const sick = async (machine, command, input) => (command.includes('curl') ? '502' : seen(machine, command, input));
-    await assert.rejects(updateAComputer(lease, { ...updateRequest, engine: { file: 'trillion-local' } }, { ...asHere(root, { fetchImpl: never }), run: sick, now: new Date('2026-11-04T17:55:00Z') }), /\/sign-up answered 502 after the update, not 403, so it was put back/);
+    const answer = await updateAComputer(lease, { ...updateRequest, health: { path: '/readyz', status: 200, where: 'machine' } }, { ...asHere(root, { fetchImpl: never }), run: healthy, now: new Date('2026-11-04T17:50:00Z') });
+    assert.equal(answer.sign_up_status, 200);
+    assert.deepEqual(JSON.parse(read(file, `${l.state}/place.json`)).health, { path: '/readyz', status: 200, where: 'machine' }, 'the declared check is written into the place\'s config');
+    const sick = async (machine, command, input) => (command.includes('curl') ? '503' : seen(machine, command, input));
+    await assert.rejects(updateAComputer(lease, { ...updateRequest, engine: { file: 'trillion-local' } }, { ...asHere(root, { fetchImpl: never }), run: sick, now: new Date('2026-11-04T17:55:00Z') }), /\/readyz answered 503 after the update, not 200, so it was put back/);
   });
 
   test(`a ${kind} computer's update whose service does not stay active, or whose sign-up page does not answer, is put back`, async () => {
-    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /\/sign-up answered 502 after the update, not 200, so it was put back/]]) {
+    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /\/readyz answered 502 after the update, not 200, so it was put back/]]) {
       const { root, lease, file } = madeUpComputer(l);
       await assert.rejects(updateAComputer(lease, updateRequest, { ...asHere(root, extra), run: runHere(root, env) }), why);
       assert.deepEqual([read(file, `${l.state}/place.json`), read(file, `etc/systemd/system/${l.unit}`), readlinkSync(file(`${l.base}/current`))], [OLD_CONFIG, unitOf(l), l.release]);
