@@ -279,6 +279,20 @@ test('a list sends fields and where to the door, and keeps paging past pages whe
   } finally { await door.close(); }
 });
 
+test('a throttled door (429) is asked again with the same key after a jittered wait that honours Retry-After', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], throttleFirst: 3, retryAfter: 2, eventStream: true });
+  const waits = [];
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: ms => { waits.push(ms); return Promise.resolve(); } });
+    const answer = await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-a' });
+    assert.ok(answer, 'the write is answered once the door stops throttling');
+    assert.equal(door.calls.filter(call => call.key === 'write-note-a').length, 4, 'three throttled answers, then the write');
+    assert.equal(waits.length, 3);
+    for (const ms of waits) assert.ok(ms >= 1000 && ms <= 2000, `a wait of ${ms} ms is half to all of the 2 s Retry-After`);
+    assert.ok(new Set(waits).size > 1, 'the waits are jittered, not the same each time');
+  } finally { await door.close(); }
+});
+
 test('a busy account is asked again, and the same write key answers the saved receipt', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], busyFirst: 2, eventStream: true });
   try {

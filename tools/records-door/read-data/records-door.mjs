@@ -32,7 +32,10 @@ import { pagedCall } from './byte-pages.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
+// A door that throttles (429) is asked again more times, each after a jittered wait that honours its Retry-After.
+const RATE_RETRIES = 8;
 const FIRST_WAIT_MS = 200;
+const MAX_WAIT_MS = 30_000;
 const PAGE = 999;
 
 // The door answers a refusal with a code and no words; these are the words a tool says for each.
@@ -106,6 +109,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
         throw error;
       }
       if (response.status === 503 && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      if (response.status === 429 && attempt < RATE_RETRIES) { await wait(throttledWait(response.headers.get('retry-after'), attempt)); continue; }
       // The door names the check that refused the run (its cause, in the 401 body), so the run can say which one.
       if (response.status === 401) throw new RecordsDoorError('capability_gone', `${WORDS.capability_gone} Refused by: ${await refusedBy(response)}`);
       if (!response.ok) throw new RecordsDoorError(`http_${response.status}`, `The records door answered ${response.status}.`);
@@ -142,6 +146,14 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
 // capability at the door's origin, then the growing route, chunk by chunk, finished under the whole file's BLAKE3.
 // The capability is a bearer: it is handed to the sender as its authorization, never printed, logged or returned.
 // The engine checks every chunk and the whole file; a refused finish is an error and no row is written.
+// The wait before a throttled call is sent again: the door's Retry-After (in seconds) when it gives one, else the backoff;
+// then a random half-to-whole of that, so calls from several lanes do not return together.
+export function throttledWait(retryAfter, attempt) {
+  const hinted = Number(retryAfter) * 1000;
+  const base = Number.isFinite(hinted) && hinted > 0 ? hinted : FIRST_WAIT_MS * 2 ** attempt;
+  return Math.min(base, MAX_WAIT_MS) * (0.5 + Math.random() / 2);
+}
+
 export async function writeLargeFile({ origin, capability, fetchImpl }, name, source, { mediaType = null } = {}) {
   // The sender is loaded only here: a row that never writes a large file does not need its closure packaged.
   const { bearerControl, namespaceClient } = await import('../../browse-and-upload-my-files/do-work/namespace-client.mjs');

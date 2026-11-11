@@ -29,7 +29,7 @@ const TOOLS_RESOURCE = '@workshop-tools';
 
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
 // for a run whose files right names it at '/'.
-export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+export async function startFakeDoor({ throttleFirst = 0, retryAfter = null, fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -42,6 +42,7 @@ export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}
   const calls = [];
   const runsStarted = [];
   let busy = busyFirst;
+  let throttled = throttleFirst;
   let unknown = unknownFirst;
   let busySource = busySourceFirst;
   let partialBodies = partialBodyFirst;
@@ -251,6 +252,7 @@ export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}
       const args = body.params?.arguments ?? {};
       calls.push({ method: args.method, input: args.input, key: args.request_key, authorization: request.headers.authorization, protocol: request.headers['mcp-protocol-version'] });
       if (busy > 0) { busy -= 1; reply.writeHead(503).end(); return; }
+      if (throttled > 0) { throttled -= 1; reply.writeHead(429, retryAfter ? { 'retry-after': String(retryAfter) } : {}).end(); return; }
       if (request.headers.authorization !== `Bearer ${capability}`) { reply.writeHead(401).end(); return; }
       const answered = args.address === FILES_RESOURCE && Object.hasOwn(fileAnswers, args.method) ? input => {
         if (!fileRights.some(item => item.files === '/' && item.operations.includes(args.method))) return refuse(OUTSIDE);
