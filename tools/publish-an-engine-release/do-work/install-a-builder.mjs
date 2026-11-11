@@ -40,7 +40,7 @@ const absolute = (path, what) => {
 export const SHIPPED = [
   'tools/publish-an-engine-release/do-work', 'tools/publish-an-engine-release/read-data',
   'tools/content-identity/read-data', 'tools/content-identity/package.json', 'tools/keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs',
-  'test-helpers/tool-row-imports.mjs', 'test-helpers/tool-row-imports.json',
+  'test-helpers/tool-row-imports.mjs', 'test-helpers/tool-row-imports.json', 'test-helpers/tool-row-door-exceptions.json',
   ...['LICENSE', 'package.json', 'blake3.js', 'blake2.js', '_blake.js', '_md.js', '_u64.js', 'utils.js'].map(file => `node_modules/@noble/hashes/${file}`),
 ];
 
