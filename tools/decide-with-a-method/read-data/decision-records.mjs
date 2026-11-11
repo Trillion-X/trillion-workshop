@@ -384,8 +384,12 @@ export async function writeDecision(door, list, key) {
   const named = `${key}:${identityOf(whole)}`;
   try {
     if (writeBatches(whole, writeBounds).length === 1) return await door.write(whole, { key: named });
+    // Several writes: the revision is claimed first, so a write made from an older read is refused before any part lands.
+    // The claim holds the revision one past the one read; the last write moves it past the claim, and only if nothing else has.
+    await door.write([revision], { key: `${named}:claim` });
     for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${named}:part:${at}` });
-    return await door.write([root, revision], { key: named });
+    const moved = { id: revision.id, type: revision.type, value: { revision: revision.value.revision + 1 }, expected: { type: revision.type, value: revision.value } };
+    return await door.write([root, moved], { key: named });
   } catch (error) {
     if (error?.code === 'original_command_conflict') throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: 'original_command_conflict' });
     throw error;
