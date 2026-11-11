@@ -201,3 +201,60 @@ test('the AI work feed reads the actual recipe starter output and hides it after
   const done = await answerOf(feed, { feed: 'ai-work' }, { records: finished });
   assert.deepEqual(done.result.feeds[0].rows, []);
 });
+
+const pagedDefinition = (pageBytes, extra = []) => ({
+  surfaces: { pages: ['pages', ...extra.map(feed => feed.id)] },
+  limits: { default_rows_per_feed: 50, most_rows_per_feed: 200, most_source_records: 2000, page_bytes: pageBytes },
+  feeds: [
+    { id: 'pages', label: 'Pages', about: 'Rows in pages', empty: 'Nothing here yet.',
+      read: { type: 'notice-record', prefix: 'notice:', rows: ['value', 'item'] },
+      row_id: { prefix: 'row:', field: ['seq'] }, order: { field: ['seq'], direction: 'asc' },
+      show: { title: ['title'], detail: ['body'] } },
+    ...extra,
+  ],
+});
+
+const longRows = (count, size) => Object.fromEntries(Array.from({ length: count }, (_, index) => [`n${index}`, {
+  id: `notice:${index + 1}`, type: 'notice-record', value: { item: { seq: index + 1, title: `Title ${index + 1}`, body: 'x'.repeat(size) } },
+}]));
+
+test('a feed over its page comes back in cursor pages, in order, with no row lost', async () => {
+  const { door } = fixture({ prefix: 'notice:', rows: longRows(12, 1500) });
+  const data = pagedDefinition(4000);
+  const pages = [];
+  let cursor;
+  do {
+    const answer = await readGlanceFeeds(cursor === undefined ? { feed: 'pages' } : { feed: 'pages', cursor }, { door, data });
+    const feed = answer.feeds[0];
+    assert.equal(feed.status, 'ready', JSON.stringify(feed));
+    pages.push(feed);
+    cursor = feed.next_cursor;
+  } while (cursor !== undefined);
+  assert.ok(pages.length > 1, 'a feed this large needs more than one page');
+  for (const page of pages) assert.ok(Buffer.byteLength(JSON.stringify(page)) <= 4000, JSON.stringify(page).length);
+  const ids = pages.flatMap(page => page.rows.map(row => row.id));
+  assert.deepEqual(ids, Array.from({ length: 12 }, (_, index) => `row:${index + 1}`));
+  assert.equal(pages.at(-1).next_cursor, undefined);
+});
+
+test('a cursor names a row the feed no longer has and a row over the page is unavailable, never a silent cut', async () => {
+  const { door } = fixture({ prefix: 'notice:', rows: longRows(3, 100) });
+  const stale = await readGlanceFeeds({ feed: 'pages', cursor: 'row:99' }, { door, data: pagedDefinition(4000) });
+  assert.equal(stale.feeds[0].status, 'unavailable');
+  assert.equal(stale.feeds[0].error.code, 'stale_cursor');
+  const big = fixture({ prefix: 'notice:', rows: longRows(2, 9000) });
+  const oversize = await readGlanceFeeds({ feed: 'pages' }, { door: big.door, data: pagedDefinition(4000) });
+  assert.equal(oversize.feeds[0].status, 'unavailable');
+  assert.equal(oversize.feeds[0].error.code, 'row_too_large');
+});
+
+test('a surface answer stays within its page bytes, and a cursor is for one feed only', async () => {
+  const other = { id: 'more', label: 'More', about: '', empty: 'None', read: { type: 'notice-record', prefix: 'notice:', rows: ['value', 'item'] },
+    row_id: { prefix: 'more:', field: ['seq'] }, show: { title: ['title'], detail: ['body'] } };
+  const { door } = fixture({ prefix: 'notice:', rows: longRows(20, 1200) });
+  const data = pagedDefinition(12000, [other]);
+  const answer = await readGlanceFeeds({ surface: 'pages' }, { door, data });
+  assert.ok(Buffer.byteLength(JSON.stringify(answer)) <= 12000, 'the whole surface answer is one run output');
+  assert.ok(answer.feeds[0].next_cursor, 'the paged feed names where its next page starts');
+  await assert.rejects(readGlanceFeeds({ surface: 'pages', cursor: 'row:1' }, { door, data }), { code: 'bad_input' });
+});

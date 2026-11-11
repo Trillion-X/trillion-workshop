@@ -16,6 +16,11 @@ The Workshop action is `tool:read-glance-feeds`.
 Input is `{ "feed": "told" }` or `{ "surface": "watch", "limit": 20 }`. Give exactly one of `feed` or `surface`.
 `limit` is a positive whole number per feed and defaults to 50.
 
+One run's answer stays within `limits.page_bytes` (DATA, 180 KiB), shared across the feeds of a surface. A feed whose
+rows do not fit returns `next_cursor`, the id of its last row returned. To read the next page, call again with
+`{ "feed": "<id>", "cursor": "<next_cursor>" }` (a cursor is only for one feed). Rows are never cut: a row larger than
+the page is an unavailable feed (`row_too_large`), and a cursor with no row to continue after is `stale_cursor`.
+
 The result is `{ feeds: [{ id, label, about, status, empty?, rows?, error? }] }`, with `surface` added when requested.
 `status` is `ready` with `empty` and `rows`, or `unavailable` with `error: { code, message }`. An empty `rows` array
 means a successful empty read. A failed, denied or malformed record read is unavailable, never an empty feed. Each ready

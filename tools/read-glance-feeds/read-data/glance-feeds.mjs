@@ -159,12 +159,34 @@ async function readRows(feed, door, limits = defaultData.limits) {
   return rows;
 }
 
+// The engine bounds one run's output (its stdout), so one answer's rows stay within `page_bytes` in all. A feed's rows
+// that do not fit come back on the next page: the feed's next_cursor names the last row returned, and the next call
+// for that feed with that cursor starts after it. Nothing is dropped, and nothing is cut inside a row.
+function fitRows(rows, header, budget, limit) {
+  let used = Buffer.byteLength(JSON.stringify({ ...header, rows: [] }));
+  const kept = [];
+  for (const row of rows) {
+    if (kept.length === limit) break;
+    const size = Buffer.byteLength(JSON.stringify(row)) + 1;
+    if (used + size > budget) {
+      if (kept.length === 0) throw fail('row_too_large', `A row of feed ${header.id} is larger than the ${budget}-byte page.`);
+      break;
+    }
+    used += size;
+    kept.push(row);
+  }
+  return kept;
+}
+
 /** Read one feed or a named surface, applying only the source and projection declared in DATA. */
 export async function readGlanceFeeds(input = {}, { door, data = defaultData } = {}) {
   if (!door || typeof door.list !== 'function') throw fail('bad_input', 'The records door is required.');
   const hasFeed = typeof input.feed === 'string' && input.feed.length > 0;
   const hasSurface = typeof input.surface === 'string' && input.surface.length > 0;
   if (hasFeed === hasSurface) throw fail('bad_input', 'Name exactly one feed or surface.');
+  if (input.cursor !== undefined && (!hasFeed || typeof input.cursor !== 'string' || !input.cursor)) {
+    throw fail('bad_input', 'A cursor is text that comes with exactly one feed.');
+  }
   const feedRows = data.feeds;
   if (!Array.isArray(feedRows)) throw fail('bad_data', 'Feed DATA has no feeds list.');
   let selected;
@@ -184,6 +206,8 @@ export async function readGlanceFeeds(input = {}, { door, data = defaultData } =
   }
   const limit = input.limit ?? data.limits?.default_rows_per_feed ?? 50;
   if (!Number.isSafeInteger(limit) || limit < 1 || limit > (data.limits?.most_rows_per_feed ?? 200)) throw fail('bad_input', `limit must be a positive whole number up to ${data.limits?.most_rows_per_feed ?? 200}.`);
+  const pageBytes = data.limits?.page_bytes ?? 180 * 1024;
+  const share = Math.floor(pageBytes / selected.length);
   const feeds = await Promise.all(selected.map(async feed => {
     if (typeof feed.id !== 'string' || typeof feed.label !== 'string') throw fail('bad_data', 'Every feed needs an id and label.');
     if (typeof feed.unavailable === 'string' && feed.unavailable) {
@@ -192,7 +216,12 @@ export async function readGlanceFeeds(input = {}, { door, data = defaultData } =
     try {
       const sourceRows = await readRows(feed, door, data.limits);
       const projected = ordered(sourceRows.filter(row => passes(row, feed)), feed).map(row => shown(row, feed)).filter(row => row.title.length > 0);
-      return { id: feed.id, label: feed.label, about: feed.about ?? '', empty: feed.empty ?? 'Nothing here yet.', status: 'ready', rows: projected.slice(0, limit) };
+      const start = input.cursor === undefined ? 0 : projected.findIndex(row => row.id === input.cursor) + 1;
+      if (start === 0 && input.cursor !== undefined) throw fail('stale_cursor', `Feed ${feed.id} has no row ${input.cursor} to continue after.`);
+      const header = { id: feed.id, label: feed.label, about: feed.about ?? '', empty: feed.empty ?? 'Nothing here yet.', status: 'ready' };
+      const rows = fitRows(projected.slice(start), header, share, limit);
+      const more = start + rows.length < projected.length;
+      return { ...header, rows, ...(more ? { next_cursor: rows[rows.length - 1].id } : {}) };
     } catch (error) {
       return { id: feed.id, label: feed.label, about: feed.about ?? '', status: 'unavailable', error: {
         code: typeof error?.code === 'string' ? error.code : 'source_unavailable',
