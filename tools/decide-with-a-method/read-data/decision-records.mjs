@@ -103,6 +103,8 @@ const LOADED = new WeakMap();
 // still hold it, so a write made from an older read is refused, not written over newer rows.
 const ROOT_READ = new WeakMap();
 const REVISION = settings.records.record_revision.type;
+// Whether a write expects the revision it was read at. Switched off in DATA while a spurious conflict on the revision is found.
+const CHECK_REVISION = settings.records.record_revision.check !== false;
 const revisionKey = id => `${REVISION}:${id}`;
 
 // What a record can weigh in a door message, however the door carries it on the way: its JSON with every character past
@@ -359,7 +361,7 @@ export function recordsOf(record, changed = [], archived = []) {
   const { root: fittedRoot, parts: rootParts } = rootFitted(id, root);
   // The revision record is written with the root, in the same write, and expects the revision it was read at (or none).
   const was = ROOT_READ.get(record)?.revision ?? null;
-  const revision = { id: revisionKey(id), type: REVISION, value: { revision: (was?.revision ?? 0) + 1 }, expected: was ? { type: REVISION, value: was } : null };
+  const revision = { id: revisionKey(id), type: REVISION, value: { revision: (was?.revision ?? 0) + 1 }, ...(CHECK_REVISION ? { expected: was ? { type: REVISION, value: was } : null } : {}) };
   return [
     { id, type: 'decision', value: fittedRoot },
     revision,
@@ -389,7 +391,7 @@ export async function writeDecision(door, list, key) {
     // The claim holds the revision one past the one read; the last write moves it past the claim, and only if nothing else has.
     await door.write([revision], { key: `${named}:claim` });
     for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${named}:part:${at}` });
-    const moved = { id: revision.id, type: revision.type, value: { revision: revision.value.revision + 1 }, expected: { type: revision.type, value: revision.value } };
+    const moved = { id: revision.id, type: revision.type, value: { revision: revision.value.revision + 1 }, ...(CHECK_REVISION ? { expected: { type: revision.type, value: revision.value } } : {}) };
     return await door.write([root, moved], { key: named });
   } catch (error) {
     if (error?.code === 'original_command_conflict') throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: 'original_command_conflict' });
