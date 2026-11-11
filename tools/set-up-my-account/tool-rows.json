@@ -172,6 +172,15 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "set-up-my-devices-and-cameras",
+                "paths": [
+                  "src/device-distribution.mjs",
+                  "src/devices.json",
+                  "src/devices.mjs"
+                ],
+                "at": "/opt/set-up-my-devices-and-cameras"
               }
             ]
           },
@@ -359,6 +368,43 @@
                   "dist/index.mjs"
                 ],
                 "at": "/opt/node_modules/uqr"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "package": "run-experiments",
+                "paths": [
+                  "read-data/score-candidates.ts"
+                ],
+                "at": "/opt/run-experiments"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },

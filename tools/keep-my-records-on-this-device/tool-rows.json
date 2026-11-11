@@ -169,6 +169,59 @@
                   "esm/browser.js"
                 ],
                 "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "record-log",
+                "paths": [
+                  "do-work/log-position.mjs",
+                  "do-work/maintenance-pacing.json",
+                  "do-work/record-digest.mjs",
+                  "do-work/record-model.mjs",
+                  "do-work/record-stamps.mjs",
+                  "do-work/record-sync.mjs",
+                  "do-work/store-size.json"
+                ],
+                "at": "/opt/record-log"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/blake3.mjs",
+                  "parts/record-log/do-work/erasable.mjs",
+                  "parts/record-log/do-work/json-members.mjs",
+                  "parts/record-log/do-work/kept-runs.mjs",
+                  "parts/record-log/do-work/record-log-store.mjs",
+                  "parts/record-log/do-work/record-tables.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "slot-table",
+                "paths": [
+                  "do-work/slot-table.mjs"
+                ],
+                "at": "/opt/slot-table"
+              },
+              {
+                "package": "serialized-content",
+                "paths": [
+                  "do-work/base64.mjs"
+                ],
+                "at": "/opt/serialized-content"
               }
             ]
           }

@@ -162,14 +162,23 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "practice-and-review",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/practice-and-review"
-      }
+      "package_files": [
+       {
+        "package": "practice-and-review",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/practice-and-review"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       }
+      ]
      },
      "workdir": "/opt/practice-and-review",
      "internet": false,
@@ -396,14 +405,23 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "practice-and-review",
-       "paths": [
-        "do-work",
-        "read-data"
-       ],
-       "at": "/opt/practice-and-review"
-      }
+      "package_files": [
+       {
+        "package": "practice-and-review",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/practice-and-review"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       }
+      ]
      },
      "workdir": "/opt/practice-and-review",
      "internet": false,
@@ -627,6 +645,20 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      }

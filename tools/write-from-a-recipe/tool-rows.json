@@ -107,7 +107,29 @@
      "kind": "container",
      "files": {
       "package_files": [
-       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/parts/write-from-a-recipe" }
+       {
+        "package": "write-from-a-recipe",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/parts/write-from-a-recipe"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work/evidence-checks.mjs",
+         "do-work/judge-words.mjs"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       }
       ]
      },
      "workdir": "/opt/parts/write-from-a-recipe",
@@ -242,7 +264,29 @@
      "kind": "container",
      "files": {
       "package_files": [
-       { "package": "write-from-a-recipe", "paths": ["do-work", "read-data"], "at": "/opt/parts/write-from-a-recipe" }
+       {
+        "package": "write-from-a-recipe",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/parts/write-from-a-recipe"
+       },
+       {
+        "package": "judge-words",
+        "paths": [
+         "do-work/evidence-checks.mjs",
+         "do-work/judge-words.mjs"
+        ],
+        "at": "/opt/judge-words"
+       },
+       {
+        "package": "content-identity",
+        "paths": [
+         "read-data/identity.mjs"
+        ],
+        "at": "/opt/content-identity"
+       }
       ]
      },
      "workdir": "/opt/parts/write-from-a-recipe",
