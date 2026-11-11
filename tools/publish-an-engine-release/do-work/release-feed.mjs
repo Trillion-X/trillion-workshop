@@ -8,6 +8,7 @@
 // The engine's feed reader (engine job J1) reads the same format.
 import { createPrivateKey, createPublicKey, generateKeyPairSync, sign, verify } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 export const settings = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 
@@ -51,6 +52,18 @@ export function signEntry(entry, privateKey) {
   return { ...entry, signature: sign(null, Buffer.from(signedText(entry), 'utf8'), key).toString('hex') };
 }
 
+/** The relative url of a relative-url kind's entry: its folder, then the content identity's 64 hex as `NAME.json`. */
+export const relativeUrlOf = (folder, content) => `${folder}/${content.slice(3)}.json`;
+
+/** A product settings entry for `bytes` (a computer's settings file): its content is the bytes' BLAKE3 identity, its url the
+ * relative path that identity names, and its signature covers the same fields as every entry. `commit` is the product
+ * repository's commit the file came from. */
+export function productSettingsEntry({ commit, sequence, bytes, urgent = false }, privateKey) {
+  const kind = settings.kinds.find(row => row.relative_url);
+  const content = makeHashCodeHexFromBytes(bytes);
+  return checkEntry(signEntry({ commit, sequence, target: kind.target, url: relativeUrlOf(kind.url_folder, content), content, bytes: bytes.length, urgent }, privateKey));
+}
+
 // The engine checks the same signature (`trillion-local release verify ENTRY_JSON KEY...`, trillion-rust releases.rs
 // `verify_command`, through `Entry::signed_by`). This check stays in Node: the receiver and `accept` judge another builder's
 // entry before any build of its target, so the feed builder has no engine binary to ask yet (one exists only after its own
@@ -71,7 +84,10 @@ export function checkEntry(entry) {
   checkCommit(entry.commit);
   checkTarget(entry.target);
   if (!Number.isSafeInteger(entry.sequence) || entry.sequence < 1) throw refuse(`${where} has a sequence that is not a whole number above 0.`);
-  if (typeof entry.url !== 'string' || !entry.url.startsWith('https://')) throw refuse(`${where} has a url that is not https.`);
+  const relative = settings.kinds.find(row => row.relative_url && row.target === entry.target);
+  if (relative) {
+    if (entry.url !== relativeUrlOf(relative.url_folder, entry.content)) throw refuse(`${where} has a url that is not ${relative.url_folder}/ named by its content identity.`);
+  } else if (typeof entry.url !== 'string' || !entry.url.startsWith('https://')) throw refuse(`${where} has a url that is not https.`);
   if (!/^1f:[0-9a-f]{64}$/.test(entry.content ?? '')) throw refuse(`${where} has a content that is not 1f: and 64 hex.`);
   if (!Number.isSafeInteger(entry.bytes) || entry.bytes < 1) throw refuse(`${where} has a byte count that is not a whole number above 0.`);
   if (typeof entry.urgent !== 'boolean') throw refuse(`${where} has an urgent that is not true or false.`);
