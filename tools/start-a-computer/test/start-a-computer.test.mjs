@@ -382,14 +382,17 @@ WantedBy=multi-user.target
 const THREE = { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 };
 const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/x/accounts', public_origin: 'https://computer.example.com', new_accounts: { copies: THREE, copies_rules: { rule: 'kept as it is' } } }, null, 1)}\n`;
 
+// The release binary is the fake engine: the bootstrap asks it for its target, fetches the newest release and switches to it.
+const fakeEngine = readFileSync(new URL('./fake-trillion-local', import.meta.url));
+
 function madeUpComputer(l, { units = [] } = {}) {
-  const root = folder(), bin = join(root, 'fake-bin'), engine = '#!/bin/sh\nexit 0\n';
+  const root = folder(), bin = join(root, 'fake-bin');
   for (const dir of [l.state, 'etc/systemd/system', l.release, 'opt/build/new', 'fake-bin']) mkdirSync(join(root, dir), { recursive: true });
   linkGnuMove(bin);
   writeFileSync(join(root, l.state, 'place.json'), OLD_CONFIG);
   writeFileSync(join(root, 'etc/systemd/system', l.unit), unitOf(l));
   for (const [name, text] of units) writeFileSync(join(root, 'etc/systemd/system', name), text);
-  for (const dir of [l.release, 'opt/build/new']) { writeFileSync(join(root, dir, 'trillion-local'), engine); chmodSync(join(root, dir, 'trillion-local'), 0o755); }
+  for (const dir of [l.release, 'opt/build/new']) { writeFileSync(join(root, dir, 'trillion-local'), fakeEngine); chmodSync(join(root, dir, 'trillion-local'), 0o755); }
   symlinkSync(l.release, join(root, l.base, 'current'));
   // systemctl: each call is written down; the service is not active when its current link names FAKE_REFUSED_RELEASE.
   writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT${l.base}/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
@@ -402,11 +405,12 @@ function madeUpComputer(l, { units = [] } = {}) {
 // `run` on the made-up computer: each command runs here, in sh, with the fake systemctl first on the PATH. Its input
 // is read from a file, as ssh hands a pipe: Node's own stdin pipe is a socket, which /dev/stdin cannot open.
 const runHere = (root, env = {}) => async (_machine, command, input) => {
+  const engineEnv = { FAKE_TRILLION_CALLS: join(root, 'engine.calls'), FAKE_RELEASE_COMMIT: 'new', FAKE_TARGET: 'x86_64-unknown-linux-gnu', FAKE_FETCH_COMMIT: 'new' };
   let bytes = input ?? '';
   if (input?.pipe) { const parts = []; for await (const part of input) parts.push(part); bytes = Buffer.concat(parts); }
   const stdin = join(root, 'stdin'); writeFileSync(stdin, bytes);
   return new Promise((resolve, reject) => {
-    const child = spawn('sh', ['-c', `${command} < '${stdin}'`], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...env, ROOT: root, PATH: `${join(root, 'fake-bin')}:${process.env.PATH}` } });
+    const child = spawn('sh', ['-c', `${command} < '${stdin}'`], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, ...engineEnv, ...env, ROOT: root, PATH: `${join(root, 'fake-bin')}:${process.env.PATH}` } });
     let out = '', err = '';
     child.stdout.on('data', part => { out += part; });
     child.stderr.on('data', part => { err += part; });
@@ -432,9 +436,10 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     const config = JSON.parse(read(file, `${l.state}/place.json`)), old = JSON.parse(OLD_CONFIG);
     assert.deepEqual(config, { ...old, new_accounts: { ...PRODUCT.new_accounts, ...old.new_accounts, copies: answer.copies }, release_feed: { ...FEED, releases } }, 'the feed adopts into this computer\'s own releases folder; only copies changes in new_accounts');
     const unit = read(file, `etc/systemd/system/${l.unit}`);
-    assert.match(unit, new RegExp(`^\\[Service\\]\\nEnvironment=PRODUCT_SETTINGS=${l.state}/product-settings\\.json\\nType=simple$`, 'm'));
+    assert.match(unit, new RegExp(`^\\[Service\\]\\nEnvironment=PRODUCT_SETTINGS=${l.state}/product-settings\\.json\\nLimitNOFILE=1048576\\nType=simple$`, 'm'));
     assert.match(unit, new RegExp(`^ReadWritePaths=${l.state} ${releases}$`, 'm'));
-    assert.equal(readlinkSync(file(`${l.base}/current`)), `${releases}/new`);
+    assert.equal(readlinkSync(file(`${releases}/current`)), `${releases}/new`, 'the follower\'s own pointer, switched by the new release');
+    assert.equal(readlinkSync(file(`${l.base}/current`)), l.release, 'the link the unit no longer starts from is left as it was');
     const kept = file(`${backup}/old`);
     assert.deepEqual([readFileSync(join(kept, 'place.json'), 'utf8'), readFileSync(join(kept, 'unit'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, unitOf(l), `${l.release}\n`]);
     assert.deepEqual(read(file, 'systemctl.calls').trim().split('\n'), ['daemon-reload', `restart ${l.unit}`, `is-active --quiet ${l.unit}`]);
@@ -448,6 +453,16 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     assert.match(back.rolled_back, /^rolled-back /);
     assert.deepEqual([read(file, `${l.state}/place.json`), read(file, `etc/systemd/system/${l.unit}`), readlinkSync(file(`${l.base}/current`))], [OLD_CONFIG, unitOf(l), l.release]);
     assert.ok(!existsSync(file(`${l.state}/product-settings.json`)));
+    assert.ok(!existsSync(file(`${releases}/current`)), 'a pointer the update created is removed by the rollback');
+  });
+
+  test(`a ${kind} computer's bootstrap rewrites its ExecStart to start the engine through releases/current, the link the follower switches`, async () => {
+    const { root, lease, file } = madeUpComputer(l);
+    await updateAComputer(lease, updateRequest, { ...asHere(root), run: runHere(root), now: new Date('2026-11-04T17:30:00Z') });
+    const releases = `${l.base}/releases`;
+    const exec = read(file, `etc/systemd/system/${l.unit}`).match(/^ExecStart=(.*)$/m)[1];
+    assert.equal(exec, `/bin/sh -c 'R=$(readlink -f ${releases}/current) && exec env PRODUCT_DATA_ROOT="$R/product" "$R/trillion-local" serve ${l.state}/place.json'`);
+    assert.equal(readlinkSync(file(`${releases}/current`)), `${releases}/new`);
   });
 
   test(`a ${kind} computer's update whose service does not stay active, or whose sign-up page does not answer, is put back`, async () => {
