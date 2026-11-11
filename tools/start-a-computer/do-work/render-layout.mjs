@@ -24,14 +24,16 @@ export const renderCaddy = (siteBlock, { site_hosts, port, releases }) => {
   return site_hosts.map(host => `${siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '')}\n`).join('');
 };
 
-/** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */
-export function renderLayout(layout, siteBlock) {
+/** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. With the product
+ * settings' text (the verified product data), each unit that names a `product_settings` file declares that file too. */
+export function renderLayout(layout, siteBlock, productSettings) {
   const files = [{ path: '/etc/caddy/Caddyfile', text: renderCaddy(siteBlock, layout.caddy) }];
   for (const unit of layout.units ?? []) {
     const where = `unit ${unit.unit}`;
     const template = UNITS[unit.template];
     if (!template) throw new Error(`${where} names an unknown template ${unit.template}`);
     files.push({ path: `${SYSTEMD}/${unit.unit}`, text: fill(template, unit, where) });
+    if (productSettings !== undefined && unit.product_settings) files.push({ path: unit.product_settings, text: productSettings });
     for (const name of unit.drop_ins ?? []) {
       const dropIn = DROP_INS[name];
       if (!dropIn) throw new Error(`${where} names an unknown drop-in ${name}`);

@@ -70,15 +70,15 @@ async function untilSsh(machine, { wait, run, tries = 36 }) {
 /** Compare a computer's host layout row with what it runs now (`request.host_layout`): every file the row renders, every
  * drop-in the row does not declare, and every unmanaged user and folder the row keeps. Answers the differences, [] when the
  * computer matches. An absent file is a difference; a failed connection is an error, not an absence. */
-export async function hostLayoutDifferences(machine, layout, run = onMachine) {
-  const { rendered, live, found } = await hostLayoutState(machine, layout, run);
+export async function hostLayoutDifferences(machine, layout, run = onMachine, product) {
+  const { rendered, live, found } = await hostLayoutState(machine, layout, run, product);
   return [...differences(rendered, live), ...found];
 }
 
 /** What a layout renders, what the computer has at those paths, and what the computer keeps that the layout does not name. */
-export async function hostLayoutState(machine, layout, run = onMachine) {
+export async function hostLayoutState(machine, layout, run = onMachine, product) {
   const units = layout.units;
-  const rendered = renderLayout(layout, SITE_BLOCK);
+  const rendered = renderLayout(layout, SITE_BLOCK, product);
   const live = {};
   for (const { path } of rendered) live[path] = await readIfPresent(machine, run, path);
   const found = [];
@@ -104,22 +104,29 @@ async function readIfPresent(machine, run, path) {
 /** Apply a computer's layout row: set it up, write only the files that differ from what the row renders, and restart what
  * those files change. A computer that already matches gets nothing written, no set-up run and nothing restarted. A file
  * that is replaced keeps its previous bytes beside it as `NAME.bak-STAMP`. */
-export async function applyHostLayout(machine, layout, run = onMachine) {
-  const { rendered, live } = await hostLayoutState(machine, layout, run);
+export async function applyHostLayout(machine, layout, run = onMachine, product) {
+  const { rendered, live } = await hostLayoutState(machine, layout, run, product);
   const writes = rendered.filter(({ path, text }) => live[path] !== text);
   if (!writes.length) return { written: [], restarted: [] };
-  await run(machine, `sh -s -- ${q(JSON.stringify(layout))}`, readFileSync(SETUP));
+  // Set-up makes what is missing (packages, accounts, folders); a computer whose accounts all exist needs none, and
+  // running it would refresh the package lists on every apply.
+  const accounts = await Promise.all(layout.units.map(unit => run(machine, `getent passwd ${q(unit.user)} >/dev/null || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; })));
+  if (accounts.includes(false)) await run(machine, `sh -s -- ${q(JSON.stringify(layout))}`, readFileSync(SETUP));
+  // A product settings file is the unit's own: its user owns it and it is private (0600), as serve writes it.
+  const owner = path => layout.units.find(unit => unit.product_settings === path)?.user;
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   for (const { path, text } of writes) {
     if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
     if (path === CADDYFILE) {
       await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
       await run(machine, `caddy validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
+    } else if (owner(path)) {
+      await run(machine, `install -m 0600 -o ${q(owner(path))} -g ${q(owner(path))} /dev/stdin ${q(path)}`, text);
     } else {
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const unitOf = path => path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
+  const unitOf = path => layout.units.find(unit => unit.product_settings === path)?.unit ?? path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
   const units = [...new Set(writes.map(({ path }) => unitOf(path)).filter(Boolean))];
   const running = new Set(writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)));
   if (units.length) await run(machine, 'systemctl daemon-reload');

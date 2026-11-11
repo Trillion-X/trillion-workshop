@@ -32,7 +32,8 @@ const computer = live => {
     }
     if (command.includes('curl')) return '200';
     if (command.startsWith('if [ -d ')) return '';
-    if (command.startsWith('getent') || command.startsWith('test -e')) return '';
+    if (command.startsWith('getent')) { if (Object.keys(live).length === 0) throw Object.assign(new Error('no such account'), { code: 3 }); return ''; }
+    if (command.startsWith('test -e')) return '';
     return '';
   };
   return { run, commands };
@@ -71,7 +72,22 @@ test('a file that differs keeps its previous bytes beside it, and only that file
   assert.deepEqual(written, ['/etc/systemd/system/example-place.service']);
   assert.deepEqual(restarted, ['example-place.service']);
   assert.ok(commands.some(({ command }) => /^cp -p '\/etc\/systemd\/system\/example-place\.service' '\/etc\/systemd\/system\/example-place\.service\.bak-/.test(command)));
-  assert.equal(commands.filter(({ command }) => command.startsWith('sh -s')).length, 1);
+  assert.equal(commands.filter(({ command }) => command.startsWith('sh -s')).length, 0, 'an existing account is not set up again');
+});
+
+test('a unit\'s product settings file is declared from the product data, owned by its user, and only its unit restarts', async () => {
+  const product = '{"word":"example"}\n';
+  const withSettings = { ...layout, units: [{ ...layout.units[0], user: 'example-place', product_settings: '/var/lib/example-place/product-settings.json' }] };
+  const matching = Object.fromEntries(renderLayout(withSettings, SITE_BLOCK, product).map(({ path, text }) => [path, text]));
+  const same = computer(matching);
+  assert.deepEqual(await applyHostLayout(machine, withSettings, same.run, product), { written: [], restarted: [] });
+
+  const stale = { ...matching, '/var/lib/example-place/product-settings.json': '{"word":"older"}\n' };
+  const { run, commands } = computer(stale);
+  const { written, restarted } = await applyHostLayout(machine, withSettings, run, product);
+  assert.deepEqual(written, ['/var/lib/example-place/product-settings.json']);
+  assert.deepEqual(restarted, ['example-place.service']);
+  assert.ok(commands.some(({ command, input }) => command === "install -m 0600 -o 'example-place' -g 'example-place' /dev/stdin '/var/lib/example-place/product-settings.json'" && input === product));
 });
 
 test('a restarted unit must answer its health row on the machine, or the apply fails', async () => {

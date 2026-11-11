@@ -282,6 +282,7 @@ test('starting a computer on an existing machine sets it up, installs the releas
     commands.push(command);
     if (command === 'uname -m') return 'aarch64\n';
     if (command.includes('curl')) return '200';
+    if (command.startsWith('getent passwd')) throw Object.assign(new Error('no such account'), { code: 3 });
     if (command.startsWith('cat ')) return JSON.stringify({ sign_in_ways: [] });
     if (command.startsWith('install -o place') && command.endsWith('/var/lib/place/place.json')) assert.equal(JSON.parse(input).public_origin, 'https://computer.example.com');
     if (command.includes("'computer' 'id' '/var/lib/place/place.json'")) return 'f'.repeat(64);
@@ -348,6 +349,7 @@ test('a start writes both fields into the computer config it installs, and a bad
   const run = async (_machine, command, input) => {
     if (command === 'uname -m') return 'x86_64\n';
     if (command.includes('curl')) return '200';
+    if (command.startsWith('getent passwd')) throw Object.assign(new Error('no such account'), { code: 3 });
     if (command.startsWith('sh -s')) setups.push(command);
     if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') written.push(JSON.parse(input));
     if (command === `install -o place -g place -m 0600 /dev/stdin '${productSettings.file}'`) written.push(Buffer.from(input));
