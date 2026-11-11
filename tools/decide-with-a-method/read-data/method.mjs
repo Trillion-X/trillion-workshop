@@ -21,6 +21,12 @@ export const kindOf = spec => spec.kind ?? (spec.list ? 'list' : 'text');
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
 
+function checkAnswerSource(field, answer) {
+  if (field.answered_by && !nonempty(answer.answered_by?.[field.name])) {
+    throw new Error(`${field.name} is about the person the decision belongs to: say who answered in answered_by.${field.name}, or cite what you already know about this person.`);
+  }
+}
+
 function loadMethods(methodData, link) {
   const raw = new Map(methodData.map(data => [data.id, data]));
   const resolved = new Map();
@@ -312,7 +318,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     const checklist = checklistFor(record, step);
     const missing = checklist.filter(row => !nonempty(answer.checklist?.[row.id])).map(row => row.id);
     if (missing.length) throw new Error(`Say how the answer handles each check: ${missing.join(', ')}`);
-    for (const field of step.fields) checkShape(field, answer[field.name], field.name, method, {});
+    for (const field of step.fields) { checkShape(field, answer[field.name], field.name, method, {}); checkAnswerSource(field, answer); }
   }
 
   function validateMethodAnswer(record, step, answer, evidence) {
@@ -401,7 +407,7 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
         },
       ]);
     });
-    for (const field of step.fields) units.push(() => checkShape(field, answer[field.name], field.name, method, rules));
+    for (const field of step.fields) units.push(() => { checkShape(field, answer[field.name], field.name, method, rules); checkAnswerSource(field, answer); });
     gather(units);
   }
 
