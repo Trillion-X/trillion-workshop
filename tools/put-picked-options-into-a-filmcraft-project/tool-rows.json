@@ -53,6 +53,17 @@
           "description": "check prints the picked decision; rows prints a JSON list of decisions {decision_id, option_id, verdict (the stand), reason_verbatim, source, at}; apply prints filmcraft-cli's own output and appends {at, option_id, verdict_decision_id, verdict, project, protected, ops_file, ops_hash, exit, stdout_tail, stderr_tail} to the apply log; --print prints the command. A refusal exits 1."
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -195,6 +206,17 @@
           }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -343,6 +365,17 @@
           }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -447,6 +480,17 @@
           }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -560,6 +604,17 @@
           }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "on-your-computer",
           "get_it": [
             "clone the Workshop repository (package.json repository.url)",
@@ -632,3 +687,4 @@
     }
   ]
 }
+

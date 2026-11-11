@@ -738,6 +738,26 @@
           }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "booking",
+                "operations": [
+                  "records:list",
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "booking-book",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
           "kind": "container",
           "files": { "package_files": [
             {
@@ -1087,6 +1107,26 @@
           "properties": { "status": { "type": "string", "description": "changed or error" }, "error": { "type": "string" } }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "booking",
+                "operations": [
+                  "records:list",
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "booking-book",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
           "kind": "container",
           "files": { "package_files": [
             {
@@ -1230,6 +1270,26 @@
           "properties": { "status": { "type": "string", "description": "changed or error" }, "error": { "type": "string" } }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "booking",
+                "operations": [
+                  "records:list",
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "booking-book",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
           "kind": "container",
           "files": { "package_files": [
             {
@@ -1373,6 +1433,26 @@
           "properties": { "filename": { "type": "string" }, "text": { "type": "string" } }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "booking",
+                "operations": [
+                  "records:list",
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "booking-book",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
           "kind": "container",
           "files": { "package_files": [
             {
@@ -1456,3 +1536,4 @@
     }
   ]
 }
+

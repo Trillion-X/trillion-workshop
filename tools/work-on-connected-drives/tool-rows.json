@@ -156,6 +156,17 @@
      "type": "object"
     },
     "invoke": {
+      "records": {
+        "fd": 3,
+        "rights": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file"
+            ]
+          }
+        ]
+      },
      "kind": "computer",
      "capabilities": [
       "see-connected-drives"
@@ -289,6 +300,17 @@
      "type": "object"
     },
     "invoke": {
+      "records": {
+        "fd": 3,
+        "rights": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file"
+            ]
+          }
+        ]
+      },
      "kind": "computer",
      "capabilities": [
       "see-connected-drives"
@@ -426,6 +448,17 @@
      "type": "object"
     },
     "invoke": {
+      "records": {
+        "fd": 3,
+        "rights": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file"
+            ]
+          }
+        ]
+      },
      "kind": "computer",
      "capabilities": [
       "see-connected-drives",
@@ -549,6 +582,17 @@
      "type": "object"
     },
     "invoke": {
+      "records": {
+        "fd": 3,
+        "rights": [
+          {
+            "files": "/",
+            "operations": [
+              "find_file"
+            ]
+          }
+        ]
+      },
      "kind": "computer",
      "capabilities": [
       "see-connected-drives"
@@ -634,3 +678,4 @@
   }
  ]
 }
+
