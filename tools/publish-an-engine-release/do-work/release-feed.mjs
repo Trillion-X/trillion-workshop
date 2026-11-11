@@ -101,7 +101,7 @@ export function checkEntry(entry) {
 }
 
 /** The engine's kind (`build`): its feed (feed.json) holds only the engine's targets, one per road. */
-export const ENGINE_KIND = settings.kinds.find(row => row.build);
+export const ENGINE_KIND = settings.kinds.find(row => row.kind === 'engine');
 
 /**
  * Whether `target` may be an entry of the feed named `feedName`. A kind that builds nothing (the Workshop's) has its own
@@ -110,6 +110,9 @@ export const ENGINE_KIND = settings.kinds.find(row => row.build);
  * engine feed takes it: an old reader that picks the newest entry of a feed never takes a program it cannot run.
  */
 export function checkFeedTarget(feedName, target) {
+  // A program kind other than the engine (the forwarder) builds its one target into its own feed only.
+  const program = settings.kinds.find(row => row.build && row.kind !== ENGINE_KIND.kind);
+  if (program && program.feed_file === feedName) return;
   const owner = settings.kinds.find(row => !row.build && row.target === target);
   if (owner) {
     if (owner.feed_file === feedName || owner.mirror_feed === feedName) return;

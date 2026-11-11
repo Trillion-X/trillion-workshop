@@ -25,7 +25,7 @@ import { gunzipSync, gzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { addRelease, checkCommit, checkEntry, checkTarget, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
+import { addRelease, checkCommit, checkEntry, checkTarget, ENGINE_KIND, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const BLOCK = 512;
@@ -105,9 +105,10 @@ export function filesUnder(root, paths, skip = []) {
 
 /** Pack the program at the root, the extra programs under product/ (`extra_binaries_folder`), and product/ when the commit
  *  has one, as tar.gz into `file`; answers { content, bytes }. An unpacker that predates the extra programs accepts only the
- *  program at the root and anything under product/, so the extra programs must sit there to be unpacked at all. */
-export function packRelease({ program, source, file, names = [settings.binary, ...settings.extra_binaries] }) {
-  const product = existsSync(join(source, settings.product_folder)) ? filesUnder(source, [settings.product_folder]) : [];
+ *  program at the root and anything under product/, so the extra programs must sit there to be unpacked at all. A kind whose
+ *  `body` is `binary-at-root` (the forwarder) packs its one program at the root and nothing else. */
+export function packRelease({ program, source, file, names = [settings.binary, ...settings.extra_binaries], body = 'engine' }) {
+  const product = body === 'engine' && existsSync(join(source, settings.product_folder)) ? filesUnder(source, [settings.product_folder]) : [];
   const [root, ...extras] = names;
   const beside = filesUnder(dirname(program), extras).map(one => ({ ...one, name: `${settings.extra_binaries_folder}/${one.name}` }));
   const packed = tarGz([...filesUnder(dirname(program), [root]), ...beside, ...product]);
@@ -198,7 +199,13 @@ export function writeAtomically(file, text) {
 
 const readText = file => (existsSync(file) ? readFileSync(file, 'utf8') : null);
 const feedFile = (folder, kind) => join(folder, kind.feed_file);
-const tarballOf = (feedFolder, commit, target) => join(feedFolder, checkCommit(commit), `${checkTarget(target)}.tar.gz`);
+/** The engine kind's release folder is the feed folder itself; a built kind with its own `url_folder` (the forwarder) has one. */
+const folderPrefixOf = kind => (kind.build && kind.url_folder ? `${kind.url_folder}/` : '');
+const tarballOf = (feedFolder, kind, commit, target) => join(feedFolder, folderPrefixOf(kind), checkCommit(commit), `${checkTarget(target)}.tar.gz`);
+/** Whether a kind builds the engine's roads too (the Mac and the cross-built Linux targets): the engine alone. */
+const withRoads = kind => kind.kind === ENGINE_KIND.kind;
+/** The program a built kind builds: its own `binary`, else the engine's. */
+const binaryOf = kind => kind.binary ?? settings.binary;
 
 /** Publish one commit: build, pack, sign, and add it to the feed. */
 export async function publish(request, { token = '', commit: asked, credentials = process.env.CREDENTIALS_DIRECTORY } = {}) {
@@ -212,7 +219,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const source = join(work, 'source');
   mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
   if (!kind.build && request.darwin !== undefined && request.darwin !== null) throw refuse(`The ${kind.kind} kind builds no Mac targets: darwin belongs to the engine kind.`, 2);
-  const darwin = kind.build ? darwinOf(request, credentials) : null;
+  const darwin = withRoads(kind) ? darwinOf(request, credentials) : null;
   const tip = await fetchRepository({ repository, branch, source, token });
   const commit = checkCommit(asked ?? tip);
   const sequence = await sequenceOf({ source, branch, commit });
@@ -220,7 +227,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const target = kind.target ?? await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
   const host = roads.targets.find(row => row.build === 'host');
   if (kind.build && host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
-  const zigRows = kind.build ? roads.targets.filter(row => row.build === 'zigbuild') : [];
+  const zigRows = withRoads(kind) ? roads.targets.filter(row => row.build === 'zigbuild') : [];
   for (const row of zigRows) checkTarget(row.triple);
   const feedNow = () => readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
   const before = mayPublish(feedNow(), { commit, sequence, target });
@@ -235,15 +242,16 @@ export async function publish(request, { token = '', commit: asked, credentials 
     // Each target builds in its own target folder, kept between runs so a later commit reuses what that target compiled.
     // Up to settings.parallel_builds targets build at once. The host target goes first: its failure fails the publish;
     // a Mac or cross target that fails is only reported in feed-status.json.
-    const linuxBinaries = [settings.binary, ...settings.extra_binaries];
+    const body = kind.body ?? 'engine';
+    const linuxBinaries = body === 'engine' ? [binaryOf(kind), ...settings.extra_binaries] : [binaryOf(kind)];
     const hostBuild = async () => {
       if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
       let pack;
       if (kind.build) {
         await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', ...binaryArgs(linuxBinaries)], { cwd: source, env: { ...env, CARGO_TARGET_DIR: targetDirOf(work, target) }, timeout: settings.build_timeout_ms, log });
-        const program = join(targetDirOf(work, target), 'release', settings.binary);
+        const program = join(targetDirOf(work, target), 'release', binaryOf(kind));
         for (const name of linuxBinaries) if (!existsSync(join(dirname(program), name))) throw refuse(`cargo finished but made no ${name} in ${dirname(program)}: the repository's package must have each of ${linuxBinaries.join(', ')}.`);
-        pack = part => packRelease({ program, source, file: part });
+        pack = part => packRelease({ program, source, file: part, names: linuxBinaries, body });
       } else pack = part => archiveRelease({ source, commit, prefix: `${target}-${commit}`, file: part });
       return packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
     };
@@ -258,7 +266,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
     if (host.status === 'rejected') throw host.reason;
     const also = rest.map((one, index) => (one.status === 'fulfilled' ? one.value : { target: targets[index + 1], error: one.reason.message }));
     // The feed-status file describes the engine's roads only; a Workshop publish leaves it as the engine's last publish wrote it.
-    if (kind.build) {
+    if (withRoads(kind)) {
       const failures = Object.fromEntries(also.filter(one => one.error).map(one => [one.target, one.error]));
       const status = feedStatusOf(feedNow(), commit, targets, failures);
       writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
@@ -321,14 +329,15 @@ export function refuseUnreadableByOldReaders(bytes, { binary = settings.binary, 
 
 async function packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields }) {
   const { commit, target } = fields;
-  const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
+  const kind = kindOf(request);
+  const file = tarballOf(feedFolder, kind, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
   const { content, bytes } = await pack(part);
-  if (kindOf(request).build) {
-    try { refuseUnreadableByOldReaders(readFileSync(part)); }
+  if (kind.build) {
+    try { refuseUnreadableByOldReaders(readFileSync(part), { binary: binaryOf(kind) }); }
     catch (error) { rmSync(part, { force: true }); throw error; }
   }
-  const entry = signEntry({ commit, sequence: fields.sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent: fields.urgent }, privateKey);
+  const entry = signEntry({ commit, sequence: fields.sequence, target, url: `${request.base_url}${folderPrefixOf(kind)}${commit}/${target}.tar.gz`, content, bytes, urgent: fields.urgent }, privateKey);
   return addUnderLock({ request, feedFolder, entry, part, file, publicKey });
 }
 
@@ -440,7 +449,7 @@ export async function accept(request, { token = '', entry: offered, body } = {})
   const before = mayPublish(readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file), candidate);
   if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file).releases.length });
   if (body.length !== candidate.bytes || makeHashCodeHexFromBytes(body) !== candidate.content) throw refuse(`The body sent for ${commit} (${target}) is not the entry's content: release_content_mismatch.`, 3);
-  const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
+  const file = tarballOf(feedFolder, kind, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
   writeFileSync(part, body, { mode: 0o644 });
   const { signature: _offered, ...unsigned } = candidate;
@@ -464,7 +473,7 @@ async function addUnderLock({ request, feedFolder, entry, part, file, publicKey 
     if (mirrored?.added) writeAtomically(feedFile(feedFolder, { feed_file: kind.mirror_feed }), `${JSON.stringify(mirrored.feed, null, 1)}\n`);
     const stillHeld = one => [result.feed, mirrored?.feed].some(feed => feed?.releases.some(held => held.commit === one.commit && held.target === one.target));
     for (const gone of result.dropped.filter(one => !stillHeld(one))) {
-      const old = tarballOf(feedFolder, gone.commit, gone.target);
+      const old = tarballOf(feedFolder, kind, gone.commit, gone.target);
       rmSync(old, { force: true });
       try { rmdirSync(dirname(old)); } catch { /* another target's release is still in that folder */ }
     }

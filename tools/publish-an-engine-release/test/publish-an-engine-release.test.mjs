@@ -127,6 +127,23 @@ test('a commit with no product/ folder publishes a release that holds only the e
   assert.deepEqual(untarGz(bytes).map(file => file.name), ['product/bin/trillion-mcp-forwarder', 'trillion-local']);
 });
 
+test('the forwarder kind publishes its program alone at the root of its own feed, under its own folder, and the engine feed is untouched', async () => {
+  const { remote, commits } = repository(2);
+  const { key, request } = builder(remote);
+  const answer = await publish({ ...request, kind: 'forwarder' });
+  assert.equal(answer.url, `https://releases.example.com/engine-releases/forwarder/${commits[1]}/x86_64-unknown-linux-gnu.tar.gz`);
+  assert.deepEqual([answer.commit, answer.sequence, answer.target, answer.already_published], [commits[1], BASE_TIME + 2, 'x86_64-unknown-linux-gnu', false]);
+
+  const feed = JSON.parse(readFileSync(join(request.feed_folder, 'forwarder-feed.json'), 'utf8'));
+  assert.equal(feed.releases.length, 1);
+  assert.ok(verifyEntry(feed.releases[0], key.public_key), 'signed as the engine\'s entries are');
+  assert.ok(!existsSync(join(request.feed_folder, 'feed.json')), 'the engine feed is not written by the forwarder kind');
+
+  const bytes = readFileSync(join(request.feed_folder, 'forwarder', commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
+  assert.deepEqual(untarGz(bytes).map(file => file.name), ['trillion-mcp-forwarder'], 'the binary alone, at the root');
+  assert.equal(readFileSync(join(request.feed_folder, 'forwarder', commits[1], 'x86_64-unknown-linux-gnu.tar.gz')).length, feed.releases[0].bytes);
+});
+
 test('a release with an extra program at the root is refused before it is signed: old unpackers take only the program at the root', () => {
   const program = { name: 'trillion-local', bytes: Buffer.from('engine'), executable: true };
   const forwarder = { name: 'trillion-mcp-forwarder', bytes: Buffer.from('relay'), executable: true };

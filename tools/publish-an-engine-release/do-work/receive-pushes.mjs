@@ -246,7 +246,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     // A kind that builds nothing (workshop-tools) is behind only when its own target's newest release is not the tip.
     const kind = kindOf(config);
     const targets = kind.build
-      ? [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(config.darwin?.targets ?? []), ...roads.targets.filter(row => row.build === 'zigbuild').map(row => row.triple)]
+      ? [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(kind.kind === ENGINE_KIND.kind ? [...(config.darwin?.targets ?? []), ...roads.targets.filter(row => row.build === 'zigbuild').map(row => row.triple)] : [])]
       : [kind.target];
     const check = () => catchUp({ repository: config.repository, branch: config.branch, kind, feedFile: join(config.feed_folder, kind.feed_file), targets, stateFolder: config.state_folder, token, queue, log })
       .catch(error => log(`catch-up could not check ${config.branch}: ${error.message}`));
