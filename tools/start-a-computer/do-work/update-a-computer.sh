@@ -91,8 +91,7 @@ layout() { sed -n "s/^$1=//p" "$B/old/layout"; }
 if [ -f "$ROOT$SETTINGS_FILE" ]; then cp -p "$ROOT$SETTINGS_FILE" "$B/old/product-settings.json"; fi
 
 apply() {
-  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/new/product-settings.json" "$ROOT$SETTINGS_FILE" &&
-  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/new/place.json" "$ROOT$CONFIG" || return 1
+  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/new/product-settings.json" "$ROOT$SETTINGS_FILE" || return 1
   # The folder the feed adopts releases into: the service's, and writable for it (ProtectSystem=strict), unless it is
   # inside the state folder, which already is.
   WRITABLE=
@@ -122,6 +121,9 @@ apply() {
   NEW=$("$ROOT$RELEASE_DIR/$ENGINE_FILE" release fetch "$FEED_URL" "$PUBLIC_KEY" "$TARGET" "$ROOT$RELEASES") || return 1
   "$ROOT$RELEASE_DIR/$ENGINE_FILE" release switch "$ROOT$RELEASES" "$(basename "$NEW")" >/dev/null || return 1
   grep -q "readlink -f $RELEASES/current)" "$ROOT$UNIT_FILE" || return 1
+  # The config is written only now, after the new release is the one `current` names: the running release reads the config
+  # it was started with, so a config with keys only the new release knows must never reach the old one (a restart loop).
+  install -o "$OWNER" -g "$GROUP" -m 0600 "$B/new/place.json" "$ROOT$CONFIG" || return 1
   restart
 }
 
