@@ -261,6 +261,17 @@
           }
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "container",
           "files": {
             "package_files": [
@@ -355,3 +366,4 @@
     }
   ]
 }
+
