@@ -279,6 +279,9 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
   const feed = feedOf(request);
   if (feed) config.release_feed = feed;
+  // The unit the layout row names for this computer's product settings: the service whose state the place reports (`unit`).
+  const unit = request.host_layout?.units?.find(row => row.product_settings === productSettings.file)?.unit;
+  if (unit) config.unit = unit;
   if (request.default_places !== undefined) config.default_places = defaultComputers(request.default_places);
   for (const from of request.config_from_release ?? []) {
     const value = JSON.parse(await run(machine, `cat ${q(`/opt/place/current/${from.file}`)}`))[from.key];
@@ -481,6 +484,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   if (!release) throw refused('The computer\'s current link names no release, and the request gives none.');
   const config = JSON.parse(await run(machine, `cat ${q(`${root}${layout.config}`)}`));
   config.release_feed = feed;
+  config.unit = layout.unit;
   if (request.health !== undefined) config.health = healthOf(config, request);
   const health = healthOf(config);
   const settingsFile = `${layout.state}/${basename(productSettings.file)}`;

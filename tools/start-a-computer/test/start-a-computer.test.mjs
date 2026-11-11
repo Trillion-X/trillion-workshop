@@ -313,6 +313,14 @@ test('renting a machine leases it and waits for SSH, and sets nothing up on it',
   assert.equal(JSON.parse(readFileSync(join(here, 'lease.json'), 'utf8')).address, '192.0.2.41', 'the lease is kept, so remove gives it back');
 });
 
+test('the place config names its unit from the layout row, and a request with no layout row names none', async () => {
+  const layout = { units: [{ unit: 'place.service', user: 'place', product_settings: '/var/lib/place/product-settings.json' }, { unit: 'other.service', user: 'other', product_settings: '/var/lib/other/product-settings.json' }] };
+  const config = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, host_layout: layout }, null, async () => '');
+  assert.equal(config.unit, 'place.service');
+  const bare = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, async () => '');
+  assert.equal('unit' in bare, false);
+});
+
 test('the computer config carries the request\'s release feed and default computers', async () => {
   const key = 'b'.repeat(64), id = 'e'.repeat(64);
   const release_feed = { urls: ['https://releases.example.com/engine-releases/feed.json'], public_keys: [key], releases: '/opt/place/releases' };
@@ -498,7 +506,7 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     });
     assert.deepEqual(readFileSync(file(`${l.state}/product-settings.json`)), PRODUCT_BYTES, 'byte for byte, in the computer\'s own state folder');
     const config = JSON.parse(read(file, `${l.state}/place.json`)), old = JSON.parse(OLD_CONFIG);
-    assert.deepEqual(config, { ...old, new_accounts: { ...PRODUCT.new_accounts, ...old.new_accounts, copies: answer.copies }, release_feed: { ...FEED, releases } }, 'the feed adopts into this computer\'s own releases folder; only copies changes in new_accounts');
+    assert.deepEqual(config, { ...old, new_accounts: { ...PRODUCT.new_accounts, ...old.new_accounts, copies: answer.copies }, release_feed: { ...FEED, releases }, unit: l.unit }, 'the feed adopts into this computer\'s own releases folder; only copies changes in new_accounts');
     const unit = read(file, `etc/systemd/system/${l.unit}`);
     assert.match(unit, new RegExp(`^\\[Service\\]\\nEnvironment=PRODUCT_SETTINGS=${l.state}/product-settings\\.json\\nLimitNOFILE=1048576\\nType=simple$`, 'm'));
     assert.match(unit, new RegExp(`^ReadWritePaths=${l.state} ${releases}$`, 'm'));
