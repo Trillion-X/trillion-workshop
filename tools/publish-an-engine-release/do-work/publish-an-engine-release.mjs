@@ -23,7 +23,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { addRelease, checkCommit, checkEntry, checkTarget, mayPublish, newSigningKey, publicKeyHex, readFeed, settings, signEntry, signerOf } from './release-feed.mjs';
+import { addRelease, checkCommit, checkEntry, checkTarget, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const absolute = (path, what) => {
@@ -172,6 +172,9 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const sequence = await sequenceOf({ source, branch, commit });
   const env = buildEnvironment({ commit, sequence, targetDir });
   const target = await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
+  const host = roads.targets.find(row => row.build === 'host');
+  if (host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
+  const zigTargets = roads.targets.filter(row => row.build === 'zigbuild').map(row => checkTarget(row.triple));
   const feedNow = () => readFeed(readText(feedFile(feedFolder)));
   const before = mayPublish(feedNow(), { commit, sequence, target });
   if (before.already && !darwin) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
@@ -190,13 +193,19 @@ export async function publish(request, { token = '', commit: asked, credentials 
       if (!existsSync(program)) throw refuse(`cargo finished but made no ${program}: the repository's package must have a ${settings.binary} binary.`);
       answer = await packSignAndAdd({ request, feedFolder, source, program, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
     }
-    if (!darwin) return answer;
-    // Each Mac target is its own entry in this same feed: one that fails (or is older) leaves the others as they are.
+    // Each further target is its own entry in this same feed: one that fails (or is older) leaves the others as they are.
     const also = [];
-    for (const one of darwin.targets) {
+    for (const one of darwin?.targets ?? []) {
       try { also.push(await publishDarwin({ request, darwin, source, work, targetDir, env, log, feedFolder, feedNow, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })); }
       catch (error) { also.push({ target: one, error: error.message }); }
     }
+    for (const one of zigTargets) {
+      try { also.push(await publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })); }
+      catch (error) { also.push({ target: one, error: error.message }); }
+    }
+    const failures = Object.fromEntries(also.filter(one => one.error).map(one => [one.target, one.error]));
+    const status = feedStatusOf(feedNow(), commit, [target, ...(darwin?.targets ?? []), ...zigTargets], failures);
+    writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
     return { ...answer, also };
   } finally { log.end(); }
 }
@@ -206,6 +215,20 @@ export async function publish(request, { token = '', commit: asked, credentials 
 export function buildEnvironment({ commit, sequence, targetDir }) {
   const { CREDENTIALS_DIRECTORY: _credentials, ...rest } = process.env;
   return { ...rest, TRILLION_RELEASE_COMMIT: commit, TRILLION_RELEASE_SEQUENCE: String(sequence), CARGO_TARGET_DIR: targetDir };
+}
+
+/**
+ * One cross-built target of the commit already checked out: built with cargo-zigbuild for `target` (no Mac signing),
+ * packed, signed and added like the builder's own target. Its roads row names it `zigbuild` (release-roads.json).
+ */
+export async function publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields }) {
+  const { target } = fields;
+  const toolchain = request.toolchain ?? {};
+  const crossEnv = { ...env, ...(toolchain.zig_python ? { CARGO_ZIGBUILD_PYTHON_PATH: toolchain.zig_python } : {}) };
+  await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', '--bin', settings.binary, '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
+  const built = join(targetDir, target, 'release', settings.binary);
+  if (!existsSync(built)) throw refuse(`cargo zigbuild finished but made no ${built}.`);
+  return packSignAndAdd({ request, feedFolder, source, program: built, privateKey, publicKey, fields });
 }
 
 /** Pack a built program, sign its entry and add it to the feed under the lock. */

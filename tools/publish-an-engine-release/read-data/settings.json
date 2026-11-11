@@ -5,6 +5,7 @@
   "binary": "trillion-local",
   "product_folder": "product",
   "feed_file": "feed.json",
+  "feed_status_file": "feed-status.json",
   "commit_pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$",
   "target_pattern": "^[a-z0-9_]+(-[a-z0-9_.]+){1,4}$",
   "urgent_trailer": "Release-Urgent",
