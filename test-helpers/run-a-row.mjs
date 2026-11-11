@@ -94,6 +94,7 @@ function fill(template, sources) {
 function lay(specs, there) {
   for (const spec of specs) {
     const from = spec.module !== undefined ? join(root, 'node_modules', spec.module) : join(tools, spec.package);
+    if (spec.module !== undefined && !existsSync(from)) throw new Error(`${spec.module} is not installed in this checkout (run npm ci); the row cannot run without it`);
     for (const path of spec.paths ?? []) {
       const source = join(from, path);
       if (!existsSync(source)) continue;
