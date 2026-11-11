@@ -31,7 +31,7 @@ B=$ROOT$BACKUP
 if [ "$MODE" = rollback ]; then
   [ -f "$B/old/layout" ] || { echo "No backup at $BACKUP." >&2; exit 2; }
   layout() { sed -n "s/^$1=//p" "$B/old/layout"; }
-  CONFIG=$(layout CONFIG) UNIT_FILE=$(layout UNIT_FILE) UNIT=$(layout UNIT) CURRENT=$(layout CURRENT) STATE=$(layout STATE) OWNER=$(layout OWNER)
+  CONFIG=$(layout CONFIG) UNIT_FILE=$(layout UNIT_FILE) UNIT=$(layout UNIT) CURRENT=$(layout CURRENT) STATE=$(layout STATE) OWNER=$(layout OWNER) RELEASES=$(layout RELEASES)
 fi
 : "${CONFIG:?}" "${UNIT_FILE:?}" "${UNIT:?}" "${CURRENT:?}" "${STATE:?}" "${OWNER:?}"
 for path in "$CONFIG" "$UNIT_FILE" "$CURRENT" "$STATE"; do
@@ -54,6 +54,9 @@ put_back() {
   fi
   install -m 0644 "$B/old/unit" "$ROOT$UNIT_FILE"
   ln -sfn "$(cat "$B/old/current.link")" "$ROOT$CURRENT.new" && mv -T "$ROOT$CURRENT.new" "$ROOT$CURRENT"
+  if [ -n "$RELEASES" ]; then
+    if [ -f "$B/old/releases-current.link" ]; then ln -sfn "$(cat "$B/old/releases-current.link")" "$ROOT$RELEASES/current.new" && mv -T "$ROOT$RELEASES/current.new" "$ROOT$RELEASES/current"; else rm -f "$ROOT$RELEASES/current"; fi
+  fi
   if restart; then echo "rolled-back $BACKUP"; else echo "rolled-back $BACKUP; $UNIT is still not active" >&2; fi
 }
 
@@ -63,6 +66,11 @@ if [ "$MODE" = rollback ]; then
 fi
 [ "$MODE" = apply ] || { echo "usage: update-a-computer.sh apply BACKUP RELEASE_DIR ENGINE_FILE SETTINGS_ENV SETTINGS_FILE ADOPT_DIR | rollback BACKUP" >&2; exit 2; }
 RELEASE_DIR=$3 ENGINE_FILE=$4 SETTINGS_ENV=$5 SETTINGS_FILE=$6 ADOPT_DIR=$7
+RELEASES=$(dirname "$RELEASE_DIR")
+# The bootstrap names the feed the follower takes releases from: FEED_URL (https) and PUBLIC_KEY (64 lowercase hex), from the request.
+case "$FEED_URL" in https://*) ;; *) echo "FEED_URL must be an https URL." >&2; exit 2 ;; esac
+case "$PUBLIC_KEY" in *[!0-9a-f]*|"") echo "PUBLIC_KEY must be 64 lowercase hex." >&2; exit 2 ;; esac
+[ "${#PUBLIC_KEY}" -eq 64 ] || { echo "PUBLIC_KEY must be 64 lowercase hex." >&2; exit 2; }
 for path in "$RELEASE_DIR" "$SETTINGS_FILE" "$ADOPT_DIR"; do
   case "$path" in /*) ;; *) echo "Each folder and file must be an absolute path, not $path." >&2; exit 2 ;; esac
 done
@@ -77,7 +85,8 @@ install -d -m 0700 "$B/old"
 cp -p "$ROOT$CONFIG" "$B/old/place.json"
 cp -p "$ROOT$UNIT_FILE" "$B/old/unit"
 readlink "$ROOT$CURRENT" > "$B/old/current.link"
-printf 'CONFIG=%s\nUNIT_FILE=%s\nUNIT=%s\nCURRENT=%s\nSTATE=%s\nOWNER=%s\nSETTINGS=%s\n' "$CONFIG" "$UNIT_FILE" "$UNIT" "$CURRENT" "$STATE" "$OWNER" "$SETTINGS_FILE" > "$B/old/layout"
+if [ -L "$ROOT$RELEASES/current" ]; then readlink "$ROOT$RELEASES/current" > "$B/old/releases-current.link"; fi
+printf 'CONFIG=%s\nUNIT_FILE=%s\nUNIT=%s\nCURRENT=%s\nSTATE=%s\nOWNER=%s\nSETTINGS=%s\nRELEASES=%s\n' "$CONFIG" "$UNIT_FILE" "$UNIT" "$CURRENT" "$STATE" "$OWNER" "$SETTINGS_FILE" "$RELEASES" > "$B/old/layout"
 layout() { sed -n "s/^$1=//p" "$B/old/layout"; }
 if [ -f "$ROOT$SETTINGS_FILE" ]; then cp -p "$ROOT$SETTINGS_FILE" "$B/old/product-settings.json"; fi
 
@@ -92,19 +101,27 @@ apply() {
     WRITABLE=$ADOPT_DIR ;;
   esac
   # The unit: one Environment= line naming the product settings (an older one for the same setting is dropped), right
-  # after [Service], and the adopt folder added to ReadWritePaths.
+  # after [Service], LimitNOFILE if the unit has none, and the adopt folder added to ReadWritePaths. The ExecStart that
+  # runs the link CURRENT reads it through RELEASES/current, the follower's own pointer.
   HAS_RW=$(grep -c '^ReadWritePaths=' "$B/old/unit" || true)
-  awk -v env="Environment=$SETTINGS_ENV=$SETTINGS_FILE" -v name="Environment=$SETTINGS_ENV=" -v adopt="$WRITABLE" -v state="$STATE" -v has_rw="$HAS_RW" '
+  HAS_NOFILE=$(grep -c '^LimitNOFILE=' "$B/old/unit" || true)
+  awk -v env="Environment=$SETTINGS_ENV=$SETTINGS_FILE" -v name="Environment=$SETTINGS_ENV=" -v adopt="$WRITABLE" -v state="$STATE" -v has_rw="$HAS_RW" -v has_nofile="$HAS_NOFILE" -v cur="readlink -f $CURRENT" -v rel="readlink -f $RELEASES/current" '
     index($0, name) == 1 { next }
+    { gsub(cur, rel) }
     /^ReadWritePaths=/ && adopt != "" {
       n = split(substr($0, 16), paths, " "); found = 0
       for (i = 1; i <= n; i++) if (paths[i] == adopt) found = 1
       if (!found) $0 = $0 " " adopt
     }
     { print }
-    /^\[Service\]$/ { print env; if (adopt != "" && has_rw == 0) print "ReadWritePaths=" state " " adopt }
+    /^\[Service\]$/ { print env; if (has_nofile == 0) print "LimitNOFILE=1048576"; if (adopt != "" && has_rw == 0) print "ReadWritePaths=" state " " adopt }
   ' "$B/old/unit" > "$ROOT$UNIT_FILE.new" && install -m 0644 "$ROOT$UNIT_FILE.new" "$ROOT$UNIT_FILE" && rm -f "$ROOT$UNIT_FILE.new" || return 1
-  ln -sfn "$RELEASE_DIR" "$ROOT$CURRENT.new" && mv -T "$ROOT$CURRENT.new" "$ROOT$CURRENT" || return 1
+  # Bootstrap: the new release's own binary adopts the newest signed release its feed serves for its target (writing the kept
+  # entry) and then switches releases/current to it, the follower's own pointer. No link is written by hand.
+  TARGET=$("$ROOT$RELEASE_DIR/$ENGINE_FILE" release | sed -n 's/^target //p') || return 1
+  NEW=$("$ROOT$RELEASE_DIR/$ENGINE_FILE" release fetch "$FEED_URL" "$PUBLIC_KEY" "$TARGET" "$ROOT$RELEASES") || return 1
+  "$ROOT$RELEASE_DIR/$ENGINE_FILE" release switch "$ROOT$RELEASES" "$(basename "$NEW")" >/dev/null || return 1
+  grep -q "readlink -f $RELEASES/current)" "$ROOT$UNIT_FILE" || return 1
   restart
 }
 
