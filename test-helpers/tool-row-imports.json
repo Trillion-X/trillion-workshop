@@ -1,0 +1,4 @@
+{
+  "_what": "Names the system itself provides on every computer a tool runs on: the macOS frameworks a tool reaches through JavaScript for Automation (ObjC.import). The walker (tool-row-imports.mjs) never reports a bare import of one of these as an npm module that needs a Workshop entry, and never packs them.",
+  "provided_by_the_system": ["AppKit", "CoreGraphics", "Foundation"]
+}
