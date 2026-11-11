@@ -79,6 +79,9 @@ export function renderEdl(edl, output, { workdir } = {}) {
 if (import.meta.url === `file://${process.argv[1]}`) {
   const args = new Map();
   for (let at = 2; at < process.argv.length; at += 2) args.set(process.argv[at].replace(/^--/, ''), process.argv[at + 1]);
+  // Diagnostic: what the run's /input folder holds before any render, so a missing copy shows in the error.
+  let inputListing = '';
+  try { inputListing = execFileSync('ls', ['-la', '/input'], { encoding: 'utf8' }).trim(); } catch (error) { inputListing = `no /input folder: ${error.message}`; }
   try {
     if (!args.get('edl') || !args.get('output')) throw new Error('usage: render-an-edit.mjs --edl JSON --output FILE [--workdir DIR]');
     let edl;
@@ -88,7 +91,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     edl = withFilePaths(edl, files, '/input');
     process.stdout.write(`${JSON.stringify(renderEdl(edl, args.get('output'), { workdir: args.get('workdir') }))}\n`);
   } catch (error) {
-    process.stderr.write(`${error.message}\n`);
+    process.stderr.write(`${error.message} [/input listing: ${inputListing}]\n`);
     process.exit(1);
   }
 }
