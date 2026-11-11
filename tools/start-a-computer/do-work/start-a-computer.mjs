@@ -260,7 +260,7 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, product, ...deps }) {
   const engine = request.engine, adopt = adoptFolder(request);
-  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, ...(adopt ? [adopt] : [])].map(q).join(' ')}`, readFileSync(SETUP));
+  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, adopt ?? '', SETTINGS.caddy_site_hosts.join(' ')].map(q).join(' ')}`, readFileSync(SETUP));
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
