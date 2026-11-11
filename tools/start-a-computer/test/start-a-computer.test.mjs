@@ -1,20 +1,79 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, symlinkSync, readlinkSync, chmodSync, existsSync, readdirSync, rmSync } from 'node:fs';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { userInfo } from 'node:os';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { accessSync, constants, realpathSync } from 'node:fs';
+import { delimiter, isAbsolute } from 'node:path';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import {
   machineProvider, nameProvider, providerClient, rentMachine, releaseMachine, readMachine, readPrice, pointName,
   forgetName, fingerprintOf,
 } from '../do-work/rent-a-machine.mjs';
 import {
-  rentAMachine, startAComputer, computerConfig, readRequest, updateAComputer, rollBackAComputer, PRODUCT_SETTINGS, productSettings,
-  parseUnit, readLayout, copiesFor, copiesPolicy,
+  rentAMachine, startAComputer as startAComputerRaw, computerConfig as computerConfigRaw, readRequest, updateAComputer as updateAComputerRaw, rollBackAComputer, productSettings, productSettingsOf, readProductData, startingRows,
+  parseUnit, readLayout, copiesFor as copiesForRaw, copiesPolicy,
 } from '../do-work/start-a-computer.mjs';
 
-const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
+/* The GNU mv a Linux shell fixture needs (identical to the process-session test helper's, which is not part of this folder). */
+/** Find an executable that identifies itself as GNU coreutils mv, regardless of its installed name. */
+export function findGnuMove({ path = process.env.PATH ?? '', extraDirectories = ['/opt/homebrew/bin', '/usr/local/bin'] } = {}) {
+  const directories = [...new Set([...path.split(delimiter), ...extraDirectories].filter(directory => directory && isAbsolute(directory)))];
+  const checked = new Set();
+  for (const directory of directories) {
+    for (const name of ['mv', 'gmv']) {
+      const candidate = join(directory, name);
+      let executable;
+      try {
+        accessSync(candidate, constants.X_OK);
+        executable = realpathSync(candidate);
+      } catch { continue; }
+      if (checked.has(executable)) continue;
+      checked.add(executable);
+      const version = spawnSync(executable, ['--version'], { encoding: 'utf8', timeout: 30000, env: { ...process.env, LC_ALL: 'C' } });
+      if (version.status === 0 && /^mv \(GNU coreutils\) \S+/m.test(version.stdout ?? '')) return executable;
+    }
+  }
+  throw new Error('These Linux shell fixtures require genuine GNU coreutils mv. Install coreutils so mv or gmv is on PATH (or in a standard package bin folder); BSD mv is not a substitute.');
+}
+
+/** Expose the real target executable under its Linux command name in a fixture-owned PATH folder. */
+export function linkGnuMove(folder, options) {
+  const executable = findGnuMove(options), destination = join(folder, 'mv');
+  if (existsSync(destination)) {
+    if (realpathSync(destination) !== executable) throw new Error(`The fixture already owns a different mv at ${destination}.`);
+  } else symlinkSync(executable, destination);
+  return executable;
+}
+
+// Synthetic caller profile only; production identity and starting rows live in the caller's package.
+const SEED_COPIES = { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 };
+const PRODUCT = { word: 'sample', new_accounts: {
+  sign_in: { token_seconds: 120 }, sign_in_ways: { test_way: true },
+  sign_in_words: { heading: 'Sign in to the sample' }, copies_rules: { rule: 'sample-rule' }, copies: SEED_COPIES,
+} };
+/** A product data manifest (computer/product-data.json's shape) and its files, written into `here`; identities are the BLAKE3 owner's. */
+function writeProductData(here, settings, statics = []) {
+  mkdirSync(here, { recursive: true });
+  const write = (name, bytes) => { writeFileSync(join(here, name), bytes); return { file: name, identity: makeHashCodeHexFromBytes(bytes) }; };
+  const manifest = {
+    product_settings: write('product-settings.json', Buffer.from(`${JSON.stringify(settings, null, 2)}\n`)),
+    static: statics.map(({ name, text }) => ({ name, ...write(`source-${name.replace(/\//g, '-')}`, Buffer.from(text)) })),
+  };
+  writeFileSync(join(here, 'product-data.json'), JSON.stringify(manifest));
+  return join(here, 'product-data.json');
+}
+const PRODUCT_DATA = writeProductData(mkdtempSync(join(tmpdir(), 'start-a-computer-product-')), PRODUCT);
+/** The bytes a computer's settings file gets from PRODUCT_DATA (the tool's own derivation, pinned here). */
+const PRODUCT_BYTES = productSettingsOf(readProductData({ product_data: PRODUCT_DATA })).bytes;
+const FEED = { urls: ['https://releases.example.test/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
+const withProfile = request => ({ product_data: PRODUCT_DATA, release_feed: FEED, ...request });
+const startAComputer = (request, ...deps) => startAComputerRaw(withProfile(request), ...deps);
+const computerConfig = (machine, request, ...deps) => computerConfigRaw(machine, withProfile(request), ...deps);
+const updateAComputer = (lease, request, ...deps) => updateAComputerRaw(lease, withProfile(request), ...deps);
+const copiesFor = config => copiesForRaw(config, SEED_COPIES);
 
 const canary = 'provider-credential-canary-0123456789';
 const publicKey = 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIExampleExampleExampleExampleExampleExample0 someone@example.com';
@@ -147,7 +206,7 @@ test('the computer config takes the machine\'s own fields and values read from t
   assert.deepEqual(config, {
     report: { takes_new_accounts: true, reach: 'https://computer.example.com', cost_per_month_cents: 699 }, router: 'router.example.com:443',
     listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://computer.example.com',
-    new_accounts: { sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } }, release_feed: SETTINGS.release_feed,
+    new_accounts: { ...PRODUCT.new_accounts, sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } }, release_feed: FEED,
   });
   const behind = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, public_origin: 'https://front.example.com' }, null, run);
   assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://computer.example.com']);
@@ -203,7 +262,7 @@ test('the computer config carries the request\'s release feed and default comput
   const fixture = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { new_accounts: { copies: { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 } } }, default_places: { holders: ['this-place'], answering: ['this-place'] } }, null, async () => '');
   assert.deepEqual(fixture.new_accounts.copies, { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, 'a computer alone is never given copies it cannot meet');
   const product = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, async () => '');
-  assert.deepEqual(product.release_feed, SETTINGS.release_feed, 'a request that names no feed follows the product\'s');
+  assert.deepEqual(product.release_feed, FEED, 'a request that names no feed follows the product\'s');
   assert.ok(!('default_places' in product));
   const without = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, release_feed: null }, null, async () => '');
   assert.ok(!('release_feed' in without));
@@ -218,7 +277,7 @@ test('the computer config carries the request\'s release feed and default comput
 test('the folder a feed adopts releases into is made writable for the `place` service, which runs with ProtectSystem=strict', async () => {
   const { adoptFolder } = await import('../do-work/start-a-computer.mjs');
   const feed = releases => ({ release_feed: { urls: [], public_keys: [], releases } });
-  assert.deepEqual([adoptFolder(feed('/opt/place/releases/')), adoptFolder(feed('/opt/place/releases')), adoptFolder(feed({ keep: 3 })), adoptFolder({}), adoptFolder({ release_feed: null })], ['/opt/place/releases', '/opt/place/releases', null, '/opt/place/releases', null]);
+  assert.deepEqual([adoptFolder(feed('/opt/place/releases/')), adoptFolder(feed('/opt/place/releases')), adoptFolder(feed({ keep: 3 })), adoptFolder({}), adoptFolder({ release_feed: null })], ['/opt/place/releases', '/opt/place/releases', null, null, null]);
   const script = readFileSync(new URL('../do-work/set-up-the-machine.sh', import.meta.url), 'utf8');
   assert.match(script, /ADOPT_DIR=\$\{8:-\}/);
   assert.match(script, /^\[Service\]\nEnvironment=\$SETTINGS_ENV=\$SETTINGS_FILE$/m);
@@ -244,7 +303,7 @@ test('a start writes both fields into the computer config it installs, and a bad
     release_feed, default_places,
   };
   await startAComputer(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
-  assert.deepEqual(written[0], PRODUCT_SETTINGS, 'the product settings file is written byte for byte, before the config');
+  assert.deepEqual(written[0], PRODUCT_BYTES, 'the product settings file is written byte for byte, before the config');
   assert.deepEqual([written[1].release_feed, written[1].default_places], [release_feed, default_places]);
   assert.match(setups[0], / 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases'$/, 'set-up is told the folder the engine adopts releases into');
   const lease = join(here, 'second-lease.json');
@@ -256,21 +315,26 @@ test('the sign-up check answers the way a browser does and its passkey signs wha
   const { checkASignUp, softwarePasskey, assertion } = await import('../do-work/check-a-sign-up.mjs');
   const { createVerify, createPublicKey } = await import('node:crypto');
   const origin = 'https://front.example', address = 'c'.repeat(64), seen = [];
+  let withRouteCookie = true;
   const fetchImpl = async (url, request) => {
     const path = url.slice(origin.length), body = request.body && JSON.parse(request.body);
     seen.push([request.method, path, request.headers.origin ?? null, request.headers.cookie ?? null]);
     const answer = (status, json, cookie) => ({ status, headers: { get: name => (name === 'set-cookie' ? cookie ?? null : null) }, text: async () => JSON.stringify(json ?? {}) });
     if (path === '/sign-up') return answer(200);
-    if (path === '/sign-up/options') return answer(200, { options: { challenge: 'up-1', rp: { id: 'example' } } });
+    if (path === '/sign-up/options') return answer(200, { options: { challenge: 'up-1', rp: { id: 'example' } } }, withRouteCookie ? '__Secure-sign-up-computer=second.example:443; Path=/sign-up; Secure; HttpOnly; SameSite=Strict' : undefined);
     if (path === '/sign-up/finish') {
+      assert.equal(request.headers.cookie, withRouteCookie ? '__Secure-sign-up-computer=second.example:443' : undefined);
       const client = JSON.parse(Buffer.from(body.response.clientDataJSON, 'base64url'));
       assert.deepEqual([client.type, client.challenge, client.origin], ['webauthn.create', 'up-1', origin]);
       assert.equal(body.response.publicKeyAlgorithm, -7);
       return answer(200, { address });
     }
-    if (path === `/a/${address}/passkey/options`) return answer(200, { challenge: 'in-1', rpId: 'example' });
-    if (path === `/a/${address}/passkey/finish`) return answer(200, { ok: true }, 'session=s1; Path=/; Secure; HttpOnly');
-    if (path === `/a/${address}/sign-in/security`) return answer(request.headers.cookie === 'session=s1' ? 200 : 303);
+    if (path === `/a/${address}/passkey/options`) return answer(200, { challenge: 'in-1', rpId: 'example' }, `ceremony=once; Path=/a/${address}/passkey; Secure; HttpOnly`);
+    if (path === `/a/${address}/passkey/finish`) {
+      assert.equal(request.headers.cookie, 'ceremony=once');
+      return answer(200, { ok: true }, `session=s1; Path=/; Secure; HttpOnly, __Host-account-address=${address}; Expires=Tue, 19 Jan 2038 03:14:07 GMT; Path=/; Secure; HttpOnly`);
+    }
+    if (path === `/a/${address}/sign-in/security`) return answer(request.headers.cookie === `session=s1; __Host-account-address=${address}` ? 200 : 303);
     return answer(404);
   };
   const answer = await checkASignUp(origin, { fetchImpl });
@@ -279,6 +343,9 @@ test('the sign-up check answers the way a browser does and its passkey signs wha
   assert.deepEqual(answer.steps.map(step => step.status), [200, 200, 200, 200, 200, 200, 303]);
   assert.ok(seen.filter(([method]) => method === 'POST').every(([, , sent]) => sent === origin));
   assert.ok(!JSON.stringify(answer).includes('s1'));
+  assert.ok(!JSON.stringify(answer).includes('second.example'));
+  withRouteCookie = false;
+  assert.equal((await checkASignUp(origin, { fetchImpl })).signed_in_read, true, 'direct computer signup also works without an affinity cookie');
 
   // The assertion is a valid ES256 signature over authenticatorData || SHA-256(clientDataJSON).
   const passkey = softwarePasskey();
@@ -288,23 +355,6 @@ test('the sign-up check answers the way a browser does and its passkey signs wha
   const verify = createVerify('sha256').update(Buffer.concat([auth, createHash('sha256').update(client).digest()]));
   assert.ok(verify.verify(createPublicKey({ key: passkey.spki, format: 'der', type: 'spki' }), Buffer.from(signed.response.signature, 'base64url')));
   await assert.rejects(checkASignUp('https://front.example/path', { fetchImpl }), /ORIGIN is https:\/\/host/);
-});
-
-// The sections trillion-rust bac30d37 (feed sequence 691) declares in src/account_files/identity.json; it refuses a
-// product settings file with any other.
-const DECLARED = ['secret_home', 'root_credentials_folder', 'tools_source', 'hosting_app_report', 'carried_from'];
-const IDENTITY = ['word', 'site_host', 'app_host', 'brand_mark_path', 'restore_placeholder_owner'];
-
-test('the product settings are the identity the engines compiled in, with only the sections the feed\'s engine declares', () => {
-  const settings = JSON.parse(PRODUCT_SETTINGS);
-  assert.ok(PRODUCT_SETTINGS.length <= 65536);
-  assert.deepEqual(IDENTITY.map(key => settings[key]), ['trillion', 'gettrillion.ai', 'app.gettrillion.ai', '/brand/current/mark.svg', 'trillion-local-owner']);
-  assert.deepEqual(Object.keys(settings).filter(key => !key.startsWith('_') && !IDENTITY.includes(key)), DECLARED);
-  assert.deepEqual([settings.tools_source.repository, settings.tools_source.first_start_commit], ['Trillion-X/trillion-workshop', '7588b8c8444db58708a6baa9587416039f809cc6']);
-  assert.deepEqual(settings.secret_home.items, { account_key: '{word}-agent-work-key', device_key: '{word}-resource-connection-key' });
-  assert.deepEqual([productSettings.launch_setting, productSettings.file], ['PRODUCT_SETTINGS', '/var/lib/place/product-settings.json']);
-  assert.deepEqual(SETTINGS.release_feed.public_keys, ['d9e305a98d6a7001db6f493d17100a799050bf9ade9e3f1e9eb0d9c59d322fb9']);
-  assert.deepEqual(SETTINGS.release_feed.urls, ['https://engine-releases.gettrillion.ai/engine-releases/feed.json']);
 });
 
 // Made-up computer folders under `root`, laid out two ways: the way set-up-the-machine.sh lays a machine out, and the
@@ -335,6 +385,7 @@ const OLD_CONFIG = `${JSON.stringify({ listen: '127.0.0.1:7199', accounts: '/x/a
 function madeUpComputer(l, { units = [] } = {}) {
   const root = folder(), bin = join(root, 'fake-bin'), engine = '#!/bin/sh\nexit 0\n';
   for (const dir of [l.state, 'etc/systemd/system', l.release, 'opt/build/new', 'fake-bin']) mkdirSync(join(root, dir), { recursive: true });
+  linkGnuMove(bin);
   writeFileSync(join(root, l.state, 'place.json'), OLD_CONFIG);
   writeFileSync(join(root, 'etc/systemd/system', l.unit), unitOf(l));
   for (const [name, text] of units) writeFileSync(join(root, 'etc/systemd/system', name), text);
@@ -363,7 +414,7 @@ const runHere = (root, env = {}) => async (_machine, command, input) => {
   });
 };
 
-const updateRequest = { ssh: { known_hosts: '/dev/null' }, name: { host_name: 'computer.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
+const updateRequest = { product_data: PRODUCT_DATA, release_feed: { ...FEED, releases: { keep: 3 } }, ssh: { known_hosts: '/dev/null' }, name: { host_name: 'computer.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
 const asHere = (root, extra = {}) => ({ root, settle: 0, wait: async () => {}, tries: 1, fetchImpl: async () => ({ status: 200 }), ...extra });
 const read = (file, path) => readFileSync(file(path), 'utf8');
 
@@ -375,11 +426,11 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     assert.deepEqual(answer, {
       layout: { unit: l.unit, config: `${l.state}/place.json`, current: `${l.base}/current`, state: l.state, releases },
       release: `${releases}/new`, backup, product_settings: `${l.state}/product-settings.json`,
-      release_feed: { urls: SETTINGS.release_feed.urls, releases }, copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, sign_up_status: 200,
+      release_feed: { urls: FEED.urls, releases }, copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 }, sign_up_status: 200,
     });
-    assert.deepEqual(readFileSync(file(`${l.state}/product-settings.json`)), PRODUCT_SETTINGS, 'byte for byte, in the computer\'s own state folder');
+    assert.deepEqual(readFileSync(file(`${l.state}/product-settings.json`)), PRODUCT_BYTES, 'byte for byte, in the computer\'s own state folder');
     const config = JSON.parse(read(file, `${l.state}/place.json`)), old = JSON.parse(OLD_CONFIG);
-    assert.deepEqual(config, { ...old, new_accounts: { ...old.new_accounts, copies: answer.copies }, release_feed: { ...SETTINGS.release_feed, releases } }, 'the feed adopts into this computer\'s own releases folder; only copies changes in new_accounts');
+    assert.deepEqual(config, { ...old, new_accounts: { ...PRODUCT.new_accounts, ...old.new_accounts, copies: answer.copies }, release_feed: { ...FEED, releases } }, 'the feed adopts into this computer\'s own releases folder; only copies changes in new_accounts');
     const unit = read(file, `etc/systemd/system/${l.unit}`);
     assert.match(unit, new RegExp(`^\\[Service\\]\\nEnvironment=PRODUCT_SETTINGS=${l.state}/product-settings\\.json\\nType=simple$`, 'm'));
     assert.match(unit, new RegExp(`^ReadWritePaths=${l.state} ${releases}$`, 'm'));
@@ -432,4 +483,100 @@ test('a new account\'s copies are what its computers can meet', () => {
   assert.deepEqual(copiesFor({ default_places: { holders: ['a', 'b', 'c', 'd', 'e'] } }), THREE);
   assert.throws(() => copiesPolicy({ ...THREE, least_copy_keepers: 0 }), /at least 1/);
   assert.throws(() => copiesPolicy({ ...THREE, least_may_answer: 4 }), /no more than/);
+  assert.throws(() => copiesPolicy({ ...THREE, least_voters: 1025 }), /0 to 1024/);
+  assert.throws(() => copiesPolicy({ ...THREE, least_always_on: 3 }), /least_always_on/);
+  assert.throws(() => copiesPolicy({ ...THREE, least_voters: Number.MAX_SAFE_INTEGER + 1 }), /whole number/);
+});
+
+test('product data is required, identity-checked, bounded and resolved relative to the request file', async () => {
+  const here = folder(), file = join(here, 'request.json');
+  const manifest = writeProductData(join(here, 'computer'), PRODUCT);
+  writeFileSync(file, JSON.stringify({ product_data: 'computer/product-data.json' }));
+  const request = readRequest(file);
+  assert.equal(request.product_data, manifest);
+  assert.equal(productSettingsOf(readProductData(request)).bytes.toString(), PRODUCT_BYTES.toString());
+  assert.deepEqual(productSettingsOf(readProductData({ product_data: PRODUCT_DATA })).data, PRODUCT);
+  assert.throws(() => readProductData({}), /product_data/);
+  const badIdentity = JSON.parse(readFileSync(manifest, 'utf8'));
+  badIdentity.product_settings.identity = '1f:' + '0'.repeat(64);
+  writeFileSync(manifest, JSON.stringify(badIdentity));
+  assert.throws(() => readProductData({ product_data: manifest }), /not the product data its manifest names/);
+  for (const key of ['sign_in', 'sign_in_ways', 'sign_in_words', 'copies_rules']) {
+    const bad = structuredClone(PRODUCT); delete bad.new_accounts[key];
+    assert.throws(() => productSettingsOf(readProductData({ product_data: writeProductData(folder(), bad) })), new RegExp(key));
+  }
+  assert.throws(() => productSettingsOf(readProductData({ product_data: writeProductData(folder(), { ...PRODUCT, text: 'x'.repeat(131072) }) })), /byte limit/);
+  let remoteCalls = 0;
+  await assert.rejects(startAComputerRaw({}, { run: async () => { remoteCalls++; } }), /product_data/);
+  await assert.rejects(updateAComputerRaw('/no/lease', {}, { run: async () => { remoteCalls++; } }), /product_data/);
+  assert.equal(remoteCalls, 0);
+});
+
+test('the page look names the static folder beside the settings file, and every static file must match its identity', () => {
+  const here = folder();
+  const manifest = writeProductData(here, { ...PRODUCT, page_look: { palette: [], static_root: 'left-alone' } }, [{ name: 'mark.svg', text: '<svg/>' }, { name: 'workspace/fonts.css', text: '' }]);
+  const product = productSettingsOf(readProductData({ product_data: manifest }), '/var/lib/sample/product-settings.json');
+  assert.equal(product.data.page_look.static_root, '/var/lib/sample/static');
+  assert.deepEqual(product.statics.map(({ name, bytes }) => [name, bytes.toString()]), [['mark.svg', '<svg/>'], ['workspace/fonts.css', '']]);
+  const tampered = JSON.parse(readFileSync(manifest, 'utf8'));
+  tampered.static[0].identity = '1f:' + 'f'.repeat(64);
+  writeFileSync(manifest, JSON.stringify(tampered));
+  assert.throws(() => readProductData({ product_data: manifest }), /source-mark\.svg is not the product data/);
+});
+
+test('starting rows fill missing sign-in words and copy rules while retaining configured rows', async () => {
+  const custom = { sign_in_words: { heading: 'Custom words' }, copies_rules: { rule: 'custom-rule' }, extra: { own: true } };
+  const config = { new_accounts: custom, default_places: { holders: ['first', 'second'], answering: ['first'] } };
+  const before = structuredClone(config), productBefore = structuredClone(PRODUCT);
+  const rows = startingRows(config, { product_data: PRODUCT_DATA });
+  assert.deepEqual(rows, { ...PRODUCT.new_accounts, ...custom, copies: { least_copy_keepers: 2, least_voters: 2, least_may_answer: 2, least_always_on: 0 } });
+  assert.deepEqual(startingRows({}, { product_data: PRODUCT_DATA }).sign_in_words, PRODUCT.new_accounts.sign_in_words);
+  rows.sign_in.token_seconds = 1; rows.extra.own = false;
+  assert.deepEqual(PRODUCT, productBefore);
+  assert.deepEqual(config, before);
+  const withoutFeed = await computerConfigRaw({}, { product_data: PRODUCT_DATA, port: 7199, name: { host_name: 'sample.example.test' } }, null);
+  assert.ok(!Object.hasOwn(withoutFeed, 'release_feed'), 'no compiled product feed is selected');
+});
+
+test('a start uses one exact file snapshot for remote settings and starting rows even if the caller file changes', async () => {
+  const here = folder(), file = join(here, 'settings.json');
+  const data = writeProductData(here, PRODUCT);
+  let settingsWritten, configWritten;
+  const request = {
+    product_data: data, release_feed: null,
+    lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'sample', placement: { address: '192.0.2.44' }, lifetime: 'service' },
+    name: { host_name: 'sample.example.test' }, ssh: { known_hosts: '/dev/null' }, port: 7199,
+    engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
+  };
+  await startAComputerRaw(request, { wait: async () => {}, fetchImpl: async () => ({ status: 200 }), run: async (_machine, command, input) => {
+    if (command === 'uname -m') { writeFileSync(join(here, 'product-settings.json'), '{}'); return 'aarch64'; }
+    if (command.startsWith('install -o place') && command.includes("'product-settings.json'")) settingsWritten = Buffer.from(input);
+    if (command === `install -o place -g place -m 0600 /dev/stdin '${productSettings.file}'`) settingsWritten = Buffer.from(input);
+    if (command === 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json') configWritten = JSON.parse(input);
+    return '';
+  } });
+  assert.equal(settingsWritten.toString(), PRODUCT_BYTES.toString());
+  assert.deepEqual(configWritten.new_accounts, { ...PRODUCT.new_accounts, copies: copiesFor({}) });
+});
+
+test('an update fills a config with no account rows and rollback restores its previous settings bytes', async () => {
+  const l = LAYOUTS['start-a-computer'], { root, lease, file } = madeUpComputer(l);
+  const original = `${JSON.stringify({ listen: '127.0.0.1:7199', public_origin: 'https://sample.example.test' })}\n`;
+  const oldSettings = '{"old_profile":true}\n';
+  const exact = PRODUCT_BYTES.toString(), data = writeProductData(join(root, 'caller'), PRODUCT);
+  writeFileSync(file(`${l.state}/place.json`), original);
+  writeFileSync(file(`${l.state}/product-settings.json`), oldSettings);
+  const actualRun = runHere(root);
+  let changed = false;
+  const run = async (...args) => {
+    if (!changed) { changed = true; writeFileSync(join(root, 'caller', 'product-settings.json'), '{}'); }
+    return actualRun(...args);
+  };
+  const answer = await updateAComputerRaw(lease, { ...updateRequest, product_data: data }, { ...asHere(root), run });
+  assert.equal(read(file, `${l.state}/product-settings.json`), exact);
+  const config = JSON.parse(read(file, `${l.state}/place.json`));
+  assert.deepEqual(config.new_accounts, { ...PRODUCT.new_accounts, copies: copiesFor({}) });
+  await rollBackAComputer(lease, updateRequest, answer.backup, { ...asHere(root), run: actualRun });
+  assert.equal(read(file, `${l.state}/place.json`), original);
+  assert.equal(read(file, `${l.state}/product-settings.json`), oldSettings);
 });

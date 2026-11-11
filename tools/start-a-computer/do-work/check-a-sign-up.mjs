@@ -68,7 +68,13 @@ export async function checkASignUp(origin, { fetchImpl = fetch } = {}) {
   const url = new URL(origin);
   if (url.protocol !== 'https:' || url.origin !== origin) throw Object.assign(new Error('ORIGIN is https://host with no path.'), { exit: 2 });
   const steps = [];
-  const ask = async (step, path, { method = 'GET', body, cookie } = {}) => {
+  // Node fetch has no browser cookie jar. Keep this one synthetic ceremony's cookies in memory, scoped by path;
+  // getSetCookie preserves separate fields, while the older Headers fallback also separates flattened fields
+  // without splitting the comma in an Expires date. No cookie is returned in the check's public answer.
+  const cookies = new Map();
+  const ask = async (step, path, { method = 'GET', body, withoutCookies = false } = {}) => {
+    const cookie = withoutCookies ? '' : [...cookies.values()].filter(row => path === row.path || path.startsWith(row.path.endsWith('/') ? row.path : `${row.path}/`))
+      .sort((a, b) => b.path.length - a.path.length).map(row => `${row.name}=${row.value}`).join('; ');
     const response = await fetchImpl(`${origin}${path}`, {
       method, redirect: 'manual', signal: AbortSignal.timeout(20000),
       headers: { ...(body && { 'content-type': 'application/json', origin }), ...(cookie && { cookie }) },
@@ -78,7 +84,19 @@ export async function checkASignUp(origin, { fetchImpl = fetch } = {}) {
     const text = await response.text();
     let json = null;
     try { json = JSON.parse(text); } catch { json = null; }
-    return { status: response.status, json, setCookie: response.headers.get('set-cookie') };
+    const setCookies = response.headers.getSetCookie?.() ?? (response.headers.get('set-cookie') ?? '').split(/,(?=\s*[^;,\s=]+=)/).filter(Boolean);
+    for (const field of setCookies) {
+      const [pair, ...attributes] = field.split(';').map(part => part.trim());
+      const equal = pair.indexOf('=');
+      if (equal < 1) continue;
+      const name = pair.slice(0, equal), value = pair.slice(equal + 1);
+      const attrs = new Map(attributes.map(part => { const at = part.indexOf('='); return at < 0 ? [part.toLowerCase(), ''] : [part.slice(0, at).toLowerCase(), part.slice(at + 1)]; }));
+      const cookiePath = attrs.get('path')?.startsWith('/') ? attrs.get('path') : path.slice(0, path.lastIndexOf('/')) || '/';
+      const key = `${name};${cookiePath}`;
+      if (Number(attrs.get('max-age')) <= 0 || (attrs.has('expires') && Date.parse(attrs.get('expires')) <= Date.now())) cookies.delete(key);
+      else cookies.set(key, { name, value, path: cookiePath });
+    }
+    return { status: response.status, json };
   };
   const done = (address = null, read = false) => ({ origin, address, steps, signed_in_read: read });
   const page = await ask('sign-up page', '/sign-up');
@@ -95,10 +113,9 @@ export async function checkASignUp(origin, { fetchImpl = fetch } = {}) {
   const requestOptions = request.json?.publicKey ?? request.json;
   if (request.status !== 200 || !requestOptions?.challenge) return done(address);
   const signIn = await ask('sign-in finish', `${base}/passkey/finish`, { method: 'POST', body: assertion(passkey, requestOptions, origin) });
-  const cookie = signIn.setCookie?.split(';')[0];
-  if (signIn.status !== 200 || !cookie) return done(address);
-  const read = await ask('signed-in read', `${base}/sign-in/security`, { cookie });
-  const without = await ask('read without the session', `${base}/sign-in/security`);
+  if (signIn.status !== 200) return done(address);
+  const read = await ask('signed-in read', `${base}/sign-in/security`);
+  const without = await ask('read without the session', `${base}/sign-in/security`, { withoutCookies: true });
   return done(address, read.status === 200 && without.status !== 200);
 }
 

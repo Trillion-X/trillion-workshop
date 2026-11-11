@@ -1,132 +1,103 @@
 {
   "schema": "reference-adaptation-contract/reference-grounded-adaptation",
-  "id": "REF-START-A-PLACE",
+  "id": "REF-START-A-COMPUTER-ORIGIN-RECOVERY",
   "status": "ADAPTED",
   "directive": {
-    "message_multihash": "1f:5c305676799b8f3718501a1e67b64f3411c9dcbedc932c0083d78637f77a0b23",
-    "quote": "Build a new Workshop tool start-a-place: makes and starts one Trillion place on this computer."
+    "message_multihash": "1f:9ae687ad127eedc101a7f9f3d892c0be16e7cc8f148f0188c0da2816db68c847",
+    "quote": "A computer gets its product data from the published product data manifest: the settings file and the static files beside it are checked by content identity before anything is written, and the settings name the static folder beside them."
   },
-  "mode": "NO_PRIOR_OWNER",
-  "job": "Make this machine into a Trillion computer and start it: its key, its config and the running engine",
-  "sources": [],
+  "mode": "SOURCE_FIRST_PORT",
+  "sources": [
+    {
+      "repository": "trillion-workshop",
+      "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+      "path": "tools/start-a-computer/do-work/start-a-computer.mjs",
+      "multihash": "1f:041ee40f58b215f4fe9615f3186135fca1bf6fe72866348c1155f98d93f2962d",
+      "ownership": "repository-owned",
+      "old_copy": "same-file"
+    }
+  ],
   "targets": [
     {
       "path": "tools/start-a-computer/do-work/start-a-computer.mjs"
     }
   ],
-  "preserve": [],
-  "allowed_deltas": [],
-  "banned_substitutions": [],
-  "baseline": {},
-  "distinct_from": [
-    {
-      "repository": "trillion-workshop",
-      "path": "tools/start-a-computer/",
-      "why": "This tool itself: its README, rows and tests name the engine commands it runs."
-    },
-    {
-      "repository": "trillion-workshop",
-      "path": "capabilities.json",
-      "why": "This tool's own capability row: its evidence names the `trillion-local serve` command this tool runs. It is the registry entry for this tool, not another owner of the job."
-    },
-    {
-      "repository": "trillion-workshop",
-      "path": "tools/workflows/published/tools.json",
-      "why": "The generated tool catalog (publish-tool-catalog.mjs): it carries this tool's own row, whose description names `trillion-local serve`. A generated listing of this tool, not another owner of the job."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/main.rs",
-      "why": "The engine's command line: it parses `trillion-local serve PLACE_CONFIG` and runs one computer from a config that already exists. It makes no key and writes no config; this tool makes both and then calls it."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/native_entry/computer.rs",
-      "why": "The engine's computer entry: it reads and checks a computer config and serves it. It is what this tool's config is written for, and it creates nothing (no key, no folder, no config)."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/native_entry/computer/join.rs",
-      "why": "Adds a computer to an account (`computer id`, `send-root`, `freeze`, `join`) at a computer whose config and key already exist; this tool calls its `computer id` once and makes the config and key it reads."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/native_entry/computer/signup.rs",
-      "why": "A sign-up at a running computer; it reads the config's computer key file, it does not make a computer."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/account/create.rs",
-      "why": "Makes an account at a computer (`account create PLACE_CONFIG`), not the computer."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/held_values/root.rs",
-      "why": "Reads a computer key file (base64 on one line) into the vault root; it never makes one."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/held_values/root.json",
-      "why": "The computer key's size and file limit, read by root.rs; this tool's settings name the same size."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/local_account/lease_recovery.rs",
-      "why": "Recovery of an account's lease under a process; it names `trillion-local serve` only as the process that holds the lease."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "src/records/process_identity.rs",
-      "why": "Which process owns a record store; it names `trillion-local serve` only as one such process."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "tests/place_router.rs",
-      "why": "The engine's own test computer: a config and key written inside a Rust test for one process. Its values are this tool's defaults; it is not a tool a person runs."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "docs/placement-decision/",
-      "why": "Status notes of the placement work that describe `trillion-local serve` and `computer id`; words, not a way to make a computer."
-    },
-    {
-      "repository": "trillion-rust",
-      "path": "docs/sign-in-port/G-door-cut-status.md",
-      "why": "A status note that says a computer runs with no hosting app; words, not a way to make one."
-    }
+  "preserve": [
+    "Provider-row lease and ownership lifecycle",
+    "SSH setup, engine release install and readback",
+    "Discovered layouts, staged updates, health checks and backup rollback",
+    "Copies policy construction and caller config values"
   ],
-  "proof": {
-    "search": {
-      "phrasings": [
-        "Make a Trillion computer on this computer and start it: its key, its config and the running computer",
-        "start trillion-local serve with a computer config",
-        "write a computer config and a computer key file",
-        "start a computer and print its computer id with trillion-local computer id"
-      ],
-      "capability_rows": [],
-      "code_patterns": [
-        "trillion-local serve",
-        "trillion-local computer id",
-        "start-a-computer|startAComputer",
-        "place_key_file"
-      ],
-      "repositories": [
-        {
-          "repository": "trillion-workshop",
-          "commit": "886da97848b8ec1b26c3c06938f23557529ea4c8"
-        },
-        {
-          "repository": "trillion",
-          "commit": "b92aa549f23873750ec918e86e7ed3896c9c4c0c"
-        },
-        {
-          "repository": "trillion-rust",
-          "commit": "69ca47ccb53cec6d82b8db5b6666fece6077e8e6"
-        }
-      ]
+  "allowed_deltas": [
+    "Require caller product_settings object/file instead of compiled product JSON; resolve its file relative to the request",
+    "Use one exact caller settings snapshot for remote bytes and new_accounts seeds in each start/update",
+    "Recover missing starting row merge from the old startup behavior while preserving configured rows",
+    "No default product feed or engine program choice; updates require caller release_feed",
+    "Copies counts use caller seed policy, bounded by available computers; explicit policies follow the engine's 1024 admission bound and always-on ordering",
+    "Remove product-filled DATA from active package; original public Git source remains retained",
+    "Read the product data from the published trillion-apps manifest (computer/product-data.json, request product_data): the settings file and the static files it names are checked by content identity before anything is written; the settings name the static folder beside the settings file (page_look static_root), and the static files are installed there",
+    "An update gives the bootstrap the release feed's first URL and first key (FEED_URL, PUBLIC_KEY) for apply and rollback"
+  ],
+  "banned_substitutions": [
+    "Production defaults copied from test fixtures",
+    "A new or retroactive byte-copy commit claim",
+    "Editing the old start-a-place custody files",
+    "Claiming Mac native mv supports the Linux target's -T option"
+  ],
+  "baseline": {
+    "copied_before_adaptation": true,
+    "source_multihash": "1f:041ee40f58b215f4fe9615f3186135fca1bf6fe72866348c1155f98d93f2962d",
+    "target_multihash_at_baseline": "1f:041ee40f58b215f4fe9615f3186135fca1bf6fe72866348c1155f98d93f2962d",
+    "commit": "1083a00ae322107c47e76d82e9c641789d0fd176",
+    "scope": "Existing canonical implementation from public origin history, not a newly made baseline. This snapshot is not currently an ancestor of the working branch; history qualification is unresolved. No VERIFIED or original pre-policy provenance claim."
+  },
+  "recovery": {
+    "existing_public_implementation": true,
+    "new_byte_copy_commit": false,
+    "ancestry_proved": false,
+    "source_snapshot_after_policy_since": true,
+    "production_consumer_bound": false,
+    "normal_mac_tests_pass": false,
+    "linux_command_local_tests": {
+      "command": "PATH=/tmp/legacy-startup-gnu-tools-01a1b7de:$PATH node --test tools/start-a-computer/test/start-a-computer.test.mjs",
+      "passed": 26,
+      "failed": 0
     },
+    "native_mac_tests": {
+      "passed": 21,
+      "failed": 5,
+      "reason": "BSD mv rejects GNU/Linux mv -T in remote shell fixtures."
+    }
+  },
+  "proof": {
+    "minimum_meaningful_line_retention": 0.6,
+    "required_mechanisms": [
+      "productSettingsOf",
+      "startingRows",
+      "rentAMachine",
+      "startAComputer",
+      "updateAComputer",
+      "rollBackAComputer"
+    ],
     "test_refs": [
       "tools/start-a-computer/test/start-a-computer.test.mjs"
-    ]
-  }
+    ],
+    "render_refs": [],
+    "originality_ref": null,
+    "active_target": {
+      "path": "tools/start-a-computer/do-work/start-a-computer.mjs",
+      "multihash": "1f:129b782895d10663dba352490ca1ee4ccacdd317eb76e3b153bd220630693f1b",
+      "archive_bytes_excluded": true,
+      "measurements": {
+        "sourceMeaningfulLines": 284,
+        "retainedMeaningfulLines": 256,
+        "meaningfulLineRetention": 0.9014084507042254
+      }
+    }
+  },
+  "required_mechanisms": [
+    "readProductData",
+    "installStatics",
+    "staticFolderOf"
+  ]
 }
