@@ -1,0 +1,8 @@
+{
+  "_what": "The engine release roads: which rust targets the feed carries for every commit on the branch. Each row is one target and how it is built. `host` is the builder's own rust target (its `rustc -vV` host line): the row must name it, and publish refuses a builder whose host differs. `zigbuild` is cross-built on the builder with cargo-zigbuild from the same checkout, packed, signed with the builder's key and added to the one feed. `darwin` is the Mac build (install's darwin config: Developer ID signing, settings.darwin); its targets stay with that config until they move here. Every row is built for every commit publish runs for; a row that fails leaves the others published and is reported in feed-status.json with its cause. A target a builder does not build is a gap until an accepted builder contributes its entry (contribute-an-engine-release.mjs).",
+  "targets": [
+    { "triple": "x86_64-unknown-linux-gnu", "build": "host" },
+    { "triple": "aarch64-apple-darwin", "build": "darwin" },
+    { "triple": "aarch64-unknown-linux-gnu", "build": "zigbuild" }
+  ]
+}

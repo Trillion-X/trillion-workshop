@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { addRelease, newSigningKey, publicKeyHex, readFeed, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
+import { addRelease, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
 import { CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
@@ -291,6 +291,20 @@ test('the catch-up queues the branch tip only while a target of the feed is behi
   assert.equal(await catchUp({ repository: url, branch: 'main', feedFile, targets: [target], stateFolder: state, token, queue: { running: () => Promise.resolve(), ask() {} }, log: () => {} }), null);
   assert.deepEqual(asked, [headCommit]);
   assert.equal(logged.length, 1);
+});
+
+test('every road in release-roads.json has a state for the commit: published, or a gap with its cause', () => {
+  const commit = 'd'.repeat(40), other = 'e'.repeat(40);
+  const entry = (target, c) => ({ commit: c, sequence: 1, target, url: 'https://x/y', content: `1f:${'a'.repeat(64)}`, bytes: 1, urgent: false, signature: 'b'.repeat(128) });
+  const targets = roads.targets.map(row => row.triple);
+  assert.ok(targets.length >= 3);
+  const feed = { releases: [entry(targets[0], commit), entry(targets[1], other)] };
+  const status = feedStatusOf(feed, commit, targets, { [targets[1]]: 'cargo zigbuild exited 1' });
+  assert.equal(status.targets[targets[0]].state, 'published');
+  assert.equal(status.targets[targets[1]].state, 'gap');
+  assert.equal(status.targets[targets[1]].cause, 'cargo zigbuild exited 1');
+  assert.equal(status.targets[targets[2]].state, 'gap');
+  assert.equal(status.targets[targets[2]].cause, `no entry for ${commit} yet`);
 });
 
 test('install sets the builder up over SSH, and the token and secret travel only on standard input', async () => {

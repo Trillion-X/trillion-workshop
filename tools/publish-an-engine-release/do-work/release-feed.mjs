@@ -11,6 +11,9 @@ import { readFileSync } from 'node:fs';
 
 export const settings = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 
+/** The engine release roads: the rust targets every commit is published for, each row built as `host`, `darwin` or `zigbuild`. */
+export const roads = JSON.parse(readFileSync(new URL('../read-data/release-roads.json', import.meta.url), 'utf8'));
+
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
 const commitPattern = new RegExp(settings.commit_pattern), targetPattern = new RegExp(settings.target_pattern);
 const ENTRY_FIELDS = ['commit', 'sequence', 'target', 'url', 'content', 'bytes', 'urgent', 'signature'];
@@ -80,6 +83,22 @@ export function readFeed(text) {
   if (!feed || !Array.isArray(feed.releases)) throw refuse('feed.json has no releases list: it must be { "releases": [ ... ] }.');
   feed.releases.forEach(checkEntry);
   return { releases: feed.releases };
+}
+
+/**
+ * Each road's state for one commit: its newest feed entry when that is the commit, else a gap with its cause (the
+ * last failure this run recorded for the target, or that no builder has published the commit for it yet). Pure: the
+ * caller writes it as feed-status.json beside feed.json, so a missing target is visible, never silently skipped.
+ */
+export function feedStatusOf(feed, commit, targets, failures = {}) {
+  const at = {};
+  for (const target of targets) {
+    const newest = newestFor(feed, target);
+    at[target] = newest?.commit === commit
+      ? { commit, sequence: newest.sequence, state: 'published' }
+      : { commit: newest?.commit ?? null, sequence: newest?.sequence ?? null, state: 'gap', cause: failures[target] ?? `no entry for ${commit} yet` };
+  }
+  return { commit, targets: at };
 }
 
 /** The newest entry the feed holds for one target, or null. */
