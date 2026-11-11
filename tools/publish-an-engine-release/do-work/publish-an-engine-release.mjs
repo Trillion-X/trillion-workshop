@@ -123,9 +123,10 @@ function tarEntriesEnd(tar) {
 
 /**
  * Pack a commit's whole tree as the Workshop installer reads it: `git archive` under one top folder (`prefix`, which
- * install strips; its pax header names the commit), then `package-files.json` in that folder: the files each tool row
- * reaches, from the walker at this commit (test-helpers/tool-row-imports.mjs). Gzipped with no name or time in the
- * header, so the same commit always packs to the same bytes. Answers { content, bytes } as packRelease does.
+ * install strips; its pax header names the commit), then `package-files.json` in that folder: each tool row's
+ * package_files items, from packageFilesByRow at this commit (test-helpers/tool-row-imports.mjs), keyed by row id.
+ * Gzipped with no name or time in the header, so the same commit always packs to the same bytes. Answers
+ * { content, bytes } as packRelease does.
  */
 export async function archiveRelease({ source, commit, prefix, file }) {
   const tar = await git(source, ['archive', '--format=tar', `--prefix=${prefix}/`, commit], { binary: true });
