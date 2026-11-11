@@ -337,7 +337,8 @@ async function serve(machine, request, price, { run, product, ...deps }) {
   await run(machine, 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json', `${JSON.stringify(config, null, 1)}\n`);
   const computerId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, [...engine.id_argv, '/var/lib/place/place.json'])}`)).trim() : null;
   await run(machine, 'systemctl enable place.service >/dev/null 2>&1; systemctl restart place.service && sleep 3 && systemctl is-active place.service');
-  return { release, computerId, signUp: await signUpStatus(request.name.host_name, deps) };
+  const host = request.name.host_name, health = healthOf(config, request);
+  return { release, computerId, signUp: await healthStatus(machine, config, host, health, { ...deps, run }) };
 }
 
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));

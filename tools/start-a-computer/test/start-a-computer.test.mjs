@@ -247,7 +247,7 @@ test('starting a computer on an existing machine sets it up, installs the releas
     name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199, host_layout: HOST_LAYOUT,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', id_argv: ['computer', 'id'], release_name: 'r1', release: { on_machine: '/opt/build/release' } },
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
-  }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/sign-up' ? 200 : 404 }), wait: async () => {} });
+  }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/readyz' ? 200 : 404 }), wait: async () => {} });
   assert.deepEqual([answer.arch, answer.place_id, answer.sign_up_status, answer.release, answer.price], ['aarch64', 'f'.repeat(64), 200, '/opt/place/releases/r1', null]);
   assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- '\{"caddy"/);
   assert.ok(commands.some(c => c.includes('/etc/caddy/Caddyfile')), 'the Caddy file is written from the layout');
