@@ -65,7 +65,7 @@ test('content reads retain actual answers, earlier method context and every priv
     assert.deepEqual(touched(taken, 'pursuit'), [], `${shape}: a content read never enumerates the unrelated pursuits`);
     if (shape === 'whole') {
       assert.deepEqual(actual, { ...record(24), whole: true }, 'a whole root reads as it is');
-      assert.equal(taken.crossed, 1, 'from its one record');
+      assert.equal(taken.crossed, 2, 'from its root and its revision record');
     } else {
       assert.deepEqual(touched(taken, 'decision-call:'), [], 'no call record is opened');
       assert.equal(actual.input.goal, wanted.input.goal);

@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, readDecision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
@@ -455,6 +455,10 @@ async function confirmWithVerdicts(door, methods, record, at, step, given, now) 
     if (!have) added.push({ ...verdict, added_at: now });
     else if (have.meets !== verdict.meets || have.graded_by !== verdict.graded_by) refuse('verdict_taken', { check: verdict.id });
   }
+  // A check with no verdict, kept or given now, leaves the step unanswered: nothing is kept until every check is graded.
+  const judgedNow = new Set(verdicts.map(item => item.id));
+  const rest = toJudge.filter(row => !kept.has(row.id) && !judgedNow.has(row.id));
+  if (rest.length) refuse('verdicts_missing', { missing: rest.length, checks: toJudge.length, ids: rest.map(row => row.id).join(', ') });
   if (!added.length) return null;
   const version = (entry.version ?? 1) + 1;
   const archived = [{ key: versionKey(record.id, at, entry.version ?? 1), entry: { ...entry, superseded_at: now } }];
@@ -743,6 +747,7 @@ async function endLaidApart(door, { id, root, value }, answers) {
   // Each end has its own request keys: an earlier end of this decision that wrote some parts and then failed used
   // `end-a-decision:${id}` with other content, and the engine refuses a key reused with different input. The same call
   // retried (same ended_at) still replays under the same keys.
+  markRead(record, await readRevision(door, id));
   const ending = { id, ended_at: value.ended_at, ended_because: value.ended_because, ended_by: value.ended_by };
   const key = `end-a-decision:${id}:${makeHashCodeHexFromBytes(utf8.encode(canonical(ending)))}`;
   try { await writeDecision(door, recordsOf(record), key); }

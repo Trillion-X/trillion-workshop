@@ -99,6 +99,10 @@ const MOVED = ['answered_steps', 'original_input', 'candidates', 'reports', 'car
 
 // What was read of each laid-apart list and the method, so a write keeps only what changed.
 const LOADED = new WeakMap();
+// What the door held for the root and its revision record when the decision was read: a write expects the revision to
+// still hold it, so a write made from an older read is refused, not written over newer rows.
+const ROOT_READ = new WeakMap();
+const revisionKey = id => `decision-revision:${id}`;
 
 // What a record can weigh in a door message, however the door carries it on the way: its JSON with every character past
 // ASCII written as a \u escape, quoted once more as a JSON string. A part's text is itself JSON, so a quote, backslash or
@@ -298,7 +302,19 @@ export function joinDecision(id, root, get, steps = []) {
 }
 export async function readDecision(door, id, steps = []) {
   const root = await door.read('decision', id);
-  return root ? settled(door, get => joinDecision(id, root, get, steps)) : null;
+  if (!root) return null;
+  const revision = await readRevision(door, id);
+  const decision = await settled(door, get => joinDecision(id, root, get, steps));
+  markRead(decision, revision);
+  return decision;
+}
+
+/** The revision record of a decision as the door holds it now (null when none): read with the root, expected by its write. */
+export const readRevision = (door, id) => door.read('decision-revision', revisionKey(id));
+
+/** Records that `record` was read with this revision, so the write made from it expects that revision to still hold. */
+export function markRead(record, revision) {
+  ROOT_READ.set(record, { revision: structuredClone(revision ?? null) });
 }
 
 // Each item of a list that is new or changed since it was read, and a removal for each item past its new end.
@@ -340,8 +356,12 @@ export function recordsOf(record, changed = [], archived = []) {
   };
   const steps = whole ? guidance.map((_, n) => n) : changed;
   const { root: fittedRoot, parts: rootParts } = rootFitted(id, root);
+  // The revision record is written with the root, in the same write, and expects the revision it was read at (or none).
+  const was = ROOT_READ.get(record)?.revision ?? null;
+  const revision = { id: revisionKey(id), type: 'decision-revision', value: { revision: (was?.revision ?? 0) + 1 }, expected: was ? { type: 'decision-revision', value: was } : null };
   return [
     { id, type: 'decision', value: fittedRoot },
+    revision,
     ...rootParts,
     ...steps.map(n => ({ id: stepKey(id, n), type: 'decision-step', value: packStep(stepRecordOf(guidance[n])) })),
     ...archived.map(({ key, entry }) => ({ id: key, type: 'decision-step', value: packStep(stepRecordOf(entry)) })),
@@ -357,10 +377,17 @@ export function recordsOf(record, changed = [], archived = []) {
 // are measured as carried (carriedBytes), so one fits the door's cap however the door encodes it on the way.
 const writeBounds = { rows: settings.writes, bytes: settings.write_bytes, measure: carriedBytes };
 export async function writeDecision(door, list, key) {
-  const [root, ...rest] = list;
+  // The key names what is written, so a retry of the same write replays and a different write under the same name is never a conflict.
+  const [root, revision, ...rest] = list;
   const parts = fitted(rest);
-  const whole = [root, ...parts];
-  if (writeBatches(whole, writeBounds).length === 1) return door.write(whole, { key });
-  for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${key}:part:${at}` });
-  return door.write([root], { key });
+  const whole = [root, revision, ...parts];
+  const named = `${key}:${identityOf(whole)}`;
+  try {
+    if (writeBatches(whole, writeBounds).length === 1) return await door.write(whole, { key: named });
+    for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${named}:part:${at}` });
+    return await door.write([root, revision], { key: named });
+  } catch (error) {
+    if (error?.code === 'original_command_conflict') throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: 'original_command_conflict' });
+    throw error;
+  }
 }
