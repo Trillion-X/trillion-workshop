@@ -370,7 +370,7 @@
           "kind": "computer",
           "capabilities": [
             "see-connected-drives",
-            "change-a-folder"
+            "read-a-folder"
           ],
           "workdir": "/opt/sync-files-between-my-computers",
           "stdout": "json",
