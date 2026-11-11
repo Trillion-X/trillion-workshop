@@ -10,7 +10,7 @@ import { gunzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
-import { CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
+import { archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
 
@@ -180,6 +180,52 @@ test('adding to a feed refuses an older sequence and another commit at the same 
   assert.throws(() => addRelease(feed, entry(40, 'e'.repeat(40))), /same sequence/);
   const other = addRelease(feed, signEntry({ ...entry(5), target: 'x86_64-unknown-linux-gnu' }, key));
   assert.ok(other.added, 'another target has its own newest');
+});
+
+// The Workshop's tools tree: the same request with kind workshop-tools, in a work folder of its own.
+const workshopOf = request => ({ ...request, kind: 'workshop-tools', work_folder: join(dirname(request.work_folder), 'workshop-work') });
+
+test('the Workshop kind publishes the commit\'s git archive as one signed workshop-tools entry, built by nothing', async () => {
+  const { remote, commits } = repository(2, { product: false });
+  const { key, request, envFile, top } = builder(remote);
+  writeFileSync(envFile, '');
+  const workshop = workshopOf(request);
+  const answer = await publish(workshop, { token: canary });
+  assert.deepEqual([answer.commit, answer.sequence, answer.target, answer.urgent, answer.already_published], [commits[1], BASE_TIME + 2, 'workshop-tools', false, false]);
+  assert.equal(answer.url, `https://releases.example.com/engine-releases/${commits[1]}/workshop-tools.tar.gz`);
+  assert.equal(readFileSync(envFile, 'utf8'), '', 'nothing was built');
+
+  const feed = readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
+  const entry = feed.releases.find(one => one.target === 'workshop-tools');
+  assert.ok(verifyEntry(entry, key.public_key), 'the same check as an engine entry');
+  assert.equal(existsSync(join(request.feed_folder, 'feed-status.json')), false, 'the engine\'s feed status is not written for the Workshop');
+  const bytes = readFileSync(join(request.feed_folder, commits[1], 'workshop-tools.tar.gz'));
+  assert.deepEqual([entry.bytes, entry.content], [bytes.length, makeHashCodeHexFromBytes(new Uint8Array(bytes))]);
+  const tar = gunzipSync(bytes);
+  assert.equal(bytes.readUInt32LE(4), 0, 'the gzip header carries no time, so the same commit packs to the same bytes');
+  assert.ok(tar.includes(`comment=${commits[1]}`), 'git archive names the commit in its pax header, which install checks');
+  assert.ok(tar.includes(`workshop-tools-${commits[1]}/Cargo.toml`), 'one top folder, which install strips');
+
+  const again = join(top, 'again.tar.gz');
+  await archiveRelease({ source: join(workshop.work_folder, 'source'), commit: commits[1], prefix: `workshop-tools-${commits[1]}`, file: again });
+  assert.deepEqual(readFileSync(again), bytes, 'the same commit packs to the same bytes');
+});
+
+test('a Workshop commit older than the feed\'s newest workshop-tools entry is refused, and nothing changes', async () => {
+  const { remote, commits } = repository(3, { product: false });
+  const { request } = builder(remote);
+  const workshop = workshopOf(request);
+  await publish(workshop, { commit: commits[2] });
+  await assert.rejects(publish(workshop, { commit: commits[1] }), error => error.exit === 3 && /older than the feed's newest/.test(error.message));
+  const feed = readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
+  assert.deepEqual(feed.releases.map(entry => [entry.target, entry.sequence]), [['workshop-tools', BASE_TIME + 3]]);
+});
+
+test('a kind names a publish kind, and no Mac target is built for the Workshop', async () => {
+  const { remote } = repository(1, { product: false });
+  const { request } = builder(remote);
+  await assert.rejects(publish({ ...request, kind: 'no-such-kind' }), error => error.exit === 2 && /not a publish kind/.test(error.message));
+  await assert.rejects(publish({ ...workshopOf(request), darwin: { targets: ['aarch64-apple-darwin'], team_id: 'ABCDE12345' } }), error => error.exit === 2 && /builds no Mac targets/.test(error.message));
 });
 
 test('a signing key anyone else can read is refused', () => {
