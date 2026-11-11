@@ -22,7 +22,7 @@ import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { filesUnder, privateInput } from './publish-an-engine-release.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { ENGINE_KIND, readFeed, settings } from './release-feed.mjs';
+import { readFeed, settings } from './release-feed.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-builder.sh', import.meta.url));
 const SETUP_DARWIN = fileURLToPath(new URL('./set-up-darwin-builds.sh', import.meta.url));
@@ -136,7 +136,7 @@ WantedBy=multi-user.target
 }
 
 async function feedStatus(hostName, fetchImpl) {
-  try { return (await fetchImpl(`https://${hostName}${settings.feed_path}${ENGINE_KIND.feed_file}`, { signal: AbortSignal.timeout(10000) })).status; }
+  try { return (await fetchImpl(`https://${hostName}${settings.feed_path}${settings.feed_file}`, { signal: AbortSignal.timeout(10000) })).status; }
   catch { return null; }
 }
 
@@ -174,7 +174,7 @@ export async function installBuilder(request, { token = '', secret = '', identit
   const host = request.builder.host_name;
   return {
     public_key: key.public_key, key_made: key.made, deploy_key: deployKey,
-    feed_url: `https://${host}${settings.feed_path}${ENGINE_KIND.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
+    feed_url: `https://${host}${settings.feed_path}${settings.feed_file}`, receiver_active: active === 'active', feed_status: await feedStatus(host, fetchImpl),
     webhook: { url: `https://${host}${settings.push_path}`, content_type: 'application/json', events: ['push'] },
     entries_url: `https://${host}${settings.entry_path}`, accept_entries_from: request.accept_entries_from ?? [],
     ...(darwin ? { darwin: { targets: request.darwin.targets ?? D.targets, team_id: request.darwin.team_id } } : {}),
@@ -198,7 +198,7 @@ export async function builderStatus(request, { run = onMachine, fetchImpl = fetc
   checkRequest(request);
   const machine = { ssh: request.ssh, address: request.builder.address };
   const active = (await run(machine, `systemctl is-active ${q(B.service)} || true`)).trim();
-  const feed = readFeed((await run(machine, `cat ${q(`${B.feed_folder}/${ENGINE_KIND.feed_file}`)} 2>/dev/null || true`)) || null);
+  const feed = readFeed((await run(machine, `cat ${q(`${B.feed_folder}/${settings.feed_file}`)} 2>/dev/null || true`)) || null);
   const lastRun = (await run(machine, `cat ${q(`${B.state_folder}/last-run.json`)} 2>/dev/null || true`)).trim();
   const lastEntries = (await run(machine, `for f in ${q(B.state_folder)}/last-entry-*.json; do test -f "$f" && cat "$f" && echo; done; true`)).trim().split('\n').filter(Boolean).flatMap(line => { try { return [JSON.parse(line)]; } catch { return []; } });
   const key = JSON.parse((await run(machine, `runuser -u ${q(B.user)} -- env PATH=${q(PATH)} node ${q(toolFile('publish-an-engine-release.mjs'))} public-key ${q(B.key_file)}`)).trim().split('\n').at(-1));

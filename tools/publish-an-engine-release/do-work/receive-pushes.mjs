@@ -79,11 +79,11 @@ export function countAttempt(stateFolder, commit) {
 
 /** One catch-up check: queue the branch's tip when a target of the feed is behind it, unless it has been tried
  *  `attempts_at_most` times already. Answers the commit queued, or null. A run in progress is left to finish first. */
-export async function catchUp({ repository, branch, kind, feedFile, targets, stateFolder, token, queue, log }) {
+export async function catchUp({ repository, branch, feedFile, targets, stateFolder, token, queue, log }) {
   if (queue.running()) return null;
   const tip = await remoteTip({ repository, branch, token });
   if (!tip) return null;
-  const feed = readFeed(existsSync(feedFile) ? readFileSync(feedFile, 'utf8') : null, kind);
+  const feed = readFeed(existsSync(feedFile) ? readFileSync(feedFile, 'utf8') : null);
   if (!behindFeed(feed, tip, targets)) return null;
   if (attemptsOf(stateFolder, tip) >= settings.attempts_at_most) return null;
   log(`catch-up: the feed is behind ${branch} at ${tip}; queued it`);
@@ -248,7 +248,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const targets = kind.build
       ? [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(config.darwin?.targets ?? []), ...roads.targets.filter(row => row.build === 'zigbuild').map(row => row.triple)]
       : [kind.target];
-    const check = () => catchUp({ repository: config.repository, branch: config.branch, kind, feedFile: join(config.feed_folder, kind.feed_file), targets, stateFolder: config.state_folder, token, queue, log })
+    const check = () => catchUp({ repository: config.repository, branch: config.branch, feedFile: join(config.feed_folder, settings.feed_file), targets, stateFolder: config.state_folder, token, queue, log })
       .catch(error => log(`catch-up could not check ${config.branch}: ${error.message}`));
     const [host, port] = [config.receiver?.host ?? '127.0.0.1', config.receiver?.port ?? settings.receiver_port];
     const accepted = config.accept_entries_from ?? [];

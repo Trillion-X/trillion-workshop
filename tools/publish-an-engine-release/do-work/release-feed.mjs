@@ -79,27 +79,13 @@ export function checkEntry(entry) {
   return entry;
 }
 
-/** The engine's kind (`build`): its feed (feed.json) holds only the engine's targets, one per road. */
-export const ENGINE_KIND = settings.kinds.find(row => row.build);
-
-/**
- * Whether `target` may be an entry of `kind`'s feed: the engine feed takes no target a kind that builds nothing names
- * (the Workshop's), so an old reader that picks the newest entry of a feed never takes a program it cannot run; a kind
- * that builds nothing has its own feed with its own one target.
- */
-export function checkFeedTarget(kind, target) {
-  const others = settings.kinds.filter(row => !row.build).map(row => row.target);
-  const allowed = kind.build ? !others.includes(target) : target === kind.target;
-  if (!allowed) throw refuse(`${target} is not a target of the ${kind.kind} feed (${kind.feed_file}): a feed holds only its own kind's entries.`);
-}
-
-/** A feed read from its text (a missing feed is the empty feed). Its entries are the `kind`'s (the engine's by default). */
-export function readFeed(text, kind = ENGINE_KIND) {
+/** A feed read from its text (a missing feed is the empty feed). */
+export function readFeed(text) {
   if (text === null || text === undefined) return { releases: [] };
   let feed;
   try { feed = JSON.parse(text); } catch { throw refuse('feed.json is not JSON: move it aside, and the next publish starts a new feed.'); }
   if (!feed || !Array.isArray(feed.releases)) throw refuse('feed.json has no releases list: it must be { "releases": [ ... ] }.');
-  feed.releases.forEach(entry => { checkEntry(entry); checkFeedTarget(kind, entry.target); });
+  feed.releases.forEach(checkEntry);
   return { releases: feed.releases };
 }
 
@@ -136,9 +122,8 @@ export function mayPublish(feed, { commit, sequence, target }) {
 }
 
 /** The feed with the entry added, newest last, and the entries that no longer fit. */
-export function addRelease(feed, entry, keep = settings.keep_releases, kind = ENGINE_KIND) {
+export function addRelease(feed, entry, keep = settings.keep_releases) {
   checkEntry(entry);
-  checkFeedTarget(kind, entry.target);
   const may = mayPublish(feed, entry);
   if (may.already) return { feed, added: false, entry: may.already, dropped: [] };
   const releases = [...feed.releases, entry].map((one, at) => ({ one, at })).sort((a, b) => a.one.sequence - b.one.sequence || a.at - b.at).map(({ one }) => one);
