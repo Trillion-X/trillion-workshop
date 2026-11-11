@@ -168,6 +168,42 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "ai-tool-catalog",
+                "paths": [
+                  "do-work/talk-to-a-tool-server.mjs"
+                ],
+                "at": "/opt/ai-tool-catalog"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "refuse-requests-to-private-addresses",
+                "paths": [
+                  "public-address.json",
+                  "public-address.mjs"
+                ],
+                "at": "/opt/refuse-requests-to-private-addresses"
+              },
+              {
+                "package": "http-client",
+                "paths": [
+                  "do-work/same-origin.mjs"
+                ],
+                "at": "/opt/http-client"
               }
             ]
           }

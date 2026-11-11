@@ -132,10 +132,57 @@
           "records": {"fd": 3, "rights": [{"files":"/","operations":["find_file","read_file"]}]},
           "files": {
             "package_files": [
-              {"package":"audio-transcription","paths":["do-work","read-data"],"at":"/opt/audio-transcription"},
-              {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
-              {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
-              {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/audio-transcription"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
             ]
           }
         },
@@ -182,10 +229,57 @@
           "records": {"fd": 3, "rights": [{"files":"/Heard links","operations":["write_file_start","write_file_piece","write_file_finish"]}]},
           "files": {
             "package_files": [
-              {"package":"audio-transcription","paths":["do-work","read-data"],"at":"/opt/audio-transcription"},
-              {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
-              {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
-              {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/audio-transcription"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
             ]
           }
         },
