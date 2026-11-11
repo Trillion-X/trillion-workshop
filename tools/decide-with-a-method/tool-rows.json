@@ -163,6 +163,12 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "decision-option",
         "operations": [
          "records:list"
@@ -391,6 +397,13 @@
         "operations": [
          "records:read",
          "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -1002,6 +1015,12 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "decision-step",
         "operations": [
          "records:read"
@@ -1340,6 +1359,13 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-step",
         "operations": [
          "records:read",
@@ -1643,6 +1669,13 @@
         "operations": [
          "records:read",
          "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -1967,6 +2000,13 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-step",
         "operations": [
          "records:read",
@@ -2280,6 +2320,13 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-step",
         "operations": [
          "records:read",
@@ -2558,6 +2605,13 @@
         "operations": [
          "records:read",
          "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -2856,6 +2910,13 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+       {
         "kind": "decision-step",
         "operations": [
          "records:read",
@@ -3126,6 +3187,13 @@
         "operations": [
          "records:read",
          "records:list",
+         "records:write"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read",
          "records:write"
         ]
        },
@@ -3447,6 +3515,12 @@
         ]
        },
        {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read"
+        ]
+       },
+       {
         "kind": "decision-step",
         "operations": [
          "records:read"
@@ -3731,6 +3805,12 @@
         "operations": [
          "records:read",
          "records:list"
+        ]
+       },
+       {
+        "kind": "decision-revision",
+        "operations": [
+         "records:read"
         ]
        },
        {

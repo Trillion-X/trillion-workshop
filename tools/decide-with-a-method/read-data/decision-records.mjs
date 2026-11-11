@@ -102,7 +102,8 @@ const LOADED = new WeakMap();
 // What the door held for the root and its revision record when the decision was read: a write expects the revision to
 // still hold it, so a write made from an older read is refused, not written over newer rows.
 const ROOT_READ = new WeakMap();
-const revisionKey = id => `decision-revision:${id}`;
+const REVISION = settings.records.record_revision.type;
+const revisionKey = id => `${REVISION}:${id}`;
 
 // What a record can weigh in a door message, however the door carries it on the way: its JSON with every character past
 // ASCII written as a \u escape, quoted once more as a JSON string. A part's text is itself JSON, so a quote, backslash or
@@ -310,7 +311,7 @@ export async function readDecision(door, id, steps = []) {
 }
 
 /** The revision record of a decision as the door holds it now (null when none): read with the root, expected by its write. */
-export const readRevision = (door, id) => door.read('decision-revision', revisionKey(id));
+export const readRevision = (door, id) => door.read(REVISION, revisionKey(id));
 
 /** Records that `record` was read with this revision, so the write made from it expects that revision to still hold. */
 export function markRead(record, revision) {
@@ -358,7 +359,7 @@ export function recordsOf(record, changed = [], archived = []) {
   const { root: fittedRoot, parts: rootParts } = rootFitted(id, root);
   // The revision record is written with the root, in the same write, and expects the revision it was read at (or none).
   const was = ROOT_READ.get(record)?.revision ?? null;
-  const revision = { id: revisionKey(id), type: 'decision-revision', value: { revision: (was?.revision ?? 0) + 1 }, expected: was ? { type: 'decision-revision', value: was } : null };
+  const revision = { id: revisionKey(id), type: REVISION, value: { revision: (was?.revision ?? 0) + 1 }, expected: was ? { type: REVISION, value: was } : null };
   return [
     { id, type: 'decision', value: fittedRoot },
     revision,

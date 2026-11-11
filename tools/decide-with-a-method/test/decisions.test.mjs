@@ -287,7 +287,7 @@ test('a decision kept whole is laid apart at its next change, its calls kept as 
 });
 
 // Every record kind a decision is laid out in (read-data/decision-records.mjs).
-const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type];
+const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type, settings.records.record_revision.type];
 
 test('the tool rows reach only the decision records, the person\'s pursuits and their method lists', () => {
   const tools = ['tool:start-a-decision', 'tool:next-decision-question', 'tool:answer-a-decision-question', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done', 'tool:end-a-decision'];
@@ -1297,4 +1297,17 @@ test('a write too large for one message, made from an older read of the case, la
   await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact. '.repeat(9000) }] }, { door }), /case changed/);
   assert.equal(door.writes.length, before, 'no write of the stale change reached the door');
   assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept, not even in part');
+});
+
+test('every decision tool declares the revision record beside its root, with the root\'s operations minus listing', () => {
+  const revision = settings.records.record_revision.type;
+  const declaring = rows.filter(row => (row.invoke?.records?.rights ?? []).some(item => item.kind === 'decision'));
+  assert.ok(declaring.length >= 12, `the decision tools are declared: ${declaring.length}`);
+  for (const row of declaring) {
+    const rights = row.invoke.records.rights;
+    const root = rights.find(item => item.kind === 'decision');
+    const record = rights.find(item => item.kind === revision);
+    assert.ok(record, `${row.id} declares ${revision}, or its read of a case is refused as not granted`);
+    assert.deepEqual(record.operations, root.operations.filter(operation => operation !== 'records:list'), `${row.id} grants the revision as its root does`);
+  }
 });
