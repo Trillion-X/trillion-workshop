@@ -473,13 +473,15 @@ async function confirmStep(door, methods, record, at) {
 
 // A confirmation with verdicts: the answer stands and the judge's verdicts on its checks are added as a new version of the
 // step, each added verdict kept with when it came in. A verdict the step already has stands, and one that differs is refused.
+// The verdicts sent for a check that were not taken, each with its reason: empty when none was sent wrong.
+const whyNotTaken = dropped => (dropped.length ? ` Not taken: ${dropped.map(item => `${item.id} (${item.why})`).join('; ')}.` : '');
 // Verdicts are checked as a typed answer's are. Returns null when no verdict is new, so the caller replays or confirms.
 async function confirmWithVerdicts(door, methods, record, at, step, given, now) {
   const entry = record.guidance[at];
   const cat = await catalogueAt(door, methods, record, step);
   const cited = await citable(door, record, citedRefsIn(entry.answer));
   const toJudge = cat.checkAnswersToJudge(record, step, entry.answer);
-  const { verdicts } = takeCallerVerdicts(toJudge, given, { answer: entry.answer, refs: [...cited.refs] });
+  const { verdicts, dropped } = takeCallerVerdicts(toJudge, given, { answer: entry.answer, refs: [...cited.refs] });
   const problems = judgedProblems(verdicts);
   if (problems.length) throw new AnswerProblems(problems);
   const kept = new Map((entry.verdicts ?? []).map(item => [item.id, item]));
@@ -492,7 +494,7 @@ async function confirmWithVerdicts(door, methods, record, at, step, given, now) 
   // A check with no verdict, kept or given now, leaves the step unanswered: nothing is kept until every check is graded.
   const judgedNow = new Set(verdicts.map(item => item.id));
   const rest = toJudge.filter(row => !kept.has(row.id) && !judgedNow.has(row.id));
-  if (rest.length) refuse('verdicts_missing', { missing: rest.length, checks: toJudge.length, ids: rest.map(row => row.id).join(', ') });
+  if (rest.length) refuse('verdicts_missing', { missing: rest.length, checks: toJudge.length, ids: rest.map(row => row.id).join(', '), why: whyNotTaken(dropped) });
   if (!added.length) return null;
   const version = (entry.version ?? 1) + 1;
   const archived = [{ key: versionKey(record.id, at, entry.version ?? 1), entry: { ...entry, superseded_at: now } }];
@@ -574,11 +576,11 @@ export async function answerADecisionQuestion(input, { door }) {
   cat.validateMethodAnswer(record, step, answer, cited.refs);
   noRunIds(answer?.workflow_runs, 'workflow_runs');
   const toJudge = cat.checkAnswersToJudge(record, step, answer);
-  const { verdicts, rest } = takeCallerVerdicts(toJudge, input.verdicts, { answer, refs: [...cited.refs] });
+  const { verdicts, rest, dropped } = takeCallerVerdicts(toJudge, input.verdicts, { answer, refs: [...cited.refs] });
   const problems = judgedProblems(verdicts);
   if (problems.length) throw new AnswerProblems(problems);
   // A check with no verdict taken leaves the step unanswered: nothing is kept until the judge has spoken on every check.
-  if (rest.length) refuse('verdicts_missing', { missing: rest.length, checks: toJudge.length, ids: rest.map(row => row.id).join(', ') });
+  if (rest.length) refuse('verdicts_missing', { missing: rest.length, checks: toJudge.length, ids: rest.map(row => row.id).join(', '), why: whyNotTaken(dropped) });
   keepCited(record, cited.pursuits, refs);
   // The checks this step asked are kept with the answer, each as its id, its question and the content identity of its
   // whole row as asked, so the record shows what was weighed after the rows change without holding every row again.

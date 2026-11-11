@@ -128,7 +128,7 @@
     "out_of_turn": "This decision is waiting for its \"{step}\" question ({count} answered so far), not \"{sent}\". Read it with tool:next-decision-question.",
     "too_many_refs": "An answer can cite at most {count} different references.",
     "complete_first": "Complete the guided questions before deciding",
-    "verdicts_missing": "Every check this step asks needs a second judge's verdict beside the answer, and {missing} of its {checks} have none taken ({ids}). The step stays unanswered: hand each check, this answer and the case evidence to the judge, and send its verdicts with the answer.",
+    "verdicts_missing": "Every check this step asks needs a second judge's verdict beside the answer, and {missing} of its {checks} have none taken ({ids}).{why} The step stays unanswered: hand each check, this answer and the case evidence to the judge, and send its verdicts with the answer.",
     "ungraded_first": "\"{step}\" has verdicts for {graded} of its {checks} checks, so this decision cannot be made yet: add the judge's verdicts on the rest (confirm: true with verdicts) first.",
     "ungraded_note": "\"{step}\" is answered but graded for only {graded} of its {checks} checks: send the second judge's verdicts on the rest with confirm: true and verdicts, alone, before anything later is asked.",
     "decision_shape": "Decision needs option, reason, next action, success measure, and evidence refs",

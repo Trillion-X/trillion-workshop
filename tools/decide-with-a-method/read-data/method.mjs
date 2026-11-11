@@ -411,7 +411,12 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     if (answer.workflow_runs !== undefined) units.push(() => {
       if (!object(answer.workflow_runs)) throw new Error('workflow_runs must be an object');
       const candidates = new Set(workflows.map(row => row.workflow_id));
-      for (const id of Object.keys(runs)) if (!candidates.has(id)) throw new Error(`workflow_runs.${id} is not a candidate at this planning step; later run bindings belong in decide or say_what_was_done`);
+      for (const id of Object.keys(runs)) if (!candidates.has(id)) {
+        // A workflow is a candidate only at the first planning step, and only while its switch is on for this case.
+        const row = (methodOf(record).workflows ?? []).find(item => item.workflow_id === id);
+        const why = !row ? 'it is not a workflow of this method' : row.when ? `its switch ${row.when} is off for this case` : 'it is not due at this step';
+        throw new Error(`workflow_runs.${id} is not a candidate at this planning step: ${why}. A run belongs at the decide step, with make-the-decision, when its result is required to choose; after it has run, it belongs at say_what_was_done.`);
+      }
     });
     for (const row of workflows) units.push(() => {
       const item = runs[row.workflow_id];

@@ -20,22 +20,27 @@ const grounded = (item, row) => { const said = words(item.missing); return said.
 const plain = text => String(text ?? '').toLowerCase().replace(/\s+/g, ' ').trim();
 const textOf = value => typeof value === 'string' ? value : value && typeof value === 'object' ? Object.values(value).map(textOf).join('\n') : '';
 
-/** rows: the checks of this step ({ id, check, refuses? }); given: the caller's verdicts. -> { verdicts, rest } */
+/** rows: the checks of this step ({ id, check, refuses? }); given: the caller's verdicts. -> { verdicts, rest, dropped }: `dropped`
+ * names each verdict sent for a check of this step that was not taken, and why, so the caller can send it again right. */
 export function takeCallerVerdicts(rows, given, { answer = null, refs = [] } = {}) {
   const verdicts = [];
   const taken = new Set();
+  const dropped = [];
   const said = plain(textOf(answer));
   for (const item of Array.isArray(given) ? given : []) {
     const row = rows.find(each => each.id === item?.check);
-    if (!row || taken.has(row.id) || typeof item.meets !== 'boolean') continue;
+    if (!row) continue;
+    const drop = why => dropped.push({ id: row.id, why });
+    if (taken.has(row.id)) { drop('a verdict for this check is already taken'); continue; }
+    if (typeof item.meets !== 'boolean') { drop('meets must be true or false'); continue; }
     const rests = plain(item.rests_on);
-    if (!rests || !(refs.includes(String(item.rests_on).trim()) || (rests.length >= 8 && said.includes(rests)))) continue;
-    if (!item.meets && !grounded({ missing: item.missing }, row)) continue;
+    if (!rests || !(refs.includes(String(item.rests_on).trim()) || (rests.length >= 8 && said.includes(rests)))) { drop('rests_on must name a case evidence ref, or quote at least 8 characters of this answer'); continue; }
+    if (!item.meets && !grounded({ missing: item.missing }, row)) { drop(`missing must copy words of the check: ${row.check}`); continue; }
     // Who judged it is kept with the verdict for audit, whichever grader the calling AI was given.
     const graded_by = String(item.graded_by ?? '').trim();
-    if (!graded_by) continue;
+    if (!graded_by) { drop('graded_by must name who judged it'); continue; }
     taken.add(row.id);
     verdicts.push({ id: row.id, meets: item.meets, why: item.meets ? '' : 'The answer does not meet this check.', missing: item.meets ? '' : String(item.missing).trim(), by: 'calling-ai', graded_by });
   }
-  return { verdicts, rest: rows.filter(row => !taken.has(row.id)) };
+  return { verdicts, rest: rows.filter(row => !taken.has(row.id)), dropped };
 }
