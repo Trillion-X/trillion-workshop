@@ -11,9 +11,11 @@
 //      start without a module it needs (ERR_MODULE_NOT_FOUND on the installed snapshot).
 //   2. Read from git objects at `ref`, never the working tree, so a gate judges the commit being pushed.
 //
-//   toolRowFindings({ repo, ref }) → { results: [{ row_file, id, status, package_files, findings, closure }], shapes }
-//   packageFilesByRow({ repo, ref }) → { "<row id>": [sorted repo-relative paths] }: every file the row's declared items copy
-//   plus every file its walk reaches. The publish step writes it into the archive; the walker writes nothing.
+//   toolRowFindings({ repo, ref }) → { results: [{ row_file, id, status, package_files, findings, items }], shapes, byRow }
+//   packageFilesByRow({ repo, ref }) → { "<row id>": [package_files items] }: the row's declared items, then a package item for
+//   each file its walk reaches that no declared item covers (at /opt/<package>), then a module item (`module` with paths
+//   ["."] at /opt/node_modules/<name>, or `module_tree` {name, version}) for each bare npm name it imports that the Workshop
+//   lockfile pins. The publish step writes it into the archive; the walker writes nothing.
 //
 // Bare imports: a name in test-helpers/tool-row-imports.json `provided_by_the_system` is the system's and is skipped. Any
 // other bare name is resolved through the Workshop's own lockfile (package-lock.json at ref): a package with dependencies
@@ -143,11 +145,7 @@ function checkRow(rowFile, desc) {
     if (w && fileSet.has(w.ws) && /\.(mjs|js|cjs|py|sh)$/.test(w.ws) && !coveredBy(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) findings.push({ kind: 'argv-not-declared', target: a, pkg: w.pkg, needs: w.ws });
   }
   const visited = new Set();
-  const declared = [];
-  for (const c of covers) {
-    const dir = path.posix.join('tools', c.pkg, c.rel);
-    declared.push(...allFiles.filter((f) => f === dir || f.startsWith(dir + '/')));
-  }
+  const needed = new Map();
   while (queue.length) {
     const { ws, from } = queue.shift();
     if (visited.has(ws)) continue;
@@ -174,12 +172,28 @@ function checkRow(rowFile, desc) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
         if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
         const key = `bare|${ws}|${top}`;
-        if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top, resolves_to: resolvesToModule(top) }); }
+        const resolves = resolvesToModule(top);
+        if (resolves) needed.set(top, resolves);
+        if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top, resolves_to: resolves }); }
       }
     }
   }
-  const closure = [...new Set([...declared, ...visited])].filter((f) => fileSet.has(f)).sort();
-  return { findings, closure };
+  const items = [...files];
+  const extra = new Map();
+  for (const ws of [...visited].sort()) {
+    const [, pkg, ...rest] = ws.split('/');
+    const rel = rest.join('/');
+    if (!fileSet.has(ws) || coveredBy(covers, pkg, rel)) continue;
+    if (!extra.has(pkg)) extra.set(pkg, new Set());
+    extra.get(pkg).add(rel);
+  }
+  for (const pkg of [...extra.keys()].sort()) items.push({ package: pkg, paths: [...extra.get(pkg)], at: `/opt/${pkg}` });
+  for (const [name, resolves] of [...needed].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
+    if (modules.has(name)) continue;
+    const at = `/opt/node_modules/${name}`;
+    items.push(resolves.kind === 'module_tree' ? { module_tree: { name, version: resolves.version }, at } : { module: name, paths: ['.'], at });
+  }
+  return { findings, items };
 }
 
 const results = [];
@@ -191,15 +205,15 @@ for (const rf of toolRowFiles) {
     const d = rec.payload;
     if (!d || d.kind !== 'ai-tool-descriptor') continue;
     if (!d.invoke) { results.push({ row_file: rf, id: d.id, status: d.status, note: 'no invoke' }); continue; }
-    const { findings, closure } = checkRow(rf, d);
-    results.push({ row_file: rf, id: d.id, status: d.status, package_files: (d.invoke.files?.package_files || []).length, findings, closure });
+    const { findings, items } = checkRow(rf, d);
+    results.push({ row_file: rf, id: d.id, status: d.status, package_files: (d.invoke.files?.package_files || []).length, findings, items });
   }
 }
 const byRow = {};
 for (const row of results) {
-  if (!row.closure) continue;
+  if (!row.items) continue;
   if (row.id in byRow) throw new Error(`two tool rows named ${row.id}`);
-  byRow[row.id] = row.closure;
+  byRow[row.id] = row.items;
 }
 return { results, shapes, byRow };
 }
