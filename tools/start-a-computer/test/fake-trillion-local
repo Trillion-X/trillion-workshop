@@ -1,8 +1,10 @@
 #!/bin/sh
 # A stand-in for the engine's trillion-local, for tools/start-a-computer's tests: it writes each call's words to the file
-# FAKE_TRILLION_CALLS names, one line per call, and answers the two calls the tool makes. `computer id CONFIG` prints
+# FAKE_TRILLION_CALLS names, one line per call, and answers the calls the tool makes. `computer id CONFIG` prints
 # FAKE_PLACE_ID (a made-up id); `serve CONFIG` copies the config it was given beside the calls file and stays running,
-# or with FAKE_SERVE_FAIL stops at once the way the engine refuses a config, with a stage word.
+# or with FAKE_SERVE_FAIL stops at once the way the engine refuses a config, with a stage word. `release` prints the
+# commit, sequence and target FAKE_RELEASE_COMMIT and FAKE_TARGET name; `release fetch` adopts this binary as the
+# release FAKE_FETCH_COMMIT names in the releases folder it is given; `release switch` points its `current` link there.
 [ -n "$FAKE_TRILLION_CALLS" ] || { echo "FAKE_TRILLION_CALLS names no calls file" >&2; exit 2; }
 printf '%s\n' "$*" >> "$FAKE_TRILLION_CALLS"
 if [ "$1" = computer ] && [ "$2" = id ] && [ $# -eq 3 ]; then
@@ -10,6 +12,20 @@ if [ "$1" = computer ] && [ "$2" = id ] && [ $# -eq 3 ]; then
   [ -n "$FAKE_ID_FAIL" ] && { echo "computer-key: the computer key file is not readable" >&2; exit 1; }
   echo "$FAKE_PLACE_ID"
   exit 0
+fi
+if [ "$1" = release ] && [ $# -eq 1 ]; then
+  echo "commit $FAKE_RELEASE_COMMIT"
+  echo "sequence 1"
+  echo "target $FAKE_TARGET"
+  exit 0
+fi
+if [ "$1" = release ] && [ "$2" = fetch ] && [ $# -eq 6 ]; then
+  mkdir -p "$6/$FAKE_FETCH_COMMIT" && { [ -f "$6/$FAKE_FETCH_COMMIT/trillion-local" ] || cp "$0" "$6/$FAKE_FETCH_COMMIT/trillion-local"; } && echo "$6/$FAKE_FETCH_COMMIT"
+  exit $?
+fi
+if [ "$1" = release ] && [ "$2" = switch ] && [ $# -eq 4 ]; then
+  ln -sfn "${3#"$ROOT"}/$4" "$3/current"
+  exit $?
 fi
 if [ "$1" = serve ] && [ $# -eq 2 ]; then
   cp "$2" "$FAKE_TRILLION_CALLS.serve.json"
