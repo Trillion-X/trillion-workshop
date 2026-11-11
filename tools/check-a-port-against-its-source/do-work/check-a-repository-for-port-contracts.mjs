@@ -130,6 +130,14 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
     }
   }
 
+  // The code searches of the contracts that claim this range's feature files are answered by one per-blob pass.
+  const changed = new Set(changesOf(here, resolved).filter((change) => featureRule(rules, change)).map((change) => change.path));
+  const claimedSearches = contracts.filter(({ contract }) => contract?.mode === 'NO_PRIOR_OWNER'
+    && (contract.targets ?? []).some((target) => changed.has(target?.path)))
+    .map(({ contract }) => contract.proof?.search);
+  readers.prepareCodeSearch(claimedSearches.flatMap((search) => (search?.repositories ?? []).map((row) => row?.repository).filter((name) => typeof name === 'string')).concat(searchRepositories),
+    claimedSearches.flatMap((search) => search?.code_patterns ?? []));
+
   const options = {
     readers,
     repository: readers.self,
