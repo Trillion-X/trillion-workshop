@@ -11,7 +11,7 @@ if [ "$*" = "build --release --bin trillion-local" ]; then
   [ -n "$FAKE_CARGO_FAIL" ] && { echo "error[E0425]: cannot find value in this scope" >&2; exit 101; }
 elif [ "$#" = 6 ] && [ "$1 $2 $3 $4 $5" = "zigbuild --release --bin trillion-local --target" ]; then
   out="$CARGO_TARGET_DIR/$6/release" target=" $6"
-  [ -n "$FAKE_CARGO_ZIG_ENV" ] && env > "$FAKE_CARGO_ZIG_ENV"
+  [ -n "$FAKE_CARGO_ZIG_ENV" ] && env >> "$FAKE_CARGO_ZIG_ENV"
   [ -n "$FAKE_CARGO_ZIG_FAIL" ] && { echo "error: linking with \`zig cc\` failed" >&2; exit 101; }
 else
   echo "fake cargo: unexpected arguments: $*" >&2; exit 2

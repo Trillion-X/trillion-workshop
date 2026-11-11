@@ -17,7 +17,7 @@ import { runPublish } from '../do-work/receive-pushes.mjs';
 
 const here = fileURLToPath(new URL('.', import.meta.url));
 const PUBLISH = fileURLToPath(new URL('../do-work/publish-an-engine-release.mjs', import.meta.url));
-const MAC = 'aarch64-apple-darwin', LINUX = 'x86_64-unknown-linux-gnu', TEAM = 'ABCDE12345';
+const MAC = 'aarch64-apple-darwin', LINUX = 'x86_64-unknown-linux-gnu', ZIG = 'aarch64-unknown-linux-gnu', TEAM = 'ABCDE12345';
 const identityCanary = 'p12-bytes-canary-0123456789', passwordCanary = 'p12-password-canary-9876543210';
 const folder = () => mkdtempSync(join(tmpdir(), 'engine-release-darwin-'));
 const BASE_TIME = 1_800_000_000;
@@ -81,13 +81,15 @@ test('one publish adds the Linux entry and a Developer ID signed darwin entry to
   const { key, request, credentials, sdk, seen } = builder(remote);
   const answer = await publish(request, { credentials });
   assert.deepEqual([answer.commit, answer.target, answer.already_published], [commits[2], LINUX, false]);
-  assert.equal(answer.also.length, 1);
-  const [mac] = answer.also;
+  // The darwin road, then the zigbuild road, each its own entry in the same feed.
+  assert.equal(answer.also.length, 2);
+  const [mac, zigbuild] = answer.also;
   assert.deepEqual([mac.commit, mac.sequence, mac.target, mac.already_published, mac.error], [commits[2], BASE_TIME + 3, MAC, false, undefined]);
   assert.equal(mac.url, `https://releases.example.com/engine-releases/${commits[2]}/${MAC}.tar.gz`);
+  assert.deepEqual([zigbuild.commit, zigbuild.target, zigbuild.already_published, zigbuild.error], [commits[2], ZIG, false, undefined]);
 
   const feed = feedOf(request);
-  assert.deepEqual(feed.releases.map(entry => entry.target), [LINUX, MAC], 'one feed, one entry per target');
+  assert.deepEqual(feed.releases.map(entry => entry.target), [LINUX, MAC, ZIG], 'one feed, one entry per target');
   for (const entry of feed.releases) {
     assert.ok(verifyEntry(entry, key.public_key), entry.target);
     assert.deepEqual(Object.keys(entry), ['commit', 'sequence', 'target', 'url', 'content', 'bytes', 'urgent', 'signature']);
@@ -117,8 +119,8 @@ test('one publish adds the Linux entry and a Developer ID signed darwin entry to
   } finally { delete process.env.CREDENTIALS_DIRECTORY; }
 
   const repeat = await publish(request, { credentials });
-  assert.deepEqual([repeat.already_published, repeat.also[0].already_published], [true, true], 'the same commit again changes nothing');
-  assert.equal(feedOf(request).releases.length, 2);
+  assert.deepEqual([repeat.already_published, ...repeat.also.map(one => one.already_published)], [true, true, true], 'the same commit again changes nothing');
+  assert.equal(feedOf(request).releases.length, 3);
 }));
 
 for (const [why, fakes, said] of [
@@ -136,8 +138,10 @@ for (const [why, fakes, said] of [
     assert.equal(answer.also[0].target, MAC);
     assert.match(answer.also[0].error, said);
     const feed = feedOf(request);
-    assert.deepEqual(feed.releases.map(entry => [entry.commit, entry.target]), [[commits[1], LINUX]]);
-    assert.ok(verifyEntry(feed.releases[0], key.public_key));
+    // The zigbuild road publishes too, unless the fake cross-build fails for it as well.
+    const published = fakes.FAKE_CARGO_ZIG_FAIL ? [LINUX] : [LINUX, ZIG];
+    assert.deepEqual(feed.releases.map(entry => [entry.commit, entry.target]), published.map(target => [commits[1], target]));
+    for (const entry of feed.releases) assert.ok(verifyEntry(entry, key.public_key), entry.target);
   }));
 }
 
@@ -176,7 +180,8 @@ test('an older darwin sequence is refused for darwin alone, and a darwin target 
   assert.deepEqual([answer.already_published, answer.also[0].already_published, answer.also[0].target], [true, false, MAC], 'Linux had it; darwin is built now');
   await publish(request, { commit: commits[2], credentials });
   const feed = feedOf(request);
-  assert.deepEqual(feed.releases.map(entry => [entry.sequence, entry.target]), [[BASE_TIME + 2, LINUX], [BASE_TIME + 2, MAC], [BASE_TIME + 3, LINUX], [BASE_TIME + 3, MAC]]);
+  // Each commit's roads in the order they publish: Linux, then the zigbuild road, then darwin (darwin is added later for commit 2).
+  assert.deepEqual(feed.releases.map(entry => [entry.sequence, entry.target]), [[BASE_TIME + 2, LINUX], [BASE_TIME + 2, ZIG], [BASE_TIME + 2, MAC], [BASE_TIME + 3, LINUX], [BASE_TIME + 3, MAC], [BASE_TIME + 3, ZIG]]);
   await assert.rejects(publish(request, { commit: commits[0], credentials }), error => error.exit === 3, 'an older commit is refused before anything is built');
 }));
 
@@ -187,7 +192,7 @@ test('with no credentials folder the darwin entry says what is missing; the Linu
   const answer = await publish(request, { credentials: undefined });
   assert.equal(answer.already_published, false);
   assert.match(answer.also[0].error, /No Developer ID identity for aarch64-apple-darwin: publish reads it from the receiver service's credentials/);
-  assert.deepEqual(feedOf(request).releases.map(entry => entry.target), [LINUX]);
+  assert.deepEqual(feedOf(request).releases.map(entry => entry.target), [LINUX, ZIG]);
 }));
 
 test('the command exits 4 when a darwin target failed, and the receiver keeps both the release and the error', () => withFakes({ FAKE_RCODESIGN_NOT_APPLE: '1' }, async () => {
