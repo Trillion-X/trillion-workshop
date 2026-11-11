@@ -30,6 +30,7 @@ const computer = live => {
       if (live[path] === undefined) throw Object.assign(new Error('absent'), { code: 3 });
       return live[path];
     }
+    if (command.includes('curl')) return '200';
     if (command.startsWith('if [ -d ')) return '';
     if (command.startsWith('getent') || command.startsWith('test -e')) return '';
     return '';
@@ -71,4 +72,17 @@ test('a file that differs keeps its previous bytes beside it, and only that file
   assert.deepEqual(restarted, ['example-place.service']);
   assert.ok(commands.some(({ command }) => /^cp -p '\/etc\/systemd\/system\/example-place\.service' '\/etc\/systemd\/system\/example-place\.service\.bak-/.test(command)));
   assert.equal(commands.filter(({ command }) => command.startsWith('sh -s')).length, 1);
+});
+
+test('a restarted unit must answer its health row on the machine, or the apply fails', async () => {
+  const live = { '/etc/systemd/system/example-place.service': 'an older unit\n' };
+  const healthy = async (_m, command) => {
+    if (command.startsWith('if [ -f ')) { const p = command.match(/if \[ -f '([^']+)' \]/)[1]; if (live[p] === undefined) throw Object.assign(new Error('absent'), { code: 3 }); return live[p]; }
+    if (command.includes('curl')) return '200';
+    return '';
+  };
+  const ok = await applyHostLayout(machine, layout, healthy);
+  assert.deepEqual(ok.booted, ['example-place.service']);
+  const crashing = async (m, command) => command.includes('curl') ? '000' : healthy(m, command);
+  await assert.rejects(applyHostLayout(machine, layout, crashing), /example-place\.service answered nothing on \/readyz, not 200/);
 });

@@ -127,7 +127,17 @@ export async function applyHostLayout(machine, layout, run = onMachine) {
     await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
   }
   if (writes.some(({ path }) => path === CADDYFILE)) await run(machine, 'systemctl reload caddy');
-  return { written: writes.map(({ path }) => path), restarted: units };
+  // The boot check: each restarted unit must answer the health row its layout names (else the tool default), on the machine
+  // itself, so a unit that starts and crashes, or a route that is not served, fails the apply instead of passing it.
+  const booted = [];
+  for (const unit of units) {
+    const health = healthOf({ health: layout.health }, {});
+    const listen = layout.health_listen ?? layout.caddy?.listen ?? `127.0.0.1:${layout.caddy?.port}`;
+    const status = await healthStatus(machine, { listen }, layout.caddy?.site_hosts?.[0] ?? '', { ...health, where: 'machine' }, { fetchImpl: undefined, wait: pause, tries: 12, run });
+    if (status !== health.status) throw Object.assign(new Error(`${unit} answered ${status ?? 'nothing'} on ${health.path}, not ${health.status}, after its restart.`), { unit, status });
+    booted.push(unit);
+  }
+  return { written: writes.map(({ path }) => path), restarted: units, booted };
 }
 
 const CADDYFILE = '/etc/caddy/Caddyfile';
