@@ -216,7 +216,8 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const target = kind.target ?? await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
   const host = roads.targets.find(row => row.build === 'host');
   if (kind.build && host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
-  const zigTargets = kind.build ? roads.targets.filter(row => row.build === 'zigbuild').map(row => checkTarget(row.triple)) : [];
+  const zigRows = kind.build ? roads.targets.filter(row => row.build === 'zigbuild') : [];
+  for (const row of zigRows) checkTarget(row.triple);
   const feedNow = () => readFeed(readText(feedFile(feedFolder)));
   const before = mayPublish(feedNow(), { commit, sequence, target });
   if (before.already && !darwin) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
@@ -245,14 +246,14 @@ export async function publish(request, { token = '', commit: asked, credentials 
       try { also.push(await publishDarwin({ request, darwin, source, work, targetDir, env, log, feedFolder, feedNow, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })); }
       catch (error) { also.push({ target: one, error: error.message }); }
     }
-    for (const one of zigTargets) {
-      try { also.push(await publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })); }
+    for (const row of zigRows) {
+      try { also.push(await publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } })); }
       catch (error) { also.push({ target: one, error: error.message }); }
     }
     // The feed-status file describes the engine's roads only; a Workshop publish leaves it as the engine's last publish wrote it.
     if (kind.build) {
       const failures = Object.fromEntries(also.filter(one => one.error).map(one => [one.target, one.error]));
-      const status = feedStatusOf(feedNow(), commit, [target, ...(darwin?.targets ?? []), ...zigTargets], failures);
+      const status = feedStatusOf(feedNow(), commit, [target, ...(darwin?.targets ?? []), ...zigRows.map(row => row.triple)], failures);
       writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
     }
     return { ...answer, also };
@@ -270,10 +271,10 @@ export function buildEnvironment({ commit, sequence, targetDir }) {
  * One cross-built target of the commit already checked out: built with cargo-zigbuild for `target` (no Mac signing),
  * packed, signed and added like the builder's own target. Its roads row names it `zigbuild` (release-roads.json).
  */
-export async function publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields }) {
+export async function publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields, buildEnv = {} }) {
   const { target } = fields;
   const toolchain = request.toolchain ?? {};
-  const crossEnv = { ...env, ...(toolchain.zig_python ? { CARGO_ZIGBUILD_PYTHON_PATH: toolchain.zig_python } : {}) };
+  const crossEnv = { ...env, ...buildEnv, ...(toolchain.zig_python ? { CARGO_ZIGBUILD_PYTHON_PATH: toolchain.zig_python } : {}) };
   await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', '--bin', settings.binary, '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
   const built = join(targetDir, target, 'release', settings.binary);
   if (!existsSync(built)) throw refuse(`cargo zigbuild finished but made no ${built}.`);
