@@ -83,23 +83,27 @@ export function checkEntry(entry) {
 export const ENGINE_KIND = settings.kinds.find(row => row.build);
 
 /**
- * Whether `target` may be an entry of `kind`'s feed: the engine feed takes no target a kind that builds nothing names
- * (the Workshop's), so an old reader that picks the newest entry of a feed never takes a program it cannot run; a kind
- * that builds nothing has its own feed with its own one target.
+ * Whether `target` may be an entry of the feed named `feedName`. A kind that builds nothing (the Workshop's) has its own
+ * feed with its one target, and that target is also mirrored into the feed named by its `mirror_feed`, so the engine
+ * feed carries it until every reader reads the kind's own feed. Any other target is an engine target, and only the
+ * engine feed takes it: an old reader that picks the newest entry of a feed never takes a program it cannot run.
  */
-export function checkFeedTarget(kind, target) {
-  const others = settings.kinds.filter(row => !row.build).map(row => row.target);
-  const allowed = kind.build ? !others.includes(target) : target === kind.target;
-  if (!allowed) throw refuse(`${target} is not a target of the ${kind.kind} feed (${kind.feed_file}): a feed holds only its own kind's entries.`);
+export function checkFeedTarget(feedName, target) {
+  const owner = settings.kinds.find(row => !row.build && row.target === target);
+  if (owner) {
+    if (owner.feed_file === feedName || owner.mirror_feed === feedName) return;
+    throw refuse(`${target} is not a target of the ${feedName} feed: it belongs in ${owner.feed_file}.`);
+  }
+  if (feedName !== ENGINE_KIND.feed_file) throw refuse(`${target} is an engine target: it belongs in ${ENGINE_KIND.feed_file}, not ${feedName}.`);
 }
 
 /** A feed read from its text (a missing feed is the empty feed). Its entries are the `kind`'s (the engine's by default). */
-export function readFeed(text, kind = ENGINE_KIND) {
+export function readFeed(text, feedName = ENGINE_KIND.feed_file) {
   if (text === null || text === undefined) return { releases: [] };
   let feed;
   try { feed = JSON.parse(text); } catch { throw refuse('feed.json is not JSON: move it aside, and the next publish starts a new feed.'); }
   if (!feed || !Array.isArray(feed.releases)) throw refuse('feed.json has no releases list: it must be { "releases": [ ... ] }.');
-  feed.releases.forEach(entry => { checkEntry(entry); checkFeedTarget(kind, entry.target); });
+  feed.releases.forEach(entry => { checkEntry(entry); checkFeedTarget(feedName, entry.target); });
   return { releases: feed.releases };
 }
 
@@ -136,9 +140,9 @@ export function mayPublish(feed, { commit, sequence, target }) {
 }
 
 /** The feed with the entry added, newest last, and the entries that no longer fit. */
-export function addRelease(feed, entry, keep = settings.keep_releases, kind = ENGINE_KIND) {
+export function addRelease(feed, entry, keep = settings.keep_releases, feedName = ENGINE_KIND.feed_file) {
   checkEntry(entry);
-  checkFeedTarget(kind, entry.target);
+  checkFeedTarget(feedName, entry.target);
   const may = mayPublish(feed, entry);
   if (may.already) return { feed, added: false, entry: may.already, dropped: [] };
   const releases = [...feed.releases, entry].map((one, at) => ({ one, at })).sort((a, b) => a.one.sequence - b.one.sequence || a.at - b.at).map(({ one }) => one);

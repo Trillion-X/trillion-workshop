@@ -195,11 +195,13 @@ test('adding to a feed refuses an older sequence and another commit at the same 
 test('an engine feed refuses a Workshop entry, and a Workshop feed refuses an engine target', () => {
   const key = newSigningKey();
   const entry = target => signEntry({ commit: '1'.repeat(40), sequence: 1, target, url: 'https://r.example.com/x.tar.gz', content: `1f:${'d'.repeat(64)}`, bytes: 1, urgent: false }, key);
-  assert.throws(() => addRelease({ releases: [] }, entry('workshop-tools')), /not a target of the engine feed \(feed\.json\)/);
-  assert.throws(() => addRelease({ releases: [] }, entry('x86_64-unknown-linux-gnu'), settings.keep_releases, workshopKind), /not a target of the workshop-tools feed/);
-  assert.ok(addRelease({ releases: [] }, entry('workshop-tools'), settings.keep_releases, workshopKind).added, 'the Workshop feed takes its own target');
+  assert.throws(() => addRelease({ releases: [] }, entry('x86_64-unknown-linux-gnu'), settings.keep_releases, 'workshop-feed.json'), /is an engine target: it belongs in feed\.json/);
+  assert.ok(addRelease({ releases: [] }, entry('workshop-tools'), settings.keep_releases, 'workshop-feed.json').added, 'the Workshop feed takes its own target');
+  assert.ok(addRelease({ releases: [] }, entry('workshop-tools')).added, 'the engine feed takes the Workshop target only as its mirror');
+  assert.throws(() => addRelease({ releases: [] }, entry('workshop-tools'), settings.keep_releases, 'other-feed.json'), /not a target of the other-feed\.json feed/);
   const mixed = JSON.stringify({ releases: [entry('x86_64-unknown-linux-gnu'), entry('workshop-tools')] });
-  assert.throws(() => readFeed(mixed), /not a target of the engine feed/, 'an engine feed file that holds a Workshop entry is refused on read');
+  assert.equal(readFeed(mixed).releases.length, 2, 'the engine feed reads its mirrored Workshop entry');
+  assert.throws(() => readFeed(JSON.stringify({ releases: [entry('x86_64-unknown-linux-gnu')] }), 'workshop-feed.json'), /is an engine target/, 'the Workshop feed refuses an engine entry on read');
 });
 
 test('the feed never holds more than keep entries, and a target whose builder is behind keeps its newest', () => {
@@ -217,7 +219,6 @@ test('the feed never holds more than keep entries, and a target whose builder is
 
 // The Workshop's tools tree: the same request with kind workshop-tools, in a work folder of its own.
 const workshopOf = request => ({ ...request, kind: 'workshop-tools', work_folder: join(dirname(request.work_folder), 'workshop-work') });
-const workshopKind = settings.kinds.find(row => row.kind === 'workshop-tools');
 
 test('the Workshop kind publishes the commit\'s git archive as one signed workshop-tools entry, built by nothing', async () => {
   const { remote, commits } = repository(2, { product: false });
@@ -229,7 +230,7 @@ test('the Workshop kind publishes the commit\'s git archive as one signed worksh
   assert.equal(answer.url, `https://releases.example.com/engine-releases/${commits[1]}/workshop-tools.tar.gz`);
   assert.equal(readFileSync(envFile, 'utf8'), '', 'nothing was built');
 
-  const feed = readFeed(readFileSync(join(request.feed_folder, 'workshop-feed.json'), 'utf8'), workshopKind);
+  const feed = readFeed(readFileSync(join(request.feed_folder, 'workshop-feed.json'), 'utf8'), 'workshop-feed.json');
   const entry = feed.releases.find(one => one.target === 'workshop-tools');
   assert.ok(verifyEntry(entry, key.public_key), 'the same check as an engine entry');
   assert.equal(existsSync(join(request.feed_folder, 'feed-status.json')), false, 'the engine\'s feed status is not written for the Workshop');
@@ -253,9 +254,9 @@ test('a Workshop commit older than the feed\'s newest workshop-tools entry is re
   const workshop = workshopOf(request);
   await publish(workshop, { commit: commits[2] });
   await assert.rejects(publish(workshop, { commit: commits[1] }), error => error.exit === 3 && /older than the feed's newest/.test(error.message));
-  const feed = readFeed(readFileSync(join(request.feed_folder, 'workshop-feed.json'), 'utf8'), workshopKind);
+  const feed = readFeed(readFileSync(join(request.feed_folder, 'workshop-feed.json'), 'utf8'), 'workshop-feed.json');
   assert.deepEqual(feed.releases.map(entry => [entry.target, entry.sequence]), [['workshop-tools', BASE_TIME + 3]]);
-  assert.equal(existsSync(join(request.feed_folder, 'feed.json')), false, 'the engine feed is not written for the Workshop');
+  assert.deepEqual(readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.map(entry => entry.target), ['workshop-tools'], 'the Workshop entry is mirrored into the engine feed');
 });
 
 test('a kind names a publish kind, and no Mac target is built for the Workshop', async () => {

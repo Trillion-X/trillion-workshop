@@ -26,7 +26,7 @@ import { join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { CREDENTIAL_HELPER, hostTarget, kindOf, privateInput, readRequest, runProgram, writeAtomically } from './publish-an-engine-release.mjs';
-import { checkCommit, checkTarget, newestFor, readFeed, roads, settings, signerOf } from './release-feed.mjs';
+import { checkCommit, checkTarget, ENGINE_KIND, newestFor, readFeed, roads, settings, signerOf } from './release-feed.mjs';
 import { readEntryHeader } from './contribute-an-engine-release.mjs';
 
 const PUBLISH = fileURLToPath(new URL('./publish-an-engine-release.mjs', import.meta.url));
@@ -79,11 +79,11 @@ export function countAttempt(stateFolder, commit) {
 
 /** One catch-up check: queue the branch's tip when a target of the feed is behind it, unless it has been tried
  *  `attempts_at_most` times already. Answers the commit queued, or null. A run in progress is left to finish first. */
-export async function catchUp({ repository, branch, kind, feedFile, targets, stateFolder, token, queue, log }) {
+export async function catchUp({ repository, branch, kind = ENGINE_KIND, feedFile, targets, stateFolder, token, queue, log }) {
   if (queue.running()) return null;
   const tip = await remoteTip({ repository, branch, token });
   if (!tip) return null;
-  const feed = readFeed(existsSync(feedFile) ? readFileSync(feedFile, 'utf8') : null, kind);
+  const feed = readFeed(existsSync(feedFile) ? readFileSync(feedFile, 'utf8') : null, kind.feed_file);
   if (!behindFeed(feed, tip, targets)) return null;
   if (attemptsOf(stateFolder, tip) >= settings.attempts_at_most) return null;
   log(`catch-up: the feed is behind ${branch} at ${tip}; queued it`);

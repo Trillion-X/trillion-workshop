@@ -222,7 +222,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
   if (kind.build && host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
   const zigRows = kind.build ? roads.targets.filter(row => row.build === 'zigbuild') : [];
   for (const row of zigRows) checkTarget(row.triple);
-  const feedNow = () => readFeed(readText(feedFile(feedFolder, kind)), kind);
+  const feedNow = () => readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
   const before = mayPublish(feedNow(), { commit, sequence, target });
   if (before.already && !darwin) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
 
@@ -423,8 +423,8 @@ export async function accept(request, { token = '', entry: offered, body } = {})
   await fetchRepository({ repository, branch, source, token });
   const sequence = await sequenceOf({ source, branch, commit });
   if (sequence !== candidate.sequence) throw refuse(`The entry says ${commit} is sequence ${candidate.sequence}, but it is ${sequence} on ${branch}'s first-parent line.`, 3);
-  const before = mayPublish(readFeed(readText(feedFile(feedFolder, kind)), kind), candidate);
-  if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: readFeed(readText(feedFile(feedFolder, kind)), kind).releases.length });
+  const before = mayPublish(readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file), candidate);
+  if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file).releases.length });
   if (body.length !== candidate.bytes || makeHashCodeHexFromBytes(body) !== candidate.content) throw refuse(`The body sent for ${commit} (${target}) is not the entry's content: release_content_mismatch.`, 3);
   const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
@@ -435,16 +435,21 @@ export async function accept(request, { token = '', entry: offered, body } = {})
 
 /** Add a signed entry whose tar.gz is at `part` to the feed under its lock, and remove what no longer fits. */
 async function addUnderLock({ request, feedFolder, entry, part, file, publicKey }) {
-  const kind = kindOf(request);
+  const kind = kindOf(request), keep = request.keep_releases ?? settings.keep_releases;
   return withFeedLock(feedFolder, async () => {
-    const now = readFeed(readText(feedFile(feedFolder, kind)), kind);
+    const now = readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
     let result;
-    try { result = addRelease(now, entry, request.keep_releases ?? settings.keep_releases, kind); }
+    try { result = addRelease(now, entry, keep, kind.feed_file); }
     catch (error) { rmSync(part, { force: true }); throw error; }
     if (!result.added) { rmSync(part, { force: true }); return answerOf(result.entry, { publicKey, already: true, dropped: 0, held: now.releases.length }); }
+    // A mirrored kind's entry goes into its mirror feed too, under the same lock, so both feeds name the same release.
+    const mirror = kind.mirror_feed ? readFeed(readText(feedFile(feedFolder, { feed_file: kind.mirror_feed })), kind.mirror_feed) : null;
+    const mirrored = mirror ? addRelease(mirror, entry, keep, kind.mirror_feed) : null;
     renameSync(part, file);
     writeAtomically(feedFile(feedFolder, kind), `${JSON.stringify(result.feed, null, 1)}\n`);
-    for (const gone of result.dropped) {
+    if (mirrored?.added) writeAtomically(feedFile(feedFolder, { feed_file: kind.mirror_feed }), `${JSON.stringify(mirrored.feed, null, 1)}\n`);
+    const stillHeld = one => [result.feed, mirrored?.feed].some(feed => feed?.releases.some(held => held.commit === one.commit && held.target === one.target));
+    for (const gone of result.dropped.filter(one => !stillHeld(one))) {
       const old = tarballOf(feedFolder, gone.commit, gone.target);
       rmSync(old, { force: true });
       try { rmdirSync(dirname(old)); } catch { /* another target's release is still in that folder */ }
