@@ -20,7 +20,7 @@
           "properties": {
             "request_file": {
               "type": "string",
-              "description": "A request JSON (lease_file, machine, name, ssh, port, engine, place_config, config_from_release); its paths are read relative to it."
+              "description": "A request JSON (lease_file, machine, name, ssh, port, engine, required product_settings object or file, optional place_config, config_from_release, release_feed); local paths are read relative to it."
             }
           }
         },
@@ -451,7 +451,7 @@
         "id": "tool:update-a-computer",
         "label": "Update a computer",
         "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-        "description": "Reads a running computer's own layout from its service unit (its computer config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its computer config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
+        "description": "Reads a running computer's own layout from its service unit (a request's layout row wins), installs the requested engine release or keeps the current one, and writes one caller-supplied product_settings snapshot to its state folder. Missing starting account rows come from that same snapshot, existing configured rows remain, and copies are bounded to available computers. The caller explicitly supplies the signed release_feed. Replaced files and the release pointer are backed up; failed service or sign-up health restores them. rollback restores that backup on request.",
         "status": "active",
         "input_schema": {
           "type": "object",
@@ -466,7 +466,7 @@
             },
             "request_file": {
               "type": "string",
-              "description": "A request JSON (ssh, name, engine.file and optionally the release to install; layout, release_feed and copies optional: read from the computer, the product's feed, and what its computers can meet when absent)."
+              "description": "A request JSON with ssh, engine.file, required product_settings object or file and explicit release_feed; name, release to install, layout and copies are optional. Relative local paths resolve against this request file."
             }
           }
         },

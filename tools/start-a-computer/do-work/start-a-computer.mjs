@@ -12,16 +12,17 @@
 // provider's credential (the row's vault_key), descriptor 4 the name provider's. They never reach argv, a file, the
 // environment or the answer.
 //
-// Every computer gets the product settings file the engine reads since trillion-rust 3b2a4d10 (read-data/product-settings.json,
-// named by the launch setting read-data/settings.json `product_settings` declares) and follows the signed release feed
-// (the request's release_feed, else the one read-data/settings.json names). `update` brings a running computer to the
-// same, with a backup and a rollback (do-work/update-a-computer.sh).
+// The caller names its product data: the trillion-apps manifest computer/product-data.json (`product_data`), whose settings file
+// and static files are checked by content identity before anything is written. The same settings snapshot supplies the starting
+// account rows and the remote settings file, and its page look names the static folder beside that file. The caller also supplies
+// an optional signed release feed. Updates retain a backup and can roll back.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
 import { readFileSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import {
   machineProvider, nameProvider, providerClient, rentMachine, readMachine, releaseMachine, readPrice, pointName,
   forgetName, readLease,
@@ -30,8 +31,6 @@ import {
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
 const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
-/** The product settings file's bytes, as every computer gets them (read-data/product-settings.json, byte for byte). */
-export const PRODUCT_SETTINGS = readFileSync(new URL(`../read-data/${SETTINGS.product_settings.data}`, import.meta.url));
 /** The launch setting that names the product settings file, and where that file is on the machine. */
 export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting, file: SETTINGS.product_settings.file };
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
@@ -84,6 +83,56 @@ export async function installRelease(machine, engine, run = onMachine) {
 
 const refused = message => Object.assign(new Error(message), { exit: 2 });
 
+/** The folder beside a computer's product settings file that holds the static files its sign-in pages name (the page
+ * look's `static_root`, trillion-rust src/account/sign_in/shell.rs). */
+export const staticFolderOf = settingsFile => `${dirname(settingsFile)}/static`;
+
+/** The product data the request's `product_data` manifest names (computer/product-data.json,
+ * `{product_settings: {file, identity}, static: [{name, file, identity}]}`, each `file` read beside the manifest), read once
+ * and checked: every file's bytes must hash to its `identity` (the BLAKE3 content identity, tools/content-identity) or nothing
+ * is written. A caller takes this snapshot before anything else runs, so the files it later changes are not the ones written. */
+export function readProductData(request) {
+  const manifestFile = absolute(request.product_data, 'product_data');
+  const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
+  const folder = dirname(manifestFile);
+  const verified = entry => {
+    if (typeof entry?.file !== 'string' || typeof entry.identity !== 'string') throw refused('product_data rows name a file and its identity.');
+    const bytes = readFileSync(resolvePath(folder, entry.file));
+    if (makeHashCodeHexFromBytes(bytes) !== entry.identity) throw refused(`${entry.file} is not the product data its manifest names (identity ${entry.identity}).`);
+    return bytes;
+  };
+  const source = verified(manifest.product_settings);
+  const statics = (manifest.static ?? []).map(entry => {
+    if (typeof entry?.name !== 'string' || !/^[A-Za-z0-9._/-]+$/.test(entry.name) || entry.name.split('/').some(part => part === '' || part === '.' || part === '..')) throw refused('product_data static names are relative paths of letters, digits, dot, dash, underscore and slash.');
+    return { name: entry.name, bytes: verified(entry) };
+  });
+  return { source, statics };
+}
+
+/** The bytes a computer's product settings file gets from a snapshot (`readProductData`): the settings the engine reads, checked
+ * for their sections and bounded in size. The page look names the static folder beside `settingsFile` on this computer. */
+export function productSettingsOf(snapshot, settingsFile = productSettings.file) {
+  if (snapshot.source.length > SETTINGS.product_settings.most_bytes) throw refused('product_settings exceeds the engine settings file byte limit.');
+  const data = JSON.parse(snapshot.source);
+  const object = value => value !== null && typeof value === 'object' && !Array.isArray(value);
+  if (!object(data) || !object(data.new_accounts)) throw refused('product_settings.new_accounts must supply the starting account rows.');
+  for (const key of ['sign_in', 'sign_in_ways', 'sign_in_words', 'copies_rules']) {
+    if (!object(data.new_accounts[key])) throw refused(`product_settings.new_accounts.${key} must be an object.`);
+  }
+  copiesPolicy(data.new_accounts.copies);
+  if (object(data.page_look)) data.page_look.static_root = staticFolderOf(settingsFile);
+  return { bytes: Buffer.from(`${JSON.stringify(data, null, 2)}\n`), data, statics: snapshot.statics };
+}
+
+/** Install the static files the sign-in pages name into `folder` on the machine, owned by the service's user (mode 0644), each as
+ * the bytes its product data identity names. `root` is empty on a machine; tests use made-up folders. */
+export async function installStatics(machine, folder, statics, owner, run = onMachine, root = '') {
+  for (const { name, bytes } of statics) {
+    const at = `${root}${folder}/${name}`;
+    await run(machine, `install -d -m 0755 ${q(dirname(at))} && install -o ${owner} -g ${owner} -m 0644 /dev/stdin ${q(at)}`, bytes);
+  }
+}
+
 /** Where the computer adopts new engine releases from (engine job J1): feed urls, the keys a release must be signed by, and its releases. */
 export function releaseFeed(feed) {
   if (!feed || typeof feed !== 'object' || Array.isArray(feed)) throw refused('release_feed must be { urls, public_keys, releases }.');
@@ -97,26 +146,31 @@ export function releaseFeed(feed) {
   return structuredClone(feed);
 }
 
-/** The feed this request's computer follows: the request's own, none when it says `release_feed: null`, else the
- * product's (read-data/settings.json `release_feed`). */
-export const feedOf = request => (request.release_feed === null ? null : releaseFeed(request.release_feed ?? SETTINGS.release_feed));
+/** No signed release feed is selected unless the caller supplies one. */
+export const feedOf = request => (request.release_feed == null ? null : releaseFeed(request.release_feed));
 
 /** A copies row (trillion-rust src/account/computers/copy_rule.rs `valid`): at least one copy keeper, and no more
  * computers that may answer than keep a copy. */
 export function copiesPolicy(copies) {
   const names = ['least_copy_keepers', 'least_voters', 'least_may_answer', 'least_always_on'];
-  if (!copies || typeof copies !== 'object' || Object.keys(copies).some(key => !names.includes(key)) || !names.every(key => Number.isInteger(copies[key]) && copies[key] >= 0)) throw refused(`copies must be { ${names.join(', ')} }, each a whole number.`);
+  if (!copies || typeof copies !== 'object' || Object.keys(copies).some(key => !names.includes(key)) || !names.every(key => Number.isSafeInteger(copies[key]) && copies[key] >= 0 && copies[key] <= SETTINGS.copies.most_admitted_computers)) throw refused(`copies must be { ${names.join(', ')} }, each a whole number from 0 to ${SETTINGS.copies.most_admitted_computers}.`);
   if (copies.least_copy_keepers < 1 || copies.least_may_answer > copies.least_copy_keepers) throw refused('copies needs least_copy_keepers of at least 1, and least_may_answer no more than least_copy_keepers.');
+  if (copies.least_always_on > copies.least_may_answer) throw refused('copies least_always_on must be no more than least_may_answer.');
   return { ...copies };
 }
 
-/** The copies a new account made at this computer can meet: as many as the computers its default computers keep it on
- * (this computer alone when it names none), up to the product's own (read-data/settings.json `copies.most`). One
- * computer keeps one copy, votes alone and answers alone; the engine's test fixture's 3 keepers and 3 voters are
- * never met by fewer than 3 computers, so every new account there would wait for computers it can never get. */
-export function copiesFor(config) {
-  const computers = Math.max(1, new Set(config.default_places?.holders ?? []).size), most = SETTINGS.copies.most;
-  return copiesPolicy(Object.fromEntries(Object.entries(most).map(([key, value]) => [key, Math.min(value, key === 'least_always_on' ? value : computers)])));
+/** Bound the caller's desired counts to the number of computers available at account creation. */
+export function copiesFor(config, most) {
+  copiesPolicy(most);
+  const computers = Math.max(1, new Set(config.default_places?.holders ?? []).size);
+  return copiesPolicy(Object.fromEntries(Object.entries(most).map(([key, value]) => [key, Math.min(value, computers)])));
+}
+
+/** Preserve configured rows and fill missing ones from the same caller settings written to the computer. */
+export function startingRows(config, request, product = productSettingsOf(readProductData(request))) {
+  const rows = { ...structuredClone(product.data.new_accounts), ...structuredClone(config.new_accounts ?? {}) };
+  rows.copies = request.copies === undefined ? copiesFor(config, product.data.new_accounts.copies) : copiesPolicy(request.copies);
+  return rows;
 }
 
 /** The computers a new account's rows name by default, as the request gives them. */
@@ -132,7 +186,7 @@ export function defaultComputers(computers) {
 /** The computer config with the machine's own fields set, the request's release feed and default computers, plus values read
  * from files in the release. The machine is reached at its own name (`report.reach`); people reach its accounts at
  * `public_origin` when the request names one (a forwarder in front of several machines), else at that same name. */
-export async function computerConfig(machine, request, price, run = onMachine) {
+export async function computerConfig(machine, request, price, run = onMachine, product = productSettingsOf(readProductData(request))) {
   const reach = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
   Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: request.public_origin ?? reach });
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
@@ -147,8 +201,7 @@ export async function computerConfig(machine, request, price, run = onMachine) {
     at[from.at.at(-1)] = value;
   }
   // A copies row this computer's accounts can meet, whatever the release's or the request's place_config carried.
-  if (request.copies !== undefined) (config.new_accounts ??= {}).copies = copiesPolicy(request.copies);
-  else if (config.new_accounts) config.new_accounts.copies = copiesFor(config);
+  config.new_accounts = startingRows(config, request, product);
   return config;
 }
 
@@ -168,17 +221,18 @@ const asEngine = (engine, argv) => `runuser -u place -- env ${productSettings.la
 /** The folder the engine adopts feed releases into, when the request's release_feed names one by absolute path: the
  * `place` service runs with ProtectSystem=strict, so set-up makes this folder writable for it. */
 export const adoptFolder = request => {
-  const releases = request.release_feed === null ? null : (request.release_feed ?? SETTINGS.release_feed).releases;
+  const releases = request.release_feed?.releases;
   return typeof releases === 'string' && releases.startsWith('/') ? releases.replace(/(.)\/$/, '$1') : null;
 };
 
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
-async function serve(machine, request, price, { run, ...deps }) {
+async function serve(machine, request, price, { run, product, ...deps }) {
   const engine = request.engine, adopt = adoptFolder(request);
   await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, ...(adopt ? [adopt] : [])].map(q).join(' ')}`, readFileSync(SETUP));
   const release = await installRelease(machine, engine, run);
-  const config = await computerConfig(machine, request, price, run);
-  await run(machine, `install -o place -g place -m 0600 /dev/stdin ${q(productSettings.file)}`, PRODUCT_SETTINGS);
+  const config = await computerConfig(machine, request, price, run, product);
+  await installStatics(machine, staticFolderOf(productSettings.file), product.statics, 'place', run);
+  await run(machine, `install -o place -g place -m 0600 /dev/stdin ${q(productSettings.file)}`, product.bytes);
   await run(machine, 'install -o place -g place -m 0600 /dev/stdin /var/lib/place/place.json', `${JSON.stringify(config, null, 1)}\n`);
   const computerId = engine.id_argv ? (await run(machine, `cd /var/lib/place && ${asEngine(engine, [...engine.id_argv, '/var/lib/place/place.json'])}`)).trim() : null;
   await run(machine, 'systemctl enable place.service >/dev/null 2>&1; systemctl restart place.service && sleep 3 && systemctl is-active place.service');
@@ -202,10 +256,12 @@ export async function rentAMachine(request, { machineToken, nameToken, fetchImpl
 }
 
 export async function startAComputer(request, { machineToken, nameToken, fetchImpl = fetch, wait = pause, tries = 48, run = onMachine } = {}) {
+  const product = productSettingsOf(readProductData(request));
+  if (request.copies !== undefined) copiesPolicy(request.copies);
   feedOf(request);
   if (request.default_places !== undefined) defaultComputers(request.default_places);
   const { machine, price, arch, lease, host_name } = await rentAMachine(request, { machineToken, nameToken, fetchImpl, wait, run });
-  const served = await serve(machine, request, price, { run, fetchImpl, wait, tries });
+  const served = await serve(machine, request, price, { run, product, fetchImpl, wait, tries });
   return { lease, host_name, arch, price, place_id: served.computerId, release: served.release, sign_up_status: served.signUp };
 }
 
@@ -219,8 +275,10 @@ export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wa
 
 /** The update of a running computer, in a backup folder named for this moment, inside its own state folder. */
 const backupFolder = (state, now = new Date()) => `${state}/${SETTINGS.update.backups}/update-${now.toISOString().replace(/[:.]/g, '-')}`;
-const updateScript = (args, { root, settle, layout }) => {
-  const set = [root && `ROOT=${q(root)}`, `SETTLE=${q(settle)}`, ...(layout ? Object.entries(layoutEnv(layout)).map(([key, value]) => `${key}=${q(value)}`) : [])].filter(Boolean);
+/** The release feed the bootstrap follows: its first URL and its first key (the request's release_feed, already checked). */
+const feedEnv = feed => (feed ? [`FEED_URL=${q(feed.urls[0])}`, `PUBLIC_KEY=${q(feed.public_keys[0])}`] : []);
+const updateScript = (args, { root, settle, layout, feed = null }) => {
+  const set = [root && `ROOT=${q(root)}`, `SETTLE=${q(settle)}`, ...(layout ? Object.entries(layoutEnv(layout)).map(([key, value]) => `${key}=${q(value)}`) : []), ...feedEnv(feed)].filter(Boolean);
   return `env ${set.join(' ')} sh -s -- ${args.map(q).join(' ')}`;
 };
 const layoutEnv = layout => ({ CONFIG: layout.config, UNIT_FILE: layout.unit_file, UNIT: layout.unit, CURRENT: layout.current, STATE: layout.state, OWNER: layout.owner });
@@ -272,9 +330,11 @@ export async function readLayout(machine, request, run = onMachine, root = '') {
  * A service that is not active after the restart, or a sign-up page that does not answer 200, puts everything back.
  * `root` is for made-up computer folders in tests. */
 export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', settle = SETTINGS.update.settle_seconds, now = new Date() } = {}) {
+  const snapshot = readProductData(request);
+  if (request.copies !== undefined) copiesPolicy(request.copies);
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
   const named = feedOf(request);
-  if (!named) throw refused('An update follows a release_feed (the product\'s, read-data/settings.json, when the request names none).');
+  if (!named) throw refused('An update needs the caller\'s release_feed.');
   if (!request.engine?.file) throw refused('An update needs engine.file: the engine program inside a release.');
   const layout = await readLayout(machine, request, run, root);
   const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : layout.releases };
@@ -283,22 +343,22 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   if (!release) throw refused('The computer\'s current link names no release, and the request gives none.');
   const config = JSON.parse(await run(machine, `cat ${q(`${root}${layout.config}`)}`));
   config.release_feed = feed;
-  if (config.new_accounts) config.new_accounts.copies = request.copies === undefined ? copiesFor(config) : copiesPolicy(request.copies);
   const settingsFile = `${layout.state}/${basename(productSettings.file)}`;
+  const product = productSettingsOf(snapshot, settingsFile);
+  config.new_accounts = startingRows(config, request, product);
+  await installStatics(machine, staticFolderOf(settingsFile), product.statics, layout.owner, run, root);
   const backup = backupFolder(layout.state, now), staged = `${root}${backup}/new`, options = { root, settle, layout };
   await run(machine, `install -d -m 0700 ${q(staged)}`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/place.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
-  // An update keeps the computer's own product settings unless the request supplies one: the bundled default is for a new computer only.
-  const product = request.product_settings === undefined ? await run(machine, `cat ${q(`${root}${layout.state}/${basename(productSettings.file)}`)}`) : PRODUCT_SETTINGS;
-  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product);
+  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product.bytes);
   try {
-    await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], options), readFileSync(UPDATE));
+    await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], { ...options, feed: named }), readFileSync(UPDATE));
   } catch (error) {
     throw Object.assign(new Error(`The update was put back from ${backup}: ${error.message}`), { backup });
   }
   const host = lease.hostName ?? request.name?.host_name, signUp = host ? await signUpStatus(host, { fetchImpl, wait, tries }) : null;
   if (host && signUp !== 200) {
-    await run(machine, updateScript(['rollback', backup], { root, settle }), readFileSync(UPDATE));
+    await run(machine, updateScript(['rollback', backup], { root, settle, feed: named }), readFileSync(UPDATE));
     throw Object.assign(new Error(`The sign-up page at ${host} answered ${signUp ?? 'nothing'} after the update, so it was put back from ${backup}.`), { backup });
   }
   return {
@@ -312,7 +372,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
 export async function rollBackAComputer(leaseFile, request, backup, { run = onMachine, root = '', settle = SETTINGS.update.settle_seconds } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
   if (!new RegExp(`^(/[A-Za-z0-9._@-]+)+/${SETTINGS.update.backups}/update-[0-9TZ-]+$`).test(backup ?? '') || backup.includes('/../')) throw refused(`BACKUP is a folder an update answered, like /var/lib/place/${SETTINGS.update.backups}/update-2026-11-04T17-15-00-000Z.`);
-  const said = await run(machine, updateScript(['rollback', backup], { root, settle }), readFileSync(UPDATE));
+  const said = await run(machine, updateScript(['rollback', backup], { root, settle, feed: feedOf(request) }), readFileSync(UPDATE));
   return { backup, rolled_back: said.trim() };
 }
 
@@ -342,6 +402,7 @@ export function readRequest(file) {
   const request = JSON.parse(readFileSync(absolute(file, 'REQUEST_FILE'), 'utf8')), here = dirname(file);
   const resolveIn = (holder, key) => { if (holder && typeof holder[key] === 'string') holder[key] = resolvePath(here, holder[key]); };
   resolveIn(request, 'lease_file');
+  resolveIn(request, 'product_data');
   resolveIn(request.machine, 'public_key_file');
   resolveIn(request.ssh, 'known_hosts');
   resolveIn(request.ssh, 'identity_file');
