@@ -32,7 +32,7 @@
     "part": { "type": "decision-part", "suffix": ":part:", "digits": 3 },
     "record_revision": {
       "type": "decision-revision",
-      "check": false
+      "check": true
     }
   },
   "revision": {
