@@ -4,6 +4,7 @@
   "journal": { "system_max_use": "500M" },
   "health": { "path": "/readyz", "status": 200, "where": "public" },
   "update": { "backups": "backups", "settle_seconds": 5 },
+  "unit_restarts": { "budget": 5 },
   "layout": { "releases": "/opt/place/releases" },
   "copies": { "most_admitted_computers": 1024 },
   "caddy_routes": ["engine-releases"]

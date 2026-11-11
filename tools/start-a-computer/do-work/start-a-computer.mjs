@@ -17,7 +17,7 @@
 // account rows and the remote settings file, and its page look names the static folder beside that file. The caller also supplies
 // an optional signed release feed. Updates retain a backup and can roll back.
 //
-// usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
+// usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
 import { differences, renderLayout } from './render-layout.mjs';
 import { readFileSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
@@ -358,6 +358,24 @@ export async function startAComputer(request, { machineToken, nameToken, fetchIm
   return { lease, host_name, arch, price, place_id: served.computerId, release: served.release, sign_up_status: served.signUp };
 }
 
+/** A unit's verdict from its `systemctl show` values: an alert when it is not active, or has restarted past the budget
+ * (`read-data/settings.json` `unit_restarts.budget`). NRestarts counts restarts since the unit was loaded. */
+export function unitVerdict(show, budget = SETTINGS.unit_restarts.budget) {
+  const nrestarts = Number(show.NRestarts);
+  if (!Number.isInteger(nrestarts) || !show.Id) throw refused('systemctl show did not name the unit or its restart count.');
+  const alert = show.ActiveState !== 'active' || nrestarts > budget;
+  return { unit: show.Id, active: show.ActiveState, sub: show.SubState, nrestarts, budget, alert };
+}
+
+/** Read a running place's unit over SSH (`request.layout.unit`, the unit's name) and give its verdict. */
+export async function unitStatus(leaseFile, request, { run = onMachine } = {}) {
+  const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
+  const unit = request.layout?.unit;
+  if (typeof unit !== 'string' || !/^[A-Za-z0-9@._-]+\.service$/.test(unit)) throw refused('unit reads request.layout.unit, a service name such as place.service.');
+  const show = Object.fromEntries((await run(machine, `systemctl show ${q(unit)} -p Id -p ActiveState -p SubState -p NRestarts`)).trim().split('\n').map(line => line.split('=')));
+  return unitVerdict(show);
+}
+
 /** A new release on a running computer: install, point current at it, restart, read back. */
 export async function installOnPlace(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine } = {}) {
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
@@ -527,11 +545,11 @@ async function pipe(fd) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const [operation, first, second, third] = process.argv.slice(2);
-  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
-  const overMachine = ['install', 'update', 'rollback'];
+  const usage = 'usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | unit LEASE_FILE REQUEST_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE (machine credential on fd 3, name credential on fd 4)';
+  const overMachine = ['install', 'update', 'rollback', 'unit'];
   const json = path => readRequest(resolvePath(path));
   try {
-    if (!first || !['price', 'rent', 'start', 'status', 'install', 'update', 'rollback', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
+    if (!first || !['price', 'rent', 'start', 'status', 'unit', 'install', 'update', 'rollback', 'remove'].includes(operation) || overMachine.includes(operation) !== Boolean(second) || (operation === 'rollback') !== Boolean(third)) throw Object.assign(new Error(usage), { exit: 2 });
     const asked = ['price', 'rent', 'start'].includes(operation), lease = asked ? null : readLease(resolvePath(first));
     const needsName = ['rent', 'start'].includes(operation) ? Boolean(json(first).name?.provider) : operation === 'remove' && Boolean(lease.recordId);
     const needsMachine = !overMachine.includes(operation) && Boolean(machineProvider(asked ? json(first).machine.provider : lease.provider).base);
@@ -540,11 +558,13 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       : operation === 'rent' ? await rentAMachine(json(first), tokens).then(({ lease, host_name, arch, price }) => ({ lease, host_name, arch, price }))
       : operation === 'start' ? await startAComputer(json(first), tokens)
       : operation === 'status' ? await placeStatus(resolvePath(first), tokens)
+        : operation === 'unit' ? await unitStatus(resolvePath(first), json(second))
         : operation === 'install' ? await installOnPlace(resolvePath(first), json(second))
           : operation === 'update' ? await updateAComputer(resolvePath(first), json(second))
             : operation === 'rollback' ? await rollBackAComputer(resolvePath(first), json(second), third)
           : await removeAPlace(resolvePath(first), tokens);
     process.stdout.write(`${JSON.stringify(answer)}\n`);
+    if (answer.alert === true) process.exitCode = 3;
   } catch (error) {
     process.stderr.write(`${error.message}\n`);
     process.exitCode = error.exit ?? 1;

@@ -129,6 +129,28 @@ test('an install on a running place is judged by its health row, read from its o
   rmSync(dir, { recursive: true, force: true });
 });
 
+test('a unit is an alert when it is not active or has restarted past the budget, read over SSH from its layout row', async () => {
+  const { unitVerdict, unitStatus } = await import('../do-work/start-a-computer.mjs');
+  assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'active', SubState: 'running', NRestarts: '0' }, 5).alert, false);
+  assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'active', SubState: 'running', NRestarts: '5' }, 5).alert, false, 'the budget is the most a unit may spend');
+  assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'activating', SubState: 'auto-restart', NRestarts: '1' }, 5).alert, true, 'a unit not active is an alert');
+  assert.equal(unitVerdict({ Id: 'place.service', ActiveState: 'active', SubState: 'running', NRestarts: '8849' }, 5).alert, true, 'past the budget');
+  assert.throws(() => unitVerdict({ Id: 'place.service', ActiveState: 'active', NRestarts: 'many' }, 5), /restart count/);
+  const dir = mkdtempSync(join(tmpdir(), 'unit-status-'));
+  const leaseFile = join(dir, 'lease.json');
+  writeFileSync(leaseFile, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'arm1', address: '192.0.2.9', adopted: true, hostName: 'place.example.com' }));
+  const commands = [];
+  const run = async (machine, command) => {
+    commands.push(command);
+    return 'Id=place.service\nActiveState=activating\nSubState=auto-restart\nNRestarts=8849\n';
+  };
+  const answer = await unitStatus(leaseFile, { ssh: {}, layout: { unit: 'place.service' } }, { run });
+  assert.deepEqual([answer.unit, answer.active, answer.nrestarts, answer.alert], ['place.service', 'activating', 8849, true]);
+  assert.match(commands[0], /^systemctl show 'place\.service' -p Id -p ActiveState -p SubState -p NRestarts$/);
+  await assert.rejects(unitStatus(leaseFile, { ssh: {}, layout: { unit: 'place.service; reboot' } }, { run }), /layout\.unit/);
+  rmSync(dir, { recursive: true, force: true });
+});
+
 test('the rows name every provider call and their credentials by vault handle only', () => {
   const rows = JSON.parse(readFileSync(new URL('../read-data/providers.json', import.meta.url), 'utf8'));
   for (const row of [...rows.machines, ...rows.names].filter(r => r.base)) {
