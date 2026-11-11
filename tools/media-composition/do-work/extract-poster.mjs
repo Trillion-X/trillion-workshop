@@ -66,6 +66,9 @@ const RESULT = args.get('result') ?? join(WORKDIR, 'result.json');
 const WIDTH = args.has('width') ? Number(args.get('width')) : 640; // 0 = keep native size
 const QUALITY = args.has('quality') ? Number(args.get('quality')) : 3; // mjpeg -q:v, 2 best .. 31 worst
 const SHELL = args.get('shell') ? String(args.get('shell')).replace(/\/$/, '') : null;
+// A Namespace input the engine leases to this run: its bytes-route URL keyed by the input's path (TRILLION_INPUT_URLS). The
+// URL is read by ffprobe and ffmpeg in ranges, so the whole video is never copied here.
+const LEASED_INPUTS = JSON.parse(process.env.TRILLION_INPUT_URLS ?? '{}');
 
 function die(message) {
   console.error(`[extract-poster] ${message}`);
@@ -109,6 +112,7 @@ if (EXISTING && await casResolves(EXISTING)) {
 
 // ---- resolve the video to a local path (self-describing ref, L090).
 function resolveVideo(ref) {
+  if (LEASED_INPUTS[ref]) return LEASED_INPUTS[ref];
   if (/^1f:/.test(ref)) {
     if (!SHELL) die(`a 1f: CAS ref requires --shell to fetch: ${ref}`);
     const local = join(WORKDIR, 'source-input');
