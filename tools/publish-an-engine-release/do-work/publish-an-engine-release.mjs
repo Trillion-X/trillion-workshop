@@ -21,6 +21,7 @@ import { chmodSync, closeSync, createReadStream, createWriteStream, existsSync, 
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { gzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, checkCommit, checkEntry, checkTarget, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
@@ -35,18 +36,20 @@ const absolute = (path, what) => {
 // inherit from this process; it ignores `store` and `erase`. The token is in neither this text nor argv.
 export const CREDENTIAL_HELPER = '!f() { test "$1" = get || exit 0; t=$(cat <&3) || exit 0; test -n "$t" || exit 0; printf "username=x-access-token\\npassword=%s\\n" "$t"; }; f';
 
-/** Run a program; answers its stdout. `token` (when given) is written to the child's descriptor 3 and closed. */
-export function runProgram(program, args, { cwd, env = process.env, token, timeout = settings.git_timeout_ms, log } = {}) {
+/** Run a program; answers its stdout (text, or the bytes when `binary`). `token` (when given) is written to the child's
+ *  descriptor 3 and closed. */
+export function runProgram(program, args, { cwd, env = process.env, token, timeout = settings.git_timeout_ms, log, binary = false } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(program, args, { cwd, env, stdio: ['ignore', 'pipe', 'pipe', ...(token !== undefined ? ['pipe'] : [])] });
-    let out = '', err = '';
+    const out = [];
+    let err = '';
     const timer = setTimeout(() => child.kill('SIGTERM'), timeout);
-    child.stdout.on('data', bytes => { out += bytes; if (log) log.write(bytes); });
+    child.stdout.on('data', bytes => { out.push(bytes); if (log) log.write(bytes); });
     child.stderr.on('data', bytes => { err = (err + bytes).slice(-8192); if (log) log.write(bytes); });
     child.on('error', error => { clearTimeout(timer); reject(error.code === 'ENOENT' ? refuse(`${program} is not on this computer's PATH: the builder needs it (install sets it up).`) : error); });
     child.on('close', (code, signal) => {
       clearTimeout(timer);
-      if (code === 0) resolve(out);
+      if (code === 0) resolve(binary ? Buffer.concat(out) : Buffer.concat(out).toString('utf8'));
       else reject(refuse(`\`${[program, ...args.filter(arg => !arg.startsWith('credential.helper'))].slice(0, 4).join(' ')}\` ${signal ? `was stopped (${signal})` : `exited ${code}`}: ${err.trim().split('\n').slice(-4).join(' | ')}`));
     });
     if (token !== undefined) { child.stdio[3].on('error', () => {}); child.stdio[3].end(token); }
@@ -106,6 +109,25 @@ export function packRelease({ program, source, file }) {
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
 
+/**
+ * Pack a commit's whole tree as the Workshop installer reads it: `git archive` under one top folder (`prefix`, which
+ * install strips; its pax header names the commit), gzipped with no name or time in the header, so the same commit
+ * always packs to the same bytes. Answers { content, bytes } as packRelease does.
+ */
+export async function archiveRelease({ source, commit, prefix, file }) {
+  const tar = await git(source, ['archive', '--format=tar', `--prefix=${prefix}/`, commit], { binary: true });
+  const packed = gzipSync(tar, { level: 9 });
+  writeFileSync(file, packed, { mode: 0o644 });
+  return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
+}
+
+/** The publish kind a request names (settings.kinds, one row each): the engine when it names none. */
+export function kindOf(request) {
+  const name = request.kind ?? 'engine', kind = settings.kinds.find(row => row.kind === name);
+  if (!kind) throw refuse(`${JSON.stringify(name)} is not a publish kind: ${settings.kinds.map(row => row.kind).join(', ')}.`, 2);
+  return kind;
+}
+
 /** The signing key, refused when anyone but its owner may read it. */
 export function readSigningKey(file) {
   const mode = statSync(absolute(file, 'key_file')).mode & 0o777;
@@ -158,6 +180,7 @@ const tarballOf = (feedFolder, commit, target) => join(feedFolder, checkCommit(c
 
 /** Publish one commit: build, pack, sign, and add it to the feed. */
 export async function publish(request, { token = '', commit: asked, credentials = process.env.CREDENTIALS_DIRECTORY } = {}) {
+  const kind = kindOf(request);
   const { repository, branch } = request;
   if (typeof repository !== 'string' || !repository) throw refuse('The request names no repository: send repository, the URL git fetches.', 2);
   if (typeof branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(branch) || branch.includes('..')) throw refuse('The request names no branch git can fetch: send branch, like main.', 2);
@@ -166,15 +189,16 @@ export async function publish(request, { token = '', commit: asked, credentials 
   const privateKey = readSigningKey(absolute(request.key_file, 'key_file')), publicKey = publicKeyHex(privateKey);
   const source = join(work, 'source'), targetDir = join(work, 'target');
   mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
-  const darwin = darwinOf(request, credentials);
+  if (!kind.build && request.darwin !== undefined && request.darwin !== null) throw refuse(`The ${kind.kind} kind builds no Mac targets: darwin belongs to the engine kind.`, 2);
+  const darwin = kind.build ? darwinOf(request, credentials) : null;
   const tip = await fetchRepository({ repository, branch, source, token });
   const commit = checkCommit(asked ?? tip);
   const sequence = await sequenceOf({ source, branch, commit });
-  const env = buildEnvironment({ commit, sequence, targetDir });
-  const target = await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
+  const env = kind.build ? buildEnvironment({ commit, sequence, targetDir }) : undefined;
+  const target = kind.target ?? await hostTarget(request.toolchain?.rustc ?? 'rustc', env);
   const host = roads.targets.find(row => row.build === 'host');
-  if (host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
-  const zigTargets = roads.targets.filter(row => row.build === 'zigbuild').map(row => checkTarget(row.triple));
+  if (kind.build && host?.triple !== target) throw refuse(`release-roads.json names ${host?.triple ?? 'no host row'} for the builder, but this builder's rust target is ${target}.`, 2);
+  const zigTargets = kind.build ? roads.targets.filter(row => row.build === 'zigbuild').map(row => checkTarget(row.triple)) : [];
   const feedNow = () => readFeed(readText(feedFile(feedFolder)));
   const before = mayPublish(feedNow(), { commit, sequence, target });
   if (before.already && !darwin) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
@@ -188,10 +212,14 @@ export async function publish(request, { token = '', commit: asked, credentials 
     let answer;
     if (before.already) answer = answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
     else {
-      await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', '--bin', settings.binary], { cwd: source, env, timeout: settings.build_timeout_ms, log });
-      const program = join(targetDir, 'release', settings.binary);
-      if (!existsSync(program)) throw refuse(`cargo finished but made no ${program}: the repository's package must have a ${settings.binary} binary.`);
-      answer = await packSignAndAdd({ request, feedFolder, source, program, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
+      let pack;
+      if (kind.build) {
+        await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', '--bin', settings.binary], { cwd: source, env, timeout: settings.build_timeout_ms, log });
+        const program = join(targetDir, 'release', settings.binary);
+        if (!existsSync(program)) throw refuse(`cargo finished but made no ${program}: the repository's package must have a ${settings.binary} binary.`);
+        pack = part => packRelease({ program, source, file: part });
+      } else pack = part => archiveRelease({ source, commit, prefix: `${target}-${commit}`, file: part });
+      answer = await packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
     }
     // Each further target is its own entry in this same feed: one that fails (or is older) leaves the others as they are.
     const also = [];
@@ -203,9 +231,12 @@ export async function publish(request, { token = '', commit: asked, credentials 
       try { also.push(await publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, fields: { commit, sequence, target: one, urgent } })); }
       catch (error) { also.push({ target: one, error: error.message }); }
     }
-    const failures = Object.fromEntries(also.filter(one => one.error).map(one => [one.target, one.error]));
-    const status = feedStatusOf(feedNow(), commit, [target, ...(darwin?.targets ?? []), ...zigTargets], failures);
-    writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
+    // The feed-status file describes the engine's roads only; a Workshop publish leaves it as the engine's last publish wrote it.
+    if (kind.build) {
+      const failures = Object.fromEntries(also.filter(one => one.error).map(one => [one.target, one.error]));
+      const status = feedStatusOf(feedNow(), commit, [target, ...(darwin?.targets ?? []), ...zigTargets], failures);
+      writeAtomically(join(feedFolder, settings.feed_status_file), `${JSON.stringify(status, null, 1)}\n`);
+    }
     return { ...answer, also };
   } finally { log.end(); }
 }
@@ -228,15 +259,15 @@ export async function publishZigbuild({ request, source, targetDir, env, log, fe
   await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', '--bin', settings.binary, '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
   const built = join(targetDir, target, 'release', settings.binary);
   if (!existsSync(built)) throw refuse(`cargo zigbuild finished but made no ${built}.`);
-  return packSignAndAdd({ request, feedFolder, source, program: built, privateKey, publicKey, fields });
+  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: built, source, file: part }), privateKey, publicKey, fields });
 }
 
-/** Pack a built program, sign its entry and add it to the feed under the lock. */
-async function packSignAndAdd({ request, feedFolder, source, program, privateKey, publicKey, fields }) {
+/** Pack a commit's release (`pack` writes the tar.gz at the path it is given), sign its entry and add it to the feed under the lock. */
+async function packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields }) {
   const { commit, target } = fields;
   const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
-  const { content, bytes } = packRelease({ program, source, file: part });
+  const { content, bytes } = await pack(part);
   const entry = signEntry({ commit, sequence: fields.sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent: fields.urgent }, privateKey);
   return addUnderLock({ request, feedFolder, entry, part, file, publicKey });
 }
@@ -314,7 +345,7 @@ export async function publishDarwin({ request, darwin, source, work, targetDir, 
     '--timestamp-url', D.timestamp_url, '--binary-identifier', settings.binary, built, signed], { env, timeout: settings.git_timeout_ms, log });
   checkDeveloperId(await runProgram(rcodesign, ['print-signature-info', signed], { env }), darwin.team_id);
   chmodSync(signed, 0o755);
-  return packSignAndAdd({ request, feedFolder, source, program: signed, privateKey, publicKey, fields });
+  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: signed, source, file: part }), privateKey, publicKey, fields });
 }
 
 /**
