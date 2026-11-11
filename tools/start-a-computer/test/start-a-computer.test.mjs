@@ -491,7 +491,9 @@ const runHere = (root, env = {}) => async (_machine, command, input) => {
 };
 
 const updateRequest = { product_data: PRODUCT_DATA, release_feed: { ...FEED, releases: { keep: 3 } }, ssh: { known_hosts: '/dev/null' }, name: { host_name: 'computer.example.com' }, engine: { file: 'trillion-local', release_name: 'new', release: { on_machine: '/opt/build/new' } } };
-const asHere = (root, extra = {}) => ({ root, settle: 0, wait: async () => {}, tries: 1, fetchImpl: async () => ({ status: 200 }), ...extra });
+const FEED_TARGET = 'x86_64-unknown-linux-gnu';
+const feedBody = releases => ({ status: 200, json: async () => ({ releases: releases.map(target => ({ target })) }) });
+const asHere = (root, extra = {}) => ({ root, settle: 0, wait: async () => {}, tries: 1, target: FEED_TARGET, fetchImpl: async () => feedBody([FEED_TARGET]), ...extra });
 const read = (file, path) => readFileSync(file(path), 'utf8');
 
 for (const [kind, l] of Object.entries(LAYOUTS)) {
@@ -552,7 +554,7 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     const { root, lease, file } = madeUpComputer(l);
     const seen = runHere(root);
     const healthy = async (machine, command, input) => (command.includes('curl') ? '200' : seen(machine, command, input));
-    const never = async () => { throw new Error('the public name is not asked'); };
+    const never = async url => { if (String(url).endsWith('/feed.json')) return feedBody([FEED_TARGET]); throw new Error('the public name is not asked'); };
     const answer = await updateAComputer(lease, { ...updateRequest, health: { path: '/readyz', status: 200, where: 'machine' } }, { ...asHere(root, { fetchImpl: never }), run: healthy, now: new Date('2026-11-04T17:50:00Z') });
     assert.equal(answer.sign_up_status, 200);
     assert.deepEqual(JSON.parse(read(file, `${l.state}/place.json`)).health, { path: '/readyz', status: 200, where: 'machine' }, 'the declared check is written into the place\'s config');
@@ -561,7 +563,7 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
   });
 
   test(`a ${kind} computer's update whose service does not stay active, or whose sign-up page does not answer, is put back`, async () => {
-    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /\/readyz answered 502 after the update, not 200, so it was put back/]]) {
+    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async url => (String(url).endsWith('/feed.json') ? feedBody([FEED_TARGET]) : { status: 502 }) }, /\/readyz answered 502 after the update, not 200, so it was put back/]]) {
       const { root, lease, file } = madeUpComputer(l);
       await assert.rejects(updateAComputer(lease, updateRequest, { ...asHere(root, extra), run: runHere(root, env) }), why);
       assert.deepEqual([read(file, `${l.state}/place.json`), read(file, `etc/systemd/system/${l.unit}`), readlinkSync(file(`${l.base}/current`))], [OLD_CONFIG, unitOf(l), l.release]);

@@ -469,7 +469,24 @@ async function refuseSharedFolder(machine, folder, owner, run, root) {
  * its service, point `current` at the release and restart, all from one backup folder (do-work/update-a-computer.sh).
  * A service that is not active after the restart, or a sign-up page that does not answer 200, puts everything back.
  * `root` is for made-up computer folders in tests. */
-export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', settle = SETTINGS.update.settle_seconds, now = new Date() } = {}) {
+/** The release target a computer measures for itself (its own kernel and machine), in the triple the feed names its
+ * releases by. A computer is not told its target: a row never picks one, the machine reports it. */
+export const TARGETS = { 'Linux x86_64': 'x86_64-unknown-linux-gnu', 'Linux aarch64': 'aarch64-unknown-linux-gnu', 'Darwin arm64': 'aarch64-apple-darwin' };
+export async function measuredTarget(machine, run = onMachine) {
+  const found = (await run(machine, 'echo "$(uname -s) $(uname -m)"')).trim();
+  const target = TARGETS[found];
+  if (!target) throw refused(`This computer reports ${found}, which the feed builds no release for.`);
+  return target;
+}
+
+/** Refuse a computer whose reported target the feed has no release for, with the reason named. */
+export async function refuseWithoutTarget(feedUrl, target, fetchImpl = fetch) {
+  const body = await (await fetchImpl(feedUrl, { signal: AbortSignal.timeout(20000) })).json();
+  if (!(body.releases ?? []).some(release => release.target === target)) throw refused(`The feed has no release for ${target}, the target this computer reports, so the update is refused.`);
+  return target;
+}
+
+export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, wait = pause, tries = 24, run = onMachine, root = '', settle = SETTINGS.update.settle_seconds, now = new Date(), target } = {}) {
   const snapshot = readProductData(request);
   if (request.copies !== undefined) copiesPolicy(request.copies);
   const lease = readLease(absolute(leaseFile, 'LEASE_FILE')), machine = { ssh: request.ssh, address: lease.address };
@@ -477,6 +494,7 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   if (!named) throw refused('An update needs the caller\'s release_feed.');
   if (!request.engine?.file) throw refused('An update needs engine.file: the engine program inside a release.');
   const layout = await readLayout(machine, request, run, root);
+  await refuseWithoutTarget(named.urls[0], target ?? await measuredTarget(machine, run), fetchImpl);
   const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : layout.releases };
   const adopt = adoptFolder({ release_feed: feed });
   if (adopt) await refuseSharedFolder(machine, adopt, layout.owner, run, root);
