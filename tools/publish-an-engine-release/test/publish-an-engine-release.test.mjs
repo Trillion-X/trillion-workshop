@@ -105,7 +105,8 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
 
   const again = await publish(request, { token: canary });
   assert.equal(again.already_published, true, 'the same commit again changes nothing');
-  assert.equal(JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.length, 1);
+  // One entry per road in release-roads.json: the host target and the zigbuild target.
+  assert.equal(JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.length, 2);
 });
 
 test('a commit with no product/ folder publishes a release that holds only trillion-local', async () => {
@@ -148,7 +149,7 @@ test('a commit older than the feed\'s newest is refused before it is built', asy
   await assert.rejects(publish(request, { commit: commits[1] }), error => error.exit === 3 && new RegExp(`sequence ${BASE_TIME + 2}, older than the feed's newest`).test(error.message));
   assert.equal(readFileSync(envFile, 'utf8'), '', 'nothing was built');
   const feed = readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
-  assert.deepEqual(feed.releases.map(entry => entry.sequence), [BASE_TIME + 3]);
+  assert.deepEqual(feed.releases.map(entry => entry.sequence), [BASE_TIME + 3, BASE_TIME + 3], 'one entry per road, both for the newest commit');
   await assert.rejects(publish(request, { commit: 'f'.repeat(40) }), /not on main's first-parent line/);
 });
 
@@ -165,9 +166,11 @@ test('the feed keeps the newest 32 releases, and an older one leaves with its ta
   const answer = await publish(request, {});
   assert.deepEqual([answer.sequence, answer.dropped, answer.releases_held], [BASE_TIME + 33, 1, 32]);
   const feed = readFeed(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
-  assert.deepEqual(feed.releases.map(entry => entry.sequence), Array.from({ length: 32 }, (_, at) => BASE_TIME + at + 2), 'newest last');
+  // The host road publishes first (its answer above), then the zigbuild road: each adds one entry and drops the oldest.
+  assert.deepEqual(feed.releases.map(entry => entry.sequence), [...Array.from({ length: 31 }, (_, at) => BASE_TIME + at + 3), BASE_TIME + 33], 'newest last');
   assert.ok(!existsSync(join(request.feed_folder, commits[0])), 'the dropped release\'s tar.gz is gone');
-  assert.ok(existsSync(join(request.feed_folder, commits[1], `${target}.tar.gz`)));
+  assert.ok(!existsSync(join(request.feed_folder, commits[1])), 'the second dropped release\'s tar.gz is gone');
+  assert.ok(existsSync(join(request.feed_folder, commits[2], `${target}.tar.gz`)));
 });
 
 test('adding to a feed refuses an older sequence and another commit at the same one', () => {
