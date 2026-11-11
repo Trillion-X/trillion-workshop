@@ -11,7 +11,8 @@ import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/ident
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
-import { archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
+import { archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, refuseUnreadableByOldReaders, runProgram } from '../do-work/publish-an-engine-release.mjs';
+import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
 
@@ -124,6 +125,14 @@ test('a commit with no product/ folder publishes a release that holds only the e
   assert.ok(verifyEntry(entry, key.public_key));
   const bytes = readFileSync(join(request.feed_folder, commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
   assert.deepEqual(untarGz(bytes).map(file => file.name), ['product/bin/trillion-mcp-forwarder', 'trillion-local']);
+});
+
+test('a release with an extra program at the root is refused before it is signed: old unpackers take only the program at the root', () => {
+  const program = { name: 'trillion-local', bytes: Buffer.from('engine'), executable: true };
+  const forwarder = { name: 'trillion-mcp-forwarder', bytes: Buffer.from('relay'), executable: true };
+  assert.throws(() => refuseUnreadableByOldReaders(tarGz([program, forwarder])), error => error.exit === 3 && /trillion-mcp-forwarder/.test(error.message));
+  assert.doesNotThrow(() => refuseUnreadableByOldReaders(tarGz([program, { ...forwarder, name: 'product/bin/trillion-mcp-forwarder' }])), 'the extra program under product/ is readable');
+  assert.doesNotThrow(() => refuseUnreadableByOldReaders(tarGz([program])));
 });
 
 test('a release and the shipped files pack with no tar program: same bytes and executable bit back, no __pycache__ shipped', () => {

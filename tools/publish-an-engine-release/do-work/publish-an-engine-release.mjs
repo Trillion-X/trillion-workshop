@@ -24,7 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync, gzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
-import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
+import { tarGz, untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, checkCommit, checkEntry, checkTarget, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
@@ -309,11 +309,25 @@ export async function publishZigbuild({ request, source, targetDir, env, log, fe
 }
 
 /** Pack a commit's release (`pack` writes the tar.gz at the path it is given), sign its entry and add it to the feed under the lock. */
+/**
+ * The layout every running engine unpacks (adopt_program in trillion-rust releases.rs): the program alone at the root, and
+ * everything else under the product folder. An archive that breaks it is refused before it is signed, so no place is given a
+ * release it cannot unpack (the root-level forwarder broke every place's adoption).
+ */
+export function refuseUnreadableByOldReaders(bytes, { binary = settings.binary, folder = settings.product_folder } = {}) {
+  const bad = untarGz(bytes).map(file => file.name).filter(name => (name.includes('/') ? !name.startsWith(`${folder}/`) : name !== binary));
+  if (bad.length) throw refuse(`A release the running engines cannot unpack: ${bad.join(', ')}. ${binary} goes at the root alone; everything else goes under ${folder}/.`, 3);
+}
+
 async function packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields }) {
   const { commit, target } = fields;
   const file = tarballOf(feedFolder, commit, target), part = `${file}.${process.pid}.part`;
   mkdirSync(dirname(file), { recursive: true, mode: 0o755 });
   const { content, bytes } = await pack(part);
+  if (kindOf(request).build) {
+    try { refuseUnreadableByOldReaders(readFileSync(part)); }
+    catch (error) { rmSync(part, { force: true }); throw error; }
+  }
   const entry = signEntry({ commit, sequence: fields.sequence, target, url: `${request.base_url}${commit}/${target}.tar.gz`, content, bytes, urgent: fields.urgent }, privateKey);
   return addUnderLock({ request, feedFolder, entry, part, file, publicKey });
 }
