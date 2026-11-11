@@ -108,7 +108,8 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
         if (retryTransport && isTransportFailure(error)) throw new RecordsDoorError('transport_unavailable', 'The records door connection failed after repeated attempts.');
         throw error;
       }
-      if (response.status === 503 && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      // A door at its dispatch limit answers 503: asked again after a jittered wait, so clients that were refused together do not retry together.
+      if (response.status === 503 && again) { await wait(throttledWait(response.headers.get('retry-after'), attempt)); continue; }
       if (response.status === 429 && attempt < RATE_RETRIES) { await wait(throttledWait(response.headers.get('retry-after'), attempt)); continue; }
       // The door names the check that refused the run (its cause, in the 401 body), so the run can say which one.
       if (response.status === 401) throw new RecordsDoorError('capability_gone', `${WORDS.capability_gone} Refused by: ${await refusedBy(response)}`);
