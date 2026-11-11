@@ -25,7 +25,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { CREDENTIAL_HELPER, hostTarget, privateInput, readRequest, runProgram, writeAtomically } from './publish-an-engine-release.mjs';
+import { CREDENTIAL_HELPER, hostTarget, kindOf, privateInput, readRequest, runProgram, writeAtomically } from './publish-an-engine-release.mjs';
 import { checkCommit, checkTarget, newestFor, readFeed, roads, settings, signerOf } from './release-feed.mjs';
 import { readEntryHeader } from './contribute-an-engine-release.mjs';
 
@@ -243,7 +243,11 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (!secret) throw new Error('Descriptor 4 holds no push secret: install stores it; run install again with the secret on descriptor 4.');
     const log = line => process.stdout.write(`${line}\n`);
     const queue = makeQueue(runPublish({ configFile: resolvePath(configFile), token, stateFolder: config.state_folder, log }));
-    const targets = [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(config.darwin?.targets ?? []), ...roads.targets.filter(row => row.build === 'zigbuild').map(row => row.triple)];
+    // A kind that builds nothing (workshop-tools) is behind only when its own target's newest release is not the tip.
+    const kind = kindOf(config);
+    const targets = kind.build
+      ? [await hostTarget(config.toolchain?.rustc ?? 'rustc'), ...(config.darwin?.targets ?? []), ...roads.targets.filter(row => row.build === 'zigbuild').map(row => row.triple)]
+      : [kind.target];
     const check = () => catchUp({ repository: config.repository, branch: config.branch, feedFile: join(config.feed_folder, settings.feed_file), targets, stateFolder: config.state_folder, token, queue, log })
       .catch(error => log(`catch-up could not check ${config.branch}: ${error.message}`));
     const [host, port] = [config.receiver?.host ?? '127.0.0.1', config.receiver?.port ?? settings.receiver_port];
