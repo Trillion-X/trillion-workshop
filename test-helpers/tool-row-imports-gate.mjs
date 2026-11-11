@@ -13,7 +13,7 @@ if (!repo || !ref) {
 }
 const { results } = toolRowFindings({ repo, ref });
 const gaps = results.flatMap(row => (row.findings || [])
-  .filter(f => f.kind === 'missing-relative-import' || f.kind === 'argv-not-declared')
+  .filter(f => f.kind === 'missing-relative-import' || f.kind === 'argv-not-declared' || f.kind === 'door-without-records')
   .map(f => `${row.row_file} ${row.id}: ${f.kind} ${f.spec ?? f.target ?? ''} ${f.needs ?? ''}`.trim()));
 if (gaps.length) {
   console.log(`${gaps.length} tool-row package gap(s); add each file to the row's invoke.files.package_files:`);

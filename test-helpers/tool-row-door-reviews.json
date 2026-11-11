@@ -1,0 +1,240 @@
+{
+ "_what": "Hand reads of the rows the walk flags as declaring records its entry does not reach. Each verdict is the entry path read by hand on origin/main: USES_DOOR keeps the declared records; NO_DOOR marks a row whose records may be removed (none are removed here except find-people, already removed); UNSURE keeps the records.",
+ "rows": {
+  "tool:share-a-kept-show-type": {
+   "verdict": "USES_DOOR",
+   "entry": "decide-when-things-show/do-work/show-rules.mjs:257",
+   "reason": "readLabels calls door.readWorkspace"
+  },
+  "tool:stop-sharing-a-show-type": {
+   "verdict": "USES_DOOR",
+   "entry": "show-rules.mjs:284",
+   "reason": "readLabels calls door.readWorkspace"
+  },
+  "tool:read-namespace-documents-as-list-rows": {
+   "verdict": "USES_DOOR",
+   "entry": "documents-as-list-rows/do-work/documents.mjs",
+   "reason": "rows.mjs:52 door.files via readNamespaceDocumentRows"
+  },
+  "tool:hold-to-it": {
+   "verdict": "USES_DOOR",
+   "entry": "hold-to-it/read-data/hold-to-it.mjs:173",
+   "reason": "policyOf calls door.read"
+  },
+  "tool:ask-a-web-address-or-give-the-last-answer": {
+   "verdict": "USES_DOOR",
+   "entry": "keep-the-last-good-answer/read-data/ask-and-keep.mjs:58",
+   "reason": "door.read and door.write"
+  },
+  "tool:see-where-the-public-door-runs": {
+   "verdict": "USES_DOOR",
+   "entry": "move-the-public-door/do-work/door-tools.mjs:22",
+   "reason": "hostingProviders(door) calls records.list"
+  },
+  "tool:practice": {
+   "verdict": "USES_DOOR",
+   "entry": "practice-and-review/read-data/practice-cards.mjs:62",
+   "reason": "readAll calls door.list"
+  },
+  "tool:publish_site": {
+   "verdict": "USES_DOOR",
+   "entry": "publish-a-site-at-its-own-address/read-data/site-addresses.mjs:143",
+   "reason": "readWholeFile/writeWholeFile with door"
+  },
+  "tool:read-glance-feeds": {
+   "verdict": "USES_DOOR",
+   "entry": "read-glance-feeds/read-data/glance-feeds.mjs:163",
+   "reason": "readRows calls door.list"
+  },
+  "tool:read-current-worn-look": {
+   "verdict": "USES_DOOR",
+   "entry": "screen-looks/do-work/read-current-worn-look.mjs:112",
+   "reason": "door.readWorkspace"
+  },
+  "tool:read-business": {
+   "verdict": "USES_DOOR",
+   "entry": "see-what-my-business-took-in-this-month/do-work/business-screen.mjs:217",
+   "reason": "door.run"
+  },
+  "tool:answer-the-tell-notices-route": {
+   "verdict": "USES_DOOR",
+   "entry": "tell-one-person-something-through-every-way-they/do-work/tell-routes.mjs:26",
+   "reason": "readKeptNotices calls door.list"
+  },
+  "tool:list-workspace-tours": {
+   "verdict": "USES_DOOR",
+   "entry": "tours-screen/do-work/tours.mjs:82",
+   "reason": "readTours calls door.readWorkspace"
+  },
+  "tool:watch-my-sources": {
+   "verdict": "USES_DOOR",
+   "entry": "watch-my-sources/do-work/watch-my-sources.mjs:31",
+   "reason": "door.list"
+  },
+  "tool:write-public-share-files": {
+   "verdict": "USES_DOOR",
+   "entry": "write-public-share-files/do-work/write-share-files.mjs:113",
+   "reason": "door.read, door.list, door.files"
+  },
+  "tool:find-people": {
+   "verdict": "NO_DOOR",
+   "entry": "person-list/do-work/find-people.mjs:14",
+   "reason": "reads stdin, pure helpers only; no door"
+  },
+  "tool:answer-questions-about-many-states": {
+   "verdict": "USES_DOOR",
+   "entry": "answer-questions-about-many-states/read-data/bulk-answer.mjs:139",
+   "reason": "door.read/list/write"
+  },
+  "tool:answer-the-catch-up-here-route": {
+   "verdict": "USES_DOOR",
+   "entry": "keep-copies-in-step/do-work/catch-up-routes.mjs:52",
+   "reason": "door.readRecord, door.write"
+  },
+  "tool:answer-the-needs-you-hold-route": {
+   "verdict": "USES_DOOR",
+   "entry": "hold-one-thing-until-done/do-work/needs-you-hold-route.mjs:227",
+   "reason": "door.read/list/write/run"
+  },
+  "tool:build-records-to-write": {
+   "verdict": "UNSURE",
+   "entry": "export-records-as-list-rows/do-work/build_record_write.mjs:38",
+   "reason": "door reached only in a python-to-node child when mapping has records sources; kind not nameable"
+  },
+  "tool:cancel-a-bulk-answer-run": {
+   "verdict": "USES_DOOR",
+   "entry": "answer-questions-about-many-states/read-data/bulk-answer.mjs:255",
+   "reason": "door.read and door.write"
+  },
+  "tool:cancel-prepared-resource-usage-report": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage-reporting.mjs:202",
+   "reason": "door.read/write"
+  },
+  "tool:check-a-films-copy": {
+   "verdict": "USES_DOOR",
+   "entry": "check-against-a-persons-rules-and-verdicts/do-work/check-against-their-rules-and-verdicts.mjs:36",
+   "reason": "door.read, door.list"
+  },
+  "tool:check-against-a-persons-rules-and-verdicts": {
+   "verdict": "USES_DOOR",
+   "entry": "check-against-a-persons-rules-and-verdicts/do-work/check-against-their-rules-and-verdicts.mjs:26",
+   "reason": "door in branch mode"
+  },
+  "tool:check-every-piece-is-covered": {
+   "verdict": "USES_DOOR",
+   "entry": "check-against-a-persons-rules-and-verdicts/do-work/check-against-their-rules-and-verdicts.mjs:32",
+   "reason": "piece-sweep.mjs:167,172 door.list"
+  },
+  "tool:correct-resource-usage-settlement": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage.mjs:188",
+   "reason": "door.read, door.list"
+  },
+  "tool:give-a-buyer-a-paid-file-link": {
+   "verdict": "USES_DOOR",
+   "entry": "paid-access/read-data/request-private-object.ts:46",
+   "reason": "door.read and list"
+  },
+  "tool:keep-channels-latest-videos-and-captions": {
+   "verdict": "USES_DOOR",
+   "entry": "research-a-creator-or-topic/do-work/harvest-channels.mjs:207",
+   "reason": "harvest-parts.mjs:139,142 door.read/write when rows given"
+  },
+  "tool:keep-public-posts-by-link": {
+   "verdict": "USES_DOOR",
+   "entry": "research-a-creator-or-topic/do-work/harvest-posts.mjs:43",
+   "reason": "harvest-parts.mjs:139,142 door.read/write when rows given"
+  },
+  "tool:keep-resource-usage-observation": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage.mjs:77",
+   "reason": "door.read/write"
+  },
+  "tool:manage-usage-pricing": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage.mjs:68",
+   "reason": "door.list when rules omitted"
+  },
+  "tool:observe-live-usage": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/live-usage.mjs:91",
+   "reason": "door.files usage_days, keepResourceUsageObservation"
+  },
+  "tool:open-a-paid-file-for-a-buyer": {
+   "verdict": "USES_DOOR",
+   "entry": "paid-access/read-data/authorize-private-object.ts:50",
+   "reason": "door.read and list"
+  },
+  "tool:price-resource-usage": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage.mjs:68",
+   "reason": "door.list when rules omitted"
+  },
+  "tool:put-records-into-my-account": {
+   "verdict": "USES_DOOR",
+   "entry": "export-records-as-list-rows/do-work/send_built_record_write.mjs:76",
+   "reason": "door.list and door.write; kind from input target_type"
+  },
+  "tool:read-a-bulk-answer-run": {
+   "verdict": "USES_DOOR",
+   "entry": "answer-questions-about-many-states/read-data/bulk-answer.mjs:241",
+   "reason": "door.read"
+  },
+  "tool:read-resource-usage-report": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage-reporting.mjs:181",
+   "reason": "door.read"
+  },
+  "tool:read-resource-usage-settlement": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage.mjs:188",
+   "reason": "door.read, door.list"
+  },
+  "tool:reconcile-resource-usage-report": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage-reporting.mjs:189",
+   "reason": "door.read/write"
+  },
+  "tool:report-resource-usage": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage-reporting.mjs:106",
+   "reason": "door.read/write/list"
+  },
+  "tool:send-live-activity-update": {
+   "verdict": "USES_DOOR",
+   "entry": "notifications/read-data/device-notifications.mjs:578",
+   "reason": "door.readRecord/list/write"
+  },
+  "tool:send-notification-to-my-devices": {
+   "verdict": "USES_DOOR",
+   "entry": "notifications/read-data/device-notifications.mjs:574",
+   "reason": "door.readRecord/list/write"
+  },
+  "tool:settle-shared-resource-cost": {
+   "verdict": "USES_DOOR",
+   "entry": "take-payments/do-work/resource-usage.mjs:175",
+   "reason": "door.read/write"
+  },
+  "tool:split-a-document-into-pieces": {
+   "verdict": "USES_DOOR",
+   "entry": "check-against-a-persons-rules-and-verdicts/do-work/check-against-their-rules-and-verdicts.mjs:28",
+   "reason": "door.read/write record:check"
+  },
+  "tool:trillion-media-file-places": {
+   "verdict": "USES_DOOR",
+   "entry": "work-on-connected-drives/read-data/file-places.mjs:113",
+   "reason": "door.files find_file"
+  },
+  "tool:voices": {
+   "verdict": "USES_DOOR",
+   "entry": "generate-speech/read-data/speak.mjs:182",
+   "reason": "door.read/list/write and files"
+  },
+  "tool:say-with-a-voice-model": {
+   "verdict": "USES_DOOR",
+   "entry": "generate-speech/read-data/speak.mjs:164",
+   "reason": "door.read/list/write and files"
+  }
+ }
+}
