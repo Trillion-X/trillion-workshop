@@ -192,6 +192,19 @@ test('adding to a feed refuses an older sequence and another commit at the same 
   assert.ok(other.added, 'another target has its own newest');
 });
 
+test('the feed never holds more than keep entries, and a target whose builder is behind keeps its newest', () => {
+  const key = newSigningKey(), slow = 'x86_64-unknown-linux-gnu', fast = 'workshop-tools';
+  const entry = (sequence, target) => signEntry({ commit: sequence.toString(16).padStart(40, '0'), sequence, target, url: 'https://r.example.com/x.tar.gz', content: `1f:${'d'.repeat(64)}`, bytes: 1, urgent: false }, key);
+  let feed = addRelease({ releases: [] }, entry(1, slow)).feed;
+  for (let sequence = 2; sequence <= 300; sequence++) {
+    feed = addRelease(feed, entry(sequence, fast)).feed;
+    assert.ok(feed.releases.length <= settings.keep_releases, `${feed.releases.length} entries at sequence ${sequence}`);
+  }
+  assert.equal(feed.releases.length, settings.keep_releases);
+  assert.ok(feed.releases.some(one => one.target === slow && one.sequence === 1), 'the slow target\'s newest stays');
+  assert.equal(feed.releases.filter(one => one.target === fast).at(-1).sequence, 300);
+});
+
 // The Workshop's tools tree: the same request with kind workshop-tools, in a work folder of its own.
 const workshopOf = request => ({ ...request, kind: 'workshop-tools', work_folder: join(dirname(request.work_folder), 'workshop-work') });
 
