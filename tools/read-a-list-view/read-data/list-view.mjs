@@ -35,8 +35,12 @@
 //   readListView({ list | view, after?, limit?, names }, door)
 //     → { list, fields, rows: [{ id, record_id, values, title, source? }], next, complete, of? }
 //     door: { read(type, id) → value | null, list({ type, limit, after?, prefix? }) → { records, next } }
-//   refreshRowSources({ list, names, source_ids?, paths?, dry_run?, source_answer_bytes?, signal? }, door)
+//   refreshRowSources({ list, names, source_ids?, paths?, changes?, run_id?, dry_run?, source_answer_bytes?, signal? }, door)
 //     → { list, sources: [{ source, rows, written, removed, unchanged, refused: [ids] } | the sync's answer] }
+//     changes: { <selected document source id>: { paths: ["/a.md"], removed: ["/b.md"] } } reconciles only those
+//     documents (each read and written by its own path) and leaves the source's other rows as they are. run_id: the
+//     full commit identity a refresh is made for, so a refresh sent again for the same commit keys its writes the same
+//     and the door answers their first answers.
 //     door: { read, list, run(tool, input) → its answer, write(records, { key }) → the door's answer, history?(id) }
 //     paths and dry_run apply to the list-original sources only (list-copy.mjs).
 import data from './list-view.json' with { type: 'json' };
@@ -311,6 +315,48 @@ async function writtenRows(door, type, source, signal) {
   }
 }
 
+// A changed document: its row is read by its own id and reconciled from a source answer for that one path only, so
+// the document's other rows and every other document stay as they are. A source that answers no row for a path it
+// still holds keeps the old row: a deletion is named in `removed`, never inferred from a missing answer.
+async function refreshChangedSource({ door, type, source, paths, removedPaths, mostBytes, key, signal }) {
+  let rows = 0, written = 0, removed = 0, unchanged = 0;
+  const refused = [];
+  for (const path of paths) {
+    signal?.throwIfAborted();
+    const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(path)}`;
+    const current = await door.read(type, id);
+    const held = current === null || current === undefined ? null : valueIdentity(current);
+    const seen = new Set(), writes = [];
+    for await (const page of sourcePages(door, { ...source, paths: [path] }, mostBytes, signal)) {
+      for (const row of page) {
+        if (row.id !== path) throw say('source_changed_path_mismatch', `The source answered ${row.id} for the changed document ${path}.`);
+        if (seen.has(id)) throw say('source_duplicate_row', `The row source ${source.id} answered a row id twice.`);
+        seen.add(id);
+        const value = projectedValues(source, row);
+        if (held === valueIdentity(value)) unchanged += 1;
+        else writes.push({ id, type, value });
+        rows += 1;
+      }
+    }
+    if (!seen.size && held !== null) {
+      throw say('source_changed_path_unanswered', `The source did not answer the existing changed document ${path}; its old row was preserved.`);
+    }
+    const pathKey = `${key}:document:${encodeURIComponent(path)}`;
+    const pageRefused = await writeAll(door, writes, `${pathKey}:write`, signal);
+    refused.push(...pageRefused);
+    written += writes.length - pageRefused.length;
+  }
+  for (const path of removedPaths) {
+    signal?.throwIfAborted();
+    const id = `${type}:${source.id}${SOURCE_MARK}${encodeURIComponent(path)}`;
+    if ((await door.read(type, id)) === null) continue;
+    const removalRefused = await writeAll(door, [{ id, type, value: null }], `${key}:document:${encodeURIComponent(path)}:remove`, signal);
+    refused.push(...removalRefused);
+    removed += 1 - removalRefused.length;
+  }
+  return { source: source.id, rows, written, removed, unchanged, refused };
+}
+
 // The writes in batches of at most write_rows records and write_bytes bytes.
 const batches = records => writeBatches(records, { rows: limits.write_rows, bytes: limits.write_bytes });
 
@@ -335,6 +381,27 @@ async function writeAll(door, records, key, signal) {
   return refused;
 }
 
+const changedPath = path => typeof path === 'string' && path.startsWith('/') && !path.split('/').includes('..');
+
+/** The changes a refresh names: exact changed and removed document paths for selected, unpositioned document sources. */
+function checkedChanges(input, declared, selected) {
+  if (input.changes === undefined) return {};
+  if (!input.changes || typeof input.changes !== 'object' || Array.isArray(input.changes)) {
+    throw say('bad_input', 'changes maps selected document source ids to exact changed and removed paths.');
+  }
+  for (const [id, change] of Object.entries(input.changes)) {
+    const source = declared.find(one => one.id === id);
+    if (!source || !selected.includes(source) || source.original === 'list' || source.paths !== undefined || source.served.tool !== data.row_sources.documents.tool) {
+      throw say('bad_input', 'changes can narrow only selected, non-list-original document sources without a positive path catalogue.');
+    }
+    const lists = [change?.paths, change?.removed];
+    if (!lists.every(list => Array.isArray(list) && list.every(changedPath)) || new Set([...lists[0], ...lists[1]]).size !== lists[0].length + lists[1].length || lists[0].length + lists[1].length === 0) {
+      throw say('bad_input', 'each changes entry has distinct absolute paths and removed paths without traversal.');
+    }
+  }
+  return input.changes;
+}
+
 export async function refreshRowSources(input = {}, door) {
   input.signal?.throwIfAborted();
   const names = checkedNames(input);
@@ -355,10 +422,19 @@ export async function refreshRowSources(input = {}, door) {
   if ((input.paths !== undefined || input.dry_run) && selected.some(source => source.original !== 'list')) {
     throw say('bad_input', 'paths and dry_run settle list-original sources; select only those with source_ids.');
   }
-  const run = globalThis.crypto.randomUUID();
+  const changes = checkedChanges(input, declared, selected);
+  if (input.run_id !== undefined && (typeof input.run_id !== 'string' || !/^[0-9a-f]{40,64}$/.test(input.run_id))) {
+    throw say('bad_input', 'run_id is a full lowercase commit identity when supplied.');
+  }
+  const run = input.run_id ?? globalThis.crypto.randomUUID();
   const sources = [];
   for (const source of selected) {
     const key = `refresh:${input.list}:${source.id}:${run}`;
+    if (changes[source.id]) {
+      sources.push(await refreshChangedSource({ door, type, source, paths: changes[source.id].paths,
+        removedPaths: changes[source.id].removed, mostBytes: input.source_answer_bytes, key, signal: input.signal }));
+      continue;
+    }
     if (source.original === 'list') {
       sources.push(await syncRowSource({ list: input.list, type, source, sources: declared, paths: input.paths, dry_run: Boolean(input.dry_run),
         source_answer_bytes: input.source_answer_bytes, key, signal: input.signal }, door));
