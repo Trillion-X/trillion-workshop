@@ -4,10 +4,20 @@
 // a switch off takes the reason that switch asks for, with the exact shape that is taken.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { assertBackbone, methodCatalogue } from '../read-data/method.mjs';
+import { AnswerProblems, assertBackbone, methodCatalogue } from '../read-data/method.mjs';
 import { plainChecks, plainMethod } from './fixtures.mjs';
 
 const evidence = new Set(['e1']);
+
+test('a refusal with many problems keeps the first names in view: its message stays inside the engine error tail and names each field', () => {
+  const problems = ['desired_result needs at least 2 words about this decision', 'current_state needs at least 2 words about this decision', `Assess whether workflow:find-where-the-steward-ladder-breaks requires an additional run in workflow_runs.workflow:find-where-the-steward-ladder-breaks, using case evidence. ${'Run it when someone keeps not getting the result. '.repeat(12)}`];
+  const error = new AnswerProblems(problems);
+  assert.ok(error.message.length <= 480, `message is ${error.message.length} characters`);
+  assert.match(error.message, /^desired_result needs at least 2 words/);
+  assert.match(error.message, /current_state needs at least 2 words/);
+  assert.match(error.message, /Assess whether workflow:find-where-the-steward-ladder-breaks requires/);
+  assert.deepEqual(error.problems, problems);
+});
 const opened = method => ({ id: 'd1', input: { goal: 'Pick the next training focus', evidence: [{ ref: 'e1', claim: 'The last match video' }], options: [] }, method, guidance: [] });
 
 test('the method is built on its stages: every step sits in one stage, in order, and no stage can be switched off', () => {
