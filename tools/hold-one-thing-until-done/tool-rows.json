@@ -136,6 +136,76 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "who-does-each-step",
+                "paths": [
+                  "read-data/who-does.mjs"
+                ],
+                "at": "/opt/who-does-each-step"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/web-push.mjs",
+                  "src/who-does-it.json",
+                  "src/workspace/screens.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "tell-one-person-something-through-every-way-they",
+                "paths": [
+                  "read-data/glance-feeds.json",
+                  "read-data/tell-quiet-hours.json",
+                  "read-data/tell-the-person.json",
+                  "read-data/tell-the-person.mjs"
+                ],
+                "at": "/opt/tell-one-person-something-through-every-way-they"
+              },
+              {
+                "package": "http-client",
+                "paths": [
+                  "do-work/same-origin.mjs"
+                ],
+                "at": "/opt/http-client"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "tell-the-person-something-on-all-of-their-own-phones-computers",
+                "paths": [
+                  "src/tell-devices.mjs"
+                ],
+                "at": "/opt/tell-the-person-something-on-all-of-their-own-phones-computers"
+              },
+              {
+                "package": "hand-off-jobs-between-agents",
+                "paths": [
+                  "src/workspace/addresses.mjs",
+                  "src/workspace/view-transition.mjs"
+                ],
+                "at": "/opt/hand-off-jobs-between-agents"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "records/workshop-screen-tool-records.json",
+                  "src/workspace/surfaces.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               }
             ]
           },
@@ -430,6 +500,76 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "who-does-each-step",
+                "paths": [
+                  "read-data/who-does.mjs"
+                ],
+                "at": "/opt/who-does-each-step"
+              },
+              {
+                "package": "shared-code",
+                "paths": [
+                  "src/web-push.mjs",
+                  "src/who-does-it.json",
+                  "src/workspace/screens.mjs"
+                ],
+                "at": "/opt/shared-code"
+              },
+              {
+                "package": "tell-one-person-something-through-every-way-they",
+                "paths": [
+                  "read-data/glance-feeds.json",
+                  "read-data/tell-quiet-hours.json",
+                  "read-data/tell-the-person.json",
+                  "read-data/tell-the-person.mjs"
+                ],
+                "at": "/opt/tell-one-person-something-through-every-way-they"
+              },
+              {
+                "package": "http-client",
+                "paths": [
+                  "do-work/same-origin.mjs"
+                ],
+                "at": "/opt/http-client"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "tell-the-person-something-on-all-of-their-own-phones-computers",
+                "paths": [
+                  "src/tell-devices.mjs"
+                ],
+                "at": "/opt/tell-the-person-something-on-all-of-their-own-phones-computers"
+              },
+              {
+                "package": "hand-off-jobs-between-agents",
+                "paths": [
+                  "src/workspace/addresses.mjs",
+                  "src/workspace/view-transition.mjs"
+                ],
+                "at": "/opt/hand-off-jobs-between-agents"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "records/workshop-screen-tool-records.json",
+                  "src/workspace/surfaces.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               }
             ]
           },
@@ -645,6 +785,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },

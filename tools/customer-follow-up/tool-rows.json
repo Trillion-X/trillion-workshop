@@ -468,16 +468,19 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "customer-follow-up",
-       "paths": [
-        "do-work"
-       ],
-       "at": "/opt/customer-follow-up",
-       "exclude": [
-        "__tests__"
-       ]
-      }
+      "package_files": [
+       {
+        "package": "customer-follow-up",
+        "paths": [
+         "do-work",
+         "read-data/read-customer-follow-up.ts"
+        ],
+        "at": "/opt/customer-follow-up",
+        "exclude": [
+         "__tests__"
+        ]
+       }
+      ]
      },
      "workdir": "/opt/customer-follow-up",
      "internet": false,
@@ -644,16 +647,19 @@
     "invoke": {
      "kind": "container",
      "files": {
-      "package_files": {
-       "package": "customer-follow-up",
-       "paths": [
-        "do-work"
-       ],
-       "at": "/opt/customer-follow-up",
-       "exclude": [
-        "__tests__"
-       ]
-      }
+      "package_files": [
+       {
+        "package": "customer-follow-up",
+        "paths": [
+         "do-work",
+         "read-data/read-customer-follow-up.ts"
+        ],
+        "at": "/opt/customer-follow-up",
+        "exclude": [
+         "__tests__"
+        ]
+       }
+      ]
      },
      "workdir": "/opt/customer-follow-up",
      "internet": false,

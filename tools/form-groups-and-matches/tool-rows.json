@@ -38,10 +38,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -118,10 +165,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -175,10 +269,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -259,10 +400,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -333,10 +521,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -409,10 +644,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -472,10 +754,57 @@
         "invoke": {
           "kind": "container",
           "files": { "package_files": [
-            { "package": "form-groups-and-matches", "paths": ["do-work", "read-data"], "at": "/opt/form-groups-and-matches" },
-            { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-            {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-            {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+            {
+              "package": "form-groups-and-matches",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/form-groups-and-matches"
+            },
+            {
+              "package": "records-door",
+              "paths": [
+                "do-work",
+                "read-data"
+              ],
+              "at": "/opt/records-door"
+            },
+            {
+              "package": "content-identity",
+              "paths": [
+                "read-data"
+              ],
+              "at": "/opt/content-identity"
+            },
+            {
+              "module": "@noble/hashes",
+              "paths": [
+                "LICENSE",
+                "package.json",
+                "blake3.js",
+                "blake2.js",
+                "_blake.js",
+                "_md.js",
+                "_u64.js",
+                "utils.js"
+              ],
+              "at": "/opt/node_modules/@noble/hashes"
+            },
+            {
+              "package": "browse-and-upload-my-files",
+              "paths": [
+                "built-stored-bytes/content-chunks/content_chunks.js",
+                "do-work/content-chunks.mjs",
+                "do-work/namespace-client.mjs",
+                "do-work/send-a-file-to-a-namespace.mjs",
+                "do-work/send-retry.mjs",
+                "do-work/send-window.mjs",
+                "do-work/shared-file-reference.mjs",
+                "send-settings.json"
+              ],
+              "at": "/opt/browse-and-upload-my-files"
+            }
           ] },
           "workdir": "/opt/form-groups-and-matches",
           "internet": false,
@@ -609,6 +938,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -884,6 +1227,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1119,6 +1476,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1329,6 +1700,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1527,6 +1912,20 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },

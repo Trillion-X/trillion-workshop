@@ -46,8 +46,110 @@
           "kind": "container",
           "files": {
             "package_files": [
-              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this", "exclude": ["__tests__"]},
-              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition", "exclude": ["__tests__"]}
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this",
+                "exclude": [
+                  "__tests__"
+                ]
+              },
+              {
+                "package": "media-composition",
+                "paths": [
+                  "do-work",
+                  "read-data/adjustment-layers.mjs",
+                  "read-data/auto-cleanup.ts",
+                  "read-data/auto-edit.json",
+                  "read-data/auto-edit.mjs",
+                  "read-data/caption-lines.ts",
+                  "read-data/caption-styles.json",
+                  "read-data/caption-styles.mjs",
+                  "read-data/detect-events.json",
+                  "read-data/layers-to-edit.mjs",
+                  "read-data/looks.json",
+                  "read-data/looks.mjs",
+                  "read-data/reframe-camera.json",
+                  "read-data/session-pairing.mjs",
+                  "read-data/suggestion-stream.json",
+                  "read-data/suggestion-stream.mjs",
+                  "src/confidence-filter.json",
+                  "src/confidence-filter.mjs"
+                ],
+                "at": "/opt/media-composition",
+                "exclude": [
+                  "__tests__"
+                ]
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data/program-here.mjs"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/check-copy.mjs",
+                  "do-work/read-words.mjs",
+                  "do-work/rules-and-verdicts.mjs",
+                  "read-data/answer.json",
+                  "read-data/copy-grammar-rules.json",
+                  "read-data/copy-words.json",
+                  "read-data/words.json"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/computer-cache-folder.mjs",
+                  "do-work/heavy-work.mjs",
+                  "do-work/process-admission.mjs",
+                  "do-work/run-owned-process.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "calibrate-a-camera-frame",
+                "paths": [
+                  "src/frame-calibration.mjs"
+                ],
+                "at": "/opt/calibrate-a-camera-frame"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/evidence-checks.mjs",
+                  "do-work/judge-words.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work/artifact-ref.mjs"
+                ],
+                "at": "/opt/where-a-person-stands"
+              }
             ]
           },
           "workdir": "/opt/know-who-is-in-this",
@@ -123,8 +225,110 @@
           "kind": "container",
           "files": {
             "package_files": [
-              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this", "exclude": ["__tests__"]},
-              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition", "exclude": ["__tests__"]}
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this",
+                "exclude": [
+                  "__tests__"
+                ]
+              },
+              {
+                "package": "media-composition",
+                "paths": [
+                  "do-work",
+                  "read-data/adjustment-layers.mjs",
+                  "read-data/auto-cleanup.ts",
+                  "read-data/auto-edit.json",
+                  "read-data/auto-edit.mjs",
+                  "read-data/caption-lines.ts",
+                  "read-data/caption-styles.json",
+                  "read-data/caption-styles.mjs",
+                  "read-data/detect-events.json",
+                  "read-data/layers-to-edit.mjs",
+                  "read-data/looks.json",
+                  "read-data/looks.mjs",
+                  "read-data/reframe-camera.json",
+                  "read-data/session-pairing.mjs",
+                  "read-data/suggestion-stream.json",
+                  "read-data/suggestion-stream.mjs",
+                  "src/confidence-filter.json",
+                  "src/confidence-filter.mjs"
+                ],
+                "at": "/opt/media-composition",
+                "exclude": [
+                  "__tests__"
+                ]
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data/program-here.mjs"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/check-copy.mjs",
+                  "do-work/read-words.mjs",
+                  "do-work/rules-and-verdicts.mjs",
+                  "read-data/answer.json",
+                  "read-data/copy-grammar-rules.json",
+                  "read-data/copy-words.json",
+                  "read-data/words.json"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/computer-cache-folder.mjs",
+                  "do-work/heavy-work.mjs",
+                  "do-work/process-admission.mjs",
+                  "do-work/run-owned-process.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "calibrate-a-camera-frame",
+                "paths": [
+                  "src/frame-calibration.mjs"
+                ],
+                "at": "/opt/calibrate-a-camera-frame"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/evidence-checks.mjs",
+                  "do-work/judge-words.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work/artifact-ref.mjs"
+                ],
+                "at": "/opt/where-a-person-stands"
+              }
             ]
           },
           "workdir": "/opt/know-who-is-in-this",
@@ -176,8 +380,110 @@
           "kind": "container",
           "files": {
             "package_files": [
-              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this", "exclude": ["__tests__"]},
-              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition", "exclude": ["__tests__"]}
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this",
+                "exclude": [
+                  "__tests__"
+                ]
+              },
+              {
+                "package": "media-composition",
+                "paths": [
+                  "do-work",
+                  "read-data/adjustment-layers.mjs",
+                  "read-data/auto-cleanup.ts",
+                  "read-data/auto-edit.json",
+                  "read-data/auto-edit.mjs",
+                  "read-data/caption-lines.ts",
+                  "read-data/caption-styles.json",
+                  "read-data/caption-styles.mjs",
+                  "read-data/detect-events.json",
+                  "read-data/layers-to-edit.mjs",
+                  "read-data/looks.json",
+                  "read-data/looks.mjs",
+                  "read-data/reframe-camera.json",
+                  "read-data/session-pairing.mjs",
+                  "read-data/suggestion-stream.json",
+                  "read-data/suggestion-stream.mjs",
+                  "src/confidence-filter.json",
+                  "src/confidence-filter.mjs"
+                ],
+                "at": "/opt/media-composition",
+                "exclude": [
+                  "__tests__"
+                ]
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data/program-here.mjs"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/check-copy.mjs",
+                  "do-work/read-words.mjs",
+                  "do-work/rules-and-verdicts.mjs",
+                  "read-data/answer.json",
+                  "read-data/copy-grammar-rules.json",
+                  "read-data/copy-words.json",
+                  "read-data/words.json"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/computer-cache-folder.mjs",
+                  "do-work/heavy-work.mjs",
+                  "do-work/process-admission.mjs",
+                  "do-work/run-owned-process.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "calibrate-a-camera-frame",
+                "paths": [
+                  "src/frame-calibration.mjs"
+                ],
+                "at": "/opt/calibrate-a-camera-frame"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/evidence-checks.mjs",
+                  "do-work/judge-words.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work/artifact-ref.mjs"
+                ],
+                "at": "/opt/where-a-person-stands"
+              }
             ]
           },
           "workdir": "/opt/know-who-is-in-this",
@@ -210,7 +516,58 @@
         "description": "Reads the person's voice-print and face-print records on this computer and lists each person once: their name, whether they are the person, how many voice and face samples they have and the consent words they gave. A print's numbers are never in the answer. The voice-print and face-print kinds are stays_on_this_device: true, so this runs on the computer that holds them and asks for no capability.",
         "input_schema": {"type":"object","additionalProperties":false,"properties":{}},
         "output_schema": {"type":"object","required":["people"],"properties":{"people":{"type":"array","items":{"type":"object","properties":{"id":{"type":"string"},"name":{"type":"string"},"me":{"type":"boolean"},"voice_samples":{"type":"integer"},"face_samples":{"type":"integer"},"consent":{"type":"array"}}}}}},
-        "invoke": {"kind":"computer","capabilities":[],"workdir":"/opt/know-who-is-in-this","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/know-who-is-in-this/read-data/people.mjs","people"],"stdin":{"fill":{"from":"input"}},"records":{"fd":3,"rights":[{"kind":"voice-print","operations":["records:list"]},{"kind":"face-print","operations":["records:list"]}]},"files":{"package_files":[{"package":"know-who-is-in-this","paths":["read-data"],"at":"/opt/know-who-is-in-this"},{"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},{"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},{"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"}]}},
+        "invoke": {"kind":"computer","capabilities":[],"workdir":"/opt/know-who-is-in-this","stdout":"json","argv":["node","/opt/records-door/do-work/run-an-export.mjs","/opt/know-who-is-in-this/read-data/people.mjs","people"],"stdin":{"fill":{"from":"input"}},"records":{"fd":3,"rights":[{"kind":"voice-print","operations":["records:list"]},{"kind":"face-print","operations":["records:list"]}]},"files":{"package_files":[
+          {
+            "package": "know-who-is-in-this",
+            "paths": [
+              "read-data"
+            ],
+            "at": "/opt/know-who-is-in-this"
+          },
+          {
+            "package": "records-door",
+            "paths": [
+              "do-work",
+              "read-data"
+            ],
+            "at": "/opt/records-door"
+          },
+          {
+            "package": "content-identity",
+            "paths": [
+              "read-data"
+            ],
+            "at": "/opt/content-identity"
+          },
+          {
+            "module": "@noble/hashes",
+            "paths": [
+              "LICENSE",
+              "package.json",
+              "blake3.js",
+              "blake2.js",
+              "_blake.js",
+              "_md.js",
+              "_u64.js",
+              "utils.js"
+            ],
+            "at": "/opt/node_modules/@noble/hashes"
+          },
+          {
+            "package": "browse-and-upload-my-files",
+            "paths": [
+              "built-stored-bytes/content-chunks/content_chunks.js",
+              "do-work/content-chunks.mjs",
+              "do-work/namespace-client.mjs",
+              "do-work/send-a-file-to-a-namespace.mjs",
+              "do-work/send-retry.mjs",
+              "do-work/send-window.mjs",
+              "do-work/shared-file-reference.mjs",
+              "send-settings.json"
+            ],
+            "at": "/opt/browse-and-upload-my-files"
+          }
+        ]}},
         "result_selector": "$.result",
         "verify": [{"kind": "sample-run", "input": {}, "records": [{"id": "voice-print:sample-one", "type": "voice-print", "value": {"person": "sample-one", "name": "Ada Example", "me": true, "samples": [[1, 0], [0.9, 0.1]], "consent": ["Ada Example agreed aloud in a made-up sample"]}}, {"id": "face-print:sample-one", "type": "face-print", "value": {"person": "sample-one", "name": "Ada Example", "me": true, "samples": [[0, 1]], "consent": ["Ada Example agreed in writing in a made-up sample"]}}, {"id": "voice-print:sample-two", "type": "voice-print", "value": {"person": "sample-two", "name": "Sam Example", "samples": [[0, 1]], "consent": ["Sam Example agreed aloud in a made-up sample"]}}]}],
         "needs": {"expected_seconds":2,"network_egress":false},

@@ -190,6 +190,37 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "receive-files-over-ftp",
+                "paths": [
+                  "do-work/keychain.mjs",
+                  "do-work/know-which-devices.mjs",
+                  "do-work/tell-the-account.mjs",
+                  "do-work/this-computers-address.mjs"
+                ],
+                "at": "/opt/receive-files-over-ftp"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/computer-data-folder.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
