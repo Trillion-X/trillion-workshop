@@ -353,6 +353,8 @@ async function copyStep(door, record, from, now) {
     if (!entry) refuse('from_step_missing', { step: from.step_id, version });
   }
   const answer = structuredClone(entry.answer);
+  // Workflow runs are the source decision's own bindings. The copy leaves them out, and the workflows due here are asked of this decision again.
+  delete answer.workflow_runs;
   const have = new Set(record.input.evidence.map(item => item.ref));
   const sourceRows = new Map((source.input.evidence ?? []).filter(item => !item.retracted_at).map(item => [item.ref, item]));
   const evidence = [];
