@@ -21,12 +21,14 @@ import { chmodSync, closeSync, createReadStream, createWriteStream, existsSync, 
 import { basename, dirname, isAbsolute, join, resolve as resolvePath } from 'node:path';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { gzipSync } from 'node:zlib';
+import { gunzipSync, gzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, checkCommit, checkEntry, checkTarget, feedStatusOf, mayPublish, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signerOf } from './release-feed.mjs';
 
 const refuse = (message, exit = 1) => Object.assign(new Error(message), { exit });
+const BLOCK = 512;
 const absolute = (path, what) => {
   if (typeof path !== 'string' || !isAbsolute(path)) throw refuse(`${what} must be an absolute path.`, 2);
   return path;
@@ -109,14 +111,29 @@ export function packRelease({ program, source, file }) {
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
 
+/** Where a tar's entries end: the first all-zero header block (the archive's end marker), or the tar's length. */
+function tarEntriesEnd(tar) {
+  let at = 0;
+  while (at + BLOCK <= tar.length && tar.subarray(at, at + BLOCK).some(byte => byte !== 0)) {
+    const size = parseInt(tar.toString('latin1', at + 124, at + 135).replace(/\0.*$/s, ''), 8);
+    at += BLOCK + Math.ceil(size / BLOCK) * BLOCK;
+  }
+  return at;
+}
+
 /**
  * Pack a commit's whole tree as the Workshop installer reads it: `git archive` under one top folder (`prefix`, which
- * install strips; its pax header names the commit), gzipped with no name or time in the header, so the same commit
- * always packs to the same bytes. Answers { content, bytes } as packRelease does.
+ * install strips; its pax header names the commit), then `package-files.json` in that folder: the files each tool row
+ * reaches, from the walker at this commit (test-helpers/tool-row-imports.mjs). Gzipped with no name or time in the
+ * header, so the same commit always packs to the same bytes. Answers { content, bytes } as packRelease does.
  */
 export async function archiveRelease({ source, commit, prefix, file }) {
   const tar = await git(source, ['archive', '--format=tar', `--prefix=${prefix}/`, commit], { binary: true });
-  const packed = gzipSync(tar, { level: 9 });
+  const packageFiles = Object.fromEntries(Object.entries(packageFilesByRow({ repo: source, ref: commit })).sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0)));
+  // tarGz's one entry, without its end-of-archive blocks, goes after the archive's own entries.
+  const entry = gunzipSync(tarGz([{ name: `${prefix}/package-files.json`, bytes: Buffer.from(`${JSON.stringify(packageFiles, null, 1)}\n`), executable: false }])).subarray(0, -2 * BLOCK);
+  const end = tarEntriesEnd(tar);
+  const packed = gzipSync(Buffer.concat([tar.subarray(0, end), entry, Buffer.alloc(2 * BLOCK)]), { level: 9 });
   writeFileSync(file, packed, { mode: 0o644 });
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
