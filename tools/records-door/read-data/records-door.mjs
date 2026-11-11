@@ -28,9 +28,6 @@
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { pagedCall } from './byte-pages.mjs';
-import { bearerControl, namespaceClient } from '../../browse-and-upload-my-files/do-work/namespace-client.mjs';
-import { loadChunking } from '../../browse-and-upload-my-files/do-work/content-chunks.mjs';
-import { sendFile } from '../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -137,6 +134,10 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
 // The capability is a bearer: it is handed to the sender as its authorization, never printed, logged or returned.
 // The engine checks every chunk and the whole file; a refused finish is an error and no row is written.
 export async function writeLargeFile({ origin, capability, fetchImpl }, name, source, { mediaType = null } = {}) {
+  // The sender is loaded only here: a row that never writes a large file does not need its closure packaged.
+  const { bearerControl, namespaceClient } = await import('../../browse-and-upload-my-files/do-work/namespace-client.mjs');
+  const { loadChunking } = await import('../../browse-and-upload-my-files/do-work/content-chunks.mjs');
+  const { sendFile } = await import('../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs');
   const control = bearerControl({ origin, authorization: async () => `Bearer ${capability}`, fetchImpl });
   const client = namespaceClient({ origin, control, fetchImpl });
   return sendFile({ client, source, name, mediaType, chunking: await loadChunking() });
