@@ -151,6 +151,19 @@ test('a retried transport failure stops immediately on HTTP 401', async () => {
   } finally { await door.close(); }
 });
 
+test('a refused run is told which check the door refused it with', async () => {
+  const cause = 'trillion_local::mcp::http@src/mcp.rs:933:24:AuthenticationFailure::Unauthorized#abc';
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ['records:read'] }] });
+  try {
+    const client = openRecordsDoor({
+      descriptor: door.descriptor,
+      wait: noWait,
+      fetchImpl: async () => new Response(JSON.stringify({ error: 'Bearer authentication is required', cause }), { status: 401 }),
+    });
+    await assert.rejects(client.readRecord('note', 'note:1'), error => error.code === 'capability_gone' && error.message.endsWith(`Refused by: ${cause}`));
+  } finally { await door.close(); }
+});
+
 test('fetch transport failures retry safe reads, while malformed JSON fails immediately', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ['records:read'] }] });
   try {
