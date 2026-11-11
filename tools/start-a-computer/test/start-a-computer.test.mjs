@@ -236,7 +236,7 @@ test('starting a computer on an existing machine sets it up, installs the releas
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
   }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/sign-up' ? 200 : 404 }), wait: async () => {} });
   assert.deepEqual([answer.arch, answer.place_id, answer.sign_up_status, answer.release, answer.price], ['aarch64', 'f'.repeat(64), 200, '/opt/place/releases/r1', null]);
-  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'computer\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases' ''$/);
+  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'computer\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases' '' '/);
   assert.ok(commands.find(c => c.includes("'computer' 'id'")).includes("env PRODUCT_SETTINGS='/var/lib/place/product-settings.json' ENGINE_DATA="), 'the id command reads the product settings too');
   assert.ok(commands.some(c => c.includes('systemctl restart place.service')));
 });
@@ -305,7 +305,7 @@ test('a start writes both fields into the computer config it installs, and a bad
   await startAComputer(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
   assert.deepEqual(written[0], PRODUCT_BYTES, 'the product settings file is written byte for byte, before the config');
   assert.deepEqual([written[1].release_feed, written[1].default_places], [release_feed, default_places]);
-  assert.match(setups[0], / 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases' ''$/, 'set-up is told the folder the engine adopts releases into');
+  assert.match(setups[0], / 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases' '' '/, 'set-up is told the folder the engine adopts releases into');
   const lease = join(here, 'second-lease.json');
   await assert.rejects(startAComputer({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
   assert.throws(() => readFileSync(lease), /ENOENT/);

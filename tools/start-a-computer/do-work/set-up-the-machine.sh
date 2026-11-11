@@ -16,12 +16,14 @@
 # engine job J1). The service runs with ProtectSystem=strict, so that folder is made the place user's and added to
 # the service's ReadWritePaths; without it the service can write /var/lib/place only.
 #
-# SITE_HOSTS, the ninth argument, is the space-separated list of names Caddy serves, one fixed site block each, all
-# passed to the engine on 127.0.0.1:PORT. Empty means HOST_NAME alone. Each name gets its own certificate at config load.
+# SITE_HOSTS, the ninth argument, is the space-separated list of names Caddy serves. Empty means HOST_NAME alone. Each
+# name gets its own certificate at config load. SITE_BLOCK tenth is the Caddy site block (read-data/caddy-site-block.caddy)
+# with {SITE} set to each name and {PORT} to the engine's port.
 #
-# usage: set-up-the-machine.sh HOST_NAME PORT ENGINE_FILE DATA_ENV DATA_DIR SETTINGS_ENV SETTINGS_FILE [ADOPT_DIR] [SITE_HOSTS]
+# usage: set-up-the-machine.sh HOST_NAME PORT ENGINE_FILE DATA_ENV DATA_DIR SETTINGS_ENV SETTINGS_FILE [ADOPT_DIR] [SITE_HOSTS] SITE_BLOCK
 set -eu
-HOST_NAME=$1 PORT=$2 ENGINE_FILE=$3 DATA_ENV=$4 DATA_DIR=$5 SETTINGS_ENV=$6 SETTINGS_FILE=$7 ADOPT_DIR=${8:-} SITE_HOSTS=${9:-$HOST_NAME}
+HOST_NAME=$1 PORT=$2 ENGINE_FILE=$3 DATA_ENV=$4 DATA_DIR=$5 SETTINGS_ENV=$6 SETTINGS_FILE=$7 ADOPT_DIR=${8:-} SITE_HOSTS=${9:-$HOST_NAME} SITE_BLOCK=${10:-}
+case "$SITE_BLOCK" in '') echo "The Caddy site block is missing." >&2; exit 2 ;; esac
 case "$SETTINGS_ENV" in *[!A-Z0-9_]*|'') echo "The launch setting must be capitals, digits and underscores." >&2; exit 2 ;; esac
 case "$SETTINGS_FILE" in /*) ;; *) echo "The product settings file must be an absolute path, not $SETTINGS_FILE." >&2; exit 2 ;; esac
 command -v apt-get >/dev/null 2>&1 || { echo "This machine has no apt-get; start-a-computer sets up Debian and Ubuntu machines." >&2; exit 3; }
@@ -43,7 +45,7 @@ if [ -n "$ADOPT_DIR" ]; then
     WRITABLE="$WRITABLE $ADOPT_DIR" ;;
   esac
 fi
-for host in $SITE_HOSTS; do printf '%s {\n\tencode zstd gzip\n\treverse_proxy 127.0.0.1:%s\n}\n' "$host" "$PORT"; done | install -m 0644 /dev/stdin /etc/caddy/Caddyfile
+for host in $SITE_HOSTS; do printf '%s\n' "$SITE_BLOCK" | sed -e "s/{SITE}/$host/" -e "s/{PORT}/$PORT/"; done | install -m 0644 /dev/stdin /etc/caddy/Caddyfile
 ufw allow 22/tcp >/dev/null
 ufw allow 80/tcp >/dev/null
 ufw allow 443/tcp >/dev/null

@@ -32,6 +32,7 @@ const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url))
 const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
 const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
+const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd();
 /** The launch setting that names the product settings file, and where that file is on the machine. */
 export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting, file: SETTINGS.product_settings.file };
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
@@ -260,7 +261,7 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, product, ...deps }) {
   const engine = request.engine, adopt = adoptFolder(request);
-  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, adopt ?? '', SETTINGS.caddy_site_hosts.join(' ')].map(q).join(' ')}`, readFileSync(SETUP));
+  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, adopt ?? '', SETTINGS.caddy_site_hosts.join(' '), SITE_BLOCK].map(q).join(' ')}`, readFileSync(SETUP));
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
