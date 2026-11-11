@@ -337,22 +337,28 @@ const reviseShape = revise => {
 // A `from` names the same step of the same decision, and the version when one is named.
 const fromMatches = (stored, from) => Boolean(stored) && stored.decision_id === from.decision_id && stored.step_id === from.step_id && (from.version === undefined || from.version === stored.version);
 
+/** The owner read of one step answer as it stood: the source decision, its step by id, and the version named (or its current
+ * one). Refuses when the step is missing or was lost. Returns { source, answer, version }. */
+export async function readStepAsStood(door, decisionId, stepId, version) {
+  const source = await readDecision(door, decisionId, [stepId]);
+  if (!source) refuse('from_not_found');
+  const at = source.guidance.findIndex(item => item.step_id === stepId);
+  const current = at >= 0 ? source.guidance[at] : null;
+  if (!current || current.lost) refuse('from_step_missing', { step: stepId, version: version ?? 1 });
+  const wanted = version ?? current.version ?? 1;
+  let entry = current;
+  if (wanted !== (current.version ?? 1)) {
+    entry = source.whole ? null : await readStep(door, versionKey(source.id, at, wanted));
+    if (!entry) refuse('from_step_missing', { step: stepId, version: wanted });
+  }
+  return { source, answer: structuredClone(entry.answer), version: wanted, at };
+}
+
 /** The answer a `from` brings in: the step of another of the person's decisions as it stood, at the version named (or its current
  * one), and the evidence it cites that this decision does not have yet, each with where it came from. */
 async function copyStep(door, record, from, now) {
   if (from.decision_id === record.id) refuse('from_self');
-  const source = await readDecision(door, from.decision_id, [from.step_id]);
-  if (!source) refuse('from_not_found');
-  const at = source.guidance.findIndex(item => item.step_id === from.step_id);
-  const current = at >= 0 ? source.guidance[at] : null;
-  if (!current || current.lost) refuse('from_step_missing', { step: from.step_id, version: from.version ?? 1 });
-  const version = from.version ?? current.version ?? 1;
-  let entry = current;
-  if (version !== (current.version ?? 1)) {
-    entry = source.whole ? null : await readStep(door, versionKey(source.id, at, version));
-    if (!entry) refuse('from_step_missing', { step: from.step_id, version });
-  }
-  const answer = structuredClone(entry.answer);
+  const { source, answer, version } = await readStepAsStood(door, from.decision_id, from.step_id, from.version);
   // Workflow runs are the source decision's own bindings. The copy leaves them out, and the workflows due here are asked of this decision again.
   delete answer.workflow_runs;
   const have = new Set(record.input.evidence.map(item => item.ref));
