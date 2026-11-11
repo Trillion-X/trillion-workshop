@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
-import { addRelease, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
+import { addRelease, checkFeedTarget, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
 import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, refuseUnreadableByOldReaders, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { tarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
@@ -142,6 +142,16 @@ test('the forwarder kind publishes its program alone at the root of its own feed
   const bytes = readFileSync(join(request.feed_folder, 'forwarder', commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
   assert.deepEqual(untarGz(bytes).map(file => file.name), ['trillion-mcp-forwarder'], 'the binary alone, at the root');
   assert.equal(readFileSync(join(request.feed_folder, 'forwarder', commits[1], 'x86_64-unknown-linux-gnu.tar.gz')).length, feed.releases[0].bytes);
+});
+
+test('the mac-app kind is its own feed of basename releases, and the engine feed still takes the Mac triple', () => {
+  const kind = settings.kinds.find(row => row.kind === 'mac-app');
+  assert.deepEqual([kind.build, kind.target, kind.feed_file], [false, 'aarch64-apple-darwin', 'mac-app-feed.json']);
+  assert.equal(kind.url_folder, undefined, 'the names are basenames: no folder');
+  assert.doesNotThrow(() => checkFeedTarget('mac-app-feed.json', 'aarch64-apple-darwin'));
+  assert.doesNotThrow(() => checkFeedTarget('feed.json', 'aarch64-apple-darwin'), 'the engine Mac road keeps its entries in the engine feed');
+  assert.throws(() => checkFeedTarget('workshop-feed.json', 'aarch64-apple-darwin'), /belongs in mac-app-feed.json/);
+  assert.throws(() => checkFeedTarget('mac-app-feed.json', 'x86_64-unknown-linux-gnu'), /engine target/);
 });
 
 test('a release with an extra program at the root is refused before it is signed: old unpackers take only the program at the root', () => {

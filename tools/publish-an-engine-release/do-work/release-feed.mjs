@@ -113,10 +113,12 @@ export function checkFeedTarget(feedName, target) {
   // A program kind other than the engine (the forwarder) builds its one target into its own feed only.
   const program = settings.kinds.find(row => row.build && row.kind !== ENGINE_KIND.kind);
   if (program && program.feed_file === feedName) return;
-  const owner = settings.kinds.find(row => !row.build && row.target === target);
-  if (owner) {
-    if (owner.feed_file === feedName || owner.mirror_feed === feedName) return;
-    throw refuse(`${target} is not a target of the ${feedName} feed: it belongs in ${owner.feed_file}.`);
+  // A target a non-build kind owns is held in that kind's feed. The engine's Mac road names the same triple (darwin.targets), so the
+  // engine feed takes it too: a kind's target and the engine's road may share a triple, and the feed separates them.
+  const owners = settings.kinds.filter(row => !row.build && row.target === target);
+  if (owners.some(owner => owner.feed_file === feedName || owner.mirror_feed === feedName)) return;
+  if (owners.length && !(feedName === ENGINE_KIND.feed_file && settings.darwin.targets.includes(target))) {
+    throw refuse(`${target} is not a target of the ${feedName} feed: it belongs in ${owners[0].feed_file}.`);
   }
   if (feedName !== ENGINE_KIND.feed_file) throw refuse(`${target} is an engine target: it belongs in ${ENGINE_KIND.feed_file}, not ${feedName}.`);
 }
