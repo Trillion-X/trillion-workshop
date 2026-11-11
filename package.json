@@ -29,7 +29,6 @@
     "@noble/ciphers": "^2.4.0",
     "@noble/hashes": "^2.4.0",
     "@opencoredev/social-sdk": "0.5.0",
-    "@sqlite.org/sqlite-wasm": "3.53.4-build2",
     "esbuild": "^0.28.2",
     "fflate": "0.8.2",
     "marked": "^18.0.14",

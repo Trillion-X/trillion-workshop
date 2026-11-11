@@ -172,7 +172,15 @@ const VF_NORM = `scale=${W}:${H},setsar=1,fps=${FPS},format=yuv420p`;
 // drift. Empty in normal mode.
 const DET_FILTER_ARGS = DETERMINISTIC ? ['-filter_threads', '1'] : [];
 
-function ff(ffArgs, stage) {
+// A web address input (a Namespace read link) is read in ranges: ffmpeg must reopen it where a response ends, or the
+// stream stops early ("Stream ends prematurely"). These flags make it reconnect at that point.
+const RECONNECT_ARGS = ['-reconnect', '1', '-reconnect_streamed', '1', '-reconnect_at_eof', '1', '-reconnect_delay_max', '2'];
+function withReconnect(ffArgs) {
+  return ffArgs.flatMap((arg, at) => (arg === '-i' && /^https?:\/\//.test(ffArgs[at + 1] ?? '') ? [...RECONNECT_ARGS, arg] : [arg]));
+}
+
+function ff(ffArgs0, stage) {
+  const ffArgs = withReconnect(ffArgs0);
   const out = ffArgs[ffArgs.length - 1];
   const fullArgs = ['-hide_banner', '-loglevel', 'error', '-y', ...DET_FILTER_ARGS, ...ffArgs];
   const sidecarOk = typeof out === 'string';
