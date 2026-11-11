@@ -29,7 +29,7 @@ const TOOLS_RESOURCE = '@workshop-tools';
 
 // `fileAnswers` ({ operation: answer | (input) => answer | Error }) answers another files door operation (setup_facts ...)
 // for a run whose files right names it at '/'.
-export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
+export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}, rights = [], mostWrites = WRITE_CAP, records = [], files = {}, usageDays = [], workspaceRecords = {}, workspaceEnvelope = {}, busyFirst = 0, busySourceFirst = 0, unknownFirst = 0, eventStream = false, pageCut = null, bytePage = null, partialBodyFirst = 0, partialBodyAlways = false, pageBytes = null, mostRequestBytes = null, shareOrigin = 'https://files.example.com' } = {}) {
   const capability = 'run_fake_capability';
   // The ids of each kind, sorted once for every page of a list until anything kept changes (a test may change it too).
   const sorted = new Map();
@@ -43,6 +43,7 @@ export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}
   const runsStarted = [];
   let busy = busyFirst;
   let unknown = unknownFirst;
+  let busySource = busySourceFirst;
   let partialBodies = partialBodyFirst;
   // A rights item names a kind, optionally narrowed to one id or an id prefix; a call passes when any item allows it.
   // An id right never lists; a prefix right lists only with no order and a prefix that starts with its own.
@@ -120,6 +121,8 @@ export async function startFakeDoor({ fileAnswers = {}, runs = [], toolRuns = {}
     'records:write': ({ records: items }, key) => {
       if (receipts.has(key)) return { structuredContent: receipts.get(key) };
       if (!Array.isArray(items) || items.length < 1 || items.length > Math.min(mostWrites, WRITE_CAP)) return refuse('original_input_refused');
+      // The engine's busy write: its record store was held before this write began, so nothing was written.
+      if (busySource > 0) { busySource -= 1; return refuse('original_workspace_source_unavailable'); }
       const before = new Map(kept);
       for (const item of items) {
         const holds = kept.get(item.id)?.type;

@@ -22,9 +22,10 @@
 //                                                          address, `tools_resource`, else @workshop-tools), only for a
 //                                                          tool id the row declares in `runs`; the engine refuses others
 //
-// A busy account (503, or selected_owner_unavailable) and a call whose outcome is unknown are sent again with the same
-// request key after a growing wait. Safe reads also retry fetch/body transport failures; writes do not. A refusal comes
-// back as RecordsDoorError with the door's code and outcome. Large answers use byte pages (read-data/byte-pages.mjs).
+// A busy account (503, selected_owner_unavailable, or a source answer that began no effect) and a call whose outcome is
+// unknown are sent again with the same request key after a growing wait. Safe reads also retry fetch/body transport
+// failures; writes do not. A refusal comes back as RecordsDoorError with the door's code and outcome. Large answers use
+// byte pages (read-data/byte-pages.mjs).
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { pagedCall } from './byte-pages.mjs';
@@ -120,8 +121,10 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
       const result = answer.result ?? {};
       if (!result.isError) return result.structuredContent;
       const { code = 'refused', outcome } = result.structuredContent ?? {};
-      // A busy owner, or a call whose effect is unknown, is sent again with the same request key, never a new one.
-      if ((code === 'selected_owner_unavailable' || outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
+      // A busy owner, or a call whose effect is unknown, is sent again with the same request key, never a new one. The
+      // engine answers a write that found its record store busy as the source unavailable, with nothing begun.
+      const busy = code === 'selected_owner_unavailable' || (code === 'original_workspace_source_unavailable' && outcome === 'not_started');
+      if ((busy || outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
       throw new RecordsDoorError(code, WORDS[code] ?? WORDS.refused, outcome);
     }
   }
