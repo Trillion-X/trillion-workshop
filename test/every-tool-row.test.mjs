@@ -144,3 +144,16 @@ test('every import a row\'s run loads is packed by that row: its relative import
   }
   assert.deepEqual(missing, [], `a run would stop at a missing module:\n${missing.join('\n')}`);
 });
+
+// The capability list (capabilities.json at the root) names each job's owner folder and its entry: the tool-rows.json
+// in that folder. An entry that names a code or data file, a folder with no row, or a retired place fails here, so the
+// list cannot drift from the tree it describes.
+test('every capability names a tool-rows.json that exists in its owner folder', () => {
+  const { capabilities } = json(resolve(root, 'capabilities.json'));
+  const broken = capabilities.flatMap(({ capability, owner, entry }) => {
+    const named = entry.startsWith('tools/') && entry.endsWith('/tool-rows.json') && existsSync(join(root, entry));
+    const covered = [owner].flat().some(glob => entry === glob || entry.startsWith(glob.replace(/\/$/, '') + '/'));
+    return named && covered ? [] : [`${capability}: ${entry} is not a tool row in ${[owner].flat().join(', ')}`];
+  });
+  assert.deepEqual(broken, [], `capabilities that name no tool row in their owner:\n${broken.join('\n')}`);
+});
