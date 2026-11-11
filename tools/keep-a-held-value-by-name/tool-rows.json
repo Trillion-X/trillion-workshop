@@ -1,0 +1,60 @@
+{
+  "kind": "tool-rows",
+  "record_set": "keep-a-held-value-by-name-tool-rows",
+  "what_this_is": "The Workshop row that keeps one held value under a name in the person's own vault, through the engine's held-values:put door operation. The value comes on stdin, never on the command line.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:keep-a-held-value-by-name",
+        "id": "tool:keep-a-held-value-by-name",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "label": "Keep a held value by name in my vault",
+        "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, so my tools and AIs can use it by name without ever seeing it",
+        "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "arguments"
+          ],
+          "properties": {
+            "arguments": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The held value's name, one word."
+              },
+              "description": "Exactly one argument: the name."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "name",
+            "accepted"
+          ],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "accepted": {
+              "const": true
+            }
+          }
+        },
+        "invoke": "{\"kind\": \"on-your-computer\", \"get_it\": [\"clone the Workshop repository (package.json repository.url)\"], \"run\": \"node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs {arguments}\", \"stdin\": \"the value, exactly as it is to be kept (one trailing newline is removed)\", \"needs\": [\"node 22 or later\", \"the person's own Trillion sign-in (trillion login, or the Mac app's key)\"], \"say\": \"This runs on the person's own computer from the root of the Workshop checkout. Pipe the value in on stdin; never pass it as an argument. Report only the name and accepted.\"}",
+        "provenance": {
+          "source": "New: the person's own door operation held-values:put (src/secrets.rs HELD_VALUES_PUT), replacing the store-file write of `secrets put`."
+        }
+      }
+    }
+  ]
+}
