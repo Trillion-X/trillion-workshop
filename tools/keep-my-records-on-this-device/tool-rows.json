@@ -222,6 +222,15 @@
                   "do-work/base64.mjs"
                 ],
                 "at": "/opt/serialized-content"
+              },
+              {
+                "package": "keep-records-only-my-devices-can-read",
+                "paths": [
+                  "do-work/sealed-copy.mjs",
+                  "do-work/sealed-records.json",
+                  "do-work/sealed-records.mjs"
+                ],
+                "at": "/opt/keep-records-only-my-devices-can-read"
               }
             ]
           }
