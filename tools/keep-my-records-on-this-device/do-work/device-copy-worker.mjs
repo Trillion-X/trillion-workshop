@@ -39,8 +39,8 @@ import sqliteBytesUrl from '@sqlite.org/sqlite-wasm/sqlite3.wasm';
 import { openDeviceDatabase } from './wasm-sqlite-host.mjs';
 import { deviceCopy } from './device-copy.mjs';
 import { accountCopyLocation, accountCopySender } from './account-copy.mjs';
-import { findSealed, hasSealing, openFileOnCopy, openOnCopy, sealFileOnCopy, sealOnCopy, shareSealedOnCopy, unlockSealing, unsealOnCopy } from '../../sealed-records/do-work/sealed-copy.mjs';
-import { openFromLink } from '../../sealed-records/do-work/sealed-records.mjs';
+import { findSealed, hasSealing, openFileOnCopy, openOnCopy, sealFileOnCopy, sealOnCopy, shareSealedOnCopy, unlockSealing, unsealOnCopy } from '../../keep-records-only-my-devices-can-read/do-work/sealed-copy.mjs';
+import { openFromLink } from '../../keep-records-only-my-devices-can-read/do-work/sealed-records.mjs';
 
 let copy = null;
 let sealingKey = null;

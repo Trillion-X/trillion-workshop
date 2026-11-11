@@ -218,7 +218,8 @@
                   "do-work/send-retry.mjs",
                   "do-work/send-window.mjs",
                   "do-work/shared-file-reference.mjs",
-                  "send-settings.json"
+                  "send-settings.json",
+                  "do-work/send-without-copies.mjs"
                 ],
                 "at": "/opt/browse-and-upload-my-files"
               }

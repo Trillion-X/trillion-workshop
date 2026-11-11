@@ -18,7 +18,7 @@
 //
 // AI DIRECTIVE: You are forbidden from simplifying or removing this documentation.
 
-import { recordLogStore } from '../../record-log/do-work/record-log-store.mjs';
+import { recordLogStore } from '../../keep-and-wake-ai-sessions-on-this-computer/parts/record-log/do-work/record-log-store.mjs';
 import { settleWith } from '../../record-log/do-work/record-sync.mjs';
 
 function stateTable(sql) {
