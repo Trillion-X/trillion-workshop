@@ -113,10 +113,8 @@
     },
     {
       "capability": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records",
-      "owner": [
-        "tools/measurement-ledger/"
-      ],
-      "entry": "tools/measurement-ledger/DATA.json",
+      "owner": ["tools/measurement-ledger/"],
+      "entry": "tools/measurement-ledger/tool-rows.json",
       "evidence": "The package validates and aggregates cost measurement semantics over the existing account records door; it creates no product client or storage engine.",
       "distinct_from": [
         {
@@ -199,10 +197,8 @@
     },
     {
       "capability": "compose unit-safe measurement, forecast and billing records into saved account lists and a generic runtime-authored screen",
-      "owner": [
-        "tools/measurement-workspace/"
-      ],
-      "entry": "tools/measurement-workspace/DATA.json",
+      "owner": ["tools/measurement-workspace/"],
+      "entry": "tools/measurement-workspace/tool-rows.json",
       "evidence": "Derives list/view definitions from canonical measurement-ledger DATA and emits generic saved screen request bindings; no product route or engine dependency.",
       "distinct_from": [
         {
@@ -385,7 +381,7 @@
     {
       "capability": "assemble an edit plan into a rough cut of a video and check the cut",
       "owner": ["tools/assemble-a-plan-into-a-cut/"],
-      "entry": "tools/assemble-a-plan-into-a-cut/do-work/assemble.py",
+      "entry": "tools/assemble-a-plan-into-a-cut/tool-rows.json",
       "evidence": "do-work/assemble.py, do-work/cut.py"
     },
     {
@@ -425,7 +421,7 @@
     {
       "capability": "keep principles taken from videos, each backed by a quote checked against that video's captions",
       "owner": ["tools/cite-principles-from-captions/"],
-      "entry": "tools/cite-principles-from-captions/do-work/cite_principles.py",
+      "entry": "tools/cite-principles-from-captions/tool-rows.json",
       "evidence": "do-work/cite_principles.py:2 keep principles, each backed by words checked against the captions of the videos they came from"
     },
     {
@@ -442,12 +438,6 @@
       "distinct_from": [
         { "job": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it", "why": "connected-drives only reads; this copies and moves onto a drive (change-a-folder), stops the work holding a drive and ejects it, and finds a file's duplicates on the drives and in the person's own files. Its device listing is connected-drives' own (imported)." }
       ]
-    },
-    {
-      "capability": "give exact bytes their content identity",
-      "owner": ["tools/content-identity/"],
-      "entry": "tools/content-identity/read-data/identity.mjs",
-      "evidence": "README.md:3 the one owner of internal content identities: BLAKE3-256 of exact bytes"
     },
     {
       "capability": "write or check the pin file of a folder of DATA files: each file's byte count and BLAKE3, so a program that reads them can refuse one that changed after it was pinned",
@@ -467,7 +457,7 @@
     {
       "capability": "keep techniques by why they work and cross any technique with any goal",
       "owner": ["tools/cross-techniques-with-a-goal/"],
-      "entry": "tools/cross-techniques-with-a-goal/do-work/cross-techniques-with-a-goal.mjs",
+      "entry": "tools/cross-techniques-with-a-goal/tool-rows.json",
       "evidence": "README.md:3 keeps every technique a person captures by why it works, so any technique can be used for any goal in any medium"
     },
     {
@@ -552,12 +542,6 @@
       "owner": ["tools/grade-and-repair-speech-audio/"],
       "entry": "tools/grade-and-repair-speech-audio/tool-rows.json",
       "evidence": "README.md:3 keep the sound when it is good; remaster it when noise, hum, echo or loudness spoil it; re-voice it when it is still bad"
-    },
-    {
-      "capability": "start a headless browser and drive it over the DevTools protocol, for the browser tools",
-      "owner": ["tools/headless-browser/"],
-      "entry": "tools/headless-browser/devtools.mjs",
-      "evidence": "README.md:3 a library the browser tools pack: a headless Chromium spoken to over the DevTools protocol"
     },
     {
       "capability": "search the Internet Archive and read an item's metadata",
@@ -718,13 +702,13 @@
     {
       "capability": "judge a public page against saved craft rules at every width, with each finding boxed on a picture",
       "owner": ["tools/page-critic/"],
-      "entry": "tools/page-critic/do-work/critique-a-page.mjs",
+      "entry": "tools/page-critic/tool-rows.json",
       "evidence": "README.md:3 judges a public page against the saved craft rules at every width they name, and keeps a picture of each width with every finding boxed and numbered"
     },
     {
       "capability": "search a list of people by any field, rank people by the points their activity earns, and merge people a source sends",
       "owner": ["tools/person-list/"],
-      "entry": "tools/person-list/do-work/find-people.mjs",
+      "entry": "tools/person-list/tool-rows.json",
       "evidence": "README.md:3 search a list of people by any field; rank people by activity points with levels; merge people a source sends, each once"
     },
     {
@@ -766,12 +750,6 @@
       "owner": ["tools/record-a-web-page/"],
       "entry": "tools/record-a-web-page/tool-rows.json",
       "evidence": "README.md:3 a headless Chromium plays a list of steps the way a person would, with a large drawn pointer and a ripple at every click"
-    },
-    {
-      "capability": "reach a person's own records from a tool run: the records door client every records tool uses",
-      "owner": ["tools/records-door/"],
-      "entry": "tools/records-door/read-data/records-door.mjs",
-      "evidence": "README.md:3 how a Workshop tool reaches the person's own records: the client for the records door the run was handed"
     },
     {
       "capability": "relate any of a person's records with the role as data and keep what happened between them, then read the graph around a record and find how records connect",
@@ -822,12 +800,6 @@
       "evidence": "README.md:3 posts, videos and pages other people made that worked, each kept with its link, words, pictures and why it worked"
     },
     {
-      "capability": "make a site's web fonts smaller and prove its pages still look the same",
-      "owner": ["tools/shrink-web-fonts-without-changing-how-they-look/"],
-      "entry": "tools/shrink-web-fonts-without-changing-how-they-look/tool-rows.json",
-      "evidence": "README.md:3 makes a site's web fonts smaller and proves the pages still look the same, pixel for pixel"
-    },
-    {
       "capability": "read a person's social posts and their posting calendar",
       "owner": ["tools/social-posts/"],
       "entry": "tools/social-posts/tool-rows.json",
@@ -848,7 +820,7 @@
     {
       "capability": "measure traffic by where it came from: tracked links, visitors, leads and sales by source, ad return, conversions sent back to ad platforms",
       "owner": ["tools/traffic-attribution/"],
-      "entry": "tools/traffic-attribution/do-work/make-a-tracked-link.mjs",
+      "entry": "tools/traffic-attribution/tool-rows.json",
       "evidence": "README.md:3 tracked links with UTM fields, visitors, leads and sales broken down by where they came from, what ad spend brings back"
     },
     {
@@ -878,7 +850,7 @@
     {
       "capability": "keep and read where a person stands on one thing made for them: agree, disagree or partly, with their own words why",
       "owner": ["tools/where-a-person-stands/"],
-      "entry": "tools/where-a-person-stands/do-work/keep-where-you-stand.mjs",
+      "entry": "tools/where-a-person-stands/tool-rows.json",
       "evidence": "README.md:3 agree, disagree or partly, with their own words for why; one stance record per kind of thing and identity"
     },
     {
@@ -946,37 +918,32 @@
     },
     {
       "capability": "draw ink marks on any page or picture and erase them",
-      "lives_at": ["bitfield-packages/packages/addressed-marks/"],
-      "moves_to": "tools/draw-ink-marks/",
-      "entry": "bitfield-packages/packages/addressed-marks/",
+      "owner": ["tools/draw-ink-marks/"],
+      "entry": "tools/draw-ink-marks/tool-rows.json",
       "evidence": "addressed-marks README.md:1 mark operations, tools and the ink physics: capture, point mappers, erase"
     },
     {
       "capability": "guard an AI's spending: budgets, reservations, a spend ledger and resets",
-      "lives_at": ["bitfield-packages/packages/agent-wallet/"],
-      "moves_to": "tools/guard-ai-spending/",
-      "entry": "bitfield-packages/packages/agent-wallet/",
+      "owner": ["tools/guard-ai-spending/"],
+      "entry": "tools/guard-ai-spending/tool-rows.json",
       "evidence": "agent-wallet README.md:1 the rail-agnostic autonomous spend guard: budget, reservation, ledger, reset"
     },
     {
       "capability": "read office files (spreadsheets, documents, presentations) and rewrite their cells or text from declared edits",
-      "lives_at": ["bitfield-packages/packages/office-open-xml-decoder/", "bitfield-packages/packages/apply-declared-presentation-text-edits/"],
-      "moves_to": "tools/office-files/",
-      "entry": "bitfield-packages/packages/office-open-xml-decoder/",
+      "owner": ["tools/office-files/"],
+      "entry": "tools/office-files/tool-rows.json",
       "evidence": "office-open-xml-decoder README.md:1 read xlsx, docx, pptx into JSON and rewrite matched cells or text; apply-declared-presentation-text-edits does it for presentations"
     },
     {
       "capability": "ask a small model for a yes or no verdict and remember its answers",
-      "lives_at": ["bitfield-packages/packages/ask-a-small-model-for-a-verdict/"],
-      "moves_to": "tools/ask-a-small-model-for-a-verdict/",
-      "entry": "bitfield-packages/packages/ask-a-small-model-for-a-verdict/",
+      "owner": ["tools/ask-a-small-model-for-a-verdict/"],
+      "entry": "tools/ask-a-small-model-for-a-verdict/tool-rows.json",
       "evidence": "ask-a-small-model-for-a-verdict: route judges, ask a local or hosted small model, keep answers"
     },
     {
       "capability": "send a message or email to people through a chosen provider (email service, text message, Messages)",
-      "lives_at": ["bitfield-packages/packages/broadcast-delivery/", "bitfield-packages/packages/resend-email-sender/", "bitfield-packages/packages/imessage-messages-sender/"],
-      "moves_to": "tools/send-messages/",
-      "entry": "bitfield-packages/packages/broadcast-delivery/",
+      "owner": ["tools/send-messages/"],
+      "entry": "tools/send-messages/tool-rows.json",
       "evidence": "broadcast-delivery README.md:1 broadcast message delivery via provider adapters; resend-email-sender sends transactional email; imessage-messages-sender sends over Messages; tools/send-messages/README.md also paces a sending inbox (ramp, gap, days, hours, pause on bounces) and sorts bounces, complaints and replies, every pace, event source and outcome a DATA row in read-data/inbox-pacing.json"
     },
     {
@@ -991,93 +958,74 @@
     },
     {
       "capability": "organize a person's saved browser items",
-      "lives_at": ["bitfield-packages/packages/browser-saved-items/"],
-      "moves_to": "tools/browser-saved-items/",
-      "entry": "bitfield-packages/packages/browser-saved-items/",
+      "owner": ["tools/browser-saved-items/"],
+      "entry": "tools/browser-saved-items/tool-rows.json",
       "evidence": "browser-saved-items README.md:1 reversible organization of a person's saved items"
     },
     {
-      "capability": "act on a computer's apps, windows and command lines within declared bounds",
-      "lives_at": ["bitfield-packages/packages/computer-interface-actions/"],
-      "moves_to": "tools/computer-interface-actions/",
-      "entry": "bitfield-packages/packages/computer-interface-actions/",
-      "evidence": "computer-interface-actions README.md:1 bounded actions against a computer's interface (apps, windows, CLIs); browser-session-actions routes a browser intent the same way"
-    },
-    {
       "capability": "show a person's time blocks on a calendar",
-      "lives_at": ["bitfield-packages/packages/calendar/"],
-      "moves_to": "tools/calendar/",
-      "entry": "bitfield-packages/packages/calendar/",
+      "owner": ["tools/calendar/"],
+      "entry": "tools/calendar/tool-rows.json",
       "evidence": "calendar README.md:1 the time-block projection and owner-action handoff"
     },
     {
       "capability": "let people book time: scheduling and booking links",
-      "lives_at": ["bitfield-packages/packages/calendar-booker/"],
-      "moves_to": "tools/book-time/",
-      "entry": "bitfield-packages/packages/calendar-booker/",
+      "owner": ["tools/book-time/"],
+      "entry": "tools/book-time/tool-rows.json",
       "evidence": "calendar-booker README.md:1 scheduling and booking"
     },
     {
       "capability": "run time-boxed challenges people enroll in",
-      "lives_at": ["bitfield-packages/packages/challenge/"],
-      "moves_to": "tools/challenges/",
-      "entry": "bitfield-packages/packages/challenge/",
+      "owner": ["tools/challenges/"],
+      "entry": "tools/challenges/tool-rows.json",
       "evidence": "challenge: challenge definitions and enrollment (no README)"
     },
     {
       "capability": "publish a changelog backed by evidence",
-      "lives_at": ["bitfield-packages/packages/changelog-publisher/"],
-      "moves_to": "tools/publish-a-changelog/",
-      "entry": "bitfield-packages/packages/changelog-publisher/",
+      "owner": ["tools/publish-a-changelog/"],
+      "entry": "tools/publish-a-changelog/tool-rows.json",
       "evidence": "changelog-publisher README.md:1 evidence-backed changelog record publishing"
     },
     {
       "capability": "stop a build that takes a file a package did not declare public",
-      "lives_at": ["bitfield-packages/packages/check-bundle-package-boundaries/"],
-      "moves_to": "tools/check-bundle-package-boundaries/",
-      "entry": "bitfield-packages/packages/check-bundle-package-boundaries/",
+      "owner": ["tools/check-bundle-package-boundaries/"],
+      "entry": "tools/check-bundle-package-boundaries/tool-rows.json",
       "evidence": "check-bundle-package-boundaries README.md:1"
     },
     {
       "capability": "report declared writable places that keep nothing written there",
-      "lives_at": ["bitfield-packages/packages/check-declared-places-keep-what-is-written-there/"],
-      "moves_to": "tools/check-declared-places-keep-what-is-written-there/",
-      "entry": "bitfield-packages/packages/check-declared-places-keep-what-is-written-there/",
+      "owner": ["tools/check-declared-places-keep-what-is-written-there/"],
+      "entry": "tools/check-declared-places-keep-what-is-written-there/tool-rows.json",
       "evidence": "check-declared-places-keep-what-is-written-there README.md:1"
     },
     {
       "capability": "report documents that fell behind the source they describe",
-      "lives_at": ["bitfield-packages/packages/check-documents-agree-with-their-source/"],
-      "moves_to": "tools/check-documents-agree-with-their-source/",
-      "entry": "bitfield-packages/packages/check-documents-agree-with-their-source/",
+      "owner": ["tools/check-documents-agree-with-their-source/"],
+      "entry": "tools/check-documents-agree-with-their-source/tool-rows.json",
       "evidence": "check-documents-agree-with-their-source README.md:1"
     },
     {
       "capability": "report source files that break a rule written down as DATA",
-      "lives_at": ["bitfield-packages/packages/check-source-files-against-declared-rules/"],
-      "moves_to": "tools/check-a-folder-against-my-rules/",
-      "entry": "bitfield-packages/packages/check-source-files-against-declared-rules/",
+      "owner": ["tools/check-a-folder-against-my-rules/"],
+      "entry": "tools/check-a-folder-against-my-rules/tool-rows.json",
       "evidence": "check-source-files-against-declared-rules README.md:1"
     },
     {
       "capability": "run experiments and personalization: A/B tests, feature flags and bandits over what each viewer saw",
-      "lives_at": ["bitfield-packages/packages/choose-per-observer/"],
-      "moves_to": "tools/run-experiments/",
-      "entry": "bitfield-packages/packages/choose-per-observer/",
+      "owner": ["tools/run-experiments/"],
+      "entry": "tools/run-experiments/tool-rows.json",
       "evidence": "choose-per-observer README.md:1 observer-conditioned selection: A/B, personalization, flags, bandits"
     },
     {
       "capability": "give out and claim referral codes and rewards",
-      "lives_at": ["bitfield-packages/packages/referrals/"],
-      "moves_to": "tools/referral-codes-and-rewards/",
-      "entry": "bitfield-packages/packages/referrals/",
+      "owner": ["tools/referral-codes-and-rewards/"],
+      "entry": "tools/referral-codes-and-rewards/tool-rows.json",
       "evidence": "codes-and-rewards README.md:1 code, share, claim; referrals records codes given and received"
     },
     {
       "capability": "triage incoming items against a person's priorities and decide what to do with each",
-      "lives_at": ["bitfield-packages/packages/commander-triage/"],
-      "moves_to": "tools/triage-against-priorities/",
-      "entry": "bitfield-packages/packages/commander-triage/",
+      "owner": ["tools/triage-against-priorities/"],
+      "entry": "tools/triage-against-priorities/tool-rows.json",
       "evidence": "commander-triage README.md:1 score every sensed item against the founder's priorities with a data-chosen disposition"
     },
     {
@@ -1098,38 +1046,27 @@
       "evidence": "tools/social-posts/README.md: tool:send-a-post-to-<place> sends an approved post to one destination, and tool:send-each-post-at-its-time, the person's own wake on their post records, sets each one to be sent at its time"
     },
     {
-      "capability": "plan a piece of content from source material and a format, check the plan is ready, choose a style and decide which audience questions go in",
-      "lives_at": ["bitfield-packages/packages/content-production/"],
-      "moves_to": "tools/generate-content-drafts/",
-      "entry": "bitfield-packages/packages/content-production/",
-      "evidence": "content-production compiles a presentation plan, checks readiness, selects a style"
-    },
-    {
       "capability": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply",
-      "lives_at": ["bitfield-packages/packages/transcript-mapper/", "bitfield-packages/packages/conversation-snapshot-fold/", "bitfield-packages/packages/discord-messages-decoder/", "bitfield-packages/packages/slack-messages-decoder/", "bitfield-packages/packages/signal-messages-decoder/", "bitfield-packages/packages/telegram-messages-decoder/", "bitfield-packages/packages/whatsapp-web-decoder/", "bitfield-packages/packages/instagram-dm-decoder/", "bitfield-packages/packages/imessage-chatdb-decoder/", "bitfield-packages/packages/gmail-mailbox-decoder/", "bitfield-packages/packages/rfc5322-mail-decoder/", "bitfield-packages/packages/jsonl-session-decoder/", "bitfield-packages/packages/hermes-session-decoder/", "bitfield-packages/packages/gemini-logs-decoder/", "bitfield-packages/packages/web-conversation-decoder/"],
-      "moves_to": "tools/conversations/",
-      "entry": "bitfield-packages/packages/transcript-mapper/",
+      "owner": ["tools/conversations/"],
+      "entry": "tools/conversations/tool-rows.json",
       "evidence": "conversations README.md:1 conversations backend and surface; each connector pulls one app into a snapshot and its decoder maps it to the one thread and message contract (transcript-mapper)"
     },
     {
       "capability": "run a coordination session: its purpose, mode, who may join and its offers",
-      "lives_at": ["bitfield-packages/packages/coordination-session/"],
-      "moves_to": "tools/coordination-sessions/",
-      "entry": "bitfield-packages/packages/coordination-session/",
+      "owner": ["tools/coordination-sessions/"],
+      "entry": "tools/coordination-sessions/tool-rows.json",
       "evidence": "coordination-session README.md:1 coordination-session lifecycle and catalog operations"
     },
     {
       "capability": "teach lessons and track a learner's progress along a path",
-      "lives_at": ["bitfield-packages/packages/learning-path/", "bitfield-packages/packages/learning-progress/"],
-      "moves_to": "tools/lessons-and-learning-paths/",
-      "entry": "bitfield-packages/packages/learning-path/",
+      "owner": ["tools/lessons-and-learning-paths/"],
+      "entry": "tools/lessons-and-learning-paths/tool-rows.json",
       "evidence": "course-lesson README.md:1 renders one lesson, its action and PDF; learning-path, learning-progress and learning-home show the journey and progress"
     },
     {
       "capability": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics",
-      "lives_at": ["bitfield-packages/packages/spaced-repetition/"],
-      "moves_to": "tools/practice-and-review/",
-      "entry": "bitfield-packages/packages/spaced-repetition/",
+      "owner": ["tools/practice-and-review/"],
+      "entry": "tools/practice-and-review/tool-rows.json",
       "evidence": "spaced-repetition README.md:1 due-review prompts; practice-decision-loop practises decisions from evidence; tactics-practice is chess tactics over it"
     },
     {
@@ -1154,51 +1091,44 @@
     },
     {
       "capability": "plan the next training session and log workouts",
-      "lives_at": ["bitfield-packages/packages/training-plan/", "bitfield-packages/packages/workout-log/"],
-      "moves_to": "tools/training-and-workouts/",
-      "entry": "bitfield-packages/packages/training-plan/",
+      "owner": ["tools/training-and-workouts/"],
+      "entry": "tools/training-and-workouts/tool-rows.json",
       "evidence": "training-plan: next session and progression; workout-log: workout log state"
     },
     {
       "capability": "show the destinations an owner publishes",
-      "lives_at": ["bitfield-packages/packages/destination-surface/"],
-      "moves_to": "tools/published-destinations/",
-      "entry": "bitfield-packages/packages/destination-surface/",
+      "owner": ["tools/published-destinations/"],
+      "entry": "tools/published-destinations/tool-rows.json",
       "evidence": "destination-surface README.md:1 read-only surface over owner-published destination descriptors"
     },
     {
       "capability": "put one named section into a markdown document without repeating it",
-      "lives_at": ["bitfield-packages/packages/document-sections/"],
-      "moves_to": "tools/document-sections/",
-      "entry": "bitfield-packages/packages/document-sections/",
+      "owner": ["tools/document-sections/"],
+      "entry": "tools/document-sections/tool-rows.json",
       "evidence": "document-sections README.md:1 place one named section into a markdown document, idempotently"
     },
     {
       "capability": "export a document tree to Word, PDF or other file formats",
-      "lives_at": ["bitfield-packages/packages/structured-file-output/", "bitfield-packages/packages/public-document-renderer/"],
-      "moves_to": "tools/export-documents-to-files/",
-      "entry": "bitfield-packages/packages/structured-file-output/",
+      "owner": ["tools/export-documents-to-files/"],
+      "entry": "tools/export-documents-to-files/tool-rows.json",
       "evidence": "structured-file-output: export a node tree to docx, pdf or other file bodies from projection rules"
     },
     {
       "capability": "edit text and code files",
-      "lives_at": ["bitfield-packages/packages/file-editor/"],
-      "moves_to": "tools/edit-text-and-code/",
-      "entry": "bitfield-packages/packages/file-editor/",
+      "owner": ["tools/edit-text-and-code/"],
+      "entry": "tools/edit-text-and-code/tool-rows.json",
       "evidence": "file-editor README.md:1 CodeMirror-backed text and code editor"
     },
     {
       "capability": "save what a person watches, reads and bookmarks elsewhere: X bookmarks, Pinterest pins, files that match a pattern",
-      "lives_at": ["bitfield-packages/packages/save-what-you-watch-and-read/", "bitfield-packages/packages/x-bookmarks-decoder/", "bitfield-packages/packages/pinterest-pins-decoder/", "bitfield-packages/packages/file-glob-observer/"],
-      "moves_to": "tools/save-what-you-watch-and-read/",
-      "entry": "bitfield-packages/packages/save-what-you-watch-and-read/",
+      "owner": ["tools/save-what-you-watch-and-read/"],
+      "entry": "tools/save-what-you-watch-and-read/tool-rows.json",
       "evidence": "save-what-you-watch-and-read README.md:1 turns outside activity records into observation batches; each connector pulls one source"
     },
     {
       "capability": "find a person's files by words, name, place, kind or spoken words in the index their computer already keeps",
-      "lives_at": ["bitfield-packages/packages/find-files-in-an-index/"],
-      "moves_to": "tools/find-files-in-an-index/",
-      "entry": "bitfield-packages/packages/find-files-in-an-index/",
+      "owner": ["tools/find-files-in-an-index/"],
+      "entry": "tools/find-files-in-an-index/tool-rows.json",
       "evidence": "find-files-in-an-index README.md:1 no hosted service, no indexing: the computer's own index",
       "distinct_from": [
         {"job": "find things by meaning, picture or words across a person's files", "why": "this asks the computer's existing keyword and file index; it makes no vectors and judges no meaning"}
@@ -1206,44 +1136,38 @@
     },
     {
       "capability": "evaluate formulas over rows",
-      "lives_at": ["bitfield-packages/packages/formula-engine/"],
-      "moves_to": "tools/formulas/",
-      "entry": "bitfield-packages/packages/formula-engine/",
+      "owner": ["tools/formulas/"],
+      "entry": "tools/formulas/tool-rows.json",
       "evidence": "formula-engine: slot source and rules"
     },
     {
       "capability": "map sales funnels and offers, and run price experiments with live conversion measures",
-      "lives_at": ["bitfield-packages/packages/funnel-offer-graph/"],
-      "moves_to": "tools/funnels-and-offers/",
-      "entry": "bitfield-packages/packages/funnel-offer-graph/",
+      "owner": ["tools/funnels-and-offers/"],
+      "entry": "tools/funnels-and-offers/tool-rows.json",
       "evidence": "funnel-offer-graph README.md:1 funnel graphs, offer nodes, transitions and A/B price experiments"
     },
     {
       "capability": "stage, diff and commit changes in a git working tree",
-      "lives_at": ["bitfield-packages/packages/git-worktree/"],
-      "moves_to": "tools/git-changes/",
-      "entry": "bitfield-packages/packages/git-worktree/",
+      "owner": ["tools/git-changes/"],
+      "entry": "tools/git-changes/tool-rows.json",
       "evidence": "git-worktree: worktree records, stage, unstage, diff and commit"
     },
     {
       "capability": "run guided tours, spotlights and quizzes over an app's screens",
-      "lives_at": ["bitfield-packages/packages/guided-overlay/"],
-      "moves_to": "tools/guided-tours/",
-      "entry": "bitfield-packages/packages/guided-overlay/",
+      "owner": ["tools/guided-tours/"],
+      "entry": "tools/guided-tours/tool-rows.json",
       "evidence": "guided-overlay README.md:1 one engine that runs a list of self-describing steps, started by a trigger"
     },
     {
       "capability": "keep a profile of how someone does their thing (style, voice) to shape drafts made for them",
-      "lives_at": ["bitfield-packages/packages/how-someone-does-their-thing/"],
-      "moves_to": "tools/how-someone-does-their-thing/",
-      "entry": "bitfield-packages/packages/how-someone-does-their-thing/",
+      "owner": ["tools/how-someone-does-their-thing/"],
+      "entry": "tools/how-someone-does-their-thing/tool-rows.json",
       "evidence": "how-someone-does-their-thing README.md:1 a profile record for a creator style, a user's voice or any reference pattern; tools/how-someone-does-their-thing/README.md: the person's writing voice (voice-edit and voice-profile records, read, save, forget, keep an edit, repeated edits), moved from Trillion-X/trillion src/voice.mjs (ports/voice.json)"
     },
     {
       "capability": "generate images from a prompt with a chosen model",
-      "lives_at": ["bitfield-packages/packages/image-generation/"],
-      "moves_to": "tools/generate-images/",
-      "entry": "bitfield-packages/packages/image-generation/",
+      "owner": ["tools/generate-images/"],
+      "entry": "tools/generate-images/tool-rows.json",
       "evidence": "image-generation README.md:1 a prompt and a provider command into image results"
     },
     {
@@ -1254,113 +1178,98 @@
     },
     {
       "capability": "ask a live source and fall back to its last good answer",
-      "lives_at": ["bitfield-packages/packages/keep-the-last-good-answer/"],
-      "moves_to": "tools/keep-the-last-good-answer/",
-      "entry": "bitfield-packages/packages/keep-the-last-good-answer/",
+      "owner": ["tools/keep-the-last-good-answer/"],
+      "entry": "tools/keep-the-last-good-answer/tool-rows.json",
       "evidence": "keep-the-last-good-answer README.md:1 if it answers, keep that answer; if it does not, hand back the last one kept"
     },
     {
       "capability": "keep live scores of tennis and pickleball matches with a view for spectators",
-      "lives_at": ["bitfield-packages/packages/live-match-score/"],
-      "moves_to": "tools/live-match-scores/",
-      "entry": "bitfield-packages/packages/live-match-score/",
+      "owner": ["tools/live-match-scores/"],
+      "entry": "tools/live-match-scores/tool-rows.json",
       "evidence": "live-match-score: tennis and pickleball scoring with a spectator view"
     },
     {
       "capability": "pull live market and prediction-market prices",
-      "lives_at": ["bitfield-packages/packages/market-data-feed/", "bitfield-packages/packages/polymarket/"],
-      "moves_to": "tools/live-market-prices/",
-      "entry": "bitfield-packages/packages/polymarket/",
+      "owner": ["tools/live-market-prices/"],
+      "entry": "tools/live-market-prices/tool-rows.json",
       "evidence": "polymarket README.md:1 pull live markets from the public Gamma API; market-data-feed shows a live feed"
     },
     {
       "capability": "place broker orders from a trading policy and audit the trades",
-      "lives_at": ["bitfield-packages/packages/trade-order/", "bitfield-packages/packages/trade-audit/", "bitfield-packages/packages/portfolio-connector/"],
-      "moves_to": "tools/trading/",
-      "entry": "bitfield-packages/packages/trade-order/",
+      "owner": ["tools/trading/"],
+      "entry": "tools/trading/tool-rows.json",
       "evidence": "trade-order README.md:1 turns the AI-authored trading policy into real broker orders; trade-audit audits them; portfolio-connector read the paper account and positions, which a route lookup now does"
     },
     {
       "capability": "predict match winners and see how the community picked",
-      "lives_at": ["bitfield-packages/packages/match-picks/"],
-      "moves_to": "tools/match-picks/",
-      "entry": "bitfield-packages/packages/match-picks/",
+      "owner": ["tools/match-picks/"],
+      "entry": "tools/match-picks/tool-rows.json",
       "evidence": "match-picks README.md:1 free match prediction"
     },
     {
       "capability": "scout an opponent and plan a match",
-      "lives_at": ["bitfield-packages/packages/opponent-game-plan/"],
-      "moves_to": "tools/opponent-game-plan/",
-      "entry": "bitfield-packages/packages/opponent-game-plan/",
+      "owner": ["tools/opponent-game-plan/"],
+      "entry": "tools/opponent-game-plan/tool-rows.json",
       "evidence": "opponent-game-plan README.md:1 opponent scouting and match plan"
     },
     {
       "capability": "play poker: rules, tables and invites",
-      "lives_at": ["bitfield-packages/packages/poker-rules/", "bitfield-packages/packages/poker-table/"],
-      "moves_to": "tools/poker/",
-      "entry": "bitfield-packages/packages/poker-table/",
+      "owner": ["tools/poker/"],
+      "entry": "tools/poker/tool-rows.json",
       "evidence": "poker-rules README.md:1 Texas Hold'em rule definitions; poker-table the table, room state and invites"
     },
     {
       "capability": "request photo and video analysis and keep its results",
-      "lives_at": ["bitfield-packages/packages/media-analysis/"],
-      "moves_to": "tools/media-analysis/",
-      "entry": "bitfield-packages/packages/media-analysis/",
+      "owner": ["tools/media-analysis/"],
+      "entry": "tools/media-analysis/tool-rows.json",
       "evidence": "media-analysis README.md:1 requesting photo/video analysis and recording results"
     },
     {
       "capability": "track a moving body or object in video and compare one movement with another, with coaching notes",
-      "lives_at": ["bitfield-packages/packages/motion-analysis/", "bitfield-packages/packages/motion-comparison/"],
-      "moves_to": "tools/track-and-compare-movement/",
-      "entry": "bitfield-packages/packages/motion-comparison/",
+      "owner": ["tools/track-and-compare-movement/"],
+      "entry": "tools/track-and-compare-movement/tool-rows.json",
       "evidence": "motion-comparison README.md:1 movement comparison, factor confidence, sync windows; motion-analysis tracks a selected object"
     },
     {
       "capability": "notify a person when their notification rules say so",
-      "lives_at": ["bitfield-packages/packages/notifications/"],
-      "moves_to": "tools/notifications/",
-      "entry": "bitfield-packages/packages/notifications/",
+      "owner": ["tools/notifications/"],
+      "entry": "tools/notifications/tool-rows.json",
       "evidence": "notifications README.md:1 a data-described policy and action package"
     },
     {
       "capability": "plan trips: notes, itinerary, packing list and bookings",
-      "lives_at": ["bitfield-packages/packages/travel-operations/", "bitfield-packages/packages/packing-list/"],
-      "moves_to": "tools/plan-trips/",
-      "entry": "bitfield-packages/packages/travel-operations/",
+      "owner": ["tools/plan-trips/"],
+      "entry": "tools/plan-trips/tool-rows.json",
       "evidence": "travel-operations: trip notes, itinerary, packing and booking; packing-list the packing list"
     },
     {
       "capability": "render film frames as square-grid pointillist pictures",
-      "lives_at": ["bitfield-packages/packages/pointillist-film/"],
-      "moves_to": "tools/pointillist-film/",
-      "entry": "bitfield-packages/packages/pointillist-film/",
+      "owner": ["tools/pointillist-film/"],
+      "entry": "tools/pointillist-film/tool-rows.json",
       "evidence": "pointillist-film: generate square-grid film frames"
     },
     {
       "capability": "research a creator or topic: gather its latest items and transcripts, and write a profile of it",
-      "lives_at": ["bitfield-packages/packages/research-workspace/", "bitfield-packages/packages/profile-a-creator-or-topic/"],
-      "moves_to": "tools/research-a-creator-or-topic/",
-      "entry": "bitfield-packages/packages/research-workspace/",
+      "owner": ["tools/research-a-creator-or-topic/"],
+      "entry": "tools/research-a-creator-or-topic/tool-rows.json",
       "evidence": "research-workspace README.md:1 paste a source, gather its latest items, extract transcripts, synthesize a creator profile; tools/research-a-creator-or-topic/README.md: the same profile hand-off researches a prospect (a company or business to sell to) and tool:keep-a-prospect keeps its profile as one row of the prospect list, whose fields and statuses are data in do-work/prospect-list.json"
     },
     {
       "capability": "evaluate measures over a person's facts to band and gate their progress",
-      "lives_at": ["bitfield-packages/packages/progression-evaluator/"],
-      "moves_to": "tools/evaluate-progress/",
-      "entry": "bitfield-packages/packages/progression-evaluator/",
+      "owner": ["tools/evaluate-progress/"],
+      "entry": "tools/evaluate-progress/tool-rows.json",
       "evidence": "progression-evaluator README.md:1 resolve a measure definition and apply it over fact records"
     },
     {
       "capability": "receive files over FTP",
-      "lives_at": ["bitfield-packages/packages/receive-files-over-file-transfer-protocol/"],
-      "moves_to": "tools/receive-files-over-ftp/",
-      "entry": "bitfield-packages/packages/receive-files-over-file-transfer-protocol/",
+      "owner": ["tools/receive-files-over-ftp/"],
+      "entry": "tools/receive-files-over-ftp/tool-rows.json",
       "evidence": "receive-files-over-file-transfer-protocol README.md:1 a resident receiver that speaks RFC 959"
     },
     {
       "capability": "read which of the person's checks apply to an AI's tool call from their check lists, wherever the session runs, and run them",
       "owner": ["tools/check-every-tool-call/"],
-      "entry": "tools/check-every-tool-call/README.md",
+      "entry": "tools/check-every-tool-call/tool-rows.json",
       "evidence": "README.md: check_switches.py (the one reader of the check rows, and its run verb) and guard_rows.py (choosing rows and answering) moved from the hook dispatcher on the person's computer, which imports these copies; a repository's own hook settings start check_switches.py run",
       "distinct_from": [
         {
@@ -1411,44 +1320,38 @@
     },
     {
       "capability": "check a port or replica against the source it copies",
-      "lives_at": ["bitfield-packages/packages/reference-adaptation-contract/"],
-      "moves_to": "tools/check-a-port-against-its-source/",
-      "entry": "bitfield-packages/packages/reference-adaptation-contract/",
+      "owner": ["tools/check-a-port-against-its-source/"],
+      "entry": "tools/check-a-port-against-its-source/tool-rows.json",
       "evidence": "reference-adaptation-contract README.md:1 validator for source-first ports, behavioral ports and visual replicas"
     },
     {
       "capability": "expand canned reply templates",
-      "lives_at": ["bitfield-packages/packages/reply-template/"],
-      "moves_to": "tools/reply-templates/",
-      "entry": "bitfield-packages/packages/reply-template/",
+      "owner": ["tools/reply-templates/"],
+      "entry": "tools/reply-templates/tool-rows.json",
       "evidence": "reply-template README.md:1 canned reply templates expanded by a blind evaluator"
     },
     {
       "capability": "take requests through forms and route each to its owner with a receipt",
-      "lives_at": ["bitfield-packages/packages/request-intake/"],
-      "moves_to": "tools/take-requests/",
-      "entry": "bitfield-packages/packages/request-intake/",
+      "owner": ["tools/take-requests/"],
+      "entry": "tools/take-requests/tool-rows.json",
       "evidence": "request-intake README.md:1 configurable intake records: forms, questions, submissions and owner requests"
     },
     {
       "capability": "track reservations and the capacity left",
-      "lives_at": ["bitfield-packages/packages/reservation-tracker/"],
-      "moves_to": "tools/reservations/",
-      "entry": "bitfield-packages/packages/reservation-tracker/",
+      "owner": ["tools/reservations/"],
+      "entry": "tools/reservations/tool-rows.json",
       "evidence": "reservation-tracker: reservation status changes and capacity ledger"
     },
     {
       "capability": "generate speech from text in a chosen voice",
-      "lives_at": ["bitfield-packages/packages/speech-generation/"],
-      "moves_to": "tools/generate-speech/",
-      "entry": "bitfield-packages/packages/speech-generation/",
+      "owner": ["tools/generate-speech/"],
+      "entry": "tools/generate-speech/tool-rows.json",
       "evidence": "speech-generation README.md:1 speech request, voice profile, result and error records"
     },
     {
       "capability": "take payments with Stripe",
-      "lives_at": ["bitfield-packages/packages/stripe-payment-provider/", "bitfield-packages/packages/payment-adapter/", "bitfield-packages/packages/checkout/"],
-      "moves_to": "tools/take-payments/",
-      "entry": "bitfield-packages/packages/stripe-payment-provider/",
+      "owner": ["tools/take-payments/"],
+      "entry": "tools/take-payments/tool-rows.json",
       "evidence": "stripe-payment-provider README.md:1 Stripe as package data and external adapter; stripe-payment-elements the client-safe payment material"
     },
     {
@@ -1496,30 +1399,26 @@
     },
     {
       "capability": "rank a person's records in the order they should review them, and keep their accept or pass as their stand",
-      "lives_at": ["bitfield-packages/packages/suggested-match/"],
-      "moves_to": "tools/rank-records-for-review/",
-      "entry": "bitfield-packages/packages/suggested-match/",
+      "owner": ["tools/rank-records-for-review/"],
+      "entry": "tools/rank-records-for-review/tool-rows.json",
       "evidence": "suggested-match ranked-record-review-projection.js, owner-action-request.js"
     },
     {
       "capability": "say which paid access a buyer holds now, check a buyer may open a gated thing, and deliver a paid file only to a buyer who holds its access",
-      "lives_at": ["bitfield-packages/packages/signed-event-effects/", "bitfield-packages/packages/capability-effect-lifecycle/", "bitfield-packages/packages/product-access/", "bitfield-packages/packages/material-delivery/"],
-      "moves_to": "tools/paid-access/",
-      "entry": "bitfield-packages/packages/product-access/",
+      "owner": ["tools/paid-access/"],
+      "entry": "tools/paid-access/tool-rows.json",
       "evidence": "product-access authorize-addressed-expiring-value-scope.ts; material-delivery authorize-private-object.ts; capability-effect-lifecycle; signed-event-effects projection"
     },
     {
       "capability": "pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records",
-      "lives_at": ["bitfield-packages/packages/discord-bot-connector/", "bitfield-packages/packages/slack-bot-connector/", "bitfield-packages/packages/telegram-bot-connector/", "bitfield-packages/packages/signal-bot-connector/", "bitfield-packages/packages/instagram-dm-connector/", "bitfield-packages/packages/x-bookmarks-connector/", "bitfield-packages/packages/pinterest-pins-connector/"],
-      "moves_to": "tools/pull-from-connected-accounts/",
-      "entry": "bitfield-packages/packages/discord-bot-connector/",
+      "owner": ["tools/pull-from-connected-accounts/"],
+      "entry": "tools/pull-from-connected-accounts/tool-rows.json",
       "evidence": "the connector packages' pull scripts; per-service differences are DATA rows"
     },
     {
       "capability": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks",
-      "lives_at": ["bitfield-packages/packages/content-generation/", "bitfield-packages/packages/content-actions/", "bitfield-packages/packages/ai-instruction-blocks/"],
-      "moves_to": "tools/write-from-a-recipe/",
-      "entry": "bitfield-packages/packages/content-generation/",
+      "owner": ["tools/write-from-a-recipe/"],
+      "entry": "tools/write-from-a-recipe/tool-rows.json",
       "evidence": "content-generation recipe composer and fail-closed gate; content-actions; ai-instruction-blocks"
     },
     {
@@ -1564,15 +1463,6 @@
         {"job": "show everything a person's account runs on its own: each schedule and trigger, its last and next run, and a switch", "why": "that job lists what the account does by itself; this one lists what only the person can do, from records the person's own source rows name"},
         {"job": "walk an app's user journeys in a real browser and keep evidence that people can still do what they came for", "why": "that job checks that an app works for its users and keeps pictures and video of each step; this one reads records and never opens an app"},
         {"job": "hold a body of work as a tree: roll up what is really finished, add requested items, check the proof behind finished work", "why": "that job keeps one body of work's items; this one merges the waiting records of many unrelated places by rows the person writes"}
-      ]
-    },
-    {
-      "capability": "turn a local date and clock time in a named time zone into an instant and back, across the clock changes, and tell a real zone name from anything else",
-      "owner": ["tools/wall-time/"],
-      "entry": "tools/wall-time/read-data/wall-time.mjs",
-      "evidence": "README.md:3 the one place a local date and time becomes an instant and back, and the one test of whether a zone name is a zone; tools/book-time reads it for its open times and keeps no zone code of its own",
-      "distinct_from": [
-        {"job": "show a person's time blocks on a calendar", "why": "that job lays out blocks of records on a day, week or month view; this one only resolves a clock time in a zone to an instant, with a rule for skipped and repeated times"}
       ]
     },
     {
@@ -1762,62 +1652,26 @@
     {"capability": "edit a copy of a Premiere Pro project from a plan: insert files or placeholders, cut, move and reassemble ranges across every track, without opening Premiere", "owner": ["tools/edit-a-copy-of-a-premiere-project/"], "entry": "tools/edit-a-copy-of-a-premiere-project/tool-rows.json", "evidence": "do-work/premiere_insert.py (plan runner, inserts), do-work/timeline.py (one remap engine for cut/move/assemble), do-work/validate.py; moved from Trillion-X/source-repo-a tools/premiere-insert@e1100bf", "distinct_from": [{"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "media-composition renders its own edits and exports a new xmeml timeline (and relinks media paths in projects); this rewrites the timeline inside an existing .prproj (razor, ripple, links, captions, adjustment layer) and writes a new project file, rendering nothing"}, {"job": "assemble an edit plan into a rough cut of a video and check the cut", "why": "assemble-a-plan-into-a-cut renders a finished video from recordings; this edits the person's Premiere project so they keep finishing in Premiere"}]},
     {"capability": "keep the video-packaging ledger: admit reviewed videos' titles, thumbnails, thumbnail words and caption-located hooks with every value pinned to its source file, project one source key into word-template source DATA, and read both back", "owner": ["tools/keep-a-video-packaging-ledger/"], "entry": "tools/keep-a-video-packaging-ledger/tool-rows.json", "evidence": "README.md:3 each value is pinned to the file it came from (BLAKE3 identity and size); caption text is never copied; every change leaves the lines it does not target byte for byte", "distinct_from": [{"job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite", "why": "that owner measures any source into a word template; this one keeps the per-video packaging ledger and writes the source DATA and spec that owner reads, then checks the compiled result joins back to the ledger"}, {"job": "keep unit-safe cost observations, corrections, versioned forecasts and billing comparisons in generic account records", "why": "that ledger keeps cost evidence in account records; this one keeps video packaging facts (titles, thumbnails, hooks) in a JSON Lines file with source-file identities"}]},
     {"capability": "turn checked caption quotes into analysis-device rows", "owner": ["tools/turn-caption-quotes-into-analysis-device-rows/"], "entry": "tools/turn-caption-quotes-into-analysis-device-rows/tool-rows.json", "evidence": "README.md:3 the tool holds no columns, wording or groups of its own; read-data/device_rows.py check_rows finds each quote as exact words and nothing is written unless every quote holds", "distinct_from": [{"job": "collect principles from captioned videos, verify their quotes and rank them by independent channels", "why": "that owner mines and ranks principles; this one checks the quotes of device rows the person already wrote and lays them out as tables, and borrows that owner's CaptionText finder"}]},
-    {"capability": "run a rendered-video checker's suites, refresh its pins and print its findings", "lives_at": ["source-repo-a/tools/checker-owner/"], "moves_to": "tools/check-a-rendered-video/", "entry": "source-repo-a/tools/checker-owner/", "evidence": "held in Trillion-X/source-repo-a", "blocker": "its code holds a person's name, a private path, a film folder or a drive name; it moves once those become arguments or settings"},
-    {"capability": "export graded-cut spans as placement bases for the rendered-video checker", "lives_at": ["source-repo-a/tools/checker-owner/export_ch1_spans.py"], "moves_to": "tools/check-a-rendered-video/", "entry": "source-repo-a/tools/checker-owner/export_ch1_spans.py", "evidence": "held in Trillion-X/source-repo-a", "blocker": "its code holds a person's name, a private path, a film folder or a drive name; it moves once those become arguments or settings"},
-    {"capability": "check copy for knowledge only the writer has", "owner": ["tools/check-against-a-persons-rules-and-verdicts/"], "entry": "tools/check-against-a-persons-rules-and-verdicts/do-work/reader_knowledge.py", "evidence": "tools/check-against-a-persons-rules-and-verdicts/README.md (A film's copy): moved from Trillion-X/source-repo-a tools/copy-gate/reader_knowledge.py@5a9ba398 (ports/reader-knowledge.json); its rows and word classes are the person's settings row; test/test_reader_knowledge.py"},
+    {"capability": "run a rendered-video checker's suites, refresh its pins and print its findings", "owner": ["tools/check-a-rendered-video/"], "entry": "tools/check-a-rendered-video/tool-rows.json", "evidence": "held in a private Trillion repository"},
+    {"capability": "export graded-cut spans as placement bases for the rendered-video checker", "owner": ["tools/check-a-rendered-video/"], "entry": "tools/check-a-rendered-video/tool-rows.json", "evidence": "held in a private Trillion repository"},
+    {"capability": "check copy for knowledge only the writer has", "owner": ["tools/check-against-a-persons-rules-and-verdicts/"], "entry": "tools/check-against-a-persons-rules-and-verdicts/tool-rows.json", "evidence": "tools/check-against-a-persons-rules-and-verdicts/README.md (A film's copy): moved from a private Trillion repository tools/copy-gate/reader_knowledge.py@5a9ba398 (ports/reader-knowledge.json); its rows and word classes are the person's settings row; test/test_reader_knowledge.py"},
     {"capability": "cut a youtube video section into a frame contact sheet", "owner": ["tools/make-a-frame-contact-sheet-of-a-video-section/"], "entry": "tools/make-a-frame-contact-sheet-of-a-video-section/tool-rows.json", "evidence": "README.md:3 at most 300 seconds of a link or a local file, one frame every step seconds on one JPEG; every command and its output go to a log beside the sheet", "distinct_from": [{"job": "check a rendered video and make review packs with contact sheets", "why": "that owner checks a finished render against its rules; this one only lays out the frames of any video section, fetched or local"}]},
     {"capability": "train and evaluate a book's writing-voice classifier", "owner": ["tools/train-and-evaluate-a-writing-voice-classifier/"], "entry": "tools/train-and-evaluate-a-writing-voice-classifier/tool-rows.json", "evidence": "do-work/evaluate-voice.mjs: validate a person's labelled challenge passages, ask the classifier named in their settings row, and report every choice with its probabilities, abstentions and per-criterion accuracy; read-data/evaluation-integrity.mjs: request plans and stored-report checks; do-work/exposure_audit.py: test passages found in training rows; do-work/train-voice-adapter.py and score-voice-adapter.py: the adapter on the person's computer; moved from Trillion-X/source-repo-a tools/copy-gate@5a9ba398", "distinct_from": [{"job": "ask a small model one declared question about some text and trust it only after it got a set of answered cases right", "why": "That owner asks and calibrates one question at a time and keeps the hosted classifier's wire shape, which this imports; this measures a voice classifier over a whole labelled challenge set with request-and-reply evidence, resume, section chunks and exposure to its training rows."}, {"job": "fine-tune and evaluate a small model on a person's copy laws", "why": "That trains on film copy laws; this trains and evaluates a writing-voice adapter on challenge rows bound to their source passages, and never uses film labels."}]},
     {"capability": "generate format-by-capability fill scripts", "owner": ["tools/generate-fill-scripts-for-formats/"], "entry": "tools/generate-fill-scripts-for-formats/tool-rows.json", "evidence": "README.md:3 fills every format's script template with every capability, counts each line's words against the format's measured budget and lists the open holes; formats, capability words and page layout are the person's rows", "distinct_from": [{"job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite", "why": "that owner keeps one piece's exact words and fills only its slots, catching drift; this one writes a format x capability matrix of draft scripts from the person's line templates and counts them against measured budgets"}]},
     {"capability": "fine-tune and evaluate a small model on a person's copy laws", "owner": ["tools/fine-tune-a-small-model-on-a-persons-rules/"], "entry": "tools/fine-tune-a-small-model-on-a-persons-rules/tool-rows.json", "evidence": "README.md:1 build train and held-out rows from a person's laws and labelled lines, LoRA-train a multiple-choice decider on them, score held-out lines and report each law's separation, with the person's list:settings row as settings_record; moved from source-repo-a tools/decider-laws-finetune", "distinct_from": [{"job": "train and evaluate a book's writing-voice classifier", "why": "that one fits a classifier of one book's voice; this one teaches a multiple-choice decider model one yes-or-no question per law"}, {"job": "ask a small model for a yes or no verdict and remember its answers", "why": "that one asks a served model and fits pass and fail lines from scores; this one trains the model's adapter and makes the scores"}]},
-    {"capability": "extract and review media frames", "lives_at": ["source-repo-a/tools/hfm/"], "moves_to": "tools/media-analysis/", "entry": "source-repo-a/tools/hfm/", "evidence": "held in Trillion-X/source-repo-a", "blocker": "a gitignored third-party install (hf_media 0.1.1): there is no code in git to move"},
+    {"capability": "extract and review media frames", "owner": ["tools/media-analysis/"], "entry": "tools/media-analysis/tool-rows.json", "evidence": "held in a private Trillion repository"},
     {"capability": "find free sound effects with their licences, judge sound-effect candidates by ear and pick one per sound, make and check the palette, place cues into an effects layer, score soundtrack variants, and fit music windows to a loudness arc", "owner": ["tools/generate-and-judge-sound-effects/"], "entry": "tools/generate-and-judge-sound-effects/tool-rows.json", "evidence": "README.md:3 everything runs on the person's own computer with earshot; the candidates are made by tools/media-composition's make-pictures-and-sounds styles (earshot forge, Stable Audio 3, MOSS-SoundEffect, HunyuanVideo-Foley makers), not by a second generator here. Moved from the launch-video repository's sound-effect generator, sound scripts and sound-effect A/B (ports/)"},
     {"capability": "export a markdown manuscript to word and verify it against its source", "owner": ["tools/export-documents-to-files/"], "entry": "tools/export-documents-to-files/tool-rows.json", "evidence": "do-work/export-a-book.mjs:3 tool:export-a-markdown-book-to-word reads the book's settings row, runs its checks branch on the exact bytes, then the Word exporter and its writing gate (writing profile, source spans, voice capture); do-work/verify_book_against_its_source.py checks the Word file and PDF against the source; moved from source-repo-a tools/private-book-reader at 5a9ba3988a4d"},
     {"capability": "benchmark small local models on film-library tasks", "owner": ["tools/benchmark-small-local-models/"], "entry": "tools/benchmark-small-local-models/tool-rows.json", "evidence": "do-work/label_frames_with_image_text_model.py:1, label_frames_with_vision_decider.py:1 and label_frames_with_vision_language_model.py:1 label sampled frames from the person's shot vocabulary; do-work/score_frame_labels.py:1 agreement, confusions, confidence lines, prior-centered reading and majority baseline; do-work/rank_candidate_frames.py:1 five ways to rank clips for a slot; do-work/check_takes_with_decider.py:1 takes labelled by construction; ported from source-repo-a tools/small-models a6dc4ca", "distinct_from": [{"job": "score every model I can ask against every question in my rubrics file and show who agrees with the answers I already know, how long it took and who did not answer", "why": "That asks chat models served over HTTP about text, to choose a judge it will trust; this loads image, vision-language, reranking and embedding models in this process and measures them on frames, clips, takes and blanks of the person's own library."}]},
     {"capability": "collect, rank and library viewer questions", "owner": ["tools/collect-and-rank-viewer-questions/"], "entry": "tools/collect-and-rank-viewer-questions/tool-rows.json", "evidence": "do-work/candidates.py, rank.py, embed_moments.py, build_library.py, rematch.py, add_package_questions.py, apply_gate.py, remap_picks.py, reports.py: moved from source-repo-a tools/viewer-questions/, and keep_comments.py (keeps and tags video comments) from a film's question_library.py (byte copies first, ports/*.json), every bucket, code, override, segment, note and path a settings row read through tools/settings or an argument", "distinct_from": [{"job": "observe one audience question's source page and place a reviewed question in private draft work", "why": "that library checks one quote against its public page and admits one reviewed question with its rights evidence; this tool finds many candidate questions in kept posts and comments, ranks them, measures how often each recurs and matches answers in the person's recordings"}, {"job": "research a creator or topic: gather its latest items and transcripts, and write a profile of it", "why": "that tool fetches the posts, captions and comments; this one reads the files it keeps and fetches nothing"}]},
-    {"capability": "measure one cast character's voice, lines and staging", "lives_at": ["source-repo-a/tools/whyfiles-cast/"], "moves_to": "tools/measure-a-characters-voice-lines-and-staging/", "entry": "source-repo-a/tools/whyfiles-cast/", "evidence": "held in Trillion-X/source-repo-a", "blocker": "its code holds a person's name, a private path, a film folder or a drive name; it moves once those become arguments or settings"},
+    {"capability": "measure one cast character's voice, lines and staging", "owner": ["tools/measure-a-characters-voice-lines-and-staging/"], "entry": "tools/measure-a-characters-voice-lines-and-staging/tool-rows.json", "evidence": "held in a private Trillion repository"},
     {"capability": "sort youtube watch later into playlists", "owner": ["tools/sort-youtube-watch-later-into-playlists/"], "entry": "tools/sort-youtube-watch-later-into-playlists/tool-rows.json", "evidence": "read-data/sort_plan.py:1 place each Watch Later video into the playlists the person's sort settings name (scored channel and title rules, or hand-made lists), holding back what they keep off public playlists; do-work/apply_sort.py:1 create those playlists and only ADD videos, never removing any", "distinct_from": [{"job": "List every video on a channel or a playlist", "why": "That lists a public channel or playlist with yt-dlp and no sign-in; this reads a signed-in channel's own Watch Later, subscriptions and playlists (brand channels too), plans which playlist each video goes in, and writes those playlists."}, {"job": "export a browser profile's login cookies to a cookies.txt yt-dlp reads", "why": "That writes the cookies file; this reads the cookies file it wrote to act as the signed-in channel."}]},
-    {"capability": "grade dialogue audio for one film's plans (film glue)", "lives_at": ["source-repo-a/tools/audio-grade/audio_grade.py", "source-repo-a/tools/audio-grade/gap_duck.py", "source-repo-a/tools/audio-grade/grade_rules.py", "source-repo-a/tools/audio-grade/measure.py", "source-repo-a/tools/audio-grade/reading.py", "source-repo-a/tools/audio-grade/dfn_batch.py", "source-repo-a/tools/audio-grade/spans.py", "source-repo-a/tools/audio-grade/verify.py"], "moves_to": "tools/grade-and-repair-speech-audio/", "entry": "source-repo-a/tools/audio-grade/audio_grade.py", "evidence": "held in Trillion-X/source-repo-a", "blocker": "reads one film's plans, transcript folders and tuned thresholds; the generic mechanism (probe, clone, read-back, spans) is already in the Workshop"},
+    {"capability": "grade dialogue audio for one film's plans (film glue)", "owner": ["tools/grade-and-repair-speech-audio/"], "entry": "tools/grade-and-repair-speech-audio/tool-rows.json", "evidence": "held in a private Trillion repository"},
     {"capability": "gate a piece's delivery checklist: answers per check and per option with evidence, machine rows pinned to what measured them, and an audit of what is linked to watch", "owner": ["tools/keep-a-record-library-valid/"], "entry": "tools/keep-a-record-library-valid/tool-rows.json", "evidence": "tool:gate-a-pieces-delivery-checklist (read-data/delivery_gate.py, do-work/delivery_gate_commands.py: gate, answer, answer-from-render-check, sweep, content-gates, audition-gates, audit-watch, scope-options): moved from Trillion-X/source-repo-a tools/content-investigation/cis.py lines 756-1772 (ports/delivery-gate.json, ports/delivery-gate-commands.json); every literal of that library is the schema's delivery_gate, the copy and verdict rows read the person's branch of list:checks through their records door (do-work/branch-rules.mjs, tools/check-against-a-persons-rules-and-verdicts check-a-films-copy.mjs); its rebuild_data.py is this tool's rebuild-data; test/test_delivery_gate.py", "distinct_from": [{"job": "keep a library of record files valid and work one piece through a bank of questions with evidence", "why": "same owner: that is the question loop and the library checks; this holds a piece back until every routed check of its delivery checklist has a pass row on the current bytes"}, {"job": "read a film's copy for the copy check: film readers, unit context and stance reads", "why": "that checks copy lines against the person's branch; this runs it as one of a checklist's machine rows and records the answer per option"}]},
-    {"capability": "measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline", "owner": ["tools/keep-a-record-library-valid/"], "entry": "tools/keep-a-record-library-valid/do-work/measure-reference.sh", "evidence": "tool:measure-a-reference-video (keep_a_record_library.py measure-reference, do-work/measure-reference.sh): moved from Trillion-X/source-repo-a tools/content-investigation/measure.sh, every program (hf-media, motion tools, earshot Python, ffprobe, node) an argument; long films get labelled review pages by this tool's frame-pages; test/test_delivery_gate.py runs it with stand-in programs", "distinct_from": [{"job": "extract and review media frames", "why": "that is the frame extractor itself (hf-media), held elsewhere; this runs the extractor the person names, with the motion and sound programs, as one measurement of a reference into one folder"}, {"job": "lay pictures, or frames of a video at chosen times or at a steady rate, out as labelled contact sheets to choose or check them by eye", "why": "that lays frames out as sheets; this measures a whole reference (probe, sheets, cut scan, motion rhythm, sound timeline) with programs the person names"}, {"job": "measure whether a video moves about as much as the reference video it copies", "why": "that compares a copy's movement with its reference; this records a reference's own measurements as evidence for a later review"}]},
+    {"capability": "measure a reference video into frame sheets, a cut scan, its motion rhythm and a sound timeline", "owner": ["tools/keep-a-record-library-valid/"], "entry": "tools/keep-a-record-library-valid/tool-rows.json", "evidence": "tool:measure-a-reference-video (keep_a_record_library.py measure-reference, do-work/measure-reference.sh): moved from a private Trillion repository tools/content-investigation/measure.sh, every program (hf-media, motion tools, earshot Python, ffprobe, node) an argument; long films get labelled review pages by this tool's frame-pages; test/test_delivery_gate.py runs it with stand-in programs", "distinct_from": [{"job": "extract and review media frames", "why": "that is the frame extractor itself (hf-media), held elsewhere; this runs the extractor the person names, with the motion and sound programs, as one measurement of a reference into one folder"}, {"job": "lay pictures, or frames of a video at chosen times or at a steady rate, out as labelled contact sheets to choose or check them by eye", "why": "that lays frames out as sheets; this measures a whole reference (probe, sheets, cut scan, motion rhythm, sound timeline) with programs the person names"}, {"job": "measure whether a video moves about as much as the reference video it copies", "why": "that compares a copy's movement with its reference; this records a reference's own measurements as evidence for a later review"}]},
     {"capability": "read a film's copy for the copy check: film readers, unit context and stance reads", "owner": ["tools/check-against-a-persons-rules-and-verdicts/"], "entry": "tools/check-against-a-persons-rules-and-verdicts/tool-rows.json", "evidence": "tool:check-a-films-copy (do-work/check-a-films-copy.mjs, read-film-copy.mjs, spans-of-a-plan.mjs, unit-context.mjs): moved from Trillion-X/source-repo-a tools/copy-gate/check.mjs and unit-context.mjs@5a9ba398 (ports/*.json); the rules read by branch from list:checks, the layouts from list:settings; stands are input from tool:read-where-you-stand; test/check-a-films-copy.test.mjs"},
-    {"capability": "answer copy-rule asks with a person's local models", "owner": ["tools/ask-a-small-model-for-a-verdict/"], "entry": "tools/ask-a-small-model-for-a-verdict/do-work/answer-with-a-downloaded-model.mjs", "evidence": "README.md 'Answering a check's questions with a model on this computer': tool:answer-a-checks-questions-with-a-model-on-this-computer and tool:calibrate-a-checks-questions-on-lines-i-ruled-on, moved from the launch-video copy gate's decider_layer.py (ports/answer-with-a-downloaded-model.json); model, snapshot, adapters, caches and bars are the person's setting row, ask rows and labelled lines are rows of list:checks"},
-    {"capability": "log a person's verdicts on copy lines and write their stances", "owner": ["tools/where-a-person-stands/"], "entry": "tools/where-a-person-stands/do-work/ruling-records.mjs", "evidence": "README.md:9 rulings on single lines as rows of the person's list:checks (record:check:ruling-<hex>, labelled-line or escalated-line), one per (text, verdict, by, rule), written once; examples from rulings and picks, the count of real rulings and of stands, the person's setting read through tools/settings; ports/ holds the contracts from source-repo-a tools/copy-gate/verdicts.mjs"},
-    {
-      "capability": "turn a docs manifest (site facts, navigation, pages, two colour palettes) into every file of a docs site",
-      "owner": [
-        "tools/build-a-docs-site/parts/docs-site/README.md",
-        "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
-        "tools/build-a-docs-site/parts/docs-site/part.json"
-      ],
-      "entry": "tools/build-a-docs-site/parts/docs-site/README.md",
-      "evidence": "parts/docs-site/README.md: turns a docs manifest into every file a Mintlify docs site is made of, run as tool:build-docs-site; the AI saves and pushes the files to the person's repository."
-    },
-    {
-      "capability": "work out the current state of a paid capability from its payment events",
-      "owner": [
-        "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",
-        "tools/paid-capability-state/parts/capability-effect-lifecycle/do-work/current-capability-state.mjs",
-        "tools/paid-capability-state/parts/capability-effect-lifecycle/part.json"
-      ],
-      "entry": "tools/paid-capability-state/parts/capability-effect-lifecycle/data/effect-lifecycles.json",
-      "evidence": "Current state of a paid capability from its payment events.",
-      "distinct_from": [
-        {
-          "job": "say which paid access a buyer holds now, check a buyer may open a gated thing, and deliver a paid file only to a buyer who holds its access",
-          "why": "This is the code that lives in the app (a different repository); it moves to its own Workshop folder, and the other row is the tool that does the work or the matching package."
-        }
-      ]
-    },
-    {
-      "capability": "build a Mintlify docs site from a docs manifest",
-      "owner": [
-        "tools/build-a-docs-site/parts/docs-site/README.md",
-        "tools/build-a-docs-site/parts/docs-site/do-work/build-docs-site.mjs",
-        "tools/build-a-docs-site/parts/docs-site/part.json"
-      ],
-      "entry": "tools/build-a-docs-site/parts/docs-site/README.md",
-      "evidence": "tools/build-a-docs-site/parts/docs-site/README.md:3"
-    },
+    {"capability": "answer copy-rule asks with a person's local models", "owner": ["tools/ask-a-small-model-for-a-verdict/"], "entry": "tools/ask-a-small-model-for-a-verdict/tool-rows.json", "evidence": "README.md 'Answering a check's questions with a model on this computer': tool:answer-a-checks-questions-with-a-model-on-this-computer and tool:calibrate-a-checks-questions-on-lines-i-ruled-on, moved from the launch-video copy gate's decider_layer.py (ports/answer-with-a-downloaded-model.json); model, snapshot, adapters, caches and bars are the person's setting row, ask rows and labelled lines are rows of list:checks"},
+    {"capability": "log a person's verdicts on copy lines and write their stances", "owner": ["tools/where-a-person-stands/"], "entry": "tools/where-a-person-stands/tool-rows.json", "evidence": "README.md:9 rulings on single lines as rows of the person's list:checks (record:check:ruling-<hex>, labelled-line or escalated-line), one per (text, verdict, by, rule), written once; examples from rulings and picks, the count of real rulings and of stands, the person's setting read through tools/settings; ports/ holds the contracts from a private Trillion repository tools/copy-gate/verdicts.mjs"},
     {"capability": "place a person's pursuits on a map of a full life, what they serve and which parts of life they touch, with their own map as a list", "owner": ["tools/place-pursuits-on-a-life-map/"], "entry": "tools/place-pursuits-on-a-life-map/tool-rows.json", "evidence": "tools/place-pursuits-on-a-life-map/README.md: moved from Trillion-X/trillion src/life-map.mjs (42aff4e9dc); its content is read as rows of the person's lists through their records door, or handed in by Trillion's in-account run"},
     {"capability": "upload one file from a folder the person granted to a signed storage slot a page hands over, only to a destination the tool's own list allows", "owner": ["tools/upload-a-file-to-a-signed-slot/"], "entry": "tools/upload-a-file-to-a-signed-slot/tool-rows.json", "evidence": "tools/upload-a-file-to-a-signed-slot/README.md:3 checks the signed slot as a whole against read-data/guarded-upload.json and posts a file the page never sees; moved from Trillion-X/trillion computer/guarded-upload.mjs (dc79bb0a87^)", "distinct_from": [
       {"job": "post a note, or anything picked, to a public web address as JSON, as a page in a Notion database, or as a message in a Slack channel", "why": "that job posts the person's own words and links to a place they name; this one posts a file's bytes into a storage slot someone else signed, and only to a host and folder this tool's own list allows"},
@@ -1861,7 +1715,7 @@
     {"capability": "find pictures by colour and by likeness", "owner": ["tools/find-pictures-by-colour-and-likeness/"], "entry": "tools/find-pictures-by-colour-and-likeness/tool-rows.json", "evidence": "tools/find-pictures-by-colour-and-likeness/README.md: moved from Trillion-X/trillion src/colour-search.mjs (b92aa549f2)", "distinct_from": [{"job": "find things by meaning, picture or words across a person's files", "why": "That owner searches a person's vector set index (LSH, exact cosine) for a query; this one matches pictures' palettes in CIE-LAB and finds look-alikes from rows handed in, with a palette fallback."}, {"job": "find a picture or a clip that fits a few words, from the person's own tagged media or from free-licence stock libraries", "why": "That owner matches words to tagged media and stock; this one compares colours and embeddings of rows handed in."}]},
     {"capability": "write the Swift and TypeScript message models several apps use to talk to each other from one list of models", "owner": ["tools/write-message-models-for-every-app/"], "entry": "tools/write-message-models-for-every-app/tool-rows.json", "evidence": "do-work/write-message-models.mjs:6 Writes the device message models from one models file: Swift for the Mac app and the iPhone app, and a TypeScript declaration", "distinct_from": [{"job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "That starts a program an app already ships; this writes source files (typed models) from a models file."}]},
     {"capability": "read a run of the person's own AI command line as normalised live events with a bounded progress file, and keep the tools they allow it in one folder", "owner": ["tools/follow-my-ai-command-line-runs/"], "entry": "tools/follow-my-ai-command-line-runs/tool-rows.json", "evidence": "do-work/session-runs.mjs:8 the run's live events, normalised from that CLI's own stream to text / thinking / tool_start / tool_done / reply", "distinct_from": [{"job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "That starts an app's bundled program and passes output through; this reads an AI command line's event stream and keeps its per-folder allow-list."}, {"job": "keep the jobs my AIs hand each other as records in my account, so exactly one AI takes each job, and record who finished, failed, gave back or withdrew it", "why": "That moves ai-job records between AIs; this reads one local run's events and keeps a settings-file allow-list, writing no records."}]},
-    {"capability": "keep the standing instructions as one marked block in an AI harness's own global instruction file on the person's computer, leaving every other byte of it as it was", "owner": ["tools/tell-ais-how-to-act/do-work/standing-instructions.mjs", "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs", "tools/tell-ais-how-to-act/read-data/"], "entry": "tools/tell-ais-how-to-act/do-work/keep-standing-instructions.mjs", "evidence": "do-work/standing-instructions.mjs:6 Keeps Trillion's standing instructions as ONE marked block in an AI harness's own global instruction file", "distinct_from": [{"job": "keep and read the standing instruction rows an AI receives when it connects, with their fill declarations and default order", "why": "That row holds the words the door serves on connect; this writes a marked block into a harness's own file on the person's computer."}]},
+    {"capability": "keep the standing instructions as one marked block in an AI harness's own global instruction file on the person's computer, leaving every other byte of it as it was", "owner": ["tools/tell-ais-how-to-act/"], "entry": "tools/tell-ais-how-to-act/tool-rows.json", "evidence": "do-work/standing-instructions.mjs:6 Keeps Trillion's standing instructions as ONE marked block in an AI harness's own global instruction file", "distinct_from": [{"job": "keep and read the standing instruction rows an AI receives when it connects, with their fill declarations and default order", "why": "That row holds the words the door serves on connect; this writes a marked block into a harness's own file on the person's computer."}]},
     {"capability": "put Trillion's MCP entry into the config files of the AI apps a person names, preview the exact change first, and take it out again, leaving the person's own entries and every other key as they were", "owner": ["tools/register-trillion-in-my-ai-apps/"], "entry": "tools/register-trillion-in-my-ai-apps/tool-rows.json", "evidence": "do-work/mcp-registration.mjs:8 Puts Trillion's MCP server entry into other AI apps' own config files, and takes it out again, only when the person runs the explicit setup action", "distinct_from": [{"job": "keep the standing instructions as one marked block in an AI harness's own global instruction file on the person's computer, leaving every other byte of it as it was", "why": "That writes instruction text into a harness's instruction file; this writes an MCP server entry into an app's config file."}, {"job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "That starts an app's bundled program; this edits other apps' MCP config entries on the person's explicit action."}]},
     {"capability": "let any AI that can run a shell see a person's AIs and their jobs, hand and take work and run Workshop tools through one command that makes one door call per command", "owner": ["tools/use-trillion-from-a-shell/"], "entry": "tools/use-trillion-from-a-shell/tool-rows.json", "evidence": "do-work/trillion.mjs:7 The `trillion` command: any AI that can run a shell (Claude Code, Codex, Cursor, Gemini CLI, opencode, a script) sees the person's AIs and their AI jobs", "distinct_from": [{"job": "keep the jobs my AIs hand each other as records in my account, so exactly one AI takes each job, and record who finished, failed, gave back or withdrew it", "why": "That owner holds the job rules and the conditioned writes; this command is a shell client that calls those tools through the door and decides nothing."}, {"job": "put Trillion's MCP entry into the config files of the AI apps a person names, preview the exact change first, and take it out again, leaving the person's own entries and every other key as they were", "why": "That connects an app over MCP; this gives an app with only a shell the same door without any MCP connection."}]},
     {"capability": "calibrate a camera view once from four corners, detected or set by hand, and map later points into that frame", "owner": ["tools/calibrate-a-camera-frame/"], "entry": "tools/calibrate-a-camera-frame/tool-rows.json", "evidence": "tools/calibrate-a-camera-frame/README.md: moved from Trillion-X/trillion b92aa549f2 (src/frame-calibration.mjs); moved-from.json names each file", "distinct_from": [{"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "It edits footage; this only turns four corners into a projective map and measures points in it."}, {"job": "track a moving body or object in video and compare one movement with another, with coaching notes", "why": "It tracks movement across frames; this calibrates the frame the measurements are kept in."}]},
@@ -1882,13 +1736,8 @@
     {"capability": "quote another party's words safely into a turn an AI reads: normalise, strip hidden control and format characters, escape '<' and its lookalikes, and cut by code points", "owner": ["tools/quote-untrusted-words/"], "entry": "tools/quote-untrusted-words/tool-rows.json", "evidence": "read-data/untrusted-text.mjs:30 quoteUntrusted: NFC, strip Cc/Cf except newline and tab, escape '<' and its full-width lookalikes, truncate by code points with the ellipsis inside the limit; every step a row of read-data/untrusted-text.json", "distinct_from": [{"job": "learn from everyone's results: add and withdraw randomized results and shared situations in a pool, keep the words that enter it safe to show strangers, and answer only aggregates over enough people", "why": "that keeps a person's words safe to show strangers in a shared pool; this does the reverse direction: makes a stranger's words safe to hand to an AI, keeping no pool and no records"}, {"job": "decide with a method: start a decision, ask and answer its method's questions, make it, report how it turned out, bring back the person's similar past decisions, and make a decided one safe to share", "why": "that makes a decided decision safe to share with others; this only quotes another party's text into an AI turn, character by character"}]},
     {"capability": "keep words a person sends again and again as snippets with named blanks, find them by a word or tag, and fill one in for this time", "owner": ["tools/social-posts/"], "entry": "tools/social-posts/tool-rows.json", "evidence": "tools/social-posts/README.md: tool:save-a-snippet, tool:find-snippets, tool:use-a-snippet and tool:remove-a-snippet over the person's snippet records (read-data/snippets.mjs, moved from trillion src/snippets.mjs)", "distinct_from": [{"job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite", "why": "That fills a document template's slots and checks a rewrite kept its words; this keeps the person's own short reusable snippets as records, finds them by word or tag, counts their uses and names back each blank left unfilled."}, {"job": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time", "why": "That drafts and sends posts; a snippet is words to insert anywhere and is never sent by being saved, found or used."}]},
     {"capability": "keep an AI's short summary of one conversation with the message it covers through, and say how many messages are newer when it is read", "owner": ["tools/social-posts/"], "entry": "tools/social-posts/tool-rows.json", "evidence": "tools/social-posts/README.md: tool:keep-a-thread-summary, tool:read-a-thread-summary and tool:remove-a-thread-summary over the person's thread-summary records (read-data/thread-summaries.mjs, moved from trillion src/thread-summaries.mjs)", "distinct_from": [{"job": "bring a person's conversations from every app (chat apps, email, AI chats) into one place to read and reply", "why": "That owns the messages themselves; this keeps only an AI's summary of one conversation and, from the message ids and times that owner hands in, whether the summary is stale."}]},
-    {"capability": "write one message body for each place it is posted to (a pull request thread, a merge request note, a chat, a post) from neutral blocks and that place's capability record, doing without what the place cannot show and saying so", "owner": ["tools/write-a-post-for-each-place/"], "entry": "tools/write-a-post-for-each-place/read-data/surface-compose.mjs", "evidence": "README.md of tools/write-a-post-for-each-place: composeFor writes blocks (heading, paragraph, code, list, checklist, image with a dark form, collapsible) for one capability record (html, collapsibles, checkboxes, dialect, max_chars, theme.strategy), returns degraded and unproven_used, cuts at a block boundary keeping the marker first; tool:write-a-post-for-a-place takes a named surface, a whole record or a post place.", "distinct_from": [{"job": "post a note, or anything picked, to a public web address as JSON, as a page in a Notion database, or as a message in a Slack channel", "why": "send-to-a-place sends; this only writes the body for what a place can show and sends nothing"}, {"job": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time", "why": "social-posts keeps the person's post records and checks a draft against each place's refusals; this composes one body from neutral blocks per capability record, degrading markup, folds, boxes and dark pictures, and keeps nothing"}, {"job": "write posts and publish them to chosen places, now or on a schedule", "why": "publishing and scheduling belong to social-posts; this is the pure per-place writing step"}]},
+    {"capability": "write one message body for each place it is posted to (a pull request thread, a merge request note, a chat, a post) from neutral blocks and that place's capability record, doing without what the place cannot show and saying so", "owner": ["tools/write-a-post-for-each-place/"], "entry": "tools/write-a-post-for-each-place/tool-rows.json", "evidence": "README.md of tools/write-a-post-for-each-place: composeFor writes blocks (heading, paragraph, code, list, checklist, image with a dark form, collapsible) for one capability record (html, collapsibles, checkboxes, dialect, max_chars, theme.strategy), returns degraded and unproven_used, cuts at a block boundary keeping the marker first; tool:write-a-post-for-a-place takes a named surface, a whole record or a post place.", "distinct_from": [{"job": "post a note, or anything picked, to a public web address as JSON, as a page in a Notion database, or as a message in a Slack channel", "why": "send-to-a-place sends; this only writes the body for what a place can show and sends nothing"}, {"job": "write a post, check it for each place it goes, approve it as reviewed and set it to go at its time", "why": "social-posts keeps the person's post records and checks a draft against each place's refusals; this composes one body from neutral blocks per capability record, degrading markup, folds, boxes and dark pictures, and keeps nothing"}, {"job": "write posts and publish them to chosen places, now or on a schedule", "why": "publishing and scheduling belong to social-posts; this is the pure per-place writing step"}]},
     {"capability": "keep a person's files in step between their computers: say where one computer's sync stands, fill a file from another computer of the same account on the same network, and back up a local folder into a Trillion folder", "owner": ["tools/sync-files-between-my-computers/"], "entry": "tools/sync-files-between-my-computers/tool-rows.json", "evidence": "tools/sync-files-between-my-computers/README.md:3 the sync status record, LAN peers that serve a whole file by its BLAKE3 identity to a signed request of the same account, and folder bindings that send changed files through the one compare-and-set gate; moved from Trillion-X/trillion computer/drive-sync-status.mjs, lan-peers.mjs and folder-bindings.mjs (3d6dc7f9e^)", "distinct_from": [{"job": "see the drives connected to a person's computer: what is on one, its icon, and which programs are using it", "why": "That row reads the volumes mounted on one Mac; this one keeps the person's Trillion files in step across computers."}, {"job": "copy or move files between the drives on a person's computer, pause or stop that work, find every place a file is, and eject a drive", "why": "That row copies between local drives on one computer; this one sends a bound folder up to Trillion and fetches whole files from another computer of the same account."}, {"job": "write the public files of a person's share links that anyone may open into one folder a public server serves, and remove the files of links that were revoked, expired or narrowed", "why": "That row publishes share links to anyone; this one serves files only to computers that prove they are the same account."}]},
-    {"capability": "choose which pages of a site AI tools and the AI page listing may show, from the site's own files", "owner": ["tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs"], "entry": "tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs", "evidence": "tools/choose-which-site-pages-ai-may-show/src/public-app-ai-pages.mjs:1"},
-    {"capability": "declare which actions a site's visitors can take so visitor input never picks where it is stored", "owner": ["tools/edit-a-site-visually/src/public-app-definition.mjs"], "entry": "tools/edit-a-site-visually/src/public-app-definition.mjs", "evidence": "tools/edit-a-site-visually/src/public-app-definition.mjs:1"},
-    {"capability": "edit a site's pages in a visual editor and save the result back as the site's own page files", "owner": ["tools/edit-a-site-visually/src/public-app-editor-model.mjs"], "entry": "tools/edit-a-site-visually/src/public-app-editor-model.mjs", "evidence": "tools/edit-a-site-visually/src/public-app-editor-model.mjs:1"},
-    {"capability": "give every element on a site page an address that stays with it through edits and saves", "owner": ["tools/shared-code/src/public-app-element-addresses.mjs"], "entry": "tools/shared-code/src/public-app-element-addresses.mjs", "evidence": "tools/shared-code/src/public-app-element-addresses.mjs:4"},
-    {"capability": "show what changed between two versions of a site, which pages were added, removed or reworded", "owner": ["tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs"], "entry": "tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs", "evidence": "tools/show-what-changed-between-site-versions/src/public-app-version-changes.mjs:4"},
     {"capability": "make the person's computer a Trillion computer and start it: its computer key, its computer config (listen, accounts, https origin, report, router, default computers) and the running engine", "owner": ["tools/start-a-computer/"], "entry": "tools/start-a-computer/tool-rows.json", "evidence": "tools/start-a-computer/README.md:5 makes the computer key once, writes the engine's computer config, asks the engine's id command and starts `trillion-local serve` with the engine program the person has", "distinct_from": [{"job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "that launcher runs any app's bundled command line as given; this writes a computer's key and config and starts the Trillion engine's own commands in order"}]},
     {"capability": "keep a long job on the person's computer resumable: one job per key, its output kept as numbered pieces any client can read on from a cursor, finish or cancel", "owner": ["tools/keep-a-long-job-resumable/"], "entry": "tools/keep-a-long-job-resumable/tool-rows.json", "evidence": "README.md:3 starting with a key already used gives back that same job; its output is kept as numbered pieces, any client can read on from a cursor", "distinct_from": [{"job": "hand jobs between a person's AIs as their own records", "why": "tools/hand-work-to-ais hands a job from one AI to another and tracks who takes it; this keeps one long job's output on one computer so a reader can resume from a cursor, and knows nothing of who does it"}, {"job": "hold the one must-do row that unblocks the most until it is done", "why": "tools/hold-one-thing-until-done chooses which task a person is held to; this stores a running job's output pieces and its state"}]},
     {"capability": "read a meeting link through declared meeting-app routes, host checked first and secrets hidden, and open an allowed one in the app that owns it", "owner": ["tools/open-a-meeting-link/"], "entry": "tools/open-a-meeting-link/tool-rows.json", "evidence": "README.md:3 reads a meeting link through declared routes: which meeting app it is for, what it asks and its parameters, with the host checked first", "distinct_from": [{"job": "open the screen a waiting card needs", "why": "tools/take-me-there opens a screen inside the person's Trillion; this reads a meeting app's link and hands an allowed one to the computer to open"}, {"job": "hold a group to its agreed meetings", "why": "tools/hold-to-it works out when a group meets and who came; this only reads or opens one meeting link"}]},
@@ -1902,7 +1751,7 @@
     {"capability": "read how a released app can be installed from TestFlight or the App Store right now, and arrange the beta access a person's setup requires, with the release owner's App Store Connect key", "owner": ["tools/app-release-access/"], "entry": "tools/app-release-access/tool-rows.json", "evidence": "README.md:3 checks with Apple how a released app can be installed right now; it also arranges the beta access a person's setup requires", "distinct_from": [{"job": "find the destination screen an owner has published among saved records", "why": "published-destinations reads destination descriptors already saved in records; this asks App Store Connect for an app's live install routes and a person's tester access."}, {"job": "run the command line an installed app keeps inside itself", "why": "run-an-installed-apps-command-line runs an app already on the person's computer; this reads and changes an app's release at Apple, in a container."}]},
     {"capability": "check how an installed app is hardened, from its files and the system's code signature, without launching it", "owner": ["tools/check-how-an-installed-app-is-hardened/"], "entry": "tools/check-how-an-installed-app-is-hardened/tool-rows.json", "evidence": "tools/check-how-an-installed-app-is-hardened/README.md: moved from Trillion-X/trillion computer/app-hardening.mjs (deleted in dc79bb0a87); reads the Electron fuse block, codesign flags and entitlements, and says what falls short of read-data/app-hardening.json", "distinct_from": [{"job": "run the command line an installed app keeps inside its own bundle, with the app and entry passed in", "why": "That starts a program inside an installed app; this never launches anything in the app and only reads its framework binary, Info.plist and codesign output to judge its hardening."}, {"job": "report source files that break a rule written down as DATA", "why": "That judges a project's source text against a person's rules; this judges an installed app bundle's binary fuses, signing flags and entitlements against fixed hardening expectations."}]},
     {"capability": "list, read only, the instruction files, slash commands and skills other AI apps keep on the person's computer", "owner": ["tools/read-other-ais-setups/"], "entry": "tools/read-other-ais-setups/tool-rows.json", "evidence": "tools/read-other-ais-setups/README.md: moved from Trillion-X/trillion computer/ai-setups.mjs (deleted in dc79bb0a87); reads the places in read-data/ai-setups.json through the carried file-scope reader and changes nothing", "distinct_from": [{"job": "keep and read the standing instruction rows an AI receives when it connects, with their fill declarations and default order", "why": "That keeps Trillion's own words for an AI that connects; this reads the files other AI apps keep for themselves on the person's computer, so the person can bring them in."}, {"job": "report source files that break a rule written down as DATA", "why": "That reads a granted project folder to judge it against rules; this reads fixed places under the home folder and hands their text back as items to import, judging nothing."}]},
-    {"capability": "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives", "owner": ["tools/check-new-names/"], "entry": "tools/check-new-names/README.md", "evidence": "tools/check-new-names/README.md: judges only the names a change brings in (added or renamed files and the folders their base tree did not hold), reading the words, patterns and passing outside names from the caller's rules; run for every git commit and push by the person's check row through tools/check-every-tool-call"},
+    {"capability": "refuse a commit or push that brings in a folder or file name a new reader cannot point at: a codename, a status, a time or a technical metaphor, by word lists the caller gives", "owner": ["tools/check-new-names/"], "entry": "tools/check-new-names/tool-rows.json", "evidence": "tools/check-new-names/README.md: judges only the names a change brings in (added or renamed files and the folders their base tree did not hold), reading the words, patterns and passing outside names from the caller's rules; run for every git commit and push by the person's check row through tools/check-every-tool-call"},
     {"capability": "keep many keyed things inside a fixed memory budget, each read after the first one array index, letting the least recently used go first when the budget is full", "owner": ["tools/slot-table/"], "entry": "tools/slot-table/tool-rows.json", "evidence": "tools/slot-table/README.md: moved from Trillion-X/trillion parts/slot-table in a9ee258 (#76); old trillion capabilities.json:1156 at 4ffa1dc4a2^ listed parts/slot-table/** under the row keep each person's records in their own store and on their own device; trillion-apps macos/computer-reader.json:162 still names ../parts/slot-table/do-work/slot-table.mjs. No code imports it (searched trillion-workshop tools/, trillion-apps web/ and trillion main); the row runs do-work/run-steps.mjs", "distinct_from": [{"job": "see the programs running on a person's computer and how much memory each one uses", "why": "That reads other programs' memory; this holds a caller's keyed things inside a byte budget and answers each step."}]},
     {"capability": "say which built-in to-do list (calendar, email or other) each email would become a task in when mail is turned into tasks", "owner": ["tools/plan-tasks-and-todo-lists/"], "entry": "tools/plan-tasks-and-todo-lists/tool-rows.json", "evidence": "old trillion capabilities.json:44 at 4ffa1dc4a2^ (plan tasks and to-do lists on a calendar ...); src/calendar-tasks.mjs moved in a9ee258 (#76), no code imports it; src/calendar-task-messages.mjs and src/calendar-tasks.json brought in byte for byte (moved-from.json); the row runs classifyMessage over the email_split rows for each given message. calendar-tasks.mjs (lists, scheduling, saving mail as tasks) stays unrun: its timed-action imports zone-drift.ts and quiet-hours.ts do not exist at 4ffa1dc4a2^", "distinct_from": [{"job": "plan a person's tasks into their free time and judge their meetings against their pursuits: ASAP first, then hard deadlines, then what serves the pursuits that matter most, then due date; tasks wait for their blockers, long tasks split into pieces, fixed-time tasks stay put, each day's work is held to a cap, and meetings that serve no pursuit and keep more valuable work from its deadline are proposed for decline", "why": "tools/plan-my-time places tasks into free time; this only says which built-in list an email becomes a task in, and places nothing"}, {"job": "show a person's time blocks on a calendar", "why": "That row draws time blocks; this sorts mail messages into task lists and draws nothing"}, {"job": "search, read, organize, trash and restore a person's Gmail mail and threads, keep and send drafts and set their send-as signature, as the Google account the run names", "why": "That row reads and changes a mailbox; this reads only the message facts it is given and touches no mailbox"}]},
     {"capability": "say how strong a new password is, in the words the sign-in pages show under the new password box", "owner": ["tools/sign-in-with-a-passkey/"], "entry": "tools/sign-in-with-a-passkey/tool-rows.json", "evidence": "old trillion capabilities.json:433 at 4ffa1dc4a2^ (sign in with a passkey, an emailed code or a password on the sign-in pages); src/client/passkey.mjs moved in a9ee258 (#76), browser-only, no code imports it, passkey.mjs:410 writes passwordStrengthSaid under the new password; src/password-strength.mjs and src/passwords.json brought in byte for byte (moved-from.json); the row runs passwordScore and passwordStrengthSaid on the given password"},
@@ -1935,32 +1784,14 @@
     {"capability": "make the requests that choose files on a person's computer and save a copy back through the Mac, and read the picker's answer into the files chosen, without touching any computer", "owner": ["tools/choose-and-save-local-files/"], "entry": "tools/choose-and-save-local-files/tool-rows.json", "evidence": "old trillion capabilities.json:551 at 4ffa1dc4a2^ (choose files on this computer and save copies back through the Mac; owner parts/local-files/, moves_to tools/choose-and-save-local-files at :555); do-work/choose-local-files.ts, save-local-file-copy.ts and read-data/invoke-local-files-target.ts moved in a9ee258 (#76); no code imports the folder (searched trillion-workshop tools/ and test-helpers/, trillion-apps dcacfd2, trillion b09337f); the row tool:plan-choosing-and-saving-files-on-my-computer runs run/plan-local-files.mjs planLocalFiles (chooseLocalFiles, saveLocalFileCopy with #workspace-records stood in by run/requests-kept-here.mjs)", "distinct_from": [{"job": "classify each file by its name and media type to choose how it is shown: as code, markdown, a diff, a picture, JSON or plain text", "why": "That names how a file is shown; this plans picking files on a computer and saving a copy back."}]},
     {"capability": "delete or archive a person's files and folders, put them back exactly as they were, set how long Recently Deleted and Archived keep things, and say what is due when", "owner": ["tools/recently-deleted-and-storage/"], "entry": "tools/recently-deleted-and-storage/tool-rows.json", "evidence": "old trillion capabilities.json:204 at 4ffa1dc4a2^ (restore what I deleted or archived, see how long it stays and what happens then, and set rules that give back storage; owner src/namespace-set-aside.mjs among others, moves_to tools/recently-deleted-and-storage at :208); namespace-set-aside.mjs moved in a9ee258 (#76), its imports brought in byte for byte from b6ae0ebf815f (moved-from.json), carry-tables-into-records.mjs taking canonical from decide-with-a-method/read-data/decision-records.mjs; no code imports the folder (searched trillion-workshop tools/ and test-helpers/, trillion-apps dcacfd2, trillion b09337f); the row tool:delete-archive-and-put-back-my-files runs do-work/delete-archive-and-put-back.mjs deleteArchiveAndPutBack (setAsideStore over namespaceStore in an in-memory node:sqlite store)", "distinct_from": [{"job": "say how long Recently Deleted and Archived keep a person's files, by their own setting", "why": "That row decides the keep time; this one sets things aside, puts them back and sweeps what is due."}]},
     {"capability": "list a person's recordings and the videos, sounds and pictures their tools made or they saved, newest first, with what is known about each", "owner": ["tools/browse-my-recordings-and-media/"], "entry": "tools/browse-my-recordings-and-media/tool-rows.json", "evidence": "old trillion capabilities.json:214 at 4ffa1dc4a2^ (browse my recordings and the media my tools made with the facts kept about each, and search for a spoken or seen moment; owner src/media-library.mjs among others, moves_to tools/browse-my-recordings-and-media at :218); media-library.mjs moved in a9ee258 (#76), media-library.json, media-name-index.mjs and media-recording-index.mjs brought in byte for byte from b6ae0ebf815f (moved-from.json), its other imports packed from tools/recently-deleted-and-storage and keep-and-wake-ai-sessions-on-this-computer/src; no code imports the folder (searched trillion-workshop tools/ and test-helpers/, trillion-apps dcacfd2, trillion b09337f); the row tool:list-my-recordings-and-media runs do-work/list-my-media.mjs listMyMedia (mediaLibraryPage over namespaceStore in an in-memory node:sqlite store)", "distinct_from": [{"job": "delete or archive a person's files and folders, put them back exactly as they were, set how long Recently Deleted and Archived keep things, and say what is due when", "why": "That sets files aside; this lists the media still named, leaving out what is set aside."}]},
-    {"capability": "keep what every account starts with: Trillion's defaults, published with the deploy and laid under each person's own records by the engine's reader, never written into their store, with the person's own change winning", "owner": ["tools/starting-set/"], "entry": "tools/starting-set/shipped-defaults.json", "evidence": "tools/starting-set/README.md: shipped-defaults.json (the show-rules default with the Simple workspace in use), records.json, groups.json and starting-rules.json, restored one to one from Trillion-X/trillion records/starting-set-records.json, records/starting-set-groups.json and records/starting-rules.json (deleted in 4ffa1dc4a2); trillion-rust src/records/shipped_defaults.rs reads them", "distinct_from": [{"job": "read and write records for tools: the generic record journal, queries, values and record models", "why": "that engine owner reads and lays defaults generically; this folder holds the rows it reads"}]},
-    {"capability": "refuse a commit or push that deletes a source or test file without naming its new home (a moved-from receipt) or the decision that retired it", "owner": ["tools/check-deleted-code-names-its-home/"], "entry": "tools/check-deleted-code-names-its-home/README.md", "evidence": "README.md: judgeDeletions reads the span's deletions, the moved-from.json receipts of trillion, trillion-rust, trillion-workshop and trillion-apps, and the tree's retired-paths rows; the person's check row record:check:deleted-code-names-its-home runs it at each commit and push through tools/check-every-tool-call", "distinct_from": [{"job": "read which of the person's checks apply to an AI's tool call from their check lists, wherever the session runs, and run them", "why": "That runs whichever check rows apply; this is the judge one of those rows runs, for deleted files."}, {"job": "check that work taken from a reference keeps the reference's mechanisms, geometry and pixels, and that every feature file a change adds or grows is claimed by a contract", "why": "That judges files a change adds or grows; this judges files a change deletes."}, {"job": "move groups of code files from one repository to another byte for byte, with their imports and tests, and prove the move", "why": "That moves files and writes the receipts; this refuses a deletion no receipt or decision names."}]}
-,
+    {"capability": "refuse a commit or push that deletes a source or test file without naming its new home (a moved-from receipt) or the decision that retired it", "owner": ["tools/check-deleted-code-names-its-home/"], "entry": "tools/check-deleted-code-names-its-home/tool-rows.json", "evidence": "README.md: judgeDeletions reads the span's deletions, the moved-from.json receipts of trillion, trillion-rust, trillion-workshop and trillion-apps, and the tree's retired-paths rows; the person's check row record:check:deleted-code-names-its-home runs it at each commit and push through tools/check-every-tool-call", "distinct_from": [{"job": "read which of the person's checks apply to an AI's tool call from their check lists, wherever the session runs, and run them", "why": "That runs whichever check rows apply; this is the judge one of those rows runs, for deleted files."}, {"job": "check that work taken from a reference keeps the reference's mechanisms, geometry and pixels, and that every feature file a change adds or grows is claimed by a contract", "why": "That judges files a change adds or grows; this judges files a change deletes."}, {"job": "move groups of code files from one repository to another byte for byte, with their imports and tests, and prove the move", "why": "That moves files and writes the receipts; this refuses a deletion no receipt or decision names."}]},
     {"capability":"move the public door to another hosting provider's host: rent it, set it up, cut DNS, prove it on the new address, release the old lease and save where the door now runs","owner":["tools/move-the-public-door/"],"entry":"tools/move-the-public-door/tool-rows.json","evidence":"README.md:3 where the public door runs and the hosting and DNS rows it moves between, read from the person's Service connections list through the records door"},
-    {"capability":"keep one outbound SSH tunnel open from a server's loopback port to a door on this computer, with a pinned host key and the key handed in from the vault, and set up the server side of it","owner":["tools/keep-a-door-tunnel-open/"],"entry":"tools/keep-a-door-tunnel-open/do-work/keep-a-door-tunnel-open.mjs","evidence":"README.md:3 one SSH reverse forward from a server's 127.0.0.1 port to a door on this computer, reconnected when it ends, the key held only by a private ssh-agent"},
+    {"capability":"keep one outbound SSH tunnel open from a server's loopback port to a door on this computer, with a pinned host key and the key handed in from the vault, and set up the server side of it","owner": ["tools/keep-a-door-tunnel-open/"],"entry": "tools/keep-a-door-tunnel-open/tool-rows.json","evidence":"README.md:3 one SSH reverse forward from a server's 127.0.0.1 port to a door on this computer, reconnected when it ends, the key held only by a private ssh-agent"},
     {"capability":"keep a rented server's public address on a valid certificate: issue and renew it by DNS-01 with the person's DNS key, set up the server's certificate owner and decide which paths its public host keeps before the rest goes to the engine","owner":["tools/renew-a-tls-certificate/"],"entry":"tools/renew-a-tls-certificate/tool-rows.json","evidence":"README.md:3 a certificate issued and renewed by DNS-01, every DNS record read before and after, the receptionist restarted and the public host reloaded on a change"},
-    {"capability":"read which browser session and account a screen in the person's browser is signed in as, and the browser's own id, for the screens that need them","owner":["tools/account-session/"],"entry":"tools/account-session/part.json","evidence":"part.json public: do-work/browser-session-browser-id.ts, do-work/read-current-browser-session.ts, read-data/read-browser-session.ts; imported by tools/arrange-screens-in-panes/show/screen-arrangement-context.tsx:9-10; moved byte for byte from Trillion-X/trillion parts/account-session at 5cd0dc3103 (moved-from.json)"},
-    {"capability":"build the next turn of an AI's tool loop: decide whether a chat keeps calling tools and make the continuation turn from the tool results","owner":["tools/ai-records-producer/"],"entry":"tools/ai-records-producer/part.json","evidence":"a part other code imports, part.json imported_by: tools/messages-screen; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"list the tools an AI can call: derive tool rows from OpenAPI and tool-server sources, sign in to and talk to a tool server, and prepare each tool's result with its declared effects","owner":["tools/ai-tool-catalog/"],"entry":"tools/ai-tool-catalog/part.json","evidence":"a part other code imports, part.json imported_by: tools/messages-screen; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"tell an AI about a list of tools: fit the list in a character budget, say each tool's hints in its description, tell whether a tool changes anything, and pick the release of a published tool a host version runs","why":"that row shapes a tool list already known for an AI's context; this derives the tool rows from OpenAPI and tool-server sources, signs in to and talks to the tool servers, and prepares each tool's result"}]},
-    {"capability":"work out open slots, busy times and calendar invitation files for bookings","owner":["tools/booking-slots-and-invitations/"],"entry":"tools/booking-slots-and-invitations/part.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"browse, upload, open, rename, move and delete my files and folders: list, card and board views, a folders tree, a file opened in its own tab, drag-and-drop upload with progress","owner":["tools/browse-and-upload-my-files/"],"entry":"tools/browse-and-upload-my-files/part.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"delete or archive a person's files and folders, put them back exactly as they were, set how long Recently Deleted and Archived keep things, and say what is due when","why":"that keeps what was deleted or archived and puts it back; this is the file browser that lists, uploads, opens, renames and moves the person's live files and hands a delete to that owner"}]},
-    {"capability":"say whether a named program is on this computer and where it is","owner":["tools/computer-programs/"],"entry":"tools/computer-programs/part.json","evidence":"a part other code imports, part.json imported_by: tools/media-composition; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"connect an outside service with its login or key and keep the secret sealed so no tool can read it back: it is placed into an outgoing request only at send time and any echo of it is replaced in the reply","owner":["tools/connect-a-service-and-seal-its-key/"],"entry":"tools/connect-a-service-and-seal-its-key/part.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"open a funnel file as a measured funnel canvas in a funnels screen","owner":["tools/funnels-screen/"],"entry":"tools/funnels-screen/part.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"send a tool's request within its declared request scopes, with the address it resolves to checked and same-origin kept","owner":["tools/http-client/"],"entry":"tools/http-client/part.json","evidence":"a part other code imports, part.json imported_by: tools/refuse-requests-to-private-addresses tools/show-any-file-as-itself Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"act on a computer's apps, windows and command lines within declared bounds","why":"that acts on a computer's apps and windows; this sends one outbound HTTP request from inside a tool, within that tool's declared request scopes"},{"job":"run tools: start each run within its bounds, hold its secrets, and wake it on the causes it declares","why":"the engine starts, bounds and wakes tool runs; this is the request sender code inside a run uses for its outbound calls"}]},
-    {"capability":"keep an operation's records and move it through its states: run its next transition and read its actions and work","owner":["tools/operation-records/"],"entry":"tools/operation-records/part.json","evidence":"a part other code imports, part.json imported_by: tools/messages-screen; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks","why":"that composes and gates written content; this keeps an operation's state records and runs its next transition"}]},
-    {"capability":"record my voice or a meeting from the browser or the Mac: pause and resume, a floating recording pill over other apps, the computer's own sound mixed with the microphone, start a recording when a meeting app starts using the microphone, then keep the file and have it transcribed","owner":["tools/record-voice-and-meetings/"],"entry":"tools/record-voice-and-meetings/part.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"refuse to send a request to a private, loopback, link-local or metadata address someone else gave the service","owner":["tools/refuse-requests-to-private-addresses/"],"entry":"tools/refuse-requests-to-private-addresses/part.json","evidence":"a part other code imports, part.json imported_by: tools/ai-tool-catalog; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"send a tool's request within its declared request scopes, with the address it resolves to checked and same-origin kept","why":"http-client sends a request within declared scopes; this only judges whether an address someone gave is private, loopback, link-local or metadata, a check the sender calls"},{"job":"check every agent tool call, commit and push against the declared rules, and refuse the ones that break them","why":"the control plane's hooks judge an agent's own calls and pushes; this guards a running service's outbound requests against addresses someone else gave it"}]},
-    {"capability":"run work later or on a repeat: recurring schedules in a named time zone that keep the right local time across clock changes, one-off actions, and a receipt for each run","owner":["tools/run-work-later-or-on-a-repeat/"],"entry":"tools/run-work-later-or-on-a-repeat/part.json","evidence":"a part other code imports, part.json imported_by: tools/keep-lists-of-rows Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"turn a local date and clock time in a named time zone into an instant and back, across the clock changes, and tell a real zone name from anything else","why":"wall-time converts one local time to an instant and back; this keeps recurring schedules and one-off actions and a receipt per run, using wall-time for each next time"}]},
-    {"capability":"read the rows a screen is handed into a plain list","owner":["tools/screen-ready-records/"],"entry":"tools/screen-ready-records/part.json","evidence":"a part other code imports, part.json imported_by: tools/show-any-file-as-itself tools/transcript-reader; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source","distinct_from":[{"job":"organize the sidebar: lists of screens and rows, rules that fill or hide a list by facts and time, colours and places for rows, notes my AI left on rows, and a tree of my files","why":"that arranges the sidebar's lists and rules; this only turns the rows a screen is handed into a plain list, a part that screen code imports"}]},
-    {"capability":"encode and decode a record's content as base64 or JSON","owner":["tools/serialized-content/"],"entry":"tools/serialized-content/part.json","evidence":"a part other code imports, part.json imported_by: tools/record-log Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
-    {"capability":"write a sales or landing page from one row of data and keep it in my files","owner":["tools/write-a-sales-page/"],"entry":"tools/write-a-sales-page/part.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
+    {"capability":"connect an outside service with its login or key and keep the secret sealed so no tool can read it back: it is placed into an outgoing request only at send time and any echo of it is replaced in the reply","owner": ["tools/connect-a-service-and-seal-its-key/"],"entry": "tools/connect-a-service-and-seal-its-key/tool-rows.json","evidence":"a part other code imports, part.json imported_by: Trillion-X/trillion; moved from Trillion-X/trillion by #76 (a9ee2580), moved-from.json names each matched file's source"},
     {"capability":"see which places on this computer Trillion can read (folders, notes, recordings, messages, mail, photos, drives, AI apps), and bring in what is new in each, every place a row","owner":["tools/bring-in-new-items-from-this-computer/"],"entry":"tools/bring-in-new-items-from-this-computer/tool-rows.json","evidence":"README.md:3 brings in what is new in each place on the person's computer, every place a row of computer/computer-sources.json; tool:look-for-the-places-on-this-computer is one look; moved from Trillion-X/trillion computer/ at b92aa549f2 (moved-from.json)","distinct_from":[{"job":"connect an outside service with its login or key and keep the secret sealed so no tool can read it back","why":"that connects a service on the internet and seals its key, and lists every connection; this reads the places on the person's own computer, which need no key"},{"job":"pull a person's messages and saved items from connected accounts (Discord, Slack, Telegram, Signal, Instagram, Messenger, X bookmarks, Pinterest) into snapshot records","why":"that pulls from accounts connected on the internet; this reads the stores and folders on the person's own computer"}]},
-    {"capability":"administer a rented server over SSH: the arguments, user and port to reach it, and the optional engine proxy, for every door tool that reaches the same host","owner":["tools/administer-a-rented-host/"],"entry":"tools/administer-a-rented-host/do-work/administration-arguments.mjs","evidence":"one owner of administrationArguments, imported by the tunnel, certificate and receptionist tools and packed by tools/build-and-install-the-public-receptionist/tool-rows.json; old trillion scripts/portable-service-connection.mjs:9,37-40","distinct_from":[{"job":"reach a person's own records from a tool run: the records door client every records tool uses","why":"that reaches a person's records through the records door; this builds the SSH arguments, user and port that door tools use to administer a rented server"}]},
-    {"capability":"keep each AI session on this computer as the person's records, take the open work handed to this computer's AIs, wake their stopped sessions, and set up this computer's AI apps with the account's key, hooks and connection","owner":["tools/keep-and-wake-ai-sessions-on-this-computer/"],"entry":"tools/keep-and-wake-ai-sessions-on-this-computer/README.md","evidence":"README.md:3; moved byte for byte from Trillion-X/trillion harness/, src/ and parts/ at b6ae0ebf81 (tag old-trillion-before-worker-retire) by tools/move-code-between-trees (moved-from.json); harness/wake-sessions.json names harness/wake-handlers/send-requests-here.mjs and keep-every-message.mjs","distinct_from":[{"job":"say, for each published AI agent, whether handing it work starts it and how, and tell an offline or busy one apart from one that cannot be started","why":"that row tells, on the server, whether a published agent can be started; this folder is the computer-side harness that takes the handed work and wakes the stopped session itself"},{"job":"let go of open jobs whose asker stopped waiting, a few per wake, so a job nobody comes to take does not stay open for good","why":"that row releases unclaimed jobs in the store; this folder takes jobs handed to this computer's AIs and runs them"},{"job":"run tools: start each run within its bounds, hold its secrets, and wake it on the causes it declares","why":"that is the engine's tool-run owner; this folder keeps and wakes the AI sessions (Claude, Codex and others) running on a person's own computer and records their messages"},{"job":"act on a computer's apps, windows and command lines within declared bounds","why":"that row drives apps and windows; this folder records AI sessions, hands them work and sets up their apps' key, hooks and connection"},{"job":"keep a long job on the person's computer resumable: one job per key, its output kept as numbered pieces any client can read on from a cursor, finish or cancel","why":"that row keeps one long job's output resumable; this folder keeps AI sessions and their messages and wakes the sessions"}]},
-{"capability":"read the settings a person keeps for a tool, as rows of their settings list chosen by piece, film, person or account","owner":["tools/settings/"],"entry":"tools/settings/read-data/settings.py","evidence":"README.md:3; ported from Trillion-X/trillion src/decision-store.mjs before 4ffa1dc4a2 lines 8 and 751-754 (the setting record kind)"},
+    {"capability":"keep each AI session on this computer as the person's records, take the open work handed to this computer's AIs, wake their stopped sessions, and set up this computer's AI apps with the account's key, hooks and connection","owner": ["tools/keep-and-wake-ai-sessions-on-this-computer/"],"entry": "tools/keep-and-wake-ai-sessions-on-this-computer/tool-rows.json","evidence":"README.md:3; moved byte for byte from Trillion-X/trillion harness/, src/ and parts/ at b6ae0ebf81 (tag old-trillion-before-worker-retire) by tools/move-code-between-trees (moved-from.json); harness/wake-sessions.json names harness/wake-handlers/send-requests-here.mjs and keep-every-message.mjs","distinct_from":[{"job":"say, for each published AI agent, whether handing it work starts it and how, and tell an offline or busy one apart from one that cannot be started","why":"that row tells, on the server, whether a published agent can be started; this folder is the computer-side harness that takes the handed work and wakes the stopped session itself"},{"job":"let go of open jobs whose asker stopped waiting, a few per wake, so a job nobody comes to take does not stay open for good","why":"that row releases unclaimed jobs in the store; this folder takes jobs handed to this computer's AIs and runs them"},{"job":"run tools: start each run within its bounds, hold its secrets, and wake it on the causes it declares","why":"that is the engine's tool-run owner; this folder keeps and wakes the AI sessions (Claude, Codex and others) running on a person's own computer and records their messages"},{"job":"act on a computer's apps, windows and command lines within declared bounds","why":"that row drives apps and windows; this folder records AI sessions, hands them work and sets up their apps' key, hooks and connection"},{"job":"keep a long job on the person's computer resumable: one job per key, its output kept as numbered pieces any client can read on from a cursor, finish or cancel","why":"that row keeps one long job's output resumable; this folder keeps AI sessions and their messages and wakes the sessions"}]},
+    {"capability":"read the settings a person keeps for a tool, as rows of their settings list chosen by piece, film, person or account","owner": ["tools/settings/"],"entry": "tools/settings/tool-rows.json","evidence":"README.md:3; ported from Trillion-X/trillion src/decision-store.mjs before 4ffa1dc4a2 lines 8 and 751-754 (the setting record kind)"},
     {"capability": "find when one character of a show speaks in its recordings, list what it says, measure how the show stages it and sum its time per video against the views, and count the show's running jokes and the comments that name the character", "owner": ["tools/measure-a-characters-voice-lines-and-staging/"], "entry": "tools/measure-a-characters-voice-lines-and-staging/tool-rows.json", "evidence": "README.md:3; ported from the character-cast scripts of the private source-repo-a repository (ports/*.json name each source by path_multihash); word rules judged by tools/judge-words, settings read by tools/settings"},
     {"capability": "lay pictures, or frames of a video at chosen times or at a steady rate, out as labelled contact sheets to choose or check them by eye", "owner": ["tools/make-a-contact-sheet-of-pictures-or-video-frames/"], "entry": "tools/make-a-contact-sheet-of-pictures-or-video-frames/tool-rows.json", "evidence": "README.md:3 lays pictures, or frames of a video, out as labelled contact sheets", "distinct_from": [{"job": "cut a youtube video section into a frame contact sheet", "why": "that held row downloads a section of a YouTube video and grabs its frames; this lays out pictures or frames of a video already on the computer, at given times or a steady rate, with the labels, cell shape and fit asked for"}, {"job": "check a rendered video for the mistakes a viewer notices: stray frames at cuts, cuts inside words, graphics and audio faults", "why": "its review-pack sheets are one fixed layout inside a check; this makes any sheet a person asks for and judges nothing"}]},
     {"capability": "work out the nutrients in a recipe from USDA FoodData Central downloads: per batch, per 100 g and against adult daily intakes", "owner": ["tools/work-out-a-recipes-nutrients-from-fooddata-central/"], "entry": "tools/work-out-a-recipes-nutrients-from-fooddata-central/tool-rows.json", "evidence": "do-work/work_out_recipe_nutrients.py:1 work out a recipe's nutrients from USDA FoodData Central downloads: one JSON request in, one JSON answer out; moved from source-repo-a tools/tofu_ice_cream_profile.py with its recipe moved into the request", "distinct_from": [{"job": "write from a recipe: compose the exact instruction, gate what was written before it goes on, and run the person's content actions and instruction blocks", "why": "That recipe is a content-writing recipe for a model; this one is food: ingredients and grams read against FoodData Central nutrient tables."}, {"job": "place a sign-up form or a published recipe on a site page and show visitors a safe view of it", "why": "That places a published recipe on a site page (tools/place-a-sign-up-form-or-a-published-recipe-on-a-site, no row of its own); this works out numbers from food tables and publishes nothing."}]},
@@ -1973,8 +1804,8 @@
     {"capability": "put an option a person picked into a protected FilmCraft project, only when the person's own stand on it is a pick, and say which options of a film they picked", "owner": ["tools/put-picked-options-into-a-filmcraft-project/"], "entry": "tools/put-picked-options-into-a-filmcraft-project/tool-rows.json", "evidence": "README.md:3 reads the film's list:settings row (tools/settings) and the person's stand on an option (tools/where-a-person-stands), and runs the option's FilmCraft ops headless on a protected project only for a pick; do-work/pick_gate.py is ported from a private film repository's tools/pick-gate/pick_gate.py (5a9ba39)", "distinct_from": [{"job": "keep and read where a person stands on one thing made for them: agree, disagree or partly, with their own words why", "why": "tools/where-a-person-stands keeps and reads the stand; this owner only asks it whether the person picked an option, then changes a project"}]},
     {"capability": "build one option of a film on its own copy of a FilmCraft project with filmcraft-cli and export its preview (or plan the exact commands), publish a checked preview and put it in the watch folder, and make a working preview and a fresh-viewer review pack of it", "owner": ["tools/put-picked-options-into-a-filmcraft-project/"], "entry": "tools/put-picked-options-into-a-filmcraft-project/tool-rows.json", "evidence": "do-work/filmcraft_preview.py, option_folders.py, publish_preview.py, working_preview.py, review_pack.py and composite_preview.py are ported from a private film repository's FilmCraft option-preview tools (round-3 preview builder, its option-folder and render-lock module, publish step, working preview, review pack, chapter-4 composite; b968a719, ports/*.json); every folder, name, lock and level is the film's list:settings row", "distinct_from": [{"job": "render a film's motion-graphics overlay", "why": "tools/render-a-motion-graphics-overlay draws overlay.mov and sound.wav; this owner places them in a FilmCraft project and exports the preview, calling that tool for the overlay"}, {"job": "check a rendered video for the mistakes a viewer notices: stray frames at cuts, cuts inside words, graphics and audio faults", "why": "tools/check-a-rendered-video measures a preview; this owner makes and publishes it, and refuses the watch folder until that check has measured it"}, {"job": "lay pictures, or frames of a video at chosen times or at a steady rate, out as labelled contact sheets to choose or check them by eye", "why": "the review pack calls that tool for its sheets"}, {"job": "put an option a person picked into a protected FilmCraft project, only when the person's own stand on it is a pick, and say which options of a film they picked", "why": "the pick gate changes the protected project for a pick; these build each option on its own copy and never touch the protected one"}]},
     {"capability": "make a motion film of the HyperFrames format from its reusable parts: premix its soundtrack from a cue sheet (music bed shaped over time, voice lines, sound effects, a loudness pass) and write the icon shapes it uses", "owner": ["tools/motion-film-template/"], "entry": "tools/motion-film-template/tool-rows.json", "evidence": "README.md: the motion-film format; do-work/premix_soundtrack.py, do-work/write-icon-shapes.mjs; each film's choices are list:settings rows record:setting:motion-film-template~film~<film>", "distinct_from": [{"job": "compose a video from an edit decision list with music, overlays and ducking", "why": "tools/media-composition video-compose.mjs (lines 1814 and 2069) composes a video spine and ducks music by sidechain compression keyed on spine speech; this owner premixes a standalone soundtrack for an HTML composition from a cue sheet, with the bed's gain scheduled from the voice lines' times and named windows, and never touches video."}, {"job": "keep a piece's own words as a template, fill only its slots, and catch changed words in a rewrite", "why": "That owner keeps word templates of writing; this one fills a film's HTML composition template with its sizes, length and scene times."}]},
-    {"capability": "render a correction insert for a film cut: its overlay, aligned voice and music stems, freeze plates and a preview in context", "owner": ["tools/render-a-motion-graphics-overlay/"], "entry": "tools/render-a-motion-graphics-overlay/do-work/render-insert.mjs", "evidence": "README.md: A correction insert for a cut: for each shot, the claim check first, then the overlay, the narrator wav and music-and-effects stem aligned to its first frame, the S-Log3 and graded freeze plates and a preview with 3 s of the cut either side", "distinct_from": [{"job": "render a film's motion-graphics overlay", "why": "that row draws an overlay and its sound stem from a spec; this one wraps one around an insert in a cut: it checks the shot's claims, times the shot by its exit, and adds the separate voice and music stems, the camera and graded freeze plates and the in-context preview an editor cuts in"}, {"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "media-composition renders an edit from finished parts; this makes the parts of one correction insert (plates, stems, overlay) and a preview of it in the cut"}]},
-    {"capability": "render a film's motion-graphics overlay", "owner": ["tools/render-a-motion-graphics-overlay/"], "entry": "tools/render-a-motion-graphics-overlay/do-work/render-overlay.mjs", "evidence": "README.md: draws a timed spec of paper cut-outs, type, cards, charts and marks into an overlay video with alpha, its sound stem and a timeline, one module per event type in do-work/overlay/events/; the look is the person's list:settings row", "distinct_from": [{"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "media-composition lays finished pictures and sounds over a video and renders an edit; this tool draws the graphics themselves, frame by frame from a timed spec of events, into a separate overlay with alpha and the sound stem that goes with it"}]},
-    {"capability": "write a message as one row of a list in a person's records, keyed by an idempotency key, as the sink of a sign-up's emailed code while no mail tool is connected", "owner": ["tools/deliver-to-list/"], "entry": "tools/deliver-to-list/do-work/deliver-to-list.mjs", "evidence": "README.md: reads one JSON message on standard input and writes one row through the person's own door; test/deliver-to-list.test.mjs checks the row and the answer the engine's delivery reads."}
+    {"capability": "render a correction insert for a film cut: its overlay, aligned voice and music stems, freeze plates and a preview in context", "owner": ["tools/render-a-motion-graphics-overlay/"], "entry": "tools/render-a-motion-graphics-overlay/tool-rows.json", "evidence": "README.md: A correction insert for a cut: for each shot, the claim check first, then the overlay, the narrator wav and music-and-effects stem aligned to its first frame, the S-Log3 and graded freeze plates and a preview with 3 s of the cut either side", "distinct_from": [{"job": "render a film's motion-graphics overlay", "why": "that row draws an overlay and its sound stem from a spec; this one wraps one around an insert in a cut: it checks the shot's claims, times the shot by its exit, and adds the separate voice and music stems, the camera and graded freeze plates and the in-context preview an editor cuts in"}, {"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "media-composition renders an edit from finished parts; this makes the parts of one correction insert (plates, stems, overlay) and a preview of it in the cut"}]},
+    {"capability": "render a film's motion-graphics overlay", "owner": ["tools/render-a-motion-graphics-overlay/"], "entry": "tools/render-a-motion-graphics-overlay/tool-rows.json", "evidence": "README.md: draws a timed spec of paper cut-outs, type, cards, charts and marks into an overlay video with alpha, its sound stem and a timeline, one module per event type in do-work/overlay/events/; the look is the person's list:settings row", "distinct_from": [{"job": "edit video: find action, scene changes, silence and beats; reframe; change speed; caption; grade colour; lay sounds and pictures over it; arrange and render an edit; measure loudness", "why": "media-composition lays finished pictures and sounds over a video and renders an edit; this tool draws the graphics themselves, frame by frame from a timed spec of events, into a separate overlay with alpha and the sound stem that goes with it"}]},
+    {"capability": "write a message as one row of a list in a person's records, keyed by an idempotency key, as the sink of a sign-up's emailed code while no mail tool is connected", "owner": ["tools/deliver-to-list/"], "entry": "tools/deliver-to-list/tool-rows.json", "evidence": "README.md: reads one JSON message on standard input and writes one row through the person's own door; test/deliver-to-list.test.mjs checks the row and the answer the engine's delivery reads."}
   ]
 }
