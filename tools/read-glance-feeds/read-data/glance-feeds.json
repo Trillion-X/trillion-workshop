@@ -1,6 +1,6 @@
 {
   "what_this_is": "Feed definitions for small glance surfaces. Each feed names an authorized records-door query, the path to its rows, optional row filters and ordering, and the parts a surface displays. A new record-backed feed is a data row; this reader names no product record type or feed.",
-  "limits": { "default_rows_per_feed": 50, "most_rows_per_feed": 200, "most_source_records": 2000 },
+  "limits": { "default_rows_per_feed": 50, "most_rows_per_feed": 200, "most_source_records": 2000, "page_bytes": 184320 },
   "surfaces": {
     "watch": ["habits", "pursuits", "told", "ai-work", "running", "decisions"],
     "widgets": ["habits", "waiting", "running", "today", "needle-mover", "pursuits", "decisions", "told", "ai-work"]
