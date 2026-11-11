@@ -1,0 +1,99 @@
+{
+  "kind": "package-set-records",
+  "record_set": "deliver-to-list-tool-rows",
+  "what_this_is": "The Workshop row for the tool in tools/deliver-to-list: the sink a sign-up's emailed code is delivered through while no mail tool is connected. It writes the message as one row of a list in the sending account's own records, through the person's own door.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:deliver-to-list",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:deliver-to-list",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "label": "Write a message as a row of a list",
+        "job": "Write a message (to, subject, text, kind) as one row of a list in my records, with the row's id set to an idempotency key, so a send again writes the same row",
+        "description": "Reads one JSON object from standard input: config (the door config file), row_type, to, subject, text, kind and idempotencyKey. Writes one row whose id is the idempotency key and whose type is record:<row_type>, through the person's door. Answers the message id the engine's delivery reads, or the refusal's words; a write that may have happened answers unknown.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "config",
+            "row_type",
+            "to",
+            "subject",
+            "text",
+            "kind",
+            "idempotencyKey"
+          ],
+          "properties": {
+            "config": {
+              "type": "string",
+              "description": "The person's door config file (the read-a-list-view README describes its keys)."
+            },
+            "row_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The list's row type; the row's type is record:<row_type>."
+            },
+            "to": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The address the message is for."
+            },
+            "subject": {
+              "type": "string",
+              "minLength": 1
+            },
+            "text": {
+              "type": "string",
+              "minLength": 1
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1,
+              "description": "What the message is, such as sign-in-code."
+            },
+            "idempotencyKey": {
+              "type": "string",
+              "minLength": 1,
+              "description": "The row's id; the same key writes the same row."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "sent"
+          ],
+          "properties": {
+            "sent": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            },
+            "unknown": {
+              "type": "boolean"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "node tools/deliver-to-list/do-work/deliver-to-list.mjs",
+          "needs": [
+            "node"
+          ],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout, with the message as one JSON object on standard input. It writes one row through the person's own door."
+        },
+        "provenance": {
+          "source": "Written for the Workshop: the sink a sign-up's emailed code is delivered through while no mail tool is connected; the answer is the shape the engine's delivery reads."
+        }
+      }
+    }
+  ]
+}
