@@ -1,0 +1,27 @@
+[Unit]
+Description={description}
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Environment={launch_setting}={product_settings}
+LimitNOFILE=1048576
+Type=simple
+User={user}
+Group={user}
+WorkingDirectory={state}
+ExecStart=/bin/sh -c 'R=$(readlink -f {releases}/current) && exec env {data_env}="$R/{data_dir}" "$R/{engine_file}" serve {config}'
+Restart=on-failure
+RestartSec=3
+KillSignal=SIGTERM
+TimeoutStopSec=30
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths={writable}
+ProtectHome=true
+PrivateTmp=true
+LimitCORE=0
+
+[Install]
+WantedBy=multi-user.target

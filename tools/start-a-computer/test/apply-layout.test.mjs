@@ -9,7 +9,7 @@ import { renderLayout } from '../do-work/render-layout.mjs';
 
 const machine = { address: '192.0.2.9', ssh: { known_hosts: '/dev/null' } };
 const layout = {
-  caddy: { site_hosts: ['place.example.test'], port: 7199 },
+  caddy: { site_hosts: ['place.example.test'], port: 7199, releases: '/opt/example/releases' },
   units: [{
     unit: 'example-place.service', template: 'serve-place', description: 'Example place', user: 'example-place',
     releases: '/opt/example/releases', engine_file: 'example-engine', data_env: 'EXAMPLE_DATA_ROOT', data_dir: 'product',

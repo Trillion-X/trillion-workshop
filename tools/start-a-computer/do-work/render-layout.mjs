@@ -7,7 +7,7 @@
 import { readFileSync } from 'node:fs';
 
 const TEMPLATE = name => readFileSync(new URL(`../read-data/unit-templates/${name}`, import.meta.url), 'utf8');
-const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service') };
+const UNITS = { 'serve-place': TEMPLATE('serve-place.service'), 'serve-computer': TEMPLATE('serve-computer.service'), 'serve-set-up': TEMPLATE('serve-set-up.service') };
 const DROP_INS = { nofile: TEMPLATE('nofile.conf'), 'product-settings': TEMPLATE('product-settings.conf') };
 const SYSTEMD = '/etc/systemd/system';
 
@@ -18,9 +18,10 @@ const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_,
 
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool
  * uses, with {SITE} and {PORT} still to fill. */
-export const renderCaddy = (siteBlock, { site_hosts, port }) => {
+export const renderCaddy = (siteBlock, { site_hosts, port, releases }) => {
   if (!Array.isArray(site_hosts) || !site_hosts.length) throw new Error('caddy.site_hosts needs at least one name');
-  return site_hosts.map(host => `${siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port))}\n`).join('');
+  if (siteBlock.includes('{releases}') && !releases) throw new Error('caddy.releases needs the folder the /engine-releases/ route serves');
+  return site_hosts.map(host => `${siteBlock.replaceAll('{SITE}', host).replaceAll('{PORT}', String(port)).replaceAll('{releases}', releases ?? '')}\n`).join('');
 };
 
 /** Every file a layout declares: { path, text }. A unit's drop-ins are the names it lists in `drop_ins`. */

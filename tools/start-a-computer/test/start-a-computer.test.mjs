@@ -97,7 +97,7 @@ function provider(base, table, calls = []) {
 // The computer's layout row a start is given (request.host_layout): the place unit this computer runs, its Caddy name and
 // nothing kept beside it.
 const HOST_LAYOUT = {
-  caddy: { site_hosts: ['computer.example.com'], port: 7199 },
+  caddy: { site_hosts: ['computer.example.com'], port: 7199, releases: '/opt/place/releases' },
   units: [{
     unit: 'place.service', template: 'serve-place', description: 'A computer that keeps accounts', user: 'place',
     releases: '/opt/place/releases', engine_file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data',

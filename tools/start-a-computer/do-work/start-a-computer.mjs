@@ -119,10 +119,12 @@ export async function applyHostLayout(machine, layout, run = onMachine) {
       await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
     }
   }
-  const units = [...new Set(writes.map(({ path }) => path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1]).filter(Boolean))];
+  const unitOf = path => path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1];
+  const units = [...new Set(writes.map(({ path }) => unitOf(path)).filter(Boolean))];
+  const running = new Set(writes.filter(({ path }) => live[path] !== undefined).map(({ path }) => unitOf(path)));
   if (units.length) await run(machine, 'systemctl daemon-reload');
   for (const unit of units) {
-    await run(machine, `if systemctl is-active --quiet ${q(unit)}; then systemctl restart ${q(unit)}; else systemctl enable ${q(unit)} >/dev/null 2>&1; fi`);
+    await run(machine, running.has(unit) ? `systemctl restart ${q(unit)}` : `systemctl enable ${q(unit)} >/dev/null 2>&1`);
   }
   if (writes.some(({ path }) => path === CADDYFILE)) await run(machine, 'systemctl reload caddy');
   return { written: writes.map(({ path }) => path), restarted: units };

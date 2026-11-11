@@ -2,12 +2,12 @@
 		@feed path /feed.json
 		@body path_regexp body ^/([0-9a-f]{40})/[a-z0-9_-]+\.tar\.gz$
 		handle @feed {
-			root * /opt/trillion/releases
+			root * {releases}
 			file_server
 		}
 		handle @body {
 			rewrite * /{re.body.1}.tar.gz
-			root * /opt/trillion/releases
+			root * {releases}
 			file_server
 		}
 		respond 404
