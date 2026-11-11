@@ -330,6 +330,15 @@ test('one write carries at most the row\'s most_writes, and never more than the 
   } finally { await door.close(); await capped.close(); }
 });
 
+test('a busy write the engine answers as its source unavailable, before anything began, is sent again with the same key', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], busySourceFirst: 2 });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    assert.deepEqual(await client.write([{ id: 'note:b', type: 'note', value: { n: 1 } }], { key: 'write-note-b' }), { changed: 1, write_count: 1 });
+    assert.deepEqual(door.calls.map(call => call.key), ['write-note-b', 'write-note-b', 'write-note-b']);
+  } finally { await door.close(); }
+});
+
 test('a write whose outcome is unknown is sent again with the same key and answers the receipt it made', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], unknownFirst: 1 });
   try {

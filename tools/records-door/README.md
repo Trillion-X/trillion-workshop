@@ -68,8 +68,10 @@ A row asks for the door in its invoke, with one rights item per record kind:
   - `original_input_refused`: bad input;
   - `original_workspace_source_unavailable`: the records cannot be reached;
   - `selected_owner_unavailable`: busy.
-- A busy answer (HTTP 503 or `selected_owner_unavailable`), and any call whose outcome is `unknown`, is sent again
-  with the same request key after a growing wait, never a new key. HTTP 401 means the run's capability is gone.
+- A busy answer (HTTP 503, `selected_owner_unavailable`, or `original_workspace_source_unavailable` with outcome
+  `not_started`, which is how the engine answers a write whose record store was held), and any call whose outcome is
+  `unknown`, is sent again with the same request key after a growing wait, never a new key. HTTP 401 means the run's
+  capability is gone.
 - `readRecord`, `readWorkspace` and each `list` page retry fetch failures and response-body transport failures up to
   five times, with the identical request body and request key. HTTP refusals, malformed JSON, and envelope or byte-page
   integrity failures are returned immediately. Transport retries do not apply to writes or Namespace files calls.
