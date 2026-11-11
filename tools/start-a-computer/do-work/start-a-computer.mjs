@@ -18,6 +18,7 @@
 // an optional signed release feed. Updates retain a backup and can roll back.
 //
 // usage: start-a-computer.mjs price REQUEST_FILE | rent REQUEST_FILE | start REQUEST_FILE | status LEASE_FILE | install LEASE_FILE REQUEST_FILE | update LEASE_FILE REQUEST_FILE | rollback LEASE_FILE REQUEST_FILE BACKUP | remove LEASE_FILE
+import { differences, renderLayout } from './render-layout.mjs';
 import { readFileSync, createReadStream } from 'node:fs';
 import { isAbsolute, dirname, basename, resolve as resolvePath, posix } from 'node:path';
 import { spawn } from 'node:child_process';
@@ -33,7 +34,7 @@ const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.ur
 const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 // Each name's Caddy site block: the wrapper with every route block the settings name, in order, each its own file.
-const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd()
+export const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd()
   .replace('{ROUTES}', () => SETTINGS.caddy_routes.map(name => readFileSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url), 'utf8').trimEnd()).join('\n'));
 /** The launch setting that names the product settings file, and where that file is on the machine. */
 export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting, file: SETTINGS.product_settings.file };
@@ -64,6 +65,34 @@ async function untilSsh(machine, { wait, run, tries = 36 }) {
     try { return await run(machine, 'uname -m'); }
     catch (error) { if (i >= tries) throw new Error(`The machine at ${machine.address} never answered SSH: ${error.message}`); await wait(5000); }
   }
+}
+
+/** Compare a computer's host layout row with what it runs now (`request.host_layout`): every file the row renders, every
+ * drop-in the row does not declare, and every unmanaged user and folder the row keeps. Answers the differences, [] when the
+ * computer matches. An absent file is a difference; a failed connection is an error, not an absence. */
+export async function hostLayoutDifferences(machine, layout, run = onMachine) {
+  const units = layout.units.map(unit => ({ ...unit, writable: [].concat(unit.writable).join(' ') }));
+  const rendered = renderLayout({ ...layout, units }, SITE_BLOCK);
+  const live = {};
+  for (const { path } of rendered) live[path] = await readIfPresent(machine, run, path);
+  const found = [];
+  for (const unit of units) {
+    const dir = `/etc/systemd/system/${unit.unit}.d`;
+    const names = (await run(machine, `if [ -d ${q(dir)} ]; then ls -1 ${q(dir)}; fi`)).split('\n').filter(Boolean);
+    found.push(...names.filter(name => !(unit.drop_ins ?? []).includes(name.replace(/\.conf$/, ''))).map(name => ({ path: `${dir}/${name}`, reason: 'not in the layout' })));
+  }
+  for (const item of layout.unmanaged ?? []) {
+    const gone = { path: item.user ? `user ${item.user}` : item.path, reason: 'unmanaged, kept, and missing on the computer' };
+    const test = item.user ? `getent passwd ${q(item.user)} >/dev/null` : `test -e ${q(item.path)}`;
+    const present = await run(machine, `${test} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
+    if (!present) found.push(gone);
+  }
+  return [...differences(rendered, live), ...found];
+}
+
+/** One file's text on the computer, or undefined when it is absent. */
+async function readIfPresent(machine, run, path) {
+  return run(machine, `if [ -f ${q(path)} ]; then cat ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
 
 /** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing
