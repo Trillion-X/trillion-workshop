@@ -1229,3 +1229,17 @@ test('an answer kept before every check had a verdict is asked again until it is
   const made = await makeTheDecision({ decision_id: id, decision }, { door });
   assert.equal(made.decision.option_id, 'raise');
 });
+
+test('a copied answer leaves out the source decision\'s workflow runs, and the workflows due here are asked of this decision again', async () => {
+  const door = account();
+  const source = await answered(door);
+  const key = `decision-step:${source}:001`;
+  const kept = door.value(key);
+  kept.answer.workflow_runs = { 'workflow:ran-in-the-source': { required_phase: 'decision', plan: 'run in the source decision' } };
+  door.put(key, 'decision-step', kept);
+  const { case_id: id } = await startADecision({ ...opened, source_id: 'chat:pottery-3', evidence: [{ ref: 'e1', claim: opened.evidence[0].claim }] }, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  const copied = await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', from: { decision_id: source, step_id: 'outcome' }, verdicts: judged }, { door });
+  assert.equal(copied.question.step_id, 'proof');
+  assert.equal(door.value(`decision-step:${id}:001`).answer.workflow_runs, undefined, 'the copy holds no run of the source decision');
+});
