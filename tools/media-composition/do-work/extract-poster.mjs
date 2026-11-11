@@ -117,13 +117,9 @@ function resolveVideo(ref) {
     if (code !== '200') die(`CAS fetch failed for ${ref} -> HTTP ${code}`);
     return local;
   }
-  if (/^https?:\/\//.test(ref)) {
-    const local = join(WORKDIR, 'source-input');
-    const code = execFileSync('curl', ['-sSL', '--max-time', '120', '--connect-timeout', '15',
-      '-o', local, '-w', '%{http_code}', ref], { encoding: 'utf8' }).trim();
-    if (!/^2\d\d$/.test(code)) die(`video fetch failed for ${ref} -> HTTP ${code}`);
-    return local;
-  }
+  // A web address (a Namespace file's read link, as find-recurring-voices takes) is read in ranges by ffprobe and ffmpeg,
+  // never downloaded whole.
+  if (/^https?:\/\//.test(ref)) return ref;
   if (!existsSync(ref)) die(`video file not found: ${ref}`);
   return ref;
 }
