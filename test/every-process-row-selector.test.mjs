@@ -13,6 +13,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { basename } from 'node:path';
+import { availableParallelism, loadavg } from 'node:os';
 import { rows as readRows } from '../test-helpers/tool-rows.mjs';
 import { runRow, select } from '../test-helpers/run-a-row.mjs';
 import { staleReplies } from '../test-helpers/stand-in-egress.mjs';
@@ -39,8 +40,12 @@ export function accountFor(row, proved, why = new Map()) {
   return { unproved: bad ?? (samplesOf(row).length ? why.get(row.id) : 'it has no sample run; add one to its verify list') };
 }
 
-// Every sample of every row, run a few at a time: { row, sample, ran } per sample.
-async function runAll(limit = 8) {
+// Samples run at once: at least eight (as before), and more when the cores not busy now allow it. A sample is a whole program
+// run; with fewer cores free than that, the 60 s per-sample cap is what the load is measured against.
+const samplesAtOnce = () => Math.max(8, availableParallelism() - Math.ceil(loadavg()[0]));
+
+// Every sample of every row, run samplesAtOnce() at a time: { row, sample, ran } per sample.
+async function runAll(limit = samplesAtOnce()) {
   const work = processRows.flatMap(row => samplesOf(row).map(sample => ({ row, sample })));
   const done = [];
   let next = 0;
