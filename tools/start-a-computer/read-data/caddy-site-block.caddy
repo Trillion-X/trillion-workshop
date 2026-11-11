@@ -1,18 +1,5 @@
 {SITE} {
-	handle_path /engine-releases/* {
-		@feed path /feed.json
-		@body path_regexp body ^/([0-9a-f]{40})/[a-z0-9_-]+\.tar\.gz$
-		handle @feed {
-			root * /opt/trillion/releases
-			file_server
-		}
-		handle @body {
-			rewrite * /{re.body.1}.tar.gz
-			root * /opt/trillion/releases
-			file_server
-		}
-		respond 404
-	}
+{ROUTES}
 	handle {
 		encode zstd gzip
 		reverse_proxy 127.0.0.1:{PORT}

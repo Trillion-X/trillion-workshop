@@ -627,3 +627,9 @@ test('an update fills a config with no account rows and rollback restores its pr
   assert.equal(read(file, `${l.state}/place.json`), original);
   assert.equal(read(file, `${l.state}/product-settings.json`), oldSettings);
 });
+
+test('every Caddy route the settings name is a file in the tree', () => {
+  const settings = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
+  const missing = settings.caddy_routes.filter(name => !existsSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url)));
+  assert.deepEqual(missing, []);
+});

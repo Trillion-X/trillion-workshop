@@ -32,7 +32,9 @@ const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url))
 const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
 const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
-const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd();
+// Each name's Caddy site block: the wrapper with every route block the settings name, in order, each its own file.
+const SITE_BLOCK = readFileSync(new URL('../read-data/caddy-site-block.caddy', import.meta.url), 'utf8').trimEnd()
+  .replace('{ROUTES}', () => SETTINGS.caddy_routes.map(name => readFileSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url), 'utf8').trimEnd()).join('\n'));
 /** The launch setting that names the product settings file, and where that file is on the machine. */
 export const productSettings = { launch_setting: SETTINGS.product_settings.launch_setting, file: SETTINGS.product_settings.file };
 const q = text => `'${String(text).replace(/'/g, `'\\''`)}'`;
