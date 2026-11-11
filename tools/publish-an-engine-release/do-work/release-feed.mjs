@@ -51,6 +51,10 @@ export function signEntry(entry, privateKey) {
   return { ...entry, signature: sign(null, Buffer.from(signedText(entry), 'utf8'), key).toString('hex') };
 }
 
+// The engine checks the same signature (`trillion-local release verify ENTRY_JSON KEY...`, trillion-rust releases.rs
+// `verify_command`, through `Entry::signed_by`). This check stays in Node: the receiver and `accept` judge another builder's
+// entry before any build of its target, so the feed builder has no engine binary to ask yet (one exists only after its own
+// build), and a feed reader may hold no engine at all (part.json: this file is public).
 /** Whether the entry's signature verifies with a public key given as 64 hex. */
 export function verifyEntry(entry, publicHex) {
   if (!/^[0-9a-f]{64}$/.test(publicHex ?? '') || !/^[0-9a-f]{128}$/.test(entry?.signature ?? '')) return false;
