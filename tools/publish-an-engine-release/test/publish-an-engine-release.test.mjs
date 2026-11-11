@@ -10,6 +10,7 @@ import { gunzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 import { untarGz } from '../../keep-and-wake-ai-sessions-on-this-computer/src/tar-gz.mjs';
 import { addRelease, feedStatusOf, newSigningKey, publicKeyHex, readFeed, roads, settings, signEntry, signedText, verifyEntry } from '../do-work/release-feed.mjs';
+import { packageFilesByRow } from '../../../test-helpers/tool-row-imports.mjs';
 import { archiveRelease, CREDENTIAL_HELPER, filesUnder, makeKey, packRelease, privateInput, publish, runProgram } from '../do-work/publish-an-engine-release.mjs';
 import { attemptsOf, behindFeed, catchUp, countAttempt, makeQueue, makeReceiver, readDelivery, runPublish, signatureHolds } from '../do-work/receive-pushes.mjs';
 import { builderConfig, installBuilder, receiverUnit, SHIPPED, shippedTarball } from '../do-work/install-a-builder.mjs';
@@ -41,6 +42,10 @@ function repository(count, { trailerAt, product = true } = {}) {
     writeFileSync(join(work, 'product', 'new-accounts.json'), '{"sign_in_ways":[]}\n');
   }
   writeFileSync(join(work, 'Cargo.toml'), '[package]\nname = "made-up"\n');
+  // The Workshop's own data the tool-row walker reads at each commit: no system names, no npm packages.
+  mkdirSync(join(work, 'test-helpers'));
+  writeFileSync(join(work, 'test-helpers', 'tool-row-imports.json'), '{"provided_by_the_system":[]}\n');
+  writeFileSync(join(work, 'package-lock.json'), '{"packages":{}}\n');
   sh(work, 'add', '.');
   // Commit n is made at second BASE_TIME + n, so its sequence (its commit time) is BASE_TIME + n.
   const at = n => ({ GIT_COMMITTER_DATE: `${BASE_TIME + n} +0000`, GIT_AUTHOR_DATE: `${BASE_TIME + n} +0000` });
@@ -208,6 +213,8 @@ test('the Workshop kind publishes the commit\'s git archive as one signed worksh
   assert.equal(bytes.readUInt32LE(4), 0, 'the gzip header carries no time, so the same commit packs to the same bytes');
   assert.ok(tar.includes(`comment=${commits[1]}`), 'git archive names the commit in its pax header, which install checks');
   assert.ok(tar.includes(`workshop-tools-${commits[1]}/Cargo.toml`), 'one top folder, which install strips');
+  const packageFiles = untarGz(bytes, { withBytes: true }).find(file => file.name === `workshop-tools-${commits[1]}/package-files.json`);
+  assert.deepEqual(JSON.parse(Buffer.from(packageFiles.bytes).toString('utf8')), packageFilesByRow({ repo: join(workshop.work_folder, 'source'), ref: commits[1] }), 'the walker\'s files for each tool row, at this commit');
 
   const again = join(top, 'again.tar.gz');
   await archiveRelease({ source: join(workshop.work_folder, 'source'), commit: commits[1], prefix: `workshop-tools-${commits[1]}`, file: again });
