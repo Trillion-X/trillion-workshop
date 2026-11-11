@@ -6,11 +6,10 @@
   "extra_binaries": ["trillion-mcp-forwarder"],
   "extra_binaries_folder": "product/bin",
   "product_folder": "product",
-  "feed_file": "feed.json",
   "feed_status_file": "feed-status.json",
   "kinds": [
-    { "kind": "engine", "build": true, "what": "The engine program: cargo builds `binary` for the builder's own rust target and the release roads, packed with the repository's product/ folder; the target is the host line of rustc -vV." },
-    { "kind": "workshop-tools", "build": false, "target": "workshop-tools", "what": "The Workshop's tools tree: nothing is built; the commit's git archive under one top folder (install strips it; the pax comment holds the commit), gzipped; one entry for the whole tree." }
+    { "kind": "engine", "build": true, "feed_file": "feed.json", "what": "The engine program: cargo builds `binary` for the builder's own rust target and the release roads, packed with the repository's product/ folder; the target is the host line of rustc -vV." },
+    { "kind": "workshop-tools", "build": false, "target": "workshop-tools", "feed_file": "workshop-feed.json", "what": "The Workshop's tools tree: nothing is built; the commit's git archive under one top folder (install strips it; the pax comment holds the commit), gzipped; one entry for the whole tree." }
   ],
   "commit_pattern": "^[0-9a-f]{40}([0-9a-f]{24})?$",
   "target_pattern": "^[a-z0-9_]+(-[a-z0-9_.]+){1,4}$",
