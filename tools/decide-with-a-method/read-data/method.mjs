@@ -67,8 +67,13 @@ export function assertBackbone(method) {
 }
 
 // Every problem in one answer, reported together: each independent part is checked, and what failed is gathered.
+// The engine keeps only the last characters of a failed tool's message, so a long joined message loses its first
+// problems, which name the missing fields. Each problem keeps its opening words, and the whole stays inside that tail.
+const PROBLEM_CHARS = 140;
+const MESSAGE_CHARS = 480;
+const clip = (text, most) => (text.length > most ? `${text.slice(0, most - 1)}…` : text);
 export class AnswerProblems extends Error {
-  constructor(problems) { super(problems.join('; ')); this.problems = problems; }
+  constructor(problems) { super(clip(problems.map(problem => clip(problem, PROBLEM_CHARS)).join('; '), MESSAGE_CHARS)); this.problems = problems; }
 }
 function gather(units) {
   const problems = [];
