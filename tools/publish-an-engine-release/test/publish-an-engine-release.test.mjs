@@ -87,7 +87,7 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
 
   const feed = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8'));
   assert.deepEqual(Object.keys(feed), ['releases']);
-  const [entry] = feed.releases;
+  const entry = feed.releases.find(one => one.target === 'x86_64-unknown-linux-gnu');
   assert.deepEqual(Object.keys(entry), ['commit', 'sequence', 'target', 'url', 'content', 'bytes', 'urgent', 'signature']);
   assert.match(entry.signature, /^[0-9a-f]{128}$/);
   assert.ok(verifyEntry(entry, key.public_key));
@@ -119,7 +119,7 @@ test('a commit with no product/ folder publishes a release that holds only trill
   const { key, request } = builder(remote);
   const answer = await publish(request);
   assert.deepEqual([answer.commit, answer.sequence, answer.already_published], [commits[1], BASE_TIME + 2, false]);
-  const [entry] = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases;
+  const [entry] = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.filter(one => one.target === 'x86_64-unknown-linux-gnu');
   assert.ok(verifyEntry(entry, key.public_key));
   const bytes = readFileSync(join(request.feed_folder, commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
   assert.deepEqual(untarGz(bytes).map(file => file.name), ['trillion-local']);
