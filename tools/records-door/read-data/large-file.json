@@ -1,0 +1,4 @@
+{
+  "_what": "Settings of the large-file road (read-data/whole-file.mjs LARGE_FILE): a file above `threshold_bytes` is kept as one of the person's Namespace files by the Workshop's one chunked sender (tools/browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs, through writeLargeFile in records-door.mjs) over a write lease minted with the run's own capability, instead of 40 KiB MCP pieces. Chunk sizes, the send window, the lease life and the retries are that sender's; the engine's limits are in src/mcp/carried/settings.json in trillion-rust.",
+  "threshold_bytes": 16777216
+}

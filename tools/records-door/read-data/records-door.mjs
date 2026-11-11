@@ -16,6 +16,8 @@
 //   await door.write([{ id, type, value, expected? }], { key }) -> receipt; value null removes, expected checks prior
 //   await door.files('list_files', { folder: '/notes/' })   -> the files door's answer, at `files_resource`, which the
 //                                                          descriptor holds when the row declares a `files` right
+//   await door.writeLarge(name, source, { mediaType })     -> the finish answer; a file above the piece bound, kept over
+//                                                          the lease road (writeLargeFile below; source from whole-file.mjs bufferSource or the sender's fileSource)
 //   await door.run('tool:x', { ... }, { key })              -> another Workshop tool's run (`tools:run` at the Workshop's
 //                                                          address, `tools_resource`, else @workshop-tools), only for a
 //                                                          tool id the row declares in `runs`; the engine refuses others
@@ -26,6 +28,9 @@
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { pagedCall } from './byte-pages.mjs';
+import { bearerControl, namespaceClient } from '../../browse-and-upload-my-files/do-work/namespace-client.mjs';
+import { loadChunking } from '../../browse-and-upload-my-files/do-work/content-chunks.mjs';
+import { sendFile } from '../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -118,7 +123,23 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
     }
   }
 
-  return recordsDoorFromCall(call, { filesResource, resource, toolsResource });
+  // A file above the piece bound is kept over the lease road at this door's own origin (writeLargeFile above).
+  const origin = new URL(url).origin;
+  return {
+    ...recordsDoorFromCall(call, { filesResource, resource, toolsResource }),
+    writeLarge: (name, source, options) => writeLargeFile({ origin, capability, fetchImpl }, name, source, options),
+  };
+}
+
+// A file above the piece bound, kept over the lease road by the Workshop's one chunked sender
+// (browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs): a write lease minted with this run's own
+// capability at the door's origin, then the growing route, chunk by chunk, finished under the whole file's BLAKE3.
+// The capability is a bearer: it is handed to the sender as its authorization, never printed, logged or returned.
+// The engine checks every chunk and the whole file; a refused finish is an error and no row is written.
+export async function writeLargeFile({ origin, capability, fetchImpl }, name, source, { mediaType = null } = {}) {
+  const control = bearerControl({ origin, authorization: async () => `Bearer ${capability}`, fetchImpl });
+  const client = namespaceClient({ origin, control, fetchImpl });
+  return sendFile({ client, source, name, mediaType, chunking: await loadChunking() });
 }
 
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
