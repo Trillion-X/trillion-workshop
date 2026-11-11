@@ -54,15 +54,95 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "package": "write-a-post-for-each-place", "paths": ["read-data/escape-html.mjs"], "at": "/opt/write-a-post-for-each-place" },
-              { "package": "screen-looks", "paths": ["do-work", "read-data"], "at": "/opt/screen-looks" },
-              { "package": "screen-look", "paths": ["look-over-time.json", "where-looks-apply.json"], "at": "/opt/screen-look" },
-              { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
-              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "screen-look",
+                "paths": [
+                  "look-over-time.json",
+                  "where-looks-apply.json"
+                ],
+                "at": "/opt/screen-look"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
             ]
           },
           "records": {
@@ -187,15 +267,95 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "package": "write-a-post-for-each-place", "paths": ["read-data/escape-html.mjs"], "at": "/opt/write-a-post-for-each-place" },
-              { "package": "screen-looks", "paths": ["do-work", "read-data"], "at": "/opt/screen-looks" },
-              { "package": "screen-look", "paths": ["look-over-time.json", "where-looks-apply.json"], "at": "/opt/screen-look" },
-              { "package": "wall-time", "paths": ["read-data"], "at": "/opt/wall-time" },
-              { "package": "formulas", "paths": ["do-work", "read-data"], "at": "/opt/formulas" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "screen-look",
+                "paths": [
+                  "look-over-time.json",
+                  "where-looks-apply.json"
+                ],
+                "at": "/opt/screen-look"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/formulas"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
             ]
           },
           "records": {
@@ -259,7 +419,80 @@
           "argv": ["node", "/opt/send-messages/do-work/send-a-message.mjs", "twilio-sms"],
           "stdin": { "fill": { "from": "input" } },
           "files": {
-            "package_files": { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" }
+            "package_files": [
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data/byte-pages.mjs",
+                  "read-data/records-door.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
+            ]
           },
           "credential_mounts": [{ "secret_name": "twilio-auth-token", "fd": 3 }]
         },
@@ -308,10 +541,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           }
         },
@@ -391,10 +706,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {
@@ -452,10 +849,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {
@@ -512,10 +991,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {
@@ -570,10 +1131,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {
@@ -632,10 +1275,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {
@@ -680,10 +1405,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {
@@ -733,10 +1540,92 @@
           "stdin": { "fill": { "from": "input" } },
           "files": {
             "package_files": [
-              { "package": "send-messages", "paths": ["do-work", "read-data"], "at": "/opt/send-messages" },
-              { "package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door" },
-              { "package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity" },
-              { "module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes" }
+              {
+                "package": "send-messages",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/send-messages"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "screen-looks",
+                "paths": [
+                  "do-work/read-current-worn-look.mjs",
+                  "read-data/device-look-tokens.js",
+                  "read-data/look-over-time.mjs",
+                  "read-data/look-scheme.mjs",
+                  "read-data/look-time-zone.js",
+                  "read-data/resolve-screen-look-palette.js"
+                ],
+                "at": "/opt/screen-looks"
+              },
+              {
+                "package": "write-a-post-for-each-place",
+                "paths": [
+                  "read-data/escape-html.mjs"
+                ],
+                "at": "/opt/write-a-post-for-each-place"
+              },
+              {
+                "package": "wall-time",
+                "paths": [
+                  "read-data/wall-time.mjs"
+                ],
+                "at": "/opt/wall-time"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "formulas",
+                "paths": [
+                  "do-work/compile-rules.mjs",
+                  "do-work/evaluate-binding.mjs",
+                  "read-data/rule-operators.json"
+                ],
+                "at": "/opt/formulas"
+              }
             ]
           },
           "records": {

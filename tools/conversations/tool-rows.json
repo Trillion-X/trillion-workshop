@@ -82,11 +82,90 @@
           ],
           "stdin": { "fill": { "from": "input" } },
           "files": {
-            "package_files": {
-              "package": "conversations",
-              "paths": ["read-data"],
-              "at": "/opt/conversations"
-            }
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "harness/account-key.json",
+                  "harness/account-key.mjs",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/record-every-message.mjs",
+                  "harness/source-return-pending.mjs",
+                  "src/claimed-time.json",
+                  "src/claimed-time.mjs",
+                  "src/harnesses.mjs",
+                  "src/hybrid-clock.mjs",
+                  "src/messages.mjs",
+                  "src/reactions.json",
+                  "src/responses.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data/byte-pages.mjs",
+                  "read-data/lists-door.mjs",
+                  "read-data/records-door.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/write-batches.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.json",
+                  "src/archive-entries.mjs"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decide-with-a-method.json",
+                  "read-data/decision-records.mjs"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              }
+            ]
           }
         },
         "result_selector": "$.result",
@@ -675,11 +754,90 @@
           "stdout": "json",
           "argv": ["python3", "/opt/conversations/read-data/decode_source.py", "--list"],
           "files": {
-            "package_files": {
-              "package": "conversations",
-              "paths": ["read-data"],
-              "at": "/opt/conversations"
-            }
+            "package_files": [
+              {
+                "package": "conversations",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/conversations"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "harness/account-key.json",
+                  "harness/account-key.mjs",
+                  "harness/hook-run-receipt.mjs",
+                  "harness/record-every-message.mjs",
+                  "harness/source-return-pending.mjs",
+                  "src/claimed-time.json",
+                  "src/claimed-time.mjs",
+                  "src/harnesses.mjs",
+                  "src/hybrid-clock.mjs",
+                  "src/messages.mjs",
+                  "src/reactions.json",
+                  "src/responses.mjs",
+                  "src/voice-sessions.mjs",
+                  "src/waiting-on-you.json"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data/byte-pages.mjs",
+                  "read-data/lists-door.mjs",
+                  "read-data/records-door.mjs",
+                  "read-data/whole-file.mjs",
+                  "read-data/write-batches.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data/identity.mjs"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "package": "take-pictures-out-of-a-zip-archive",
+                "paths": [
+                  "src/archive-entries.json",
+                  "src/archive-entries.mjs"
+                ],
+                "at": "/opt/take-pictures-out-of-a-zip-archive"
+              },
+              {
+                "package": "decide-with-a-method",
+                "paths": [
+                  "read-data/decide-with-a-method.json",
+                  "read-data/decision-records.mjs"
+                ],
+                "at": "/opt/decide-with-a-method"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "set-up-my-account",
+                "paths": [
+                  "read-data/harnesses.json"
+                ],
+                "at": "/opt/set-up-my-account"
+              }
+            ]
           }
         },
         "verify": [
@@ -904,6 +1062,20 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           }
@@ -1188,6 +1360,20 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1541,6 +1727,20 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -1820,6 +2020,20 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },
@@ -2017,6 +2231,20 @@
                   "lib"
                 ],
                 "at": "/opt/node_modules/fflate"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },

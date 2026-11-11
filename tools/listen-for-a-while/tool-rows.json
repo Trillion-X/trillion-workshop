@@ -86,13 +86,155 @@
           },
           "files": {
             "package_files": [
-              {"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"},
-              {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"},
-              {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"},
-              {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"},
-              {"package": "audio-transcription", "paths": ["do-work", "read-data"], "at": "/opt/audio-transcription"},
-              {"package": "know-who-is-in-this", "paths": ["do-work", "read-data"], "at": "/opt/know-who-is-in-this"},
-              {"package": "media-composition", "paths": ["do-work"], "at": "/opt/media-composition"}
+              {
+                "package": "listen-for-a-while",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/listen-for-a-while"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/audio-transcription"
+              },
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this"
+              },
+              {
+                "package": "media-composition",
+                "paths": [
+                  "do-work",
+                  "read-data/adjustment-layers.mjs",
+                  "read-data/auto-cleanup.ts",
+                  "read-data/auto-edit.json",
+                  "read-data/auto-edit.mjs",
+                  "read-data/caption-lines.ts",
+                  "read-data/caption-styles.json",
+                  "read-data/caption-styles.mjs",
+                  "read-data/detect-events.json",
+                  "read-data/layers-to-edit.mjs",
+                  "read-data/looks.json",
+                  "read-data/looks.mjs",
+                  "read-data/reframe-camera.json",
+                  "read-data/session-pairing.mjs",
+                  "read-data/suggestion-stream.json",
+                  "read-data/suggestion-stream.mjs",
+                  "src/confidence-filter.json",
+                  "src/confidence-filter.mjs"
+                ],
+                "at": "/opt/media-composition"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data/program-here.mjs"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/check-copy.mjs",
+                  "do-work/read-words.mjs",
+                  "do-work/rules-and-verdicts.mjs",
+                  "read-data/answer.json",
+                  "read-data/copy-grammar-rules.json",
+                  "read-data/copy-words.json",
+                  "read-data/words.json"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/computer-cache-folder.mjs",
+                  "do-work/heavy-work.mjs",
+                  "do-work/process-admission.mjs",
+                  "do-work/run-owned-process.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "calibrate-a-camera-frame",
+                "paths": [
+                  "src/frame-calibration.mjs"
+                ],
+                "at": "/opt/calibrate-a-camera-frame"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/evidence-checks.mjs",
+                  "do-work/judge-words.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work/artifact-ref.mjs"
+                ],
+                "at": "/opt/where-a-person-stands"
+              }
             ]
           }
         },
@@ -244,13 +386,155 @@
           },
           "files": {
             "package_files": [
-              {"package":"listen-for-a-while","paths":["read-data"],"at":"/opt/listen-for-a-while"},
-              {"package":"records-door","paths":["do-work","read-data"],"at":"/opt/records-door"},
-              {"package":"content-identity","paths":["read-data"],"at":"/opt/content-identity"},
-              {"module":"@noble/hashes","paths":["LICENSE","package.json","blake3.js","blake2.js","_blake.js","_md.js","_u64.js","utils.js"],"at":"/opt/node_modules/@noble/hashes"},
-              {"package":"audio-transcription","paths":["do-work","read-data"],"at":"/opt/audio-transcription"},
-              {"package":"know-who-is-in-this","paths":["do-work","read-data"],"at":"/opt/know-who-is-in-this"},
-              {"package":"media-composition","paths":["do-work"],"at":"/opt/media-composition"}
+              {
+                "package": "listen-for-a-while",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/listen-for-a-while"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "audio-transcription",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/audio-transcription"
+              },
+              {
+                "package": "know-who-is-in-this",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/know-who-is-in-this"
+              },
+              {
+                "package": "media-composition",
+                "paths": [
+                  "do-work",
+                  "read-data/adjustment-layers.mjs",
+                  "read-data/auto-cleanup.ts",
+                  "read-data/auto-edit.json",
+                  "read-data/auto-edit.mjs",
+                  "read-data/caption-lines.ts",
+                  "read-data/caption-styles.json",
+                  "read-data/caption-styles.mjs",
+                  "read-data/detect-events.json",
+                  "read-data/layers-to-edit.mjs",
+                  "read-data/looks.json",
+                  "read-data/looks.mjs",
+                  "read-data/reframe-camera.json",
+                  "read-data/session-pairing.mjs",
+                  "read-data/suggestion-stream.json",
+                  "read-data/suggestion-stream.mjs",
+                  "src/confidence-filter.json",
+                  "src/confidence-filter.mjs"
+                ],
+                "at": "/opt/media-composition"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "computer-programs",
+                "paths": [
+                  "read-data/program-here.mjs"
+                ],
+                "at": "/opt/computer-programs"
+              },
+              {
+                "package": "check-against-a-persons-rules-and-verdicts",
+                "paths": [
+                  "do-work/check-copy.mjs",
+                  "do-work/read-words.mjs",
+                  "do-work/rules-and-verdicts.mjs",
+                  "read-data/answer.json",
+                  "read-data/copy-grammar-rules.json",
+                  "read-data/copy-words.json",
+                  "read-data/words.json"
+                ],
+                "at": "/opt/check-against-a-persons-rules-and-verdicts"
+              },
+              {
+                "package": "process-session",
+                "paths": [
+                  "do-work/computer-cache-folder.mjs",
+                  "do-work/heavy-work.mjs",
+                  "do-work/process-admission.mjs",
+                  "do-work/run-owned-process.mjs"
+                ],
+                "at": "/opt/process-session"
+              },
+              {
+                "package": "calibrate-a-camera-frame",
+                "paths": [
+                  "src/frame-calibration.mjs"
+                ],
+                "at": "/opt/calibrate-a-camera-frame"
+              },
+              {
+                "package": "keep-and-wake-ai-sessions-on-this-computer",
+                "paths": [
+                  "parts/live-namespace/do-work/shared-file-reference.mjs"
+                ],
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+              },
+              {
+                "package": "judge-words",
+                "paths": [
+                  "do-work/evidence-checks.mjs",
+                  "do-work/judge-words.mjs"
+                ],
+                "at": "/opt/judge-words"
+              },
+              {
+                "package": "where-a-person-stands",
+                "paths": [
+                  "do-work/artifact-ref.mjs"
+                ],
+                "at": "/opt/where-a-person-stands"
+              }
             ]
           }
         },
@@ -263,8 +547,161 @@
         "provenance": {"source":"listen-for-a-while/read-data/listen-for-a-while.mjs"}
       }
     },
-    {"id": "package::listen-for-a-while::tool::name-a-heard-voice", "address": "package::listen-for-a-while::tool::name-a-heard-voice", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:name-a-heard-voice", "status": "active", "label": "Name a voice heard before it was enrolled", "job": "Put a person's name on what they said in a listening before I enrolled their voice", "description": "After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), renames that listening's heard turns still under \"Someone (voice-N)\" for those voices to the person's name, keeping the former label on each row. Turns a person already named, unsure turns and other listenings are left as they are.", "input_schema": {"type": "object", "required": ["listening", "voices", "name"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "voices": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "maxLength": 40}, "description": "The labels the voice was heard under: the enrol tool's heard_as, or one voice-N"}, "name": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The enrolled person's name", "x-free-text-because": "A person's name, as enrolled."}, "me": {"type": "boolean", "description": "The voice is the person who owns the records"}}}, "output_schema": {"type": "object", "required": ["listening", "renamed"], "properties": {"listening": {"type": "string"}, "name": {"type": "string"}, "voices": {"type": "array"}, "renamed": {"type": "integer", "minimum": 0}, "said": {"type": "string"}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "nameHeardVoice"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list", "records:write"]}]}, "files": {"package_files": [{"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "voices": ["voice-2"], "name": "Sam Example"}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}},
-    {"id": "package::listen-for-a-while::tool::caption-what-is-heard", "address": "package::listen-for-a-while::tool::caption-what-is-heard", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:caption-what-is-heard", "status": "active", "label": "Captions of what is being heard", "job": "Show the captions of a listening and fix a word, a speaker or a line in them", "description": "Answers the last captions of a listening from its heard rows, with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }. Corrections are kept in the listening's captions row beside the words; a heard row is never rewritten.", "input_schema": {"type": "object", "required": ["listening"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "ops": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["op"], "properties": {"op": {"enum": ["on", "off", "edit", "speaker", "hide", "show", "undo"]}, "id": {"type": "string", "maxLength": 200}, "text": {"type": "string", "maxLength": 4000, "x-free-text-because": "The corrected words of one turn."}, "name": {"type": "string", "maxLength": 120, "x-free-text-because": "A speaker's name."}}}}, "last": {"type": "integer", "minimum": 1, "maximum": 500, "description": "How many captions to answer (default 50)"}}}, "output_schema": {"type": "object", "required": ["listening", "on", "lines"], "properties": {"listening": {"type": "string"}, "on": {"type": "boolean"}, "lines": {"type": "array", "items": {"type": "object"}}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "captionWhatIsHeard"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list"]}, {"kind": "captions", "operations": ["records:read", "records:write"]}]}, "files": {"package_files": [{"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "ops": [{"op": "edit", "id": "heard:sample-meeting:1000", "text": "The garden budget comes next."}]}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}},
-    {"id": "package::listen-for-a-while::tool::ask-what-was-said", "address": "package::listen-for-a-while::tool::ask-what-was-said", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:ask-what-was-said", "status": "active", "label": "What was said since this conversation last asked", "job": "Tell me what was said in a listening since I last asked, once what was said before my question is written down", "description": "Waits (at most wait_seconds) until what was said before the ask is heard and written, from the listening's status row; then answers the turns this conversation was not given yet, with the captions' corrections applied, and moves the conversation's cursor past them. A listening that is not live is not waited for.", "input_schema": {"type": "object", "required": ["listening", "conversation"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "conversation": {"type": "string", "minLength": 1, "maxLength": 200, "description": "The conversation asking, so it is given each turn once", "x-free-text-because": "An id of the conversation that asks."}, "wait_seconds": {"type": "integer", "minimum": 0, "maximum": 120, "description": "How long to wait for what was said before the ask to be written (default 40)"}, "asked_at": {"type": "string", "maxLength": 40, "description": "When the question was asked (default now)"}}}, "output_schema": {"type": "object", "required": ["listening", "lines", "flushed"], "properties": {"listening": {"type": "string"}, "conversation": {"type": "string"}, "lines": {"type": "array", "items": {"type": "object"}}, "flushed": {"type": "boolean"}, "live": {"type": "boolean"}, "heard_until": {"type": ["string", "null"]}, "waited_ms": {"type": "number"}, "cursor": {"type": "number"}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "askWhatWasSaid"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list"]}, {"kind": "listening-status", "operations": ["records:read"]}, {"kind": "captions", "operations": ["records:read"]}, {"kind": "ask-cursor", "operations": ["records:read", "records:write"]}]}, "files": {"package_files": [{"package": "listen-for-a-while", "paths": ["read-data"], "at": "/opt/listen-for-a-while"}, {"package": "records-door", "paths": ["do-work", "read-data"], "at": "/opt/records-door"}, {"package": "content-identity", "paths": ["read-data"], "at": "/opt/content-identity"}, {"module": "@noble/hashes", "paths": ["LICENSE", "package.json", "blake3.js", "blake2.js", "_blake.js", "_md.js", "_u64.js", "utils.js"], "at": "/opt/node_modules/@noble/hashes"}]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "conversation": "sample-conversation", "wait_seconds": 0}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}}
+    {"id": "package::listen-for-a-while::tool::name-a-heard-voice", "address": "package::listen-for-a-while::tool::name-a-heard-voice", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:name-a-heard-voice", "status": "active", "label": "Name a voice heard before it was enrolled", "job": "Put a person's name on what they said in a listening before I enrolled their voice", "description": "After tool:enrol-a-voice-or-face names a voice heard in a listening (its heard_as), renames that listening's heard turns still under \"Someone (voice-N)\" for those voices to the person's name, keeping the former label on each row. Turns a person already named, unsure turns and other listenings are left as they are.", "input_schema": {"type": "object", "required": ["listening", "voices", "name"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "voices": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "maxLength": 40}, "description": "The labels the voice was heard under: the enrol tool's heard_as, or one voice-N"}, "name": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The enrolled person's name", "x-free-text-because": "A person's name, as enrolled."}, "me": {"type": "boolean", "description": "The voice is the person who owns the records"}}}, "output_schema": {"type": "object", "required": ["listening", "renamed"], "properties": {"listening": {"type": "string"}, "name": {"type": "string"}, "voices": {"type": "array"}, "renamed": {"type": "integer", "minimum": 0}, "said": {"type": "string"}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "nameHeardVoice"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list", "records:write"]}]}, "files": {"package_files": [
+      {
+        "package": "listen-for-a-while",
+        "paths": [
+          "read-data"
+        ],
+        "at": "/opt/listen-for-a-while"
+      },
+      {
+        "package": "records-door",
+        "paths": [
+          "do-work",
+          "read-data"
+        ],
+        "at": "/opt/records-door"
+      },
+      {
+        "package": "content-identity",
+        "paths": [
+          "read-data"
+        ],
+        "at": "/opt/content-identity"
+      },
+      {
+        "module": "@noble/hashes",
+        "paths": [
+          "LICENSE",
+          "package.json",
+          "blake3.js",
+          "blake2.js",
+          "_blake.js",
+          "_md.js",
+          "_u64.js",
+          "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+      },
+      {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+          "built-stored-bytes/content-chunks/content_chunks.js",
+          "do-work/content-chunks.mjs",
+          "do-work/namespace-client.mjs",
+          "do-work/send-a-file-to-a-namespace.mjs",
+          "do-work/send-retry.mjs",
+          "do-work/send-window.mjs",
+          "do-work/shared-file-reference.mjs",
+          "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+      }
+    ]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "voices": ["voice-2"], "name": "Sam Example"}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}},
+    {"id": "package::listen-for-a-while::tool::caption-what-is-heard", "address": "package::listen-for-a-while::tool::caption-what-is-heard", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:caption-what-is-heard", "status": "active", "label": "Captions of what is being heard", "job": "Show the captions of a listening and fix a word, a speaker or a line in them", "description": "Answers the last captions of a listening from its heard rows, with the person's corrections applied, after applying the caption ops given: on, off, edit { id, text }, speaker { id, name }, hide { id }, show { id }, undo { id }. Corrections are kept in the listening's captions row beside the words; a heard row is never rewritten.", "input_schema": {"type": "object", "required": ["listening"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "ops": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["op"], "properties": {"op": {"enum": ["on", "off", "edit", "speaker", "hide", "show", "undo"]}, "id": {"type": "string", "maxLength": 200}, "text": {"type": "string", "maxLength": 4000, "x-free-text-because": "The corrected words of one turn."}, "name": {"type": "string", "maxLength": 120, "x-free-text-because": "A speaker's name."}}}}, "last": {"type": "integer", "minimum": 1, "maximum": 500, "description": "How many captions to answer (default 50)"}}}, "output_schema": {"type": "object", "required": ["listening", "on", "lines"], "properties": {"listening": {"type": "string"}, "on": {"type": "boolean"}, "lines": {"type": "array", "items": {"type": "object"}}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "captionWhatIsHeard"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list"]}, {"kind": "captions", "operations": ["records:read", "records:write"]}]}, "files": {"package_files": [
+      {
+        "package": "listen-for-a-while",
+        "paths": [
+          "read-data"
+        ],
+        "at": "/opt/listen-for-a-while"
+      },
+      {
+        "package": "records-door",
+        "paths": [
+          "do-work",
+          "read-data"
+        ],
+        "at": "/opt/records-door"
+      },
+      {
+        "package": "content-identity",
+        "paths": [
+          "read-data"
+        ],
+        "at": "/opt/content-identity"
+      },
+      {
+        "module": "@noble/hashes",
+        "paths": [
+          "LICENSE",
+          "package.json",
+          "blake3.js",
+          "blake2.js",
+          "_blake.js",
+          "_md.js",
+          "_u64.js",
+          "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+      },
+      {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+          "built-stored-bytes/content-chunks/content_chunks.js",
+          "do-work/content-chunks.mjs",
+          "do-work/namespace-client.mjs",
+          "do-work/send-a-file-to-a-namespace.mjs",
+          "do-work/send-retry.mjs",
+          "do-work/send-window.mjs",
+          "do-work/shared-file-reference.mjs",
+          "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+      }
+    ]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "ops": [{"op": "edit", "id": "heard:sample-meeting:1000", "text": "The garden budget comes next."}]}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}},
+    {"id": "package::listen-for-a-while::tool::ask-what-was-said", "address": "package::listen-for-a-while::tool::ask-what-was-said", "path": ["current-item", "published-record"], "payload": {"kind": "ai-tool-descriptor", "id": "tool:ask-what-was-said", "status": "active", "label": "What was said since this conversation last asked", "job": "Tell me what was said in a listening since I last asked, once what was said before my question is written down", "description": "Waits (at most wait_seconds) until what was said before the ask is heard and written, from the listening's status row; then answers the turns this conversation was not given yet, with the captions' corrections applied, and moves the conversation's cursor past them. A listening that is not live is not waited for.", "input_schema": {"type": "object", "required": ["listening", "conversation"], "additionalProperties": false, "properties": {"listening": {"type": "string", "minLength": 1, "maxLength": 120, "description": "The listening's name", "x-free-text-because": "The name of a listening, kept on its heard rows."}, "conversation": {"type": "string", "minLength": 1, "maxLength": 200, "description": "The conversation asking, so it is given each turn once", "x-free-text-because": "An id of the conversation that asks."}, "wait_seconds": {"type": "integer", "minimum": 0, "maximum": 120, "description": "How long to wait for what was said before the ask to be written (default 40)"}, "asked_at": {"type": "string", "maxLength": 40, "description": "When the question was asked (default now)"}}}, "output_schema": {"type": "object", "required": ["listening", "lines", "flushed"], "properties": {"listening": {"type": "string"}, "conversation": {"type": "string"}, "lines": {"type": "array", "items": {"type": "object"}}, "flushed": {"type": "boolean"}, "live": {"type": "boolean"}, "heard_until": {"type": ["string", "null"]}, "waited_ms": {"type": "number"}, "cursor": {"type": "number"}}}, "invoke": {"kind": "computer", "capabilities": [], "workdir": "/opt/listen-for-a-while", "stdout": "json", "argv": ["node", "/opt/records-door/do-work/run-an-export.mjs", "/opt/listen-for-a-while/read-data/what-was-said.mjs", "askWhatWasSaid"], "stdin": {"fill": {"from": "input"}}, "records": {"fd": 3, "rights": [{"kind": "heard", "operations": ["records:list"]}, {"kind": "listening-status", "operations": ["records:read"]}, {"kind": "captions", "operations": ["records:read"]}, {"kind": "ask-cursor", "operations": ["records:read", "records:write"]}]}, "files": {"package_files": [
+      {
+        "package": "listen-for-a-while",
+        "paths": [
+          "read-data"
+        ],
+        "at": "/opt/listen-for-a-while"
+      },
+      {
+        "package": "records-door",
+        "paths": [
+          "do-work",
+          "read-data"
+        ],
+        "at": "/opt/records-door"
+      },
+      {
+        "package": "content-identity",
+        "paths": [
+          "read-data"
+        ],
+        "at": "/opt/content-identity"
+      },
+      {
+        "module": "@noble/hashes",
+        "paths": [
+          "LICENSE",
+          "package.json",
+          "blake3.js",
+          "blake2.js",
+          "_blake.js",
+          "_md.js",
+          "_u64.js",
+          "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+      },
+      {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+          "built-stored-bytes/content-chunks/content_chunks.js",
+          "do-work/content-chunks.mjs",
+          "do-work/namespace-client.mjs",
+          "do-work/send-a-file-to-a-namespace.mjs",
+          "do-work/send-retry.mjs",
+          "do-work/send-window.mjs",
+          "do-work/shared-file-reference.mjs",
+          "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+      }
+    ]}}, "result_selector": "$.result", "verify": [{"kind": "sample-run", "input": {"listening": "sample-meeting", "conversation": "sample-conversation", "wait_seconds": 0}, "records": [{"id": "heard:sample-meeting:1000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:01.000Z", "end": "2026-11-03T22:00:03.000Z", "text": "The garden budget is next.", "speaker": "Someone (voice-2)", "me": false, "voice": "voice-2"}}, {"id": "heard:sample-meeting:5000", "type": "heard", "value": {"listening": "sample-meeting", "device": "sample-laptop", "start": "2026-11-03T22:00:05.000Z", "end": "2026-11-03T22:00:07.000Z", "text": "Thank you, go on.", "speaker": "Ada Example", "me": false, "voice": "voice-1"}}]}], "needs": {"expected_seconds": 30, "network_egress": false, "memory_mb": 256}, "licence_class": "licence:permissive", "placements": ["placement:your-computer"], "maker": "maker:listen-for-a-while", "provenance": {"source": "listen-for-a-while/read-data/what-was-said.mjs"}}}
   ]
 }

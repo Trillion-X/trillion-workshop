@@ -199,6 +199,51 @@
                   "utils.js"
                 ],
                 "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "settings",
+                "paths": [
+                  "read-data/settings.mjs"
+                ],
+                "at": "/opt/settings"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "read-data/byte-pages.mjs",
+                  "read-data/records-door.mjs",
+                  "read-data/stdio-mcp-door.mjs",
+                  "read-data/write-batches.mjs"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "documents-as-list-rows",
+                "paths": [
+                  "read-data/atoms.mjs"
+                ],
+                "at": "/opt/documents-as-list-rows"
+              },
+              {
+                "package": "pin-files-by-content",
+                "paths": [
+                  "do-work/verify-source-spans.mjs"
+                ],
+                "at": "/opt/pin-files-by-content"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
               }
             ]
           },

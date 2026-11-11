@@ -116,6 +116,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -314,6 +347,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -889,6 +955,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -1193,6 +1292,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -1467,6 +1599,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -1754,6 +1919,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -2034,6 +2232,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -2283,6 +2514,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -2544,6 +2808,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -2797,6 +3094,27 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
+       },
+       {
+        "package": "settings",
+        "paths": [
+         "read-data/settings.mjs"
+        ],
+        "at": "/opt/settings"
        }
       ]
      },
@@ -3082,6 +3400,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -3336,6 +3687,39 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "learn-from-everyones-results",
+        "paths": [
+         "read-data/plain-privacy-pass.mjs"
+        ],
+        "at": "/opt/learn-from-everyones-results"
+       },
+       {
+        "package": "ask-a-small-model-for-a-verdict",
+        "paths": [
+         "do-work/ask-a-hosted-classifier.mjs",
+         "do-work/ask-a-locally-served-model.mjs",
+         "do-work/ask-for-a-verdict.mjs",
+         "do-work/fresh-local-classifier-fetch.mjs",
+         "do-work/judge-content.mjs",
+         "do-work/who-can-be-asked.mjs"
+        ],
+        "at": "/opt/ask-a-small-model-for-a-verdict"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
@@ -3594,6 +3978,20 @@
          "utils.js"
         ],
         "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "package": "browse-and-upload-my-files",
+        "paths": [
+         "built-stored-bytes/content-chunks/content_chunks.js",
+         "do-work/content-chunks.mjs",
+         "do-work/namespace-client.mjs",
+         "do-work/send-a-file-to-a-namespace.mjs",
+         "do-work/send-retry.mjs",
+         "do-work/send-window.mjs",
+         "do-work/shared-file-reference.mjs",
+         "send-settings.json"
+        ],
+        "at": "/opt/browse-and-upload-my-files"
        }
       ]
      },
