@@ -78,13 +78,18 @@ export function assertBackbone(method) {
 const PROBLEM_CHARS = 140;
 const MESSAGE_CHARS = 480;
 const clip = (text, most) => (text.length > most ? `${text.slice(0, most - 1)}…` : text);
+// A problem that must reach the caller whole (an omission's shape, the one example the caller fills in) is thrown with
+// `whole` set: it is not cut to PROBLEM_CHARS, so the shape is never the part that gets lost.
 export class AnswerProblems extends Error {
-  constructor(problems) { super(clip(problems.map(problem => clip(problem, PROBLEM_CHARS)).join('; '), MESSAGE_CHARS)); this.problems = problems; }
+  constructor(problems) {
+    super(clip(problems.map(problem => (typeof problem === 'string' ? clip(problem, PROBLEM_CHARS) : problem.whole)).join('; '), MESSAGE_CHARS));
+    this.problems = problems.map(problem => (typeof problem === 'string' ? problem : problem.whole));
+  }
 }
 function gather(units) {
   const problems = [];
   for (const unit of units) {
-    try { unit(); } catch (error) { problems.push(...(error.problems ?? [error.message])); }
+    try { unit(); } catch (error) { problems.push(...(error.problems ?? [error.whole ? { whole: error.message } : error.message])); }
   }
   if (problems.length) throw new AnswerProblems(problems);
 }
@@ -321,6 +326,23 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     for (const field of step.fields) { checkShape(field, answer[field.name], field.name, method, {}); checkAnswerSource(field, answer); }
   }
 
+  // The refusal for switches turned off with no reason: each id, the fields its reason takes, and one example filled in
+  // with placeholders. It is whole (never cut), so the shape the caller must send is always in the refusal.
+  function omissionAsk(checks, method) {
+    const ids = checks.map(check => check.id);
+    // Checks that take the same fields are named together, so the refusal stays inside the engine tail.
+    const byFields = new Map();
+    for (const check of checks) {
+      const fields = (check.skip_requires ?? []).map(spec => spec.name).join(', ') || 'its reason';
+      byFields.set(fields, [...(byFields.get(fields) ?? []), check.id]);
+    }
+    const takes = [...byFields].map(([fields, named]) => `${fields} for ${named.join(', ')}`).join('; ');
+    const example = JSON.stringify({ ...examplesOf(checks[0].skip_requires ?? [], method), evidence_refs: ['<case evidence ref>'] });
+    const error = new Error(`Explain why ${ids.join(', ')} ${ids.length === 1 ? 'is' : 'are'} omitted. Each reason takes ${takes}, and evidence_refs citing case evidence. Send omission_reasons.${checks[0].id} as ${example}`);
+    error.whole = true;
+    return error;
+  }
+
   function validateMethodAnswer(record, step, answer, evidence) {
     if (!object(answer)) throw new Error('Answer must be an object');
     const method = methodOf(record);
@@ -338,18 +360,22 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
     if (step.kind === 'scope') {
       const given = answer.decision_context;
       if (!object(given)) return gather([...common, () => { throw new Error('decision_context is required'); }]);
-      return gather([...common, ...method.checks.filter(check => !(check.id in method.preset)).map(check => () => {
-        const implied = check.on_when_any_other_is_on && method.checks.some(other => other.id !== check.id && (given[other.id] === true || method.preset[other.id] === true));
+      const switches = method.checks.filter(check => !(check.id in method.preset));
+      const impliedOf = check => check.on_when_any_other_is_on && method.checks.some(other => other.id !== check.id && (given[other.id] === true || method.preset[other.id] === true));
+      // Every switch turned off with no reason is named together, once, with the shape its reason takes.
+      const unexplained = switches.filter(check => !given[check.id] && !impliedOf(check) && !object(answer.omission_reasons?.[check.id]));
+      return gather([...common, ...switches.map(check => () => {
+        const implied = impliedOf(check);
         if (typeof given[check.id] !== 'boolean' && !(implied && given[check.id] === undefined)) throw new Error(`${check.id} must be true or false`);
         if (given[check.id] || implied) return;
         // Turning a switch off takes the reason that switch itself asks for, tied to the case's own evidence.
         const reason = answer.omission_reasons?.[check.id];
-        if (!object(reason)) throw new Error(`Explain why ${check.id} is omitted: ${(check.skip_requires ?? []).map(spec => spec.ask ?? spec.name).join(' ')} Send omission_reasons.${check.id} as ${JSON.stringify({ ...examplesOf(check.skip_requires ?? [], method), evidence_refs: ['<case evidence ref>'] })}`);
+        if (!object(reason)) return;
         gather([
           () => checkFields(check.skip_requires ?? [], reason, `omission_reasons.${check.id}`, method, rules),
           () => checkEvidence(reason.evidence_refs, `omission_reasons.${check.id}`, evidence, rules),
         ]);
-      })]);
+      }), () => { if (unexplained.length) throw omissionAsk(unexplained, method); }]);
     }
     const checklist = checklistFor(record, step);
     const units = [...common];
@@ -553,7 +579,13 @@ export function methodCatalogue(methodData, checkRows = [], { grader = { grader:
       ...checklistFor(record, step).map(row => ({ id: row.id, check: row.check, good_answer: row.good_answer, ...(row.refuses ? { refuses: row.refuses } : {}), skippable: skippable(step, row) })),
       ...workflowsDue(record, step).map(row => { const { id, check, good_answer, skippable: may } = workflowCheck(row); return { id, check, good_answer, skippable: may }; }),
     ] : [];
-    const byId = new Map(asked.map(row => [row.id, row]));
+    // The scope switches are asked by the scope step, and a refusal names them whatever step is current, so they are explained too.
+    const method = methodOf(record);
+    const switches = method.checks.filter(check => !(check.id in method.preset)).map(check => ({
+      id: check.id, check: check.question, good_answer: `Turned off, it takes ${(check.skip_requires ?? []).map(spec => spec.ask ?? spec.name).join(' ') || 'its reason'}, citing case evidence.`,
+      refuses: 'A switch turned off with no reason, or with a reason that does not cite the case evidence.', skippable: true,
+    }));
+    const byId = new Map([...switches, ...asked].map(row => [row.id, row]));
     return { texts: ids.filter(id => byId.has(id)).map(id => byId.get(id)), unknown: ids.filter(id => !byId.has(id)) };
   }
 

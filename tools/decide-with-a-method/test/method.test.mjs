@@ -55,7 +55,7 @@ test('switching a check family off takes the reason that switch itself asks for,
   const record = opened(cat.snapshotMethod('plain'));
   const [scope] = cat.stepsFor(record);
   const answer = reason => ({ decision_context: { worth_weighing: true, compare_existing: false }, omission_reasons: { compare_existing: reason }, evidence_refs: ['e1'] });
-  assert.throws(() => cat.validateMethodAnswer(record, scope, answer('Not part of this choice'), evidence), /Explain why compare_existing is omitted: Where did you look/);
+  assert.throws(() => cat.validateMethodAnswer(record, scope, answer('Not part of this choice'), evidence), /Explain why compare_existing is omitted\. Each reason takes searched for compare_existing/);
   assert.throws(() => cat.validateMethodAnswer(record, scope, answer({ searched: [], evidence_refs: ['e1'] }), evidence), /searched needs at least 1 item/);
   assert.throws(() => cat.validateMethodAnswer(record, scope, answer({ searched: ['coach notes'], evidence_refs: ['no-such-ref'] }), evidence), /must cite case evidence/);
   assert.doesNotThrow(() => cat.validateMethodAnswer(record, scope, answer({ searched: ['coach notes', 'last season drills'], evidence_refs: ['e1'] }), evidence));
@@ -139,4 +139,19 @@ test('old rows still read by DATA: a method through extends and its checks throu
   const moved = { ...foreign, id: 'moved', part_of: 'other', method: 'plain' };
   assert.ok(!asked(now, [...nowChecks, moved], 'plain').includes('moved'));
   assert.ok(asked(now, [...nowChecks, moved], 'other').includes('moved'));
+});
+
+test('a refusal naming several switches turned off gives each id, the fields its reason takes and the whole shape, inside the engine tail, and explain names each id', () => {
+  const reasons = [{ name: 'why_quick', label: 'Why it is quick', kind: 'text', min_words: 2 }, { name: 'searched', label: 'Where you looked', kind: 'list', min: 1, min_words: 2 }];
+  const method = plainMethod();
+  for (const id of ['diagnose_failure', 'many_requirements', 'human_facing', 'involves_others']) method.checks.push({ id, question: `Does ${id} apply here?`, skip_requires: reasons });
+  const cat = methodCatalogue([method], plainChecks());
+  const record = opened(cat.snapshotMethod('plain'));
+  const [scope] = cat.stepsFor(record);
+  const off = Object.fromEntries(['worth_weighing', 'compare_existing', 'diagnose_failure', 'many_requirements', 'human_facing', 'involves_others'].map(id => [id, false]));
+  const refusal = (() => { try { cat.validateMethodAnswer(record, scope, { decision_context: off, evidence_refs: ['e1'] }, evidence); } catch (error) { return error; } })();
+  assert.ok(refusal.message.length <= 480, `message is ${refusal.message.length} characters`);
+  for (const id of ['worth_weighing', 'compare_existing', 'diagnose_failure', 'many_requirements', 'human_facing', 'involves_others']) assert.match(refusal.message, new RegExp(`${id}`), `names ${id}`);
+  assert.match(refusal.message, /Send omission_reasons\.worth_weighing as \{"why_quick":"<Why it is quick \(at least 2 words\)>","evidence_refs":\["<case evidence ref>"\]\}$/, 'the whole example is the end of the refusal');
+  assert.deepEqual(cat.checkTexts(record, ['diagnose_failure', 'human_facing', 'worth_weighing']).unknown, [], 'every id the refusal names is explainable');
 });

@@ -1333,7 +1333,19 @@ test('a child decision names its parent, refuses a missing or its own parent, an
   await assert.rejects(startADecision({ ...opened, source_id: 'chat:pottery-missing', parent_decision_id: 'source:not-kept' }, { door }), /No decision has that id/, 'a missing parent is refused');
   await assert.rejects(startADecision({ ...opened, source_id: 'chat:pottery-empty', parent_decision_id: '' }, { door }), /parent/i, 'an empty parent is refused');
   const record = await readDecision(door, child);
-  assert.equal(await inheritableFrom(door, record, { step_id: 'scope' }), null, 'no step is offered while the method lists none as standing');
-  assert.deepEqual(await inheritableFrom(door, record, { step_id: 'scope' }, ['scope']), { decision_id: parent, step_id: 'scope', version: 1 }, 'a standing step the parent answered is offered at its version');
+  assert.deepEqual(await inheritableFrom(door, record, { step_id: 'scope' }), { decision_id: parent, step_id: 'scope', version: 1 }, 'the scope step is standing in the DATA, so the parent\'s answer is offered');
+  assert.equal(await inheritableFrom(door, record, { step_id: 'scope' }, []), null, 'no step is offered when the list names none');
   assert.equal(await inheritableFrom(door, record, { step_id: 'outcome' }, ['scope']), null, 'a step the list does not name is never offered');
+});
+
+test('a child offered its parent\'s scope takes it with from, and the next question is not scope again', async () => {
+  const door = account();
+  const parent = await answered(door);
+  const { case_id: child } = await startADecision({ ...opened, source_id: 'chat:pottery-taken', parent_decision_id: parent }, { door });
+  const offered = await nextDecisionQuestion({ decision_id: child }, { door });
+  assert.equal(offered.question.step_id, 'scope', 'the child is first asked scope');
+  assert.deepEqual(offered.inherit, { decision_id: parent, step_id: 'scope', version: 1 }, 'the parent\'s scope is offered beside that question');
+  await answerADecisionQuestion({ decision_id: child, step_id: 'scope', from: { decision_id: parent, step_id: 'scope' } }, { door });
+  const after = await nextDecisionQuestion({ decision_id: child }, { door });
+  assert.notEqual(after.question?.step_id, 'scope', 'an inherited scope is not asked again');
 });
