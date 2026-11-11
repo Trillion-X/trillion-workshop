@@ -14,6 +14,7 @@ import { methodCatalogue } from '../read-data/method.mjs';
 import { caseView, memoryDoor, plainChecks, plainMethod, today } from './fixtures.mjs';
 
 const settings = JSON.parse(readFileSync(new URL('../read-data/decide-with-a-method.json', import.meta.url), 'utf8'));
+const CHECK_REVISION = settings.records.record_revision.check !== false;
 const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(row => row.payload);
 
 const opened = {
@@ -1264,8 +1265,14 @@ test('a write made from an older read of the case is refused as changed, and not
     }
     return value;
   };
-  await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact added late' }] }, { door }), /case changed/);
-  assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept');
+  const added = addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact added late' }] }, { door });
+  if (CHECK_REVISION) {
+    await assert.rejects(added, /case changed/);
+    assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept');
+  } else {
+    await added;
+    assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), true, 'with the check off, the late evidence lands');
+  }
 });
 
 test('a write is keyed by what it writes, so a different write under the same name is never a conflict', async () => {
@@ -1294,9 +1301,15 @@ test('a write too large for one message, made from an older read of the case, la
     return value;
   };
   const before = door.writes.length;
-  await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact. '.repeat(9000) }] }, { door }), /case changed/);
-  assert.equal(door.writes.length, before, 'no write of the stale change reached the door');
-  assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept, not even in part');
+  const added = addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact. '.repeat(9000) }] }, { door });
+  if (CHECK_REVISION) {
+    await assert.rejects(added, /case changed/);
+    assert.equal(door.writes.length, before, 'no write of the stale change reached the door');
+    assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept, not even in part');
+  } else {
+    await added;
+    assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), true, 'with the check off, the late evidence lands');
+  }
 });
 
 test('every decision tool declares the revision record beside its root, with the root\'s operations minus listing', () => {

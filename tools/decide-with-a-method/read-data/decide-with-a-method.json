@@ -30,7 +30,10 @@
     },
     "method": "decision-method",
     "part": { "type": "decision-part", "suffix": ":part:", "digits": 3 },
-    "record_revision": { "type": "decision-revision" }
+    "record_revision": {
+      "type": "decision-revision",
+      "check": false
+    }
   },
   "revision": {
     "because_min_words": 3,
