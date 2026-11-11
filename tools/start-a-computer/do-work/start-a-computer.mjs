@@ -288,7 +288,9 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   const backup = backupFolder(layout.state, now), staged = `${root}${backup}/new`, options = { root, settle, layout };
   await run(machine, `install -d -m 0700 ${q(staged)}`);
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/place.json`)}`, `${JSON.stringify(config, null, 1)}\n`);
-  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, PRODUCT_SETTINGS);
+  // An update keeps the computer's own product settings unless the request supplies one: the bundled default is for a new computer only.
+  const product = request.product_settings === undefined ? await run(machine, `cat ${q(`${root}${layout.state}/${basename(productSettings.file)}`)}`) : PRODUCT_SETTINGS;
+  await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product);
   try {
     await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], options), readFileSync(UPDATE));
   } catch (error) {
