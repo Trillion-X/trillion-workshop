@@ -104,6 +104,24 @@
           "description": "validate: { mode, items, criteria, request_policy, model_questions }; plan: { plans }; check-report: { valid, complete, covered, identity_assurance }; evaluate: the report (schema book-voice-decider-evaluation-v2: summary, items, errors, complete, serving_identity_assurance)"
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "record:check",
+                "operations": [
+                  "records:list",
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:setting",
+                "operations": [
+                  "records:read"
+                ]
+              }
+            ]
+          },
           "kind": "container",
           "workdir": "/opt/train-and-evaluate-a-writing-voice-classifier",
           "internet": false,
@@ -603,3 +621,4 @@
     }
   ]
 }
+

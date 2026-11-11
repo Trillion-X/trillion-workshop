@@ -273,6 +273,30 @@
           "description": "{ result, exit_code } from the existing gate consumer. For gate, result contains all_passed, the routed checks, stale or failed answers, and items not evaluated; scope lists item ids; audit lists offenders; checklist reports its generated comparison or problems. exit_code is 0 when the selected read passes, 1 when a gate is open or failed, and 2 for unreadable inputs. The private native run omits temporary answer command paths."
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:workflow-step",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          },
           "kind": "computer",
           "capabilities": [
             "read-a-folder"
@@ -406,6 +430,30 @@
           "description": "{ result, exit_code } from the existing checklist consumer, or { error, exit_code } when the command cannot run. An open or failed check remains failed; an answer is kept only under its own name and current file and criterion pins."
         },
         "invoke": {
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "ai-job",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "record:workflow-recipe",
+                "operations": [
+                  "records:read"
+                ]
+              },
+              {
+                "kind": "record:workflow-step",
+                "operations": [
+                  "records:list"
+                ]
+              }
+            ]
+          },
           "kind": "computer",
           "capabilities": [
             "change-a-folder"
@@ -491,3 +539,4 @@
     }
   ]
 }
+
