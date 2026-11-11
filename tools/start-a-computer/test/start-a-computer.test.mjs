@@ -707,3 +707,19 @@ test('every Caddy route the settings name is a file in the tree', () => {
   const missing = settings.caddy_routes.filter(name => !existsSync(new URL(`../read-data/caddy-routes/${name}.caddy`, import.meta.url)));
   assert.deepEqual(missing, []);
 });
+
+for (const [kind, l] of Object.entries(LAYOUTS)) {
+  test(`an update of a ${kind} computer is refused before any release is copied when its reported target has no feed release, and names it`, async () => {
+    const { root, lease, file } = madeUpComputer(l);
+    const copied = [];
+    const run = async (machine, command, input) => { copied.push(command); return runHere(root)(machine, command, input); };
+    await assert.rejects(
+      updateAComputer(lease, updateRequest, { ...asHere(root, { target: 'riscv64-unknown-linux-gnu' }), run, now: new Date('2026-11-04T17:40:00Z') }),
+      /The feed has no release for riscv64-unknown-linux-gnu, the target this computer reports, so the update is refused/,
+    );
+    assert.equal(copied.some(command => command.includes('/releases/') && command.includes('tar -C')), false, 'no release is copied');
+    assert.equal(existsSync(file(`${l.base}/releases/new`)), false, 'no release folder is written');
+    const answer = await updateAComputer(lease, updateRequest, { ...asHere(root), run: runHere(root), now: new Date('2026-11-04T17:45:00Z') });
+    assert.ok(answer.release, 'the real target proceeds');
+  });
+}
