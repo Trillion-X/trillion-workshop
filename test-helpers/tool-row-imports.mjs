@@ -11,13 +11,22 @@
 //      start without a module it needs (ERR_MODULE_NOT_FOUND on the installed snapshot).
 //   2. Read from git objects at `ref`, never the working tree, so a gate judges the commit being pushed.
 //
-//   toolRowFindings({ repo, ref }) → { results: [{ row_file, id, status, findings }], shapes }
+//   toolRowFindings({ repo, ref }) → { results: [{ row_file, id, status, package_files, findings, closure }], shapes }
+//   packageFilesByRow({ repo, ref }) → { "<row id>": [sorted repo-relative paths] }: every file the row's declared items copy
+//   plus every file its walk reaches. The publish step writes it into the archive; the walker writes nothing.
+//
+// Bare imports: a name in test-helpers/tool-row-imports.json `provided_by_the_system` is the system's and is skipped. Any
+// other bare name is resolved through the Workshop's own lockfile (package-lock.json at ref): a package with dependencies
+// there is a module_tree entry, one without is a module entry (`resolves_to` on its finding).
 //
 // Origin: the sweep's check-imports.mjs (inventory in the sweep lane's folder), moved here as the owner.
 
 import { execFileSync } from 'node:child_process';
 import path from 'node:path';
 import fs from 'node:fs';
+
+const SYSTEM_DATA = 'test-helpers/tool-row-imports.json';
+const LOCKFILE = 'package-lock.json';
 
 export function toolRowFindings({ repo, ref = 'HEAD' }) {
   const REF = ref;
@@ -34,7 +43,7 @@ const toolRowFiles = allFiles.filter((f) => /^tools\/[^/]+\/tool-rows\.json$/.te
 const codeFiles = allFiles.filter((f) => /^tools\/.+\.(mjs|js|cjs)$/.test(f));
 
 // Batch-read the blobs we need (tool rows + all tool code files) in one git call.
-const want = [...new Set([...toolRowFiles, ...codeFiles])];
+const want = [...new Set([...toolRowFiles, ...codeFiles, SYSTEM_DATA, LOCKFILE])];
 const req = Buffer.from(want.map((f) => `${REF}:${f}`).join('\n') + '\n');
 const raw = execFileSync('git', ['-C', repo, 'cat-file', '--batch'], { input: req, maxBuffer: 2 ** 31 });
 const blobs = new Map();
@@ -52,6 +61,16 @@ const blobs = new Map();
   }
 }
 const text = (f) => (blobs.get(f) ? blobs.get(f).toString('utf8') : null);
+const systemNames = new Set(JSON.parse(text(SYSTEM_DATA)).provided_by_the_system);
+const lockPackages = JSON.parse(text(LOCKFILE)).packages ?? {};
+
+// The Workshop module a bare name resolves to: the lockfile's pinned version, as a module_tree when it has dependencies.
+const resolvesToModule = (name) => {
+  const entry = lockPackages[`node_modules/${name}`];
+  if (!entry) return null;
+  const kind = Object.keys(entry.dependencies ?? {}).length ? 'module_tree' : 'module';
+  return { kind, name, version: entry.version };
+};
 
 // Static import specifiers (relative and bare) from JS source.
 const IMPORT_RE = /(?:import\s+(?:[\w*{}\s,$]+\s+from\s+)?|export\s+[\w*{}\s,$]+\s+from\s+|import\s*\()\s*['"]([^'"]+)['"]/g;
@@ -124,6 +143,11 @@ function checkRow(rowFile, desc) {
     if (w && fileSet.has(w.ws) && /\.(mjs|js|cjs|py|sh)$/.test(w.ws) && !coveredBy(covers, w.pkg, w.ws.split('/').slice(2).join('/'))) findings.push({ kind: 'argv-not-declared', target: a, pkg: w.pkg, needs: w.ws });
   }
   const visited = new Set();
+  const declared = [];
+  for (const c of covers) {
+    const dir = path.posix.join('tools', c.pkg, c.rel);
+    declared.push(...allFiles.filter((f) => f === dir || f.startsWith(dir + '/')));
+  }
   while (queue.length) {
     const { ws, from } = queue.shift();
     if (visited.has(ws)) continue;
@@ -148,14 +172,14 @@ function checkRow(rowFile, desc) {
         if (!visited.has(hit) && /\.(mjs|js|cjs)$/.test(hit)) queue.push({ ws: hit, from: ws });
       } else if (!isBuiltin(spec)) {
         const top = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0];
-        if (!modules.has(top) && !modules.has(spec)) {
-          const key = `bare|${ws}|${top}`;
-          if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top }); }
-        }
+        if (systemNames.has(top) || modules.has(top) || modules.has(spec)) continue;
+        const key = `bare|${ws}|${top}`;
+        if (!seen.has(key)) { seen.add(key); findings.push({ kind: 'bare-import-not-declared', from: ws, spec: top, resolves_to: resolvesToModule(top) }); }
       }
     }
   }
-  return findings;
+  const closure = [...new Set([...declared, ...visited])].filter((f) => fileSet.has(f)).sort();
+  return { findings, closure };
 }
 
 const results = [];
@@ -167,9 +191,17 @@ for (const rf of toolRowFiles) {
     const d = rec.payload;
     if (!d || d.kind !== 'ai-tool-descriptor') continue;
     if (!d.invoke) { results.push({ row_file: rf, id: d.id, status: d.status, note: 'no invoke' }); continue; }
-    const findings = checkRow(rf, d);
-    results.push({ row_file: rf, id: d.id, status: d.status, package_files: (d.invoke.files?.package_files || []).length, findings });
+    const { findings, closure } = checkRow(rf, d);
+    results.push({ row_file: rf, id: d.id, status: d.status, package_files: (d.invoke.files?.package_files || []).length, findings, closure });
   }
 }
-return { results, shapes };
+const byRow = {};
+for (const row of results) {
+  if (!row.closure) continue;
+  if (row.id in byRow) throw new Error(`two tool rows named ${row.id}`);
+  byRow[row.id] = row.closure;
 }
+return { results, shapes, byRow };
+}
+
+export const packageFilesByRow = (args) => toolRowFindings(args).byRow;
