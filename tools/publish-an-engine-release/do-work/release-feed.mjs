@@ -29,9 +29,14 @@ export function checkTarget(target) {
   return target;
 }
 
-/** The exact text a release's signature covers. */
-export function signedText({ commit, sequence, target, content, bytes, urgent }) {
-  return [settings.signing_domain, commit, sequence, target, content, bytes, urgent ? 'true' : 'false'].join('\n');
+/** The domain an entry is signed under: a relative-url kind's entries bind their url under the engine's bound domain. */
+export const domainOf = ({ target }) => (settings.kinds.some(row => row.relative_url && row.target === target) ? settings.signing_domain_bound : settings.signing_domain);
+
+/** The exact text a release's signature covers: the domain, then the entry's fields, with the url only where its domain binds it. */
+export function signedText(entry) {
+  const { commit, sequence, target, url, content, bytes, urgent } = entry;
+  const domain = domainOf(entry);
+  return [domain, commit, sequence, target, ...(domain === settings.signing_domain_bound ? [url] : []), content, bytes, urgent ? 'true' : 'false'].join('\n');
 }
 
 /** A new Ed25519 signing key as PKCS#8 PEM text, made only by `make-key` on the builder. */
