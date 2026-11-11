@@ -27,8 +27,10 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync, rmSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { checkOutputLength, refuseUntilReady } from './range-edits.mjs';
+import { checkOutputLength, refuseUntilReady, removedRanges } from './range-edits.mjs';
 import { apply, newSession } from '../read-data/session-pairing.mjs';
+import { autoEditLines } from '../read-data/auto-edit.mjs';
+import suggestionRules from '../read-data/suggestion-stream.json' with { type: 'json' };
 import { calibrate } from '../../calibrate-a-camera-frame/src/frame-calibration.mjs';
 import { cutByEvents, editFor } from './cut-by-events.mjs';
 import { detectEvents } from './detect-events.mjs';
@@ -55,11 +57,18 @@ export function sessionOf({ id, states, messages = [] }) {
 }
 
 /** Runs (or resumes) the cut. `askModel(job, request)` answers a local-model detector row. */
-// depends_on_lane: visual-content. Cuts from a transcript (words, fillers, long pauses) belong to auto-edit.mjs; it is imported when a
-// transcript is given, and `wordCuts({ words, duration }) -> { kept }` can be handed in for a test or another owner.
-const autoEditCuts = async () => {
-  try { return (await import('./auto-edit.mjs')).cutTranscript; }
-  catch { throw Object.assign(new Error('Cutting from a transcript needs auto-edit.mjs, which is not here yet.'), { retry: false }); }
+// Cuts from a transcript (words, fillers, long pauses) are auto-edit's removal proposals, one answer per mode in suggestion-stream.json.
+// What no mode removes is kept. `wordCuts({ words, duration }) -> { kept }` can be handed in for a test or another owner.
+const transcriptCuts = async ({ words, duration }) => {
+  const removed = [];
+  for (const mode of Object.keys(suggestionRules.modes)) {
+    const cache = { get: () => undefined, set: () => {} };
+    for await (const line of autoEditLines({ identity: 'transcript-cut', mode, transcript: { segments: [{ words }] }, cache })) {
+      if (line.type === 'error' && line.code !== 'NO_PROPOSALS') throw Object.assign(new Error(line.message), { retry: false });
+      if (line.type === 'complete') removed.push(...line.proposals.map(({ start, end }) => ({ start, end })));
+    }
+  }
+  return { kept: removedRanges(removed, duration) };
 };
 
 export async function cutTheAction({ video, output, detector = 'sound-and-motion', models = [], session = null, corners = null, askModel, upload = null, transcript = null, wordCuts = null, segments = null, runs, resume = null, tolerance = 0.6 }) {
@@ -72,7 +81,7 @@ export async function cutTheAction({ video, output, detector = 'sound-and-motion
     },
     cut: async ({ results, plan }) => {
       const frame = corners ? (await calibrate({ detect: async () => ({ corners, confidence: 1 }), min_confidence: 0.5 })).h : null;
-      const cut = transcript ? await (wordCuts ?? await autoEditCuts())({ words: transcript.words ?? [], duration: results.detect.duration }) : cutByEvents({ duration: results.detect.duration, events: results.detect.events, models, featuresOf, session: session ? sessionOf(session).session : null, frame });
+      const cut = transcript ? await (wordCuts ?? transcriptCuts)({ words: transcript.words ?? [], duration: results.detect.duration }) : cutByEvents({ duration: results.detect.duration, events: results.detect.events, models, featuresOf, session: session ? sessionOf(session).session : null, frame });
       plan('proposed', cut.kept);
       return cut;
     },
