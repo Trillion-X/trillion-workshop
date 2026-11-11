@@ -13,7 +13,7 @@ const SYSTEMD = '/etc/systemd/system';
 
 const fill = (template, values, where) => template.replace(/\{([a-z_]+)\}/g, (_, key) => {
   if (values[key] === undefined) throw new Error(`${where} needs ${key}`);
-  return String(values[key]);
+  return Array.isArray(values[key]) ? values[key].join(' ') : String(values[key]);
 });
 
 /** The Caddy site file: one site block per name, each with the layout's port. `siteBlock` is the wrapper the set-up tool

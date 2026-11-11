@@ -6,6 +6,5 @@
   "update": { "backups": "backups", "settle_seconds": 5 },
   "layout": { "releases": "/opt/place/releases" },
   "copies": { "most_admitted_computers": 1024 },
-  "caddy_site_hosts": [],
   "caddy_routes": ["engine-releases"]
 }

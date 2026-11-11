@@ -94,6 +94,19 @@ function provider(base, table, calls = []) {
   };
 }
 
+// The computer's layout row a start is given (request.host_layout): the place unit this computer runs, its Caddy name and
+// nothing kept beside it.
+const HOST_LAYOUT = {
+  caddy: { site_hosts: ['computer.example.com'], port: 7199 },
+  units: [{
+    unit: 'place.service', template: 'serve-place', description: 'A computer that keeps accounts', user: 'place',
+    releases: '/opt/place/releases', engine_file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data',
+    config: '/var/lib/place/place.json', launch_setting: 'PRODUCT_SETTINGS', product_settings: '/var/lib/place/product-settings.json',
+    writable: ['/var/lib/place', '/opt/place/releases'], drop_ins: ['nofile'],
+  }],
+  unmanaged: [],
+};
+
 test('the rows name every provider call and their credentials by vault handle only', () => {
   const rows = JSON.parse(readFileSync(new URL('../read-data/providers.json', import.meta.url), 'utf8'));
   for (const row of [...rows.machines, ...rows.names].filter(r => r.base)) {
@@ -231,12 +244,13 @@ test('starting a computer on an existing machine sets it up, installs the releas
   };
   const answer = await startAComputer({
     lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'a-pi', placement: { address: '192.0.2.40' }, lifetime: 'service' },
-    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
+    name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199, host_layout: HOST_LAYOUT,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', id_argv: ['computer', 'id'], release_name: 'r1', release: { on_machine: '/opt/build/release' } },
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
   }, { run, fetchImpl: async address => ({ status: address === 'https://computer.example.com/sign-up' ? 200 : 404 }), wait: async () => {} });
   assert.deepEqual([answer.arch, answer.place_id, answer.sign_up_status, answer.release, answer.price], ['aarch64', 'f'.repeat(64), 200, '/opt/place/releases/r1', null]);
-  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- 'computer\.example\.com' '7199' 'engine' 'ENGINE_DATA' 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases' '' '/);
+  assert.match(commands.find(c => c.startsWith('sh -s')), /^sh -s -- '\{"caddy"/);
+  assert.ok(commands.some(c => c.includes('/etc/caddy/Caddyfile')), 'the Caddy file is written from the layout');
   assert.ok(commands.find(c => c.includes("'computer' 'id'")).includes("env PRODUCT_SETTINGS='/var/lib/place/product-settings.json' ENGINE_DATA="), 'the id command reads the product settings too');
   assert.ok(commands.some(c => c.includes('systemctl restart place.service')));
 });
@@ -274,15 +288,14 @@ test('the computer config carries the request\'s release feed and default comput
   }
 });
 
-test('the folder a feed adopts releases into is made writable for the `place` service, which runs with ProtectSystem=strict', async () => {
+test('the set-up script makes each unit\'s folders for the user the layout names, and names no path of its own', async () => {
   const { adoptFolder } = await import('../do-work/start-a-computer.mjs');
   const feed = releases => ({ release_feed: { urls: [], public_keys: [], releases } });
   assert.deepEqual([adoptFolder(feed('/opt/place/releases/')), adoptFolder(feed('/opt/place/releases')), adoptFolder(feed({ keep: 3 })), adoptFolder({}), adoptFolder({ release_feed: null })], ['/opt/place/releases', '/opt/place/releases', null, null, null]);
   const script = readFileSync(new URL('../do-work/set-up-the-machine.sh', import.meta.url), 'utf8');
-  assert.match(script, /ADOPT_DIR=\$\{8:-\}/);
-  assert.match(script, /^\[Service\]\nEnvironment=\$SETTINGS_ENV=\$SETTINGS_FILE$/m);
-  assert.match(script, /install -d -o place -g place -m 0755 "\$ADOPT_DIR"/);
-  assert.match(script, /^ProtectSystem=strict\nReadWritePaths=\$WRITABLE$/m);
+  assert.doesNotMatch(script, /\/opt\/place|place\.service|\/var\/lib\/place/, 'the set-up script names no path its layout does not give');
+  assert.match(script, /printf '%s' "\$LAYOUT" \| jq -r '\.units\[\]/);
+  assert.match(script, /install -d -o "\$user" -g "\$user" -m 0755 "\$releases"/);
 });
 
 test('a start writes both fields into the computer config it installs, and a bad feed is refused before anything is rented', async () => {
@@ -297,6 +310,7 @@ test('a start writes both fields into the computer config it installs, and a bad
   const release_feed = { urls: ['https://releases.example.com/engine-releases/feed.json'], public_keys: ['a'.repeat(64)], releases: '/opt/place/releases' };
   const default_places = { holders: ['this-place'], answering: ['this-place'] };
   const request = {
+    host_layout: HOST_LAYOUT,
     lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'a-pi', placement: { address: '192.0.2.41' }, lifetime: 'service' },
     name: { host_name: 'computer.example.com' }, ssh: { known_hosts: join(here, 'known_hosts') }, port: 7199,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },
@@ -305,7 +319,7 @@ test('a start writes both fields into the computer config it installs, and a bad
   await startAComputer(request, { run, fetchImpl: async () => ({ status: 200 }), wait: async () => {} });
   assert.deepEqual(written[0], PRODUCT_BYTES, 'the product settings file is written byte for byte, before the config');
   assert.deepEqual([written[1].release_feed, written[1].default_places], [release_feed, default_places]);
-  assert.match(setups[0], / 'data' 'PRODUCT_SETTINGS' '\/var\/lib\/place\/product-settings\.json' '\/opt\/place\/releases' '' '/, 'set-up is told the folder the engine adopts releases into');
+  assert.match(setups[0], /^sh -s -- '\{"caddy"/, 'set-up is given the layout row');
   const lease = join(here, 'second-lease.json');
   await assert.rejects(startAComputer({ ...request, lease_file: lease, release_feed: { urls: [] } }, { run }), /release_feed/);
   assert.throws(() => readFileSync(lease), /ENOENT/);
@@ -584,6 +598,7 @@ test('a start uses one exact file snapshot for remote settings and starting rows
   let settingsWritten, configWritten;
   const request = {
     product_data: data, release_feed: null,
+    host_layout: HOST_LAYOUT,
     lease_file: join(here, 'lease.json'), machine: { provider: 'existing-machine', name: 'sample', placement: { address: '192.0.2.44' }, lifetime: 'service' },
     name: { host_name: 'sample.example.test' }, ssh: { known_hosts: '/dev/null' }, port: 7199,
     engine: { file: 'engine', data_env: 'ENGINE_DATA', data_dir: 'data', release_name: 'r1', release: { on_machine: '/opt/build/release' } },

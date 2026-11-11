@@ -71,8 +71,14 @@ async function untilSsh(machine, { wait, run, tries = 36 }) {
  * drop-in the row does not declare, and every unmanaged user and folder the row keeps. Answers the differences, [] when the
  * computer matches. An absent file is a difference; a failed connection is an error, not an absence. */
 export async function hostLayoutDifferences(machine, layout, run = onMachine) {
-  const units = layout.units.map(unit => ({ ...unit, writable: [].concat(unit.writable).join(' ') }));
-  const rendered = renderLayout({ ...layout, units }, SITE_BLOCK);
+  const { rendered, live, found } = await hostLayoutState(machine, layout, run);
+  return [...differences(rendered, live), ...found];
+}
+
+/** What a layout renders, what the computer has at those paths, and what the computer keeps that the layout does not name. */
+export async function hostLayoutState(machine, layout, run = onMachine) {
+  const units = layout.units;
+  const rendered = renderLayout(layout, SITE_BLOCK);
   const live = {};
   for (const { path } of rendered) live[path] = await readIfPresent(machine, run, path);
   const found = [];
@@ -87,13 +93,42 @@ export async function hostLayoutDifferences(machine, layout, run = onMachine) {
     const present = await run(machine, `${test} || exit 3`).then(() => true, error => { if (error.code === 3) return false; throw error; });
     if (!present) found.push(gone);
   }
-  return [...differences(rendered, live), ...found];
+  return { rendered, live, found };
 }
 
 /** One file's text on the computer, or undefined when it is absent. */
 async function readIfPresent(machine, run, path) {
   return run(machine, `if [ -f ${q(path)} ]; then cat ${q(path)}; else exit 3; fi`).catch(error => { if (error.code === 3) return undefined; throw error; });
 }
+
+/** Apply a computer's layout row: set it up, write only the files that differ from what the row renders, and restart what
+ * those files change. A computer that already matches gets nothing written, no set-up run and nothing restarted. A file
+ * that is replaced keeps its previous bytes beside it as `NAME.bak-STAMP`. */
+export async function applyHostLayout(machine, layout, run = onMachine) {
+  const { rendered, live } = await hostLayoutState(machine, layout, run);
+  const writes = rendered.filter(({ path, text }) => live[path] !== text);
+  if (!writes.length) return { written: [], restarted: [] };
+  await run(machine, `sh -s -- ${q(JSON.stringify(layout))}`, readFileSync(SETUP));
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  for (const { path, text } of writes) {
+    if (live[path] !== undefined) await run(machine, `cp -p ${q(path)} ${q(`${path}.bak-${stamp}`)}`);
+    if (path === CADDYFILE) {
+      await run(machine, `install -m 0644 -o root -g root /dev/stdin ${q(`${path}.new`)}`, text);
+      await run(machine, `caddy validate --config ${q(`${path}.new`)} --adapter caddyfile >/dev/null && mv ${q(`${path}.new`)} ${q(path)}`);
+    } else {
+      await run(machine, `install -d -m 0755 ${q(dirname(path))} && install -m 0644 -o root -g root /dev/stdin ${q(path)}`, text);
+    }
+  }
+  const units = [...new Set(writes.map(({ path }) => path.match(/\/([^/]+\.service)(?:\.d\/[^/]+)?$/)?.[1]).filter(Boolean))];
+  if (units.length) await run(machine, 'systemctl daemon-reload');
+  for (const unit of units) {
+    await run(machine, `if systemctl is-active --quiet ${q(unit)}; then systemctl restart ${q(unit)}; else systemctl enable ${q(unit)} >/dev/null 2>&1; fi`);
+  }
+  if (writes.some(({ path }) => path === CADDYFILE)) await run(machine, 'systemctl reload caddy');
+  return { written: writes.map(({ path }) => path), restarted: units };
+}
+
+const CADDYFILE = '/etc/caddy/Caddyfile';
 
 /** Copy the release onto the machine as /opt/place/releases/NAME (under `root`, empty on a machine), pointing nothing
  * at it. */
@@ -291,8 +326,9 @@ export async function capTheJournal(machine, run = onMachine, root = '') {
 
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, product, ...deps }) {
-  const engine = request.engine, adopt = adoptFolder(request);
-  await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, adopt ?? '', SETTINGS.caddy_site_hosts.join(' '), SITE_BLOCK].map(q).join(' ')}`, readFileSync(SETUP));
+  const engine = request.engine;
+  if (!request.host_layout) throw refused('A start needs host_layout: the computer\'s layout row (units, caddy, unmanaged).');
+  await applyHostLayout(machine, request.host_layout, run);
   await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
