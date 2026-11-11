@@ -1,5 +1,5 @@
 // A per-person seek index of namespace names eligible for Media. It holds no bytes, posters or joined facts.
-import filePreviews from './workspace/file-previews.json' with { type: 'json' };
+import filePreviews from '../recently-deleted-and-storage/workspace/file-previews.json' with { type: 'json' };
 
 const ready = new WeakMap();
 const MAX_BACKFILL_NAMES = 10_000;
