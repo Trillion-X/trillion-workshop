@@ -59,6 +59,7 @@ Type=simple
 User=place
 Group=place
 WorkingDirectory=/var/lib/place
+LimitNOFILE=1048576
 ExecStart=/bin/sh -c 'R=\$(readlink -f /opt/place/current) && exec env $DATA_ENV="\$R/$DATA_DIR" "\$R/$ENGINE_FILE" serve /var/lib/place/place.json'
 Restart=on-failure
 RestartSec=3
