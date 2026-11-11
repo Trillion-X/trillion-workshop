@@ -224,6 +224,214 @@
           }
         ]
       }
+    },
+    {
+      "id": "package::sync-files-between-my-computers::tool::keep-a-local-file-in-my-files",
+      "address": "package::sync-files-between-my-computers::tool::keep-a-local-file-in-my-files",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "id": "tool:keep-a-local-file-in-my-files",
+        "label": "Keep a file from my computer in my Files",
+        "status": "active",
+        "job": "Keep files from the person's computer in their Files under names they choose: one file or a list of files, each kept in order; a small file in pieces, a large one over the lease road",
+        "description": "Runs on the person's computer with the drives they granted it to see and the folder changes they granted. Keeps one regular file (not a link, not a folder) or a list of them (at most DATA most_files, keep-a-local-file.json) into the person's Files under the names given. A small file is written in pieces that each fit one request; a file above the whole-file threshold goes over the lease road in chunks. A file that is refused or fails is named in refused with its reason, and the others are still kept. Returns kept (name, bytes, media_type, finished) and refused. Deletes and moves nothing.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "The file's full path on this computer"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name in Files: folders by slash; letters, digits, dots, dashes and underscores only"
+            },
+            "media_type": {
+              "type": "string",
+              "description": "A type like video/mp4; application/octet-stream when left out"
+            },
+            "files": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 256,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "path",
+                  "name"
+                ],
+                "properties": {
+                  "path": {
+                    "type": "string",
+                    "description": "The file's full path on this computer"
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The name in Files: folders by slash; letters, digits, dots, dashes and underscores only"
+                  },
+                  "media_type": {
+                    "type": "string",
+                    "description": "A type like video/mp4; application/octet-stream when left out"
+                  }
+                }
+              },
+              "description": "A list of files kept in order; use this instead of path and name"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "kept",
+            "refused"
+          ],
+          "properties": {
+            "kept": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "bytes",
+                  "media_type",
+                  "finished"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "bytes": {
+                    "type": "integer"
+                  },
+                  "media_type": {
+                    "type": "string"
+                  },
+                  "finished": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "refused": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "path",
+                  "name",
+                  "code",
+                  "reason"
+                ],
+                "properties": {
+                  "path": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "name": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  },
+                  "code": {
+                    "type": "string"
+                  },
+                  "reason": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "see-connected-drives",
+            "change-a-folder"
+          ],
+          "workdir": "/opt/sync-files-between-my-computers",
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/sync-files-between-my-computers/do-work/keep-a-local-file.mjs",
+            "keepALocalFile"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "sync-files-between-my-computers",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/sync-files-between-my-computers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "do-work",
+                  "built-stored-bytes",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 3600,
+          "network_egress": false
+        },
+        "maker": "maker:sync-files-between-my-computers",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ]
+      }
     }
   ]
 }

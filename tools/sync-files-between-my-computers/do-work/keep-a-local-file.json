@@ -1,0 +1,4 @@
+{
+  "_what": "Settings of keep-a-local-file.mjs: `most_files` is the most files one run keeps (a list keeps each in order; a file past the bound is never started). A file above the whole-file threshold (records-door large-file.json) goes over the lease road; a smaller one in pieces. The name and media type rules are the module's.",
+  "most_files": 256
+}

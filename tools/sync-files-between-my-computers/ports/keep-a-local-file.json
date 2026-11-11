@@ -1,0 +1,104 @@
+{
+  "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+  "id": "REF-KEEP-A-LOCAL-FILE-IN-MY-FILES",
+  "status": "ADAPTED",
+  "mode": "NO_PRIOR_OWNER",
+  "job": "keep one file or a list of files from my computer in my Files under names I choose, so the local copy can leave the disk",
+  "sources": [],
+  "targets": [
+    {
+      "path": "tools/sync-files-between-my-computers/do-work/keep-a-local-file.mjs"
+    }
+  ],
+  "preserve": [],
+  "allowed_deltas": [],
+  "banned_substitutions": [],
+  "baseline": {},
+  "distinct_from": [
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/browse-and-upload-my-files/",
+      "why": "walks a folder on this computer and sends its files to the namespace as chunks (the folder uploader and the chunked sender). It keeps no named list, refuses no name, and writes no Files row of its own; this tool calls the records door's keepLocalFile, which uses that sender only for a file above the whole-file threshold"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/records-door/read-data/whole-file.mjs",
+      "why": "the writer this tool calls: one file written in pieces (keepLocalFile dispatches a large file to the sender). It reads no computer path, refuses no link or folder, and runs no list"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/conversations/read-data/chat-import.mjs",
+      "why": "writes the files a chat export carried through writeWholeFile under a chat's identity; it reads an export, not a file the person names on this computer"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/audio-transcription/read-data/hear-here.mjs",
+      "why": "writes a recording's words beside the recording through writeWholeFile; a consumer, not a keeper of named files from the computer"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/records-door/README.md",
+      "why": "documentation or the test of the writer this tool calls (records-door whole-file.mjs and its lease route), not a second keeper"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/records-door/test/large-file.test.mjs",
+      "why": "documentation or the test of the writer this tool calls (records-door whole-file.mjs and its lease route), not a second keeper"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/conversations/README.md",
+      "why": "a consumer of records-door's writeWholeFile for files it makes or reads itself, not a keeper of named files the person picks from this computer"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/generate-speech/read-data/speak.mjs",
+      "why": "a consumer of records-door's writeWholeFile for files it makes or reads itself, not a keeper of named files the person picks from this computer"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/grade-and-repair-speech-audio/read-data/speech-enhance.mjs",
+      "why": "a consumer of records-door's writeWholeFile for files it makes or reads itself, not a keeper of named files the person picks from this computer"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/listen-for-a-while/read-data/what-was-said.mjs",
+      "why": "a consumer of records-door's writeWholeFile for files it makes or reads itself, not a keeper of named files the person picks from this computer"
+    },
+    {
+      "repository": "trillion-workshop",
+      "path": "tools/publish-a-site-at-its-own-address/read-data/site-addresses.mjs",
+      "why": "a consumer of records-door's writeWholeFile for files it makes or reads itself, not a keeper of named files the person picks from this computer"
+    }
+  ],
+  "proof": {
+    "search": {
+      "phrasings": [
+        "keep one file or a list of files from my computer in my Files under names I choose, so the local copy can leave the disk",
+        "keep one file from my computer in my Files under a name I choose",
+        "keep a list of files from my computer in my Files",
+        "copy a local file into the person's Files"
+      ],
+      "capability_rows": [],
+      "code_patterns": [
+        "keepLocalFile",
+        "keepALocalFile",
+        "writeWholeFile"
+      ],
+      "repositories": [
+        {
+          "repository": "trillion-workshop",
+          "commit": "f34c694fa2ac5c39e10febb212e9c9edee7d689d"
+        }
+      ]
+    },
+    "test_refs": [
+      "tools/sync-files-between-my-computers/test/keep-a-local-file.test.mjs"
+    ]
+  },
+  "directive": {
+    "thread_id": "Request to move large local files into the Namespace so they can leave the disk",
+    "message_multihash": "1f:c51805af72440637f604c5f627a8ed3b07a2050210241c43613866cf409be2c4",
+    "quote": "Large local files move into Files in the Namespace, so they can be removed from the computer's disk once read back identical."
+  }
+}
