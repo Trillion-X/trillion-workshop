@@ -103,10 +103,14 @@ export function filesUnder(root, paths, skip = []) {
   });
 }
 
-/** Pack the program, and product/ when the commit has one, as tar.gz into `file`; answers { content, bytes }. */
+/** Pack the program at the root, the extra programs under product/ (`extra_binaries_folder`), and product/ when the commit
+ *  has one, as tar.gz into `file`; answers { content, bytes }. An unpacker that predates the extra programs accepts only the
+ *  program at the root and anything under product/, so the extra programs must sit there to be unpacked at all. */
 export function packRelease({ program, source, file, names = [settings.binary, ...settings.extra_binaries] }) {
   const product = existsSync(join(source, settings.product_folder)) ? filesUnder(source, [settings.product_folder]) : [];
-  const packed = tarGz([...filesUnder(dirname(program), names), ...product]);
+  const [root, ...extras] = names;
+  const beside = filesUnder(dirname(program), extras).map(one => ({ ...one, name: `${settings.extra_binaries_folder}/${one.name}` }));
+  const packed = tarGz([...filesUnder(dirname(program), [root]), ...beside, ...product]);
   writeFileSync(file, packed, { mode: 0o644 });
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }

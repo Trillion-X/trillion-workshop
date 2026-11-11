@@ -99,7 +99,8 @@ test('a publish builds, packs and signs the commit, and its entry verifies with 
   assert.equal(entry.content, makeHashCodeHexFromBytes(new Uint8Array(bytes)));
   const unpacked = join(top, 'unpacked');
   for (const { name, bytes: body } of untarGz(bytes, { withBytes: true })) { mkdirSync(dirname(join(unpacked, name)), { recursive: true }); writeFileSync(join(unpacked, name), body, { mode: 0o755 }); }
-  assert.deepEqual(readdirSync(unpacked).sort(), ['product', 'trillion-local', 'trillion-mcp-forwarder']);
+  assert.deepEqual(readdirSync(unpacked).sort(), ['product', 'trillion-local']);
+  assert.ok(existsSync(join(unpacked, 'product', 'bin', 'trillion-mcp-forwarder')), 'the forwarder is under product/bin');
   assert.ok(existsSync(join(unpacked, 'product', 'new-accounts.json')));
   assert.equal(spawnSync(join(unpacked, 'trillion-local'), { encoding: 'utf8' }).stdout.trim(), `trillion-local ${commits[2]} ${BASE_TIME + 3}`, 'built with the two release values');
 
@@ -122,7 +123,7 @@ test('a commit with no product/ folder publishes a release that holds only the e
   const [entry] = JSON.parse(readFileSync(join(request.feed_folder, 'feed.json'), 'utf8')).releases.filter(one => one.target === 'x86_64-unknown-linux-gnu');
   assert.ok(verifyEntry(entry, key.public_key));
   const bytes = readFileSync(join(request.feed_folder, commits[1], 'x86_64-unknown-linux-gnu.tar.gz'));
-  assert.deepEqual(untarGz(bytes).map(file => file.name), ['trillion-local', 'trillion-mcp-forwarder']);
+  assert.deepEqual(untarGz(bytes).map(file => file.name), ['product/bin/trillion-mcp-forwarder', 'trillion-local']);
 });
 
 test('a release and the shipped files pack with no tar program: same bytes and executable bit back, no __pycache__ shipped', () => {
@@ -135,9 +136,9 @@ test('a release and the shipped files pack with no tar program: same bytes and e
   const packed = packRelease({ program, source, file }), bytes = readFileSync(file);
   assert.deepEqual(packed, { content: makeHashCodeHexFromBytes(new Uint8Array(bytes)), bytes: bytes.length });
   const files = untarGz(bytes, { withBytes: true });
-  assert.deepEqual(files.map(entry => entry.name), ['product/data.json', 'product/deep/__pycache__/x.pyc', 'product/deep/run.sh', 'trillion-local', 'trillion-mcp-forwarder']);
-  for (const entry of files) assert.deepEqual(Buffer.from(entry.bytes), readFileSync(entry.name.startsWith('trillion-') ? join(top, 'bin', entry.name) : join(source, entry.name)), entry.name);
-  assert.deepEqual(modesOf(gunzipSync(bytes)), { 'product/data.json': 0o644, 'product/deep/__pycache__/x.pyc': 0o644, 'product/deep/run.sh': 0o755, 'trillion-local': 0o755, 'trillion-mcp-forwarder': 0o755 });
+  assert.deepEqual(files.map(entry => entry.name), ['product/bin/trillion-mcp-forwarder', 'product/data.json', 'product/deep/__pycache__/x.pyc', 'product/deep/run.sh', 'trillion-local']);
+  for (const entry of files) assert.deepEqual(Buffer.from(entry.bytes), readFileSync(entry.name.startsWith('trillion-') ? join(top, 'bin', entry.name) : entry.name.startsWith('product/bin/') ? join(top, 'bin', entry.name.slice('product/bin/'.length)) : join(source, entry.name)), entry.name);
+  assert.deepEqual(modesOf(gunzipSync(bytes)), { 'product/data.json': 0o644, 'product/deep/__pycache__/x.pyc': 0o644, 'product/deep/run.sh': 0o755, 'trillion-local': 0o755, 'product/bin/trillion-mcp-forwarder': 0o755 });
   packRelease({ program, source, file: `${file}.again` });
   assert.deepEqual(readFileSync(`${file}.again`), bytes, 'the same files pack to the same bytes');
 
