@@ -21,7 +21,8 @@ import { keepLocalFile } from '../../records-door/read-data/whole-file.mjs';
 
 const SETTINGS = JSON.parse(readFileSync(new URL('./keep-a-local-file.json', import.meta.url), 'utf8'));
 
-const NAME = /^[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*$/;
+// A name in Files is absolute: it starts with the root's slash, as the engine's Files write contract requires.
+const NAME = /^\/[A-Za-z0-9][A-Za-z0-9._-]*(\/[A-Za-z0-9][A-Za-z0-9._-]*)*$/;
 const MEDIA = /^[a-z]+\/[a-z0-9.+-]+$/;
 
 function refuse(reason) {
