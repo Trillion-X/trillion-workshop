@@ -372,6 +372,15 @@
             "see-connected-drives",
             "read-a-folder"
           ],
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "files": "/",
+                "operations": ["write_file_start", "write_file_piece", "write_file_finish"]
+              }
+            ]
+          },
           "workdir": "/opt/sync-files-between-my-computers",
           "stdout": "json",
           "argv": [
