@@ -20,8 +20,8 @@
 // Refuses no files and results that are not a list, a result without identity, kind and value, and what the page
 // refuses (more than 60 rows, an origin that is not text).
 import { DatabaseSync } from 'node:sqlite';
-import { namespaceStore } from '../namespace-store.mjs';
-import { setAsideStore } from '../namespace-set-aside.mjs';
+import { namespaceStore } from '../../recently-deleted-and-storage/namespace-store.mjs';
+import { setAsideStore } from '../../recently-deleted-and-storage/namespace-set-aside.mjs';
 import { mediaLibraryPage } from '../media-library.mjs';
 
 // The results table as old trillion's src/namespace-results.mjs:200 (resultsStore) made it. That module is not here: it

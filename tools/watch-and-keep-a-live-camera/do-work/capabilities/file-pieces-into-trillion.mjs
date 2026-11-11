@@ -19,7 +19,7 @@
 import { promises as fs, watch } from 'node:fs';
 import { spawn } from 'node:child_process';
 import path from 'node:path';
-import { fileSource, growingFileSource, sendFile } from '../../../live-namespace/do-work/send-a-file-to-a-namespace.mjs';
+import { fileSource, growingFileSource, sendFile } from '../../../browse-and-upload-my-files/do-work/send-a-file-to-a-namespace.mjs';
 import { programIn, takeAStream } from '../take-a-stream.mjs';
 
 const pad = number => String(number).padStart(2, '0');

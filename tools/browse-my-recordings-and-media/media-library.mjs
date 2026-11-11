@@ -15,12 +15,12 @@
 //   5. A file the person deleted or archived (src/namespace-set-aside.mjs) and left with no name is not a row until it
 //      is put back.
 import settings from './media-library.json' with { type: 'json' };
-import filePreviews from './workspace/file-previews.json' with { type: 'json' };
-import { hiddenAmong } from './namespace-set-aside.mjs';
-import { observedMediaKind, observedMediaType } from './file-type.mjs';
+import filePreviews from '../recently-deleted-and-storage/workspace/file-previews.json' with { type: 'json' };
+import { hiddenAmong } from '../recently-deleted-and-storage/namespace-set-aside.mjs';
+import { observedMediaKind, observedMediaType } from '../recently-deleted-and-storage/file-type.mjs';
 import { ensureMediaNameIndex, mediaNameEligibleSql } from './media-name-index.mjs';
 import { ensureMediaRecordingIndex } from './media-recording-index.mjs';
-import { tableGeneration } from './table-generation.mjs';
+import { tableGeneration } from '../keep-and-wake-ai-sessions-on-this-computer/src/table-generation.mjs';
 
 const BYTES_PATH = '/work/api/namespace/bytes/';
 const PATH = /^\$(\.[A-Za-z0-9_-]+)*$/;
