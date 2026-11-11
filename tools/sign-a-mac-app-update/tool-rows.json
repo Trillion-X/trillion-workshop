@@ -1,0 +1,97 @@
+{
+  "kind": "tool-rows",
+  "record_set": "sign-a-mac-app-update-tool-rows",
+  "what_this_is": "The Workshop row that signs the Mac app's update record text with the release key held under mac-app-update-signing-key, through the engine's held-values:sign operation. The key never leaves the vault; the run's own capability is the only credential, and the row's right names that one key and that one operation.",
+  "records": [
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "maker": "maker:sign-a-mac-app-update",
+        "id": "tool:sign-a-mac-app-update",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "label": "Sign a Mac app update record",
+        "job": "Sign the Mac app's update record text with the release key in my vault, so installed apps accept the update",
+        "description": "Signs the UTF-8 text it is given (the update record's signed lines) with the Ed25519 key held under mac-app-update-signing-key, through the engine's held-values:sign operation. The key never leaves the vault; the answer is the signature in base64, as the app reads it. Only a run reaches the operation; the run's right names that one key and that one operation.",
+        "input_schema": {
+          "type": "object",
+          "required": [
+            "payload"
+          ],
+          "properties": {
+            "payload": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 65536,
+              "description": "The signed lines of the update record, joined by newlines."
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "name",
+            "signature_base64"
+          ],
+          "properties": {
+            "name": {
+              "const": "mac-app-update-signing-key"
+            },
+            "signature_base64": {
+              "type": "string",
+              "minLength": 88,
+              "maxLength": 88
+            }
+          }
+        },
+        "invoke": {
+          "kind": "computer",
+          "capabilities": [
+            "start-a-program"
+          ],
+          "workdir": "/opt/sign-a-mac-app-update",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/sign-a-mac-app-update/do-work/sign-a-mac-app-update.mjs"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input",
+              "field": "payload"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "held-value": "mac-app-update-signing-key",
+                "operations": [
+                  "held-values:sign"
+                ]
+              }
+            ]
+          },
+          "files": {
+            "package_files": [
+              {
+                "package": "sign-a-mac-app-update",
+                "paths": [
+                  "do-work"
+                ],
+                "at": "/opt/sign-a-mac-app-update"
+              }
+            ]
+          }
+        },
+        "provenance": {
+          "source": "New: the held-values:sign operation (trillion-rust src/secrets.rs, 24a83bb98), the one way the Mac app's update record is signed without reading the key out of the vault."
+        }
+      }
+    }
+  ]
+}
