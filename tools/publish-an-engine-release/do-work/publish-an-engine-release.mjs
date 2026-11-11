@@ -248,7 +248,7 @@ export async function publish(request, { token = '', commit: asked, credentials 
     }
     for (const row of zigRows) {
       try { also.push(await publishZigbuild({ request, source, targetDir, env, log, feedFolder, privateKey, publicKey, buildEnv: row.build_env, fields: { commit, sequence, target: checkTarget(row.triple), urgent } })); }
-      catch (error) { also.push({ target: one, error: error.message }); }
+      catch (error) { also.push({ target: row.triple, error: error.message }); }
     }
     // The feed-status file describes the engine's roads only; a Workshop publish leaves it as the engine's last publish wrote it.
     if (kind.build) {

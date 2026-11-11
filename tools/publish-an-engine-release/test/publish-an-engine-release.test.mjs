@@ -4,7 +4,7 @@ import { createHmac } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 import { chmodSync, closeSync, existsSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gunzipSync } from 'node:zlib';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
@@ -144,6 +144,25 @@ test('a release and the shipped files pack with no tar program: same bytes and e
   const shipped = untarGz(shippedTarball()).map(entry => entry.name);
   for (const name of [...SHIPPED.filter(path => /\.m?js$/.test(path)), 'tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs']) assert.ok(shipped.includes(name), name);
   assert.ok(!shipped.some(name => name.includes('__pycache__')));
+});
+
+// Every file the publisher reaches by a static import is one the builder is shipped: a missing one only shows on the builder.
+test('every file the publisher reaches by import is in SHIPPED', () => {
+  const root = join(here, '..', '..', '..'), covered = path => SHIPPED.some(one => path === one || path.startsWith(`${one}/`));
+  const reached = new Set(), uncovered = new Set();
+  const visit = file => {
+    if (reached.has(file)) return;
+    reached.add(file);
+    for (const [, spec] of readFileSync(join(root, file), 'utf8').matchAll(/from\s+'([^']+)'/g)) {
+      if (spec.startsWith('node:')) continue;
+      const target = spec.startsWith('.') ? relative(root, resolve(join(root, dirname(file)), spec)) : `node_modules/${spec}`;
+      if (!covered(target)) uncovered.add(target);
+      if (spec.startsWith('.') && /\.m?js$/.test(target)) visit(target);
+    }
+  };
+  visit('tools/publish-an-engine-release/do-work/publish-an-engine-release.mjs');
+  assert.ok(reached.has('test-helpers/tool-row-imports.mjs'), 'the walker is reached');
+  assert.deepEqual([...uncovered], []);
 });
 
 test('a commit older than the feed\'s newest is refused before it is built', async () => {
