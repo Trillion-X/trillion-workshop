@@ -63,6 +63,11 @@ function answerOf(text, contentType) {
   return JSON.parse(data.slice(5).trim());
 }
 
+// The cause the door named in a refusal body, or a plain note when it named none. The capability itself is never read here.
+async function refusedBy(response) {
+  try { const cause = JSON.parse(await response.text()).cause; return typeof cause === 'string' && cause ? cause : 'no cause named'; }
+  catch { return 'no readable cause'; }
+}
 function isTransportFailure(error) {
   if (!(error instanceof TypeError) && error?.name !== 'AbortError' && error?.name !== 'TimeoutError') return false;
   const code = error?.cause?.code;
@@ -100,7 +105,8 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
         throw error;
       }
       if (response.status === 503 && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-      if (response.status === 401) throw new RecordsDoorError('capability_gone', WORDS.capability_gone);
+      // The door names the check that refused the run (its cause, in the 401 body), so the run can say which one.
+      if (response.status === 401) throw new RecordsDoorError('capability_gone', `${WORDS.capability_gone} Refused by: ${await refusedBy(response)}`);
       if (!response.ok) throw new RecordsDoorError(`http_${response.status}`, `The records door answered ${response.status}.`);
       let text;
       try { text = await response.text(); }
