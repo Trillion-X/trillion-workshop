@@ -293,6 +293,18 @@ test('a throttled door (429) is asked again with the same key after a jittered w
   } finally { await door.close(); }
 });
 
+test('a door at its dispatch limit (503) is asked again after a jittered wait, not on a fixed schedule', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], busyFirst: 3, eventStream: true });
+  const waits = [];
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: ms => { waits.push(ms); return Promise.resolve(); } });
+    await client.write([{ id: 'note:a', type: 'note', value: { n: 1 } }], { key: 'write-note-busy-jitter' });
+    assert.equal(waits.length, 3, 'three busy answers, three waits');
+    assert.notDeepEqual(waits, [200, 400, 800], 'the waits are jittered, not the fixed 200, 400, 800 schedule');
+    for (const ms of waits) assert.ok(ms > 0 && ms <= 30000, `each wait is bounded: ${ms}`);
+  } finally { await door.close(); }
+});
+
 test('a busy account is asked again, and the same write key answers the saved receipt', async () => {
   const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }], busyFirst: 2, eventStream: true });
   try {
