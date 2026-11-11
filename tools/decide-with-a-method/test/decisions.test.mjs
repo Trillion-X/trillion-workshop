@@ -110,7 +110,8 @@ test('a change too large for one door message is written in parts, the root last
   await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: long, verdicts: judged }, { door });
   assert.deepEqual(door.writes.at(-1).ids, [id, `decision-revision:${id}`], 'the root and its revision, last');
   const keys = door.writes.map(write => write.key);
-  assert.ok(keys.slice(0, -1).every((key, at) => key.startsWith(`answer-a-decision-question:${id}:1:`) && key.endsWith(`:part:${at}`)), 'each part is keyed by its content');
+  assert.ok(keys.slice(1, -1).every((key, at) => key.startsWith(`answer-a-decision-question:${id}:1:`) && key.endsWith(`:part:${at}`)), 'each part is keyed by its content');
+  assert.ok(keys[0].endsWith(':claim'), 'the revision is claimed first');
   assert.ok(keys.at(-1).startsWith(`answer-a-decision-question:${id}:1:`) && !keys.at(-1).includes(':part:'), 'the root is keyed by its content');
   const head = door.value(`decision-step:${id}:001`);
   assert.equal(head.step_id, 'outcome', 'a step too large for one record keeps its short fields');
@@ -1277,4 +1278,23 @@ test('a write is keyed by what it writes, so a different write under the same na
   assert.equal(keys.length, 2);
   assert.notEqual(keys[0], keys[1], 'different content under one name gets different keys');
   assert.ok(keys.every(key => key.startsWith('same-name:')));
+});
+
+test('a write too large for one message, made from an older read of the case, lands no part: the revision is claimed before the first part', async () => {
+  const door = account();
+  const id = await answered(door);
+  const read = door.read.bind(door);
+  let bumped = false;
+  door.read = async (type, key) => {
+    const value = await read(type, key);
+    if (!bumped && type === 'decision-revision') {
+      bumped = true;
+      door.put(`decision-revision:${id}`, 'decision-revision', { revision: 99 });
+    }
+    return value;
+  };
+  const before = door.writes.length;
+  await assert.rejects(addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e9', claim: 'A made-up fact. '.repeat(9000) }] }, { door }), /case changed/);
+  assert.equal(door.writes.length, before, 'no write of the stale change reached the door');
+  assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'e9'), false, 'the late evidence is not kept, not even in part');
 });
