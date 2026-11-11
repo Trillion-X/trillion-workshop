@@ -1,22 +1,32 @@
 #!/bin/sh
-# A stand-in for cargo, for tools/publish-an-engine-release's tests: `cargo build --release --bin trillion-local` writes
-# a fake engine to $CARGO_TARGET_DIR/release/trillion-local that prints the commit and sequence it was built with, and
+# A stand-in for cargo, for tools/publish-an-engine-release's tests: `cargo build --release --bin NAME [--bin NAME]` writes
+# a fake program for each NAME to $CARGO_TARGET_DIR/release/NAME that prints the commit and sequence it was built with, and
 # writes the environment it saw to the file FAKE_CARGO_ENV names (so a test can see no credential reached the build).
-# `cargo zigbuild --release --bin trillion-local --target TARGET` (the Mac cross-build) writes one that also prints
-# its target to $CARGO_TARGET_DIR/TARGET/release/trillion-local, its environment to FAKE_CARGO_ZIG_ENV.
+# `cargo zigbuild --release --bin NAME [--bin NAME] --target TARGET` (the cross-build) writes each program to
+# $CARGO_TARGET_DIR/TARGET/release/NAME, with its target in the output, and its environment to FAKE_CARGO_ZIG_ENV.
 # With FAKE_CARGO_FAIL (or FAKE_CARGO_ZIG_FAIL for zigbuild) it stops the way a failed build does.
-if [ "$*" = "build --release --bin trillion-local" ]; then
-  out="$CARGO_TARGET_DIR/release" target=""
-  [ -n "$FAKE_CARGO_ENV" ] && env > "$FAKE_CARGO_ENV"
-  [ -n "$FAKE_CARGO_FAIL" ] && { echo "error[E0425]: cannot find value in this scope" >&2; exit 101; }
-elif [ "$#" = 6 ] && [ "$1 $2 $3 $4 $5" = "zigbuild --release --bin trillion-local --target" ]; then
-  out="$CARGO_TARGET_DIR/$6/release" target=" $6"
+case "$1" in
+  build) zig=""; target="" ;;
+  zigbuild) zig=1 ;;
+  *) echo "fake cargo: unexpected arguments: $*" >&2; exit 2 ;;
+esac
+bins="" triple="" previous=""
+for arg in "$@"; do
+  case "$previous" in --bin) bins="$bins $arg" ;; --target) triple="$arg" ;; esac
+  previous="$arg"
+done
+if [ -n "$zig" ]; then
+  out="$CARGO_TARGET_DIR/$triple/release" target=" $triple"
   [ -n "$FAKE_CARGO_ZIG_ENV" ] && env >> "$FAKE_CARGO_ZIG_ENV"
   [ -n "$FAKE_CARGO_ZIG_FAIL" ] && { echo "error: linking with \`zig cc\` failed" >&2; exit 101; }
 else
-  echo "fake cargo: unexpected arguments: $*" >&2; exit 2
+  out="$CARGO_TARGET_DIR/release" target=""
+  [ -n "$FAKE_CARGO_ENV" ] && env > "$FAKE_CARGO_ENV"
+  [ -n "$FAKE_CARGO_FAIL" ] && { echo "error[E0425]: cannot find value in this scope" >&2; exit 101; }
 fi
 mkdir -p "$out"
-printf '#!/bin/sh\necho "trillion-local%s %s %s"\n' "$target" "$TRILLION_RELEASE_COMMIT" "$TRILLION_RELEASE_SEQUENCE" > "$out/trillion-local"
-chmod 0755 "$out/trillion-local"
+for bin in $bins; do
+  printf '#!/bin/sh\necho "%s%s %s %s"\n' "$bin" "$target" "$TRILLION_RELEASE_COMMIT" "$TRILLION_RELEASE_SEQUENCE" > "$out/$bin"
+  chmod 0755 "$out/$bin"
+done
 echo "    Finished release [optimized] target(s)"

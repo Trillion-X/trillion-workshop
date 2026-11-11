@@ -104,9 +104,9 @@ export function filesUnder(root, paths, skip = []) {
 }
 
 /** Pack the program, and product/ when the commit has one, as tar.gz into `file`; answers { content, bytes }. */
-export function packRelease({ program, source, file }) {
+export function packRelease({ program, source, file, names = [settings.binary, ...settings.extra_binaries] }) {
   const product = existsSync(join(source, settings.product_folder)) ? filesUnder(source, [settings.product_folder]) : [];
-  const packed = tarGz([...filesUnder(dirname(program), [settings.binary]), ...product]);
+  const packed = tarGz([...filesUnder(dirname(program), names), ...product]);
   writeFileSync(file, packed, { mode: 0o644 });
   return { content: makeHashCodeHexFromBytes(packed), bytes: packed.length };
 }
@@ -231,13 +231,14 @@ export async function publish(request, { token = '', commit: asked, credentials 
     // Each target builds in its own target folder, kept between runs so a later commit reuses what that target compiled.
     // Up to settings.parallel_builds targets build at once. The host target goes first: its failure fails the publish;
     // a Mac or cross target that fails is only reported in feed-status.json.
+    const linuxBinaries = [settings.binary, ...settings.extra_binaries];
     const hostBuild = async () => {
       if (before.already) return answerOf(before.already, { publicKey, already: true, dropped: 0, held: feedNow().releases.length });
       let pack;
       if (kind.build) {
-        await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', '--bin', settings.binary], { cwd: source, env: { ...env, CARGO_TARGET_DIR: targetDirOf(work, target) }, timeout: settings.build_timeout_ms, log });
+        await runProgram(request.toolchain?.cargo ?? 'cargo', ['build', '--release', ...binaryArgs(linuxBinaries)], { cwd: source, env: { ...env, CARGO_TARGET_DIR: targetDirOf(work, target) }, timeout: settings.build_timeout_ms, log });
         const program = join(targetDirOf(work, target), 'release', settings.binary);
-        if (!existsSync(program)) throw refuse(`cargo finished but made no ${program}: the repository's package must have a ${settings.binary} binary.`);
+        for (const name of linuxBinaries) if (!existsSync(join(dirname(program), name))) throw refuse(`cargo finished but made no ${name} in ${dirname(program)}: the repository's package must have each of ${linuxBinaries.join(', ')}.`);
         pack = part => packRelease({ program, source, file: part });
       } else pack = part => archiveRelease({ source, commit, prefix: `${target}-${commit}`, file: part });
       return packSignAndAdd({ request, feedFolder, pack, privateKey, publicKey, fields: { commit, sequence, target, urgent } });
@@ -261,6 +262,9 @@ export async function publish(request, { token = '', commit: asked, credentials 
     return { ...host.value, also };
   } finally { log.end(); }
 }
+
+/** The cargo arguments that build each of `names` as a program. */
+const binaryArgs = names => names.flatMap(name => ['--bin', name]);
 
 /** Where one target builds: its own folder under the work folder (cargo locks a target folder while it builds). */
 const targetDirOf = (work, triple) => join(work, 'target', triple);
@@ -294,9 +298,9 @@ export async function publishZigbuild({ request, source, targetDir, env, log, fe
   const { target } = fields;
   const toolchain = request.toolchain ?? {};
   const crossEnv = { ...env, ...buildEnv, CARGO_TARGET_DIR: targetDir, ...(toolchain.zig_python ? { CARGO_ZIGBUILD_PYTHON_PATH: toolchain.zig_python } : {}) };
-  await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', '--bin', settings.binary, '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
+  await runProgram(toolchain.cargo ?? 'cargo', ['zigbuild', '--release', ...binaryArgs([settings.binary, ...settings.extra_binaries]), '--target', target], { cwd: source, env: crossEnv, timeout: settings.build_timeout_ms, log });
   const built = join(targetDir, target, 'release', settings.binary);
-  if (!existsSync(built)) throw refuse(`cargo zigbuild finished but made no ${built}.`);
+  for (const name of [settings.binary, ...settings.extra_binaries]) if (!existsSync(join(dirname(built), name))) throw refuse(`cargo zigbuild finished but made no ${name} in ${dirname(built)}.`);
   return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: built, source, file: part }), privateKey, publicKey, fields });
 }
 
@@ -383,7 +387,7 @@ export async function publishDarwin({ request, darwin, source, work, targetDir, 
     '--timestamp-url', D.timestamp_url, '--binary-identifier', settings.binary, built, signed], { env, timeout: settings.git_timeout_ms, log });
   checkDeveloperId(await runProgram(rcodesign, ['print-signature-info', signed], { env }), darwin.team_id);
   chmodSync(signed, 0o755);
-  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: signed, source, file: part }), privateKey, publicKey, fields });
+  return packSignAndAdd({ request, feedFolder, pack: part => packRelease({ program: signed, source, file: part, names: [settings.binary] }), privateKey, publicKey, fields });
 }
 
 /**

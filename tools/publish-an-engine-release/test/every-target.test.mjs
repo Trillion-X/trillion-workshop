@@ -42,6 +42,8 @@ function engine(count) {
   mkdirSync(join(top, 'built'));
   writeFileSync(program, '#!/bin/sh\necho made-up engine\n');
   chmodSync(program, 0o755);
+  writeFileSync(join(top, 'built', 'trillion-mcp-forwarder'), '#!/bin/sh\necho made-up forwarder\n');
+  chmodSync(join(top, 'built', 'trillion-mcp-forwarder'), 0o755);
   return { top, remote, work, program, commits: git(work, 'rev-list', '--reverse', '--first-parent', 'main').split('\n') };
 }
 
