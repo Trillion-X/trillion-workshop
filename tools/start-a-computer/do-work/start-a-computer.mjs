@@ -29,6 +29,7 @@ import {
 } from './rent-a-machine.mjs';
 
 const SETUP = fileURLToPath(new URL('./set-up-the-machine.sh', import.meta.url));
+const CAP_JOURNAL = fileURLToPath(new URL('./cap-the-journal.sh', import.meta.url));
 const UPDATE = fileURLToPath(new URL('./update-a-computer.sh', import.meta.url));
 const SETTINGS = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8'));
 /** The launch setting that names the product settings file, and where that file is on the machine. */
@@ -205,6 +206,32 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   return config;
 }
 
+/** The after-switch health check a place declares (`health` in its config; the default is SETTINGS.health): the path and the
+ * status it must answer, asked `public`ly (through its host name) or on the `machine` itself (the listen address, Host set to the name). */
+export function healthOf(config, request = {}) {
+  const given = request.health ?? config.health ?? {};
+  const health = { ...SETTINGS.health, ...given };
+  if (!/^\/[A-Za-z0-9._~\/-]*$/.test(health.path) || !Number.isInteger(health.status) || health.status < 100 || health.status > 599 || !['public', 'machine'].includes(health.where)) {
+    throw refused('health takes a path that starts with /, a status from 100 to 599, and where: public or machine.');
+  }
+  return health;
+}
+
+/** Ask the place its health check once per try: its status, or null when nothing answers. */
+async function healthStatus(machine, config, host, health, { fetchImpl, wait, tries, run }) {
+  let status = null;
+  for (let i = 1; i <= tries; i++) {
+    try {
+      status = health.where === 'machine'
+        ? Number((await run(machine, `curl -s -o /dev/null -w '%{http_code}' -H ${q(`Host: ${host}`)} ${q(`http://${config.listen}${health.path}`)} || true`)).trim()) || null
+        : (await fetchImpl(`https://${host}${health.path}`, { redirect: 'manual', signal: AbortSignal.timeout(10000) })).status;
+    } catch { status = null; }
+    if (status === health.status) return status;
+    if (i < tries) await wait(5000);
+  }
+  return status;
+}
+
 async function signUpStatus(hostName, { fetchImpl, wait, tries }) {
   let status = null;
   for (let i = 1; i <= tries; i++) {
@@ -225,10 +252,16 @@ export const adoptFolder = request => {
   return typeof releases === 'string' && releases.startsWith('/') ? releases.replace(/(.)\/$/, '$1') : null;
 };
 
+/** Cap the system journal at the one size every place keeps (settings `journal.system_max_use`), on a new machine or an update. */
+export async function capTheJournal(machine, run = onMachine, root = '') {
+  await run(machine, `env ROOT=${q(root)} JOURNAL_MAX=${q(SETTINGS.journal.system_max_use)} sh -s`, readFileSync(CAP_JOURNAL));
+}
+
 /** Set the machine up, install the release, write the config, start serving, and read it all back. */
 async function serve(machine, request, price, { run, product, ...deps }) {
   const engine = request.engine, adopt = adoptFolder(request);
   await run(machine, `sh -s -- ${[request.name.host_name, request.port, engine.file, engine.data_env, engine.data_dir, productSettings.launch_setting, productSettings.file, ...(adopt ? [adopt] : [])].map(q).join(' ')}`, readFileSync(SETUP));
+  await capTheJournal(machine, run);
   const release = await installRelease(machine, engine, run);
   const config = await computerConfig(machine, request, price, run, product);
   await installStatics(machine, staticFolderOf(productSettings.file), product.statics, 'place', run);
@@ -322,6 +355,13 @@ export async function readLayout(machine, request, run = onMachine, root = '') {
   return layout;
 }
 
+/** A releases folder another user owns belongs to another unit: the update refuses to adopt into it, so each unit keeps its own
+ * releases folder (its layout's releases, a DATA field of the unit). */
+async function refuseSharedFolder(machine, folder, owner, run, root) {
+  const found = (await run(machine, `ls -ld ${q(`${root}${folder}`)} 2>/dev/null | awk '{print $3}' || true`)).trim();
+  if (found && found !== owner) throw refused(`The releases folder ${folder} belongs to ${found}, not the unit's owner ${owner}: give each unit its own releases folder in the request's layout.releases.`);
+}
+
 /** Bring a running computer to what a new one gets, in its own layout (`readLayout`): copy the request's release
  * (one that reads product settings and knows release_feed, such as the feed's newest) or keep the one `current` names
  * when the request gives none, write the product settings file into its state folder, add the feed (adopting into the
@@ -339,10 +379,13 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   const layout = await readLayout(machine, request, run, root);
   const feed = { ...named, releases: typeof request.release_feed?.releases === 'string' ? named.releases : layout.releases };
   const adopt = adoptFolder({ release_feed: feed });
+  if (adopt) await refuseSharedFolder(machine, adopt, layout.owner, run, root);
   const release = request.engine.release ? await copyRelease(machine, { ...request.engine, releases: layout.releases }, run, root) : layout.release_dir;
   if (!release) throw refused('The computer\'s current link names no release, and the request gives none.');
   const config = JSON.parse(await run(machine, `cat ${q(`${root}${layout.config}`)}`));
   config.release_feed = feed;
+  if (request.health !== undefined) config.health = healthOf(config, request);
+  const health = healthOf(config);
   const settingsFile = `${layout.state}/${basename(productSettings.file)}`;
   const product = productSettingsOf(snapshot, settingsFile);
   config.new_accounts = startingRows(config, request, product);
@@ -353,13 +396,14 @@ export async function updateAComputer(leaseFile, request, { fetchImpl = fetch, w
   await run(machine, `install -m 0600 /dev/stdin ${q(`${staged}/product-settings.json`)}`, product.bytes);
   try {
     await run(machine, updateScript(['apply', backup, release, request.engine.file, productSettings.launch_setting, settingsFile, adopt], { ...options, feed: named }), readFileSync(UPDATE));
+    await capTheJournal(machine, run, root);
   } catch (error) {
     throw Object.assign(new Error(`The update was put back from ${backup}: ${error.message}`), { backup });
   }
-  const host = lease.hostName ?? request.name?.host_name, signUp = host ? await signUpStatus(host, { fetchImpl, wait, tries }) : null;
-  if (host && signUp !== 200) {
+  const host = lease.hostName ?? request.name?.host_name, signUp = host ? await healthStatus(machine, config, host, health, { fetchImpl, wait, tries, run }) : null;
+  if (host && signUp !== health.status) {
     await run(machine, updateScript(['rollback', backup], { root, settle, feed: named }), readFileSync(UPDATE));
-    throw Object.assign(new Error(`The sign-up page at ${host} answered ${signUp ?? 'nothing'} after the update, so it was put back from ${backup}.`), { backup });
+    throw Object.assign(new Error(`${host}${health.path} answered ${signUp ?? 'nothing'} after the update, not ${health.status}, so it was put back from ${backup}.`), { backup });
   }
   return {
     layout: { unit: layout.unit, config: layout.config, current: layout.current, state: layout.state, releases: layout.releases },

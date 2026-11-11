@@ -397,6 +397,8 @@ function madeUpComputer(l, { units = [] } = {}) {
   // systemctl: each call is written down; the service is not active when releases/current names FAKE_REFUSED_RELEASE.
   writeFileSync(join(bin, 'systemctl'), `#!/bin/sh\necho "$*" >> "$ROOT/systemctl.calls"\nif [ "$1" = is-active ] && [ "$(readlink "$ROOT${l.base}/releases/current")" = "\${FAKE_REFUSED_RELEASE:-none}" ]; then exit 3; fi\nexit 0\n`);
   chmodSync(join(bin, 'systemctl'), 0o755);
+  writeFileSync(join(bin, 'journalctl'), '#!/bin/sh\necho "$*" >> "$ROOT/journal.calls"\nexit 0\n');
+  chmodSync(join(bin, 'journalctl'), 0o755);
   const lease = join(root, 'lease.json');
   writeFileSync(lease, JSON.stringify({ schema: 'place-lease/1', provider: 'existing-machine', name: 'a-computer', address: '192.0.2.50', adopted: true, hostName: 'computer.example.com' }));
   return { root, lease, file: path => join(root, path) };
@@ -442,7 +444,9 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     assert.equal(readlinkSync(file(`${l.base}/current`)), l.release, 'the link the unit no longer starts from is left as it was');
     const kept = file(`${backup}/old`);
     assert.deepEqual([readFileSync(join(kept, 'place.json'), 'utf8'), readFileSync(join(kept, 'unit'), 'utf8'), readFileSync(join(kept, 'current.link'), 'utf8')], [OLD_CONFIG, unitOf(l), `${l.release}\n`]);
-    assert.deepEqual(read(file, 'systemctl.calls').trim().split('\n'), ['daemon-reload', `restart ${l.unit}`, `is-active --quiet ${l.unit}`]);
+    assert.deepEqual(read(file, 'systemctl.calls').trim().split('\n'), ['daemon-reload', `restart ${l.unit}`, `is-active --quiet ${l.unit}`, 'restart systemd-journald']);
+    assert.equal(read(file, 'etc/systemd/journald.conf.d/99-place.conf'), '[Journal]\nSystemMaxUse=500M\n', 'the journal is capped at the one place size');
+    assert.equal(read(file, 'journal.calls').trim(), '--vacuum-size=500M');
 
     // A second update with no release keeps the one current names, and changes nothing more in the unit; a rollback
     // of the first puts back what was there, from the layout the backup kept.
@@ -465,8 +469,29 @@ for (const [kind, l] of Object.entries(LAYOUTS)) {
     assert.equal(readlinkSync(file(`${releases}/current`)), `${releases}/new`);
   });
 
+  test(`an update refuses a releases folder another user owns, so ${kind} never takes another unit's releases`, async () => {
+    const { root, lease, file } = madeUpComputer(l);
+    const seen = runHere(root);
+    const run = async (machine, command, input) => (command.includes("awk '{print $3}'") ? 'trillion-proof\n' : seen(machine, command, input));
+    await assert.rejects(updateAComputer(lease, updateRequest, { ...asHere(root), run, now: new Date('2026-11-04T17:40:00Z') }), /belongs to trillion-proof, not the unit's owner/);
+    assert.equal(read(file, `etc/systemd/system/${l.unit}`), unitOf(l), 'the unit is not touched');
+    assert.ok(!existsSync(file(`${l.state}/backups`)), 'nothing is backed up or staged');
+  });
+
+  test(`a ${kind} place declares the health check it really serves (its own address, a 403) and an update is judged by it, never by the public name`, async () => {
+    const { root, lease, file } = madeUpComputer(l);
+    const seen = runHere(root);
+    const healthy = async (machine, command, input) => (command.includes('curl') ? '403' : seen(machine, command, input));
+    const never = async () => { throw new Error('the public name is not asked'); };
+    const answer = await updateAComputer(lease, { ...updateRequest, health: { path: '/sign-up', status: 403, where: 'machine' } }, { ...asHere(root, { fetchImpl: never }), run: healthy, now: new Date('2026-11-04T17:50:00Z') });
+    assert.equal(answer.sign_up_status, 403);
+    assert.deepEqual(JSON.parse(read(file, `${l.state}/place.json`)).health, { path: '/sign-up', status: 403, where: 'machine' }, 'the declared check is written into the place\'s config');
+    const sick = async (machine, command, input) => (command.includes('curl') ? '502' : seen(machine, command, input));
+    await assert.rejects(updateAComputer(lease, { ...updateRequest, engine: { file: 'trillion-local' } }, { ...asHere(root, { fetchImpl: never }), run: sick, now: new Date('2026-11-04T17:55:00Z') }), /\/sign-up answered 502 after the update, not 403, so it was put back/);
+  });
+
   test(`a ${kind} computer's update whose service does not stay active, or whose sign-up page does not answer, is put back`, async () => {
-    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /answered 502 after the update, so it was put back/]]) {
+    for (const [env, extra, why] of [[{ FAKE_REFUSED_RELEASE: `${l.base}/releases/new` }, {}, /put back from .*not active/s], [{}, { fetchImpl: async () => ({ status: 502 }) }, /\/sign-up answered 502 after the update, not 200, so it was put back/]]) {
       const { root, lease, file } = madeUpComputer(l);
       await assert.rejects(updateAComputer(lease, updateRequest, { ...asHere(root, extra), run: runHere(root, env) }), why);
       assert.deepEqual([read(file, `${l.state}/place.json`), read(file, `etc/systemd/system/${l.unit}`), readlinkSync(file(`${l.base}/current`))], [OLD_CONFIG, unitOf(l), l.release]);
@@ -572,6 +597,13 @@ test('a start uses one exact file snapshot for remote settings and starting rows
   } });
   assert.equal(settingsWritten.toString(), PRODUCT_BYTES.toString());
   assert.deepEqual(configWritten.new_accounts, { ...PRODUCT.new_accounts, copies: copiesFor({}) });
+});
+
+test('the product settings size the tool accepts is the engine\'s own limit (trillion-rust src/account_files/identity.json max_bytes)', t => {
+  const engine = new URL('../../../../trillion-rust/src/account_files/identity.json', import.meta.url);
+  if (!existsSync(engine)) return t.skip('trillion-rust is not beside this checkout');
+  const tool = JSON.parse(readFileSync(new URL('../read-data/settings.json', import.meta.url), 'utf8')).product_settings.most_bytes;
+  assert.equal(tool, JSON.parse(readFileSync(engine, 'utf8')).max_bytes);
 });
 
 test('an update fills a config with no account rows and rollback restores its previous settings bytes', async () => {

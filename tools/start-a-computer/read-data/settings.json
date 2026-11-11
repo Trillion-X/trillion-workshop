@@ -1,6 +1,8 @@
 {
   "_what": "Generic machine layout and engine protocol limits. Product identity, starting account rows, engine file names and signed feed addresses are caller inputs.",
   "product_settings": { "launch_setting": "PRODUCT_SETTINGS", "file": "/var/lib/place/product-settings.json", "most_bytes": 131072 },
+  "journal": { "system_max_use": "500M" },
+  "health": { "path": "/sign-up", "status": 200, "where": "public" },
   "update": { "backups": "backups", "settle_seconds": 5 },
   "layout": { "releases": "/opt/place/releases" },
   "copies": { "most_admitted_computers": 1024 }
