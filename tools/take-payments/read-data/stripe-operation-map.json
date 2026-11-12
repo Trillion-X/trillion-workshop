@@ -288,6 +288,21 @@
       "endpoint": "https://api.stripe.com/v1/invoiceitems/{provider_object_ref}",
       "subject_key": null,
       "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:read-subscription-card",
+      "comment": "Reads a subscription with the card that pays it expanded (its own, else its customer's default), so a payer can see which card each purchase uses.",
+      "method": "GET",
+      "endpoint": "https://api.stripe.com/v1/subscriptions/{provider_object_ref}",
+      "subject_key": "operation_subject",
+      "object_ref_key": "provider_object_ref"
+    },
+    {
+      "operation_id": "operation:create-portal-session",
+      "method": "POST",
+      "endpoint": "https://api.stripe.com/v1/billing_portal/sessions",
+      "subject_key": "operation_subject",
+      "object_ref_key": null
     }
   ]
 }

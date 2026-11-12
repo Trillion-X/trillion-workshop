@@ -4,6 +4,7 @@
     "tool:brief-a-prospect": "Entry briefAProspect (prospects.mjs:42) writes a profile request only; the door calls at prospects.mjs:118-151 belong to keepAProspect, which this entry never reaches.",
     "tool:build-the-public-receptionist": "Entry receptionist-build.mjs:202 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:cancel-a-stripe-subscription": "Entry take-payments.mjs:124 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
+    "tool:open-the-billing-page-for-one-purchase-and-show-the-card": "Entry openABillingPage take-payments.mjs:148 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:check-a-stripe-event": "Entry take-payments.mjs:149 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:check-given-pages-at-every-width": "Entry check-given-pages.mjs:28 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",
     "tool:check-where-work-is-kept": "Entry check-where-work-is-kept.mjs:514 passes `context` (or a homonym) through, reads no records kind: checked by hand on origin/main.",

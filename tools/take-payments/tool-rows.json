@@ -2182,6 +2182,236 @@
     {
       "payload": {
         "kind": "ai-tool-descriptor",
+        "id": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
+        "label": "Open the billing page for one purchase and show its card",
+        "job": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
+        "description": "Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money. Uses your Stripe key from your held values.",
+        "status": "active",
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string",
+              "pattern": "^sub_[A-Za-z0-9]+$"
+            },
+            "return_url": {
+              "type": "string",
+              "format": "uri"
+            },
+            "configuration": {
+              "type": "string",
+              "pattern": "^bpc_[A-Za-z0-9]+$"
+            }
+          },
+          "required": [
+            "subscription_id",
+            "return_url"
+          ]
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "subscription_id": {
+              "type": "string"
+            },
+            "redirect": {
+              "type": "string"
+            },
+            "card": {
+              "type": [
+                "object",
+                "null"
+              ],
+              "properties": {
+                "brand": {
+                  "type": "string"
+                },
+                "last4": {
+                  "type": "string"
+                },
+                "exp_month": {
+                  "type": "integer"
+                },
+                "exp_year": {
+                  "type": "integer"
+                }
+              }
+            }
+          },
+          "required": [
+            "subscription_id",
+            "redirect",
+            "card"
+          ]
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "take-payments",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/take-payments"
+              },
+              {
+                "package": "funnels-and-offers",
+                "paths": [
+                  "read-data/read-offers.ts",
+                  "read-data/offer-variants.mjs"
+                ],
+                "at": "/opt/funnels-and-offers"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/take-payments",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/take-payments/do-work/take-payments.mjs",
+            "openABillingPage"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "credential_mounts": [
+            {
+              "secret_name": "stripe-api-key",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": true
+        },
+        "maker": "maker:take-payments",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:your-computer"
+        ],
+        "provenance": {
+          "source": "trillion-workshop tools/take-payments (Stripe operation map rows for read-subscription-card and create-portal-session, copied from tools/seller-payment-setup/data/stripe-operation-map.json)"
+        },
+        "verify": [
+          {
+            "kind": "sample-run",
+            "input": {
+              "subscription_id": "sub_sample0001",
+              "return_url": "https://app.example.com/billing"
+            },
+            "shape_read_at": "2026-11-12",
+            "replies": [
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/subscriptions/sub_sample0001?expand[0]=default_payment_method"
+                },
+                "status": 200,
+                "body": {
+                  "id": "sub_sample0001",
+                  "object": "subscription",
+                  "customer": "cus_sample0001",
+                  "default_payment_method": {
+                    "id": "pm_sample0001",
+                    "type": "card",
+                    "card": {
+                      "brand": "visa",
+                      "last4": "4242",
+                      "exp_month": 12,
+                      "exp_year": 2030
+                    }
+                  }
+                }
+              },
+              {
+                "request": {
+                  "method": "GET",
+                  "url": "https://api.stripe.com/v1/billing_portal/configurations?active=true"
+                },
+                "status": 200,
+                "body": {
+                  "data": [
+                    {
+                      "id": "bpc_sample0001",
+                      "is_default": true,
+                      "active": true
+                    }
+                  ]
+                }
+              },
+              {
+                "request": {
+                  "method": "POST",
+                  "url": "https://api.stripe.com/v1/billing_portal/sessions"
+                },
+                "status": 200,
+                "body": {
+                  "id": "bps_sample0001",
+                  "object": "billing_portal.session",
+                  "url": "https://billing.stripe.com/p/session/test_sample0001"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "id": "package::open-the-billing-page-for-one-purchase-and-show-the-card::tool::open-the-billing-page-for-one-purchase-and-show-the-card",
+      "address": "package::open-the-billing-page-for-one-purchase-and-show-the-card::tool::open-the-billing-page-for-one-purchase-and-show-the-card"
+    },
+    {
+      "payload": {
+        "kind": "ai-tool-descriptor",
         "id": "tool:tag-a-stripe-subscription",
         "label": "Tag a Stripe subscription",
         "job": "Add notes (metadata) to a buyer Stripe subscription without changing the ones already there",
@@ -4870,7 +5100,30 @@
           },
           "records": {
             "fd": 3,
-            "rights": [{"kind": "resource-usage-observation", "operations": ["records:read", "records:list", "records:write"]}, {"kind": "resource-usage-receipt", "operations": ["records:read", "records:list", "records:write"]}, {"files": "/", "operations": ["usage_days"]}]
+            "rights": [
+              {
+                "kind": "resource-usage-observation",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "kind": "resource-usage-receipt",
+                "operations": [
+                  "records:read",
+                  "records:list",
+                  "records:write"
+                ]
+              },
+              {
+                "files": "/",
+                "operations": [
+                  "usage_days"
+                ]
+              }
+            ]
           }
         },
         "result_selector": "$.result",
@@ -4890,17 +5143,133 @@
         "label": "Observe my live usage",
         "job": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
         "description": "Read my account's own usage day rows (stored bytes, work time, source bytes the engine counted) and keep each closed day as one usage observation per billed resource, ready to settle",
-        "input_schema": {"type": "object", "properties": {"request_key": {"type": "string"}, "payer_id": {"type": "string"}, "day_from": {"type": "string"}, "day_to": {"type": "string"}, "today": {"type": "string"}, "settlement_keys": {"type": "object"}, "included_units": {"type": "object"}}, "required": ["request_key", "payer_id", "day_from", "day_to", "today", "settlement_keys"], "additionalProperties": false},
-        "output_schema": {"type": "object", "properties": {"observation_refs": {"type": "object"}, "quantities": {"type": "object"}, "missing_days": {"type": "array"}}, "required": ["observation_refs", "quantities", "missing_days"]},
+        "input_schema": {
+          "type": "object",
+          "properties": {
+            "request_key": {
+              "type": "string"
+            },
+            "payer_id": {
+              "type": "string"
+            },
+            "day_from": {
+              "type": "string"
+            },
+            "day_to": {
+              "type": "string"
+            },
+            "today": {
+              "type": "string"
+            },
+            "settlement_keys": {
+              "type": "object"
+            },
+            "included_units": {
+              "type": "object"
+            }
+          },
+          "required": [
+            "request_key",
+            "payer_id",
+            "day_from",
+            "day_to",
+            "today",
+            "settlement_keys"
+          ],
+          "additionalProperties": false
+        },
+        "output_schema": {
+          "type": "object",
+          "properties": {
+            "observation_refs": {
+              "type": "object"
+            },
+            "quantities": {
+              "type": "object"
+            },
+            "missing_days": {
+              "type": "array"
+            }
+          },
+          "required": [
+            "observation_refs",
+            "quantities",
+            "missing_days"
+          ]
+        },
         "verify": [
           {
             "kind": "sample-run",
-            "input": {"request_key": "sample-usage-1", "payer_id": "payer:sample", "day_from": "2026-11-01", "day_to": "2026-11-02", "today": "2026-11-04", "settlement_keys": {"meter:stored-gigabytes": {"supplier_pool": "pool:sample", "tariff_version": "tariff:sample", "cost_class": "meter:stored-gigabytes", "invoice_period": "2026-11", "currency": "usd", "resource_id": "meter:stored-gigabytes"}, "meter:service-work": {"supplier_pool": "pool:sample", "tariff_version": "tariff:sample", "cost_class": "meter:service-work", "invoice_period": "2026-11", "currency": "usd", "resource_id": "meter:service-work"}, "resource:source-bytes": {"supplier_pool": "pool:sample", "tariff_version": "tariff:sample", "cost_class": "resource:source-bytes", "invoice_period": "2026-11", "currency": "usd", "resource_id": "resource:source-bytes"}}},
-            "doorOptions": {"usageDays": [
-              {"kind": "namespace-usage-day", "day": "2026-11-01", "stored_bytes": 2500000000, "stored_bytes_written": 2500000000, "source_bytes_read": 4096, "work_ms": 1200, "tool_runs": 3, "flushes": 4, "updated_at": "2026-11-01T23:55:00.000Z"},
-              {"kind": "namespace-usage-day", "day": "2026-11-02", "stored_bytes": 2500000000, "stored_bytes_written": 0, "source_bytes_read": 0, "work_ms": 0, "tool_runs": 0, "flushes": 1, "updated_at": "2026-11-02T00:05:00.000Z"},
-              {"kind": "namespace-usage-day", "day": "2026-11-03", "stored_bytes": 2600000000, "stored_bytes_written": 100000000, "source_bytes_read": 10, "work_ms": 5, "tool_runs": 1, "flushes": 1, "updated_at": "2026-11-03T12:00:00.000Z"}
-            ]}
+            "input": {
+              "request_key": "sample-usage-1",
+              "payer_id": "payer:sample",
+              "day_from": "2026-11-01",
+              "day_to": "2026-11-02",
+              "today": "2026-11-04",
+              "settlement_keys": {
+                "meter:stored-gigabytes": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample",
+                  "cost_class": "meter:stored-gigabytes",
+                  "invoice_period": "2026-11",
+                  "currency": "usd",
+                  "resource_id": "meter:stored-gigabytes"
+                },
+                "meter:service-work": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample",
+                  "cost_class": "meter:service-work",
+                  "invoice_period": "2026-11",
+                  "currency": "usd",
+                  "resource_id": "meter:service-work"
+                },
+                "resource:source-bytes": {
+                  "supplier_pool": "pool:sample",
+                  "tariff_version": "tariff:sample",
+                  "cost_class": "resource:source-bytes",
+                  "invoice_period": "2026-11",
+                  "currency": "usd",
+                  "resource_id": "resource:source-bytes"
+                }
+              }
+            },
+            "doorOptions": {
+              "usageDays": [
+                {
+                  "kind": "namespace-usage-day",
+                  "day": "2026-11-01",
+                  "stored_bytes": 2500000000,
+                  "stored_bytes_written": 2500000000,
+                  "source_bytes_read": 4096,
+                  "work_ms": 1200,
+                  "tool_runs": 3,
+                  "flushes": 4,
+                  "updated_at": "2026-11-01T23:55:00.000Z"
+                },
+                {
+                  "kind": "namespace-usage-day",
+                  "day": "2026-11-02",
+                  "stored_bytes": 2500000000,
+                  "stored_bytes_written": 0,
+                  "source_bytes_read": 0,
+                  "work_ms": 0,
+                  "tool_runs": 0,
+                  "flushes": 1,
+                  "updated_at": "2026-11-02T00:05:00.000Z"
+                },
+                {
+                  "kind": "namespace-usage-day",
+                  "day": "2026-11-03",
+                  "stored_bytes": 2600000000,
+                  "stored_bytes_written": 100000000,
+                  "source_bytes_read": 10,
+                  "work_ms": 5,
+                  "tool_runs": 1,
+                  "flushes": 1,
+                  "updated_at": "2026-11-03T12:00:00.000Z"
+                }
+              ]
+            }
           }
         ],
         "kind": "ai-tool-descriptor"
