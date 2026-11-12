@@ -591,3 +591,12 @@ test('several accounts on one computer each keep their own key: a Keychain entry
   assert.deepEqual(asked[2].args, ['delete-generic-password', '-a', 'trillion:acct_one', '-s', settings.keychain_item]);
   assert.ok(asked.every(call => !call.args.join(' ').includes(A)));
 });
+
+test('a refused engine call names the step that refused it: the message ends with the cause the engine answers', async () => {
+  const reply = { jsonrpc: '2.0', id: 1, result: { isError: true, content: [{ type: 'text', text: 'refused' }],
+    structuredContent: { code: 'original_workspace_source_unavailable', outcome: 'unknown', cause: 'src/x.rs:118:36:Error::Invalid#abc' } } };
+  const fetchImpl = async () => new Response(JSON.stringify(reply), { status: 200, headers: { 'content-type': 'application/json' } });
+  const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
+  await assert.rejects(client.op('@workshop-tools', 'tools:list', {}), error => error.code === 'original_workspace_source_unavailable'
+    && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.message));
+});

@@ -446,7 +446,9 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       // The engine names why in a code (structuredContent.code); its words say which door refused what.
       const code = answer?.code ?? error.code ?? null;
       const words = code ? rules.words.codes[code] ?? rules.words.refused_code : null;
-      throw Object.assign(new TrillionError(error.message ?? answer?.text ?? (words ? fill(words, { door: door.name, code, tool: args?.input?.tool ?? name }) : `${name} was refused.`), { answer }), { code });
+      // The engine names the step that refused in `cause` (file, line, and the error); the message names the door and the code.
+      const cause = typeof answer?.cause === 'string' ? ` Cause: ${answer.cause}` : '';
+      throw Object.assign(new TrillionError((error.message ?? answer?.text ?? (words ? fill(words, { door: door.name, code, tool: args?.input?.tool ?? name }) : `${name} was refused.`)) + cause, { answer }), { code });
     }
   }
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
