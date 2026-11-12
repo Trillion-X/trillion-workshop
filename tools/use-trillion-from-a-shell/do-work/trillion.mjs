@@ -127,7 +127,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
+const VALUE_FLAGS = new Set(['request-key', 'as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -532,6 +532,19 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
 /** One operation answered whole: `op` under one request key for the call and every page of its answer, and when the
  *  answer is a byte page, every page after it (wholeAnswer). */
 async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings } = {}) {
+  try {
+    return await opWholeOnce(client, address, method, input, { requestKey, rules });
+  } catch (error) {
+    // A call that times out may still have landed under this key: the same key answers it, so the way to ask again is the key.
+    if (error instanceof TrillionError && error.status === 4) {
+      const hint = fill(rules.words.retry_with_key, { key: requestKey, flag: '--request-key' });
+      throw Object.assign(new TrillionError(`${error.message} ${hint}`, { status: error.status }), { answer: error.answer, code: error.code });
+    }
+    throw error;
+  }
+}
+
+async function opWholeOnce(client, address, method, input, { requestKey, rules }) {
   // A write the engine keeps answers accepted and pending until its writer settles it: the same key then answers the outcome, or the
   // writer's refusal, which the call throws. The wait is the records client's (settled-write.mjs), so no write is reported as kept while pending.
   const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey }), requestKey, {
@@ -1093,11 +1106,11 @@ export async function main(argv, seams = {}) {
     const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));
     if (command === 'call') {
       const tool = need(words[0], 'Name the tool: trillion call TOOL JSON, with an id from trillion tools.');
-      return whole(await opWhole(client, engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }));
+      return whole(await opWhole(client, engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }, { requestKey: flags['request-key'] }));
     }
     const address = need(words[0], 'Name the address: trillion op ADDRESS METHOD JSON, for example trillion op @own-records records:read \'{"id":"..."}\'.');
     const method = need(words[1], 'Name the method: trillion op ADDRESS METHOD JSON.');
-    return whole(await opWhole(client, address, method, await readJson(words[2], '{"id": "..."}')));
+    return whole(await opWhole(client, address, method, await readJson(words[2], '{"id": "..."}'), { requestKey: flags['request-key'] }));
   }
   if (command === 'who') {
     const now = Date.now();

@@ -327,6 +327,7 @@
     "not_published": "This AI's record was not written: {why}",
     "not_finished": "Not finished after {seconds} seconds; read it later with trillion work {id}.",
     "refused_code": "{door} refused it ({code}).",
+    "retry_with_key": "Ask again with {flag} {key}: the same key answers the call that was sent first, so it is not run twice.",
     "write_pending": "The write to {method} was kept, but the person's records have not settled it yet. Read them again before answering again.",
     "codes": {
       "_what": "Plain words for the engine refusal codes a person meets most; any other code is said with refused_code.",
