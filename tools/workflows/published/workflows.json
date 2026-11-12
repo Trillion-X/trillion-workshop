@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "dc4ad0d5e4410ec07cdce838760933cb6634d7684aa5cec36c011d0d88fafaf3",
+  "blake3": "e6c382c40af8e450e0aa8c7515009db74e4bfe9b03d32220b5d3939cf9fd8238",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -1582,6 +1582,21 @@
     "recipe": "workflow:take-payments-with-stripe",
     "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Bottom of funnel. Live tools: set-up-stripe-payment-links, find-a-completed-stripe-checkout, stripe-events-read_money_since, start-a-stripe-checkout-that-pays-someone-else. Live route for a buyer is the payment link; start-a-stripe-checkout is live for in-app checkout. take-payments is not a live tool and is not named.\"}",
     "title": "Take payments with Stripe"
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"required\": [\"request\"], \"additionalProperties\": false, \"properties\": {\"request\": {\"type\": \"string\", \"minLength\": 1, \"pattern\": \"\\\\S\", \"maxLength\": 30000, \"description\": \"The person's words, as said. They may be vague: 'get my money in order' is enough.\"}, \"for_whom\": {\"type\": \"string\", \"minLength\": 1, \"description\": \"Record id of the household member whose money this is, for example record:household-member:<key>. Omit for the person themself.\"}, \"areas\": {\"type\": \"array\", \"maxItems\": 20, \"items\": {\"type\": \"string\", \"minLength\": 1}, \"description\": \"Kinds of money item to cover (the ids of the record:money-kind rows). Omit for every kind.\"}, \"cash_available_cents\": {\"type\": \"integer\", \"minimum\": 0, \"description\": \"Cash the person says can be used now, in cents. Omit when they did not say; the decision then records it as unknown.\"}}}",
+    "job": "Take a vague request about money (a bill past due, a debt, a refund owed, a subscription not used, money given or owed) and put the household's money in order without further instruction: find or open the pursuit, inventory every bill, debt, subscription, refund and transfer from the person's own sources, reconcile them against money that has moved, research each item's rules with sources, decide the order in a decision case, draft every message, file every movement for the person's approval, act only on approvals with readbacks, follow each item until a readback closes it, and repeat monthly. No provider, payee or rule is written in this workflow.",
+    "produces": "A pursuit with one area per kind of money, one leaf row per item with its source and status, a decision case for the order, a judged draft for every message, a Waiting-on-you row for every movement, a monthly summary, and a gap row for every step no tool does yet.",
+    "recipe": "workflow:put-a-households-money-in-order",
+    "source": "{\"from\": \"Built from Trillion's own parts: the business setup meta-workflow (parent plus steps with when, do, done_when, if_missing, good_answer, why), the follow-through and file-what-needs-the-person patterns, and the decision method.\", \"lessons\": [\"L078 research before the plan: each item's rules and routes are researched with sources (step research-each-item)\", \"L082 banana level: every step names its tool, its input and the readback that proves it\", \"BUDAG: no provider, payee, bank, person or rule is written in this workflow; kinds, rules and research questions are record:money-kind rows, and the items are the person's own rows\"], \"reuses\": [\"tool:search-everything-in-a-small-container\", \"tool:list-every-connection\", \"tool:list-connected-drives\", \"tool:google-account-find_my_mailbox\", \"tool:list-a-drive-folder\", \"tool:google-account-search_mail\", \"tool:google-account-read_mail_headers\", \"tool:google-account-read_a_mail\", \"tool:read-documents-as-list-rows\", \"tool:read-namespace-documents-as-list-rows\", \"tool:match-rows\", \"tool:reconcile-lines-against-a-statement\", \"tool:post-balanced-entries\", \"tool:set-fields-by-rules\", \"tool:search-the-public-web\", \"tool:read-public-web-page\", \"tool:start-a-decision\", \"tool:judge-against-rules\", \"tool:check-copy\", \"tool:google-account-create_draft\", \"tool:google-account-send_draft\", \"tool:send-a-message-on-this-mac\", \"tool:drive-the-screen\", \"workflow:file-what-needs-the-person\", \"tool:what-is-waiting-on-me\", \"tool:google-account-list_new_mail\"], \"gaps\": \"Each tool the workflow needs and the catalogue lacks is a record:workflow-gap row (see the gap ids named in the steps).\", \"note\": \"Synthetic-free by construction: the recipe contains no real data. Real items live only in the person's own records.\"}",
+    "title": "Put a household's money in order from a vague request",
+    "wakes": "[{\"id\": \"monthly-check\", \"on\": {\"time\": {\"from_ms\": 1796083200000, \"every_ms\": 2592000000}}, \"budget\": {\"steps\": 200, \"wall_ms\": 1800000}, \"input\": {\"start_at\": \"open-the-pursuit\", \"request\": \"Monthly check: run the money-in-order workflow again for the open money pursuit.\"}}]"
    }
   }
  ]

@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "a8e7f2109114b5a1b4b1c0132b030d3081eb8f165e8c2ef493a0ffd5a96cb7b8",
+  "blake3": "1fc4a202b497cf9e7c810f2d0daf1d420d0e55c0d35448a737de6cfd73c02aa2",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -14625,6 +14625,336 @@
     "title": "Record that buyer fit has no outside research",
     "when": "close-the-gaps has answered.",
     "why": "A buyer claim without research is a gap the checklist must show, not a result it can tick."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--open-the-pursuit",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "1) Read input.request as raw material, in the person's words. 2) Search for an existing pursuit with tool:search-everything-in-a-small-container, question = the key words of input.request plus 'money bills debts refunds subscriptions'. If an active pursuit already holds this money, use it and keep its id. 3) Otherwise write one record pursuit:<key> (key = a short slug of its title) with records:write: {kind:'pursuit', title (short, in the person's words), after (the result the person wants, in their words; write 'not stated' when they gave none, never invent one), now (what is known now), status:'active', parents:[], evidence:[{date, quote_or_fact, where}] with one entry per thing the person said, quoted exactly}. 4) Write calendar-task-list:<key> {title, color}. 5) Write the trunk calendar-task:<key>-trunk {collection_id, source_id: the pursuit id, priority:'high', status:'In progress', title, description:'Trunk for <pursuit id>. Branches are areas; leaves are items.'}. 6) For each area (default: bills-and-due-dates, debts, owed-to-me, subscriptions, cash-and-allocation, decisions; input.areas when given) write calendar-task:<key>-<area> with parent_id = the trunk id, collection_id, source_id = the pursuit id. 7) If input.for_whom is given, read it with records:read; it must have a consent row (record:consent:<same key>) in the person's own records that says this money may be handled. Without that row, stop here and submit consent_found false.",
+    "done_when": "records:read returns the pursuit, the list, the trunk and one branch per area, each equal to what was written; consent_found is true whenever for_whom was given.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: one pursuit whose evidence quotes the person; no goal, amount or date the person did not give. Fails: a guessed goal or a pursuit that names a payee the person did not mention.",
+    "if_missing": "Write nothing further. If a write fails, submit the failure text in the description of the trunk and stop; do not start step 1.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 0,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "open-the-pursuit",
+    "submit": "{\"type\": \"object\", \"required\": [\"pursuit_id\", \"task_list_id\", \"trunk_id\", \"branch_ids\", \"reused\", \"consent_found\"], \"properties\": {\"pursuit_id\": {\"type\": \"string\"}, \"task_list_id\": {\"type\": \"string\"}, \"trunk_id\": {\"type\": \"string\"}, \"branch_ids\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"reused\": {\"type\": \"boolean\"}, \"consent_found\": {\"type\": \"boolean\"}}}",
+    "title": "Open or find the pursuit, its task list, trunk and one branch per area",
+    "when": "The person's request is about money: bills, debts, refunds, subscriptions, or money given or owed. Run first.",
+    "why": "Every later row points at this pursuit, so the money is in one place the person can see, and every AI reads the same rows."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--connect-the-sources",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "Call tool:list-every-connection and tool:list-connected-drives. For each place the money is kept, write one record money-source:<key>-<n> with records:write: {kind (mail, drive-folder, statement-file, bank-or-card, ledger or other, using the connection's own name), connection_id, readable (true only when a readback in this step proved it), covers_from, covers_to}. For each Gmail connection call tool:google-account-find_my_mailbox and keep its address. For each folder the person names (or one they granted) call tool:list-a-drive-folder. For each kind of source a money item needs that no connection gives (bank or card transactions, statement files as text, a payment ledger), write a gap row record:workflow-gap:<tool wanted> (see the gap rows named in the other steps), then continue with what exists. Never ask the person for a credential: a sign-in only they can give is filed in step file-every-movement-for-approval.",
+    "done_when": "Every money-source row has readable set from a readback; missing_kinds lists each kind with no readable source.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: a source marked readable has a readback id. Fails: a source marked readable with no readback.",
+    "if_missing": "Submit readable_count 0 and the missing kinds, and continue to the approval step so the person can connect them.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 1,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "connect-the-sources",
+    "submit": "{\"type\": \"object\", \"required\": [\"sources\", \"readable_count\", \"missing_kinds\"], \"properties\": {\"sources\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"readable_count\": {\"type\": \"integer\", \"minimum\": 0}, \"missing_kinds\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+    "title": "List the places the money is kept and say which are readable",
+    "when": "The pursuit is open (step open-the-pursuit done).",
+    "why": "An inventory is only as complete as the sources it read; a missing source must be named, not assumed away."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--inventory-every-item",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "First read the kinds: records:list {type:'record:money-kind'}. For each readable source read the rows that show money. Mail: tool:google-account-search_mail once per term, terms = the words the person used plus bill, statement, invoice, receipt, past due, refund, reimbursement, cancel, subscription, renewal, overdraft, collection, payment plan, with after set to covers_from. Read each hit with tool:google-account-read_mail_headers and, when the body carries the amount or the date, tool:google-account-read_a_mail. Drive or statement files: tool:read-documents-as-list-rows or tool:read-namespace-documents-as-list-rows for markdown. A PDF or image with no text is not read: write gap record:workflow-gap:read-statement-files-as-text and continue. For every row that shows an amount the person owes, is owed, or pays on a schedule, write record:money-item:<key>-<n> with: kind (an id of a record:money-kind row), payee (exactly as the source names it), amount_cents (integer; null when the source gives none), currency (ISO code from the source; null when none), due_on (YYYY-MM-DD from the source; null when none), status (current, past-due, disputed, closed or unknown, only as the source states it), source_ref (the mail id or file row id), quote (the exact sentence that holds the amount or date), branch_id (the branch for its kind). Then write calendar-task:<key>-<n> with parent_id = branch_id, source_id = the item id, status 'To do', title '<kind>: <payee> <amount>', description = the quote. A field the source does not state stays null. Never infer, round or fill from memory.",
+    "done_when": "Every item id has a leaf row with the same source_id; every item has a source_ref and a quote.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every item cites a source_ref and a quote from it, and each amount in cents matches its quote. Fails: an amount no source states, or an item with no quote.",
+    "if_missing": "If no readable source holds a money row, submit an empty item_ids list and say which sources were read.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 2,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "inventory-every-item",
+    "submit": "{\"type\": \"object\", \"required\": [\"item_ids\", \"leaves_written\", \"unknown_fields\"], \"properties\": {\"item_ids\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"leaves_written\": {\"type\": \"integer\", \"minimum\": 0}, \"unknown_fields\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"item_id\": {\"type\": \"string\"}, \"field\": {\"type\": \"string\"}}}}}}",
+    "title": "Write one row for every bill, debt, subscription, refund or transfer the sources show",
+    "when": "Every readable source is listed (connect-the-sources done).",
+    "why": "Every decision and message below uses these rows, so one wrong number here is paid, disputed or chased in the real world."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--reconcile-against-cash",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "Call tool:match-rows between the open record:money-item rows and the money lines of the readable bank-or-card and ledger sources, by amount, date window and payee words; one pairing per line. For each statement with a closing balance, call tool:reconcile-lines-against-a-statement; any difference goes in words in its receipt. Set an item's status to closed only with the matching line id as readback evidence; an unmatched item keeps its status. Transfers into or out of the household are recorded once each with tool:post-balanced-entries: lines that add to zero, entry id = the source line id, so a repeat cannot post twice. Categorise with tool:set-fields-by-rules using the person's record:money-rule rows (read them first; with none, leave kind as written). A missing tool is a gap row record:workflow-gap:<tool wanted>, never a substitute.",
+    "done_when": "Every closed item names the line that closed it; every difference is written in words.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: each closed item names a line id. Fails: an item closed with no matching line.",
+    "if_missing": "Submit matched 0 and the unmatched count; leave every status as the source stated it.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 3,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "reconcile-against-cash",
+    "submit": "{\"type\": \"object\", \"required\": [\"matched\", \"unmatched\", \"differences\", \"entries_posted\"], \"properties\": {\"matched\": {\"type\": \"integer\", \"minimum\": 0}, \"unmatched\": {\"type\": \"integer\", \"minimum\": 0}, \"differences\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"statement_id\": {\"type\": \"string\"}, \"words\": {\"type\": \"string\"}}}}, \"entries_posted\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+    "title": "Match each item to money that has already moved, and record each transfer once",
+    "when": "Items are written (inventory-every-item done).",
+    "why": "A paid bill must stop being chased, and an unpaid one must never be assumed paid."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--research-each-item",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "For each open item (status past-due, disputed, unknown, or owed-to-me), read its kind's research_questions from its record:money-kind row (records:read). For each question, search with tool:search-the-public-web, phrased with the payee's words and the place from the item's own quote, then open the best one to three results with tool:read-public-web-page. Write one record:money-research:<item key>-<n> per finding: {item_id, question, url, retrieved_on (today's date), quote (exact words), what_it_changes (one line for decide-the-order, or 'nothing')}. Look for: the rule itself, the route the payee or agency publishes for a hardship plan, a dispute, a refund or a cancellation, the time limit, and the mistake people commonly make. A source that needs a sign-in is not read: say so in a finding with what_it_changes 'needs the person', and write a gap row record:workflow-gap:read-a-sign-in-only-page if no tool reads it. A finding with no url or no quote is not written.",
+    "done_when": "Every finding has a url, a retrieved_on date and a quote; every open item is either in a finding or listed in items_without_finding with the reason.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every finding has a url, a date and a quote. Fails: a rule stated with no source.",
+    "if_missing": "Submit no findings and list every open item in items_without_finding with the reason the search failed.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 4,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "research-each-item",
+    "submit": "{\"type\": \"object\", \"required\": [\"findings\", \"items_without_finding\"], \"properties\": {\"findings\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"items_without_finding\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+    "title": "Research the rules and routes for each open item, with sources",
+    "when": "Items are reconciled (reconcile-against-cash done).",
+    "why": "A deadline or a refund right is a fact about the world, not a guess. The order decided next uses these facts (L078: find the best route and what the common route gets wrong)."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--decide-the-order",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "Call tool:start-a-decision once. decided: 'the order to pay, dispute, request or cancel the open items in <pursuit id>'. facts: every open record:money-item (amount_cents, currency, due_on, status, quote), every record:money-research finding (its quote and what_it_changes), and the cash the person gave (input.cash_available_cents; when absent write 'unknown', never a guessed figure), and the pursuit's after line. constraints: the minimum balance the person wrote in the pursuit (or 'unknown'), each due date, and each payee's stated limits from its finding. options: each reasonable order, and for each item each action (pay in full, pay part, ask for a plan, dispute, cancel, ask for a refund), one option each. Set source_id = calendar-task:<key>-research-priority. Write the decision case id into the trunk's description. The decision case records the order; the person approves it there, and nothing moves money in this step.",
+    "done_when": "The decision case exists, holds every open item as a fact, and holds no amount the sources did not state.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every fact in the case has a row id. Fails: an option that moves money with no approval step.",
+    "if_missing": "If the decision cannot start, submit the failure and stop; the approval step then files the decision as a gap.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 5,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "decide-the-order",
+    "submit": "{\"type\": \"object\", \"required\": [\"decision_case_id\", \"source_id\", \"options\", \"cash_known\"], \"properties\": {\"decision_case_id\": {\"type\": \"string\"}, \"source_id\": {\"type\": \"string\"}, \"options\": {\"type\": \"integer\", \"minimum\": 1}, \"cash_known\": {\"type\": \"boolean\"}}}",
+    "title": "Start one decision case for the order of every open item",
+    "when": "Findings are written (research-each-item done).",
+    "why": "The order is a trade-off that depends on the person's own limits; a decision case keeps that choice visible and approvable."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--draft-every-message",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "For each item whose action needs a message (a payment-plan or hardship request, a dispute, a refund request, a cancellation request, a question about a balance), write the message as a draft. Its facts come only from the item row, its findings and the person's own contact row (records:list {type:'record:person-contact'}); never type a name, address or number yourself. Read the person's message rules (records:list {type:'record:message-rule'}); with none, judge with the claims alone. Judge each draft with tool:judge-against-rules and run tool:check-copy on it; rewrite until both pass. Save a mail draft with tool:google-account-create_draft (reply to the thread when the item came from one). Write record:money-draft:<item key> {item_id, channel ('mail' or 'messages-on-this-mac'), draft_id, judged: true, action}. Nothing is sent in this step.",
+    "done_when": "Every amount and date in every draft equals its item row; every draft has judged true.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every figure in a draft equals its item row. Fails: a reason, a promise or a sum with no row behind it.",
+    "if_missing": "Submit an empty drafts list and name the item that needed a draft and had no contact row.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 6,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "draft-every-message",
+    "submit": "{\"type\": \"object\", \"required\": [\"drafts\"], \"properties\": {\"drafts\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"item_id\": {\"type\": \"string\"}, \"draft_id\": {\"type\": \"string\"}, \"action\": {\"type\": \"string\"}, \"judged\": {\"type\": \"boolean\"}}}}}}",
+    "title": "Draft every message, request and dispute, judged and unsent",
+    "when": "The decision case exists (decide-the-order done).",
+    "why": "A message with a wrong amount, or a promise the person did not decide, costs money."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--file-every-movement-for-approval",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "Every action that moves money, cancels a service or sends a message is one row on the person's Waiting-on-you list, and no such action is done in this step. Run workflow:file-what-needs-the-person with one step per action: the payee words from the item, amount_cents, due_on, the draft id or the decision case id, and the reason it needs the person. Also file each last-resort step: a sign-in only the person can give, a consent, or a call only they can make, each with what was tried. Then call tool:what-is-waiting-on-me and confirm every filed row is listed.",
+    "done_when": "what-is-waiting-on-me lists every filed row with its amount and reason.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every money movement and every send has a waiting row with amount and reason. Fails: a movement with no approval row.",
+    "if_missing": "Submit filed [] and waiting_readback false, and stop; nothing is acted on without a filed row.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 7,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "file-every-movement-for-approval",
+    "submit": "{\"type\": \"object\", \"required\": [\"filed\", \"waiting_readback\"], \"properties\": {\"filed\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"waiting_readback\": {\"type\": \"boolean\"}}}",
+    "title": "Put every payment, cancellation, send and missing sign-in on the person's Waiting-on-you list",
+    "when": "Drafts and the decision case exist (draft-every-message done).",
+    "why": "The person approves money and sends; the AI prepares them. The waiting row is the only approval."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--act-on-approved-rows",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "For each waiting row, read it back with records:read immediately before acting; act only when approved is true. A message draft: tool:google-account-send_draft with its draft id (sending consumes the draft, so it cannot repeat), or tool:send-a-message-on-this-mac for a text draft. A payment or a cancellation: tool:drive-the-screen on the payee's own page, one action per approval, saving the screen readback. An action with no tool is a gap row record:workflow-gap:<action wanted> and that row stays waiting. Write the result on the item only when the result says so: status 'sent' or 'paid' with the message id, confirmation or balance readback id. Never retry a movement before reading its result.",
+    "done_when": "Every acted item has a readback_id; every row not approved is in still_waiting.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every acted item has a readback id. Fails: a status changed with no readback.",
+    "if_missing": "Submit acted [] and every waiting row in still_waiting.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 8,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "act-on-approved-rows",
+    "submit": "{\"type\": \"object\", \"required\": [\"acted\", \"still_waiting\"], \"properties\": {\"acted\": {\"type\": \"array\", \"items\": {\"type\": \"object\", \"properties\": {\"item_id\": {\"type\": \"string\"}, \"action\": {\"type\": \"string\"}, \"readback_id\": {\"type\": \"string\"}}}}, \"still_waiting\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+    "title": "Do only the actions the person has approved, and record each readback",
+    "when": "A waiting row has been approved by the person (its approved flag is true when read back).",
+    "why": "A payment that happened without a readback is a claim, not a result."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--follow-up-until-closed",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "For each item not closed, read new mail with tool:google-account-list_new_mail since its last check, and the readbacks from reconcile-against-cash for its payee's lines. A reply that asks for something is filed as a new approval row in file-every-movement-for-approval, never sent here. An item is closed only when a readback shows it: a matching line, a confirmation id, or the payee's written end of the balance. Write record:money-check:<item key>-<n> {item_id, checked_on (today), readback_id or 'nothing new', next_check_on (the due_on, or 7 days after today when none)}, and set the leaf's status to 'Done' only with a closing readback.",
+    "done_when": "Every closed item has a readback id on its check row.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: every closed item has a readback id. Fails: an item closed because time passed.",
+    "if_missing": "Submit closed [] and every item in open.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 9,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "follow-up-until-closed",
+    "submit": "{\"type\": \"object\", \"required\": [\"closed\", \"open\"], \"properties\": {\"closed\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"open\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+    "title": "Check each open item until a readback closes it",
+    "when": "Actions have been taken or are waiting (act-on-approved-rows done).",
+    "why": "A bill is closed when the money has moved or the payee confirms, not when someone stops looking."
+   }
+  },
+  {
+   "id": "put-a-households-money-in-order--repeat-monthly",
+   "values": {
+    "came_from": [
+     "L078",
+     "L082",
+     "BUDAG"
+    ],
+    "checks": "[]",
+    "do": "Re-run the steps in order for the same pursuit, with the sources read from each source's covers_to to today. New items become new leaves under their area; closed items are kept as they are. Then write record:money-month:<key>-<yyyy-mm> {open_total_cents (the sum of open item amounts), past_due_total_cents, cash_in_cents and cash_out_cents (from readback lines), decisions_waiting (ids)}. Every total is a sum computed from the item rows, never typed. For another household member, run the same steps with for_whom set, only with that member's consent row present.",
+    "done_when": "The summary's totals equal the sums of its item rows.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: each total equals the sum of its rows. Fails: a total typed by hand.",
+    "if_missing": "Write the summary with the totals it can compute and list each total it could not compute in decisions_waiting.",
+    "part_of": [
+     "workflow:put-a-households-money-in-order"
+    ],
+    "position": 10,
+    "recipe": [
+     "put-a-households-money-in-order"
+    ],
+    "step": "repeat-monthly",
+    "submit": "{\"type\": \"object\", \"required\": [\"month\", \"open_total_cents\", \"past_due_total_cents\", \"decisions_waiting\"], \"properties\": {\"month\": {\"type\": \"string\", \"pattern\": \"^[0-9]{4}-[0-9]{2}$\"}, \"open_total_cents\": {\"type\": \"integer\"}, \"past_due_total_cents\": {\"type\": \"integer\"}, \"decisions_waiting\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
+    "title": "Repeat the whole run each month and write one summary row",
+    "when": "A month has passed since the last summary for this pursuit, or the monthly wake fired.",
+    "why": "Money changes every month; the same tree serves the next household member without a new design."
    }
   }
  ]
