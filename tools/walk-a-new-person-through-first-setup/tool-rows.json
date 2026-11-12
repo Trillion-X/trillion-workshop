@@ -214,6 +214,24 @@
         "at": "/opt/node_modules/@noble/hashes"
        },
        {
+        "module": "tldts",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist/cjs"
+        ],
+        "at": "/opt/node_modules/tldts"
+       },
+       {
+        "module": "tldts-core",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/tldts-core"
+       },
+       {
         "module": "uqr",
         "paths": [
          "LICENSE",
@@ -265,6 +283,298 @@
       },
       "output_selector": "$.result.schema",
       "contains": "trillion.setup-plan/v1"
+     }
+    ]
+   }
+  },
+  {
+   "id": "package::walk-a-new-person-through-first-setup::tool::walk-a-new-person-through-first-setup",
+   "address": "package::walk-a-new-person-through-first-setup::tool::walk-a-new-person-through-first-setup",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:start-or-resume-the-first-setup",
+    "label": "Start or resume the first setup",
+    "status": "active",
+    "job": "Say what starting or resuming a new person's first setup does next: the ordered owner calls, each with the read-back to make after it",
+    "description": "Given the account's saved setup run, its access prerequisites and the Workshop tool ids the caller found, return what starting or resuming the setup does, as an ordered list of steps. Each step names its owner tool and the call the caller makes; a step whose owner is not in available_tools is marked unavailable and is never called. Each called step carries a read_back (tool:read-setup) to run after it; done_steps are the steps already read back. A stopped setup is not restarted unless restart is true; a failed or stuck run resumes with its run_id; a finished run has no steps. Writes nothing: the caller runs the calls. Port of old trillion setup-runtime ensure().",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "account_id",
+      "available_tools",
+      "runtime"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "account_id": {
+       "type": "string",
+       "description": "The account whose setup this is"
+      },
+      "available_tools": {
+       "type": "array",
+       "items": {
+        "type": "string"
+       },
+       "description": "The Workshop tool ids the caller found in the catalogue"
+      },
+      "runtime": {
+       "type": "object",
+       "description": "The saved setup run: { workflow: { exists, state, run_id? } }"
+      },
+      "prerequisites": {
+       "type": "object",
+       "description": "The account's access prerequisites; setup_paused true stops the setup"
+      },
+      "done_steps": {
+       "type": "array",
+       "items": {
+        "type": "string",
+        "enum": [
+         "defaults",
+         "event_intake",
+         "workflow",
+         "timed_work"
+        ]
+       },
+       "description": "Steps already called and read back"
+      },
+      "restart": {
+       "type": "boolean",
+       "description": "true starts a setup the person paused"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "schema",
+        "action",
+        "steps",
+        "next",
+        "wrote"
+       ],
+       "properties": {
+        "schema": {
+         "const": "trillion.setup-start/v1"
+        },
+        "action": {
+         "enum": [
+          "start",
+          "resume",
+          "stopped",
+          "finished"
+         ]
+        },
+        "steps": {
+         "type": "array"
+        },
+        "next": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "wrote": {
+         "const": false
+        }
+       }
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "walk-a-new-person-through-first-setup",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/walk-a-new-person-through-first-setup"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/server-instruction-paragraphs.mjs",
+         "src/renamed-tools.mjs",
+         "src/agent-delivery.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "harness/setup.json",
+         "src/renamed-tools.json",
+         "src/server-instructions.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "see-a-pursuit-through-the-lens",
+        "paths": [
+         "src/pursuit-lens.mjs"
+        ],
+        "at": "/opt/see-a-pursuit-through-the-lens"
+       },
+       {
+        "package": "start-from-any-landing-page",
+        "paths": [
+         "src/entry-points.json",
+         "src/entry-points.mjs",
+         "src/sign-in-email.json",
+         "src/sign-in-email.mjs",
+         "src/sign-in-phone.mjs",
+         "src/worker-secrets.json",
+         "src/worker-secrets.mjs"
+        ],
+        "at": "/opt/start-from-any-landing-page"
+       },
+       {
+        "package": "set-up-my-devices-and-cameras",
+        "paths": [
+         "src/devices.json",
+         "src/devices.mjs",
+         "src/device-distribution.mjs"
+        ],
+        "at": "/opt/set-up-my-devices-and-cameras"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/site-icon-url.mjs",
+         "read-data/conflicts.mjs"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "pick-where-one-piece-of-work-runs-the-device",
+        "paths": [
+         "records/workshop-placement-records.json"
+        ],
+        "at": "/opt/pick-where-one-piece-of-work-runs-the-device"
+       },
+       {
+        "package": "hand-off-jobs-between-agents",
+        "paths": [
+         "src/agent-tool-runs.mjs"
+        ],
+        "at": "/opt/hand-off-jobs-between-agents"
+       },
+       {
+        "package": "http-client",
+        "paths": [
+         "do-work/same-origin.mjs"
+        ],
+        "at": "/opt/http-client"
+       },
+       {
+        "package": "refuse-requests-to-private-addresses",
+        "paths": [
+         "public-address.mjs",
+         "public-address.json"
+        ],
+        "at": "/opt/refuse-requests-to-private-addresses"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "module": "tldts",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist/cjs"
+        ],
+        "at": "/opt/node_modules/tldts"
+       },
+       {
+        "module": "tldts-core",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/tldts-core"
+       },
+       {
+        "module": "uqr",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist/index.mjs"
+        ],
+        "at": "/opt/node_modules/uqr"
+       }
+      ]
+     },
+     "workdir": "/opt/walk-a-new-person-through-first-setup",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/walk-a-new-person-through-first-setup/do-work/start-or-resume-the-first-setup.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:walk-a-new-person-through-first-setup",
+    "provenance": {
+     "source": "trillion src/setup-runtime.mjs ensure() at tag old-trillion-before-worker-retire (b6ae0ebf81), ported as the order and refusal rules only; its write path (prepare, start, resume the workflow run) is the caller's, through the owner tools listed in each step"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "account_id": "acct-sample",
+       "available_tools": [
+        "tool:give-every-account-ready-made-workflows-and-defaults",
+        "tool:start-a-recipe-run"
+       ],
+       "runtime": {
+        "workflow": {
+         "exists": false,
+         "state": "not_started"
+        }
+       }
+      },
+      "output_selector": "$.result.schema",
+      "contains": "trillion.setup-start/v1"
      }
     ]
    }

@@ -1091,6 +1091,24 @@
       "distinct_from": [{"job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "that folder keeps the device facts a checklist reads; this one plans the setup run and the installs"}]
     },
     {
+      "capability": "start or resume a new person's first setup run: the ordered owner calls, each with the read-back to make after it, and nothing written",
+      "owner": [
+        "tools/walk-a-new-person-through-first-setup/"
+      ],
+      "entry": "tools/walk-a-new-person-through-first-setup/tool-rows.json",
+      "evidence": "old trillion src/setup-runtime.mjs ensure() at b6ae0ebf81 (the order defaults, event intake, workflow, timed work; a stopped setup is not restarted; a stuck or failed run resumes); ported as the decision only, tests in test/start-or-resume-the-first-setup.test.mjs; row tool:start-or-resume-the-first-setup",
+      "distinct_from": [
+        {
+          "job": "walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
+          "why": "that plans what the setup shows and installs from what the caller hands in; this says which owner calls start or resume the saved run, in order, with the read-back after each"
+        },
+        {
+          "job": "cover a person's workspace until every required setup step is done, then hold the one must-do row that unblocks the most until it is done, set aside with a reason or handed back to their AIs",
+          "why": "that holds the setup steps until done; this only orders the owner calls that start or resume the run"
+        }
+      ]
+    },
+    {
       "capability": "say the timed calendar item now or next as a countdown line for the Mac menu bar",
       "owner": [
         "tools/name-my-next-commitment/"

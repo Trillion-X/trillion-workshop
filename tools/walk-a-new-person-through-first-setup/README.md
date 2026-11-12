@@ -16,7 +16,7 @@ Ported from old trillion `src/setup-plan.mjs` and `src/setup-installs.mjs` at ta
 
 ## Gap
 
-`start_setup` is the write path that starts or resumes the saved run. It is not ported, so a plan whose `next_call` is `start_setup` names a call this Workshop does not run yet. Porting it needs `src/setup-runtime.mjs`, which waits on `src/work-results.mjs` and on the shared workflow runtime. The plan's own words still say `start_setup` and `read_setup` (the old MCP names) until that port names the Workshop tool id.
+`start_setup` is the write path that starts or resumes the saved run. Its decision is now `tool:start-or-resume-the-first-setup` (`do-work/start-or-resume-the-first-setup.mjs`): it returns the ordered owner calls, each with a read-back, and writes nothing. The runner that makes those calls is the caller's, so the old `src/setup-runtime.mjs` stays held. The plan's own words still say `start_setup` and `read_setup` (the old MCP names) until the plan names the Workshop tool ids.
 
 ## Files
 
@@ -26,7 +26,9 @@ Ported from old trillion `src/setup-plan.mjs` and `src/setup-installs.mjs` at ta
 | `do-work/setup-plan.mjs` | `setupPlan({ runtime, known, prerequisites, native, origin, view, lens })`: the plan. |
 | `do-work/setup-installs.mjs` | `setupInstalls(origin, native)`: the device apps step and the harness setup (download, inspect, apply, remove per supported host, MCP registration preview). |
 | `read-data/setup-policy.json` | The setup policy (goal, principles, workflow steps). |
-| `tool-rows.json` | The Workshop row Trillion reads for this folder. |
+| `do-work/start-or-resume-the-first-setup.mjs` | `tool:start-or-resume-the-first-setup`: the ordered owner calls for starting or resuming the saved run, each with its read-back. |
+| `tool-rows.json` | The Workshop rows Trillion reads for this folder. |
+| `test/start-or-resume-the-first-setup.test.mjs` | Tests for the start or resume plan: fresh, unavailable owners, done steps, stopped, stuck resume, finished and refusals. |
 | `test/walk-a-new-person-through-first-setup.test.mjs` | Tests for the plan: state and full views, http and https origins, the lens, the stopped setup, entry points and refusals. |
 | `part.json` | The two modules a caller may import. |
 | `from-old-trillion/` | The held files not yet ported, with their receipt. |
