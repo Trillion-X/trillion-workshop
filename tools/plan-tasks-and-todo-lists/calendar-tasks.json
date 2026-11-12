@@ -40,7 +40,7 @@
       { "id": "source_id", "label": "Source ID", "kind": "text", "hidden_by_default": true },
       { "id": "source_url", "label": "Source URL", "kind": "text", "hidden_by_default": true },
       { "id": "manual_order", "label": "Manual order", "kind": "text", "hidden_by_default": true, "editable": false },
-      { "id": "status", "label": "Status", "kind": "choice", "hidden_by_default": true, "choices": ["To do", "Done"], "starts": "To do", "settles": ["Done"] }
+      { "id": "status", "label": "Status", "kind": "choice", "hidden_by_default": true, "choices": ["To do", "Done"], "starts": "To do", "settles": ["Done"], "needs_linked_records_to_set": { "values": ["Done"], "links_in": "description", "pattern": "\\bai-job:([A-Za-z0-9][A-Za-z0-9._-]*)", "kind": "ai-job", "id_prefix": "ai-job:", "require": { "field": "status", "equals": "done", "non_empty": "result" } } }
     ],
     "indexes": [{ "name": "manual_order", "fields": ["manual_order"] }],
     "ordering": { "index": "manual_order" }
