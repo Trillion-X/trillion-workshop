@@ -304,9 +304,11 @@ export function joinDecision(id, root, get, steps = []) {
   return decision;
 }
 export async function readDecision(door, id, steps = []) {
+  // The revision is read before the root: a commit between the two reads then leaves a revision older than the root,
+  // which the write made from this read refuses, never a stale root under a newer revision it would be accepted against.
+  const revision = await readRevision(door, id);
   const root = await door.read('decision', id);
   if (!root) return null;
-  const revision = await readRevision(door, id);
   const decision = await settled(door, get => joinDecision(id, root, get, steps));
   markRead(decision, revision);
   return decision;

@@ -1395,3 +1395,24 @@ test('a child offered its parent\'s scope takes it with from, and the next quest
   const after = await nextDecisionQuestion({ decision_id: child }, { door });
   assert.notEqual(after.question?.step_id, 'scope', 'an inherited scope is not asked again');
 });
+
+test('a scope answer committed between a writer reading the case root and its revision is not lost: the revision is read before the root', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const read = door.read.bind(door);
+  // The writer's two reads of the case, in whichever order it makes them; a scope answer commits before the second one.
+  let racing = true, seen = 0, raced = false;
+  door.read = async (type, key) => {
+    const watched = racing && (key === id || key === `decision-revision:${id}`);
+    if (watched && ++seen === 2 && !raced) {
+      raced = true;
+      racing = false;
+      await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+    }
+    return read(type, key);
+  };
+  await addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e5', claim: 'A fact that came in late' }] }, { door });
+  assert.equal(raced, true, 'the scope answer committed between the two reads');
+  assert.deepEqual(door.value(id).counts.answered_steps, 1, 'the committed scope answer is still counted by the case');
+  assert.equal(door.value(`decision-answered-step:${id}:000`).step_id, 'scope', 'the scope answer summary is kept beside the root');
+});
