@@ -137,7 +137,7 @@ function madeUpSkill(bytes) {
   return text;
 }
 
-for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024]]) {
+for (const [label, bytes] of [['31 KB', 31 * 1024], ['120 KB', 120 * 1024], ['4 MiB less 4 KiB', 4 * 1024 * 1024 - 4096]]) {
   test(`tool:split-a-document-into-pieces keeps every piece of a whole ${label} file, read by name, in one call`, { timeout: 120_000 }, async t => {
     const text = madeUpSkill(bytes);
     const name = '/Skills/made-up/SKILL.md';

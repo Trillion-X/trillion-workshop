@@ -1747,7 +1747,8 @@
     "needs": {
      "expected_seconds": 30,
      "network_egress": false,
-     "memory_mb": 128
+     "memory_mb": 384,
+     "_what": "memory_mb is the run's peak resident memory at its largest declared input, a file of 4 MiB less 4 KiB (the most the row reads: 4,194,304 bytes), measured by at-the-size-of-a-real-list.test.mjs: 299 and 316 MB on two runs under the test's heap cap (memory_mb less 80 = 304 MB), and 370 MB with no heap cap. The row declared 128, which the largest input exceeds: its heap ran out at 48 MB and never finished. 384 is the measured peak rounded up to the next 128 MB, the step these rows declare in. The engine enforces a run's memory as its physical footprint (src/tool_runs/os.rs group_footprint, against invoke.max_memory_bytes), so this figure is the resident size, not the heap."
     },
     "licence_class": "licence:maker-own",
     "placements": [
