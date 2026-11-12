@@ -1906,7 +1906,15 @@
        }
       }
      ],
-     "timeout_ms": 15000
+     "timeout_ms": 15000,
+     "account_label_from": [
+      {
+       "from": "body",
+       "path": [
+        "emailAddress"
+       ]
+      }
+     ]
     },
     "acquire": {
      "flow": "oauth2_auth_code",
@@ -1928,6 +1936,7 @@
       "prompt": "consent",
       "include_granted_scopes": "true"
      },
+     "account_hint_param": "login_hint",
      "redirect": {
       "transport": "hosted",
       "path": "/connect/callback"
@@ -2703,6 +2712,7 @@
       "prompt": "consent",
       "include_granted_scopes": "true"
      },
+     "account_hint_param": "login_hint",
      "redirect": {
       "transport": "hosted",
       "path": "/connect/callback"

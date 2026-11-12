@@ -1,0 +1,70 @@
+{
+ "schema": "reference-adaptation-contract/reference-grounded-adaptation",
+ "id": "REF-CONNECT-AN-ACCOUNT-BY-SIGNING-IN-TO-THE-SERVICE",
+ "status": "BASELINED",
+ "directive": {
+  "thread_id": "connect lane, ai-command-center, 2026-11-12",
+  "message_multihash": "1f:bbac5060e0a8ad431c6b78190c70888e619c9a97cf41f329218aec352ee5411d",
+  "quote": "Port handleConnectStart (PKCE S256, state stored, 302 to provider) and handleConnectCallback (code exchange, token kept) one to one; all connected-services work lives in Workshop tools, used through the door."
+ },
+ "mode": "SOURCE_FIRST_PORT",
+ "sources": [
+  {
+   "repository": "trillion",
+   "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+   "path_multihash": "1f:50fc8559e45ba785375f976485147ef600950cd87bb45da9ea39324eda65e89e",
+   "lines": [
+    473,
+    484
+   ],
+   "multihash": "1f:0afc19e7aea8150e73f0006c2504dc9ba03edbc96f3fad8f14c0589b4afab51e",
+   "ownership": "repository-owned",
+   "old_copy": {
+    "deleted_by": "2026-11-04T02:02:57Z",
+    "deleted_with": "old trillion retired the Worker after tag old-trillion-before-worker-retire: the file is no longer on its main line"
+   }
+  }
+ ],
+ "targets": [
+  {
+   "path": "tools/connect-a-service-and-seal-its-key/do-work/connect-by-signing-in.mjs",
+   "baseline_commit_message": "Byte copy of the old sign-in start (src/connect.mjs lines 473-484) and the token requests a sign-in callback makes"
+  }
+ ],
+ "preserve": [
+  "the start makes a random state and, when the service asks for PKCE, a verifier whose S256 challenge goes to the service; the verifier waits with the state for the callback",
+  "the sign-in address is the descriptor's authorize_url with client_id, redirect_uri, response_type code, the descriptor's scopes joined by its scope_separator, the state, the challenge and the descriptor's auth_params",
+  "the client id is the sign-in app's id as the account holds it in the open, never a vault value",
+  "the callback finds the saved state by its digest and removes it before anything else, so a state is used once; an unknown or expired state, a service error, a missing code or a service that no longer matches answers that nothing was saved",
+  "the code is traded for the tokens with the sign-in app's id and secret placed only as the request leaves, and the tokens are kept sealed, never shown"
+ ],
+ "allowed_deltas": [
+  "the request comes as the @workshop-routes input { path, method, query, account_id } and the answer is { status, body }; the engine lets no route tool answer a redirect (trillion-rust src/server/tool_http_response.rs), so the start answers the sign-in address for the page or AI to open",
+  "the state waits as a service-connection-pending record of the person (its id the state digest, with an expiry), not in the Worker KV",
+  "the code exchange and every following exchange are the http rows of this folder, which keep the tokens in the vault as the new connection's fields (reply_holds_values), not the old store box",
+  "the connection is one service-connection row of list:service-connections written once with the starting values the start was given",
+  "a reconnect is a new sign-in and a new row; the old row is retired by its Status"
+ ],
+ "banned_substitutions": [
+  "a token, code verifier or client secret in a run answer, a log line or a record other than the pending one",
+  "a second copy of the service descriptors",
+  "a service named in code"
+ ],
+ "baseline": {
+  "copied_before_adaptation": true,
+  "source_multihash": "1f:0afc19e7aea8150e73f0006c2504dc9ba03edbc96f3fad8f14c0589b4afab51e",
+  "target_multihash_at_baseline": "1f:0afc19e7aea8150e73f0006c2504dc9ba03edbc96f3fad8f14c0589b4afab51e",
+  "recorded_at": "2026-11-12T00:00:00Z"
+ },
+ "proof": {
+  "minimum_meaningful_line_retention": 0.6,
+  "required_mechanisms": [
+   "base64url(crypto.getRandomValues(new Uint8Array(32)))",
+   "code_challenge_method: 'S256'",
+   "address.searchParams.set(key, value)"
+  ],
+  "test_refs": [
+   "tools/connect-a-service-and-seal-its-key/test/connect-by-signing-in.test.mjs"
+  ]
+ }
+}

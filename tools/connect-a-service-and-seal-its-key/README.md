@@ -7,6 +7,7 @@ Every service a person can connect to Trillion as DATA (one descriptor per servi
 | Tool | What it does | Runs |
 |------|--------------|------|
 | `tool:list-every-connection` | The one Connections list: every service in `records.json` (how it connects: key, sign-in, or carried by the person's computer, with its steps) and every place on the person's computer in `tools/bring-in-new-items-from-this-computer/computer/computer-sources.json` (what it arrives as, its switch), in one set of category words (`do-work/connection-categories.json`), sorted by category; given `tool:look-for-the-places-on-this-computer`'s answer, each place says whether it is there | in a small container, no internet |
+| `tool:trade-a-gmail-sign-in-code-for-its-tokens`, `tool:trade-a-youtube-sign-in-code-for-its-tokens`, `tool:trade-an-instagram-sign-in-code-for-its-short-token`, `tool:trade-a-short-instagram-token-for-a-long-one` | The token requests a sign-in callback makes, one per step of a descriptor's `acquire` (its `token_url`, then each `then`): the sign-in app's id and secret are placed from the vault only as the request leaves (`{{name}}` placeholders bound to the token host), and the reply's tokens are kept in the vault as the new connection's own fields (`reply_holds_values`), so no token is ever in a run's answer | http, to the service's token host |
 
 ## Files
 
@@ -15,7 +16,9 @@ Every service a person can connect to Trillion as DATA (one descriptor per servi
 | `records.json` | `{ package, things: [...] }`: one published record per service (`package::service-connections::published-record::<vendor>`) whose `payload` names the service, its capabilities, `credentialFields`, `helperLinks` (each `{ id, label, url, description?, tone? }`: a button on Connections, `tone` its look such as `primary`, a `description` a step above it), `domain`, `category`, `verifyRequest`, an `acquire` flow when it signs in by its own flow, `carriedBy` when only the person's own computer can reach it, and `sendsFrom` when the service refuses requests from servers' addresses. `scripts/workshop-rows.mjs` turns each into a Workshop connect row through the row source `source:service-connection-descriptors` in `records/workshop-tool-records.json`. |
 | `do-work/list-every-connection.mjs` | The run of `tool:list-every-connection`: reads both owners' rows as they are, names no service or place. |
 | `do-work/connection-categories.json` | Which service category is which list category (`Messaging` is `Messages`...), so both kinds group together. |
-| `tool-rows.json` | That row. |
+| `tool-rows.json` | The rows above. |
+| `do-work/connect-by-signing-in.mjs` | The byte copy of the old sign-in start (trillion `src/connect.mjs` lines 473-484 at tag old-trillion-before-worker-retire), the first commit of its port. |
+| `ports/connect-by-signing-in.json` | The port contract of `do-work/connect-by-signing-in.mjs`. |
 | `test/list-every-connection.test.mjs` | Made-up rows of both owners, and the row run over the real ones. |
 | `work-contract.json` | The owner record work contract the readers interpret: record kinds, columns, facts, actions and secrets. |
 | `part.json` | The files other parts and `src/` may import (`public`). |
