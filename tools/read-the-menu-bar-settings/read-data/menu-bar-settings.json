@@ -1,0 +1,73 @@
+{
+ "_what": "The Mac menu bar item settings that tool:read-the-menu-bar-settings answers: each row is a switch, choice or range with its defaults key and default. Copied from trillion-apps macos/App/menu-bar-panel.json settings.rows at HEAD; this file is now the one source of these rows.",
+ "rows": [
+  {
+   "id": "enabled",
+   "kind": "switch",
+   "defaults_key": "TrillionMenuBarEnabled",
+   "default": true
+  },
+  {
+   "id": "meetings_within",
+   "kind": "choice",
+   "defaults_key": "TrillionMenuBarMeetingsWithinHours",
+   "default": "12",
+   "choices": [
+    {
+     "id": "0",
+     "title": "Next (today only)"
+    },
+    {
+     "id": "1",
+     "title": "1 hour"
+    },
+    {
+     "id": "2",
+     "title": "2 hours"
+    },
+    {
+     "id": "4",
+     "title": "4 hours"
+    },
+    {
+     "id": "8",
+     "title": "8 hours"
+    },
+    {
+     "id": "12",
+     "title": "12 hours"
+    },
+    {
+     "id": "24",
+     "title": "24 hours"
+    }
+   ]
+  },
+  {
+   "id": "title_length",
+   "kind": "range",
+   "defaults_key": "TrillionMenuBarTitlePoints",
+   "default": 180,
+   "least": 40,
+   "most": 180,
+   "step": 10
+  },
+  {
+   "id": "app_icon",
+   "kind": "choice",
+   "defaults_key": "TrillionAppIcon",
+   "default": "black",
+   "choices": [
+    {
+     "id": "black",
+     "title": "Black"
+    },
+    {
+     "id": "white",
+     "title": "White",
+     "icon": "AppIconWhite"
+    }
+   ]
+  }
+ ]
+}

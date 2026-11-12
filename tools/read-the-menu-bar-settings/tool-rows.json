@@ -16,25 +16,11 @@
     "label": "Read the Mac menu bar's own settings",
     "status": "active",
     "job": "Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
-    "description": "Give the setting definitions (each with its id, kind switch, choice or range, its default and the choices or limits its kind needs), optionally the value the Mac app last answered, and optionally one change { id, value }. Returns every setting with its value (the answer's when it has the right shape, else the default), whether an answer was held, and the change when it is one the setting allows; a change it does not allow is refused. Nothing is read or written here.",
+    "description": "Give the Mac menu bar item's settings (enabled, how far ahead meetings count, the title's length, the app icon) from this tool's own row definitions: each setting with its value (the held answer's when the answer has the right shape, else its default), whether an answer was held, and the change when one is given and the setting allows it; a change it does not allow is refused. Reads nothing and writes nothing: the definitions are this tool's DATA.",
     "input_schema": {
      "type": "object",
-     "required": [
-      "definitions"
-     ],
      "additionalProperties": false,
      "properties": {
-      "definitions": {
-       "type": "array",
-       "items": {
-        "type": "object",
-        "required": [
-         "id",
-         "kind",
-         "default"
-        ]
-       }
-      },
       "answer": {
        "type": "object",
        "description": "The Mac app's answer: { rows: [{ id, kind, value }] }"
@@ -76,7 +62,8 @@
        {
         "package": "read-the-menu-bar-settings",
         "paths": [
-         "do-work"
+         "do-work",
+         "read-data"
         ],
         "at": "/opt/read-the-menu-bar-settings"
        }
@@ -112,36 +99,6 @@
      {
       "kind": "sample-run",
       "input": {
-       "definitions": [
-        {
-         "id": "enabled",
-         "kind": "switch",
-         "default": true
-        },
-        {
-         "id": "meetings_within",
-         "kind": "choice",
-         "default": "12",
-         "choices": [
-          {
-           "id": "0",
-           "title": "Next (today only)"
-          },
-          {
-           "id": "12",
-           "title": "12 hours"
-          }
-         ]
-        },
-        {
-         "id": "title_length",
-         "kind": "range",
-         "default": 180,
-         "least": 40,
-         "most": 180,
-         "step": 10
-        }
-       ],
        "answer": {
         "rows": [
          {
