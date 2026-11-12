@@ -50,7 +50,7 @@ test('the two folder rows run on the person\'s computer over a granted folder, r
     assert.deepEqual(item.placements, ['placement:your-computer'], id);
     assert.equal(item.result_selector, '$.result', id);
     assert.ok(item.invoke.argv.some(part => part.fill?.field === 'grants.read-a-folder.folder'), id);
-    assert.deepEqual(item.invoke.files.package_files.map(spec => spec.package), ['conversations', 'save-what-you-watch-and-read'], id);
+    assert.deepEqual(item.invoke.files.package_files.map(spec => spec.package), ['conversations', 'save-what-you-watch-and-read', 'keep-and-wake-ai-sessions-on-this-computer', 'records-door', 'content-identity', 'take-pictures-out-of-a-zip-archive', 'decide-with-a-method', 'browse-and-upload-my-files', 'set-up-my-account'], id);
   }
 });
 

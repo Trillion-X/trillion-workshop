@@ -3,13 +3,31 @@
 // person's key by name and no row carries a key.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFile } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { closeSync, openSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { promisify } from 'node:util';
+import { startFakeDoor } from '../../records-door/test/fake-door.mjs';
 
-const run = promisify(execFile);
 const tools = join(import.meta.dirname, '..', '..');
+
+// One row's command with its input on stdin and its records door on descriptor 3; a non-zero exit rejects with its stdout.
+function runWithDoor(command, args, input, descriptor) {
+  const door = openSync(descriptor, 'r');
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { cwd: tools, stdio: ['pipe', 'pipe', 'pipe', door] });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', chunk => { stdout += chunk; });
+    child.stderr.on('data', chunk => { stderr += chunk; });
+    child.on('error', reject);
+    child.on('close', code => {
+      closeSync(door);
+      if (code === 0) resolve(stdout);
+      else reject(Object.assign(new Error(stderr || `exit ${code}`), { stdout }));
+    });
+    child.stdin.end(JSON.stringify(input));
+  });
+}
 const rows = JSON.parse(readFileSync(join(import.meta.dirname, '..', 'tool-rows.json'), 'utf8')).records.map(record => record.payload);
 const onThisComputer = word => (word.startsWith('/opt/') ? join(tools, word.slice('/opt/'.length)) : word);
 
@@ -60,9 +78,11 @@ test('each sample run answers what the row says it should', async () => {
     // its seeded records and recorded replies by test/every-process-row-selector.test.mjs.
     for (const sample of (row.verify ?? []).filter(item => item.kind === 'sample-run' && 'output_selector' in item)) {
       const [command, ...rest] = row.invoke.argv.map(onThisComputer);
-      const child = promisify(execFile)(command === 'node' ? process.execPath : command, rest, { cwd: tools });
-      child.child.stdin.end(JSON.stringify(sample.input));
-      const { stdout } = await child;
+      // The engine gives a row its records door on descriptor 3, as run-an-export.mjs reads it: the same fake door the
+      // records-door tests use, with the rights the adjustment list needs.
+      const door = await startFakeDoor({ rights: [{ kind: 'checkout-code-adjustment', operations: ['records:list'] }] });
+      const stdout = await runWithDoor(command === 'node' ? process.execPath : command, rest, sample.input, door.descriptor)
+        .finally(() => door.close());
       const answer = JSON.parse(stdout.trim().split('\n').at(-1));
       assert.ok(!answer.error, `${row.id}: ${answer.error}`);
       const picked = sample.output_selector.replace(/^\$\.?/, '').split('.').filter(Boolean).reduce((value, part) => {

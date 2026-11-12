@@ -31,7 +31,7 @@ test('every row packs its own files and the records door runner, offers no netwo
   for (const row of descriptors) {
     assert.equal(row.invoke.internet, false, row.id);
     const packed = row.invoke.files.package_files.map(spec => spec.package ?? spec.module);
-    assert.deepEqual(packed, ['form-groups-and-matches', 'records-door', 'content-identity', '@noble/hashes'], row.id);
+    assert.deepEqual(packed, ['form-groups-and-matches', 'records-door', 'content-identity', '@noble/hashes', 'browse-and-upload-my-files'], row.id);
     assert.equal(row.maker, 'maker:form-groups-and-matches');
     assert.equal(row.invoke.records !== undefined, REACH_RECORDS.has(row.id) || row.read_only !== true, `${row.id}: which rows reach records`);
   }
