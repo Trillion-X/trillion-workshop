@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:bf9af036f996e758fbf76d5fee5137f42f8ae245cd7a9d34e5a854138d483bb7"
+  "blake3": "1f:e3ddfcf14eea79f0f1420c44369045addb174f42f1b3847568c6ed6b2442d873"
  },
  "fields": [
   {
@@ -4938,6 +4938,21 @@
    }
   },
   {
+   "id": "tool:grant-paid-access-to-people",
+   "values": {
+    "title": "Grant paid access to people",
+    "job": "Give people paid access by hand, all at once or one by one (members who moved over from another place, a gift, a pass with an end date), and end a grant I gave",
+    "description": "Writes one access-grant record for each grant: the person (subject, named the way your access rules name a buyer), the access ref they now hold, an optional grant_ref that names the grant (left out, it is \"grant:\" and the access ref), an optional window (valid_from_ms and expires_at_ms together, whole milliseconds since 1970, the end after the start) and an optional note. Each revoke (subject and grant_ref) writes the record that ends that grant. A record's id comes from the subject and the grant's reference, so running the same request again writes nothing and counts it as already. A grant whose window the access check would never hold (one end only, not whole numbers, the end not after the start), one kept with different terms under the same reference, and one that was ended already are refused with the reason and are not written. Answers written, already and refused (each with its index: grants count from 0, revokes carry on after the last grant). It reads and writes only your access-grant records; it moves no money and writes no payments. tool:see-who-holds-paid-access then shows the access held.",
+    "status": "active",
+    "maker": "maker:paid-access",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "paid-access"
+   }
+  },
+  {
    "id": "tool:hand-a-job-to-an-ai",
    "values": {
     "title": "Hand a job to one of my AIs, or to whichever takes it first",
@@ -7467,6 +7482,21 @@
     ],
     "listed_on": "2026-11-03T16:00:00Z",
     "folder": "open-a-meeting-link"
+   }
+  },
+  {
+   "id": "tool:open-the-billing-page-for-one-purchase-and-show-the-card",
+   "values": {
+    "title": "Open the billing page for one purchase and show its card",
+    "job": "Open the billing page of one purchase, where the buyer can change or cancel it, and show the card that pays it",
+    "description": "Give subscription_id (the sub_ id of one purchase) and return_url (an https address the billing page returns to). Reads the purchase with the card that pays it, opens a Stripe customer billing-portal session for the customer that bills it, and gives back the redirect address and the card (brand, last four, expiry only). The configuration is the account default unless configuration names one; an account with none is refused, never given a made-up one. It changes no subscription and moves no money. Uses your Stripe key from your held values.",
+    "status": "active",
+    "maker": "maker:take-payments",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "take-payments"
    }
   },
   {
@@ -11614,6 +11644,21 @@
      "placement:small-container"
     ],
     "folder": "what-runs-on-its-own"
+   }
+  },
+  {
+   "id": "tool:see-what-this-computer-did",
+   "values": {
+    "title": "See what this computer did",
+    "job": "Read this computer's own event rows, newest first: what the engine and the app recorded about this computer, in order",
+    "status": "active",
+    "maker": "maker:see-what-this-computer-did",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "listed_on": "2026-11-12T00:00:00Z",
+    "folder": "see-what-this-computer-did"
    }
   },
   {
