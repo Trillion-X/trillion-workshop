@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:c8164e52f1478296210aee7458fe51823da9d1d8c3c6b27add83344220fb52bc"
+  "blake3": "1f:ac47f2636fbe24331b6e0900378f0adc63c23d56750841dd5077771276c41391"
  },
  "fields": [
   {
@@ -2364,6 +2364,21 @@
     ],
     "listed_on": "2026-10-30T20:00:00Z",
     "folder": "notifications"
+   }
+  },
+  {
+   "id": "tool:choose-the-feed-each-widget-shows",
+   "values": {
+    "title": "Choose the feed each widget shows",
+    "job": "Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order",
+    "description": "Give the surface (widgets, watch) and the widgets on it, each with its size (small, medium, large or extra_large) and the feed the person picked for it if any, and optionally how many rows each feed has kept (a feed with rows is taken first; with no counts every feed counts). Returns the surface's feeds in the order they are taken, and for each widget its feed and whether that feed was picked or taken from the order. A picked feed may be any feed the glance DATA names. Nothing is read, kept or drawn.",
+    "status": "active",
+    "maker": "maker:choose-the-feed-each-widget-shows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "choose-the-feed-each-widget-shows"
    }
   },
   {
@@ -12165,6 +12180,21 @@
    }
   },
   {
+   "id": "tool:show-the-courses-a-learner-is-on",
+   "values": {
+    "title": "Show the courses a learner is on, lesson by lesson",
+    "job": "Show the learning page for one learner: each course as its lessons in order, how many are done, the lesson they are on now, and each lesson's words",
+    "description": "Give the courses (each with its id, title, about and lessons with id, title and body) and the lessons this learner has finished as { course_id, lesson_id }. Returns each course with how many lessons are done, and each lesson with its status: complete when done, active for the first lesson not done, locked for the rest, plus its words. A lesson with an interactive module is marked interactive. Nothing is read or written here.",
+    "status": "active",
+    "maker": "maker:lessons-and-learning-paths",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "lessons-and-learning-paths"
+   }
+  },
+  {
    "id": "tool:show-what-a-tool-would-give-members",
    "values": {
     "title": "Show what a tool would give members",
@@ -13269,6 +13299,21 @@
      "placement:deployed-container"
     ],
     "folder": "funnels-and-offers"
+   }
+  },
+  {
+   "id": "tool:walk-a-new-person-through-first-setup",
+   "values": {
+    "title": "Walk a new person through first setup",
+    "job": "Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
+    "description": "Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from. Returns the plan: the apps to install on their devices (with the public links or the honest not-yet words), the local harness installer's download, inspect, apply and remove commands per supported AI host, the MCP registration preview commands, the instructions the AI follows, and the setup policy. view 'state' returns the run and its next calls only; view 'full' adds the installs, the policy and the lens. Nothing is read from storage and nothing is written: starting or resuming the saved run is not yet ported, so next calls that name start_setup are not run by this tool.",
+    "status": "active",
+    "maker": "maker:walk-a-new-person-through-first-setup",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "walk-a-new-person-through-first-setup"
    }
   },
   {
