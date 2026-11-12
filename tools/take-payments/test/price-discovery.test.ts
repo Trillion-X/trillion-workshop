@@ -167,3 +167,44 @@ describe('suggested amounts named by a list of rows', () => {
     }) as never, { suggestionLists: listsWith([{ multiple: 1, shown: true }]) })).toThrow(/state one/);
   });
 });
+
+describe('the custom amount as a row of the named list', () => {
+  const customRows = { list: multiplesList, value_field: 'multiple', shown_field: 'shown', custom_field: 'custom' };
+  const policyWith = (extra: Record<string, unknown>) => ({
+    currency: 'usd', price_discovery: discovery, suggestion_rows: customRows, ...extra,
+  });
+
+  it('a shown custom row allows a custom amount, with the minimum at the current price', () => {
+    const [offer] = readCheckoutOffers(listedOffer(policyWith({})) as never, { suggestionLists: listsWith([
+      { multiple: 1, shown: true }, { custom: true, shown: true },
+    ]) });
+    const policy = offer.price_options[0].voluntary_amount_policy;
+    expect(policy?.allow_custom).toBe(true);
+    expect(policy?.min_cents).toBe(5000);
+    expect(policy?.suggested_cents).toEqual([5000]);
+  });
+
+  it('a custom row that is off allows no custom amount, and the suggestions still show', () => {
+    const [offer] = readCheckoutOffers(listedOffer(policyWith({})) as never, { suggestionLists: listsWith([
+      { multiple: 2, shown: true }, { custom: true, shown: false },
+    ]) });
+    const policy = offer.price_options[0].voluntary_amount_policy;
+    expect(policy?.allow_custom).toBe(false);
+    expect(policy?.suggested_cents).toEqual([10000]);
+  });
+
+  it('a custom row that is off with no shown suggestion leaves nothing to select, so it is refused', () => {
+    expect(() => readCheckoutOffers(listedOffer(policyWith({})) as never, { suggestionLists: listsWith([
+      { multiple: 2, shown: false }, { custom: true, shown: false },
+    ]) })).toThrow(/selectable amount/);
+  });
+
+  it('refuses allow_custom stated beside a list that has a custom row, and two custom rows', () => {
+    expect(() => readCheckoutOffers(listedOffer(policyWith({ allow_custom: true })) as never, { suggestionLists: listsWith([
+      { multiple: 1, shown: true }, { custom: true, shown: true },
+    ]) })).toThrow(/state one/);
+    expect(() => readCheckoutOffers(listedOffer(policyWith({})) as never, { suggestionLists: listsWith([
+      { multiple: 1, shown: true }, { custom: true, shown: true }, { custom: true, shown: false },
+    ]) })).toThrow(/more than one custom row/);
+  });
+});

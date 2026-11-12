@@ -217,9 +217,13 @@ export function discoveredPriceCents(rule: {
 type SuggestionEntry = { value: unknown; shown: boolean };
 /** The rows of each suggestion list an offer names, keyed by the list's address (`list:<id>`). Read by the caller. */
 export type SuggestionLists = ReadonlyMap<string, readonly unknown[]>;
+/** What a named list gives an offer: its suggested amounts, and its custom-amount row when it has one. */
+type ListedSuggestions = { entries: SuggestionEntry[]; custom: { shown: boolean } | undefined };
 
-/** The rows of the list an offer's `suggestion_rows` names: each row states its value and its `shown` switch. */
-function readSuggestionRows(declaration: unknown, lists: SuggestionLists | undefined): SuggestionEntry[] {
+/** The rows of the list an offer's `suggestion_rows` names. Every row states its `shown` switch. A suggested row states
+ *  its amount (or multiple) in `value_field`. The row whose `custom_field` is true is the custom-amount choice, and its
+ *  switch is allow_custom. */
+function readSuggestionRows(declaration: unknown, lists: SuggestionLists | undefined): ListedSuggestions {
   if (!isRecord(declaration)) throw new Error('voluntary_amount_policy.suggestion_rows must be an object.');
   const list = readString(declaration.list);
   const valueField = readString(declaration.value_field);
@@ -227,29 +231,45 @@ function readSuggestionRows(declaration: unknown, lists: SuggestionLists | undef
   if (!list || !valueField || !shownField) {
     throw new Error('voluntary_amount_policy.suggestion_rows requires list, value_field and shown_field.');
   }
+  const customField = declaration.custom_field === undefined ? undefined : readString(declaration.custom_field);
+  if (declaration.custom_field !== undefined && !customField) {
+    throw new Error('voluntary_amount_policy.suggestion_rows.custom_field must name a field.');
+  }
   const rows = lists?.get(list);
   if (!rows) throw new Error(`voluntary_amount_policy.suggestion_rows names ${list}, whose rows were not read.`);
-  return rows.map((row, index) => {
-    if (!isRecord(row) || typeof row[shownField] !== 'boolean') {
-      throw new Error(`${list} row ${index} must state ${shownField} as true or false.`);
+  const entries: SuggestionEntry[] = [];
+  let custom: { shown: boolean } | undefined;
+  for (const [index, row] of rows.entries()) {
+    if (!isRecord(row)) throw new Error(`${list} row ${index} must be an object.`);
+    const shown = row[shownField];
+    if (typeof shown !== 'boolean') throw new Error(`${list} row ${index} must state ${shownField} as true or false.`);
+    // A row without the custom field is a suggested amount; the field marks the one custom-amount row with true.
+    const isCustom = customField === undefined ? undefined : row[customField];
+    if (isCustom !== undefined && typeof isCustom !== 'boolean') {
+      throw new Error(`${list} row ${index} must state ${customField} as true or false.`);
     }
-    if (typeof row[valueField] !== 'number') {
-      throw new Error(`${list} row ${index} must state ${valueField} as a number.`);
+    if (isCustom) {
+      if (custom) throw new Error(`${list} has more than one custom row.`);
+      custom = { shown };
+      continue;
     }
-    return { value: row[valueField], shown: row[shownField] };
-  }).sort((left, right) => (left.value as number) - (right.value as number));
+    const amount = row[valueField];
+    if (typeof amount !== 'number') throw new Error(`${list} row ${index} must state ${valueField} as a number.`);
+    entries.push({ value: amount, shown });
+  }
+  return { entries: entries.sort((left, right) => (left.value as number) - (right.value as number)), custom };
 }
 
+/** The suggestions of a discovered price: the named list's entries, or the inline multiples. Never both. */
 function discoveredSuggestionEntries(
-  policy: Record<string, unknown>,
+  listed: SuggestionEntry[] | undefined,
   discovery: Record<string, unknown>,
-  lists: SuggestionLists | undefined,
 ): SuggestionEntry[] {
-  if (policy.suggestion_rows !== undefined) {
+  if (listed !== undefined) {
     if (discovery.suggested_multiples !== undefined) {
       throw new Error('voluntary_amount_policy names suggestion_rows and also states price_discovery.suggested_multiples; state one.');
     }
-    return readSuggestionRows(policy.suggestion_rows, lists);
+    return listed;
   }
   if (!Array.isArray(discovery.suggested_multiples) || discovery.suggested_multiples.length === 0) {
     throw new Error('price_discovery.suggested_multiples must be a non-empty array.');
@@ -257,15 +277,16 @@ function discoveredSuggestionEntries(
   return discovery.suggested_multiples.map((multiple: unknown) => ({ value: multiple, shown: true }));
 }
 
+/** The suggestions of a fixed policy: the named list's entries, or the inline suggested_cents. Never both. */
 function explicitSuggestionEntries(
   value: Record<string, unknown>,
-  lists: SuggestionLists | undefined,
+  listed: SuggestionEntry[] | undefined,
 ): SuggestionEntry[] {
-  if (value.suggestion_rows !== undefined) {
+  if (listed !== undefined) {
     if (value.suggested_cents !== undefined || value.suggested_amount_cents !== undefined) {
       throw new Error('voluntary_amount_policy names suggestion_rows and also states suggested_cents; state one.');
     }
-    return readSuggestionRows(value.suggestion_rows, lists);
+    return listed;
   }
   const source = Array.isArray(value.suggested_cents) ? value.suggested_cents : value.suggested_amount_cents;
   if (!Array.isArray(source)) {
@@ -276,8 +297,7 @@ function explicitSuggestionEntries(
 
 function discoveredPolicy(
   value: unknown,
-  policy: Record<string, unknown>,
-  lists: SuggestionLists | undefined,
+  listed: SuggestionEntry[] | undefined,
 ): { min_cents: number; suggested_cents: number[] } {
   if (!isRecord(value)) throw new Error('price_discovery must be an object.');
   const salesToDouble = value.sales_to_double;
@@ -311,7 +331,7 @@ function discoveredPolicy(
     reference_nonbuyer_views: referenceNonbuyerViews,
     price_markdown_cents: markdown,
   });
-  const suggested = discoveredSuggestionEntries(policy, value, lists).flatMap(({ value: multiple, shown }, index) => {
+  const suggested = discoveredSuggestionEntries(listed, value).flatMap(({ value: multiple, shown }, index) => {
     if (typeof multiple !== 'number' || !(multiple >= 1)) {
       throw new Error(`price_discovery suggestion ${index} must be a multiple of at least 1.`);
     }
@@ -323,11 +343,11 @@ function discoveredPolicy(
 /** The explicit suggested amounts: every row is range-checked (a hidden amount is still DATA), only shown ones are offered. */
 function explicitSuggestedCents(
   value: Record<string, unknown>,
-  lists: SuggestionLists | undefined,
+  listed: SuggestionEntry[] | undefined,
   minCents: number,
   maxCents: number | undefined,
 ): number[] {
-  const amounts = explicitSuggestionEntries(value, lists).map(({ value: amount, shown }, index) => ({
+  const amounts = explicitSuggestionEntries(value, listed).map(({ value: amount, shown }, index) => ({
     amount: readPolicyAmount(amount, `suggested_cents[${index}]`),
     shown,
   }));
@@ -346,7 +366,8 @@ function readVoluntaryAmountPolicy(
     throw new Error('voluntary_amount_policy must be an object.');
   }
   if (value.enabled === false) return undefined;
-  const discovered = value.price_discovery === undefined ? null : discoveredPolicy(value.price_discovery, value, lists);
+  const listed = value.suggestion_rows === undefined ? undefined : readSuggestionRows(value.suggestion_rows, lists);
+  const discovered = value.price_discovery === undefined ? null : discoveredPolicy(value.price_discovery, listed?.entries);
   if (discovered && (value.min_cents != null || value.minimum_amount_cents != null || value.suggested_cents != null)) {
     throw new Error('voluntary_amount_policy with price_discovery derives min_cents and suggested_cents; it may not also state them.');
   }
@@ -359,11 +380,16 @@ function readVoluntaryAmountPolicy(
   }
   const suggestedCents = discovered
     ? discovered.suggested_cents
-    : explicitSuggestedCents(value, lists, minCents, maxCents);
-  if (typeof value.allow_custom !== 'boolean') {
+    : explicitSuggestedCents(value, listed?.entries, minCents, maxCents);
+  // A named list with a custom row owns the custom choice: its switch is allow_custom, stated nowhere else.
+  if (listed?.custom !== undefined && value.allow_custom !== undefined) {
+    throw new Error('voluntary_amount_policy names a custom row in its suggestion list and also states allow_custom; state one.');
+  }
+  const allowCustom = listed?.custom === undefined ? value.allow_custom : listed.custom.shown;
+  if (typeof allowCustom !== 'boolean') {
     throw new Error('voluntary_amount_policy.allow_custom must be boolean.');
   }
-  if (!value.allow_custom && suggestedCents.length === 0) {
+  if (!allowCustom && suggestedCents.length === 0) {
     throw new Error('voluntary_amount_policy must expose a selectable amount: allow_custom or a shown suggested amount.');
   }
   const hasHighlightedCents = Object.prototype.hasOwnProperty.call(value, 'highlighted_cents');
@@ -383,7 +409,7 @@ function readVoluntaryAmountPolicy(
   }
   const currency = readPolicyCurrency(value.currency, optionCurrency);
   return {
-    allow_custom: value.allow_custom,
+    allow_custom: allowCustom,
     currency,
     ...(highlightedCents == null ? {} : { highlighted_cents: highlightedCents }),
     ...(highlightLabel ? { highlight_label: highlightLabel } : {}),
