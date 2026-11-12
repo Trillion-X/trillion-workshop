@@ -1881,6 +1881,7 @@
           },
           "credential_injections": [
             {
+       "hosts": ["graph.instagram.com"],
               "field_id": "access_token",
               "placement": {
                 "kind": "query",
@@ -1962,6 +1963,7 @@
           },
           "credential_injections": [
             {
+       "hosts": ["graph.facebook.com"],
               "field_id": "page_access_token",
               "placement": {
                 "kind": "query",
