@@ -22,12 +22,39 @@
 //     searchCode(repository, pattern)  string[] | null  paths in that repository's main line whose text or path matches
 //     mainOf(repository)            string | null   the commit searched
 //   }
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const MAX_BUFFER = 1 << 28;
+
+// Many blobs in one `git cat-file --batch` process: a process start costs far more than reading the blob, so the judge
+// reads its listed contracts this way. Returns the blobs in spec order (null for a spec git cannot find), or null when git
+// cannot answer, and the caller reads each spec one at a time instead.
+function batchShow(folder, specs) {
+  const done = spawnSync('git', ['-C', folder, 'cat-file', '--batch'], { input: `${specs.join('\n')}\n`,
+    maxBuffer: MAX_BUFFER, stdio: ['pipe', 'pipe', 'ignore'] });
+  if (done.status !== 0 || done.error) return null;
+  const out = done.stdout;
+  const blobs = [];
+  let at = 0;
+  for (let index = 0; index < specs.length; index += 1) {
+    const end = out.indexOf(0x0a, at);
+    if (end < 0) return null;
+    const header = out.toString('utf8', at, end);
+    at = end + 1;
+    if (header.endsWith(' missing') || header.endsWith(' ambiguous')) {
+      blobs.push(null);
+      continue;
+    }
+    const size = Number(header.split(' ')[2]);
+    if (!Number.isSafeInteger(size) || at + size + 1 > out.length) return null;
+    blobs.push(out.subarray(at, at + size));
+    at += size + 1;
+  }
+  return at === out.length ? blobs : null;
+}
 
 function git(root, args, { bytes = false } = {}) {
   try {
@@ -60,7 +87,21 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
     mains.set(name, main);
     return main;
   };
-  const show = (folder, spec) => (folder ? git(folder, ['show', spec], { bytes: true }) : null);
+  const memo = new Map(); // blob reads by folder and spec, so a prefetched spec is not read again
+  const show = (folder, spec) => {
+    if (!folder) return null;
+    const key = `${folder}\0${spec}`;
+    if (!memo.has(key)) memo.set(key, git(folder, ['show', spec], { bytes: true }));
+    return memo.get(key);
+  };
+  const prefetchTargets = (paths) => {
+    if (tree === undefined) return;
+    const specs = paths.map((path) => (tree === ':' ? `:${path}` : `${tree}:${path}`))
+      .filter((spec) => !memo.has(`${here}\0${spec}`));
+    if (!specs.length) return;
+    const blobs = batchShow(here, specs);
+    if (blobs) specs.forEach((spec, index) => memo.set(`${here}\0${spec}`, blobs[index]));
+  };
   const pathOf = (source) => {
     if (source?.path) return source.path;
     const folder = source?.repository && source?.commit && source?.path_multihash ? checkout(source.repository) : null;
@@ -166,6 +207,7 @@ export function gitReaders({ root, repositories = {}, tree } = {}) {
       const path = source?.repository && source?.commit ? pathOf(source) : null;
       return path ? show(checkout(source.repository), `${source.commit}:${path}`) : null;
     },
+    prefetchTargets,
     readTarget(path) {
       if (tree === undefined) {
         const file = resolve(here, path);

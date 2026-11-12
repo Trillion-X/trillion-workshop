@@ -122,7 +122,9 @@ export function judgeRepository({ root, span, rules, rulesPath = 'ports/feature-
     : contractTree === ':' ? git(away ?? here, ['ls-files', '-z']) : git(away ?? here, ['ls-tree', '-r', '-z', '--name-only', contractTree]);
   const contracts = [];
   const errors = [];
-  for (const path of listed.split('\0').filter((one) => one && contractsMatch.test(one))) {
+  const contractPaths = listed.split('\0').filter((one) => one && contractsMatch.test(one));
+  contractReader.prefetchTargets(contractPaths);
+  for (const path of contractPaths) {
     try {
       contracts.push({ path, contract: JSON.parse(contractReader.readTarget(path).toString('utf8')) });
     } catch (error) {
