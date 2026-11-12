@@ -46,6 +46,7 @@ import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
+import { makeHashCodeHexFromBytes } from './packs/read-data/identity.mjs';
 import { localDoorAddress } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
@@ -477,6 +478,59 @@ export async function allPages(client, address, method, input, field, rules = se
     after = next;
   }
   throw new TrillionError(fill(rules.words.too_many_pages, { method, pages: rules.engine.most_pages }), { status: 4 });
+}
+
+/** The BLAKE3 of bytes as the door names it: 64 hex digits, the content identity's `1f:` prefix taken off. */
+const blake3Hex = bytes => makeHashCodeHexFromBytes(bytes).slice('1f:'.length);
+
+/** The byte page an answer is, or null: an answer too large for one reply comes as
+ *  `{byte_page: {offset, length, total, next_after_byte, blake3, base64}}`, whatever operation gave it. */
+const bytePageOf = answer => (object(answer) && object(answer.byte_page) ? answer.byte_page : null);
+
+/**
+ * The whole of a byte-paged answer. `first` is the answer to `op(address, method, input)` under `requestKey`; every
+ * further page is the same operation under the SAME request key with `after_byte` beside the input's own fields, set to
+ * the page's `next_after_byte`, until offset + length is the total. The engine answers those from the first call's
+ * receipt, never by running it again. Each page must continue where the last ended and name the first page's total and
+ * BLAKE3; the joined bytes must be that many and hash to that BLAKE3, or nothing is answered. The bytes are read as
+ * JSON, else answered as text.
+ */
+async function wholeAnswer(client, address, method, input, first, { requestKey, rules = settings } = {}) {
+  const broken = why => new TrillionError(fill(rules.words.byte_page_broken, { method, why }), { status: 4 });
+  const head = bytePageOf(first);
+  const { total, blake3 } = head;
+  if (!Number.isInteger(total) || total < 0) throw broken('no whole size');
+  if (typeof blake3 !== 'string' || !/^[0-9a-f]{64}$/i.test(blake3)) throw broken('no BLAKE3');
+  const parts = [];
+  let page = head, at = 0;
+  for (let count = 1; ; count += 1) {
+    if (page.offset !== at) throw broken(`a page starts at byte ${page.offset}, not ${at}`);
+    if (page.total !== total || String(page.blake3).toLowerCase() !== blake3.toLowerCase()) throw broken('a page belongs to another answer');
+    const bytes = Buffer.from(typeof page.base64 === 'string' ? page.base64 : '', 'base64');
+    if (bytes.length !== page.length) throw broken(`a page says ${page.length} bytes and holds ${bytes.length}`);
+    if (!bytes.length && at < total) throw broken(`an empty page at byte ${at} of ${total}`);
+    parts.push(bytes);
+    at += bytes.length;
+    if (at > total) throw broken(`the pages hold more than ${total} bytes`);
+    if (at === total) break;
+    if (page.next_after_byte !== at) throw broken(`next_after_byte is ${page.next_after_byte ?? 'null'} at byte ${at} of ${total}`);
+    if (count >= rules.engine.most_pages) throw new TrillionError(fill(rules.words.too_many_pages, { method, pages: rules.engine.most_pages }), { status: 4 });
+    const next = await client.op(address, method, { ...input, after_byte: at }, { idempotent: true, requestKey });
+    page = bytePageOf(next);
+    if (!page) throw broken(`the page after byte ${at} is not a byte_page`);
+  }
+  const joined = Buffer.concat(parts);
+  const got = blake3Hex(joined);
+  if (got !== blake3.toLowerCase()) throw new TrillionError(fill(rules.words.byte_page_mismatch, { method, bytes: joined.length, got, want: blake3 }), { status: 4 });
+  const text = joined.toString('utf8');
+  try { return JSON.parse(text); } catch { return text; }
+}
+
+/** One operation answered whole: `op` under one request key for the call and every page of its answer, and when the
+ *  answer is a byte page, every page after it (wholeAnswer). */
+async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings } = {}) {
+  const first = await client.op(address, method, input, { requestKey });
+  return bytePageOf(first) ? wholeAnswer(client, address, method, input, first, { requestKey, rules }) : first;
 }
 
 // ── Signing in once ──────────────────────────────────────────────────────────────────────────────────────────────
@@ -1025,14 +1079,16 @@ export async function main(argv, seams = {}) {
         ...(held_as.length ? [`jobs taken before this session had its own id are finished as ${held_as.join(', ')}`] : []), `door ${client.door.name}`].join('\n');
   }
   if (command === 'tools') return print('tools', { tools: await allPages(client, engine.tools, engine.tools_list, {}, 'tools') });
-  if (command === 'call') {
-    const tool = need(words[0], 'Name the tool: trillion call TOOL JSON, with an id from trillion tools.');
-    return JSON.stringify(await client.op(engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }), null, 2);
-  }
-  if (command === 'op') {
+  if (command === 'call' || command === 'op') {
+    // An answer too large for one reply is read page by page, joined and checked (opWhole) before it is printed.
+    const whole = answer => (typeof answer === 'string' ? answer : JSON.stringify(answer, null, 2));
+    if (command === 'call') {
+      const tool = need(words[0], 'Name the tool: trillion call TOOL JSON, with an id from trillion tools.');
+      return whole(await opWhole(client, engine.tools, engine.tools_run, { tool, input: await readJson(words[1], '{"text": "..."}') }));
+    }
     const address = need(words[0], 'Name the address: trillion op ADDRESS METHOD JSON, for example trillion op @own-records records:read \'{"id":"..."}\'.');
     const method = need(words[1], 'Name the method: trillion op ADDRESS METHOD JSON.');
-    return JSON.stringify(await client.op(address, method, await readJson(words[2], '{"id": "..."}')), null, 2);
+    return whole(await opWhole(client, address, method, await readJson(words[2], '{"id": "..."}')));
   }
   if (command === 'who') {
     const now = Date.now();

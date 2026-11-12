@@ -4,7 +4,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { installProgram, updateWords } from '../do-work/trillion.mjs';
 import rules from '../do-work/trillion.json' with { type: 'json' };
@@ -18,7 +18,7 @@ test('with no marker, update says the only road is setup from a newer copy', () 
 
 test('a marker beside the source program is copied with it, and update names its owner and hint', () => {
   const source = home();
-  for (const name of rules.install.files) writeFileSync(join(source, name), readFileSync(join(HERE, name)));
+  for (const name of rules.install.files) { mkdirSync(dirname(join(source, name)), { recursive: true }); writeFileSync(join(source, name), readFileSync(join(HERE, name))); }
   writeFileSync(join(source, 'install-owner.json'), JSON.stringify({ owner: 'the Trillion Mac app', update_hint: 'Update Trillion.app to update this command.' }));
   const target = home();
   const rows = installProgram({ home: target, from: source });

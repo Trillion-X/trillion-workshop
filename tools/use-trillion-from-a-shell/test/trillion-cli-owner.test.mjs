@@ -4,9 +4,9 @@
 // program that carries a marker may take the copy over (F-0183).
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { installProgram } from '../do-work/trillion.mjs';
 import rules from '../do-work/trillion.json' with { type: 'json' };
 
@@ -16,7 +16,7 @@ const folderOf = home => join(home, '.trillion/cli/program');
 /** A folder the app ships the program in: every file the install row names and the owner's marker beside them. */
 async function appCopy() {
   const source = await mkdtemp(join(tmpdir(), 'cli-owner-source-'));
-  for (const name of rules.install.files) await writeFile(join(source, name), await readFile(new URL(`../do-work/${name}`, import.meta.url)));
+  for (const name of rules.install.files) { await mkdir(dirname(join(source, name)), { recursive: true }); await writeFile(join(source, name), await readFile(new URL(`../do-work/${name}`, import.meta.url))); }
   await writeFile(join(source, rules.install.owner_file), JSON.stringify(marker));
   return source;
 }
