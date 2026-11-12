@@ -50,7 +50,11 @@ renamed to the ones below; `link`: { field, into } names the field an optional i
 that names an input for `pending`):
   root, path | paths    the file REF (paths are globs inside root); JSON ({ rows } or the rows themselves) or JSON lines; the
                         root `mapping` is the mapping itself, and `path` the dotted path of its rows there
-  format                by the file's ending (json, jsonl, tsv) or given: `tsv` (a header line; a line with another number of
+  format                by the file's ending (json, jsonl, tsv) or given: `tree` (a JSON document whose nodes and scopes are kept
+                        as alternating [id, object, id, object] lists; `tree` says which, see tree_rows: one row per node
+                        reached from a scope's roots and holding `keep_when_present`, with `_scope`, `_space`, `_root` and
+                        `_folder` (the titles of its ancestors); each node is reached once; the file's mtime is its `_generated`),
+                        `tsv` (a header line; a line with another number of
                         cells is not a row; a quote mark is part of its cell), `text` (the file is one row { text }), `lines`
                         ({ pattern, start, end, carry, needs_carry, cells }: one row per line matching `pattern`, its named groups
                         and `line`, `text`, after the first line matching `start` and before the next matching `end`; the named
@@ -81,6 +85,7 @@ import re
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 import expressions
 from expressions import Context, evaluate, holds, present
@@ -114,11 +119,13 @@ def read_staged(ctx: Context, entry: dict) -> list[dict]:
             rows = line_rows(text, entry)
         elif kind == 'text':
             rows = [{'text': text}]
+        elif kind == 'tree':
+            rows = tree_rows(json.loads(text), entry['tree'])
         elif kind == 'json':
             kept = json.loads(text)
             rows = [kept] if entry.get('one_row') else kept if isinstance(kept, list) else kept.get(entry.get('rows_at', 'rows'))
         else:
-            raise ValueError(f'{ref_text(ref)}: format {kind} is not one of json, jsonl, tsv, lines, text.')
+            raise ValueError(f'{ref_text(ref)}: format {kind} is not one of json, jsonl, tsv, lines, text, tree.')
         if not isinstance(rows, list):
             raise ValueError(f'{ref_text(ref)} holds no rows.')
         if 'each' in entry:
@@ -127,6 +134,8 @@ def read_staged(ctx: Context, entry: dict) -> list[dict]:
         meta = kept if isinstance(kept, dict) else {}
         about = meta.get('source') if meta else None
         generated = meta.get('generated') or (meta.get('meta') or {}).get('generated') or entry.get('generated_default')
+        if kind == 'tree':
+            generated = datetime.fromtimestamp(ctx.path_of(ref).stat().st_mtime, tz=timezone.utc).isoformat(timespec='milliseconds')
         items += [{'raw': row, 'ref': ref, 'about': about, 'generated': generated} for row in rows]
     return items
 
@@ -169,6 +178,44 @@ def line_rows(text: str, entry: dict) -> list[dict]:
         if entry.get('cells'):
             row['cells'] = table_cells(line)
         rows.append(row)
+    return rows
+
+
+def pairs_of(value: list) -> list[tuple]:
+    """An alternating [key, value, key, value] list as its (key, value) pairs, in order."""
+    return [(value[i], value[i + 1]) for i in range(0, len(value) - 1, 2)]
+
+
+def tree_rows(document: Any, spec: dict) -> list[dict]:
+    """The nodes a tree reaches from its scopes' roots, read from a document that keeps its nodes and scopes as alternating
+    [id, object] lists. The spec names: `containers` (dotted path of the list of containers), `nodes_key` and `scopes_key` (the key
+    in each container of its nodes and of its scopes), `scope_where` ({ dotted path: value } every scope must hold), `scope_present`
+    (dotted paths every scope must give), `roots` { select: the key of a scope's id list, markers: the entries of that list that
+    say the root id after them }, `children` (the key of a node's child ids) and `keep_when_present` (the dotted path a node must
+    give to be a row). A node is reached once, by the first root that reaches it."""
+    markers = set(spec['roots']['markers'])
+    rows: list[dict] = []
+    for container in expressions.dig(document, spec['containers']) or []:
+        nodes = dict(pairs_of(container.get(spec['nodes_key']) or []))
+        for scope_id, scope in pairs_of(container.get(spec['scopes_key']) or []):
+            if not all(expressions.dig(scope, path) == value for path, value in spec.get('scope_where', {}).items()):
+                continue
+            if not all(expressions.present(expressions.dig(scope, path)) for path in spec.get('scope_present', [])):
+                continue
+            listed = scope.get(spec['roots']['select']) or []
+            roots = [(listed[i], listed[i + 1]) for i in range(0, len(listed) - 1, 2) if listed[i] in markers]
+            stack = [(root_id, marker, []) for marker, root_id in reversed(roots)]
+            seen: set = set()
+            while stack:
+                node_id, marker, ancestors = stack.pop()
+                node = nodes.get(node_id)
+                if node_id in seen or not isinstance(node, dict):
+                    continue
+                seen.add(node_id)
+                if expressions.present(expressions.dig(node, spec['keep_when_present'])):
+                    rows.append({**node, '_scope': scope_id, '_space': scope.get('title'), '_root': marker, '_folder': ancestors})
+                below = ancestors + ([node['title']] if expressions.present(node.get('title')) else [])
+                stack.extend((child, marker, below) for child in reversed(node.get(spec['children']) or []))
     return rows
 
 
