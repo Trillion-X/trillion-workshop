@@ -57,7 +57,7 @@ The surface's screens (every `show/` file that draws through the app's shared `u
 | `listKeeper` | `(read: () => ListContext) => { writeRecord, place }` | A list's writer for the surface: `writeRecord` keeps a record write, `place` moves a record under another (or to the top) before a sibling. |
 | `listChangesFromWrites` / `listPlacementChanges` | `(context, writes) => ListRecordChange[]` / `(context, move: ListPlacement) => ListRecordChange[]` | The list changes one batch of surface writes, or one move, asks for; a move into a record's own sub-tasks throws. |
 | `listFieldRoles` / `listCanDraw` | `(fields) => ListFieldRoles` / `(row, fields, nested?) => boolean` | What each field is for; whether a view is offered. |
-| `doneValuesOf` | `(field, {done_tones, done_values}) => string[]` | The declared values of a field that mean done (the `done` rule of `views-offered-to-every-list.json`); `listFieldRoles` and the record views' Sprints design read it. |
+| `doneValuesOf` | `(field, {done_tones, done_values}) => string[]` | The values of a field that mean done: its `settles` when it declares them, else the `done` rule of `views-offered-to-every-list.json`; `listFieldRoles` and the record views' Sprints design read it. |
 | `recordActionsFromRows` / `runRecordAction` | `(rows) => VisualDatabaseActionDescriptor[]` / `(action, {id, title, payload}, value?, answers?) => Promise<unknown[]>` | Decode a list's action rows; run one on a record. `answers` (a person's list passes the row's values) is read by `copy` as `answers.<field id>`. |
 | `invokeVisualDatabaseAction` | `(action, context, sender?) => Promise<unknown[]>` | The package's interpreter. |
 

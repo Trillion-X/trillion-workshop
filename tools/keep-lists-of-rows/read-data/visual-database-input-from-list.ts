@@ -36,6 +36,10 @@ export interface ListField {
   /** A thumbnail field's picture as an address a gallery can load (null when the record has none). */
   pictureUrl?: (record: any) => string | null;
   values?: Record<string, { label?: string; tone?: string; parent?: string }>;
+  /** The value a new record starts at (a choice field's starting value). */
+  starts?: string;
+  /** The values a record keeps once it holds them (a Done that stays done): the values that mean it is done. */
+  settles?: readonly string[];
   /** False for a field whose value the list works out or links (it is never typed into). */
   editable?: boolean;
   /** The field holds a document (written and read as markdown): the first such field is each record's notes, edited
@@ -131,9 +135,12 @@ const isDate = (field: ListField) => field.kind === 'date' || field.ruleKind ===
 const holdsMany = (field: ListField) => MANY_KINDS.has(field.ruleKind ?? '');
 const declaresValues = (field: ListField) => Boolean(field.values && Object.keys(field.values).length > 0);
 
-/** The declared values of a field that mean an item is done: a value carrying one of the done tones, or named (by id or
- * label, without case) one of the done words (source-data/views-offered-to-every-list.json `done`). */
-export function doneValuesOf(field: Pick<ListField, 'values'>, done: Pick<OfferedViewRow, 'done_tones' | 'done_values'>): string[] {
+/** The values of a field that mean an item is done. A field that declares `settles` is the declared owner of that answer:
+ * done on exactly those values, the ones a row keeps once it holds them. Only a field that declares no `settles` falls
+ * back to the done rule of views-offered-to-every-list.json `done`: a value carrying one of the done tones, or named (by
+ * id or label, without case) one of the done words. */
+export function doneValuesOf(field: Pick<ListField, 'values' | 'settles'>, done: Pick<OfferedViewRow, 'done_tones' | 'done_values'>): string[] {
+  if (Array.isArray(field.settles)) return [...field.settles];
   const tones = new Set(done.done_tones ?? []);
   const names = new Set((done.done_values ?? []).map(name => name.toLowerCase()));
   return Object.entries(field.values ?? {})
