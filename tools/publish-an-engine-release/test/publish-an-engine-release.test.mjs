@@ -183,6 +183,22 @@ test('a provided-files kind publishes the two files a request names, each checke
   await assert.rejects(publish({ ...providing, sequence: 3, files: [{ ...providing.files[0], name: '../escape.dmg' }] }), error => error.exit === 2 && /basename/.test(error.message), 'a name with a folder is refused');
 });
 
+test('a provided-files request whose second file is wrong publishes nothing: the feed and the folder are unchanged', async () => {
+  const { remote, commits } = repository(3);
+  const { request } = builder(remote);
+  const staged = join(folder(), 'staged');
+  mkdirSync(staged);
+  const good = Buffer.from('synthetic disk image bytes'), record = Buffer.from('{"latestVersion":"2.0.0"}\n');
+  writeFileSync(join(staged, 'Trillion-2.0.0.dmg'), good);
+  writeFileSync(join(staged, 'Trillion-update.json'), record);
+  const file = (name, bytes) => ({ name, path: join(staged, name), bytes: bytes.length, content: makeHashCodeHexFromBytes(new Uint8Array(bytes)) });
+  const wrong = { ...file('Trillion-update.json', record), content: `1f:${'0'.repeat(64)}` };
+  await assert.rejects(publish({ ...request, kind: 'mac-app', commit: commits[2], sequence: 3, files: [file('Trillion-2.0.0.dmg', good), wrong] }), error => error.exit === 3);
+  assert.ok(!existsSync(join(request.feed_folder, 'mac-app-feed.json')), 'the feed was not written');
+  assert.ok(!existsSync(join(request.feed_folder, 'Trillion-2.0.0.dmg')), 'the first file was not stored either');
+  assert.ok(!existsSync(join(request.feed_folder, 'Trillion-update.json')));
+});
+
 test('a release with an extra program at the root is refused before it is signed: old unpackers take only the program at the root', () => {
   const program = { name: 'trillion-local', bytes: Buffer.from('engine'), executable: true };
   const forwarder = { name: 'trillion-mcp-forwarder', bytes: Buffer.from('relay'), executable: true };

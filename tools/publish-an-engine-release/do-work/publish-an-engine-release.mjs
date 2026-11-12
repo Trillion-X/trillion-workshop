@@ -488,14 +488,31 @@ export async function publishProvided(request, kind) {
     return { name: file.name, bytes, content };
   });
   mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
-  const answers = [];
-  for (const { name, bytes, content } of prepared) {
-    const file = join(feedFolder, name), part = `${file}.${process.pid}.part`;
-    writeFileSync(part, bytes, { mode: 0o644 });
-    const entry = signEntry({ commit, sequence, target: kind.target, url: `${request.base_url}${name}`, content, bytes: bytes.length, urgent: request.urgent === true }, privateKey);
-    answers.push(await addUnderLock({ request, feedFolder, entry, part, file, publicKey }));
-  }
-  return { commit, sequence, target: kind.target, published: answers };
+  // Under one feed lock: every entry is judged against the feed as the earlier ones leave it, and nothing is written until all
+  // of them pass. A refusal of any file therefore leaves the feed and the folder as they were.
+  const keep = request.keep_releases ?? settings.keep_releases;
+  return withFeedLock(feedFolder, async () => {
+    let now = readFeed(readText(feedFile(feedFolder, kind)), kind.feed_file);
+    const outcomes = prepared.map(({ name, bytes, content }) => {
+      const entry = signEntry({ commit, sequence, target: kind.target, url: `${request.base_url}${name}`, content, bytes: bytes.length, urgent: request.urgent === true }, privateKey);
+      const result = addRelease(now, entry, keep, kind.feed_file);
+      if (result.added) now = result.feed;
+      return { name, bytes, entry, result };
+    });
+    const fresh = outcomes.filter(one => one.result.added);
+    for (const { name, bytes } of fresh) {
+      const file = join(feedFolder, name), part = `${file}.${process.pid}.part`;
+      writeFileSync(part, bytes, { mode: 0o644 });
+      renameSync(part, file);
+    }
+    if (fresh.length) writeAtomically(feedFile(feedFolder, kind), `${JSON.stringify(now, null, 1)}\n`);
+    const dropped = fresh.flatMap(one => one.result.dropped);
+    for (const gone of dropped.filter(one => !now.releases.some(held => held.url === one.url && held.commit === one.commit && held.target === one.target))) rmSync(join(feedFolder, basename(gone.url)), { force: true });
+    const answers = outcomes.map(({ entry, result }) => (result.added
+      ? answerOf(entry, { publicKey, already: false, dropped: result.dropped.length, held: now.releases.length })
+      : answerOf(result.entry, { publicKey, already: true, dropped: 0, held: now.releases.length })));
+    return { commit, sequence, target: kind.target, published: answers };
+  });
 }
 
 /** Add a signed entry whose tar.gz is at `part` to the feed under its lock, and remove what no longer fits. */
