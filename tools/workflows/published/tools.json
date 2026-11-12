@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ac47f2636fbe24331b6e0900378f0adc63c23d56750841dd5077771276c41391"
+  "blake3": "1f:05815eb000a75f41b84f435c0b6b45e618a29a09105f11803efbab3760d94ee2"
  },
  "fields": [
   {
@@ -7232,6 +7232,21 @@
    }
   },
   {
+   "id": "tool:name-my-next-commitment",
+   "values": {
+    "title": "Name my next commitment for the menu bar",
+    "job": "Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows",
+    "description": "Give the timed calendar items (each with its title, its start and end, whether it is all day, and the calendar it came from) the caller read from the person's own records, and optionally the time to count from, how many hours ahead counts (0 for the rest of today) and how each calendar counts (within, always or never). Returns the one line the menu bar shows (\"Design review · in 12 min\") for the commitment now or next inside the reach, or null when there is none, the reach's end, how far ahead the calendar is read (look_ahead_minutes) and how often the line refreshes. Only timed items count; an item with no title is skipped; nothing is read or written here.",
+    "status": "active",
+    "maker": "maker:name-my-next-commitment",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "name-my-next-commitment"
+   }
+  },
+  {
    "id": "tool:name-the-recording-behind-transcript-lines",
    "values": {
     "title": "Find which recording a cited passage of my transcript archive comes from",
@@ -9643,6 +9658,21 @@
    }
   },
   {
+   "id": "tool:read-the-menu-bar-settings",
+   "values": {
+    "title": "Read the Mac menu bar's own settings",
+    "job": "Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
+    "description": "Give the Mac menu bar item's settings (enabled, how far ahead meetings count, the title's length, the app icon) from this tool's own row definitions: each setting with its value (the held answer's when the answer has the right shape, else its default), whether an answer was held, and the change when one is given and the setting allows it; a change it does not allow is refused. Reads nothing and writes nothing: the definitions are this tool's DATA.",
+    "status": "active",
+    "maker": "maker:read-the-menu-bar-settings",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "read-the-menu-bar-settings"
+   }
+  },
+  {
    "id": "tool:read-time-blocks",
    "values": {
     "title": "Read records as time blocks",
@@ -10903,6 +10933,21 @@
      "placement:your-computer"
     ],
     "folder": "compare-voice-and-music-models"
+   }
+  },
+  {
+   "id": "tool:say-what-the-menu-bar-mark-shows",
+   "values": {
+    "title": "Say what the Mac menu bar mark shows",
+    "job": "Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
+    "description": "Give the person's records (each with title, kind, running, updatedAt and an optional progress value), the unread count and, optionally, the next calendar line. Returns the mark's message: its count, whether anything is working, how many are running, the now line (the newest running record with its progress rounded to two places, or the next line when nothing runs, or null) and the first eight running titles. Nothing is read or written here.",
+    "status": "active",
+    "maker": "maker:say-what-the-menu-bar-mark-shows",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "say-what-the-menu-bar-mark-shows"
    }
   },
   {
@@ -12473,6 +12518,21 @@
      "placement:your-computer"
     ],
     "folder": "take-payments"
+   }
+  },
+  {
+   "id": "tool:start-or-resume-the-first-setup",
+   "values": {
+    "title": "Start or resume the first setup",
+    "job": "Say what starting or resuming a new person's first setup does next: the ordered owner calls, each with the read-back to make after it",
+    "description": "Given the account's saved setup run, its access prerequisites and the Workshop tool ids the caller found, return what starting or resuming the setup does, as an ordered list of steps. Each step names its owner tool and the call the caller makes; a step whose owner is not in available_tools is marked unavailable and is never called. Each called step carries a read_back (tool:read-setup) to run after it; done_steps are the steps already read back. A stopped setup is not restarted unless restart is true; a failed or stuck run resumes with its run_id; a finished run has no steps. Writes nothing: the caller runs the calls. Port of old trillion setup-runtime ensure().",
+    "status": "active",
+    "maker": "maker:walk-a-new-person-through-first-setup",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "walk-a-new-person-through-first-setup"
    }
   },
   {
