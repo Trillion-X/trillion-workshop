@@ -1,0 +1,152 @@
+{
+ "kind": "tool-rows",
+ "record_set": "say-what-the-menu-bar-mark-shows-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/say-what-the-menu-bar-mark-shows: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::say-what-the-menu-bar-mark-shows::tool::say-what-the-menu-bar-mark-shows",
+   "address": "package::say-what-the-menu-bar-mark-shows::tool::say-what-the-menu-bar-mark-shows",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:say-what-the-menu-bar-mark-shows",
+    "label": "Say what the Mac menu bar mark shows",
+    "status": "active",
+    "job": "Say what the Mac menu bar item shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
+    "description": "Give the person's records (each with title, kind, running, updatedAt and an optional progress value), the unread count and, optionally, the next calendar line. Returns the mark's message: its count, whether anything is working, how many are running, the now line (the newest running record with its progress rounded to two places, or the next line when nothing runs, or null) and the first eight running titles. Nothing is read or written here.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "records",
+      "unread_count"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "records": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "title",
+         "kind",
+         "running",
+         "updatedAt"
+        ],
+        "properties": {
+         "title": {
+          "type": "string"
+         },
+         "kind": {
+          "type": "string"
+         },
+         "running": {
+          "type": "boolean"
+         },
+         "updatedAt": {
+          "type": "number"
+         },
+         "progress": {
+          "type": "object"
+         }
+        }
+       }
+      },
+      "unread_count": {
+       "type": "integer",
+       "minimum": 0
+      },
+      "next": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "kind",
+        "count",
+        "working",
+        "running",
+        "now",
+        "list"
+       ]
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "say-what-the-menu-bar-mark-shows",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/say-what-the-menu-bar-mark-shows"
+       }
+      ]
+     },
+     "workdir": "/opt/say-what-the-menu-bar-mark-shows",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/say-what-the-menu-bar-mark-shows/do-work/say-what-the-menu-bar-mark-shows.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:say-what-the-menu-bar-mark-shows",
+    "provenance": {
+     "source": "trillion-apps web/src/workspace/alone-page.tsx, the glance message the Mac menu bar item is told (at trillion-apps commit 21a2de08); its countdown comes from tool:name-my-next-commitment"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "unread_count": 2,
+       "records": [
+        {
+         "title": "Upload",
+         "kind": "upload",
+         "running": true,
+         "updatedAt": 5,
+         "progress": {
+          "value": 0.5
+         }
+        }
+       ]
+      },
+      "output_selector": "$.result.kind",
+      "contains": "glance"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1091,6 +1091,24 @@
       "distinct_from": [{"job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "that folder keeps the device facts a checklist reads; this one plans the setup run and the installs"}]
     },
     {
+      "capability": "say what the Mac menu bar mark shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
+      "owner": [
+        "tools/say-what-the-menu-bar-mark-shows/"
+      ],
+      "entry": "tools/say-what-the-menu-bar-mark-shows/tool-rows.json",
+      "evidence": "trillion-apps web/src/workspace/alone-page.tsx glance message at commit 21a2de08",
+      "distinct_from": [
+        {
+          "job": "say the timed calendar item now or next as a countdown line for the Mac menu bar",
+          "why": "that names only the calendar line; this builds the whole mark from running work, unread count and that line"
+        },
+        {
+          "job": "show an operator how a record book is keeping up: how many runs, how many bytes, what is waiting to be folded and the room left",
+          "why": "that reports a record book's storage; this says what the person's Mac menu bar mark shows from their running work and unread count"
+        }
+      ]
+    },
+    {
       "capability": "choose which feed each widget on a glance surface shows: the one the person picked, else the feed its size takes from the surface's feeds in order",
       "owner": ["tools/choose-the-feed-each-widget-shows/"],
       "entry": "tools/choose-the-feed-each-widget-shows/tool-rows.json",
