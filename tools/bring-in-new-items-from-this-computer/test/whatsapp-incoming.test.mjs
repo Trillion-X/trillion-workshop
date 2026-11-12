@@ -10,7 +10,7 @@ import { READERS, readNewItems } from '../computer/read-new-items.mjs';
 const connectionRow = JSON.parse(readFileSync(new URL(import.meta.resolve('../../run-on-a-persons-computer/carry-connections.json')))).connections.find(row => row.vendor === 'whatsapp');
 const sourceRow = JSON.parse(readFileSync(new URL(import.meta.resolve('../computer/computer-sources.json')))).sources.find(row => row.id === 'whatsapp');
 const turn = () => new Promise(resolve => setImmediate(resolve));
-const message = (id, extra = {}) => ({ key: { id, remoteJid: 'user-08f6b4fd@example.com', participant: '15551765228@s.whatsapp.net' }, messageTimestamp: 1_791_360_000, pushName: 'Sender', message: { conversation: `Original words ${id}` }, ...extra });
+const message = (id, extra = {}) => ({ key: { id, remoteJid: 'user-08f6b4fd@example.com', participant: '15555550101@s.whatsapp.net' }, messageTimestamp: 1_791_360_000, pushName: 'Sender', message: { conversation: `Original words ${id}` }, ...extra });
 
 function fixture(t) {
   const folder = mkdtempSync(join(tmpdir(), 'trillion-whatsapp-incoming-'));
@@ -19,7 +19,7 @@ function fixture(t) {
   writeFileSync(join(folder, 'session', 'creds.json'), JSON.stringify({ registered: true }));
   let clock = Date.parse('2026-10-07T20:00:00Z');
   const sockets = [], connections = [];
-  function create(self = '15550000001:15554240914@s.whatsapp.net') {
+  function create(self = '15555550100:15554240914@s.whatsapp.net') {
     const instance = whatsapp({ ...connectionRow, keep: 2, open_within_ms: 20, reconnect_after_ms: 5 }, {
       folder, now: () => clock,
       load: async () => ({
@@ -61,8 +61,8 @@ test('incoming WhatsApp text reaches the existing door once, with source/sender/
   f.emit([item]); await turn(); await reader.tick();
   assert.equal(received.length, 1);
   assert.deepEqual(received[0], {
-    route: 'WhatsApp', source_id: JSON.stringify(['15553635791@s.whatsapp.net', 'user-08f6b4fd@example.com', '15551765228@s.whatsapp.net', 'original']),
-    source_ref: 'original', conversation_id: JSON.stringify(['15553635791@s.whatsapp.net', 'user-08f6b4fd@example.com']), from: '15551765228@s.whatsapp.net', from_person: false,
+    route: 'WhatsApp', source_id: JSON.stringify(['15555550100@s.whatsapp.net', 'user-08f6b4fd@example.com', '15555550101@s.whatsapp.net', 'original']),
+    source_ref: 'original', conversation_id: JSON.stringify(['15555550100@s.whatsapp.net', 'user-08f6b4fd@example.com']), from: '15555550101@s.whatsapp.net', from_person: false,
     title: 'WhatsApp from Sender', text: 'Original words original', at: new Date(item.messageTimestamp * 1000).toISOString(),
   });
   assert.equal(reader.status()[0].arrived, true);

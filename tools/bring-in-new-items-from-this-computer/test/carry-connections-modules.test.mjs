@@ -73,8 +73,8 @@ test('attributedBody lengths over 127 bytes use the two-byte and four-byte forms
 });
 
 test('WhatsApp addresses and words: me, a phone number, a jid, and every kind of message that carries words', () => {
-  assert.equal(jidFor('me', '12059197001:15551453195@s.whatsapp.net'), '15552883800@s.whatsapp.net');
-  assert.equal(jidFor('(555) 555-2362', null), '15555853910@s.whatsapp.net');
+  assert.equal(jidFor('me', '15555550100:15554240914@s.whatsapp.net'), '15555550100@s.whatsapp.net');
+  assert.equal(jidFor('+1 555 555 0101', null), '15555550101@s.whatsapp.net');
   assert.equal(jidFor('user-4fe1a2fd@example.com', null), 'user-4fe1a2fd@example.com');
   assert.equal(jidFor('12', null), null);
   assert.equal(wordsOf({ conversation: 'a' }), 'a');
@@ -174,7 +174,7 @@ test('the WhatsApp helper starts a phone pairing on request and returns the one-
   const socket = {
     authState: { creds: { registered: false } },
     ev: { on: (name, listener) => events.set(name, listener) },
-    requestPairingCode: async phone => { assert.equal(phone, '15551234567'); return 'AB12-CD34'; },
+    requestPairingCode: async phone => { assert.equal(phone, '15555550102'); return 'AB12-CD34'; },
     end() {},
   };
   const connection = whatsapp({ ...row('whatsapp') }, {
@@ -188,7 +188,7 @@ test('the WhatsApp helper starts a phone pairing on request and returns the one-
   });
   try {
     assert.deepEqual(await connection.connect(), { state: 'needs_phone', error: row('whatsapp').words.phone_needed });
-    const connecting = connection.connect({ phone: '(555) 555-2362' });
+    const connecting = connection.connect({ phone: '+1 555 555 0102' });
     await new Promise(resolve => setImmediate(resolve));
     events.get('connection.update')({ qr: 'pairing-payload' });
     assert.deepEqual(await connecting, { state: 'pairing_required', code: 'AB12-CD34', expires_after_seconds: row('whatsapp').code_seconds });
@@ -225,7 +225,7 @@ test('an expired WhatsApp pairing code starts a fresh pairing window', async () 
     }),
   });
   try {
-    const first = connection.connect({ phone: '+15551234567' });
+    const first = connection.connect({ phone: '+1 555 555 0103' });
     await new Promise(resolve => setImmediate(resolve));
     sockets[0].events.get('connection.update')({ qr: 'first-pairing-payload' });
     assert.deepEqual(await first, { state: 'pairing_required', code: 'CODE-1', expires_after_seconds: row('whatsapp').code_seconds });
@@ -233,7 +233,7 @@ test('an expired WhatsApp pairing code starts a fresh pairing window', async () 
     mkdirSync(join(folder, 'session'), { recursive: true });
     writeFileSync(join(folder, 'session', 'creds.json'), JSON.stringify({ registered: false }));
     clock += (row('whatsapp').code_seconds + 1) * 1000;
-    const second = connection.connect({ phone: '+15551234567' });
+    const second = connection.connect({ phone: '+1 555 555 0103' });
     await new Promise(resolve => setImmediate(resolve));
     sockets[0].events.get('connection.update')({ connection: 'close', lastDisconnect: { error: { output: { statusCode: 500 } } } });
     sockets[1].events.get('connection.update')({ qr: 'second-pairing-payload' });
