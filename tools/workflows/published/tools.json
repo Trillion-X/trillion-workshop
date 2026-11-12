@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:ad3c904a435acce0ec4fb53aadecf407818cd420acc9410e92f8473d096bc25d"
+  "blake3": "1f:c8164e52f1478296210aee7458fe51823da9d1d8c3c6b27add83344220fb52bc"
  },
  "fields": [
   {
@@ -1305,7 +1305,7 @@
    "values": {
     "title": "Finish, fail, give back, withdraw, flag or remove a job handed between my AIs",
     "job": "Record what happened to a job one of my AIs took: finish it with its result, say it failed, give it back, say what blocks it, take back one I sent, or remove it",
-    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (the taker; needs words) and unstuck clears that; withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
+    "description": "Reads the ai-job record `id` and makes the move `action` names, by the rules in read-data/ai-work.json: finish (the taker; needs result, may add summary) and fail (the taker; needs result: why) end it; release gives it back to waiting (the taker, or anyone once it is held longer than the stale-take time; `because` says why); stuck says what blocks it (any AI, so a watcher can flag it; needs words) and unstuck clears that (any AI); withdraw takes back a job still waiting (its sender; `because`); remove deletes the record (its sender, or anyone once it is finished). The move is one write of the whole job conditioned on the value just read: when the job changed meanwhile nothing is written and the answer is moved false with reason changed and the job as it now is. A move the rules do not allow is refused, saying why.",
     "status": "active",
     "maker": "maker:hand-work-to-ais",
     "licence_class": "licence:maker-own",
@@ -2887,6 +2887,21 @@
    }
   },
   {
+   "id": "tool:deliver-to-list",
+   "values": {
+    "title": "Write a message as a row of a list",
+    "job": "Write a message (to, subject, text, kind) as one row of a list in my records, with the row's id set to an idempotency key, so a send again writes the same row",
+    "description": "Reads one JSON object from standard input: config (the door config file), row_type, to, subject, text, kind and idempotencyKey. Writes one row whose id is the idempotency key and whose type is record:<row_type>, through the person's door. Answers the message id the engine's delivery reads, or the refusal's words; a write that may have happened answers unknown.",
+    "status": "active",
+    "maker": "maker:deliver-to-list",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "deliver-to-list"
+   }
+  },
+  {
    "id": "tool:describe-a-presentation-runtime",
    "values": {
     "title": "List what a presentation runtime exposes on a slide, a shape and the notes (runs on your computer)",
@@ -4256,6 +4271,20 @@
    }
   },
   {
+   "id": "tool:github:coreyhaines31-marketingskills",
+   "values": {
+    "title": "marketingskills (open source, runs on your computer)",
+    "job": "Collect free, dated evidence of how a company grows from its public footprint: page families in its sitemap and when each appeared, the month each ad pixel, analytics, testing, referral or email tool first showed on its site, the months its pricing and homepage headline changed, who sends its email and which tools it verified in DNS, its subdomains by first certificate date, its open roles from public job boards, its app reviews by month, a side-by-side of three to five competitors, the lift of each cluster of dated moves against its traffic, and the moves new since the last look",
+    "description": "Marketing skills for Claude Code and AI agents. CRO, copywriting, SEO, analytics, and growth engineering. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "folder": "tools-from-github"
+   }
+  },
+  {
    "id": "tool:github:danielgatis-rembg",
    "values": {
     "title": "rembg (open source, runs on your computer)",
@@ -5242,6 +5271,36 @@
      "placement:your-computer"
     ],
     "folder": "generate-and-judge-sound-effects"
+   }
+  },
+  {
+   "id": "tool:keep-a-held-value-by-name",
+   "values": {
+    "title": "Keep a held value by name in my vault",
+    "job": "Keep one secret value (a key, a token) under a name in my own Trillion vault, so my tools and AIs can use it by name without ever seeing it",
+    "description": "Stores the value on stdin under the given name in the person's own vault through the engine's held-values:put operation, with the person's own key as the credential. The name is one the vault accepts, and a service connection's own names are refused by the engine. The value never goes on a command line, into a log or into the answer: the answer is {name, accepted}. Accepted means written at the writer, or queued sealed for the writer when this computer is not the writer. Connections keep their values through service-connections; use this for any other secret.",
+    "status": "active",
+    "maker": "maker:keep-a-held-value-by-name",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "keep-a-held-value-by-name"
+   }
+  },
+  {
+   "id": "tool:keep-a-local-file-in-my-files",
+   "values": {
+    "title": "Keep a file from my computer in my Files",
+    "job": "Keep files from the person's computer in their Files under names they choose: one file or a list of files, each kept in order; a small file in pieces, a large one over the lease road",
+    "description": "Runs on the person's computer with the drives they granted it to see and the folder changes they granted. Keeps one regular file (not a link, not a folder) or a list of them (at most DATA most_files, keep-a-local-file.json) into the person's Files under the names given. A small file is written in pieces that each fit one request; a file above the whole-file threshold goes over the lease road in chunks. A file that is refused or fails is named in refused with its reason, and the others are still kept. Returns kept (name, bytes, media_type, finished) and refused. Deletes and moves nothing.",
+    "status": "active",
+    "maker": "maker:sync-files-between-my-computers",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sync-files-between-my-computers"
    }
   },
   {
@@ -8217,7 +8276,7 @@
    "values": {
     "title": "Publish an engine release",
     "job": "Build the engine at a commit and publish it as a signed release every computer can adopt",
-    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
+    "description": "On the builder: fetches the repository's branch with the token, checks the commit is on the branch's first-parent line and numbers it (its first-parent count), builds trillion-local for the builder's own rust target with the commit and number in TRILLION_RELEASE_COMMIT and TRILLION_RELEASE_SEQUENCE, packs it (with the repository's product/ folder when the commit has one) as a tar.gz named by its BLAKE3 identity, signs the entry with the builder's Ed25519 key, and adds it to feed.json newest last, keeping 32. When the config names darwin, it then cross-builds the same commit for each Mac target in it (cargo zigbuild against the macOS SDK), signs that program Developer ID with the hardened runtime (rcodesign, the identity read by path from the service's credentials), holds the signature to the Mac app's release requirement, and adds it as its own entry in the same feed; a Mac target that fails leaves the others published. A commit older than the feed's newest release for the same target is refused, so an older commit never wins; the same commit again changes nothing.",
     "status": "active",
     "maker": "maker:publish-an-engine-release",
     "licence_class": "licence:maker-own",
@@ -12136,6 +12195,21 @@
    }
   },
   {
+   "id": "tool:sign-a-mac-app-update",
+   "values": {
+    "title": "Sign a Mac app update record",
+    "job": "Sign the Mac app's update record text with the release key in my vault, so installed apps accept the update",
+    "description": "Signs the UTF-8 text it is given (the update record's signed lines) with the Ed25519 key held under mac-app-update-signing-key, through the engine's held-values:sign operation. The key never leaves the vault; the answer is the signature in base64, as the app reads it. Only a run reaches the operation; the run's right names that one key and that one operation.",
+    "status": "active",
+    "maker": "maker:sign-a-mac-app-update",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "sign-a-mac-app-update"
+   }
+  },
+  {
    "id": "tool:sign-someone-up-for-an-email-course-with-amazon-ses",
    "values": {
     "title": "Sign someone up for an email course (sends through Amazon SES)",
@@ -13066,7 +13140,7 @@
    "values": {
     "title": "Update a computer",
     "job": "Bring a running computer to what a new one gets: the product settings file, the signed release feed and a release that knows both",
-    "description": "Reads a running computer's own layout from its service unit (its computer config, current link, state folder, releases folder and unit name; a request's layout row wins), copies the request's engine release into its releases folder (or keeps the one current names), writes the product settings file the engine reads into its state folder (named by PRODUCT_SETTINGS in the unit), adds the product's signed release feed to its computer config so it adopts new releases into its own releases folder, made writable for the service, sets a copies policy its computers can meet, points it at the release and restarts it. Every file it replaces is kept in a backup folder first; when the service is not active afterwards, or the sign-up page does not answer 200, everything is put back from it. `rollback` puts an update back on request.",
+    "description": "Reads a running computer's own layout from its service unit (a request's layout row wins), installs the requested engine release or keeps the current one, and writes one caller-supplied product_settings snapshot to its state folder. Missing starting account rows come from that same snapshot, existing configured rows remain, and copies are bounded to available computers. The caller explicitly supplies the signed release_feed. Replaced files and the release pointer are backed up; failed service or sign-up health restores them. rollback restores that backup on request.",
     "status": "active",
     "maker": "maker:start-a-computer",
     "licence_class": "licence:maker-own",
