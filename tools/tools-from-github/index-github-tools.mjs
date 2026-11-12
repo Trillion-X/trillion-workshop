@@ -54,7 +54,7 @@ export function indexRow(source, github, { classes, licence, read_on }) {
       get_it: [`git clone ${github.html_url}.git`, ...source.install],
       run: source.run,
       needs: source.needs ?? [],
-      say: 'This runs on the person\'s own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps.',
+      say: 'This runs on the person\'s own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps.',
     },
     licence_class: cls.id,
     placements: [PLACEMENT],

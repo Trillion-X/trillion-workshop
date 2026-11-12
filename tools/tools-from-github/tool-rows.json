@@ -50,7 +50,7 @@
       "cmake",
       "a C++ compiler"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -61,7 +61,7 @@
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for ggml-org/whisper.cpp",
      "read_on": "2026-11-12",
-     "stars": 55119,
+     "stars": 55122,
      "last_pushed_at": "2026-11-10T12:09:38Z",
      "default_branch": "master",
      "readme_quote": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f samples/jfk.wav"
@@ -110,7 +110,7 @@
       "python",
       "ffmpeg"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -121,7 +121,7 @@
      "licence_spdx": "BSD-2-Clause",
      "licence_read_from": "GitHub's licence field for m-bain/whisperX",
      "read_on": "2026-11-12",
-     "stars": 25225,
+     "stars": 25227,
      "last_pushed_at": "2026-10-22T14:53:44Z",
      "default_branch": "main",
      "readme_quote": "whisperx path/to/audio.wav --compute_type int8 --device cpu"
@@ -169,7 +169,7 @@
      "needs": [
       "python"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -180,7 +180,7 @@
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for SYSTRAN/faster-whisper",
      "read_on": "2026-11-12",
-     "stars": 26684,
+     "stars": 26686,
      "last_pushed_at": "2026-11-11T23:54:15Z",
      "default_branch": "master",
      "readme_quote": "model = WhisperModel(model_size, device=\"cpu\", compute_type=\"int8\")"
@@ -228,7 +228,7 @@
      "needs": [
       "python"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -288,7 +288,7 @@
       "python",
       "ffmpeg"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -299,7 +299,7 @@
      "licence_spdx": "Unlicense",
      "licence_read_from": "GitHub's licence field for yt-dlp/yt-dlp",
      "read_on": "2026-11-12",
-     "stars": 207057,
+     "stars": 207083,
      "last_pushed_at": "2026-11-04T07:16:27Z",
      "default_branch": "master",
      "readme_quote": "yt-dlp [OPTIONS] [--] URL [URL...]"
@@ -345,7 +345,7 @@
      ],
      "run": "ffmpeg -i {input} {output}",
      "needs": [],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -356,7 +356,7 @@
      "licence_spdx": "LGPL-2.1-or-later",
      "licence_read_from": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/LICENSE.md",
      "read_on": "2026-11-12",
-     "stars": 67096,
+     "stars": 67101,
      "last_pushed_at": "2026-11-12T04:15:32Z",
      "default_branch": "master",
      "readme_quote": "ffmpeg is a command line toolbox to manipulate, convert and stream multimedia content."
@@ -405,7 +405,7 @@
       "python",
       "ffmpeg"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -466,7 +466,7 @@
      "needs": [
       "python"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -477,7 +477,7 @@
      "licence_spdx": "GPL-3.0",
      "licence_read_from": "GitHub's licence field for OHF-Voice/piper1-gpl",
      "read_on": "2026-11-12",
-     "stars": 6256,
+     "stars": 6257,
      "last_pushed_at": "2026-11-11T17:24:06Z",
      "default_branch": "main",
      "readme_quote": "python3 -m piper -m en_US-lessac-medium -f test.wav -- 'This is a test.'"
@@ -525,7 +525,7 @@
      "needs": [
       "python"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -536,7 +536,7 @@
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for microsoft/markitdown",
      "read_on": "2026-11-12",
-     "stars": 194999,
+     "stars": 195008,
      "last_pushed_at": "2026-11-07T00:14:01Z",
      "default_branch": "main",
      "readme_quote": "markitdown path-to-file.pdf -o document.md"
@@ -584,7 +584,7 @@
      "needs": [
       "python"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -595,8 +595,8 @@
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for docling-project/docling",
      "read_on": "2026-11-12",
-     "stars": 70464,
-     "last_pushed_at": "2026-11-12T06:49:10Z",
+     "stars": 70469,
+     "last_pushed_at": "2026-11-12T08:15:02Z",
      "default_branch": "main",
      "readme_quote": "docling https://arxiv.org/pdf/2206.01062"
     }
@@ -644,7 +644,7 @@
       "python",
       "ffmpeg"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -701,7 +701,7 @@
      ],
      "run": "./realesrgan-ncnn-vulkan -i {input} -o {output} -n realesrgan-x4plus",
      "needs": [],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -758,7 +758,7 @@
      ],
      "run": "tesseract {input} {output}",
      "needs": [],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -818,7 +818,7 @@
       "tesseract",
       "ghostscript"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -878,7 +878,7 @@
       "git",
       "node 18 or later"
      ],
-     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, and show them the result. If you cannot run commands, give them these steps."
     },
     "licence_class": "licence:permissive",
     "placements": [
@@ -889,7 +889,7 @@
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for coreyhaines31/marketingskills",
      "read_on": "2026-11-12",
-     "stars": 59826,
+     "stars": 59843,
      "last_pushed_at": "2026-11-11T17:49:23Z",
      "default_branch": "main",
      "readme_quote": "git clone https://github.com/coreyhaines31/marketingskills.git"
