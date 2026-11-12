@@ -235,6 +235,11 @@
   },
   "writes": 256,
   "write_bytes": 48000,
+  "settle": {
+    "wait_ms": 600000,
+    "poll_ms": 3000,
+    "_why": "wait_ms is the engine's pending_writes.settle_max_age_ms (trillion-rust src/account/computers/settings.json, 600000): past it the writer completes a queued command as refused, so one read after it is final. poll_ms is the engine's renew_every_ms (3000), the cadence of the account timer that settles the queue."
+  },
   "conflict": {
     "reads": 4,
     "_why": "A case write refused as changed (original_command_conflict) is read again and written again under a fresh key, up to this many reads in all. The tool process is not given the run deadline, so this is not derived from it: it is four attempts, each one read and one write, where a write answers within the door's write bound (5 s, the bound writes are measured under in the decision-case notes)."
