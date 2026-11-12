@@ -50,7 +50,7 @@ export function linkGnuMove(folder, options) {
 
 // Synthetic caller profile only; production identity and starting rows live in the caller's package.
 const SEED_COPIES = { least_copy_keepers: 3, least_voters: 3, least_may_answer: 2, least_always_on: 0 };
-const PRODUCT = { word: 'sample', new_accounts: {
+const PRODUCT = { word: 'sample', app_host: 'app.example.com', new_accounts: {
   sign_in: { token_seconds: 120 }, sign_in_ways: { test_way: true },
   sign_in_words: { heading: 'Sign in to the sample' }, copies_rules: { rule: 'sample-rule' }, copies: SEED_COPIES,
 } };
@@ -253,20 +253,30 @@ test('the public name points at the machine with this lease\'s mark, and only th
 
 test('the computer config takes the machine\'s own fields and values read from the release', async () => {
   const run = async (_machine, command) => {
-    assert.equal(command, "cat '/opt/place/current/data/new-accounts.json'");
+    assert.equal(command, "cat '/opt/place/releases/current/data/new-accounts.json'");
     return JSON.stringify({ sign_in_ways: [{ way: 'passkey' }] });
   };
   const config = await computerConfig({}, {
-    port: 7199, name: { host_name: 'computer.example.com' }, place_config: { report: { takes_new_accounts: true }, router: 'router.example.com:443' },
+    port: 7199, name: { host_name: 'computer.example.com' }, place_config: { report: { takes_new_accounts: true } },
     config_from_release: [{ at: ['new_accounts', 'sign_in_ways'], file: 'data/new-accounts.json', key: 'sign_in_ways' }],
   }, { cents: 699, currency: 'EUR' }, run);
   assert.deepEqual(config, {
-    report: { takes_new_accounts: true, reach: 'https://computer.example.com', cost_per_month_cents: 699 }, router: 'router.example.com:443',
+    report: { takes_new_accounts: true, reach: 'https://computer.example.com', cost_per_month_cents: 699 }, router: 'app.example.com:443',
     listen: '127.0.0.1:7199', accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: 'https://computer.example.com',
     new_accounts: { ...PRODUCT.new_accounts, sign_in_ways: [{ way: 'passkey' }], copies: { least_copy_keepers: 1, least_voters: 1, least_may_answer: 1, least_always_on: 0 } }, release_feed: FEED,
   });
   const behind = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, public_origin: 'https://front.example.com' }, null, run);
   assert.deepEqual([behind.public_origin, behind.report.reach], ['https://front.example.com', 'https://computer.example.com']);
+});
+
+test('a computer\'s router is the product settings app_host, and a request that names a router is refused', async () => {
+  const run = async () => JSON.stringify({});
+  const derived = await computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' } }, null, run);
+  assert.equal(derived.router, `${PRODUCT.app_host}:443`);
+  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: 'place-fsn1b.gettrillion.ai:443' } }, null, run),
+    /must not name a router/);
+  await assert.rejects(computerConfig({}, { port: 7199, name: { host_name: 'computer.example.com' }, place_config: { router: '' } }, null, run),
+    /must not name a router/);
 });
 
 test('a request\'s paths are read relative to its own file', () => {

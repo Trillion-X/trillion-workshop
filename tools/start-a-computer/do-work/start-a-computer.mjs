@@ -161,10 +161,11 @@ export async function copyRelease(machine, engine, run = onMachine, root = '') {
   return dir;
 }
 
-/** Copy the release onto the machine as /opt/place/releases/NAME and point /opt/place/current at it. */
+/** Copy the release onto the machine as /opt/place/releases/NAME and switch the live link, /opt/place/releases/current, to it
+ * (the place unit runs that link; the follower moves it on each switch). */
 export async function installRelease(machine, engine, run = onMachine) {
   const dir = await copyRelease(machine, engine, run);
-  await run(machine, `ln -sfn ${q(dir)} /opt/place/current.new && mv -T /opt/place/current.new /opt/place/current`);
+  await run(machine, `ln -sfn ${q(dir)} /opt/place/releases/current.new && mv -T /opt/place/releases/current.new /opt/place/releases/current`);
   return dir;
 }
 
@@ -275,7 +276,11 @@ export function defaultComputers(computers) {
  * `public_origin` when the request names one (a forwarder in front of several machines), else at that same name. */
 export async function computerConfig(machine, request, price, run = onMachine, product = productSettingsOf(readProductData(request))) {
   const reach = `https://${request.name.host_name}`, config = structuredClone(request.place_config ?? {});
-  Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: request.public_origin ?? reach });
+  // The router is the product settings' `app_host` row, never a request's own value: a stale name (a staging router) once
+  // came back through place_config and made every computer's messages fail, so a request that names one is refused.
+  if (request.place_config && 'router' in request.place_config) throw refused('place_config must not name a router: the computer\'s router is the product settings app_host row.');
+  if (typeof product?.data?.app_host !== 'string' || !product.data.app_host) throw refused('the product settings name no app_host, so the computer has no router.');
+  Object.assign(config, { listen: `127.0.0.1:${request.port}`, accounts: '/var/lib/place/accounts', place_key_file: '/var/lib/place/place.key', public_origin: request.public_origin ?? reach, router: `${product.data.app_host}:443` });
   config.report = { ...config.report, reach, ...(price && { cost_per_month_cents: price.cents }) };
   const feed = feedOf(request);
   if (feed) config.release_feed = feed;
@@ -284,7 +289,7 @@ export async function computerConfig(machine, request, price, run = onMachine, p
   if (unit) config.unit = unit;
   if (request.default_places !== undefined) config.default_places = defaultComputers(request.default_places);
   for (const from of request.config_from_release ?? []) {
-    const value = JSON.parse(await run(machine, `cat ${q(`/opt/place/current/${from.file}`)}`))[from.key];
+    const value = JSON.parse(await run(machine, `cat ${q(`/opt/place/releases/current/${from.file}`)}`))[from.key];
     if (value === undefined) throw new Error(`The release's ${from.file} has no ${from.key}.`);
     let at = config;
     for (const key of from.at.slice(0, -1)) at = at[key] ??= {};
