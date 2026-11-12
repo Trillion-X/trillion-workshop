@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:05815eb000a75f41b84f435c0b6b45e618a29a09105f11803efbab3760d94ee2"
+  "blake3": "1f:947feadf26ad876342f020fbbcb970b96ef0478cafe0b5b6edacfe7eebad0a6c"
  },
  "fields": [
   {
@@ -2224,6 +2224,24 @@
    }
   },
   {
+   "id": "tool:check-the-youtube-connection",
+   "values": {
+    "title": "Check the YouTube connection",
+    "job": "Check that the person's YouTube connection still reaches its channel, before a post is set to go there or a read is made",
+    "description": "Asks YouTube which channel the person's youtube connection signs in as, with the value the person's vault holds for it (placed only as the request leaves, never shown). Returns the channel's id, title and its uploads playlist id. A refusal (an expired, revoked or under-scoped sign-in) means the person connects YouTube again. It posts nothing and changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "folder": "social-posts",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
    "id": "tool:check-what-a-buyer-paid",
    "values": {
     "title": "Check what a buyer paid",
@@ -2865,6 +2883,24 @@
      "placement:small-container"
     ],
     "folder": "decide-agent-actions"
+   }
+  },
+  {
+   "id": "tool:decide-the-instagram-replies",
+   "values": {
+    "title": "Decide the Instagram replies",
+    "job": "Say which automatic reply to send now to each Instagram direct message or comment by the person's keyword rules, and which to leave and why",
+    "description": "Reads the person's reply rules (their reply-rule rows, in order) and the pulled Instagram conversations of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
+    "status": "active",
+    "maker": "maker:reply-by-keyword-rule",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reply-by-keyword-rule",
+    "flags": [
+     "read-only"
+    ]
    }
   },
   {
@@ -5884,6 +5920,24 @@
     ],
     "listed_on": "2026-11-04T00:00:00Z",
     "folder": "browse-my-recordings-and-media",
+    "flags": [
+     "read-only"
+    ]
+   }
+  },
+  {
+   "id": "tool:list-my-youtube-videos",
+   "values": {
+    "title": "List my YouTube videos",
+    "job": "List the videos of the person's own YouTube channel, public, unlisted and private as the connection allows, with each video's title and privacy status",
+    "description": "Lists the videos of the channel the person's youtube connection signs in as, from the channel's uploads playlist (give the playlist_id that tool:check-the-youtube-connection returns), page by page. Each video comes back with its id, title, privacy status (public, unlisted or private) and publish time; unlisted and private videos come back when the sign-in has read access to the channel, and a refusal means it does not. It posts nothing and changes nothing.",
+    "status": "active",
+    "maker": "maker:social-posts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:public-web-address"
+    ],
+    "folder": "social-posts",
     "flags": [
      "read-only"
     ]
@@ -11863,6 +11917,21 @@
      "placement:your-computer"
     ],
     "folder": "send-messages"
+   }
+  },
+  {
+   "id": "tool:send-an-instagram-reply",
+   "values": {
+    "title": "Send an Instagram reply",
+    "job": "Send one chosen automatic reply to one Instagram direct message or to one comment (a private reply), once, while its Meta window is still open",
+    "description": "Give account_id and one decision from tool:decide-the-instagram-replies whose action is send. The window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held Instagram token is placed only on the request to graph.instagram.com, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+    "status": "active",
+    "maker": "maker:reply-by-keyword-rule",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "folder": "reply-by-keyword-rule"
    }
   },
   {
