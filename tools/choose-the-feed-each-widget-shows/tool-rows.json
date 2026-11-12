@@ -1,0 +1,165 @@
+{
+ "kind": "tool-rows",
+ "record_set": "choose-the-feed-each-widget-shows-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/choose-the-feed-each-widget-shows: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::choose-the-feed-each-widget-shows::tool::choose-the-feed-each-widget-shows",
+   "address": "package::choose-the-feed-each-widget-shows::tool::choose-the-feed-each-widget-shows",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:choose-the-feed-each-widget-shows",
+    "label": "Choose the feed each widget shows",
+    "status": "active",
+    "job": "Say which feed each widget on my phone or Mac shows: the one I picked for it, or else the feed its size takes from the surface's feeds in order",
+    "description": "Give the surface (widgets, watch) and the widgets on it, each with its size (small, medium, large or extra_large) and the feed the person picked for it if any, and optionally how many rows each feed has kept (a feed with rows is taken first; with no counts every feed counts). Returns the surface's feeds in the order they are taken, and for each widget its feed and whether that feed was picked or taken from the order. A picked feed may be any feed the glance DATA names. Nothing is read, kept or drawn.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "surface",
+      "widgets"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "surface": {
+       "type": "string",
+       "enum": [
+        "widgets",
+        "watch"
+       ]
+      },
+      "widgets": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "widget_id",
+         "size"
+        ],
+        "properties": {
+         "widget_id": {
+          "type": "string"
+         },
+         "size": {
+          "enum": [
+           "small",
+           "medium",
+           "large",
+           "extra_large"
+          ]
+         },
+         "picked_feed": {
+          "type": [
+           "string",
+           "null"
+          ]
+         }
+        }
+       }
+      },
+      "rows": {
+       "type": "object",
+       "description": "Rows kept per feed id",
+       "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "surface",
+        "feeds_in_order",
+        "widgets"
+       ]
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "choose-the-feed-each-widget-shows",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/choose-the-feed-each-widget-shows"
+       },
+       {
+        "package": "read-glance-feeds",
+        "paths": [
+         "read-data/glance-feeds.json"
+        ],
+        "at": "/opt/read-glance-feeds"
+       }
+      ]
+     },
+     "workdir": "/opt/choose-the-feed-each-widget-shows",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/choose-the-feed-each-widget-shows/do-work/choose-the-feed-each-widget-shows.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:choose-the-feed-each-widget-shows",
+    "provenance": {
+     "source": "trillion ios/Activity/GlanceFeeds.swift GlanceFeed.unpicked(at:) and bundledSurface at commit 38a3d8ec5e (every widget's default feed, by its size place); surface order from records/glance-feeds.json (read-glance-feeds read-data/glance-feeds.json)"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "surface": "widgets",
+       "rows": {
+        "waiting": 2,
+        "today": 1
+       },
+       "widgets": [
+        {
+         "widget_id": "w1",
+         "size": "small"
+        },
+        {
+         "widget_id": "w2",
+         "size": "medium",
+         "picked_feed": "decisions"
+        }
+       ]
+      },
+      "output_selector": "$.result.surface",
+      "contains": "widgets"
+     }
+    ]
+   }
+  }
+ ]
+}

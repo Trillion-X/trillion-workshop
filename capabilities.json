@@ -1091,6 +1091,13 @@
       "distinct_from": [{"job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "that folder keeps the device facts a checklist reads; this one plans the setup run and the installs"}]
     },
     {
+      "capability": "choose which feed each widget on a glance surface shows: the one the person picked, else the feed its size takes from the surface's feeds in order",
+      "owner": ["tools/choose-the-feed-each-widget-shows/"],
+      "entry": "tools/choose-the-feed-each-widget-shows/tool-rows.json",
+      "evidence": "old trillion ios/Activity/GlanceFeeds.swift GlanceFeed.unpicked(at:) and bundledSurface at commit 38a3d8ec5e (default feed by widget size place); surface order from records/glance-feeds.json, carried as tools/read-glance-feeds/read-data/glance-feeds.json",
+      "distinct_from": [{"job": "read one feed or an ordered set of feeds for a glance surface", "why": "that reads the rows of feeds; this decides which feed each widget shows"}]
+    },
+    {
       "capability": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics",
       "owner": ["tools/practice-and-review/"],
       "entry": "tools/practice-and-review/tool-rows.json",
