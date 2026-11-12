@@ -639,16 +639,11 @@ const writeIfChanged = (path, bytes, mode) => {
   return existed ? 'updated' : 'written';
 };
 
-/** Copies this program to the stable folder and links it on PATH. Answers one row per place, with what happened. */
+/** Copies this program to the stable folder and links it on PATH. Answers one row per place, with what happened. The Workshop
+ *  installer owns the copy: each `trillion setup` from a newer program writes the files that changed. */
 export function installProgram({ rules = settings, home = homedir(), from = HERE } = {}) {
   const folder = expand(rules.install.folder, home);
-  // A copy an owner installed (its marker is beside it) is never rewritten by a program that carries no marker: the owner
-  // keeps it up to date, and the answer names who. A program that carries a marker is an owner and may take it over.
-  const owner = join(folder, rules.install.owner_file);
-  if (existsSync(owner) && !existsSync(join(from, rules.install.owner_file))) return [{ path: owner, outcome: 'owned', note: updateWords({ rules, home }) }];
   const rows = rules.install.files.map(name => ({ path: join(folder, name), outcome: writeIfChanged(join(folder, name), readFileSync(join(from, name)), name.endsWith('.mjs') ? 0o755 : 0o644) }));
-  // An install owner's marker beside the program (the app that ships it) travels with it, so the copy names who updates it.
-  if (rules.install.owner_file && existsSync(join(from, rules.install.owner_file))) rows.push({ path: join(folder, rules.install.owner_file), outcome: writeIfChanged(join(folder, rules.install.owner_file), readFileSync(join(from, rules.install.owner_file)), 0o644) });
   const link = expand(rules.install.link, home), target = join(folder, 'trillion.mjs');
   let outcome = 'written';
   try {
@@ -988,15 +983,10 @@ async function serve(context) {
 }
 
 
-/** `trillion update`: this program never updates itself. When an install owner's marker sits beside it, the answer names that owner
- *  and what to do; otherwise it says the only way is `trillion setup` from a newer copy. */
-export function updateWords({ rules = settings, home = homedir() } = {}) {
-  const file = join(expand(rules.install.folder, home), rules.install.owner_file);
-  if (!existsSync(file)) return rules.update.unowned;
-  try {
-    const marker = JSON.parse(readFileSync(file, 'utf8'));
-    return fill(rules.update.owned, { owner: String(marker.owner ?? 'the program that installed it'), hint: String(marker.update_hint ?? '') }).replace(/\s+/g, ' ').replace(' .', '.');
-  } catch { return fill(rules.update.owner_unreadable, { file }); }
+/** `trillion update`: this program never updates itself. The Workshop installer owns the copy and updates it only when
+ *  `trillion setup` runs from a newer Workshop program. */
+export function updateWords({ rules = settings } = {}) {
+  return rules.update.workshop;
 }
 
 /** `records replay-from-transcripts`: the rows this computer's AIs wrote, read from their transcripts

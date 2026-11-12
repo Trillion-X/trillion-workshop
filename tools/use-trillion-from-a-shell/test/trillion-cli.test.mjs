@@ -539,7 +539,7 @@ test('setup: the program is copied and linked, each app gets its skill once, and
   mkdirSync(join(folder, '.claude'));
   mkdirSync(join(folder, '.codex'));
   const first = installProgram({ home: folder });
-  assert.deepEqual(first.map(row => row.outcome), Array.from({ length: settings.install.files.length + 1 }, () => 'written'), 'each declared program file and the link are installed (an owner marker only when one ships beside the program)');
+  assert.deepEqual(first.map(row => row.outcome), Array.from({ length: settings.install.files.length + 1 }, () => 'written'), 'each declared program file and the link are installed');
   assert.ok(settings.install.files.includes('local-door.mjs'), 'the program\'s door reader is installed with it');
   const installedProgram = settings.install.folder.startsWith('~/') ? join(folder, settings.install.folder.slice(2)) : settings.install.folder;
   for (const file of settings.install.files) assert.deepEqual(readFileSync(join(installedProgram, file)), readFileSync(new URL(`../do-work/${file}`, import.meta.url)), `${file} is the current source installed for the command consumer`);

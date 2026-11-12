@@ -5,7 +5,7 @@ The `trillion` command: any AI that can run a shell (Claude Code, Codex, Cursor,
 - **One road.** Every command is ONE call of the engine's one MCP tool, `run_resource_operation {address, method, request_key, input}`, over MCP JSON-RPC at the account's door: the Trillion Mac app's local door when this computer has one (`local-door.mjs` reads the loopback port from the app's own declaration on every call), else the public origin. The only other addresses are the origin's own sign-in (OAuth with PKCE to a loopback redirect). The engine and `tools/hand-work-to-ais` decide; nothing here decides, stores or routes work.
 - **The credential** is the account's existing key (the Mac app's Keychain item, else a 0600 file, else `TRILLION_KEY`) or the sign-in `login` kept. It is read into memory only and sent as a bearer token to the door; never printed, put on a command line or logged.
 - **Every call carries one request key**, reused on every retry, so a retry is answered as the first call was.
-- **It never updates itself.** A copy an owner installed (its `install-owner.json` marker beside it, for example the Mac app's) is never rewritten by a copy without a marker; `trillion update` names that owner (F-0183).
+- **It never updates itself.** The Workshop installer owns the installed copy in `~/.trillion/cli/program`: `trillion setup` run from a newer Workshop copy of the program rewrites each file that changed. `trillion update` says so..
 - **Settings are DATA** (`trillion.json`): the door, the work table, every refusal's words and every place written. A new AI app is one `skills` row and one `agents` row.
 
 The local door itself (the Mac app's loopback server, its bind interface and how it checks the bearer) is the Mac app's and the engine's, not this folder's: this folder is the client.
@@ -24,13 +24,13 @@ Input built at run time (jq, a variable, a loop) is listed as unresolved, never 
 | File | Purpose |
 |------|---------|
 | `do-work/trillion.mjs` | The command (`trillion help` lists every command): `main`, `installProgram`, `updateWords`, `keyStore`, `aiOf`, `stateOf` and the rest it exports. |
-| `do-work/trillion.json` | Its settings: origin, key places, install set and owner marker, skills per AI app, agent ids, the work table, words. |
+| `do-work/trillion.json` | Its settings: origin, key places, install set, skills per AI app, agent ids, the work table, words. |
 | `do-work/trillion-skill.md` | The skill text `setup` writes for each AI app. |
 | `do-work/ag-ui-agent.mjs`, `do-work/ag-ui-wire.mjs` | `trillion serve --ag-ui URL`: any AG-UI agent runs each job taken. |
 | `do-work/local-door.mjs` | `localDoorAddress({ runtime, home })`: the Mac app's loopback MCP address, read from its own declaration each call. Also used by `tools/register-trillion-in-my-ai-apps`. |
 | `do-work/replay-recorded-writes.mjs` | `records replay-from-transcripts`: brings back the rows this computer's AIs wrote, from their own transcripts (see Replaying recorded writes). |
 | `do-work/replay-recorded-writes.json` | Its DATA: where in each AI app's own folder (the app's `skills` row in `trillion.json`) its transcripts are, which transcript rows are calls, results and file writes (`shapes`), what proves a write succeeded or was refused, the credential shapes, the inventory folder name, the batch limits and request-key prefix, and how many rows of each type are read back. |
-| `test/trillion-cli.test.mjs`, `test/trillion-cli-owner.test.mjs`, `test/trillion-cli-install-owner.test.mjs` | The old repository's tests of the command, moved with it. |
+| `test/trillion-cli.test.mjs`, `test/trillion-cli-workshop-install.test.mjs` | The old repository's tests of the command, moved with it. |
 | `test/replay-recorded-writes.test.mjs` | Synthetic transcripts: a success is kept in each shape, a refused, unknown or unanswered call is skipped and listed, the newest write wins across files, removals are carried, malformed lines and shell escapes are tolerated, file inputs come only from the transcript or an unchanged file, credential-like rows stay out, and a dry run is written back in batches, resumed and read back. |
 | `ports/replay-recorded-writes.json` | The NO_PRIOR_OWNER claim for `do-work/replay-recorded-writes.mjs`, with the search that found no older owner. |
 | `tool-rows.json` | `tool:use-trillion-from-a-shell` (`on-your-computer`). |

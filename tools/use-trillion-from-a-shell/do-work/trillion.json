@@ -68,8 +68,7 @@
       "replay-recorded-writes.mjs",
       "replay-recorded-writes.json"
     ],
-    "link": "~/.local/bin/trillion",
-    "owner_file": "install-owner.json"
+    "link": "~/.local/bin/trillion"
   },
   "skill_name": "trillion-cli",
   "skills": [
@@ -214,9 +213,7 @@
     ]
   },
   "update": {
-    "owned": "This trillion command is kept up to date by {owner}. {hint} It does not update itself.",
-    "owner_unreadable": "{file} is there but could not be read, so nothing was changed. Update it by the program that put it there.",
-    "unowned": "This trillion command updates only when `trillion setup` is run from a newer copy of the program; it never fetches code by itself."
+    "workshop": "This trillion command is kept up to date by the Workshop installer: it updates only when `trillion setup` is run from a newer Workshop copy of the program; it never fetches code by itself."
   },
   "ag_ui": {
     "_what": "`trillion serve --ag-ui URL` (ag-ui-agent.mjs): any AG-UI agent at URL runs each job this AI takes. tools: the Trillion tools the agent is offered as AG-UI frontend tools; each call it makes of one is made by this program as this AI. max_turns: the most runs of the agent one job gets (each answered tool call starts the next). run_seconds: the longest one run is waited for. quiet_seconds: the longest the agent may send nothing while it is waited on (a silence watchdog; time spent running its tools here does not count). answer_chars: the most characters of a tool's answer given back to the agent. max_frame_chars and max_events bound what one run may send. context is the ambient line every run is given ({handoff_id}). words: what is recorded when something goes wrong, in plain words.",
