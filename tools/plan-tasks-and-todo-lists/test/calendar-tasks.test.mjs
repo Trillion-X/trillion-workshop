@@ -14,7 +14,7 @@ function listsOwner() {
   const rowsByList = new Map([[data.list.id, rows], [data.collections.id, new Map()]]);
   const calls = [];
   return {
-    rows, collectionRows: rowsByList.get(data.collections.id), calls,
+    definitions, rows, collectionRows: rowsByList.get(data.collections.id), calls,
     ensure(definition, options) {
       calls.push(['ensure', definition.id, options.actor.by]);
       if (!definitions.has(definition.id)) {
@@ -49,7 +49,7 @@ function listsOwner() {
           if (item === null) delete value[key];
           else value[key] = item;
         }
-        if (id === data.list.id && value.status === undefined) value.status = 'To do';
+        if (id === data.list.id && value.status === undefined) value.status = definitions.get(id).fields.find(field => field.id === 'status').starts;
         const saved = { id: row.id, values: value };
         listRows.set(row.id, saved);
         return structuredClone(saved);
@@ -786,3 +786,62 @@ test('a task for a source is made once and found again; find_source never makes 
   assert.equal((await changeCalendarTask(lists, { action: 'from_source', source_id: 'gmail:c1:m2', title: 'Other' })).task.id !== made.task.id, true);
   await assert.rejects(async () => await changeCalendarTask(lists, { action: 'from_source', source_id: '', title: 'x' }), /needs its source id/);
 });
+
+function setStatusChoices(lists, { choices, starts, settles }) {
+  const field = lists.definitions.get(data.list.id).fields.find(item => item.id === 'status');
+  Object.assign(field, { choices, starts, settles });
+}
+
+test('a settled status is the one the list field names, not a constant in code', async () => {
+  const lists = listsOwner();
+  setStatusChoices(lists, { choices: ['To do', 'Shipped'], starts: 'To do', settles: ['Shipped'] });
+  const made = await changeCalendarTask(lists, { action: 'create', request_key: 'shipped-1', title: 'Ship the build', duration_minutes: 20 });
+  assert.equal(made.task.status, 'To do');
+  assert.equal(made.task.may_move, true);
+  const completed = await changeCalendarTask(lists, { action: 'complete', task_id: made.task.id });
+  assert.equal(completed.task.status, 'Shipped', 'complete writes the first settled choice of the field');
+  assert.equal(completed.task.may_move, false, 'a task settled by a renamed choice is not movable');
+  await assert.rejects(changeCalendarTask(lists, { action: 'schedule', task_id: made.task.id, start: '2026-10-14T10:00:00Z' }), /cannot be scheduled/);
+  const reopened = await changeCalendarTask(lists, { action: 'reopen', task_id: made.task.id });
+  assert.equal(reopened.task.status, 'To do', 'reopen clears the status to the field starting choice');
+});
+
+test('a status that is not in settles is open, even when it is named Done', async () => {
+  const lists = listsOwner();
+  setStatusChoices(lists, { choices: ['To do', 'Done', 'Shipped'], starts: 'To do', settles: ['Shipped'] });
+  lists.rows.set('done-open', { id: 'done-open', values: { title: 'Old label', duration_minutes: 30, status: 'Done' } });
+  const task = await readCalendarTasks(lists, {});
+  const row = task.tasks.find(item => item.id === 'done-open');
+  assert.equal(row.status, 'Done');
+  assert.equal(row.may_move, true, 'Done is open when the field does not settle it');
+});
+
+test('a starting choice renamed by the list is the status of a new task', async () => {
+  const lists = listsOwner();
+  setStatusChoices(lists, { choices: ['Not started', 'Finished'], starts: 'Not started', settles: ['Finished'] });
+  const made = await changeCalendarTask(lists, { action: 'create', request_key: 'renamed-start', title: 'Draft the note', duration_minutes: 10 });
+  assert.equal(made.task.status, 'Not started');
+  assert.equal(made.task.may_move, true);
+});
+
+test('a status field with a settled choice the field does not offer is refused, not guessed', async () => {
+  const lists = listsOwner();
+  setStatusChoices(lists, { choices: ['To do', 'Done'], starts: 'To do', settles: ['Shipped'] });
+  await assert.rejects(changeCalendarTask(lists, { action: 'create', request_key: 'bad-rule', title: 'Anything', duration_minutes: 10 }), /settled choice/);
+});
+
+test('a list that holds its own status choices keeps them when the shipped shape is applied again', async () => {
+  const lists = listsOwner();
+  const five = ['To do', 'In progress', 'Waiting', 'Blocked', 'Done'];
+  setStatusChoices(lists, { choices: five, starts: 'To do', settles: ['Done'] });
+  await readCalendarTasks(lists, {});
+  const field = lists.definitions.get(data.list.id).fields.find(item => item.id === 'status');
+  assert.deepEqual(field.choices, five, 'the shipped two-choice shape does not overwrite the choices the person set');
+  assert.deepEqual(field.settles, ['Done']);
+  lists.rows.set('five-blocked', { id: 'five-blocked', values: { title: 'Blocked item', duration_minutes: 10, status: 'Blocked' } });
+  lists.rows.set('five-done', { id: 'five-done', values: { title: 'Finished item', duration_minutes: 10, status: 'Done' } });
+  const page = await readCalendarTasks(lists, {});
+  assert.equal(page.tasks.find(task => task.id === 'five-blocked').may_move, true, 'Blocked is open: only Done settles this list');
+  assert.equal(page.tasks.find(task => task.id === 'five-done').may_move, false, 'Done settles this list');
+});
+

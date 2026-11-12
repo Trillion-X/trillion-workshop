@@ -294,6 +294,7 @@ const recurrenceReadFields = data.list.fields.map(field => field.id);
 export async function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.now(), limit = 50 } = {}) {
   if (!await lists.has(data.list.id)) return { next_cursor: null, complete: true, next_at: null, created: 0 };
   await ensureTaskList(lists);
+  const rule = await statusRule(lists);
   const page = await lists.read(data.list.id, { only: recurrenceReadFields, limit, ...(cursor ? { cursor } : {}) });
   let nextAt = null;
   const writes = [];
@@ -305,7 +306,7 @@ export async function runCalendarTaskRecurrencePage(lists, { cursor, now = Date.
     if (!nextDate || (recurrence.ends.kind === 'date' && nextDate > recurrence.ends.value)) return null;
     const index = Number.isSafeInteger(row.values.recurrence_index) && row.values.recurrence_index >= 1 ? row.values.recurrence_index : 1;
     if (recurrence.ends.kind === 'count' && index + 1 > recurrence.ends.value) return null;
-    if (recurrence.nextTodo === 'on_day_when_done' && row.values.status !== 'Done') return null;
+    if (recurrence.nextTodo === 'on_day_when_done' && !settledBy(rule, row)) return null;
     return Date.parse(localInstant(nextDate, taskLocalTime(row, recurrence), recurrence.timeZone));
   };
   for (const row of page.rows) {
@@ -369,7 +370,17 @@ function provenance(input) {
   }
   return values;
 }
-const taskOf = row => {
+// The Status field is the person's DATA: its starting choice and the choices that settle a task come from the store's own
+// definition of the field, read on every call. A task is settled when its status (a cleared status means the starting one) is in `settles`.
+async function statusRule(lists) {
+  const field = ((await lists.find(data.list.id))?.fields ?? []).find(item => item.id === 'status');
+  if (!field || !Array.isArray(field.choices) || !field.choices.includes(field.starts) || !Array.isArray(field.settles)
+    || !field.settles.length || !field.settles.every(choice => field.choices.includes(choice))) throw new CalendarTasksError(data.words.bad_status);
+  return { choices: field.choices, starts: field.starts, settles: field.settles };
+}
+const settledBy = (rule, row) => rule.settles.includes(row.values.status ?? rule.starts);
+
+const taskOf = (row, rule) => {
   const recurrence = storedRecurrence(row.values.recurrence);
   return {
     id: row.id,
@@ -398,9 +409,9 @@ const taskOf = row => {
     ...(recurrence ? { recurrence } : {}),
     source_id: row.values.source_id ?? null,
     source_url: row.values.source_url ?? null,
-    status: row.values.status ?? 'To do',
-    may_move: (row.values.status ?? 'To do') !== 'Done',
-    may_cancel: Boolean(row.values.starts_at) && (row.values.status ?? 'To do') !== 'Done',
+    status: row.values.status ?? rule.starts,
+    may_move: !settledBy(rule, row),
+    may_cancel: Boolean(row.values.starts_at) && !settledBy(rule, row),
   };
 };
 
@@ -436,19 +447,28 @@ export async function withdrawUnusedCalendarLists(lists) {
 // Every built-in list is made when missing and, when a store holds an older shape of it, brought to the declared one: fields
 // added (kept alongside any the person added), choices changed and the order index. This is how a field added to
 // calendar-tasks.json reaches a store made before it.
+// A choice field's choices, starts and settles are the person's DATA once the store holds them: the shipped shape only seeds
+// the ones it lacks. Everything else about a field (kind, links, constraints, removal) is the shape's, so it reaches old stores.
+const choiceDataKeys = ['choices', 'starts', 'settles'];
+function keptChoiceData(field, saved) {
+  if (field.kind !== 'choice' || saved?.kind !== 'choice') return field;
+  return { ...field, ...Object.fromEntries(choiceDataKeys.filter(key => key in saved).map(key => [key, saved[key]])) };
+}
+
 async function upgradeList(lists, shape) {
   const current = await lists.find(shape.id);
   if (!current) return;
   const currentFields = current.fields ?? [];
   const currentById = new Map(currentFields.map(field => [field.id, field]));
   const known = new Set(shape.fields.map(field => field.id));
-  const fields = [...shape.fields, ...currentFields.filter(field => !known.has(field.id))];
+  const shaped = shape.fields.map(field => keptChoiceData(field, currentById.get(field.id)));
+  const fields = [...shaped, ...currentFields.filter(field => !known.has(field.id))];
   const ordered = Boolean(shape.indexes);
-  if (shape.fields.some(field => {
+  if (shaped.some(field => {
     const saved = currentById.get(field.id);
     return saved?.kind !== field.kind || saved?.links_to !== field.links_to
       || JSON.stringify(saved?.link_constraints ?? null) !== JSON.stringify(field.link_constraints ?? null)
-      || JSON.stringify(saved?.choices ?? null) !== JSON.stringify(field.choices ?? null)
+      || choiceDataKeys.some(key => JSON.stringify(saved?.[key] ?? null) !== JSON.stringify(field[key] ?? null))
       || saved?.on_target_remove !== field.on_target_remove;
   }) || (ordered && (JSON.stringify(current.indexes ?? []) !== JSON.stringify(shape.indexes)
     || JSON.stringify(current.ordering ?? null) !== JSON.stringify(shape.ordering)))) {
@@ -489,7 +509,8 @@ export async function readCalendarTasks(lists, { from, to, cursor, collection_cu
   }
   const complete = page.page.complete;
   const nextCursor = page.page.next_cursor;
-  const tasks = rows.map(taskOf).filter(task => {
+  const rule = await statusRule(lists);
+  const tasks = rows.map(row => taskOf(row, rule)).filter(task => {
     // Keep unscheduled work visible beside the calendar; show scheduled work only where it overlaps the requested span.
     if (!task.starts_at) return true;
     const taskStart = Date.parse(task.starts_at);
@@ -709,6 +730,7 @@ function undoFor(changes) {
 
 // Checked values to write for a set of restorable fields, through the validators every other change uses.
 async function restoreValues(lists, taskId, given) {
+  const rule = await statusRule(lists);
   if (!object(given) || !Object.keys(given).length) throw new CalendarTasksError(data.words.bad_restore);
   const values = {};
   const input = {};
@@ -718,10 +740,9 @@ async function restoreValues(lists, taskId, given) {
       if (value !== null && !instant(value)) throw new CalendarTasksError(field === 'starts_at' ? data.words.bad_start : data.words.bad_end);
       values[field] = value === null ? null : instant(value);
     } else if (field === 'status') {
-      const choices = fieldOf('status').choices;
-      if (value !== null && !choices.includes(value)) throw new CalendarTasksError(data.words.bad_restore);
+      if (value !== null && !rule.choices.includes(value)) throw new CalendarTasksError(data.words.bad_restore);
       // A task that was settled is reopened by clearing the status, as the reopen action does; the starting status is the cleared one.
-      values.status = value === fieldOf('status').starts ? null : value;
+      values.status = value === rule.starts ? null : value;
     } else if (field === 'collection_id') values.collection_id = await checkedCollection(lists, value);
     else if (field === 'parent_id') values.parent_id = await checkedParent(lists, value, taskId);
     else if (field === 'duplicate_of') {
@@ -734,6 +755,7 @@ async function restoreValues(lists, taskId, given) {
 }
 
 async function restoreTasks(lists, input) {
+  const rule = await statusRule(lists);
   const rows = input.rows;
   if (!Array.isArray(rows) || !rows.length || rows.length > data.undo.most_rows) throw new CalendarTasksError(data.words.bad_restore);
   const plan = [];
@@ -770,10 +792,11 @@ async function restoreTasks(lists, input) {
   const after = new Map(saved.kept.map(row => [row.id, row]));
   // The way back from a restore is the restore of what it replaced.
   const undo = undoFor(changes.map(change => ({ id: change.id, before: change.before, after: after.get(change.id) ?? null })));
-  return { restored: changes.length, tasks: changes.filter(change => after.has(change.id)).map(change => taskOf(after.get(change.id))), ...(undo ? { undo } : {}) };
+  return { restored: changes.length, tasks: changes.filter(change => after.has(change.id)).map(change => taskOf(after.get(change.id), rule)), ...(undo ? { undo } : {}) };
 }
 
 async function openTasks(lists, wanted) {
+  const rule = await statusRule(lists);
   if (wanted !== undefined) {
     if (!Array.isArray(wanted) || !wanted.length || wanted.length > data.rollover.most_tasks) throw new CalendarTasksError(data.words.bad_rollover);
     return inOrder(wanted, async id => await taskRow(lists, id));
@@ -782,7 +805,7 @@ async function openTasks(lists, wanted) {
   let cursor;
   do {
     const page = await lists.read(data.list.id, { only: data.list.fields.map(field => field.id), limit: 50, ...(cursor ? { cursor } : {}) });
-    rows.push(...page.rows.filter(row => (row.values.status ?? 'To do') !== 'Done'));
+    rows.push(...page.rows.filter(row => !settledBy(rule, row)));
     cursor = page.page.complete ? undefined : page.page.next_cursor;
     if (rows.length > data.rollover.most_tasks) throw new CalendarTasksError(data.words.rollover_too_many);
   } while (cursor);
@@ -790,6 +813,7 @@ async function openTasks(lists, wanted) {
 }
 
 async function rolloverTasks(lists, input) {
+  const rule = await statusRule(lists);
   if (!dateOnly(input.today) || !timeZoneName(input.time_zone)) throw new CalendarTasksError(data.words.bad_rollover);
   const zone = timeZoneName(input.time_zone);
   const today = input.today;
@@ -800,7 +824,7 @@ async function rolloverTasks(lists, input) {
   const changes = [];
   for (const row of await openTasks(lists, input.task_ids)) {
     const skip = reason => skipped.push({ task_id: row.id, reason });
-    if ((row.values.status ?? 'To do') === 'Done') { skip(reasons.done); continue; }
+    if (settledBy(rule, row)) { skip(reasons.done); continue; }
     if (row.values.recurrence || row.values.recurrence_series) { skip(reasons.repeats); continue; }
     const values = {};
     const missed = row.values.starts_at && wallTimeOf(Date.parse(row.values.starts_at), zone).date < today;
@@ -901,8 +925,9 @@ async function quietHours(lists, input, now) {
 // slice is a task of its own, a child of the task, placed by the planner, so one slice can be moved, pinned or finished
 // without replanning the rest. The task keeps its whole length; the planner leaves it alone while its slices are open.
 async function scheduleSlices(lists, input) {
+  const rule = await statusRule(lists);
   const row = await taskRow(lists, input.task_id);
-  if (row.values.status === 'Done') throw new CalendarTasksError('A completed task cannot be scheduled.');
+  if (settledBy(rule, row)) throw new CalendarTasksError('A completed task cannot be scheduled.');
   const times = input.slices;
   if (!Array.isArray(times) || times.length < 2 || times.length > data.slices.most) throw new CalendarTasksError(data.words.bad_slices);
   const slices = times.map(slice => ({ start: instant(slice?.start), end: instant(slice?.end) }));
@@ -923,7 +948,7 @@ async function scheduleSlices(lists, input) {
   const saved = fresh.length ? await lists.putRows(data.list.id, { rows: fresh.map(({ id, values }) => ({ id, values })) }, { actor: { by: 'calendar' } }) : { kept: [] };
   const kept = new Map(saved.kept.map(entry => [entry.id, entry]));
   const undo = undoFor(fresh.map(slice => ({ id: slice.id, before: null, after: kept.get(slice.id) ?? null })));
-  return { tasks: made.map(slice => taskOf(kept.get(slice.id) ?? slice.existing)), kept: fresh.length === 0, ...(undo ? { undo } : {}) };
+  return { tasks: made.map(slice => taskOf(kept.get(slice.id) ?? slice.existing, rule)), kept: fresh.length === 0, ...(undo ? { undo } : {}) };
 }
 
 // The zone plans are kept in is the working hours' time zone; a device showing another zone is asked about once.
@@ -963,6 +988,7 @@ function filterHit(row, event) {
   return false;
 }
 async function taskFromEvent(lists, input, now = () => Date.now()) {
+  const rule = await statusRule(lists);
   const event = input.event;
   if (!object(event) || !nonempty(event.id) || !nonempty(event.source) || !nonempty(event.title) || !instant(event.starts_at) || !instant(event.ends_at)
     || Date.parse(event.ends_at) <= Date.parse(event.starts_at)) throw new CalendarTasksError(data.words.bad_event);
@@ -976,12 +1002,12 @@ async function taskFromEvent(lists, input, now = () => Date.now()) {
   const source = `${event.source}:${event.id}`;
   const id = `calendar-event-${identityOf({ calendar_event: source }).slice(0, 32)}`;
   const existing = await lists.row(data.list.id, id);
-  if (existing) return { pulled: true, kept: true, task: taskOf(existing) };
+  if (existing) return { pulled: true, kept: true, task: taskOf(existing, rule) };
   const url = object(event) && typeof event.url === 'string' ? provenance({ source_url: event.url }).source_url : null;
   const values = { title: event.title.trim().slice(0, data.limits.title_chars), duration_minutes: minutes, starts_at: instant(event.starts_at), ends_at: instant(event.ends_at), source_id: source, smart_list: 'calendar', created_at: new Date(now()).toISOString(), ...(url ? { source_url: url } : {}) };
   const saved = await lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
   const undo = undoFor([{ id, before: null, after: saved.kept[0] }]);
-  return { pulled: true, kept: false, task: taskOf(saved.kept[0]), ...(undo ? { undo } : {}) };
+  return { pulled: true, kept: false, task: taskOf(saved.kept[0], rule), ...(undo ? { undo } : {}) };
 }
 
 // ---- A task for any other thing a person works from (a message, a document) ---------------------------------------------
@@ -989,22 +1015,24 @@ async function taskFromEvent(lists, input, now = () => Date.now()) {
 // message's priority, time and deadline all land on one row however many times it is opened.
 const sourceTaskId = source => `calendar-source-${identityOf({ calendar_source: source }).slice(0, 32)}`;
 async function taskFromSource(lists, input, now = () => Date.now()) {
+  const rule = await statusRule(lists);
   if (!nonempty(input.source_id) || input.source_id.trim().length > data.limits.source_id_chars || !nonempty(input.title)) throw new CalendarTasksError(data.words.bad_source);
   const source = input.source_id.trim();
   const id = sourceTaskId(source);
   const existing = await lists.row(data.list.id, id);
-  if (existing) return { kept: true, task: taskOf(existing) };
+  if (existing) return { kept: true, task: taskOf(existing, rule) };
   const minutes = input.duration_minutes ?? data.from_source.default_minutes;
   if (!Number.isSafeInteger(minutes) || minutes < 1 || minutes > data.limits.duration_minutes) throw new CalendarTasksError(data.words.bad_duration);
   const values = { title: input.title.trim().slice(0, data.limits.title_chars), duration_minutes: minutes, source_id: source, priority: defaultPriority, created_at: new Date(now()).toISOString(), ...provenance({ source_url: input.source_url ?? null }) };
   const saved = await lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
-  return { kept: false, task: taskOf(saved.kept[0]) };
+  return { kept: false, task: taskOf(saved.kept[0], rule) };
 }
 
 /** The task already made for a source id, or null: a read that never makes one. */
 export async function findSourceTask(lists, sourceId) {
+  const rule = await statusRule(lists);
   const row = await lists.row(data.list.id, sourceTaskId(String(sourceId).trim()));
-  return row ? taskOf(row) : null;
+  return row ? taskOf(row, rule) : null;
 }
 
 // ---- Turning mail into todos --------------------------------------------------------------------------------------------
@@ -1027,12 +1055,13 @@ async function messageTask(lists, message, split, now) {
   return { row: { id, values }, kept: false };
 }
 async function messageTasks(lists, messages, now = () => Date.now()) {
+  const rule = await statusRule(lists);
   const split = await preferenceOf(lists, 'email_split_contents');
   const made = await inOrder(messages, async message => await messageTask(lists, message, split, now));
   const fresh = [...new Map(made.filter(entry => !entry.kept).map(entry => [entry.row.id, entry])).values()];
   const saved = fresh.length ? await lists.putRows(data.list.id, { rows: fresh.map(entry => ({ id: entry.row.id, values: entry.row.values })) }, { actor: { by: 'calendar' } }) : { kept: [] };
   const savedById = new Map(saved.kept.map(row => [row.id, row]));
-  const tasks = made.map(entry => taskOf(savedById.get(entry.row.id) ?? entry.row));
+  const tasks = made.map(entry => taskOf(savedById.get(entry.row.id) ?? entry.row, rule));
   const undo = undoFor(fresh.map(entry => ({ id: entry.row.id, before: null, after: savedById.get(entry.row.id) ?? null })));
   return { imported: fresh.length, kept: made.length - fresh.length, tasks, ...(undo ? { undo } : {}) };
 }
@@ -1178,6 +1207,7 @@ export async function changeCalendarTask(lists, input, options = {}) {
 async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) {
   if (!object(input)) throw new CalendarTasksError(data.words.bad_action);
   await ensureTaskList(lists);
+  const rule = await statusRule(lists);
   if (input.action === 'create_collection') {
     const values = collectionValues(input);
     if (!values.title) throw new CalendarTasksError(data.words.bad_collection);
@@ -1222,7 +1252,7 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
     if (!Object.hasOwn(input, 'collection_id')) throw new CalendarTasksError('Choose a task list or clear the current list.');
     const collectionId = await checkedCollection(lists, input.collection_id);
     const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { collection_id: collectionId } }] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept[0]) };
+    return { task: taskOf(saved.kept[0], rule) };
   }
   if (input.action === 'reorder') {
     const row = await taskRow(lists, input.task_id);
@@ -1230,7 +1260,7 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
       row_id: row.id, index: data.list.ordering.index,
       anchor_id: input.anchor_id, placement: input.placement,
     }, { actor: { by: 'calendar' } });
-    return { task: taskOf(await lists.row(data.list.id, row.id)), moved: moved.moved };
+    return { task: taskOf(await lists.row(data.list.id, row.id), rule), moved: moved.moved };
   }
   if (input.action === 'create') {
     const title = typeof input.title === 'string' ? input.title.trim() : '';
@@ -1277,13 +1307,13 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
         ? nextTaskValues(existing, details.recurrence, now()) : null;
       let nextRow = existingNext && await lists.row(data.list.id, existingNext.id);
       if (existingNext && !nextRow) nextRow = (await lists.putRows(data.list.id, { rows: [existingNext] }, { actor: { by: 'calendar' } })).kept[0];
-      return { task: taskOf(existing), ...(nextRow ? { next_task: taskOf(nextRow) } : {}), kept: true };
+      return { task: taskOf(existing, rule), ...(nextRow ? { next_task: taskOf(nextRow, rule) } : {}), kept: true };
     }
     const row = { id, values };
     const directNext = details.recurrence?.nextTodo === 'direct_even_if_open'
       ? nextTaskValues(row, details.recurrence, now()) : null;
     const saved = await lists.putRows(data.list.id, { rows: [row, ...(directNext ? [directNext] : [])] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept.find(item => item.id === id)), ...(directNext ? { next_task: taskOf(saved.kept.find(item => item.id === directNext.id)) } : {}), kept: false };
+    return { task: taskOf(saved.kept.find(item => item.id === id), rule), ...(directNext ? { next_task: taskOf(saved.kept.find(item => item.id === directNext.id), rule) } : {}), kept: false };
   }
   if (input.action === 'duplicate') {
     const source = await taskRow(lists, input.task_id);
@@ -1306,17 +1336,17 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
       if (existing.values.duplicate_of !== source.id) {
         throw new CalendarTasksError('This request key already belongs to a different task copy.');
       }
-      return { task: taskOf(existing), kept: true };
+      return { task: taskOf(existing, rule), kept: true };
     }
     const saved = await lists.putRows(data.list.id, { rows: [{ id, values }] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept[0]), kept: false };
+    return { task: taskOf(saved.kept[0], rule), kept: false };
   }
   if (input.action === 'schedule') {
     const row = await taskRow(lists, input.task_id);
     if (Object.hasOwn(input, 'expected_start') && (row.values.starts_at ?? null) !== input.expected_start) {
       throw new CalendarTasksError('This task already has a different time. Read it again before scheduling.');
     }
-    if (row.values.status === 'Done') throw new CalendarTasksError('A completed task cannot be scheduled.');
+    if (settledBy(rule, row)) throw new CalendarTasksError('A completed task cannot be scheduled.');
     const start = instant(input.start);
     if (!start) throw new CalendarTasksError(data.words.bad_start);
     const end = input.end === undefined || input.end === null || input.end === ''
@@ -1331,7 +1361,7 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
     if (placedByPlanner) Object.assign(values, { placed_by: placers[0], pinned_until: null });
     else if (row.values.placed_by) values.pinned_until = end;
     const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values }] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept[0]) };
+    return { task: taskOf(saved.kept[0], rule) };
   }
   if (input.action === 'log_time') {
     const row = await taskRow(lists, input.task_id);
@@ -1339,7 +1369,7 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
     const total = (row.values.time_spent_minutes ?? 0) + minutes;
     if (!Number.isSafeInteger(minutes) || minutes < 1 || minutes > data.limits.duration_minutes || total > data.limits.time_spent_minutes) throw new CalendarTasksError(data.words.bad_time_spent);
     const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { time_spent_minutes: total } }] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept[0]) };
+    return { task: taskOf(saved.kept[0], rule) };
   }
   if (input.action === 'complete') {
     const row = await taskRow(lists, input.task_id);
@@ -1347,17 +1377,17 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
     const next = recurrence && ['when_done', 'direct_even_if_open'].includes(recurrence.nextTodo)
       ? nextTaskValues(row, recurrence, now()) : null;
     const existingNext = next ? await lists.row(data.list.id, next.id) : null;
-    const rows = [{ id: row.id, values: { status: 'Done' } }, ...(next && !existingNext ? [next] : [])];
+    const rows = [{ id: row.id, values: { status: rule.settles[0] } }, ...(next && !existingNext ? [next] : [])];
     const saved = await lists.putRows(data.list.id, { rows }, { actor: { by: 'calendar' } });
-    const result = { task: taskOf(saved.kept[0]) };
+    const result = { task: taskOf(saved.kept[0], rule) };
     const nextRow = existingNext ?? (next ? saved.kept.find(item => item.id === next.id) : null);
-    if (nextRow) result.next_task = taskOf(nextRow);
+    if (nextRow) result.next_task = taskOf(nextRow, rule);
     return result;
   }
   if (input.action === 'reopen') {
     const row = await taskRow(lists, input.task_id);
     const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { status: null } }] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept[0]) };
+    return { task: taskOf(saved.kept[0], rule) };
   }
   if (input.action === 'delete') {
     const row = await taskRow(lists, input.task_id);
@@ -1401,13 +1431,13 @@ async function applyCalendarTask(lists, input, { now = () => Date.now() } = {}) 
     const directNext = Object.hasOwn(values, 'recurrence') && recurrence?.nextTodo === 'direct_even_if_open'
       ? nextTaskValues(updated, recurrence, now()) : null;
     const saved = await lists.putRows(data.list.id, { rows: [...(stopSeriesAt ? [stopSeriesAt] : []), { id: row.id, values }, ...(directNext ? [directNext] : [])] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept.find(item => item.id === row.id)), ...(directNext ? { next_task: taskOf(saved.kept.find(item => item.id === directNext.id)) } : {}) };
+    return { task: taskOf(saved.kept.find(item => item.id === row.id), rule), ...(directNext ? { next_task: taskOf(saved.kept.find(item => item.id === directNext.id), rule) } : {}) };
   }
   if (input.action === 'unschedule') {
     const row = await taskRow(lists, input.task_id);
-    if (row.values.status === 'Done') throw new CalendarTasksError('A completed task cannot be unscheduled.');
+    if (settledBy(rule, row)) throw new CalendarTasksError('A completed task cannot be unscheduled.');
     const saved = await lists.putRows(data.list.id, { rows: [{ id: row.id, values: { starts_at: null, ends_at: null, pinned_until: null, placed_by: null } }] }, { actor: { by: 'calendar' } });
-    return { task: taskOf(saved.kept[0]) };
+    return { task: taskOf(saved.kept[0], rule) };
   }
   throw new CalendarTasksError(data.words.bad_action);
 }
