@@ -1098,33 +1098,7 @@
       "output_selector": "$.result.courses",
       "contains": "Baking bread"
      }
-    ],
-    "record_model": {
-     "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
-     "kinds": [
-      {
-       "type": "record:program-application",
-       "guard_properties": {
-        "accepted_at": "text",
-        "answers": "object",
-        "applicant_ref": "text",
-        "applied_at": "text",
-        "program_id": "text",
-        "state": "text"
-       }
-      },
-      {
-       "type": "record:program-client",
-       "guard_properties": {
-        "client_ref": "text",
-        "name": "text",
-        "program_id": "text",
-        "since": "text",
-        "space_id": "text"
-       }
-      }
-     ]
-    }
+    ]
    }
   }
  ]
