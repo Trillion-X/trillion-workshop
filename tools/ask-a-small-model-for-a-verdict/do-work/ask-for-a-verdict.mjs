@@ -507,10 +507,10 @@ export function calibrationKey(rubric, candidates, passes, sourceIdentity = judg
  */
 const LOSSES_KEPT_MS = 6 * 60 * 60 * 1000
 
-// Could not be reached, as opposed to measured. A candidate that answered too
-// slowly WAS measured: it cannot answer inside a turn either, so its loss is
-// real and is kept like any other.
-const unreached = row => row.unmeasured === true || row.errors > 0 && row.first_error !== 'TimeoutError'
+// Could not be reached, as opposed to measured. A request that timed out is no answer too: calibration allows a
+// generous wait, so a timeout says the server was busy or the model cold (2026-11-12: a TimeoutError at load 70 was
+// kept as a loss and disqualified the only judge for six hours). Only a wrong answer is a loss worth keeping.
+const unreached = row => row.unmeasured === true || row.errors > 0
 
 /** Refused because nothing has been calibrated for this rubric and set of judges yet. */
 export class NotCalibratedYet extends VerdictRefused {}

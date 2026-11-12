@@ -105,6 +105,18 @@ test('an openai-chat server offers only the models its row names, because it loa
   await assert.rejects(localCandidates({...row, models: undefined}, async () => ({data: []})), /names the models to ask/)
 })
 
+test('an ollama row that names keep_alive has it sent with every question, so the model stays loaded between them', async () => {
+  const [offered] = await localCandidates({endpoint: 'http://x', timeout_seconds: 3, protocol: 'ollama', keep_alive: '30m'}, async () => ({models: [{name: 'a-model', size: 1}]}))
+  let sent
+  await askLocal({candidate: offered, question: 'q', shape: {kind: 'true-or-false'}, content: 'c'}, async (_url, init) => {
+    sent = JSON.parse(init.body)
+    return {json: async () => ({message: {content: '{"answer": true}'}})}
+  })
+  assert.equal(sent.keep_alive, '30m')
+  const [plain] = await localCandidates({endpoint: 'http://x', timeout_seconds: 3, protocol: 'ollama'}, async () => ({models: [{name: 'a-model', size: 1}]}))
+  assert.equal(plain.reach.keepAlive, undefined)
+})
+
 test('an openai-chat server is asked at its chat-completions path, without a schema, and read from its first choice', async () => {
   let path, sent
   const reply = await askLocal({

@@ -54,7 +54,10 @@ export const PROTOCOLS = {
     models: served => (served?.models ?? []).map(model => ({name: model.name, size: model.size, digest: model.digest,
       capabilities: model.capabilities})),
     chat: '/api/chat',
-    body: ({model, system, content, schema}) => ({model, stream: false, format: schema,
+    // keep_alive holds the model in memory between questions; the server's default unloads it after five idle
+    // minutes, and the next question then waits for a cold load that a short caller deadline cannot outlast.
+    body: ({model, system, content, schema, keepAlive}) => ({model, stream: false, format: schema,
+      ...(keepAlive ? {keep_alive: keepAlive} : {}),
       messages: [{role: 'system', content: system}, {role: 'user', content}]}),
     text: body => body?.message?.content,
   },
@@ -140,7 +143,7 @@ export async function candidates(settings, read = null) {
     .sort((left, right) => (left.size ?? 0) - (right.size ?? 0))
     // The digest says which build answers to this name, so a re-pulled model is measured again.
     .map(model => ({name: model.name, size: model.size ?? 0, ...acceptsCharacters,
-      ...(model.digest ? {identity: model.digest} : {}), reach: {endpoint, timeoutSeconds, protocol: settings.protocol}}))
+      ...(model.digest ? {identity: model.digest} : {}), reach: {endpoint, timeoutSeconds, protocol: settings.protocol, ...(settings.keep_alive ? {keepAlive: settings.keep_alive} : {})}}))
 }
 
 export async function ask({candidate, question, shape, content, content_parts = []}, post = freshLocalClassifierFetch) {
@@ -161,6 +164,7 @@ export async function ask({candidate, question, shape, content, content_parts = 
     // model left to its own devices will narrate, and the narration is what breaks the read.
     body: kind.request ? kind.request({content, model: candidate.name, question, shape}) : JSON.stringify(protocol.body({
       model: candidate.name, system: `${question}\n\n${kind.instruction(shape)}`, content, schema: answerSchema(shape),
+      keepAlive: candidate.reach.keepAlive,
     })),
   })
   if (kind.readReply) return kind.readReply(reply)

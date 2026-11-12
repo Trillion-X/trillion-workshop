@@ -47,17 +47,28 @@ test('when every judge was measured and lost, the reader is told so instead of "
   )
 })
 
-test('a judge that could not be reached is measured again next run; one that answered too slowly is a real loss', async () => {
+test('a judge that could not be reached or timed out is measured again next run; only wrong answers are kept as a loss', async () => {
   const kept = scratch()
   const key = calibrationKey(rubric, judges, 1)
   kept.set(key, {chosen: null, scoreboard: [
     {candidate: 'right', passed: false, errors: 2, first_error: 'ECONNREFUSED'},
     {candidate: 'wrong', passed: false, errors: 2, first_error: 'TimeoutError'},
+    {candidate: 'liar', passed: false, errors: 0, first_error: null},
   ]})
   const asked = []
-  const {chosen} = await chooseCandidate({candidates: judges, rubric, ask: async args => { asked.push(args.candidate.name); return truthful(args) }, passes: 1, remember: kept})
+  const {chosen} = await chooseCandidate({candidates: [...judges, {name: 'liar'}], rubric, ask: async args => { asked.push(args.candidate.name); return args.candidate.name === 'liar' ? {answer: true} : truthful(args) }, passes: 1, remember: kept})
   assert.equal(chosen.name, 'right')
-  assert.ok(!asked.includes('wrong'))
+  assert.ok(!asked.includes('liar'), 'a measured wrong answer is still kept')
+})
+
+test('a timeout under load is no answer, not a loss: the judge stays qualifiable and is asked again at once', async () => {
+  const kept = scratch()
+  const timedOut = Object.assign(new Error('The operation was aborted due to timeout'), {name: 'TimeoutError'})
+  await assert.rejects(chooseCandidate({candidates: judges, rubric, ask: async () => { throw timedOut }, passes: 1, remember: kept}), VerdictRefused)
+  const row = kept.get(calibrationKey(rubric, judges, 1))
+  assert.ok(!row?.complete, 'a finished loss would hold every later ask off for six hours')
+  const {chosen} = await chooseCandidate({candidates: judges, rubric, ask: truthful, passes: 1, remember: kept})
+  assert.equal(chosen.name, 'right', 'the next ask measures the judge again')
 })
 
 test('only models the server says can complete text are offered as judges', async () => {
