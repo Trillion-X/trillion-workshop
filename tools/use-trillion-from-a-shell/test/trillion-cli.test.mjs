@@ -253,6 +253,25 @@ test('the door: the Mac app\'s local door for the key when this computer has one
   assert.equal(doorFor({ asked: 'http://127.0.0.1:9', credential: keyCredential, localMcp: local }).mcp, 'http://127.0.0.1:9/mcp');
 });
 
+test('the engine road sends a request key over the engine bound as its identity, the same on every retry, and a short key unchanged', async () => {
+  let busy = 1;
+  const fake = await fakeDoor({ sse: true, ops: { '@own-records records:write': () => (busy-- > 0 ? { status: 503 } : { changed: 1 }) } });
+  try {
+    const client = trillionClient({ door: doorAt(fake.mcp), credential: keyCredential, rules: quick, wait: noWait });
+    const long = 'replay-from-transcripts-' + 'x'.repeat(260);
+    await client.op('@own-records', 'records:write', { records: [] }, { idempotent: true, requestKey: long });
+    await client.op('@own-records', 'records:write', { records: [] }, { idempotent: true, requestKey: 'short-key-1' });
+    const keys = fake.calls.filter(call => call.method === 'records:write').map(call => call.request_key);
+    assert.equal(keys.length, 3, 'one refused attempt, then the retry, then the short key');
+    assert.match(keys[0], /^key:1f:[0-9a-f]{64}$/);
+    assert.equal(keys[0], keys[1], 'a retry of the long key carries the same identity');
+    assert.notEqual(keys[0], long);
+    assert.equal(keys[2], 'short-key-1', 'a key within the bound is sent unchanged');
+  } finally {
+    await fake.close();
+  }
+});
+
 test('the engine road: replies in JSON or events, one request key on every retry, refusals that name the door and never say log in', async () => {
   assert.deepEqual(repliesOf('event: message\ndata: {"id":1}\n\n'), [{ id: 1 }]);
   let busy = 2;
