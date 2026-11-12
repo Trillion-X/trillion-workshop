@@ -531,3 +531,35 @@ test('a request key over the engine\'s 255-byte bound is sent as its BLAKE3 iden
     assert.notEqual(requestKeyForEngine(long), requestKeyForEngine(long.slice(0, -1)), 'two long keys never share a name');
   } finally { await door.close(); }
 });
+
+// A busy records account, asked again the door's own number of times, is a retryable refusal; any other refusal is final.
+const busyDescriptorFor = () => {
+  const file = join(mkdtempSync(join(tmpdir(), 'records-door-busy-')), 'descriptor.json');
+  writeFileSync(file, JSON.stringify({ url: 'http://127.0.0.1:1/mcp', resource: '@own-records', capability: 'capability-x' }));
+  return file;
+};
+const refusing = structuredContent => async () => Response.json({ jsonrpc: '2.0', id: 1, result: { isError: true, structuredContent } });
+const door = fetchImpl => openRecordsDoor({ descriptor: busyDescriptorFor(), fetchImpl, wait: async () => {} });
+
+test('a busy account, asked again the door\'s own number of times, is a retryable refusal', async () => {
+  const busy = door(refusing({ code: 'selected_owner_unavailable', outcome: 'not_started' }));
+  await assert.rejects(busy.read('note', 'n1'), error => {
+    assert.equal(error.code, 'selected_owner_unavailable');
+    assert.equal(error.retryable, true);
+    return true;
+  });
+});
+
+test('a source that began nothing while its workspace was busy is retryable too', async () => {
+  const busy = door(refusing({ code: 'original_workspace_source_unavailable', outcome: 'not_started' }));
+  await assert.rejects(busy.read('note', 'n1'), error => error.retryable === true);
+});
+
+test('a refusal that is not busy is final: it is not marked retryable', async () => {
+  const refused = door(refusing({ code: 'original_input_refused', outcome: 'not_started' }));
+  await assert.rejects(refused.read('note', 'n1'), error => {
+    assert.equal(error.code, 'original_input_refused');
+    assert.notEqual(error.retryable, true);
+    return true;
+  });
+});

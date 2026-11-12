@@ -142,7 +142,8 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
       // engine answers a write that found its record store busy as the source unavailable, with nothing begun.
       const busy = code === 'selected_owner_unavailable' || (code === 'original_workspace_source_unavailable' && outcome === 'not_started');
       if ((busy || outcome === 'unknown') && again) { await wait(FIRST_WAIT_MS * 2 ** attempt); continue; }
-      throw new RecordsDoorError(code, WORDS[code] ?? WORDS.refused, outcome);
+      // A busy account that is still busy after the door's own retries is retryable: the caller may ask later under its own key.
+      throw Object.assign(new RecordsDoorError(code, WORDS[code] ?? WORDS.refused, outcome), { retryable: busy });
     }
   }
 

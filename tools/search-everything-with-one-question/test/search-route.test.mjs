@@ -78,3 +78,25 @@ test('the route row runs as the engine runs it, with only its two read-only righ
   assert.deepEqual(ran.result.body.results.map(hit => hit.record).sort(), ['c1', 'i1', 'p1']);
   assert.ok(ran.result.body.results.every(hit => hit.found_in.includes('written')), 'sources=trillion leaves the files out');
 });
+
+// A busy records account answers the search as 503 (retryable); any other refusal stays a final 500.
+const GET = { path: '/search', method: 'GET', query: { q: 'kiln' } };
+const doorRefusing = error => ({
+  search: async () => { throw error; },
+  files: async () => ({ results: [], unavailable: [], pending: [] }),
+});
+
+test('a busy records account answers the search as 503 and says it may be asked again', async () => {
+  const busy = Object.assign(new Error('The person\'s records stayed busy; try again shortly.'), { code: 'selected_owner_unavailable', retryable: true });
+  const answer = await answerTheSearchRoute(GET, { door: doorRefusing(busy) });
+  assert.equal(answer.status, 503);
+  assert.equal(answer.body.retryable, true);
+  assert.equal(answer.body.error, busy.message);
+});
+
+test('any other refusal of the records stays a final 500 with no retryable mark', async () => {
+  const refused = Object.assign(new Error('The records door refused the call.'), { code: 'original_input_refused' });
+  const answer = await answerTheSearchRoute(GET, { door: doorRefusing(refused) });
+  assert.equal(answer.status, 500);
+  assert.equal(answer.body.retryable, undefined);
+});

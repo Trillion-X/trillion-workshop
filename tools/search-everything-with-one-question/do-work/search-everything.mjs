@@ -158,5 +158,8 @@ export async function answerTheSearchRoute(input, { door }) {
   try {
     return { status: 200, body: await searchEverything({ question: typeof asked.q === 'string' ? asked.q : '', places: list('places'), sources: list('sources'), matches: list('matches'),
       ...(Number.isInteger(limit) && limit > 0 ? { limit: Math.min(limit, 200) } : {}) }, { door }) };
-  } catch (error) { return { status: 500, body: { error: error.message } }; }
+  } catch (error) {
+    // A busy records account is asked again by the caller (503, retryable); any other refusal is final.
+    return error.retryable === true ? { status: 503, body: { error: error.message, retryable: true } } : { status: 500, body: { error: error.message } };
+  }
 }
