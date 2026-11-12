@@ -23,7 +23,7 @@ test('no former tool, agent, prefix or configuration id remains in records, src 
   const scanned = [
     ...filesUnder(join(ROOT, 'records'), path => /\.(json|mjs)$/.test(path)),
     ...filesUnder(join(ROOT, 'src'), path => /\.(json|mjs)$/.test(path) && path !== table),
-    ...readdirSync(join(ROOT, 'computer')).filter(name => name.endsWith('.json')).map(name => join(ROOT, 'computer', name)),
+    ...readdirSync(join(ROOT, '..', 'bring-in-new-items-from-this-computer', 'computer')).filter(name => name.endsWith('.json')).map(name => join(ROOT, '..', 'bring-in-new-items-from-this-computer', 'computer', name)),
   ];
   const hits = [];
   for (const path of scanned) {
