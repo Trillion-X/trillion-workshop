@@ -18,7 +18,7 @@ test('domain_root reduces a host to its registrable part, under a two-label suff
   assert.equal(form('https://shop.Acme.com/about?x=1'), 'acme.com');
   assert.equal(form('www.acme.co.uk'), 'acme.co.uk');
   assert.equal(form('mail.shop.acme.co.uk:8080/x'), 'acme.co.uk');
-  assert.equal(form('user-edf45184@example.com'), 'acme.io');
+  assert.equal(form('user-edf45184@example.com'), 'example.com');
   assert.equal(form('localhost'), 'localhost');
   assert.equal(form('10.0.0.1'), '10.0.0.1');
   assert.equal(form('acme.com.'), 'acme.com');
