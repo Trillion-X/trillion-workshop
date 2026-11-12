@@ -1,13 +1,17 @@
 """One passing and one failing case per check, on synthetic media made with ffmpeg. Run: python3 test/run_tests.py"""
 import contextlib
+import hashlib
 import io
 import json
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
 import wave
+from types import SimpleNamespace
+from unittest import mock
 
 import cv2
 import numpy as np
@@ -20,6 +24,7 @@ from rendercheck.report import verdict  # noqa: E402
 
 FPS = 24
 LIMITS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fixtures', 'limits-for-generated-videos.json')
+VIDEO_FIXTURES = tempfile.TemporaryDirectory(prefix='rendercheck-video-fixtures-')
 
 
 def limits():
@@ -29,12 +34,30 @@ def limits():
 
 def write_video(path, frames, pix_in='rgb24', codec=('-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '12')):
     h, w = frames[0].shape[:2]
+    # Encode each exact synthetic input once per test worker. Copies stay independent:
+    # checks may replace or modify their own output without changing another fixture.
+    key = hashlib.sha256(json.dumps([h, w, FPS, pix_in, codec, os.path.splitext(path)[1], shutil.which('ffmpeg')]).encode())
+    snapshots, payloads = {}, []
+    for frame in frames:
+        identity = id(frame)
+        if identity not in snapshots:
+            payload = np.ascontiguousarray(frame).tobytes()
+            snapshots[identity] = (payload, hashlib.sha256(payload).digest())
+        payload, digest = snapshots[identity]
+        key.update(len(payload).to_bytes(8, 'big'))
+        key.update(digest)
+        payloads.append(payload)
+    cached = os.path.join(VIDEO_FIXTURES.name, key.hexdigest())
+    if os.path.isfile(cached):
+        shutil.copyfile(cached, path)
+        return
     p = subprocess.Popen(['ffmpeg', '-nostdin', '-v', 'error', '-y', '-f', 'rawvideo', '-pix_fmt', pix_in, '-s', f'{w}x{h}', '-r', str(FPS),
                           '-i', '-', *codec, path], stdin=subprocess.PIPE)
-    for f in frames:
-        p.stdin.write(np.ascontiguousarray(f).tobytes())
+    for payload in payloads:
+        p.stdin.write(payload)
     p.stdin.close()
     assert p.wait() == 0
+    shutil.copyfile(path, cached)
 
 
 def write_overlay(path, frames_rgba):
@@ -61,12 +84,51 @@ def moving(n, w=192, h=108, seed=1):
     out = []
     for i in range(n):
         v = ((xs * 180 + i * 6) % 255 + noise).clip(0, 255)
-        out.append(np.repeat(v, h, axis=0).repeat(3, axis=2).astype(np.uint8))
+        out.append(v.repeat(3, axis=2).astype(np.uint8))
     return out
 
 
 def ctx_for(tmp, preview, spec, **kw):
     return Context(preview, spec, limits(), **kw)
+
+
+class FixtureDimensions(unittest.TestCase):
+    def test_moving_frames_have_the_requested_height_width_and_rgb_channels(self):
+        for width, height in ((192, 108), (13, 7)):
+            frames = moving(3, w=width, h=height)
+            self.assertEqual(len(frames), 3)
+            for frame in frames:
+                self.assertEqual(frame.shape, (height, width, 3))
+                self.assertEqual(frame.dtype, np.uint8)
+            self.assertTrue(np.any(frames[0] != frames[1]))
+
+    def test_video_cache_binds_every_input_and_keeps_fixture_outputs_independent(self):
+        encodes = []
+        def encode(command, **kwargs):
+            chunks = []
+            def finish():
+                with open(command[-1], 'wb') as output:
+                    output.write(b''.join(chunks))
+                return 0
+            encodes.append(command)
+            return SimpleNamespace(stdin=SimpleNamespace(write=chunks.append, close=lambda: None), wait=finish)
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as cache, \
+                mock.patch.dict(globals(), VIDEO_FIXTURES=SimpleNamespace(name=cache)), \
+                mock.patch.object(subprocess, 'Popen', side_effect=encode):
+            frames = [np.zeros((4, 6, 3), np.uint8)] * 2
+            first, second = os.path.join(root, 'first.mp4'), os.path.join(root, 'second.mp4')
+            write_video(first, frames)
+            with open(first, 'wb') as output:
+                output.write(b'changed by a check')
+            write_video(second, frames)
+            with open(second, 'rb') as output:
+                self.assertEqual(output.read(), bytes(4 * 6 * 3 * 2))
+            self.assertEqual(len(encodes), 1)
+            for changed in ([np.ones((4, 6, 3), np.uint8)] * 2, frames[:1]):
+                write_video(second, changed)
+            write_video(second, frames, codec=('-c:v', 'qtrle'))
+            write_video(os.path.join(root, 'third.mov'), frames)
+            self.assertEqual(len(encodes), 5)
 
 
 class Base(unittest.TestCase):
