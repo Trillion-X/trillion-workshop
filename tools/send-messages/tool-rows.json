@@ -439,7 +439,8 @@
                 "package": "records-door",
                 "paths": [
                   "read-data/byte-pages.mjs",
-                  "read-data/records-door.mjs"
+                  "read-data/records-door.mjs",
+                  "read-data/settled-write.mjs"
                 ],
                 "at": "/opt/records-door"
               },

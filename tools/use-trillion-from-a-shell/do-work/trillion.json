@@ -49,6 +49,7 @@
     "files": [
       "trillion.mjs",
       "packs/read-data/identity.mjs",
+      "packs/read-data/settled-write.mjs",
       "packs/node_modules/@noble/hashes/_blake.js",
       "packs/node_modules/@noble/hashes/_md.js",
       "packs/node_modules/@noble/hashes/_u64.js",
@@ -329,6 +330,7 @@
     "not_published": "This AI's record was not written: {why}",
     "not_finished": "Not finished after {seconds} seconds; read it later with trillion work {id}.",
     "refused_code": "{door} refused it ({code}).",
+    "write_pending": "The write to {method} was kept, but the person's records have not settled it yet. Read them again before answering again.",
     "codes": {
       "_what": "Plain words for the engine refusal codes a person meets most; any other code is said with refused_code.",
       "workshop_tool_unknown": "{tool} is not in this account's Workshop yet ({door}).",

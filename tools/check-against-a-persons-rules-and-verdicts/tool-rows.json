@@ -866,6 +866,7 @@
         "paths": [
          "read-data/byte-pages.mjs",
          "read-data/records-door.mjs",
+         "read-data/settled-write.mjs",
          "read-data/stdio-mcp-door.mjs",
          "read-data/write-batches.mjs"
         ],
@@ -1375,6 +1376,7 @@
         "paths": [
          "read-data/byte-pages.mjs",
          "read-data/records-door.mjs",
+         "read-data/settled-write.mjs",
          "read-data/stdio-mcp-door.mjs",
          "read-data/write-batches.mjs"
         ],

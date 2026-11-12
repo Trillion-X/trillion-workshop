@@ -29,7 +29,8 @@
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { pagedCall } from './byte-pages.mjs';
-import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
+import { settledWrite } from './settled-write.mjs';
+import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -37,12 +38,15 @@ const BUSY_RETRIES = 5;
 const RATE_RETRIES = 8;
 const FIRST_WAIT_MS = 200;
 const MAX_WAIT_MS = 30_000;
-// A write the door keeps is asked again every SETTLE_POLL_MS (the engine's renew_every_ms, the cadence of the account timer
-// that settles its queue) until SETTLE_WAIT_MS (the engine's pending_writes.settle_max_age_ms: past it the writer completes
-// the command as refused, so one ask after it is final). trillion-rust src/account/computers/settings.json.
-const SETTLE_POLL_MS = 3000;
-const SETTLE_WAIT_MS = 600_000;
 const PAGE = 999;
+// The engine takes a request key of at most this many bytes (trillion-rust src/mcp/settings.json `request_key_bytes`: Stripe's
+// idempotency-key floor, 255 characters). A longer key is sent as its own BLAKE3 identity: the same key always gives the same
+// name, two keys never share one, and a key within the bound is sent unchanged.
+const REQUEST_KEY_BYTES = 255;
+export function requestKeyOf(key) {
+  return Buffer.byteLength(key) <= REQUEST_KEY_BYTES ? key : `key:${makeHashCodeHexFromBytes(Buffer.from(key))}`;
+}
+
 // The door answers a refusal with a code and no words; these are the words a tool says for each.
 const WORDS = {
   current_workspace_rights_refused: 'This tool may not reach those records.',
@@ -58,19 +62,6 @@ const WORDS = {
 };
 
 const pause = ms => new Promise(done => setTimeout(done, ms));
-
-// A write the door keeps answers `{ accepted, pending }` until the writer settles it, and the same request key then answers
-// the outcome: a commit, or the writer's refusal, which the door throws. Every write of the client goes through here, so a
-// write is read to its outcome and never reported as kept while it is pending. Past settle.wait_ms the writer has completed
-// it as refused, so a write still pending then is thrown as write_pending.
-async function settledWrite(send, key, sleep = pause) {
-  for (let waited = 0; ; waited += SETTLE_POLL_MS) {
-    const answer = await send(key);
-    if (!answer?.pending) return answer;
-    if (waited >= SETTLE_WAIT_MS) throw new RecordsDoorError('write_pending', WORDS.write_pending, 'unknown');
-    await sleep(SETTLE_POLL_MS);
-  }
-}
 
 export class RecordsDoorError extends Error {
   constructor(code, message, outcome = null) {
@@ -114,7 +105,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
   }
 
   async function callOnce(method, input, key, address, retryTransport = false) {
-    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyForEngine(key), input } } });
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyOf(key), input } } });
     for (let attempt = 0; ; attempt += 1) {
       const again = attempt < BUSY_RETRIES;
       let response;
@@ -243,7 +234,10 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
     },
     // `key` makes the write safe to send again: the same key answers the receipt it already saved.
     async write(records, { key = `records:write:${randomUUID()}` } = {}) {
-      return settledWrite(answerKey => call('records:write', { records }, answerKey), key, wait);
+      return settledWrite(answerKey => call('records:write', { records }, answerKey), key, {
+        sleep: wait,
+        expired: () => new RecordsDoorError('write_pending', WORDS.write_pending, 'unknown'),
+      });
     },
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.

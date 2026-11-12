@@ -46,7 +46,8 @@ import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
-import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
+import { makeHashCodeHexFromBytes } from './packs/read-data/identity.mjs';
+import { settledWrite } from './packs/read-data/settled-write.mjs';
 import { localDoorAddress } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
@@ -455,14 +456,14 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
     }
   }
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
-    tool(rules.engine.tool, { address, method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
+    tool(rules.engine.tool, { address, method, request_key: requestKey, input }, { idempotent });
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } });
     const account = result?._meta?.[rules.engine.account_meta]?.account_id;
     if (typeof account !== 'string' || !account) throw new TrillionError(fill(rules.words.no_account, { door: door.name }), { status: 4 });
     return { account, server: result.serverInfo ?? null };
   }
-  return { rpc, tool, op, whoami, door, credential };
+  return { rpc, tool, op, whoami, door, credential, wait };
 }
 
 /** Every row of a paged engine list: `op` again with `after` set to each page's `next` until it is null. A pager that
@@ -531,7 +532,13 @@ async function wholeAnswer(client, address, method, input, first, { requestKey, 
 /** One operation answered whole: `op` under one request key for the call and every page of its answer, and when the
  *  answer is a byte page, every page after it (wholeAnswer). */
 async function opWhole(client, address, method, input, { requestKey = randomUUID(), rules = settings } = {}) {
-  const first = await client.op(address, method, input, { requestKey });
+  // A write the engine keeps answers accepted and pending until its writer settles it: the same key then answers the outcome, or the
+  // writer's refusal, which the call throws. The wait is the records client's (settled-write.mjs), so no write is reported as kept while pending.
+  const first = await settledWrite(answerKey => client.op(address, method, input, { requestKey: answerKey }), requestKey, {
+    sleep: client.wait,
+    pending: answer => answer?.accepted === true && answer?.pending === true,
+    expired: () => new TrillionError(fill(rules.words.write_pending, { method }), { status: 4 }),
+  });
   return bytePageOf(first) ? wholeAnswer(client, address, method, input, first, { requestKey, rules }) : first;
 }
 

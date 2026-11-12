@@ -116,6 +116,7 @@
                   "read-data/byte-pages.mjs",
                   "read-data/lists-door.mjs",
                   "read-data/records-door.mjs",
+                  "read-data/settled-write.mjs",
                   "read-data/whole-file.mjs",
                   "read-data/write-batches.mjs"
                 ],
@@ -788,6 +789,7 @@
                   "read-data/byte-pages.mjs",
                   "read-data/lists-door.mjs",
                   "read-data/records-door.mjs",
+                  "read-data/settled-write.mjs",
                   "read-data/whole-file.mjs",
                   "read-data/write-batches.mjs"
                 ],
