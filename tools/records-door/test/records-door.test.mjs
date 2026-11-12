@@ -5,7 +5,7 @@ import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor, RecordsDoorError } from '../read-data/records-door.mjs';
+import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 import { writeBatches } from '../read-data/write-batches.mjs';
@@ -474,4 +474,43 @@ test('writes are cut to fit one message: at most rows records and bytes of JSON 
   assert.deepEqual(sizes(writeBatches([record(1, 400), record(2, 400), record(3, 5000), record(4, 10)], { rows: 256, bytes: 1000 })), [['note:1', 'note:2'], ['note:3'], ['note:4']]);
   assert.deepEqual(writeBatches([], { rows: 1, bytes: 1 }), []);
   for (const bounds of [{ rows: 0, bytes: 10 }, { rows: 1 }, { rows: 1.5, bytes: 10 }]) assert.throws(() => writeBatches([record(1, 1)], bounds), TypeError);
+});
+
+// A write the door keeps (`pending`) is read to its outcome by its request key, for every write of the shared client.
+
+// A door that keeps its first write pending, then answers `then` for the same request key.
+function doorThen(then) {
+  const keys = [];
+  const call = async (method, input, key) => {
+    keys.push(key);
+    if (keys.length === 1) return { accepted: true, pending: true, request_key: key };
+    return then(key);
+  };
+  return { keys, door: recordsDoorFromCall(call, { resource: '@own-records', wait: noWait }) };
+}
+
+test('a pending write is asked again under its own key and returns the writer\'s commit', async () => {
+  const { door, keys } = doorThen(() => ({ changed: 1, write_count: 1 }));
+  const answer = await door.write([{ id: 'note:1', type: 'note', value: { words: 'one' } }]);
+  assert.deepEqual(answer, { changed: 1, write_count: 1 });
+  assert.equal(keys.length, 2);
+  assert.equal(keys[0], keys[1], 'the same key answers the outcome');
+  assert.match(keys[0], /^records:write:/, 'a write with no key still gets one key for all its asks');
+});
+
+test('a writer refusal after a pending write is thrown to the caller, never reported as kept', async () => {
+  const { door, keys } = doorThen(() => { throw new RecordsDoorError('command_settle_mismatch', 'refused', 'not_started'); });
+  await assert.rejects(door.write([{ id: 'note:1', type: 'note', value: {} }], { key: 'k' }), { code: 'command_settle_mismatch' });
+  assert.equal(keys.length, 2);
+});
+
+test('a write still pending when the settle window has passed is thrown as write_pending', async () => {
+  const keys = [];
+  const door = recordsDoorFromCall(async (method, input, key) => {
+    keys.push(key);
+    return { accepted: true, pending: true, request_key: key };
+  }, { resource: '@own-records', wait: noWait });
+  await assert.rejects(door.write([], { key: 'k' }), { code: 'write_pending', outcome: 'unknown' });
+  assert.ok(keys.length > 1, 'it is asked again before it gives up');
+  assert.ok(keys.every(key => key === 'k'));
 });

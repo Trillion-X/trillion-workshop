@@ -398,37 +398,20 @@ export function recordsOf(record, changed = [], archived = []) {
 // write sent again answers the receipt it already saved. A record too large for `record_bytes` goes in its parts. Writes
 // are measured as carried (carriedBytes), so one fits the door's cap however the door encodes it on the way.
 const writeBounds = { rows: settings.writes, bytes: settings.write_bytes, measure: carriedBytes };
-const wait = ms => new Promise(done => setTimeout(done, ms));
-/**
- * One door write, read to its outcome. The door answers `{ accepted, pending }` when it has kept the write but the writer has
- * not settled it yet; it throws the writer's refusal once it has. The same key answers that outcome, so the write is sent
- * again every `settle.poll_ms` until it settles, up to `settle.wait_ms`: past that the writer has completed it as refused, so
- * a write still pending then is not confirmed and is thrown rather than reported as kept.
- */
-export async function settledWrite(door, records, key, sleep = wait) {
-  const { wait_ms, poll_ms: every } = settings.settle;
-  for (let waited = 0; ; waited += every) {
-    const answer = await door.write(records, { key });
-    if (!answer?.pending) return answer;
-    if (waited >= wait_ms) throw Object.assign(new Error('The case write was kept, but the writer has not settled it. Read the case again before answering again.'), { code: WRITE_PENDING });
-    await sleep(every);
-  }
-}
-export const WRITE_PENDING = 'write_pending';
-export async function writeDecision(door, list, key, sleep = wait) {
+export async function writeDecision(door, list, key) {
   // The key names what is written, so a retry of the same write replays and a different write under the same name is never a conflict.
   const [root, revision, ...rest] = list;
   const parts = fitted(rest);
   const whole = [root, revision, ...parts];
   const named = `${key}:${identityOf(whole)}`;
   try {
-    if (writeBatches(whole, writeBounds).length === 1) return await settledWrite(door, whole, named, sleep);
+    if (writeBatches(whole, writeBounds).length === 1) return await door.write(whole, { key: named });
     // Several writes: the revision is claimed first, so a write made from an older read is refused before any part lands.
     // The claim holds the revision one past the one read; the last write moves it past the claim, and only if nothing else has.
-    await settledWrite(door, [revision], `${named}:claim`, sleep);
-    for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await settledWrite(door, batch, `${named}:part:${at}`, sleep);
+    await door.write([revision], { key: `${named}:claim` });
+    for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${named}:part:${at}` });
     const moved = { id: revision.id, type: revision.type, value: { revision: revision.value.revision + 1 }, ...(CHECK_REVISION ? { expected: { type: revision.type, value: revision.value } } : {}) };
-    return await settledWrite(door, [root, moved], named, sleep);
+    return await door.write([root, moved], { key: named });
   } catch (error) {
     if (error?.code === CASE_CHANGED) throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: CASE_CHANGED });
     throw error;

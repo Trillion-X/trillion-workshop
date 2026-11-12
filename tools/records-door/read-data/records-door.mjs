@@ -36,6 +36,11 @@ const BUSY_RETRIES = 5;
 const RATE_RETRIES = 8;
 const FIRST_WAIT_MS = 200;
 const MAX_WAIT_MS = 30_000;
+// A write the door keeps is asked again every SETTLE_POLL_MS (the engine's renew_every_ms, the cadence of the account timer
+// that settles its queue) until SETTLE_WAIT_MS (the engine's pending_writes.settle_max_age_ms: past it the writer completes
+// the command as refused, so one ask after it is final). trillion-rust src/account/computers/settings.json.
+const SETTLE_POLL_MS = 3000;
+const SETTLE_WAIT_MS = 600_000;
 const PAGE = 999;
 
 // The door answers a refusal with a code and no words; these are the words a tool says for each.
@@ -48,8 +53,24 @@ const WORDS = {
   capability_gone: 'This run\'s records door has closed.',
   no_files: 'This run was not handed the person\'s files: its row declares no files right.',
   original_command_conflict: 'The records changed while this tool was running. Read them again before continuing.',
+  write_pending: 'The write was kept, but the person\'s records have not settled it yet. Read them again before answering again.',
   refused: 'The records door refused the call.',
 };
+
+const pause = ms => new Promise(done => setTimeout(done, ms));
+
+// A write the door keeps answers `{ accepted, pending }` until the writer settles it, and the same request key then answers
+// the outcome: a commit, or the writer's refusal, which the door throws. Every write of the client goes through here, so a
+// write is read to its outcome and never reported as kept while it is pending. Past settle.wait_ms the writer has completed
+// it as refused, so a write still pending then is thrown as write_pending.
+async function settledWrite(send, key, sleep = pause) {
+  for (let waited = 0; ; waited += SETTLE_POLL_MS) {
+    const answer = await send(key);
+    if (!answer?.pending) return answer;
+    if (waited >= SETTLE_WAIT_MS) throw new RecordsDoorError('write_pending', WORDS.write_pending, 'unknown');
+    await sleep(SETTLE_POLL_MS);
+  }
+}
 
 export class RecordsDoorError extends Error {
   constructor(code, message, outcome = null) {
@@ -137,7 +158,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
   // A file above the piece bound is kept over the lease road at this door's own origin (writeLargeFile above).
   const origin = new URL(url).origin;
   return {
-    ...recordsDoorFromCall(call, { filesResource, resource, toolsResource }),
+    ...recordsDoorFromCall(call, { filesResource, resource, toolsResource, wait }),
     writeLarge: (name, source, options) => writeLargeFile({ origin, capability, fetchImpl }, name, source, options),
   };
 }
@@ -168,7 +189,7 @@ export async function writeLargeFile({ origin, capability, fetchImpl }, name, so
 // Shared record operations for a bearer door or an operator's authenticated MCP client.
 const WORKSHOP_TOOLS = '@workshop-tools';
 
-export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS } = {}) {
+export function recordsDoorFromCall(call, { filesResource, resource, toolsResource = WORKSHOP_TOOLS, wait = pause } = {}) {
   async function readRecord(type, id) {
     const record = await call('records:read', { id, type }, undefined, resource, true);
     return record.value === null || record.value === undefined ? null : { type: record.type, value: record.value };
@@ -221,8 +242,8 @@ export function recordsDoorFromCall(call, { filesResource, resource, toolsResour
       return call('records:search', input, undefined, resource, true);
     },
     // `key` makes the write safe to send again: the same key answers the receipt it already saved.
-    async write(records, { key } = {}) {
-      return call('records:write', { records }, key);
+    async write(records, { key = `records:write:${randomUUID()}` } = {}) {
+      return settledWrite(answerKey => call('records:write', { records }, answerKey), key, wait);
     },
     // One operation on the person's Namespace files (list_files, read_file, find_file ...), at the files resource the run
     // was handed when its row declares a `files` right; a run handed none is refused before anything is sent.

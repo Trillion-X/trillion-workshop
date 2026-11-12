@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, retriedOnConflict, settledWrite, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
@@ -816,7 +816,7 @@ async function endLaidApart(door, { id, root, value }, answers) {
 
 async function writeEnded(door, batch, answers, roots) {
   try {
-    await settledWrite(door, batch, contentKey('end-a-decision', batch));
+    await door.write(batch, { key: contentKey('end-a-decision', batch) });
     for (const { id, value } of batch) answers.set(id, { decision_id: id, ended: true, previous_status: value.previous_status, ended_at: value.ended_at });
   } catch (error) {
     if (error?.code !== CHANGED && error?.code !== TOO_LARGE) throw error;
