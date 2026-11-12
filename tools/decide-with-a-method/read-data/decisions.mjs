@@ -457,7 +457,7 @@ export async function addDecisionEvidence(input, { door }) {
     takeEvidence(record, rows);
     const added = record.input.evidence.slice(before);
     if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length };
-    await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${added.map(row => row.ref).join(',')}:${attempt}`);
+    await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${attempt}`);
     return { case_id: id, added, evidence: record.input.evidence.length };
   });
 }

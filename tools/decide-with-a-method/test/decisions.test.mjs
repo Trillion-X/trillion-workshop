@@ -639,6 +639,20 @@ test('two evidence adds to one case at the same time both land: the case changed
   assert.ok(refs.includes('e3') && refs.includes('e4'), `both rows are kept: ${refs}`);
 });
 
+test('an evidence add of eight rows lands as eight single adds do, with refs long enough that a key naming every ref would pass the request-key bound', async () => {
+  const rows = Array.from({ length: 8 }, (_, n) => ({ ref: `ref-${n}-${'pottery-kiln-cost-record-'.repeat(2)}${n}`, claim: `Claim ${n}: ${'the kiln bill for this spring was higher than last spring '.repeat(3)}` }));
+  const batch = account();
+  const { case_id: id } = await startADecision(opened, { door: batch });
+  const one = await addDecisionEvidence({ decision_id: id, evidence: rows }, { door: batch });
+  assert.equal(one.added.length, 8);
+  const singles = account();
+  assert.equal((await startADecision(opened, { door: singles })).case_id, id);
+  for (const row of rows) await addDecisionEvidence({ decision_id: id, evidence: [row] }, { door: singles });
+  const kept = view => caseView(view, id).input.evidence.map(({ ref, claim }) => ({ ref, claim }));
+  assert.deepEqual(kept(batch), kept(singles), 'the case keeps the same rows either way');
+  assert.equal(caseView(batch, id).input.evidence.length, caseView(singles, id).input.evidence.length);
+});
+
 test('evidence added at any time is kept with when it came in, the same start still opens that decision, and an answer may cite the new evidence', async () => {
   const door = account();
   const { case_id: id } = await startADecision(opened, { door });

@@ -62,6 +62,8 @@ export function memoryDoor() {
     async write(list, { key } = {}) {
       assert.ok(list.length >= 1 && list.length <= 256, `a write carries 1 to 256 records, not ${list.length}`);
       const size = bytes({ records: list, key });
+      // The engine refuses a request key over 512 bytes before anything is written (src/mcp.rs `parse_operation`).
+      if (key !== undefined && Buffer.byteLength(key) > 512) throw new Error(`a request key of ${Buffer.byteLength(key)} bytes is over the engine's 512`);
       assert.ok(size <= DOOR_CAP, `a write of ${size} bytes is over the door's 64 KiB cap (413)`);
       // A record carrying `expected` is written only if it still holds exactly that ({ type, value }, or null when absent), as the engine checks: otherwise the whole write is refused and nothing changes.
       const sorted = value => JSON.stringify(value, (name, item) => (item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.entries(item).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : item));
