@@ -23,13 +23,13 @@
       "flags": ""
     },
     {
-      "why": "a long number",
-      "source": "\\d{4,}",
+      "why": "a phone number",
+      "source": "\\(?\\+?\\d[\\d\\s().-]{7,}\\d",
       "flags": ""
     },
     {
-      "why": "a phone number",
-      "source": "\\+?\\d[\\d\\s().-]{7,}\\d",
+      "why": "a long number",
+      "source": "\\d{4,}",
       "flags": ""
     },
     {
