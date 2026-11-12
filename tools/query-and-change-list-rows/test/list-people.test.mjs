@@ -63,10 +63,14 @@ test('a list whose fields hold other kinds of values: a text field keeps the sou
   await keepPeopleInList(owners, 'crm', { source: { id: 'clinic-csv', label: 'Clinic export' }, people: [{ key: 'r1', name: 'Jo Rae', phones: ['(555) 555-9644'] }] });
   const { list } = await owners.lists.read('crm');
   assert.deepEqual(list.fields.map(field => [field.id, field.kind ?? 'text']), [['name', 'text'], ['source', 'text'], ['company', 'link'], ['phone', 'number'], ['phone_2', 'phone'], ['email', 'email'], ['company_2', 'text'], ['job_title', 'text']]);
-  const row = (await byTitle(owners, 'crm'))['Jo Rae'];
-  assert.equal(row.source, 'Mac Contacts, Clinic export');
-  assert.equal(row.phone_2, '(555) 555-4478');
-  assert.equal(row.company_2, 'Rae Ltd');
+  // Two different phone numbers on one name are two people: a conflicting phone counts against a match (merge-people invariant 1),
+  // and a false split can be undone where a false merge would lose a person's data.
+  const jo = (await owners.lists.read('crm')).rows.filter(row => row.values.name === 'Jo Rae').map(row => row.values);
+  assert.equal(jo.length, 2);
+  const mac = jo.find(values => values.source === 'Mac Contacts');
+  assert.equal(mac.phone_2, '(555) 555-4478');
+  assert.equal(mac.company_2, 'Rae Ltd');
+  assert.equal(jo.find(values => values.source === 'Clinic export').phone_2, '(555) 555-9644');
 });
 
 test('a row someone made with only a name is the person when no other row or person has that name, and a source row made before folds into it', async () => {
@@ -117,7 +121,7 @@ test('a name matches only when it is certain: never a name two rows or two peopl
   assert.equal(rows.rue.notes, 'from the gym');
 });
 
-test('the same person from a phone number written another way, an email, or a second source is one row, and nothing typed is lost', async () => {
+test('the same person from an email or a second source is one row; a conflicting phone number keeps two rows, and nothing typed is lost', async () => {
   const { owners } = fresh();
   await owners.lists.save({ id: 'people', label: 'People', fields: [{ id: 'name', label: 'Name' }, { id: 'phone', label: 'Phone', kind: 'phone' }, { id: 'email', label: 'Email', kind: 'email' }, { id: 'company', label: 'Company' }, { id: 'notes', label: 'Notes', kind: 'long-text' }] });
   await owners.lists.putRows('people', { rows: [{ id: 'typed', values: { name: 'Dee Lo (my name for her)', phone: '5551234567', company: '', notes: 'Met at the club' } }] });
@@ -125,17 +129,21 @@ test('the same person from a phone number written another way, an email, or a se
     { key: 'D4', name: 'Dee Lo', phones: ['(555) 555-2362', '(555) 555-5860'], emails: ['user-2486789e@example.com'], organization: 'Lo & Co' },
     { key: 'E5', name: 'Eve Park', emails: ['user-ffbe57af@example.com'] },
   ] });
-  assert.deepEqual([kept.added, kept.updated], [1, 1]);
+  // The typed phone 5551234567 disagrees with the source's numbers for Dee Lo, so the typed row and the source's row are two
+  // people (merge-people invariant 1: a conflicting phone counts against a match; a false split can be undone).
+  assert.deepEqual([kept.added, kept.updated], [2, 0]);
   const csv = { id: 'clinic-csv', label: 'Clinic export' };
   const second = await keepPeopleInList(owners, 'people', { source: csv, people: [{ key: 'row-9', name: 'Eve P.', emails: ['user-ffbe57af@example.com'], phones: ['07700 900123'] }] });
   assert.deepEqual([second.added, second.updated], [0, 1]);
   const rows = await byTitle(owners, 'people');
-  assert.equal(Object.keys(rows).length, 2);
-  const dee = rows['Dee Lo (my name for her)'];
-  assert.equal(dee.phone, '5551234567, (555) 555-5860');
+  assert.equal(Object.keys(rows).length, 3);
+  const typed = rows['Dee Lo (my name for her)'];
+  assert.equal(typed.phone, '5551234567');
+  assert.equal(typed.notes, 'Met at the club');
+  const dee = rows['Dee Lo'];
+  assert.equal(dee.phone, '(555) 555-2362, (555) 555-5860');
   assert.equal(dee.email, 'user-2486789e@example.com');
   assert.equal(dee.company, 'Lo & Co');
-  assert.equal(dee.notes, 'Met at the club');
   assert.deepEqual(rows['Eve Park'].source, ['Mac Contacts', 'Clinic export']);
   assert.equal(rows['Eve Park'].phone, '07700 900123');
 });
