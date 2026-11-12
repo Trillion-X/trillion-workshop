@@ -126,7 +126,7 @@ export const aiIdOf = (id, rules = settings) => (String(id).startsWith(`${rules.
 
 // ── Command line ─────────────────────────────────────────────────────────────────────────────────────────────────
 
-const VALUE_FLAGS = new Set(['as', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
+const VALUE_FLAGS = new Set(['as', 'timeout', 'wait', 'summary', 'because', 'reason', 'priority', 'key', 'origin', 'harness', 'outcome', 'limit', 'status', 'to', 'from', 'taker', 'label', 'ag-ui', 'since', 'inventory']);
 
 /** argv -> { words, flags, rest }: `--name value` for VALUE_FLAGS, `--name` alone is true, everything after `--` is rest. */
 export function parseArgs(argv) {
@@ -399,11 +399,13 @@ export function answerOf(result) {
  * with one request_key, reused on every retry) and `whoami()` (MCP initialize: the account in result._meta). A refusal
  * names the door: 401 is the door refusing this credential, 404 is a route the door does not serve.
  */
-export function trillionClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause } = {}) {
+export function trillionClient({ door, credential, fetchImpl = fetch, rules = settings, wait = pause, timeoutSeconds = rules.call_timeout_seconds } = {}) {
   if (!credential?.bearer) throw new TrillionError(rules.words.no_credential, { status: 3 });
+  // A call waits at most this many seconds: the caller's --timeout, never more than the engine's call deadline in DATA.
+  const deadline = Math.min(timeoutSeconds, rules.call_timeout_seconds);
   const headers = { 'content-type': 'application/json', accept: 'application/json, text/event-stream', authorization: `Bearer ${credential.bearer}`, 'user-agent': 'trillion-cli' };
   let next = 0;
-  const signal = () => AbortSignal.timeout(rules.call_timeout_seconds * 1000);
+  const signal = () => AbortSignal.timeout(deadline * 1000);
   const refused = () => new TrillionError(credential.kind === 'key' && !door.local && door.localMcp !== door.mcp && (door.public || door.localMcp)
     ? fill(rules.words.refused_key_at_door, { door: door.name, local: door.localMcp ? fill(rules.words.local_door_named, { mcp: door.localMcp }) : '' })
     : fill(rules.words.refused, { door: door.name }), { status: 3 });
@@ -417,7 +419,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
       const timedOut = failure?.name === 'TimeoutError';
       if (passing && !timedOut && later !== undefined) { await wait(later * 1000); continue; }
       const maybe = idempotent ? '' : ' It may have happened; read it back before trying again.';
-      if (timedOut) throw new TrillionError(`${door.name} did not answer within ${rules.call_timeout_seconds} seconds.${maybe}`, { status: 4 });
+      if (timedOut) throw new TrillionError(`${door.name} did not answer within ${deadline} seconds.${maybe}`, { status: 4 });
       if (failure) throw new TrillionError(fill(rules.words.unreachable, { door: door.name, why: failure.cause?.code ?? failure.message }) + maybe, { status: 4 });
       if (response.status === 401) throw refused();
       if (response.status === 404) throw new TrillionError(fill(rules.words.missing_route, { door: door.name, route: new URL(door.mcp).pathname }), { status: 4 });
@@ -828,6 +830,7 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   trillion publish [--dry-run]                           write this AI's own record: its facts and that it was seen now
   trillion tools | call TOOL JSON|-                      your Workshop tools, and run one by its id
   trillion op ADDRESS METHOD JSON|-                      any engine operation (run_resource_operation)
+  --timeout SECONDS  wait at most this long for one call: 1 to ${settings.call_timeout_seconds} (the engine's call deadline, the default)
   trillion update                                        who updates this command (it never updates itself)
   ${basename(settings.install.link)} records replay-from-transcripts --since TIME            list the rows this computer's AIs wrote (writes nothing)
   ${basename(settings.install.link)} records replay-from-transcripts --write --inventory DIR write that list's rows back, then read some back
@@ -847,11 +850,20 @@ const HELP = `trillion: see your AIs and their work, and run your Trillion's too
   TRILLION_AGENT or the AI running this). --json prints the answer.`;
 
 /** The door and client for this run; a run with no credential says to log in, and only then. */
+/** --timeout SECONDS: how long this call may wait, a whole number from 1 up to the engine's call deadline (trillion.json
+ *  call_timeout_seconds), which is also the wait when no --timeout is given. */
+const timeoutOf = value => {
+  const number = Number(value);
+  if (!Number.isInteger(number) || number < 1 || number > settings.call_timeout_seconds) throw new TrillionError(fill(settings.words.timeout_range, { max: settings.call_timeout_seconds }), { status: 2 });
+  return number;
+};
+
 async function signedInClient(context) {
   const credential = await credentialFor({ env: context.env, store: context.store, grants: context.grants, fetchImpl: context.fetchImpl });
   if (!credential) throw new TrillionError(settings.words.no_credential, { status: 3 });
   const door = doorFor({ asked: context.asked, credential, localMcp: context.localMcp() });
-  return trillionClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait });
+  const timeoutSeconds = context.flags.timeout === undefined ? undefined : timeoutOf(context.flags.timeout);
+  return trillionClient({ door, credential, fetchImpl: context.fetchImpl, wait: context.wait, ...(timeoutSeconds === undefined ? {} : { timeoutSeconds }) });
 }
 
 /** Writes this AI's own `ai` record (aiRecordOf) through the records door, conditioned on the value just read (null when

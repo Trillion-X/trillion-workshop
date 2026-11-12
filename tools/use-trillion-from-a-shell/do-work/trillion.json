@@ -309,6 +309,7 @@
     "no_account": "{door} answered initialize without naming an account.",
     "pager_stuck": "{method} answered a page it already gave ({next}), so its pages would never end.",
     "too_many_pages": "{method} answered more than {pages} pages.",
+    "timeout_range": "--timeout is a whole number of seconds from 1 to {max}, the engine's call deadline.",
     "byte_page_broken": "{method} answered a byte_page that does not hold together ({why}), so its pages were not joined and nothing was answered.",
     "byte_page_mismatch": "{method} answered pages whose joined {bytes} bytes have BLAKE3 {got}, not the {want} the door named, so the answer was refused.",
     "more_jobs": "More jobs: trillion work --limit N, or --status, --to, --from, --taker.",
