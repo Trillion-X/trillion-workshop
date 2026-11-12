@@ -1,0 +1,377 @@
+{
+  "kind": "tool-rows",
+  "record_set": "reply-by-keyword-rule-tool-rows",
+  "what_this_is": "The Workshop rows for automatic replies by keyword rule (tools/reply-by-keyword-rule): decide which reply to send, then send it once inside Meta's window.",
+  "records": [
+    {
+      "id": "package::reply-by-keyword-rule::tool::decide-the-instagram-replies",
+      "address": "package::reply-by-keyword-rule::tool::decide-the-instagram-replies",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:reply-by-keyword-rule",
+        "needs": {
+          "expected_seconds": 20,
+          "network_egress": false,
+          "memory_mb": 256
+        },
+        "read_only": true,
+        "id": "tool:decide-the-instagram-replies",
+        "label": "Decide the Instagram replies",
+        "job": "Say which automatic reply to send now to each Instagram direct message or comment by the person's keyword rules, and which to leave and why",
+        "description": "Reads the person's reply rules (their reply-rule rows, in order) and the pulled Instagram conversations of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "The pulled Instagram account's name, as tool:pull-my-instagram-messages named it (its account, default default)"
+            },
+            "now": {
+              "type": "string",
+              "description": "The time to judge the windows at, an ISO time; default the time now"
+            },
+            "comments": {
+              "type": "array",
+              "description": "Comments the caller pulled on the person's posts: { id, media_id, from: { id }, created_time, text }",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "account_id",
+            "decisions"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string"
+            },
+            "decisions": {
+              "type": "array"
+            }
+          }
+        },
+        "invoke": {
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "reply-by-keyword-rule",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/reply-by-keyword-rule"
+              },
+              {
+                "package": "reply-templates",
+                "paths": [
+                  "read-data/expand.mjs"
+                ],
+                "at": "/opt/reply-templates"
+              },
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "read-data/snapshot.mjs"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/reply-by-keyword-rule",
+          "internet": false,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/reply-by-keyword-rule/do-work/decide-the-replies.mjs",
+            "decideTheReplies"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "reply-rule",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "account-snapshot-part",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              },
+              {
+                "kind": "instagram-reply",
+                "operations": [
+                  "records:read",
+                  "records:list"
+                ]
+              }
+            ]
+          }
+        },
+        "result_selector": "$.result"
+      }
+    },
+    {
+      "id": "package::reply-by-keyword-rule::tool::send-an-instagram-reply",
+      "address": "package::reply-by-keyword-rule::tool::send-an-instagram-reply",
+      "path": [
+        "current-item",
+        "published-record"
+      ],
+      "payload": {
+        "kind": "ai-tool-descriptor",
+        "status": "active",
+        "licence_class": "licence:maker-own",
+        "placements": [
+          "placement:small-container"
+        ],
+        "maker": "maker:reply-by-keyword-rule",
+        "needs": {
+          "expected_seconds": 60,
+          "network_egress": true
+        },
+        "id": "tool:send-an-instagram-reply",
+        "label": "Send an Instagram reply",
+        "job": "Send one chosen automatic reply to one Instagram direct message or to one comment (a private reply), once, while its Meta window is still open",
+        "description": "Give account_id and one decision from tool:decide-the-instagram-replies whose action is send. The window is checked again at the moment of sending: a closed window sends nothing. The reply is kept before it is sent, so a reply sent once is never sent again; if no answer comes back the reply is kept as not-known for a person to look at, and it is not retried. The account's held Instagram token is placed only on the request to graph.instagram.com, never kept. It posts publicly on the person's account: run it only for replies the person's rules chose.",
+        "input_schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "account_id",
+            "decision"
+          ],
+          "properties": {
+            "account_id": {
+              "type": "string",
+              "description": "One of the person's Instagram accounts, service_connection:instagram or service_connection:instagram:<account>"
+            },
+            "decision": {
+              "type": "object",
+              "description": "One decision from tool:decide-the-instagram-replies whose action is send"
+            }
+          }
+        },
+        "output_schema": {
+          "type": "object",
+          "required": [
+            "status",
+            "key"
+          ],
+          "properties": {
+            "status": {
+              "type": "string"
+            },
+            "key": {
+              "type": "string"
+            }
+          }
+        },
+        "invoke": {
+          "refresh": {
+            "token_url": "https://graph.instagram.com/refresh_access_token",
+            "asked": {
+              "method": "GET",
+              "grant_type": "ig_refresh_token",
+              "token_param": "access_token"
+            },
+            "client_auth": "none",
+            "margin_ms": 864000000,
+            "when_expiry_unknown": true,
+            "access_field": "access_token",
+            "token_paths": [
+              [
+                "access_token"
+              ]
+            ],
+            "expires_path": [
+              "expires_in"
+            ],
+            "refresh": {
+              "field": "access_token",
+              "token_paths": []
+            }
+          },
+          "kind": "container",
+          "files": {
+            "package_files": [
+              {
+                "package": "reply-by-keyword-rule",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/reply-by-keyword-rule"
+              },
+              {
+                "package": "reply-templates",
+                "paths": [
+                  "read-data/expand.mjs"
+                ],
+                "at": "/opt/reply-templates"
+              },
+              {
+                "package": "pull-from-connected-accounts",
+                "paths": [
+                  "read-data/snapshot.mjs"
+                ],
+                "at": "/opt/pull-from-connected-accounts"
+              },
+              {
+                "package": "records-door",
+                "paths": [
+                  "do-work",
+                  "read-data"
+                ],
+                "at": "/opt/records-door"
+              },
+              {
+                "package": "content-identity",
+                "paths": [
+                  "read-data"
+                ],
+                "at": "/opt/content-identity"
+              },
+              {
+                "module": "@noble/hashes",
+                "paths": [
+                  "LICENSE",
+                  "package.json",
+                  "blake3.js",
+                  "blake2.js",
+                  "_blake.js",
+                  "_md.js",
+                  "_u64.js",
+                  "utils.js"
+                ],
+                "at": "/opt/node_modules/@noble/hashes"
+              },
+              {
+                "package": "browse-and-upload-my-files",
+                "paths": [
+                  "built-stored-bytes/content-chunks/content_chunks.js",
+                  "do-work/content-chunks.mjs",
+                  "do-work/namespace-client.mjs",
+                  "do-work/send-a-file-to-a-namespace.mjs",
+                  "do-work/send-retry.mjs",
+                  "do-work/send-window.mjs",
+                  "do-work/shared-file-reference.mjs",
+                  "send-settings.json"
+                ],
+                "at": "/opt/browse-and-upload-my-files"
+              }
+            ]
+          },
+          "workdir": "/opt/reply-by-keyword-rule",
+          "internet": true,
+          "stdout": "json",
+          "argv": [
+            "node",
+            "/opt/records-door/do-work/run-an-export.mjs",
+            "/opt/reply-by-keyword-rule/do-work/send-an-instagram-reply.mjs",
+            "sendAnInstagramReply"
+          ],
+          "stdin": {
+            "fill": {
+              "from": "input"
+            }
+          },
+          "records": {
+            "fd": 3,
+            "rights": [
+              {
+                "kind": "instagram-reply",
+                "operations": [
+                  "records:read",
+                  "records:write"
+                ]
+              }
+            ]
+          },
+          "connection": {
+            "vendor": "instagram",
+            "from_input": "account_id"
+          },
+          "credential_mounts": [
+            {
+              "field_id": "access_token",
+              "fd": 4
+            }
+          ]
+        },
+        "result_selector": "$.result"
+      }
+    }
+  ]
+}
