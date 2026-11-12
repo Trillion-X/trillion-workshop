@@ -8,7 +8,7 @@ import test from 'node:test';
 import settings from '../do-work/trillion.json' with { type: 'json' };
 import {
   TrillionError, agentOf, aiOf, aiRecordOf, allPages, groupsOf, argumentsFor, computerNameOf, computerOf, credentialFor, doorFor, grantStore, holdingOf, installProgram,
-  installSkills, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
+  installSkills, jobLines, keyStore, main, modelOf, namesOf, parseArgs, pkce, placeOf, providerOf, publishRecord, render, repliesOf, sendNote,
   serveOnce, signInWithBrowser, stateOf, trillionClient, waitFor, workCall,
 } from '../do-work/trillion.mjs';
 
@@ -618,4 +618,10 @@ test('a refused engine call names the step that refused it: the message ends wit
   const client = trillionClient({ door: doorAt('http://127.0.0.1:9/mcp', { local: true }), credential: keyCredential, fetchImpl, rules: quick, wait: noWait });
   await assert.rejects(client.op('@workshop-tools', 'tools:list', {}), error => error.code === 'original_workspace_source_unavailable'
     && error.answer.cause === 'src/x.rs:118:36:Error::Invalid#abc' && /Cause: src\/x\.rs:118:36:Error::Invalid#abc$/.test(error.message));
+});
+
+test('a job shows its own words, and its label on a line of its own', () => {
+  const lines = jobLines({ id: 'ai-job:k', status: 'waiting', to: 'ai:codex-on-mac', job: 'Fix the build', label: 'build-fix' });
+  assert.deepEqual(lines.slice(1), ['  job: Fix the build', '  label: build-fix']);
+  assert.deepEqual(jobLines({ id: 'ai-job:k', status: 'waiting', label: 'only-a-label' }).slice(1), ['  label: only-a-label']);
 });

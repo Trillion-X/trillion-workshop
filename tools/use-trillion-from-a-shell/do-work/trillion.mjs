@@ -754,9 +754,10 @@ function ownerLines(group, { all = false, rules = settings } = {}) {
 }
 
 /** The lines for one AI job: its id, status, who it is for or who took it and who sent it, the job, and what came of it. */
-function jobLines(job) {
+export function jobLines(job) {
   return [`${job.id}  ${job.status ?? 'unknown'}${job.taker ? `  taken by ${job.taker}` : job.to ? `  for ${job.to}` : '  for any AI'}${job.from ? `  from ${job.from}` : ''}`,
-    ...(job.label ?? job.job ? [`  job: ${short(job.label ?? job.job, 300)}`] : []),
+    ...(typeof job.job === 'string' && job.job ? [`  job: ${short(job.job, 300)}`] : []),
+    ...(job.label ? [`  label: ${short(job.label, 120)}`] : []),
     ...(job.stuck?.words ? [`  in the way: ${short(job.stuck.words, 300)}`] : []),
     ...(job.result !== undefined && job.result !== null ? [`  result: ${short(job.result, 1000)}`] : [])];
 }
