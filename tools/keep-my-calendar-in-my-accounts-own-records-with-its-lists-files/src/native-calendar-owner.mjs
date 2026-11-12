@@ -32,6 +32,8 @@ export function nativeCalendarOwner({
   if (typeof route !== 'function') throw new TypeError('The current native shared-route adapter is required.');
 
   const lists = taskListOwner ?? makeLists({ eeaf });
+  // The person's AI job records, which a task row's Done gate reads (calendar-tasks.json job_link): record:<type>:<key>.
+  const jobs = async key => eeaf.read(`record:${taskSettings.job_link.record_type}:${key}`) ?? null;
   const read = async (operation, input, fn) => {
     await current(operation, input);
     return fn();
@@ -81,7 +83,7 @@ export function nativeCalendarOwner({
       return owner.request(input);
     } else if (url.pathname === '/calendar/tasks') {
       response = await handleCalendarTasksRequest(lists, new Request(url, { method, headers: { 'content-type': 'application/json' },
-        ...(method === 'GET' ? {} : { body: JSON.stringify(input.body ?? {}) }) }));
+        ...(method === 'GET' ? {} : { body: JSON.stringify(input.body ?? {}) }) }), { jobs });
       if (method === 'POST' && response.ok) await arm();
     } else if (isDateShiftPath(url.pathname)) {
       response = await handleDateShiftRequest(lists, new Request(url, { method, headers: { 'content-type': 'application/json' },
@@ -120,7 +122,7 @@ export function nativeCalendarOwner({
     })),
     'calendar:tasks:read': input => read('calendar:tasks:read', input, async () => await readCalendarTasks(lists, input)),
     'calendar:tasks:collections': input => read('calendar:tasks:collections', input, async () => await readCalendarTaskCollections(lists, input)),
-    'calendar:tasks:change': input => read('calendar:tasks:change', input, async () => await changeCalendarTask(lists, input, { now: () => now() })),
+    'calendar:tasks:change': input => read('calendar:tasks:change', input, async () => await changeCalendarTask(lists, input, { now: () => now(), jobs })),
     'calendar:tasks:recurrence': input => read('calendar:tasks:recurrence', input, async () => await runCalendarTaskRecurrencePage(lists, { ...input, now: now() })),
     'calendar:connections:list': input => read('calendar:connections:list', input, () => {
       if (!connectionIO) throw new Error('The current native service-connections owner is unavailable.');

@@ -845,3 +845,39 @@ test('a list that holds its own status choices keeps them when the shipped shape
   assert.equal(page.tasks.find(task => task.id === 'five-done').may_move, false, 'Done settles this list');
 });
 
+
+test('a task linked to a workflow is settled only after that workflow run verdict passed', async () => {
+  const lists = listsOwner();
+  const verdicts = new Map();
+  const readRow = lists.row;
+  lists.row = (id, rowId) => (id === 'everything-still-working' ? verdicts.get(rowId) ?? null : readRow(id, rowId));
+  const now = { now: () => Date.parse('2026-10-20T08:00:00.000Z') };
+  const created = await changeCalendarTask(lists, { action: 'create', request_key: 'workflow-linked-1', title: 'Judge the plan', duration_minutes: 30 }, now);
+  lists.putRows(data.list.id, { rows: [{ id: created.task.id, values: { source_id: 'workflow:turn-research-into-a-plan' } }] }, { actor: { by: 'calendar' } });
+  const verdictId = 'capability-check:workflow-run-turn-research-into-a-plan';
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, now), /latest run verdict is missing, not passed/);
+  verdicts.set(verdictId, { id: verdictId, values: { state: 'failed' } });
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, now), /latest run verdict is failed, not passed/);
+  verdicts.set(verdictId, { id: verdictId, values: { state: 'passed' } });
+  assert.equal((await changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, now)).task.status, 'Done');
+});
+
+test('a task whose description names an AI job is settled only when that job is done with a result', async () => {
+  const lists = listsOwner();
+  const jobs = new Map();
+  const clock = () => Date.parse('2026-10-20T08:00:00.000Z');
+  const options = { now: clock, jobs: async key => jobs.get(key) ?? null };
+  const created = await changeCalendarTask(lists, { action: 'create', request_key: 'job-linked-1', title: 'Pay the card', duration_minutes: 30 }, options);
+  lists.putRows(data.list.id, { rows: [{ id: created.task.id, values: { description: 'Lane job: ai-job:lane-1' } }] }, { actor: { by: 'calendar' } });
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /ai-job:lane-1, and that job is not found/);
+  jobs.set('lane-1', { status: 'taken' });
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /that job is taken/);
+  jobs.set('lane-1', { status: 'failed', result: 'could not' });
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /that job is failed/);
+  jobs.set('lane-1', { status: 'done', result: '  ' });
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options), /done but has no result/);
+  await assert.rejects(changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, { now: clock }), /cannot read the job/);
+  await assert.rejects(changeCalendarTask(lists, { action: 'restore', rows: [{ task_id: created.task.id, expected: { status: 'To do' }, values: { status: 'Done' } }] }, options), /done but has no result/);
+  jobs.set('lane-1', { status: 'done', result: 'Paid; confirmation read back.' });
+  assert.equal((await changeCalendarTask(lists, { action: 'complete', task_id: created.task.id }, options)).task.status, 'Done');
+});

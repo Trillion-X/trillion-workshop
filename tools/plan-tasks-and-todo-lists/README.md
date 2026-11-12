@@ -15,3 +15,5 @@ Calendar tasks and to-do lists: named task lists with counts, tasks scheduled on
 | `moved-from.json` | Where each brought-in file came from, with the identity of its bytes |
 | `tool-rows.json` | The row `tool:sort-mail-into-built-in-task-lists`, with a sample run that sends an invitation to the calendar list |
 | `README.md` | This file |
+
+A task is settled only when the work it is linked to is finished: a task whose `source_id` is `workflow:<slug>` needs that workflow's run verdict to have passed, and a task whose description names an AI job (`ai-job:<key>`, written there by the lane launcher) needs that job done with a result (`calendar-tasks.json` `job_link`; the owner reads the job records through `options.jobs`).
