@@ -5,7 +5,7 @@ import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError, requestKeyOf } from '../read-data/records-door.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 import { writeBatches } from '../read-data/write-batches.mjs';
@@ -513,4 +513,20 @@ test('a write still pending when the settle window has passed is thrown as write
   await assert.rejects(door.write([], { key: 'k' }), { code: 'write_pending', outcome: 'unknown' });
   assert.ok(keys.length > 1, 'it is asked again before it gives up');
   assert.ok(keys.every(key => key === 'k'));
+});
+
+test('a request key over the engine\'s 255-byte bound is sent as its BLAKE3 identity, the same every time; a key within it is sent unchanged', async () => {
+  const door = await startFakeDoor({ rights: [{ kind: 'note', operations: ALL }] });
+  try {
+    const client = openRecordsDoor({ descriptor: door.descriptor, wait: noWait });
+    const long = 'pairing-waiting:events:sample:'.padEnd(300, 'x');
+    await client.write([{ id: 'note:1', type: 'note', value: {} }], { key: long });
+    await client.write([{ id: 'note:1', type: 'note', value: {} }], { key: long });
+    await client.write([{ id: 'note:1', type: 'note', value: {} }], { key: 'a'.repeat(255) });
+    const [first, again, within] = door.calls.filter(call => call.method === 'records:write').map(call => call.key);
+    assert.match(first, /^key:[0-9a-f]{2}:[0-9a-f]{64}$/, 'a 300-byte key is sent as its identity');
+    assert.equal(first, again, 'the same long key is the same name on a retry');
+    assert.equal(within, 'a'.repeat(255), 'a 255-byte key is sent unchanged');
+    assert.notEqual(requestKeyOf(long), requestKeyOf(long.slice(0, -1)), 'two long keys never share a name');
+  } finally { await door.close(); }
 });
