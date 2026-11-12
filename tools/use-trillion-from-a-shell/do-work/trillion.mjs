@@ -46,7 +46,7 @@ import { homedir, hostname } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { runOnAgUi } from './ag-ui-agent.mjs';
-import { makeHashCodeHexFromBytes } from './packs/read-data/identity.mjs';
+import { makeHashCodeHexFromBytes, requestKeyForEngine } from './packs/read-data/identity.mjs';
 import { localDoorAddress } from './local-door.mjs';
 import settings from './trillion.json' with { type: 'json' };
 
@@ -455,7 +455,7 @@ export function trillionClient({ door, credential, fetchImpl = fetch, rules = se
     }
   }
   const op = (address, method, input = {}, { idempotent = false, requestKey = randomUUID() } = {}) =>
-    tool(rules.engine.tool, { address, method, request_key: requestKey, input }, { idempotent });
+    tool(rules.engine.tool, { address, method, request_key: requestKeyForEngine(requestKey), input }, { idempotent });
   async function whoami() {
     const result = await rpc('initialize', { protocolVersion: rules.engine.protocol_version, capabilities: {}, clientInfo: { name: rules.client_name, version: rules.client_version } });
     const account = result?._meta?.[rules.engine.account_meta]?.account_id;

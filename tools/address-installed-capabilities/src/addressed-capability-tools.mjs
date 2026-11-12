@@ -1,5 +1,6 @@
 import { readBoundedJson } from '../../keep-and-wake-ai-sessions-on-this-computer/src/read-bounded-json.mjs';
 import { failureOf } from '../../shared-code/src/failure.mjs';
+import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 
 const API_PATH = '/capabilities';
 const MAX_BODY_BYTES = 256_000;
@@ -123,7 +124,7 @@ export const addressedCapabilityTools = call => [
         if (typeof input.method !== 'string' || !input.method || typeof input.request_key !== 'string' || !input.request_key)
           throw fail('An installed method and stable request_key are required.');
         if (input.execution !== undefined || input.wait_seconds !== undefined) throw fail('Put directly addressed operation controls in input.');
-        return call(`/resources/${encodeURIComponent(address)}/command`, { operation: input.method, input: input.input ?? {}, request_key: input.request_key }, 'POST');
+        return call(`/resources/${encodeURIComponent(address)}/command`, { operation: input.method, input: input.input ?? {}, request_key: requestKeyForEngine(input.request_key) }, 'POST');
       }
       return post(call, 'run', { id: bindingId, ...input });
     },

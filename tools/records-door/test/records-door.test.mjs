@@ -5,7 +5,8 @@ import { mkdtempSync, openSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError, requestKeyOf } from '../read-data/records-door.mjs';
+import { openRecordsDoor, recordsDoorFromCall, RecordsDoorError } from '../read-data/records-door.mjs';
+import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 import { wholeAnswer } from '../read-data/byte-pages.mjs';
 import { startFakeDoor } from './fake-door.mjs';
 import { writeBatches } from '../read-data/write-batches.mjs';
@@ -527,6 +528,6 @@ test('a request key over the engine\'s 255-byte bound is sent as its BLAKE3 iden
     assert.match(first, /^key:[0-9a-f]{2}:[0-9a-f]{64}$/, 'a 300-byte key is sent as its identity');
     assert.equal(first, again, 'the same long key is the same name on a retry');
     assert.equal(within, 'a'.repeat(255), 'a 255-byte key is sent unchanged');
-    assert.notEqual(requestKeyOf(long), requestKeyOf(long.slice(0, -1)), 'two long keys never share a name');
+    assert.notEqual(requestKeyForEngine(long), requestKeyForEngine(long.slice(0, -1)), 'two long keys never share a name');
   } finally { await door.close(); }
 });

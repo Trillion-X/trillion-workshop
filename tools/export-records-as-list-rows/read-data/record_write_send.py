@@ -59,6 +59,9 @@ from expressions import slug
 CONFIG_KEYS = ('transport', 'address', 'list_method', 'write_method', 'page_limit', 'per_command', 'command_bytes', 'request_key_prefix')
 MCP_PROTOCOL = '2025-06-18'
 ANSWER_SECONDS = 300
+# The engine takes a request key of at most this many bytes (trillion-rust src/mcp/settings.json `request_key_bytes`: Stripe's
+# idempotency-key floor, 255 characters).
+REQUEST_KEY_BYTES = 255
 
 
 def canonical(value) -> bytes:
@@ -75,6 +78,13 @@ def blake3_hex(data: bytes) -> str:
         if not program:
             raise ValueError('A request key is BLAKE3: install the python module (pip install blake3) or the b3sum command.')
         return subprocess.run([program, '--no-names', '-'], input=data, capture_output=True, check=True).stdout.decode().strip()
+
+
+def request_key_for_engine(key: str) -> str:
+    """The key the engine takes: a key within the bound unchanged; a longer one as its own identity, `key:1f:<BLAKE3>` (the same
+    name the Workshop's requestKeyForEngine gives), so the same key always gives the same name and two keys never share one."""
+    data = key.encode('utf-8')
+    return key if len(data) <= REQUEST_KEY_BYTES else f'key:1f:{blake3_hex(data)}'
 
 
 def local_time() -> str:
@@ -169,7 +179,8 @@ class Door:
         """One operation's line, { is_error, answer }, at the config's address unless another is given; a door or program that does not
         answer is refused."""
         self.steps += 1
-        arguments = {'address': address or self.config['address'], 'method': method, 'request_key': request_key, 'input': input_}
+        arguments = {'address': address or self.config['address'], 'method': method, 'request_key': request_key_for_engine(request_key),
+                     'input': input_}
         return self.post(arguments, method) if self.key is not None else self.call(arguments, method)
 
     def post(self, arguments: dict, method: str) -> dict:

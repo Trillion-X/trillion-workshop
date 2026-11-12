@@ -3,7 +3,7 @@
 // identity of the whole at every split; anything but bytes is refused.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { canonicalJson, makeHashCodeHasher, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson, makeKeyedHashHexFromBytes } from '../read-data/identity.mjs';
+import { canonicalJson, makeHashCodeHasher, makeHashCodeHexFromBytes, makeHashCodeHexFromChunks, makeHashCodeHexFromJson, makeKeyedHashHexFromBytes, requestKeyForEngine } from '../read-data/identity.mjs';
 
 test('a hasher fed pieces as they arrive gives the identity of the whole, and refuses anything but bytes', () => {
   const bytes = Uint8Array.from({ length: 70000 }, (_, index) => index % 251);
@@ -50,4 +50,14 @@ test('a JSON value has one identity whatever order its keys were written in, and
   assert.equal(canonicalJson({ kept: 1, dropped: undefined }), '{"kept":1}');
   assert.throws(() => canonicalJson(Number.NaN), /NaN or Infinity/);
   assert.throws(() => canonicalJson(undefined), /JSON values only/);
+});
+
+test('a request key within the engine bound is sent unchanged; a longer one is sent as its identity, the same each time, and never shared', () => {
+  const within = 'x'.repeat(255);
+  const over = 'x'.repeat(256);
+  assert.equal(requestKeyForEngine(within), within);
+  assert.equal(requestKeyForEngine('é'.repeat(127)), 'é'.repeat(127));
+  assert.equal(requestKeyForEngine(over), `key:${makeHashCodeHexFromBytes(new TextEncoder().encode(over))}`);
+  assert.equal(requestKeyForEngine(over), requestKeyForEngine(over));
+  assert.notEqual(requestKeyForEngine(over), requestKeyForEngine(over.slice(1)));
 });

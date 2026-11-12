@@ -1,7 +1,8 @@
 // The configured MCP client owns authentication; credentials never enter this adapter.
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { recordsDoorFromCall, RecordsDoorError, requestKeyOf } from './records-door.mjs';
+import { recordsDoorFromCall, RecordsDoorError } from './records-door.mjs';
+import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 import { pagedCall } from './byte-pages.mjs';
 
 export function openStdioRecordsDoor({ argv, resource = '@own-records', files_resource = undefined, timeout_ms = 30000, max_answer_bytes = 16 * 1024 * 1024 } = {}) {
@@ -47,7 +48,7 @@ export function openStdioRecordsDoor({ argv, resource = '@own-records', files_re
   async function once(method, input, request_key, address) {
     let answer;
     for (let attempt = 0; ; attempt++) {
-      answer = await request({ method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyOf(request_key), input } } });
+      answer = await request({ method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyForEngine(request_key), input } } });
       const failure = answer.result?.isError ? answer.result.structuredContent : null;
       if (attempt >= 5 || !(failure?.code === 'selected_owner_unavailable' || failure?.outcome === 'unknown')) break;
       await new Promise(resolve => setTimeout(resolve, 200 * 2 ** attempt));

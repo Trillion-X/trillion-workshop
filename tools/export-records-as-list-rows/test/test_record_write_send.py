@@ -169,6 +169,15 @@ class Door(Pantry):
         self.assertEqual((status['to_write'], len(logged)), (1, 1))
         self.assertEqual(self.held()['records']['record:stores:kiosk']['value'], {'name': 'Kiosk'})
 
+    def test_a_request_key_over_the_engine_bound_is_sent_as_its_identity_and_the_same_each_time(self):
+        long_prefix = 'pantry-load-' + 'x' * 260
+        self.assertEqual(sender.request_key_for_engine('pantry-load-1'), 'pantry-load-1')
+        self.assertEqual(sender.request_key_for_engine('y' * 255), 'y' * 255)
+        long = sender.request_key_for_engine(long_prefix + '-read-1')
+        self.assertRegex(long, r'^key:1f:[0-9a-f]{64}$')
+        self.assertEqual(long, sender.request_key_for_engine(long_prefix + '-read-1'))
+        self.assertNotEqual(long, sender.request_key_for_engine(long_prefix + '-read-2'))
+
     def test_the_same_records_make_the_same_request_key_and_a_repeated_key_is_a_replay(self):
         records = sender.records_of(self.payload)[:3]
         one, two = sender.write_commands(self.config, records), sender.write_commands(self.config, [dict(r) for r in records])

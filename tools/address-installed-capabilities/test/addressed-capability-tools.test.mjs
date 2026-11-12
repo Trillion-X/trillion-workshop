@@ -111,3 +111,13 @@ test('the same MCP operation tool preserves an independent address, installed me
   assert.throws(() => tool.run({ address: 'project:one', method: 'resource:create' }), /stable request_key/);
   assert.equal(calls.length, 1);
 });
+
+test('a caller request key over the engine bound reaches the engine as its identity, the same on every retry', async () => {
+  const calls = [];
+  const tool = addressedCapabilityTools(async (...args) => { calls.push(args); return { created: true }; }).find(row => row.name === 'run_resource_operation');
+  const long = 'retry-'.repeat(60);
+  await tool.run({ address: 'project:client/foo', method: 'resource:create', input: {}, request_key: long });
+  await tool.run({ address: 'project:client/foo', method: 'resource:create', input: {}, request_key: long });
+  assert.equal(calls[0][1].request_key, calls[1][1].request_key);
+  assert.match(calls[0][1].request_key, /^key:1f:[0-9a-f]{64}$/);
+});

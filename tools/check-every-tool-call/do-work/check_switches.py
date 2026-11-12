@@ -39,6 +39,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+import uuid
 
 _CONFIGURED: dict | None = None
 
@@ -99,7 +100,7 @@ def list_page(rules: dict, key: str, kind: dict, after) -> dict:
         payload["after"] = after
     body = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "run_resource_operation", "arguments": {
         "address": door["address"], "method": door["method"],
-        "request_key": "check-switches:%s:%s:%d" % (kind["type"], after or "", int(time.time())), "input": payload}}}
+        "request_key": "check-switches:%s:%s" % (kind["type"], uuid.uuid4().hex), "input": payload}}}
     request = urllib.request.Request(door_url(rules), data=json.dumps(body).encode(), method="POST", headers={
         "content-type": "application/json", "accept": "application/json, text/event-stream", "authorization": f"Bearer {key}"})
     with urllib.request.urlopen(request, timeout=door["timeout_seconds"]) as response:

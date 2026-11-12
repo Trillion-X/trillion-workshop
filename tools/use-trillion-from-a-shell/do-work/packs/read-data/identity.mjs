@@ -31,6 +31,16 @@ export function makeHashCodeHexFromBytes(bytes) {
   return `1f:${bytesToHex(blake3(bytes))}`;
 }
 
+// The engine takes a request key of at most this many bytes (trillion-rust src/mcp/settings.json `request_key_bytes`: Stripe's
+// idempotency-key floor, 255 characters).
+const REQUEST_KEY_BYTES = 255;
+/** The request key the engine takes: a key within the bound unchanged; a longer one as its own identity, so the same key always
+ * gives the same name, two keys never share one, and a retry is answered as the first call was. */
+export function requestKeyForEngine(key) {
+  const bytes = new TextEncoder().encode(key);
+  return bytes.length <= REQUEST_KEY_BYTES ? key : `key:${makeHashCodeHexFromBytes(bytes)}`;
+}
+
 /**
  * The same identity fed piece by piece as the pieces arrive (a file stream, a socket), without collecting them:
  * `update(bytes)` as often as needed, then `identity()` once.

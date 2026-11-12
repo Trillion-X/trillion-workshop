@@ -29,7 +29,7 @@
 import { readFileSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { pagedCall } from './byte-pages.mjs';
-import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
+import { requestKeyForEngine } from '../../content-identity/read-data/identity.mjs';
 
 const PROTOCOL = '2025-06-18';
 const BUSY_RETRIES = 5;
@@ -43,14 +43,6 @@ const MAX_WAIT_MS = 30_000;
 const SETTLE_POLL_MS = 3000;
 const SETTLE_WAIT_MS = 600_000;
 const PAGE = 999;
-// The engine takes a request key of at most this many bytes (trillion-rust src/mcp/settings.json `request_key_bytes`: Stripe's
-// idempotency-key floor, 255 characters). A longer key is sent as its own BLAKE3 identity: the same key always gives the same
-// name, two keys never share one, and a key within the bound is sent unchanged.
-const REQUEST_KEY_BYTES = 255;
-export function requestKeyOf(key) {
-  return Buffer.byteLength(key) <= REQUEST_KEY_BYTES ? key : `key:${makeHashCodeHexFromBytes(Buffer.from(key))}`;
-}
-
 // The door answers a refusal with a code and no words; these are the words a tool says for each.
 const WORDS = {
   current_workspace_rights_refused: 'This tool may not reach those records.',
@@ -122,7 +114,7 @@ export function openRecordsDoor({ descriptor = 3, fetchImpl = fetch, wait = ms =
   }
 
   async function callOnce(method, input, key, address, retryTransport = false) {
-    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyOf(key), input } } });
+    const body = JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'run_resource_operation', arguments: { address, method, request_key: requestKeyForEngine(key), input } } });
     for (let attempt = 0; ; attempt += 1) {
       const again = attempt < BUSY_RETRIES;
       let response;
