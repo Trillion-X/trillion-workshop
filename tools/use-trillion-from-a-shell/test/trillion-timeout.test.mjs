@@ -4,10 +4,11 @@
 // deadline in trillion.json (call_timeout_seconds), which is also the wait when no --timeout is given: a larger value is
 // refused, never raised. A door that never answers is given up on after the chosen wait, and the message says that wait.
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
+import { fileURLToPath } from 'node:url';
 import settings from '../do-work/trillion.json' with { type: 'json' };
 import { main, stateOf, trillionClient, TrillionError } from '../do-work/trillion.mjs';
 
@@ -67,4 +68,15 @@ test('the default wait and the bound both come from the deadline in DATA, whatev
     });
     assert.ok(Date.now() - began < 5000, `${timeoutSeconds ?? 'default'} waited for ${expected} second`);
   }
+});
+
+test('the call deadline is the engine tool-run deadline in trillion-rust, and that file still says so where the checkout is', t => {
+  const { engine_source: source } = settings;
+  assert.equal(settings.call_timeout_seconds * 1000, source.deadline_ms, 'a call waits as long as the engine gives a tool run');
+  assert.ok(settings.call_timeout_seconds * 1000 <= source.http_max_timeout_ms, 'a call is not longer than the HTTP ceiling');
+  const engineFile = fileURLToPath(new URL(`../../../../${source.repository}/${source.file}`, import.meta.url));
+  if (!existsSync(engineFile)) return t.skip(`no ${source.repository} checkout beside this one`);
+  const engine = JSON.parse(readFileSync(engineFile, 'utf8'));
+  assert.equal(engine.deadline_ms, source.deadline_ms, `${source.file} deadline_ms changed: update engine_source and call_timeout_seconds together`);
+  assert.equal(engine.http?.max_timeout_ms, source.http_max_timeout_ms, `${source.file} http.max_timeout_ms changed`);
 });

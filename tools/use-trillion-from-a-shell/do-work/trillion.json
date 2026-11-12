@@ -37,6 +37,8 @@
   "scope": "decisions",
   "sign_in_wait_seconds": 600,
   "call_timeout_seconds": 120,
+  "call_timeout_seconds_what": "How long one engine call may wait for its answer. It is the engine's tool-run deadline: the deadline_ms of trillion-rust src/tool_runs/tools/tool-runs.json (120000 ms), which the engine gives every Workshop tool a call runs. A call that runs a tool cannot usefully outlive that deadline, so the wait is the same number. test/trillion-timeout.test.mjs checks the two agree (engine_source below), and that the door's HTTP invoke ceiling (http.max_timeout_ms) is not below it.",
+  "engine_source": { "repository": "trillion-rust", "file": "src/tool_runs/tools/tool-runs.json", "deadline_ms": 120000, "http_max_timeout_ms": 300000 },
   "retry_seconds": [
     2,
     5,
