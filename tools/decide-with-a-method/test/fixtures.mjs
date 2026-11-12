@@ -81,6 +81,18 @@ export function memoryDoor() {
 // A decision as the tools see it, put together from its records the way read-data/decision-records.mjs lays them out:
 // the root with its lists back inside it (`input.evidence`, `answered_steps`, `decision_history`, ...) and its method
 // snapshot, so a test can say what a decision holds without naming every record.
+// The per-index references of a case (its refs record, reassembled when the record is kept in parts).
+export function refsOfCase(door, id) {
+  const root = door.value(id);
+  if (typeof root?.refs !== 'string') return {};
+  const { part } = settings.records;
+  const key = `${settings.records.refs}:${id}:c${root.refs}`;
+  const kept = door.value(key);
+  if (!Number.isInteger(kept?.kept_in_parts)) return kept ?? {};
+  const text = Array.from({ length: kept.kept_in_parts }, (_, n) => door.value(`${key}${part.suffix}${String(n).padStart(part.digits, '0')}`).text).join('');
+  return JSON.parse(text);
+}
+
 export function caseView(door, id) {
   const kept = door.value(id);
   if (!kept?.counts) return kept;
@@ -96,9 +108,12 @@ export function caseView(door, id) {
   };
   const items = list => {
     const { type, digits } = settings.records.laid_apart[list];
-    return Array.from({ length: root.counts[list] ?? 0 }, (_, n) => whole(`${type}:${id}:${String(n).padStart(digits, '0')}`));
+    // An answered-step summary is kept at its content identity, named by the root (`answered_refs`).
+    const ref = refsOfCase(door, id).items?.[list] ?? [];
+    return Array.from({ length: root.counts[list] ?? 0 }, (_, n) => whole(`${type}:${id}:${String(n).padStart(digits, '0')}${ref[n] ? `:c${ref[n]}` : ''}`));
   };
-  const view = { ...root, input: { ...root.input, evidence: items('evidence') }, answered_steps: items('answered_steps') };
+  const { refs: _refs, ...shown } = root;
+  const view = { ...shown, input: { ...shown.input, evidence: items('evidence') }, answered_steps: items('answered_steps') };
   if (root.counts.options) view.input.options = items('options');
   for (const list of ['candidates', 'reports', 'carried_out', 'decision_history']) if (root.counts[list]) view[list] = items(list);
   if (root.counts.cited_pursuits) view.cited_pursuits = Object.fromEntries(items('cited_pursuits').map(item => [item.ref, item.said]));

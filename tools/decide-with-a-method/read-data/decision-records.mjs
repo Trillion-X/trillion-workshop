@@ -7,8 +7,10 @@
 // a record of its own, linked to the decision's id, named in `records` of read-data/decide-with-a-method.json:
 //
 //   decision-evidence:<id>:<nnnn>        one evidence row { ref, claim, added_at?, from?, retracted_at? }
-//   decision-answered-step:<id>:<nnn>    one answered step's summary (counts, version, needs_recheck)
-//   decision-step:<id>:<nnn>[:v<vvv>]    one answered step whole: its answer, checks and verdicts (and each old version)
+//   decision-answered-step:<id>:<nnn>:c<identity>  one answered step's summary (counts, version, needs_recheck), write-once
+//   decision-evidence:<id>:<nnnn>:c<identity>  (and every other laid-apart list: reports, candidates, ...), write-once
+//   decision-step:<id>:<nnn>:c<identity>[:v<vvv>]  one answered step whole (its answer, checks, verdicts), write-once; each old version
+//   decision-refs:<id>:c<identity>       the per-index identities of the steps and summaries the root holds (`refs` on the root)
 //   decision-candidate:<id>:<nnn>        one candidate a step left standing
 //   decision-report:<id>:<nnnn>          one result the person reported; decision-carried-out:<id>:<nnnn> one receipt
 //   decision-history:<id>:<nnn>          one earlier decision; decision-cited-pursuit:<id>:<nnnn> one cited pursuit
@@ -50,6 +52,16 @@ const stepKey = (id, n) => `${NAMES.step}${id}:${pad(n, NAMES.step_digits)}`;
 export const versionKey = (id, n, version) => `${stepKey(id, n)}${NAMES.version}${pad(version, NAMES.version_digits)}`;
 const callKey = (id, n) => `${NAMES.call}${id}:${pad(n, NAMES.call_digits)}`;
 const itemKey = (list, id, n) => `${LAID[list].type}:${id}:${pad(n, LAID[list].digits)}`;
+// Steps and every laid-apart list are write-once: each version of one is kept at its own content identity (`:c<hex>`),
+// and the root names the identity of the one it holds per index (`refs`: `step_refs` and `items`). A write puts new records
+// under new keys and moves nothing in place, so a write refused before its root lands leaves nothing the root names.
+const CONTENT = ':c';
+const contentRef = value => identityOf(value);
+const stepAt = (id, n, ref) => (ref ? `${stepKey(id, n)}${CONTENT}${ref}` : stepKey(id, n));
+const itemAt = (list, id, n, ref) => (ref ? `${itemKey(list, id, n)}${CONTENT}${ref}` : itemKey(list, id, n));
+// The per-index references are one write-once record (`decision-refs:<id>:c<hex>`) named by the root's `refs`, so the root
+// keeps one identity however many steps a decision has.
+const refsKey = (id, ref) => `${NAMES.refs}:${id}${CONTENT}${ref}`;
 const methodKey = identity => `${NAMES.method}:${identity}`;
 const partKey = (key, n) => `${key}${NAMES.part.suffix}${pad(n, NAMES.part.digits)}`;
 
@@ -95,6 +107,8 @@ const LIST_NAMES = Object.keys(LISTS);
 // Options were laid apart for a while; such a root's options are read back and folded into its input at its next change.
 const FOLDED = 'options';
 // Fields of a root written before this layout that this layout keeps elsewhere.
+// The root's per-index references to write-once records (see stepAt, itemAt); never copied into the decision a tool reads.
+const REFS = ['refs'];
 const MOVED = ['answered_steps', 'original_input', 'candidates', 'reports', 'carried_out', 'decision_history', 'cited_pursuits'];
 
 // What was read of each laid-apart list and the method, so a write keeps only what changed.
@@ -214,6 +228,18 @@ export function wholeValue(key, value, get) {
   }
   return unpackStep(JSON.parse(text));
 }
+/** The per-index references of a root (`refs` names the record that holds them); none for a root that names none. */
+// Undefined while the record is not read yet: the join runs again over what is read (see `settled`).
+function refsOf(id, root, get) {
+  const none = { step_refs: [], items: {} };
+  if (typeof root.refs !== 'string') return none;
+  const key = refsKey(id, root.refs);
+  const value = get(NAMES.refs, key);
+  if (value === undefined) return undefined;
+  const kept = wholeValue(key, value, get);
+  if (kept === undefined) return undefined;
+  return kept ? { step_refs: kept.step_refs ?? [], items: kept.items ?? {} } : none;
+}
 /** The join run over what `door` holds: every record it asked about is read together, until it asks about no more. */
 export async function settled(door, join) {
   const held = new Map();
@@ -237,11 +263,11 @@ export const stepIn = (get, key) => {
 export const readStep = (door, key) => settled(door, get => stepIn(get, key));
 
 /** The first `count` items of one list laid apart, in order; one that cannot be read is named as lost. */
-export function itemsIn(get, id, list, count) {
+export function itemsIn(get, id, list, count, refs = []) {
   if (!count) return [];
   const { type } = LAID[list];
   return Array.from({ length: count }, (_, n) => {
-    const key = itemKey(list, id, n);
+    const key = itemAt(list, id, n, refs[n]);
     const kept = wholeValue(key, get(type, key), get);
     return kept ?? { lost: true };
   });
@@ -260,13 +286,16 @@ export function joinLaid(id, root, get, lists = LIST_NAMES, { method = false } =
   const record = { ...own, input: { ...own.input } };
   const counts = object(own.counts) ? own.counts : null;
   if (counts?.[FOLDED]) {
-    const items = itemsIn(get, id, FOLDED, counts[FOLDED]);
+    const items = itemsIn(get, id, FOLDED, counts[FOLDED], refsOf(id, root, get)?.items?.[FOLDED]);
     loaded[FOLDED] = items.map(canonical);
     record.input.options = items;
   }
+  const refs = refsOf(id, root, get) ?? { step_refs: [], items: {} };
+  loaded.item_refs = refs.items;
+  loaded.step_refs = refs.step_refs;
   for (const list of lists) {
     if (!counts || !LISTS[list]) continue;
-    const items = itemsIn(get, id, list, counts[list] ?? 0);
+    const items = itemsIn(get, id, list, counts[list] ?? 0, refs.items[list]);
     loaded[list] = items.map(canonical);
     LISTS[list].into(record, items);
   }
@@ -289,16 +318,19 @@ export function joinDecision(id, root, get, steps = []) {
   const { record, loaded } = joinLaid(id, root, get, LIST_NAMES, { method: true });
   let stubs = Array.isArray(record.answered_steps) ? record.answered_steps : [];
   if (object(root.counts)) {
-    stubs = itemsIn(get, id, 'answered_steps', root.counts.answered_steps ?? 0);
+    const refs = refsOf(id, root, get) ?? { step_refs: [], items: {} };
+    stubs = itemsIn(get, id, 'answered_steps', root.counts.answered_steps ?? 0, refs.items.answered_steps);
     loaded.answered_steps = stubs.map(canonical);
+    loaded.item_refs = refs.items;
+    loaded.step_refs = refs.step_refs;
   }
   const wanted = new Set([0, ...stubs.flatMap((stub, n) => (steps.includes(stub.step_id) ? [n] : []))]);
   const guidance = [];
   for (const [n, stub] of stubs.entries()) {
-    if (wanted.has(n)) guidance.push({ ...(stepIn(get, stepKey(id, n)) ?? lostStep(stub)), ...flagsOf(stub) });
+    if (wanted.has(n)) guidance.push({ ...(stepIn(get, stepAt(id, n, loaded.step_refs?.[n])) ?? lostStep(stub)), ...flagsOf(stub) });
     else guidance.push({ ...stub, ...flagsOf(stub) });
   }
-  const { answered_steps: _stubs, ...own } = record;
+  const { answered_steps: _stubs, refs: _refs, ...own } = record;
   const decision = { ...own, id, guidance };
   LOADED.set(decision, loaded);
   return decision;
@@ -342,12 +374,15 @@ export function markRead(record, revision) {
 }
 
 // Each item of a list that is new or changed since it was read, and a removal for each item past its new end.
-function changedItems(id, list, items, was = []) {
+function changedItems(id, list, items, was = [], wasRefs = []) {
   const out = [];
-  for (const [n, item] of items.entries()) if (canonical(item) !== was[n]) out.push({ id: itemKey(list, id, n), type: LAID[list].type, value: item });
-  for (let n = items.length; n < was.length; n += 1) out.push({ id: itemKey(list, id, n), type: LAID[list].type, value: null });
+  for (const [n, item] of items.entries()) if (canonical(item) !== was[n]) out.push({ id: itemAt(list, id, n, contentRef(item)), type: LAID[list].type, value: item });
+  for (let n = items.length; n < was.length; n += 1) out.push({ id: itemAt(list, id, n, wasRefs[n]), type: LAID[list].type, value: null });
   return out;
 }
+// The reference each item is held at after a write: a changed one at its new identity, an unchanged one where it was read.
+const refsAfter = (items, was = [], wasRefs = [], changedOf = item => item) => items.map((item, n) => (canonical(item) !== was[n]
+  ? contentRef(changedOf(item)) : (wasRefs[n] ?? null)));
 
 /**
  * The records one write keeps: the root with its counts and pointers, the steps at `changed` (indices into the guidance),
@@ -358,19 +393,22 @@ function changedItems(id, list, items, was = []) {
 export function recordsOf(record, changed = [], archived = []) {
   const { guidance = [], calls, whole, id, method, input = {}, input_identity: kept, ...rest } = record;
   const loaded = LOADED.get(record) ?? {};
-  const own = Object.fromEntries(Object.entries(rest).filter(([field]) => !MOVED.includes(field) && ![...ROOT_BOOKKEEPING, 'counts'].includes(field)));
+  const own = Object.fromEntries(Object.entries(rest).filter(([field]) => !MOVED.includes(field) && ![...ROOT_BOOKKEEPING, ...REFS, 'counts'].includes(field)));
   const counts = {};
   const items = [];
+  const itemRefs = {};
   for (const list of LIST_NAMES) {
     const now = LISTS[list].from(record) ?? [];
     counts[list] = now.length;
-    items.push(...changedItems(id, list, now, loaded[list]));
+    items.push(...changedItems(id, list, now, loaded[list], loaded.item_refs?.[list]));
+    itemRefs[list] = refsAfter(now, loaded[list], loaded.item_refs?.[list]);
   }
   const stubs = guidance.map(stubOf);
   counts.answered_steps = stubs.length;
-  items.push(...changedItems(id, 'answered_steps', stubs, loaded.answered_steps));
+  items.push(...changedItems(id, 'answered_steps', stubs, loaded.answered_steps, loaded.item_refs?.answered_steps));
+  itemRefs.answered_steps = refsAfter(stubs, loaded.answered_steps, loaded.item_refs?.answered_steps);
   const methodIdentity = method ? identityOf(method) : undefined;
-  items.push(...changedItems(id, FOLDED, [], loaded[FOLDED]));
+  items.push(...changedItems(id, FOLDED, [], loaded[FOLDED], loaded.item_refs?.[FOLDED]));
   const { evidence: _evidence, ...shortInput } = input;
   // The method's id beside its identity, so a list that weighs decisions by method reads one short field.
   const root = {
@@ -379,6 +417,11 @@ export function recordsOf(record, changed = [], archived = []) {
     call_count: record.call_count ?? (Array.isArray(calls) ? calls.length : 0),
   };
   const steps = whole ? guidance.map((_, n) => n) : changed;
+  const packed = guidance.map(entry => packStep(stepRecordOf(entry)));
+  const stepRefs = guidance.map((_, n) => (steps.includes(n) ? contentRef(packed[n]) : (loaded.step_refs?.[n] ?? null)));
+  const refsValue = { step_refs: stepRefs, items: itemRefs };
+  const refsWritten = stepRefs.some(Boolean) || Object.values(itemRefs).some(refs => refs.some(Boolean));
+  if (refsWritten) root.refs = contentRef(refsValue);
   const { root: fittedRoot, parts: rootParts } = rootFitted(id, root);
   // The revision record is written with the root, in the same write, and expects the revision it was read at (or none).
   const was = ROOT_READ.get(record)?.revision ?? null;
@@ -387,7 +430,8 @@ export function recordsOf(record, changed = [], archived = []) {
     { id, type: 'decision', value: fittedRoot },
     revision,
     ...rootParts,
-    ...steps.map(n => ({ id: stepKey(id, n), type: 'decision-step', value: packStep(stepRecordOf(guidance[n])) })),
+    ...(refsWritten ? [{ id: refsKey(id, root.refs), type: NAMES.refs, value: refsValue }] : []),
+    ...steps.map(n => ({ id: stepAt(id, n, stepRefs[n]), type: 'decision-step', value: packed[n] })),
     ...archived.map(({ key, entry }) => ({ id: key, type: 'decision-step', value: packStep(stepRecordOf(entry)) })),
     ...(whole && Array.isArray(calls) ? calls.map((call, n) => ({ id: callKey(id, n), type: 'decision-call', value: bareCall(call) })) : []),
     ...items,
@@ -403,17 +447,18 @@ const writeBounds = { rows: settings.writes, bytes: settings.write_bytes, measur
 export async function writeDecision(door, list, key) {
   // The key names what is written, so a retry of the same write replays and a different write under the same name is never a conflict.
   const [root, revision, ...rest] = list;
-  const parts = fitted(rest);
-  const whole = [root, revision, ...parts];
+  // A removal is a record the committed root still counts until this write moves it: it lands with the root, never before.
+  const removals = rest.filter(record => record.value === null);
+  const parts = fitted(rest.filter(record => record.value !== null));
+  const whole = [root, revision, ...parts, ...removals];
   const named = `${key}:${identityOf(whole)}`;
   try {
     if (writeBatches(whole, writeBounds).length === 1) return await door.write(whole, { key: named });
-    // Several writes: the revision is claimed first, so a write made from an older read is refused before any part lands.
-    // The claim holds the revision one past the one read; the last write moves it past the claim, and only if nothing else has.
-    await door.write([revision], { key: `${named}:claim` });
+    // Several writes. Every record a write adds is write-once (content-addressed) and named by nothing until the root
+    // names it, so parts that land before a refused root are invisible and cannot be written over. Only the root and its
+    // revision commit the change: the revision expectation is checked there, and nothing else moves the revision.
     for (const [at, batch] of writeBatches(parts, writeBounds).entries()) await door.write(batch, { key: `${named}:part:${at}` });
-    const moved = { id: revision.id, type: revision.type, value: { revision: revision.value.revision + 1 }, ...(CHECK_REVISION ? { expected: { type: revision.type, value: revision.value } } : {}) };
-    return await door.write([root, moved], { key: named });
+    return await door.write([root, revision, ...removals], { key: named });
   } catch (error) {
     if (error?.code === CASE_CHANGED) throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: CASE_CHANGED });
     throw error;

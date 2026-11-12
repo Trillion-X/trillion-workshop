@@ -29,6 +29,7 @@
       "cited_pursuits": { "type": "decision-cited-pursuit", "digits": 4 }
     },
     "method": "decision-method",
+    "refs": "decision-refs",
     "part": { "type": "decision-part", "suffix": ":part:", "digits": 3 },
     "record_revision": {
       "type": "decision-revision",

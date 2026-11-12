@@ -10,8 +10,8 @@ Decisions a person's AI makes with a method, kept as the person's own `decision`
 |--------|-------|
 | `decision` (id `source:<base64url>`) | The root: fields each set by one call (`source_id`, `input` with its `goal` and its `options`, bounded at start, `status`, the current `decision`, `shared`, `workflow_plan`, `decided_at`, `recheck_on`, ...), `method_id` and `method_identity` (where its snapshot is), `input_identity` (the input it was started with, so the same start is still that decision), `counts` (the length of each list below) and `call_count`. Nothing in it grows as the decision grows. |
 | `decision-evidence:<id>:<nnnn>` | One evidence row: `ref`, `claim`, and `added_at`, `from`, `retracted_at` when it has them. |
-| `decision-answered-step:<id>:<nnn>` | One answered step's summary: `step_id`, `answered_at`, `checks`, `graded`, `graded_by`, `version`, `needs_recheck` (`recheck_of`, `rechecked_at`). A flag is set here, so flagging later steps never rewrites their answers. |
-| `decision-step:<id>:<nnn>` | One answered step whole: its answer, the checks it was asked (`{ checks }`) and the verdicts taken (`{ given }`); each superseded version beside it as `decision-step:<id>:<nnn>:v<vvv>`. |
+| `decision-answered-step:<id>:<nnn>:c<identity>` | One answered step's summary: `step_id`, `answered_at`, `checks`, `graded`, `graded_by`, `version`, `needs_recheck` (`recheck_of`, `rechecked_at`). A flag is set here, so flagging later steps never rewrites their answers. |
+| `decision-step:<id>:<nnn>:c<identity>` | One answered step whole: its answer, the checks it was asked (`{ checks }`) and the verdicts taken (`{ given }`); each superseded version beside it as `decision-step:<id>:<nnn>:v<vvv>`. |
 | `decision-candidate:<id>:<nnn>` | One candidate a step left standing. |
 | `decision-option:<id>:<nnn>` | Written only by 55179fc, which laid options apart too: such a root (`counts.options`) reads them back, and its next change folds them into the root's `input.options` and removes these records. |
 | `decision-report:<id>:<nnnn>`, `decision-carried-out:<id>:<nnnn>` | One result the person reported; one receipt of what was done. |
@@ -105,3 +105,7 @@ until they do what these files do now; or let this repository accept a rewrite o
 **Depends on:** `tools/check-against-a-persons-rules-and-verdicts` (`do-work/branch.mjs`, packed by every row), `tools/records-door` (the door client, `run-an-export.mjs` and `writeBatches`), `tools/content-identity` (the identity of each kept check), and, loaded only for a share, `tools/learn-from-everyones-results` (the plain privacy pass, public) and `tools/ask-a-small-model-for-a-verdict` (`contentReviewIdentity`, public); Node 24 in the tool container. Every row packs records-door, content-identity and `@noble/hashes`.
 
 **Depended on by:** `tool-rows.json`, the tests here.
+
+_Write-once layout (2026-11-12):_ a step and an answered-step summary are kept at the content identity of their value (`:c<identity>`), never overwritten. The root names no step itself: its `refs` names one `decision-refs:<id>:c<identity>` record that gives the identity each index holds. A write that is refused before its root lands leaves nothing the root names (test: 'a refused root write of a revision leaves nothing visible').
+
+_Commit (2026-11-12):_ a write adds its records first, all write-once, and only the root and its revision commit it; the revision is the only expectation, checked there. A write refused before its root no longer moves the revision, so a writer that read the case before it is not refused as changed (test: 'a write refused before its root does not move the revision'). Removals land with the root.
