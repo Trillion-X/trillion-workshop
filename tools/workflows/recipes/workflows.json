@@ -46225,7 +46225,7 @@
           {
             "id": "write-the-business-facts",
             "title": "Write the business facts once",
-            "do": "Read the person's answers. For each required field (business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, channels, posts_per_day, currency) that the person has not given, ask for that field only; never invent a value. Then call run_resource_operation with address @own-records, method records:write and input {\"records\":[{\"id\":\"record:business-setup:facts\",\"type\":\"record:business-setup\",\"value\":<every field given, as the input_schema names it>}]}. Then call records:read with input {\"id\":\"record:business-setup:facts\"} and confirm every given field is there.",
+            "do": "Call tool:search-one-of-my-lists with input {\"question\": \"<the field's words>\", \"type\": \"record:commercial-offer\"} for the first offer's name and price, and with the record type that holds each other field when the person has one. Use a value a record holds as given. Then read the person's answers. For each required field (business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, channels, posts_per_day, currency) that the person has not given and no record holds, ask for that field only; never invent a value. Then call run_resource_operation with address @own-records, method records:write and input {\"records\":[{\"id\":\"record:business-setup:facts\",\"type\":\"record:business-setup\",\"value\":<every field given, as the input_schema names it>}]}. Then call records:read with input {\"id\":\"record:business-setup:facts\"} and confirm every given field is there.",
             "submit": {
               "type": "object",
               "required": [
@@ -46247,7 +46247,7 @@
             "when": "The person starts this workflow and has given the business facts.",
             "done_when": "records:read returns record:business-setup:facts with every given field, and fields_missing lists each field still absent.",
             "if_missing": "If the write fails, submit facts_written false with the failure text. Do not start any stage.",
-            "why": "Every stage reads one facts row, so no stage asks the person for the same fact twice.",
+            "why": "Every stage reads one facts row, so no stage asks the person for the same fact twice. Person-only: the owner's name, email, channels and the price the person chooses are facts only the person can give; the search above removes every other ask.",
             "good_answer": "Passes: a record whose values equal the answers the person gave, and no field the person did not give. Fails: a guessed domain, price or email.",
             "came_from": [
               "brief:business-on-trillion-2026-11-12:stages",
@@ -46281,7 +46281,7 @@
             "when": "write-the-business-facts returned facts_written true.",
             "done_when": "Each area the person named is a record:life-area row read back with its cost text, or gap says the person named none.",
             "if_missing": "If the person names no area, submit areas empty and a gap row to list:business-setup-gaps: 'owner life areas not named; cost to the owner is not counted'.",
-            "why": "Cost that lands on a person's own life is the cost the business does not show on its own screens; naming the areas makes it countable.",
+            "why": "Cost that lands on a person's own life is the cost the business does not show on its own screens; naming the areas makes it countable. Person-only: only the person knows which parts of their own life this business touches.",
             "good_answer": "Passes: each row holds the person's own area words and cost text. Fails: an area the person did not name, or a cost invented.",
             "came_from": [
               "brief:business-on-trillion-2026-11-12:owner-life-cost",
@@ -46314,7 +46314,7 @@
             "when": "name-the-life-areas has answered.",
             "done_when": "record:business-setup:minimum reads back with a whole number of minutes and the person's own step.",
             "if_missing": "If the person gives no number, submit a blocker: the minimum is the person's to set; no default is written.",
-            "why": "The daily practice holds on a bad day only if the least step is named and sized, so a missed day is a minimum done, not a stop.",
+            "why": "The daily practice holds on a bad day only if the least step is named and sized, so a missed day is a minimum done, not a stop. Person-only: the least they will still do on a bad day is their own judgement, not a tool's.",
             "good_answer": "Passes: minutes is the number the person gave. Fails: a default number written for the person.",
             "came_from": [
               "brief:business-on-trillion-2026-11-12:bad-day-minimum",
@@ -46350,7 +46350,7 @@
             "when": "set-the-daily-minimum has answered.",
             "done_when": "Each approved rule reads back as a record:contact-rule row with the person's approval.",
             "if_missing": "If the person has not approved, submit approved false and leave the stage Not done.",
-            "why": "Results only change a business when someone reads them on a schedule and knows what a bad number triggers.",
+            "why": "Results only change a business when someone reads them on a schedule and knows what a bad number triggers. Person-only: approving the rules that govern how the business contacts people is the person's choice.",
             "good_answer": "Passes: no rule row without the person's approval marked. Fails: a rule written as approved with no answer from the person.",
             "came_from": [
               "brief:business-on-trillion-2026-11-12:repeated-contact",
@@ -46388,7 +46388,7 @@
             "when": "set-the-contact-rules has answered.",
             "done_when": "Three circle rows read back, each with who and carried_by; circle three names a live tool or a gap.",
             "if_missing": "If the person declines a circle, write that circle's row with who 'declined by the person' and carried_by empty.",
-            "why": "Results that stay with one person do not reach the next circle; this names the carrier for each.",
+            "why": "Results that stay with one person do not reach the next circle; this names the carrier for each. Person-only: choosing who sees what and how far it travels is the person's choice.",
             "good_answer": "Passes: circle three carried_by is a live tool id or a gap. Fails: a carrier named that is not in the live catalog.",
             "came_from": [
               "brief:business-on-trillion-2026-11-12:results-carrier",
@@ -46434,7 +46434,7 @@
           {
             "id": "check-tools-live",
             "title": "Check every tool the stages name is in the live catalog",
-            "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key-with-resend, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email-with-resend, send-due-email-lessons-with-resend, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course-with-resend, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
+            "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key-with-resend, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, search-one-of-my-lists, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email-with-resend, send-due-email-lessons-with-resend, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course-with-resend, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
             "submit": {
               "type": "object",
               "required": [
@@ -46529,7 +46529,8 @@
             "run_tool": {
               "tool_id": "tool:start-a-recipe-run",
               "input": {
-                "row": "workflow:post-on-social-channels-on-a-schedule"
+                "row": "workflow:post-on-social-channels-on-a-schedule",
+                "branch": "trillion"
               }
             },
             "when": "accounts not Blocked. Read the prerequisite row with records:read on record:setup-stage:<key of the prerequisite> and continue only when its status is not Blocked; otherwise submit Blocked for this stage.",
@@ -46726,9 +46727,39 @@
             ]
           },
           {
+            "id": "gather-buyer-words",
+            "title": "Gather the buyers' own words",
+            "do": "Call tool:search-one-of-my-lists once per record type that holds buyers' own words, with input {\"question\": \"what they struggle with and what they want from it\", \"type\": \"<that record type>\"}. Types to try: the testimonial type the business keeps, comments on its posts, direct messages, reviews, and support mail. For each row returned, write one record: records:write at @own-records with {\"records\":[{\"id\":\"record:buyer-words:<business slug>:<source row slug>\",\"type\":\"record:buyer-words\",\"value\":{\"source_row\":\"<the source row id>\",\"words\":\"<the buyer's words, copied exactly>\",\"struggle\":\"<the problem they name>\",\"aim\":\"<the result they say they want>\"}}]}. Then count the rows written.",
+            "submit": {
+              "type": "object",
+              "required": [
+                "buyer_words_rows"
+              ],
+              "properties": {
+                "buyer_words_rows": {
+                  "type": "integer"
+                },
+                "gap": {
+                  "type": "string"
+                }
+              }
+            },
+            "when": "after write-the-business-facts and before run-landing-page, once per business.",
+            "done_when": "one record:buyer-words row exists for each source type that returned rows, each naming its source_row; and the count is submitted as buyer_words_rows.",
+            "if_missing": "If no source type returns a row, submit buyer_words_rows 0 and write one gap row record:setup-gap:buyer-words-none with the words 'no buyer words in the person's records'. The offer stage then waits; it does not write a guessed offer.",
+            "why": "A first offer must meet a gap buyers already feel; their own words are the only evidence of that gap, so the offer stage cites them.",
+            "good_answer": "Passes: one record:buyer-words row for each testimonial, comment, message, review or support row the search returns, each naming its source_row and copying the words exactly. Fails: a first offer written from the owner's guess, with no buyer-words row behind it.",
+            "came_from": [
+              "tool:search-one-of-my-lists input_schema"
+            ],
+            "part_of": [
+              "workflow:set-up-a-business-on-trillion"
+            ]
+          },
+          {
             "id": "run-landing-page",
             "title": "Run the stage: Landing page",
-            "do": "Call tool:start-a-recipe-run with input {\"row\": \"workflow:build-the-landing-page\"}. Start the stage. The engine writes one ai-job waiting with the steps of workflow:build-the-landing-page. Your AI does that job; the stage writes its own row when it ends.",
+            "do": "Call tool:start-a-recipe-run with input {\"row\": \"workflow:build-the-landing-page\"}. Start the stage. The engine writes one ai-job waiting with the steps of workflow:build-the-landing-page. Your AI does that job; the stage writes its own row when it ends. Before starting it, read the record:buyer-words rows from gather-buyer-words and pass their ids in the stage's notes; a stage started with no buyer words is not done.",
             "submit": {
               "type": "object",
               "required": [
@@ -46747,11 +46778,12 @@
             "run_tool": {
               "tool_id": "tool:start-a-recipe-run",
               "input": {
-                "row": "workflow:build-the-landing-page"
+                "row": "workflow:build-the-landing-page",
+                "branch": "trillion"
               }
             },
             "when": "accounts not Blocked. Read the prerequisite row with records:read on record:setup-stage:<key of the prerequisite> and continue only when its status is not Blocked; otherwise submit Blocked for this stage.",
-            "done_when": "job names the ai-job id and status is written or already-there.",
+            "done_when": "job names the ai-job id and status is written or already-there. The input cites the record:buyer-words rows from gather-buyer-words (buyer_words_rows above 0), so the offer rests on the buyers' own words.",
             "if_missing": "If the answer names workflow:build-the-landing-page as missing, the stage is not yet in the person's list of workflows: submit Gap for landing-page with the words 'stage not published' and continue with stages that do not need it.",
             "why": "A stage started through the engine leaves its steps as a job the AI does, so every stage keeps its own checks.",
             "good_answer": "Passes: job id returned for workflow:build-the-landing-page. Fails: a stage marked Done here without its job being done.",
@@ -46889,7 +46921,8 @@
             "run_tool": {
               "tool_id": "tool:start-a-recipe-run",
               "input": {
-                "row": "workflow:set-up-brand-and-branded-emails"
+                "row": "workflow:set-up-brand-and-branded-emails",
+                "branch": "trillion"
               }
             },
             "when": "accounts not Blocked. Read the prerequisite row with records:read on record:setup-stage:<key of the prerequisite> and continue only when its status is not Blocked; otherwise submit Blocked for this stage.",

@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflow-steps:public",
   "list": "workflow-steps",
-  "blake3": "1fc4a202b497cf9e7c810f2d0daf1d420d0e55c0d35448a737de6cfd73c02aa2",
+  "blake3": "6e1cf23d8905ede9288dec1328f839063d9a435cb196e8cf0610d1cf26a32ec0",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -13306,7 +13306,7 @@
      "brief:business-on-trillion-2026-11-12:stages",
      "L082"
     ],
-    "do": "Read the person's answers. For each required field (business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, channels, posts_per_day, currency) that the person has not given, ask for that field only; never invent a value. Then call run_resource_operation with address @own-records, method records:write and input {\"records\":[{\"id\":\"record:business-setup:facts\",\"type\":\"record:business-setup\",\"value\":<every field given, as the input_schema names it>}]}. Then call records:read with input {\"id\":\"record:business-setup:facts\"} and confirm every given field is there.",
+    "do": "Call tool:search-one-of-my-lists with input {\"question\": \"<the field's words>\", \"type\": \"record:commercial-offer\"} for the first offer's name and price, and with the record type that holds each other field when the person has one. Use a value a record holds as given. Then read the person's answers. For each required field (business_name, owner_name, owner_email, first_offer_name, first_offer_price_text, channels, posts_per_day, currency) that the person has not given and no record holds, ask for that field only; never invent a value. Then call run_resource_operation with address @own-records, method records:write and input {\"records\":[{\"id\":\"record:business-setup:facts\",\"type\":\"record:business-setup\",\"value\":<every field given, as the input_schema names it>}]}. Then call records:read with input {\"id\":\"record:business-setup:facts\"} and confirm every given field is there.",
     "done_when": "records:read returns record:business-setup:facts with every given field, and fields_missing lists each field still absent.",
     "flags": [
      "public"
@@ -13324,7 +13324,7 @@
     "submit": "{\"type\": \"object\", \"required\": [\"facts_written\", \"fields_missing\"], \"properties\": {\"facts_written\": {\"type\": \"boolean\"}, \"fields_missing\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
     "title": "Write the business facts once",
     "when": "The person starts this workflow and has given the business facts.",
-    "why": "Every stage reads one facts row, so no stage asks the person for the same fact twice."
+    "why": "Every stage reads one facts row, so no stage asks the person for the same fact twice. Person-only: the owner's name, email, channels and the price the person chooses are facts only the person can give; the search above removes every other ask."
    }
   },
   {
@@ -13362,7 +13362,7 @@
      "tools:list (live catalog)",
      "L082"
     ],
-    "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key-with-resend, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email-with-resend, send-due-email-lessons-with-resend, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course-with-resend, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
+    "do": "Call run_resource_operation with address @workshop-tools, method tools:list and input {\"tool\": \"tool:<the id>\"} once per id in this list: add-a-customer, add-an-email-sending-domain, advance-a-community-matchmaker, answer-in-a-community, approve-a-post, attach_domain, break-down-visits-and-sales, cancel-a-stripe-subscription, check-a-page-for-search-and-answer-engines, check-against-a-persons-rules-and-verdicts, check-an-email-sending-domain, check-copy, check-given-pages-at-every-width, check-the-facebook-page-connection, check-the-instagram-connection, copy-a-site, count-a-paid-installment-in-stripe, critique-a-public-page, cut-and-caption, draft-a-funnel, draft-a-post, expand-a-reply-template, find-a-completed-stripe-checkout, find-silence, list-ended-stripe-subscriptions, list-every-connection, list-my-recordings-and-media, make-a-referral-code, make-a-sending-key-with-resend, measure-a-checklist, measure-funnel-stages, name_site, pick-cover-frame, publish_site, pull-my-instagram-messages, read-my-community-matches, read-public-web-page, record-a-customer-step, reframe-video, render-an-edit, resolve-a-brand, search-one-of-my-lists, see-how-each-post-did, see-where-each-customer-is, see-who-holds-paid-access, send-a-post-to-substack, send-a-post-to-youtube, send-an-email-with-resend, send-due-email-lessons-with-resend, send-each-post-at-its-time, set-a-post-to-go-at-its-time, set-up-someone-i-pay-in-stripe, set-up-stripe-payment-links, show-which-offers-a-buyer-may-see, sign-someone-up-for-an-email-course-with-resend, start-a-recipe-run, start-a-stripe-checkout-that-pays-someone-else, stop-an-email-course, stripe-events-read_money_since, suggest-media-cuts, tag-a-stripe-subscription, withdraw-a-referral-code, work-out-referral-codes, work-out-where-a-learner-stands, write-legal-documents. An answer with the id and an input_schema means the tool is live. Write the result as one row: records:write with {\"records\":[{\"id\":\"record:business-setup:tools\",\"type\":\"record:business-setup\",\"value\":{\"live\":[<ids found>],\"not_live\":[<ids not found>]}}]}. Ids in not_live are source-only or absent: every stage that names one already has its own gap step, so nothing is claimed as run.",
     "done_when": "record:business-setup:tools holds every one of the 0 ids, in live or not_live.",
     "flags": [
      "public"
@@ -13433,7 +13433,7 @@
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
-    "run_tool": "{\"tool_id\": \"tool:start-a-recipe-run\", \"input\": {\"row\": \"workflow:post-on-social-channels-on-a-schedule\"}}",
+    "run_tool": "{\"tool_id\": \"tool:start-a-recipe-run\", \"input\": {\"row\": \"workflow:post-on-social-channels-on-a-schedule\", \"branch\": \"trillion\"}}",
     "step": "run-social-posting",
     "submit": "{\"type\": \"object\", \"required\": [\"job\", \"status\"], \"properties\": {\"job\": {\"type\": \"string\"}, \"status\": {\"type\": \"string\"}}}",
     "title": "Run the stage: Social posting on a schedule",
@@ -13592,8 +13592,8 @@
      "brief:business-on-trillion-2026-11-12:stages",
      "tool:start-a-recipe-run input_schema"
     ],
-    "do": "Call tool:start-a-recipe-run with input {\"row\": \"workflow:build-the-landing-page\"}. Start the stage. The engine writes one ai-job waiting with the steps of workflow:build-the-landing-page. Your AI does that job; the stage writes its own row when it ends.",
-    "done_when": "job names the ai-job id and status is written or already-there.",
+    "do": "Call tool:start-a-recipe-run with input {\"row\": \"workflow:build-the-landing-page\"}. Start the stage. The engine writes one ai-job waiting with the steps of workflow:build-the-landing-page. Your AI does that job; the stage writes its own row when it ends. Before starting it, read the record:buyer-words rows from gather-buyer-words and pass their ids in the stage's notes; a stage started with no buyer words is not done.",
+    "done_when": "job names the ai-job id and status is written or already-there. The input cites the record:buyer-words rows from gather-buyer-words (buyer_words_rows above 0), so the offer rests on the buyers' own words.",
     "flags": [
      "public"
     ],
@@ -13602,11 +13602,11 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 14,
+    "position": 15,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
-    "run_tool": "{\"tool_id\": \"tool:start-a-recipe-run\", \"input\": {\"row\": \"workflow:build-the-landing-page\"}}",
+    "run_tool": "{\"tool_id\": \"tool:start-a-recipe-run\", \"input\": {\"row\": \"workflow:build-the-landing-page\", \"branch\": \"trillion\"}}",
     "step": "run-landing-page",
     "submit": "{\"type\": \"object\", \"required\": [\"job\", \"status\"], \"properties\": {\"job\": {\"type\": \"string\"}, \"status\": {\"type\": \"string\"}}}",
     "title": "Run the stage: Landing page",
@@ -13631,7 +13631,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 15,
+    "position": 16,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13660,7 +13660,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 16,
+    "position": 17,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13688,7 +13688,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 17,
+    "position": 18,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13717,11 +13717,11 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 18,
+    "position": 19,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
-    "run_tool": "{\"tool_id\": \"tool:start-a-recipe-run\", \"input\": {\"row\": \"workflow:set-up-brand-and-branded-emails\"}}",
+    "run_tool": "{\"tool_id\": \"tool:start-a-recipe-run\", \"input\": {\"row\": \"workflow:set-up-brand-and-branded-emails\", \"branch\": \"trillion\"}}",
     "step": "run-brand-and-emails",
     "submit": "{\"type\": \"object\", \"required\": [\"job\", \"status\"], \"properties\": {\"job\": {\"type\": \"string\"}, \"status\": {\"type\": \"string\"}}}",
     "title": "Run the stage: Brand and branded emails",
@@ -13746,7 +13746,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 19,
+    "position": 20,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13775,7 +13775,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 20,
+    "position": 21,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13804,7 +13804,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 21,
+    "position": 22,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13832,7 +13832,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 22,
+    "position": 23,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13861,7 +13861,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 23,
+    "position": 24,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13890,7 +13890,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 24,
+    "position": 25,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13919,7 +13919,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 25,
+    "position": 26,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13948,7 +13948,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 26,
+    "position": 27,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -13977,7 +13977,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 27,
+    "position": 28,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -14006,7 +14006,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 28,
+    "position": 29,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -14035,7 +14035,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 29,
+    "position": 30,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -14064,7 +14064,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 30,
+    "position": 31,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -14092,7 +14092,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 32,
+    "position": 33,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -14510,7 +14510,7 @@
     "submit": "{\"type\": \"object\", \"required\": [\"areas\"], \"properties\": {\"areas\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"gap\": {\"type\": \"string\"}}}",
     "title": "Name the owner's own life areas the business touches, and the cost to each",
     "when": "write-the-business-facts returned facts_written true.",
-    "why": "Cost that lands on a person's own life is the cost the business does not show on its own screens; naming the areas makes it countable."
+    "why": "Cost that lands on a person's own life is the cost the business does not show on its own screens; naming the areas makes it countable. Person-only: only the person knows which parts of their own life this business touches."
    }
   },
   {
@@ -14539,7 +14539,7 @@
     "submit": "{\"type\": \"object\", \"required\": [\"minutes_on_a_bad_day\", \"least_step\"], \"properties\": {\"minutes_on_a_bad_day\": {\"type\": \"integer\"}, \"least_step\": {\"type\": \"string\"}}}",
     "title": "Set the least the owner will still do on a bad day",
     "when": "name-the-life-areas has answered.",
-    "why": "The daily practice holds on a bad day only if the least step is named and sized, so a missed day is a minimum done, not a stop."
+    "why": "The daily practice holds on a bad day only if the least step is named and sized, so a missed day is a minimum done, not a stop. Person-only: the least they will still do on a bad day is their own judgement, not a tool's."
    }
   },
   {
@@ -14567,7 +14567,7 @@
     "submit": "{\"type\": \"object\", \"required\": [\"rules\", \"approved\"], \"properties\": {\"rules\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"approved\": {\"type\": \"boolean\"}}}",
     "title": "Set the rules for reading results and repeated contact",
     "when": "set-the-daily-minimum has answered.",
-    "why": "Results only change a business when someone reads them on a schedule and knows what a bad number triggers."
+    "why": "Results only change a business when someone reads them on a schedule and knows what a bad number triggers. Person-only: approving the rules that govern how the business contacts people is the person's choice."
    }
   },
   {
@@ -14596,7 +14596,7 @@
     "submit": "{\"type\": \"object\", \"required\": [\"circles\", \"gaps\"], \"properties\": {\"circles\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}, \"gaps\": {\"type\": \"array\", \"items\": {\"type\": \"string\"}}}}",
     "title": "Set who receives the results, circle by circle",
     "when": "set-the-contact-rules has answered.",
-    "why": "Results that stay with one person do not reach the next circle; this names the carrier for each."
+    "why": "Results that stay with one person do not reach the next circle; this names the carrier for each. Person-only: choosing who sees what and how far it travels is the person's choice."
    }
   },
   {
@@ -14616,7 +14616,7 @@
     "part_of": [
      "workflow:set-up-a-business-on-trillion"
     ],
-    "position": 31,
+    "position": 32,
     "recipe": [
      "set-up-a-business-on-trillion"
     ],
@@ -14955,6 +14955,33 @@
     "title": "Repeat the whole run each month and write one summary row",
     "when": "A month has passed since the last summary for this pursuit, or the monthly wake fired.",
     "why": "Money changes every month; the same tree serves the next household member without a new design."
+   }
+  },
+  {
+   "id": "set-up-a-business-on-trillion--gather-buyer-words",
+   "values": {
+    "came_from": [
+     "tool:search-one-of-my-lists input_schema"
+    ],
+    "do": "Call tool:search-one-of-my-lists once per record type that holds buyers' own words, with input {\"question\": \"what they struggle with and what they want from it\", \"type\": \"<that record type>\"}. Types to try: the testimonial type the business keeps, comments on its posts, direct messages, reviews, and support mail. For each row returned, write one record: records:write at @own-records with {\"records\":[{\"id\":\"record:buyer-words:<business slug>:<source row slug>\",\"type\":\"record:buyer-words\",\"value\":{\"source_row\":\"<the source row id>\",\"words\":\"<the buyer's words, copied exactly>\",\"struggle\":\"<the problem they name>\",\"aim\":\"<the result they say they want>\"}}]}. Then count the rows written.",
+    "done_when": "one record:buyer-words row exists for each source type that returned rows, each naming its source_row; and the count is submitted as buyer_words_rows.",
+    "flags": [
+     "public"
+    ],
+    "good_answer": "Passes: one record:buyer-words row for each testimonial, comment, message, review or support row the search returns, each naming its source_row and copying the words exactly. Fails: a first offer written from the owner's guess, with no buyer-words row behind it.",
+    "if_missing": "If no source type returns a row, submit buyer_words_rows 0 and write one gap row record:setup-gap:buyer-words-none with the words 'no buyer words in the person's records'. The offer stage then waits; it does not write a guessed offer.",
+    "part_of": [
+     "workflow:set-up-a-business-on-trillion"
+    ],
+    "position": 14,
+    "recipe": [
+     "set-up-a-business-on-trillion"
+    ],
+    "step": "gather-buyer-words",
+    "submit": "{\"type\": \"object\", \"required\": [\"buyer_words_rows\"], \"properties\": {\"buyer_words_rows\": {\"type\": \"integer\"}, \"gap\": {\"type\": \"string\"}}}",
+    "title": "Gather the buyers' own words",
+    "when": "after write-the-business-facts and before run-landing-page, once per business.",
+    "why": "A first offer must meet a gap buyers already feel; their own words are the only evidence of that gap, so the offer stage cites them."
    }
   }
  ]
