@@ -56,9 +56,10 @@ test('Notion and Slack take their token only from their own connection, only in 
     const tool = row(id);
     assert.equal(tool.invoke.connection_id, connection, id);
     assert.equal(tool.invoke.connection, undefined, `${id} names its one connection by id only`);
-    assert.deepEqual(tool.invoke.credential_injections, [{ field_id: field, placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ', suffix: '' } }], id);
-    assert.equal(new URL(tool.invoke.url).host, host, id);
-    assert.equal(new URL(tool.invoke.url).protocol, 'https:', id);
+    const address = new URL(tool.invoke.url);
+    assert.equal(address.host, host, id);
+    assert.equal(address.protocol, 'https:', id);
+    assert.deepEqual(tool.invoke.credential_injections, [{ field_id: field, hosts: [address.host], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ', suffix: '' } }], id);
   }
 });
 

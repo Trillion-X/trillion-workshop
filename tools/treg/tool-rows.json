@@ -150,7 +150,7 @@
      "body_encoding": "json",
      "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",
@@ -196,7 +196,7 @@
      "headers": { "accept": "application/json" },
      "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",
@@ -244,7 +244,7 @@
      "query": { "limit": { "from": "limit", "optional": true, "otherwise": { "const": 20 } } },
      "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",
@@ -291,7 +291,7 @@
      "headers": { "accept": "application/json", "X-Treg-Org": { "from": "team", "optional": true } },
      "connection": { "vendor": "treg", "from_input": "account" },
      "credential_injections": [
-      { "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
+      { "hosts": ["treg.to"], "field_id": "api_key", "placement": { "kind": "header", "name": "X-Treg-Token" } }
      ]
     },
     "result_selector": "$",

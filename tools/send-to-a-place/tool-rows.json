@@ -260,6 +260,7 @@
           "credential_injections": [
             {
               "field_id": "integration_token",
+              "hosts": ["api.notion.com"],
               "placement": {
                 "kind": "header",
                 "name": "Authorization",
@@ -446,6 +447,7 @@
           "credential_injections": [
             {
               "field_id": "bot_token",
+              "hosts": ["slack.com"],
               "placement": {
                 "kind": "header",
                 "name": "Authorization",

@@ -39,7 +39,7 @@ test('the sending-key row asks for a sending-only key and keeps the reply\'s tok
   assert.equal(maker.invoke.url, 'https://api.resend.com/api-keys');
   assert.deepEqual(maker.invoke.body_template.permission, { const: 'sending_access' });
   assert.deepEqual(maker.invoke.credential_injections, [
-    { secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } },
+    { secret_name: 'resend-api-key', hosts: ['api.resend.com'], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } },
   ]);
   assert.deepEqual(maker.invoke.reply_holds_values, [{ from: 'token', secret_name_from_input: 'keep_as' }]);
   assert.deepEqual(maker.input_schema.required, ['name', 'keep_as']);
@@ -49,7 +49,7 @@ test('the sending-key row asks for a sending-only key and keeps the reply\'s tok
 
 test('the domain rows add, read and check a domain with the held key in the header, and change no DNS', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-  const header = [{ secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
+  const header = [{ secret_name: 'resend-api-key', hosts: ['api.resend.com'], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
   const add = rows.find(one => one.id === 'tool:add-an-email-sending-domain');
   assert.deepEqual([add.invoke.kind, add.invoke.method, add.invoke.url], ['http', 'POST', 'https://api.resend.com/domains']);
   assert.deepEqual(add.invoke.credential_injections, header);
@@ -64,11 +64,12 @@ test('the domain rows add, read and check a domain with the held key in the head
     assert.ok(id.test('4dd369bc-aa82-4ff3-97de-514ae3000ee0') && !id.test('../api-keys') && !id.test('a/b'), row.id);
   }
   for (const row of [add, read, check]) assert.equal(row.result_selector, '$', row.id);
+  for (const row of [add, read, check]) assert.equal(new URL(row.invoke.url).hostname, row.invoke.credential_injections[0].hosts[0], row.id);
 });
 
 test('the sending-key rows list the keys and remove one by its id with the held key in the header, never sending a key', () => {
   const rows = JSON.parse(readFileSync(new URL('../tool-rows.json', import.meta.url), 'utf8')).records.map(record => record.payload);
-  const header = [{ secret_name: 'resend-api-key', placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
+  const header = [{ secret_name: 'resend-api-key', hosts: ['api.resend.com'], placement: { kind: 'header', name: 'Authorization', prefix: 'Bearer ' } }];
   const list = rows.find(one => one.id === 'tool:list-sending-keys-with-resend');
   assert.deepEqual([list.invoke.kind, list.invoke.method, list.invoke.url], ['http', 'GET', 'https://api.resend.com/api-keys']);
   const remove = rows.find(one => one.id === 'tool:remove-a-sending-key-with-resend');
@@ -78,6 +79,7 @@ test('the sending-key rows list the keys and remove one by its id with the held 
   assert.ok(id.test('0f1e2d3c-4b5a-4968-8776-a5b4c3d2e1f0') && !id.test('../domains') && !id.test('a/b'));
   for (const row of [list, remove]) {
     assert.deepEqual(row.invoke.credential_injections, header, row.id);
+    assert.equal(new URL(row.invoke.url).hostname, row.invoke.credential_injections[0].hosts[0], row.id);
     assert.equal(row.invoke.body_template, undefined, row.id);
     assert.equal(row.result_selector, '$', row.id);
   }

@@ -115,7 +115,7 @@
             "domain_id": { "from": "domain_id", "optional": true }
           },
           "credential_injections": [
-            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+            { "hosts": ["api.resend.com"], "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
           ],
           "reply_holds_values": [{ "from": "token", "secret_name_from_input": "keep_as" }]
         },
@@ -155,7 +155,7 @@
           "method": "GET",
           "timeout_seconds": 30,
           "credential_injections": [
-            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+            { "hosts": ["api.resend.com"], "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
           ]
         },
         "result_selector": "$",
@@ -187,7 +187,7 @@
           "method": "DELETE",
           "timeout_seconds": 30,
           "credential_injections": [
-            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+            { "hosts": ["api.resend.com"], "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
           ]
         },
         "result_selector": "$",
@@ -240,7 +240,7 @@
             "region": { "from": "region", "optional": true }
           },
           "credential_injections": [
-            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+            { "hosts": ["api.resend.com"], "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
           ]
         },
         "result_selector": "$",
@@ -286,7 +286,7 @@
           "method": "GET",
           "timeout_seconds": 30,
           "credential_injections": [
-            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+            { "hosts": ["api.resend.com"], "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
           ]
         },
         "result_selector": "$",
@@ -318,7 +318,7 @@
           "method": "POST",
           "timeout_seconds": 30,
           "credential_injections": [
-            { "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
+            { "hosts": ["api.resend.com"], "secret_name": "resend-api-key", "placement": { "kind": "header", "name": "Authorization", "prefix": "Bearer " } }
           ]
         },
         "result_selector": "$",
