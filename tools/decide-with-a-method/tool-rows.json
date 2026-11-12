@@ -191,6 +191,12 @@
         "operations": [
          "records:read"
         ]
+       },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read"
+        ]
        }
       ]
      }
@@ -498,6 +504,13 @@
        },
        {
         "kind": "decision-part",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+{
+        "kind": "decision-refs",
         "operations": [
          "records:read",
          "records:write"
@@ -1099,6 +1112,12 @@
          "records:read"
         ]
        },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read"
+        ]
+       },
        {
         "kind": "pursuit",
         "operations": [
@@ -1461,6 +1480,13 @@
          "records:write"
         ]
        },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
        {
         "kind": "pursuit",
         "operations": [
@@ -1770,6 +1796,13 @@
        },
        {
         "kind": "decision-part",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+{
+        "kind": "decision-refs",
         "operations": [
          "records:read",
          "records:write"
@@ -2102,6 +2135,13 @@
          "records:write"
         ]
        },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
        {
         "kind": "pursuit",
         "operations": [
@@ -2422,6 +2462,13 @@
          "records:write"
         ]
        },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
        {
         "kind": "pursuit",
         "operations": [
@@ -2706,6 +2753,13 @@
        },
        {
         "kind": "decision-part",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+{
+        "kind": "decision-refs",
         "operations": [
          "records:read",
          "records:write"
@@ -3011,6 +3065,13 @@
          "records:read",
          "records:write"
         ]
+       },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
        }
       ]
      }
@@ -3281,6 +3342,13 @@
        },
        {
         "kind": "decision-part",
+        "operations": [
+         "records:read",
+         "records:write"
+        ]
+       },
+{
+        "kind": "decision-refs",
         "operations": [
          "records:read",
          "records:write"
@@ -3591,6 +3659,12 @@
          "records:read"
         ]
        },
+{
+        "kind": "decision-refs",
+        "operations": [
+         "records:read"
+        ]
+       },
        {
         "kind": "pursuit",
         "operations": [
@@ -3880,6 +3954,12 @@
        },
        {
         "kind": "decision-part",
+        "operations": [
+         "records:read"
+        ]
+       },
+{
+        "kind": "decision-refs",
         "operations": [
          "records:read"
         ]

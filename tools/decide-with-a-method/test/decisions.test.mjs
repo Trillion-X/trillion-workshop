@@ -326,7 +326,7 @@ test('a decision kept whole is laid apart at its next change, its calls kept as 
 });
 
 // Every record kind a decision is laid out in (read-data/decision-records.mjs).
-const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type, settings.records.record_revision.type];
+const decisionKinds = ['decision', 'decision-step', 'decision-call', ...Object.values(settings.records.laid_apart).map(list => list.type), settings.records.method, settings.records.part.type, settings.records.refs, settings.records.record_revision.type];
 
 test('the tool rows reach only the decision records, the person\'s pursuits and their method lists', () => {
   const tools = ['tool:start-a-decision', 'tool:next-decision-question', 'tool:answer-a-decision-question', 'tool:add-decision-evidence', 'tool:make-the-decision', 'tool:report-a-decision-result', 'tool:say-what-was-done', 'tool:end-a-decision'];
@@ -1486,4 +1486,16 @@ test('a write refused before its root does not move the revision: a writer that 
   assert.equal(raced, true, 'the other write landed between the two reads');
   assert.equal(made.decision.option_id, 'raise', 'the decision is made from the case as it was');
   assert.equal(caseView(door, id).input.evidence.some(row => row.ref === 'eB'), false, 'the refused write is not in the case');
+});
+
+test('every decision tool row that writes the decision declares the kinds every write puts: the root, its revision, parts and refs', () => {
+  // A write always adds its parts and refs record and moves the root and revision; a row that writes must declare each one.
+  const everyWrite = ['decision', settings.records.record_revision.type, settings.records.part.type, settings.records.refs];
+  const writers = rows.filter(row => (row.invoke?.records?.rights ?? []).some(right => right.kind === settings.records.record_revision.type && right.operations.includes('records:write')));
+  assert.ok(writers.length >= 1, 'some decision tools write the decision');
+  for (const row of writers) {
+    const declared = new Set(row.invoke.records.rights.map(right => right.kind));
+    const missing = everyWrite.filter(kind => !declared.has(kind));
+    assert.deepEqual(missing, [], `${row.id} does not declare: ${missing.join(', ')}`);
+  }
 });
