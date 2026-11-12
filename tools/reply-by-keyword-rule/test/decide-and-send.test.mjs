@@ -6,6 +6,8 @@ import { decideTheReplies } from '../do-work/decide-the-replies.mjs';
 import { sendAnInstagramReply } from '../do-work/send-an-instagram-reply.mjs';
 import { segment, prefixOf } from '../../pull-from-connected-accounts/read-data/snapshot.mjs';
 
+const COMMENTS = 'instagram-comments';
+
 const NOW = Date.parse('2026-11-12T12:00:00Z');
 const iso = ms => new Date(ms).toISOString();
 const ACCOUNT = 'account-one';
@@ -34,7 +36,7 @@ function fakeDoor(records) {
   };
 }
 
-function seeded({ selfId = 'me', lastInboundMinutesAgo = 5, sent = [] } = {}) {
+function seeded({ selfId = 'me', lastInboundMinutesAgo = 5, sent = [], comments = null } = {}) {
   const records = new Map();
   const put = (id, type, value) => records.set(id, { type, value });
   put(`${prefixOf(SOURCE, ACCOUNT)}state`, 'account-snapshot-part', { kind: 'state', self_id: selfId, cursor: null, pulled_at: iso(NOW) });
@@ -47,8 +49,15 @@ function seeded({ selfId = 'me', lastInboundMinutesAgo = 5, sent = [] } = {}) {
       ],
     },
   });
+  if (comments) {
+    put(`${prefixOf(COMMENTS, ACCOUNT)}state`, 'account-snapshot-part', { kind: 'state', self_id: selfId, cursor: null, pulled_at: iso(NOW) });
+    put(`${prefixOf(COMMENTS, ACCOUNT)}thread:${segment('media-1')}`, 'account-snapshot-part', {
+      kind: 'thread', seq: 1,
+      thread: { id: 'media-1', title: 'media-1', source: { id: 'media-1', caption: 'Rye bread' }, messages: comments },
+    });
+  }
   put('reply-rule:prices', 'reply-rule', {
-    id: 'rule:prices', enabled: true, words: ['price'], mode: 'any', reply: 'Hi, the price list is here.',
+    id: 'rule:prices', enabled: 'on', words: ['price'], mode: 'any', reply: 'Hi, the price list is here.',
   });
   for (const key of sent) put(`instagram-reply:${segment(key)}`, 'instagram-reply', { key, state: 'sent' });
   return records;
@@ -134,4 +143,25 @@ test('a private reply goes to the comment id, and an unknown outcome is kept, ne
   assert.equal(records.get(`instagram-reply:${segment('c-1:rule:prices')}`).value.state, 'not-known');
   const retry = await sendAnInstagramReply({ account_id: ACCOUNT, decision }, { door }, { nowMs: NOW, read: () => 'x', send: async () => { throw new Error('should not send'); } });
   assert.equal(retry.status, 'already-sent');
+});
+
+test('the decide row reads the pulled comments: a comment is answered by a private reply, the person\'s own comment is left alone', async () => {
+  const comments = [
+    { id: 'c-1', from: { id: 'them' }, username: 'ben', text: 'price please?', timestamp: iso(NOW - 2 * 3600000) },
+    { id: 'c-2', from: { id: 'me' }, username: 'rolling_pin', text: 'price list below', timestamp: iso(NOW - 3600000) },
+  ];
+  const out = await decideTheReplies({ account_id: ACCOUNT, now: iso(NOW) }, { door: fakeDoor(seeded({ comments })) });
+  assert.deepEqual(out.not_pulled, []);
+  const c1 = out.decisions.find(d => d.message_id === 'c-1');
+  assert.equal(c1.action, 'send');
+  assert.equal(c1.kind, 'private-reply');
+  assert.deepEqual(c1.recipient, { comment_id: 'c-1' });
+  assert.equal(out.decisions.find(d => d.message_id === 'c-2').reason, 'comment-is-ours');
+});
+
+test('a comment source never pulled is named under not_pulled, and the direct messages are still decided', async () => {
+  const out = await decideTheReplies({ account_id: ACCOUNT, now: iso(NOW) }, { door: fakeDoor(seeded()) });
+  assert.deepEqual(out.not_pulled, [COMMENTS]);
+  assert.equal(out.decisions.length, 1);
+  assert.equal(out.decisions[0].kind, 'dm');
 });

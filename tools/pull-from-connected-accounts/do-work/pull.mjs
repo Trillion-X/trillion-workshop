@@ -344,6 +344,7 @@ export const pullDiscord = (input, context) => pullFromAnAccount('discord', inpu
 export const pullSlack = (input, context) => pullFromAnAccount('slack', input, context);
 export const pullTelegram = (input, context) => pullFromAnAccount('telegram', input, context);
 export const pullInstagramMessages = (input, context) => pullFromAnAccount('instagram-messages', input, context);
+export const pullInstagramComments = (input, context) => pullFromAnAccount('instagram-comments', input, context);
 export const pullMessengerMessages = (input, context) => pullFromAnAccount('messenger-messages', input, context);
 export const pullXBookmarks = (input, context) => pullFromAnAccount('x-bookmarks', input, context);
 export const pullSignal = (input, context) => pullFromAnAccount('signal', input, context);

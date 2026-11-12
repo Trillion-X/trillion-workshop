@@ -9,6 +9,7 @@ Pulls a person's messages and saved items from the services they use into their 
 | `slack` | the public channels a bot is a member of | `slack-bot-token` |
 | `telegram` | the messages a bot was sent, by chat | `telegram-bot-token` |
 | `instagram-messages` | the direct-message conversations of an Instagram professional account (messaging API) | `instagram-access-token` |
+| `instagram-comments` | the comments on each post of an Instagram professional account (Graph API), one thread per post, each comment kept as the service sent it | `instagram-access-token` |
 | `messenger-messages` | the Messenger conversations of a Facebook Page | `messenger-page-access-token` |
 | `x-bookmarks` | the posts the person bookmarked on X | `x-access-token` |
 | `pinterest-pins` | the pins and boards of a Pinterest account | `pinterest-access-token` |

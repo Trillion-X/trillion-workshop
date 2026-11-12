@@ -6,8 +6,8 @@ import { loadSource, problemsWith, sourceIds } from '../read-data/sources.mjs';
 
 const folder = join(import.meta.dirname, '..', 'read-data', 'sources');
 
-test('the sources shipped are the eight services and each can be pulled', () => {
-  assert.deepEqual(sourceIds(), ['discord', 'instagram-messages', 'messenger-messages', 'pinterest-pins', 'signal', 'slack', 'telegram', 'x-bookmarks']);
+test('the sources shipped are the nine sources and each can be pulled', () => {
+  assert.deepEqual(sourceIds(), ['discord', 'instagram-comments', 'instagram-messages', 'messenger-messages', 'pinterest-pins', 'signal', 'slack', 'telegram', 'x-bookmarks']);
   for (const id of sourceIds()) assert.deepEqual(problemsWith(loadSource(id)), [], id);
 });
 

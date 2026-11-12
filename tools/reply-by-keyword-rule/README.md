@@ -3,7 +3,7 @@
 Automatic replies to the person's Instagram direct messages and comments, by keyword rule, ManyChat-style, on the
 person's own connected account. Two tools: one decides which reply to send now, the other sends one chosen reply once.
 
-The rules are the person's own `reply-rule` records (a list of rows, read in their `order`): `{ id, enabled, words, mode:
+The rules are the person's own `reply-rule` records (a list of rows, read in their `order`): `{ id, enabled: 'on' | 'off', words, mode:
 'any' | 'all', reply, order }`. `reply` is a template filled by `tools/reply-templates`. Nothing in this folder names a
 keyword, a customer or an account.
 
@@ -29,7 +29,8 @@ a reply is chosen and again when it is sent.
 
 | Tool | What it does | Records |
 |------|--------------|---------|
-| `tool:decide-the-instagram-replies` | Chooses the reply to send now for each latest message, with the reason for each skip (window closed, already sent, no rule matches, latest message is ours). Sends nothing | read and list `reply-rule`, `account-snapshot-part` (the pulled Instagram threads), `instagram-reply` |
+| `tool:decide-the-instagram-replies` | Chooses the reply to send now for each latest direct message and each pulled comment, with the reason for each skip (window closed, already sent, no rule matches, latest message or comment is the person's own). Sends nothing | read and list `reply-rule`, `account-snapshot-part` (the pulled `instagram-messages` and `instagram-comments` threads), `instagram-reply` |
+| `tool:pull-my-instagram-comments` (in `tools/pull-from-connected-accounts`) | Pulls the comments on each post of the Instagram account into the `instagram-comments` snapshot, one thread per post | the held token; `account-snapshot-part` |
 | `tool:send-an-instagram-reply` | Sends one chosen reply (a decision whose action is send) to graph.instagram.com, the window checked again first. The reply is kept before it leaves; a reply with no answer is kept `not-known` and never retried | read and write `instagram-reply`; the held access token on descriptor 4 |
 
 `instagram-reply` records are keyed by reply key (`<message id>:<rule id>`), one per reply, with `state`: `sending`,
@@ -48,8 +49,6 @@ a reply is chosen and again when it is sent.
 
 ## Gaps
 
-- Comments are not pulled by any owner yet. `tool:decide-the-instagram-replies` takes a `comments` list the caller
-  supplies; a comment pull is the next owner to build.
 - The `reply-rule` and `instagram-reply` record kinds need their list definitions in the person's Trillion lists before
   a live rule can be written.
 

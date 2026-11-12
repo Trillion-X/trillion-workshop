@@ -493,6 +493,48 @@ test('instagram: pulling again adds nothing, and the later copy of a message has
   assert.deepEqual(held[1].reactions, ['love']);
 });
 
+const media = { data: [{ id: 'media_1', timestamp: '2026-09-30T08:00:00+0000', caption: 'Rye bread' }, { id: 'media_2', timestamp: '2026-09-29T08:00:00+0000', caption: 'Sourdough' }] };
+const comment = (id, text, at = '2026-10-01T10:00:00+0000') => ({ id, from: { id: '77', username: 'ben' }, username: 'ben', text, timestamp: at });
+function graphComments({ comments, transportFailures = 0 } = {}) {
+  let failures = transportFailures;
+  return fakeService(url => {
+    const p = url.pathname.replace('/v21.0', '');
+    if (p === '/me') return json({ id: '900', user_id: '900', username: 'rolling_pin', name: 'Rolling Pin' });
+    if (p === '/me/media') return json(media);
+    const post = /^\/(.+)\/comments$/.exec(p)?.[1];
+    if (failures > 0) { failures -= 1; return new Error('fetch failed'); }
+    return json(comments[post] ?? { data: [] });
+  });
+}
+
+test('instagram comments: each post is a thread of its comments, read from the Graph API with the held token', async () => {
+  const opened = await openDoor();
+  const service = graphComments({ comments: { media_1: { data: [comment('c_2', 'Is it sold out?', '2026-10-01T10:05:00+0000'), comment('c_1', 'Rye?')] }, media_2: { data: [comment('c_3', 'Nice')] } } });
+  const done = await pull('instagram-comments', {}, service, opened);
+  assert.equal(done.status, 'pulled');
+  assert.equal(done.self_id, '900');
+  assert.deepEqual([done.threads, done.new_messages], [2, 3]);
+  assert.ok(service.calls.every(call => call.url.host === 'graph.instagram.com'));
+  assert.equal(calls(service, '/me/media')[0].query.fields, 'id,timestamp,caption');
+  assert.equal(calls(service, '/media_1/comments')[0].query.fields, 'id,from,username,text,timestamp');
+  assert.equal(service.calls[0].headers.Authorization, `Bearer ${TOKEN}`);
+  const snapshot = await snapshotOf(opened, 'instagram-comments');
+  assert.deepEqual(snapshot.threads.map(thread => thread.id), ['media_1', 'media_2']);
+  assert.deepEqual(snapshot.threads[0].messages.map(message => message.id), ['c_1', 'c_2']);
+  assert.equal(snapshot.threads[0].source.caption, 'Rye bread');
+  assert.equal(snapshot.threads[0].messages[0].text, 'Rye?');
+  assert.equal(JSON.stringify(snapshot).includes(TOKEN), false);
+  assert.equal((await snapshotOf(opened, 'instagram-messages')).threads.length, 0);
+});
+
+test('instagram comments: pulling again adds nothing; a new comment on a post is added', async () => {
+  const opened = await openDoor();
+  await pull('instagram-comments', {}, graphComments({ comments: { media_1: { data: [comment('c_1', 'Rye?')] } } }), opened);
+  const again = await pull('instagram-comments', {}, graphComments({ comments: { media_1: { data: [comment('c_2', 'Also rye?', '2026-10-02T10:00:00+0000'), comment('c_1', 'Rye?')] } } }), opened);
+  assert.equal(again.new_messages, 1);
+  assert.deepEqual((await snapshotOf(opened, 'instagram-comments')).threads[0].messages.map(message => message.id), ['c_1', 'c_2']);
+});
+
 test('messenger is the same pull on the Facebook host with its own platform', async () => {
   const opened = await openDoor();
   const service = meta({ conversations, messages });
@@ -616,7 +658,7 @@ test('pinterest: a pin pulled again has its fields refreshed, nothing is added t
 
 test('with no token nothing is asked of the service and nothing is read or written', async () => {
   const opened = await openDoor();
-  for (const source of ['discord', 'slack', 'telegram', 'instagram-messages', 'messenger-messages', 'x-bookmarks', 'pinterest-pins']) {
+  for (const source of ['discord', 'slack', 'telegram', 'instagram-messages', 'instagram-comments', 'messenger-messages', 'x-bookmarks', 'pinterest-pins']) {
     const service = fakeService(() => json({}));
     const done = await pullFromAnAccount(source, {}, { token: undefined, readToken: undefined, fetch: service.fetch, door: opened.door });
     assert.equal(done.status, 'needs_login', source);

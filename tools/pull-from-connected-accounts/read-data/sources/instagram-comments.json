@@ -1,0 +1,35 @@
+{
+  "extends": "instagram-messages",
+  "id": "instagram-comments",
+  "label": "Instagram comments",
+  "says": "the comments on the posts of the Instagram professional account the token belongs to, each post as a thread",
+  "walks": [
+    {
+      "name": "comments",
+      "levels": [
+        {
+          "path": "/me/media",
+          "query": { "fields": "id,timestamp,caption", "limit": "{limit}" },
+          "page": { "param": "after", "next": "/paging/cursors/after", "requires": "/paging/next" },
+          "items": "/data",
+          "bind": { "media": "/id" }
+        },
+        {
+          "path": "/{media}/comments",
+          "query": { "fields": "id,from,username,text,timestamp", "limit": "{limit}" },
+          "items": "/data",
+          "page": { "param": "after", "next": "/paging/cursors/after", "requires": "/paging/next" }
+        }
+      ],
+      "fold": {
+        "layout": "threads",
+        "thread": { "id": { "var": "media" }, "title": { "var": "media" }, "source": true },
+        "key": ["/id"],
+        "signature": ["/from/id", "/timestamp", "/text"],
+        "order": ["/timestamp"],
+        "conflict": { "merge": true },
+        "stop_when_known": true
+      }
+    }
+  ]
+}

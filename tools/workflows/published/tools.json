@@ -3,7 +3,7 @@
  "source": {
   "view": "tool-catalog",
   "list": "tools",
-  "blake3": "1f:947feadf26ad876342f020fbbcb970b96ef0478cafe0b5b6edacfe7eebad0a6c"
+  "blake3": "1f:bf9af036f996e758fbf76d5fee5137f42f8ae245cd7a9d34e5a854138d483bb7"
  },
  "fields": [
   {
@@ -2890,7 +2890,7 @@
    "values": {
     "title": "Decide the Instagram replies",
     "job": "Say which automatic reply to send now to each Instagram direct message or comment by the person's keyword rules, and which to leave and why",
-    "description": "Reads the person's reply rules (their reply-rule rows, in order) and the pulled Instagram conversations of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
+    "description": "Reads the person's reply rules (their reply-rule rows, in order), the pulled Instagram direct-message conversations and the pulled Instagram comments (the instagram-messages and instagram-comments pulls) of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again, and a comment on the person's own account is never answered. A source never pulled is named under not_pulled. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
     "status": "active",
     "maker": "maker:reply-by-keyword-rule",
     "licence_class": "licence:maker-own",
@@ -8408,6 +8408,21 @@
     "title": "Pull the messages from the Discord text channels my bot can read into my own records",
     "job": "Pull the messages from the Discord text channels my bot can read into my own records",
     "description": "Reads the text and announcement channels of every server the bot is in (only those the bot may view and read the history of), newest messages first, and keeps them in your records beside the ones already there: a message pulled twice is kept once, an edited message replaces the older copy, and a renamed channel takes its new title. The bot cannot read anyone's personal direct messages, and a message's text is empty unless the bot has the Message Content setting. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Discord bot token (name discord-bot-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Discord did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
+    "status": "active",
+    "maker": "maker:pull-from-connected-accounts",
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:your-computer"
+    ],
+    "folder": "pull-from-connected-accounts"
+   }
+  },
+  {
+   "id": "tool:pull-my-instagram-comments",
+   "values": {
+    "title": "Pull the comments on my Instagram posts into my own records",
+    "job": "Pull the comments on the posts of my Instagram professional account into my own records",
+    "description": "Reads the posts of the Instagram professional account the token belongs to, then each post's comments (through the Instagram Graph API, not by logging in as a person), and keeps each post as a thread of its comments in your records. Each conversation keeps the service's own description of it (its participants) in source. A message pulled twice is kept once. Give account (a name for this account, default \"default\"), and optionally limit, most_pages, most_threads. The held Instagram messaging access token (name instagram-access-token) reaches the one process on a private pipe; it is never shown, printed or stored in your records. Answers status (pulled; partial when some requests failed; needs_login when Instagram did not accept the token; unreachable), how many new messages or items arrived, the cursor, and any failed requests in errors. Read what was pulled with tool:read-what-i-pulled-from-an-account.",
     "status": "active",
     "maker": "maker:pull-from-connected-accounts",
     "licence_class": "licence:maker-own",

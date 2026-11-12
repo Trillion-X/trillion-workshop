@@ -12,7 +12,8 @@
 //   3. A reply key (message id and rule id) that was already sent is never chosen again.
 //   4. The reply text is the rule's own template filled by tools/reply-templates; the rule decides nothing else.
 //   5. The window is checked again at the moment of sending (checkSend), not only when the reply is chosen.
-//   6. Rules are data (the person's `reply-rule` records). This file names no keyword, no customer and no account.
+//   6. Rules are data (the person's `reply-rule` records). A rule is used only when its `enabled` is 'on' (a list choice).
+//      This file names no keyword, no customer and no account.
 import { expandReplyTemplate } from '../../reply-templates/read-data/expand.mjs';
 
 export const WINDOW_MS = 24 * 60 * 60 * 1000;
@@ -51,7 +52,7 @@ const ms = iso => Date.parse(iso);
 /** One decision per candidate: send with its recipient and reply text, or skip with the reason in words. */
 function decide(base, rules, text, sentKeys, nowMs, openAt) {
   if (!openAt(nowMs)) return { ...base, action: 'skip', reason: 'window-closed' };
-  const rule = rules.find(candidate => candidate.enabled && ruleMatches(candidate, text));
+  const rule = rules.find(candidate => candidate.enabled === 'on' && ruleMatches(candidate, text));
   if (!rule) return { ...base, action: 'skip', reason: 'no-rule-matches' };
   const key = `${base.message_id}:${rule.id}`;
   if (sentKeys.has(key)) return { ...base, key, rule_id: rule.id, action: 'skip', reason: 'already-sent' };
@@ -61,7 +62,7 @@ function decide(base, rules, text, sentKeys, nowMs, openAt) {
 
 /**
  * The replies to choose now.
- *   rules:     [{ id, enabled, words, mode: 'any' | 'all', reply: template }], in the order they apply
+ *   rules:     [{ id, enabled: 'on' | 'off', words, mode: 'any' | 'all', reply: template }], in the order they apply
  *   threads:   [{ id, messages: [{ id, from: { id }, created_time, message }] }] (the pulled Instagram conversations)
  *   comments:  [{ id, media_id, from: { id }, created_time, text }]
  *   selfId:    the person's own account id (their messages are not answered)
@@ -79,6 +80,7 @@ export function chooseReplies({ rules, threads, comments, selfId, nowMs, sentKey
     return [decide(base, rules, latest.message, sentKeys, nowMs, now => dmWindowOpen(ms(latest.created_time), now))];
   });
   const replies = comments.map(comment => {
+    if (comment.from?.id === selfId) return { thread_id: null, message_id: comment.id, kind: 'private-reply', action: 'skip', reason: 'comment-is-ours' };
     const base = {
       thread_id: null, message_id: comment.id, recipient: { comment_id: comment.id }, kind: 'private-reply',
       created_time: comment.created_time,

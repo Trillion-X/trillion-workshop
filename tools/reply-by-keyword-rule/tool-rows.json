@@ -27,7 +27,7 @@
         "id": "tool:decide-the-instagram-replies",
         "label": "Decide the Instagram replies",
         "job": "Say which automatic reply to send now to each Instagram direct message or comment by the person's keyword rules, and which to leave and why",
-        "description": "Reads the person's reply rules (their reply-rule rows, in order) and the pulled Instagram conversations of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
+        "description": "Reads the person's reply rules (their reply-rule rows, in order), the pulled Instagram direct-message conversations and the pulled Instagram comments (the instagram-messages and instagram-comments pulls) of one account, and says for each latest message whether a rule's reply is to be sent now: the rule must match, the message must be the other person's, and the Meta window must still be open (24 hours for a direct message, 7 days for a comment's private reply). A reply already kept is never chosen again, and a comment on the person's own account is never answered. A source never pulled is named under not_pulled. It sends nothing and keeps nothing; tool:send-an-instagram-reply sends one chosen reply.",
         "input_schema": {
           "type": "object",
           "additionalProperties": false,
@@ -42,13 +42,6 @@
             "now": {
               "type": "string",
               "description": "The time to judge the windows at, an ISO time; default the time now"
-            },
-            "comments": {
-              "type": "array",
-              "description": "Comments the caller pulled on the person's posts: { id, media_id, from: { id }, created_time, text }",
-              "items": {
-                "type": "object"
-              }
             }
           }
         },
@@ -64,6 +57,12 @@
             },
             "decisions": {
               "type": "array"
+            },
+            "not_pulled": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           }
         },
