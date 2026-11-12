@@ -207,9 +207,11 @@ const withRoads = kind => kind.kind === ENGINE_KIND.kind;
 /** The program a built kind builds: its own `binary`, else the engine's. */
 const binaryOf = kind => kind.binary ?? settings.binary;
 
-/** Publish one commit: build, pack, sign, and add it to the feed. */
+/** Publish one commit: build, pack, sign, and add it to the feed. A kind that packs provided files (`publishProvided`) takes
+ *  the files the request names instead of a commit's tree. */
 export async function publish(request, { token = '', commit: asked, credentials = process.env.CREDENTIALS_DIRECTORY } = {}) {
   const kind = kindOf(request);
+  if (kind.pack === PROVIDED_FILES) return publishProvided(request, kind);
   const { repository, branch } = request;
   if (typeof repository !== 'string' || !repository) throw refuse('The request names no repository: send repository, the URL git fetches.', 2);
   if (typeof branch !== 'string' || !/^[A-Za-z0-9._/-]{1,200}$/.test(branch) || branch.includes('..')) throw refuse('The request names no branch git can fetch: send branch, like main.', 2);
@@ -456,6 +458,46 @@ export async function accept(request, { token = '', entry: offered, body } = {})
   return addUnderLock({ request, feedFolder, entry: signEntry(unsigned, privateKey), part, file, publicKey });
 }
 
+/** The pack a kind names when the request brings the files to publish (a Mac app's DMG and its update record). */
+const PROVIDED_FILES = 'provided-files';
+const MAX_PROVIDED_FILES = 8;
+
+/**
+ * Publish the files a request names, for a kind whose pack is provided-files. Each file is checked against the length and the
+ * BLAKE3 identity the request states, stored in the kind's feed folder under its basename, and becomes one signed entry whose
+ * url is the base address plus that basename. The checks run before anything is written. The files are then added one by one
+ * under the feed lock, so a refused add can leave earlier files in the feed; each file's entry is its own release.
+ */
+export async function publishProvided(request, kind) {
+  const { commit, sequence, files } = request;
+  checkCommit(commit);
+  if (!Number.isSafeInteger(sequence) || sequence < 1) throw refuse('sequence must be a whole number of 1 or more: the release\'s build number.', 2);
+  if (!Array.isArray(files) || files.length < 1 || files.length > MAX_PROVIDED_FILES) throw refuse(`files must name 1 to ${MAX_PROVIDED_FILES} files.`, 2);
+  if (typeof request.base_url !== 'string' || !/^https:\/\/[^/]+\/.*\/$/.test(request.base_url)) throw refuse('base_url must be the https address the feed folder is served at, ending in /.', 2);
+  const feedFolder = absolute(request.feed_folder, 'feed_folder');
+  const privateKey = readSigningKey(absolute(request.key_file, 'key_file')), publicKey = publicKeyHex(privateKey);
+  const names = new Set();
+  const prepared = files.map(file => {
+    if (!file || typeof file.name !== 'string' || basename(file.name) !== file.name || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,200}$/.test(file.name)) throw refuse(`${JSON.stringify(file?.name)} is not a basename: a file is published under its name alone.`, 2);
+    if (names.has(file.name)) throw refuse(`${file.name} is named twice.`, 2);
+    names.add(file.name);
+    const bytes = readFileSync(absolute(file.path, 'files.path'));
+    if (bytes.length !== file.bytes) throw refuse(`${file.name} is ${bytes.length} bytes, not the ${file.bytes} the request states.`, 3);
+    const content = makeHashCodeHexFromBytes(new Uint8Array(bytes));
+    if (content !== file.content) throw refuse(`${file.name} is ${content}, not the content the request states.`, 3);
+    return { name: file.name, bytes, content };
+  });
+  mkdirSync(feedFolder, { recursive: true, mode: 0o755 });
+  const answers = [];
+  for (const { name, bytes, content } of prepared) {
+    const file = join(feedFolder, name), part = `${file}.${process.pid}.part`;
+    writeFileSync(part, bytes, { mode: 0o644 });
+    const entry = signEntry({ commit, sequence, target: kind.target, url: `${request.base_url}${name}`, content, bytes: bytes.length, urgent: request.urgent === true }, privateKey);
+    answers.push(await addUnderLock({ request, feedFolder, entry, part, file, publicKey }));
+  }
+  return { commit, sequence, target: kind.target, published: answers };
+}
+
 /** Add a signed entry whose tar.gz is at `part` to the feed under its lock, and remove what no longer fits. */
 async function addUnderLock({ request, feedFolder, entry, part, file, publicKey }) {
   const kind = kindOf(request), keep = request.keep_releases ?? settings.keep_releases;
@@ -471,8 +513,9 @@ async function addUnderLock({ request, feedFolder, entry, part, file, publicKey 
     renameSync(part, file);
     writeAtomically(feedFile(feedFolder, kind), `${JSON.stringify(result.feed, null, 1)}\n`);
     if (mirrored?.added) writeAtomically(feedFile(feedFolder, { feed_file: kind.mirror_feed }), `${JSON.stringify(mirrored.feed, null, 1)}\n`);
-    const stillHeld = one => [result.feed, mirrored?.feed].some(feed => feed?.releases.some(held => held.commit === one.commit && held.target === one.target));
+    const stillHeld = one => [result.feed, mirrored?.feed].some(feed => feed?.releases.some(held => held.commit === one.commit && held.target === one.target && held.url === one.url));
     for (const gone of result.dropped.filter(one => !stillHeld(one))) {
+      if (kind.pack === PROVIDED_FILES) { rmSync(join(feedFolder, basename(gone.url)), { force: true }); continue; }
       const old = tarballOf(feedFolder, kind, gone.commit, gone.target);
       rmSync(old, { force: true });
       try { rmdirSync(dirname(old)); } catch { /* another target's release is still in that folder */ }

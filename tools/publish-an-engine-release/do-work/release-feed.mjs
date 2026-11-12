@@ -153,15 +153,16 @@ export function feedStatusOf(feed, commit, targets, failures = {}) {
 export const newestFor = (feed, target) => feed.releases.filter(entry => entry.target === target).reduce((newest, entry) => (!newest || entry.sequence > newest.sequence ? entry : newest), null);
 
 /**
- * Whether `{ commit, sequence, target }` may be published into the feed: `{ already }` when that very release is
- * there, else nothing; an older sequence (or another commit at the same sequence) for the same target is refused.
+ * Whether `{ commit, sequence, target, url }` may be published into the feed: `{ already }` when that very release is
+ * there, else nothing; an older sequence (or another commit at the same sequence) for the same target is refused. One commit
+ * may hold several entries of a target when they name different urls (a Mac app's DMG and its update record).
  */
-export function mayPublish(feed, { commit, sequence, target }) {
-  const same = feed.releases.find(entry => entry.target === target && entry.commit === commit);
+export function mayPublish(feed, { commit, sequence, target, url }) {
+  const same = feed.releases.find(entry => entry.target === target && entry.commit === commit && entry.url === url);
   if (same) return { already: same };
   const newest = newestFor(feed, target);
   if (newest && sequence < newest.sequence) throw refuse(`Commit ${commit} is sequence ${sequence}, older than the feed's newest ${target} release (${newest.commit}, sequence ${newest.sequence}): an older commit never replaces a newer one.`, 3);
-  if (newest && sequence === newest.sequence) throw refuse(`Commit ${commit} has the same sequence (${sequence}) as the feed's ${target} release ${newest.commit}: the branch was rewritten; publish a new commit on top of it.`, 3);
+  if (newest && sequence === newest.sequence && newest.commit !== commit) throw refuse(`Commit ${commit} has the same sequence (${sequence}) as the feed's ${target} release ${newest.commit}: the branch was rewritten; publish a new commit on top of it.`, 3);
   return {};
 }
 
@@ -174,11 +175,11 @@ export function addRelease(feed, entry, keep = settings.keep_releases, feedName 
   const releases = [...feed.releases, entry].map((one, at) => ({ one, at })).sort((a, b) => a.one.sequence - b.one.sequence || a.at - b.at).map(({ one }) => one);
   // The oldest leave first, but never a target's newest: a target whose builder is behind (or down) keeps the
   // release its computers follow while the other targets' builders go on publishing into the same feed.
-  const newest = new Set([...new Set(releases.map(one => one.target))].map(target => newestFor({ releases }, target)));
+  const newestCommit = target => newestFor({ releases }, target)?.commit;
   const dropped = [];
   for (const one of releases) {
     if (releases.length - dropped.length <= keep) break;
-    if (!newest.has(one)) dropped.push(one);
+    if (newestCommit(one.target) !== one.commit) dropped.push(one);
   }
   return { feed: { releases: releases.filter(one => !dropped.includes(one)) }, added: true, entry, dropped };
 }

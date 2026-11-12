@@ -154,6 +154,35 @@ test('the mac-app kind is its own feed of basename releases, and the engine feed
   assert.throws(() => checkFeedTarget('mac-app-feed.json', 'x86_64-unknown-linux-gnu'), /engine target/);
 });
 
+test('a provided-files kind publishes the two files a request names, each checked and signed under its basename', async () => {
+  const { remote, commits } = repository(2);
+  const { key, request, top } = builder(remote);
+  const dmgBytes = Buffer.from('synthetic disk image bytes'), recordBytes = Buffer.from('{"latestVersion":"1.0.1"}\n');
+  const staged = join(top, 'staged');
+  mkdirSync(staged);
+  writeFileSync(join(staged, 'Trillion-1.0.1.dmg'), dmgBytes);
+  writeFileSync(join(staged, 'Trillion-update.json'), recordBytes);
+  const file = (name, bytes) => ({ name, path: join(staged, name), bytes: bytes.length, content: makeHashCodeHexFromBytes(new Uint8Array(bytes)) });
+  const providing = { ...request, kind: 'mac-app', commit: commits[1], sequence: 2, files: [file('Trillion-1.0.1.dmg', dmgBytes), file('Trillion-update.json', recordBytes)] };
+  const answer = await publish(providing);
+  assert.deepEqual(answer.published.map(one => one.url), [`${request.base_url}Trillion-1.0.1.dmg`, `${request.base_url}Trillion-update.json`]);
+  const feed = JSON.parse(readFileSync(join(request.feed_folder, 'mac-app-feed.json'), 'utf8'));
+  assert.equal(feed.releases.length, 2, 'both files are entries of the one commit');
+  for (const entry of feed.releases) {
+    assert.ok(verifyEntry(entry, key.public_key), 'each entry is signed as the others are');
+    assert.equal(entry.target, 'aarch64-apple-darwin');
+  }
+  assert.deepEqual(readFileSync(join(request.feed_folder, 'Trillion-1.0.1.dmg')), dmgBytes);
+  assert.deepEqual(readFileSync(join(request.feed_folder, 'Trillion-update.json')), recordBytes);
+  assert.ok(!existsSync(join(request.feed_folder, 'feed.json')), 'the engine feed is untouched');
+
+  const again = await publish(providing);
+  assert.ok(again.published.every(one => one.already_published === true), 'the same files again change nothing');
+
+  await assert.rejects(publish({ ...providing, sequence: 3, files: [{ ...providing.files[0], content: `1f:${'0'.repeat(64)}` }] }), error => error.exit === 3 && /not the content/.test(error.message), 'a content the request does not state is refused');
+  await assert.rejects(publish({ ...providing, sequence: 3, files: [{ ...providing.files[0], name: '../escape.dmg' }] }), error => error.exit === 2 && /basename/.test(error.message), 'a name with a folder is refused');
+});
+
 test('a release with an extra program at the root is refused before it is signed: old unpackers take only the program at the root', () => {
   const program = { name: 'trillion-local', bytes: Buffer.from('engine'), executable: true };
   const forwarder = { name: 'trillion-mcp-forwarder', bytes: Buffer.from('relay'), executable: true };
