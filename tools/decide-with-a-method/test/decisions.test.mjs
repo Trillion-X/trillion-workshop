@@ -86,7 +86,7 @@ test('each step is answered in its turn, kept as its own record, and the same an
   await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: outcomeAnswer, verdicts: judged }, { door }), /waiting for its "scope" question/);
   const scoped = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
   assert.equal(scoped.question.step_id, 'outcome');
-  assert.deepEqual(scoped.method_coverage.omitted, [{ step_id: 'existing', reason: scoped.method_coverage.omitted[0].reason }]);
+  assert.deepEqual(scoped.question_method_coverage.omitted, [{ step_id: 'existing', reason: scoped.question_method_coverage.omitted[0].reason }]);
   assert.ok(scoped.question.checklist.some(row => row.id === 'outcome-before-after'));
   assert.equal(scoped.question.grader, settings.grader.grader, 'the calling AI is told who judges the checks');
   const again = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
@@ -184,13 +184,33 @@ test('the verdicts taken are kept with their step and counted on the root, so an
   assert.equal((await nextDecisionQuestion({ decision_id: other }, { door: unjudged })).question.step_id, 'outcome');
 });
 
+// The engine keeps an answer's keys in sorted order, so a page of the answer holds the keys that sort first. The question
+// must sort before the large parts (the pursuits, the method coverage), so the first page of 12 KB holds it.
+function sortedKeysText(value) {
+  if (Array.isArray(value)) return `[${value.map(sortedKeysText).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${sortedKeysText(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
+}
+
+test('the next question is in the first 12 KB of the answer, ahead of a long list of pursuits and the method coverage', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
+  for (let n = 0; n < 12; n += 1) door.put(`pursuit:long-${n}`, 'pursuit', { title: `Long aim ${n}`, now: 'x'.repeat(1500), after: 'y'.repeat(300), status: 'active' });
+  const reply = await nextDecisionQuestion({ decision_id: id }, { door });
+  assert.equal(reply.question.step_id, 'outcome', 'the outcome question is next');
+  const text = sortedKeysText(reply);
+  assert.ok(text.length > 12288, 'the answer is longer than one 12 KB page');
+  assert.ok(text.indexOf('"question":') < 12288, `the question starts at byte ${text.indexOf('"question":')}`);
+});
+
 test('an answer cites only the decision\'s evidence or a current pursuit, which is copied in as it stood', async () => {
   const door = account();
   door.put('pursuit:camp', 'pursuit', { title: 'Keep the camp running', now: 'Losing money', after: 'Covering costs', status: 'active' });
   door.put('pursuit:old', 'pursuit', { title: 'An old aim', now: 'a', after: 'b', status: 'ended' });
   const { case_id: id } = await startADecision(opened, { door });
   const reply = await answerADecisionQuestion({ decision_id: id, step_id: 'scope', answer: scope }, { door });
-  assert.deepEqual(reply.pursuits.map(item => item.id), ['pursuit:camp'], 'the outcome question carries the current pursuits');
+  assert.deepEqual(reply.question_pursuits.map(item => item.id), ['pursuit:camp'], 'the outcome question carries the current pursuits');
   await assert.rejects(answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: { ...outcomeAnswer, evidence_refs: ['pursuit:old'] }, verdicts: judged }, { door }), /is not a ref of this case/);
   await answerADecisionQuestion({ decision_id: id, step_id: 'outcome', answer: { ...outcomeAnswer, evidence_refs: ['e1', 'pursuit:camp'] }, verdicts: judged }, { door });
   assert.deepEqual(caseView(door, id).cited_pursuits, { 'pursuit:camp': 'Keep the camp running: now Losing money; should be Covering costs' });

@@ -47,8 +47,8 @@ test('an agent completes applicable checks, explains omissions, and resumes its 
   }
   const ready = await nextDecisionQuestion({ decision_id: id }, { door });
   assert.equal(ready.question, null);
-  assert.equal(ready.method_coverage.selected.length, answers.length);
-  assert.deepEqual(ready.method_coverage.omitted.map(item => item.step_id), ['existing'], 'the step its switch turned off is omitted');
+  assert.equal(ready.question_method_coverage.selected.length, answers.length);
+  assert.deepEqual(ready.question_method_coverage.omitted.map(item => item.step_id), ['existing'], 'the step its switch turned off is omitted');
   // A weighty decision names who it changes beyond the person; the reply that asks for the decision says so.
   assert.deepEqual(ready.decision_fields.map(field => field.name), ['who_it_changes']);
   const chosen = { option_id: 'repair', reason: 'The observed failure is in the submit path.', evidence_refs: ['browser:signup'], next_action: 'Repair the signup field contract', success_measure: 'A new account appears after submit' };

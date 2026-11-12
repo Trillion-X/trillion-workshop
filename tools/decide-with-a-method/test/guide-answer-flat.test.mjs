@@ -34,7 +34,7 @@ async function answerCost({ n }) {
     door.take();
     const reply = await answerADecisionQuestion({ decision_id: record.case_id, step_id: question.step_id, answer: fill(question, { refs: ['request'] }), verdicts: judged(question, 'request') }, { door });
     const here = door.take();
-    if (reply.pursuits?.length && !cost) { cost = here; answered = reply; }
+    if (reply.question_pursuits?.length && !cost) { cost = here; answered = reply; }
     later = here;
     question = reply.question;
   }
@@ -46,7 +46,7 @@ async function answerCost({ n }) {
 test('answering a guide step costs the same statements and rows when the store holds 4 times as much', async () => {
   const small = await answerCost({ n: 200 });
   const large = await answerCost({ n: 800 });
-  assert.ok(small.answered.pursuits.length > 0 && large.answered.pursuits.length > 0);
+  assert.ok(small.answered.question_pursuits.length > 0 && large.answered.question_pursuits.length > 0);
   assert.deepEqual(flat(small.cost, large.cost), [], `records grew with the store: ${JSON.stringify({ small: small.cost.crossed, large: large.cost.crossed })}`);
   // The last step is the usual one: its cost is bounded by what it reads of the decision, not by the person's records.
   assert.deepEqual(flat(small.later, large.later), [], `records grew with the store: ${JSON.stringify({ small: small.later.crossed, large: large.later.crossed })}`);

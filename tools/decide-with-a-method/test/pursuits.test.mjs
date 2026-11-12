@@ -34,8 +34,8 @@ test('pursuits are kept beside decisions, travel with the change question, and o
   }, { door });
   const next = await answerADecisionQuestion({ decision_id: record.case_id, step_id: 'scope', answer: fill(record.question, { refs: ['person:words'] }) }, { door });
   assert.equal(next.question.step_id, 'outcome');
-  assert.deepEqual(next.pursuits.map(item => item.title), ['Lean and strong', 'Pottery school']);
-  assert.equal(next.pursuits[0].id, 'pursuit:lean-and-strong');
+  assert.deepEqual(next.question_pursuits.map(item => item.title), ['Lean and strong', 'Pottery school']);
+  assert.equal(next.question_pursuits[0].id, 'pursuit:lean-and-strong');
   // An answer may cite a current pursuit by its id, and the decision keeps the pursuit's words as they stood.
   const outcome = refs => ({ ...fill(next.question, { refs: ['person:words'] }), evidence_refs: refs, current_state: 'Hungry, mid-cut.', desired_result: 'Fed without costing the cut.' });
   const verdicts = judged(next.question, 'person:words');

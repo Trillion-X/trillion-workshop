@@ -142,9 +142,9 @@ async function pursuitsFor(door, question) {
   if (!question || !settings.pursuits.with_steps.includes(question.step_id)) return {};
   const found = await currentPursuits(door, settings.pursuits.carried);
   const list = found.slice(0, settings.pursuits.carried).sort((a, b) => a.id.localeCompare(b.id));
-  if (!list.length) return { pursuits: [], pursuits_note: WORDS.no_pursuits_note };
+  if (!list.length) return { question_pursuits: [], question_pursuits_note: WORDS.no_pursuits_note };
   const more = found.length > list.length;
-  return { pursuits: list.map(({ id, title, now, after, why_it_matters, status }) => ({ id, title, now, after, why_it_matters, status })), pursuits_note: `${WORDS.pursuits_note}${more ? ` ${say('more_pursuits_note', { count: list.length })}` : ''}` };
+  return { question_pursuits: list.map(({ id, title, now, after, why_it_matters, status }) => ({ id, title, now, after, why_it_matters, status })), question_pursuits_note: `${WORDS.pursuits_note}${more ? ` ${say('more_pursuits_note', { count: list.length })}` : ''}` };
 }
 
 // An answer can cite a pursuit at its top level or in a nested check, omitted switch or workflow answer.
@@ -252,7 +252,7 @@ async function guideReply(door, cat, record) {
   return {
     case_id: record.id, source_id: record.source_id, question, ...(question?.checklist ? { explain: WORDS.explain_note } : {}), ...(question?.recheck ? { recheck_note: say('recheck_note', { step: question.recheck.revised_step }) } : {}),
     ...(question?.ungraded ? { ungraded_note: say('ungraded_note', { step: question.step_id, graded: question.ungraded.graded, checks: question.ungraded.checks }) } : {}), ...(await pursuitsFor(door, question)),
-    method_coverage: cat.methodCoverage(record), decision: record.decision ?? null,
+    question_method_coverage: cat.methodCoverage(record), decision: record.decision ?? null,
     ...(record.workflow_plan ? { workflow_plan: record.workflow_plan } : {}),
     ...(similar ? { similar_decisions: similar } : {}),
     ...(!record.input.options && question?.fields?.includes(CANDIDATES.field) ? { candidates_note: say('candidates_note', { field: CANDIDATES.field }) } : {}),
