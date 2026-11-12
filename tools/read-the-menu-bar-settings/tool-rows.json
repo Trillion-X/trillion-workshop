@@ -1,0 +1,162 @@
+{
+ "kind": "tool-rows",
+ "record_set": "read-the-menu-bar-settings-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/read-the-menu-bar-settings: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::read-the-menu-bar-settings::tool::read-the-menu-bar-settings",
+   "address": "package::read-the-menu-bar-settings::tool::read-the-menu-bar-settings",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:read-the-menu-bar-settings",
+    "label": "Read the Mac menu bar's own settings",
+    "status": "active",
+    "job": "Say the Mac menu bar item's own settings (on or off, how far ahead meetings count, how long its title may be, its app icon), each with the value it shows, and whether a change I ask for is one its setting allows",
+    "description": "Give the setting definitions (each with its id, kind switch, choice or range, its default and the choices or limits its kind needs), optionally the value the Mac app last answered, and optionally one change { id, value }. Returns every setting with its value (the answer's when it has the right shape, else the default), whether an answer was held, and the change when it is one the setting allows; a change it does not allow is refused. Nothing is read or written here.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "definitions"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "definitions": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "kind",
+         "default"
+        ]
+       }
+      },
+      "answer": {
+       "type": "object",
+       "description": "The Mac app's answer: { rows: [{ id, kind, value }] }"
+      },
+      "set": {
+       "type": "object",
+       "required": [
+        "id",
+        "value"
+       ],
+       "properties": {
+        "id": {
+         "type": "string"
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "rows",
+        "held"
+       ]
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "read-the-menu-bar-settings",
+        "paths": [
+         "do-work"
+        ],
+        "at": "/opt/read-the-menu-bar-settings"
+       }
+      ]
+     },
+     "workdir": "/opt/read-the-menu-bar-settings",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/read-the-menu-bar-settings/do-work/read-the-menu-bar-settings.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:read-the-menu-bar-settings",
+    "provenance": {
+     "source": "trillion-apps web/src/workspace/panel-settings.mjs (panelSettingsState, KINDS, setPanelSetting) and macos/App/menu-bar-panel.json settings.rows, at commit 21a2de08; the range rule checks limits only, as the app's did"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "definitions": [
+        {
+         "id": "enabled",
+         "kind": "switch",
+         "default": true
+        },
+        {
+         "id": "meetings_within",
+         "kind": "choice",
+         "default": "12",
+         "choices": [
+          {
+           "id": "0",
+           "title": "Next (today only)"
+          },
+          {
+           "id": "12",
+           "title": "12 hours"
+          }
+         ]
+        },
+        {
+         "id": "title_length",
+         "kind": "range",
+         "default": 180,
+         "least": 40,
+         "most": 180,
+         "step": 10
+        }
+       ],
+       "answer": {
+        "rows": [
+         {
+          "id": "enabled",
+          "kind": "switch",
+          "value": false
+         }
+        ]
+       }
+      },
+      "output_selector": "$.result.held",
+      "contains": "true"
+     }
+    ]
+   }
+  }
+ ]
+}

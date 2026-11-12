@@ -1091,6 +1091,20 @@
       "distinct_from": [{"job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "that folder keeps the device facts a checklist reads; this one plans the setup run and the installs"}]
     },
     {
+      "capability": "read the Mac menu bar item settings: each setting with the value it shows, and whether a change asked for is one its setting allows",
+      "owner": [
+        "tools/read-the-menu-bar-settings/"
+      ],
+      "entry": "tools/read-the-menu-bar-settings/tool-rows.json",
+      "evidence": "trillion-apps web/src/workspace/panel-settings.mjs and macos/App/menu-bar-panel.json settings.rows at commit 21a2de08",
+      "distinct_from": [
+        {
+          "job": "say what the Mac menu bar mark shows right now",
+          "why": "that builds the mark from running work and the unread count; this reads the settings the menu bar item keeps"
+        }
+      ]
+    },
+    {
       "capability": "say what the Mac menu bar mark shows right now: how many things are running, the newest one and how far along, the unread count, or the next calendar line when nothing runs",
       "owner": [
         "tools/say-what-the-menu-bar-mark-shows/"
