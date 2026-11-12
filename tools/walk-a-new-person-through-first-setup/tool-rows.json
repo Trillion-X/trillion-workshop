@@ -214,24 +214,6 @@
         "at": "/opt/node_modules/@noble/hashes"
        },
        {
-        "module": "tldts",
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "dist/cjs"
-        ],
-        "at": "/opt/node_modules/tldts"
-       },
-       {
-        "module": "tldts-core",
-        "paths": [
-         "LICENSE",
-         "package.json",
-         "dist"
-        ],
-        "at": "/opt/node_modules/tldts-core"
-       },
-       {
         "module": "uqr",
         "paths": [
          "LICENSE",
