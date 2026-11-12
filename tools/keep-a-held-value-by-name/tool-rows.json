@@ -50,7 +50,19 @@
             }
           }
         },
-        "invoke": "{\"kind\": \"on-your-computer\", \"get_it\": [\"clone the Workshop repository (package.json repository.url)\"], \"run\": \"node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs {arguments}\", \"stdin\": \"the value, exactly as it is to be kept (one trailing newline is removed)\", \"needs\": [\"node 22 or later\", \"the person's own Trillion sign-in (trillion login, or the Mac app's key)\"], \"say\": \"This runs on the person's own computer from the root of the Workshop checkout. Pipe the value in on stdin; never pass it as an argument. Report only the name and accepted.\"}",
+        "invoke": {
+          "kind": "on-your-computer",
+          "get_it": [
+            "clone the Workshop repository (package.json repository.url)"
+          ],
+          "run": "node tools/keep-a-held-value-by-name/do-work/keep-a-held-value.mjs {arguments}",
+          "stdin": "the value, exactly as it is to be kept (one trailing newline is removed)",
+          "needs": [
+            "node 22 or later",
+            "the person's own Trillion sign-in (trillion login, or the Mac app's key)"
+          ],
+          "say": "This runs on the person's own computer from the root of the Workshop checkout. Pipe the value in on stdin; never pass it as an argument. Report only the name and accepted."
+        },
         "provenance": {
           "source": "New: the person's own door operation held-values:put (src/secrets.rs HELD_VALUES_PUT), replacing the store-file write of `secrets put`."
         }
