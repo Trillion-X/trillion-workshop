@@ -10,6 +10,9 @@
 //
 // A row is `{ id, values }` (a published view file) or `{ id, value }` (the records door); both are read.
 
+const STEP_ANATOMY_TEXT = ['when', 'done_when', 'if_missing', 'why', 'good_answer'];
+const STEP_ANATOMY_LISTS = ['came_from', 'part_of'];
+
 const JSON_FIELDS = {
   recipe: ['input_schema', 'source', 'wakes', 'definition'],
   step: ['checks', 'run_tool', 'actor_policy'],
@@ -68,6 +71,9 @@ export function recipeFromRows(recipeRow, stepRows) {
     payload.steps = ordered.map(step => {
       const made = { id: step.step, title: step.title, do: step.do, submit: parsed(step.submit, `${where} step ${step.step} submit`) };
       present(step, JSON_FIELDS.step, `${where} step ${step.step}`, made);
+      // The step anatomy (L082) is plain text and lists, so a row holds it as it is.
+      for (const field of STEP_ANATOMY_TEXT) if (typeof step[field] === 'string' && step[field] !== '') made[field] = step[field];
+      for (const field of STEP_ANATOMY_LISTS) if (Array.isArray(step[field]) && step[field].length) made[field] = step[field];
       return made;
     });
   }

@@ -3,7 +3,7 @@
  "source": {
   "view": "list-view:workflows:public",
   "list": "workflows",
-  "blake3": "7f619fe7c36724d35f68ffa244188d74481da77511115c64fc0bfa351444f8ef",
+  "blake3": "dc4ad0d5e4410ec07cdce838760933cb6634d7684aa5cec36c011d0d88fafaf3",
   "local_update_status": "pending-account-row-sync",
   "account_row_sync": {
    "status": "pending",
@@ -1347,6 +1347,241 @@
     "recipe": "workflow:run-a-linkedin-content-system",
     "source": "{\"from\":\"a LinkedIn content system people share: a voice guide from the person's own words, buyer questions from calls, a research desk, posts aimed at what stalls deals, a scored review, attribution and edits turned into rules\",\"not_adopted\":[{\"part\":\"counting every mention as a conversion\",\"why\":\"tracked conversions and influence are kept apart\"},{\"part\":\"applying edit rules automatically\",\"why\":\"repeated edits become proposals the person accepts or not\"}]}",
     "title": "Run a LinkedIn content system"
+   }
+  },
+  {
+   "id": "set-up-business-accounts-and-connections",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Check every account and connection the business needs (Stripe seller, Instagram, Facebook, YouTube, the email sending domain and its key) and leave each one either connected or with a named gap.",
+    "produces": "One checked account state per connection and a sending key kept in the vault.",
+    "recipe": "workflow:set-up-business-accounts-and-connections",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Stage 1 of the business meta-workflow. Live tools: list-every-connection, set-up-someone-i-pay-in-stripe, check-the-instagram-connection, check-the-facebook-page-connection, add-an-email-sending-domain, check-an-email-sending-domain, make-a-sending-key-with-resend. No live tool checks a YouTube connection (gap written at run time). DNS changes are done by the person at their DNS host; no tool does that.\"}",
+    "title": "Set up accounts and connections"
+   }
+  },
+  {
+   "id": "answer-comments-and-messages",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Pull new Instagram messages, pick each person's reply from the person's own templates, check the replies against the person's rules, and hand them over to be sent.",
+    "produces": "Checked replies ready to send, with the messages no template covered listed for the person.",
+    "recipe": "workflow:answer-comments-and-messages",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Top of funnel. Live tools: pull-my-instagram-messages, expand-a-reply-template, check-copy. There is no live tool that sends a direct-message reply; a gap is written each run. OpenReply is not a tool in the live catalog or the Workshop source.\"}",
+    "title": "Answer comments and messages"
+   }
+  },
+  {
+   "id": "build-the-landing-page",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Write the page words as rows, check them against the person's rules, publish the page as a site, name it, attach the person's domain, and critique the live page.",
+    "produces": "A published page on the person's address, built from rows the person can edit.",
+    "recipe": "workflow:build-the-landing-page",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Middle of funnel. Live tools: check-copy, copy-a-site, publish_site, name_site, attach_domain, critique-a-public-page. DNS is set by the person at their DNS host.\"}",
+    "title": "Build the landing page"
+   }
+  },
+  {
+   "id": "legal-pages-and-support",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Write the terms, privacy and refunds pages from the person's facts, mark them as not reviewed by a lawyer, publish them on the site, and put the support address where buyers can find it, recording the missing support inbox as a gap.",
+    "produces": "Three legal pages published on the site, marked as not lawyer-reviewed, and a support address shown to buyers.",
+    "recipe": "workflow:legal-pages-and-support",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"After the sale. Live tools: write-legal-documents, publish_site. There is no live support-inbox tool. Legal text is not legal advice and is marked as not reviewed by a lawyer.\"}",
+    "title": "Legal pages and support"
+   }
+  },
+  {
+   "id": "make-short-videos-from-footage",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Pick a clip from the person's recordings, cut and caption it, make it vertical, render it, pick the cover, and check its words against the person's style rules.",
+    "produces": "A rendered vertical clip with a cover, checked against the person's rules, handed to the posting stage.",
+    "recipe": "workflow:make-short-videos-from-footage",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Top of funnel. Live tools: list-my-recordings-and-media, find-silence, suggest-media-cuts, cut-and-caption, reframe-video, render-an-edit, pick-cover-frame, check-against-a-persons-rules-and-verdicts. add-captions is live and can be used instead of the caption style in cut-and-caption. B-roll choices come from the person's list; the list is the person's own.\"}",
+    "title": "Make short videos from footage"
+   }
+  },
+  {
+   "id": "manage-member-billing",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "List subscriptions that ended, cancel at the end of a period when a member asks, tag the reason, count paid installments, show a member their offers, and record the billing-page gap.",
+    "produces": "Member cancellations that keep access to the period end, each tagged with a reason, and a gap for the billing page.",
+    "recipe": "workflow:manage-member-billing",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Bottom of funnel. Live tools: list-ended-stripe-subscriptions, cancel-a-stripe-subscription, tag-a-stripe-subscription, count-a-paid-installment-in-stripe, show-which-offers-a-buyer-may-see, see-who-holds-paid-access. No live tool shows a billing page for one purchase.\"}",
+    "title": "Manage member billing"
+   }
+  },
+  {
+   "id": "measure-the-funnel-and-set-a-baseline",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Draft the funnel stages, count visits and sales at each, break them down by source, and write a dated baseline row for later comparison.",
+    "produces": "A funnel with counted stages, a source breakdown, and a dated baseline row.",
+    "recipe": "workflow:measure-the-funnel-and-set-a-baseline",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Middle of funnel, with the analytics baseline added by this meta-workflow (not in the original list). Live tools: draft-a-funnel, measure-funnel-stages, break-down-visits-and-sales. Tracked links are made with make-tracked-link (live).\"}",
+    "title": "Measure the funnel and set a baseline"
+   }
+  },
+  {
+   "id": "onboard-new-buyers-in-five-days",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Sign each new buyer up for the five-day course with their consent, send the lessons on their days, add them as customers, record their steps, see where each one is, and record the follow-up gap.",
+    "produces": "Each new buyer on the five-day course with a customer record and a day-by-day journey.",
+    "recipe": "workflow:onboard-new-buyers-in-five-days",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"After the sale. Live tools: sign-someone-up-for-an-email-course-with-resend, send-due-email-lessons-with-resend, add-a-customer, record-a-customer-step, see-where-each-customer-is, send-an-email-with-resend. send-follow-up-emails-after-sign-up is not a live tool.\"}",
+    "title": "Onboard new buyers in five days"
+   }
+  },
+  {
+   "id": "post-on-social-channels-on-a-schedule",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Write a week of posts for each channel the business uses, have the person approve them, set each to go at its time, and read the results after a week.",
+    "produces": "A seven-day batch of posts for each channel, approved, set to go, and read back.",
+    "recipe": "workflow:post-on-social-channels-on-a-schedule",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, see-how-each-post-did, check-against-a-persons-rules-and-verdicts, check-copy. send-each-post-at-its-time is wake-driven; the wake step reads whether it is on. The per-channel send tools (send-a-post-to-instagram, -youtube, -facebook, -tiktok, -threads, -x, -linkedin) are live and the scheduled path uses them.\"}",
+    "title": "Post on social channels on a schedule"
+   }
+  },
+  {
+   "id": "prove-the-launch-on-the-real-url",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Read the live page at its real address, check it for search and answer engines, check it at phone, tablet and desktop widths, and count the stage checklist so the launch is judged on what buyers see.",
+    "produces": "A live address read, a search readiness check, widths checked, and a checklist count.",
+    "recipe": "workflow:prove-the-launch-on-the-real-url",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"After the sale. Added by this meta-workflow (not in the original list): launch checklist proof on the real URL. Live tools: read-public-web-page, check-a-page-for-search-and-answer-engines, check-given-pages-at-every-width, measure-a-checklist.\"}",
+    "title": "Prove the launch on the real address"
+   }
+  },
+  {
+   "id": "publish-articles-and-newsletter-on-a-cadence",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Write dated articles for the next seven days at the cadence the person chooses (1 to 5 a day), check them against the person's rules, get approval, set them to go, and read the numbers after a week.",
+    "produces": "A week of dated articles, approved and set to go on the newsletter platform, with their numbers read back.",
+    "recipe": "workflow:publish-articles-and-newsletter-on-a-cadence",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Top of funnel. Live tools: draft-a-post, approve-a-post, set-a-post-to-go-at-its-time, send-a-post-to-substack, send-a-post-to-beehiiv, send-a-post-to-ghost, check-copy, see-how-each-post-did. Cadence is set by facts.posts_per_day.\"}",
+    "title": "Publish articles and a newsletter on a cadence"
+   }
+  },
+  {
+   "id": "recover-failed-payments-and-win-back",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "List failed payments from the last 7 days, email each buyer once in the person's words, record that the retry schedule is set in Stripe, and send one win-back email to each buyer who ended 14 or more days ago.",
+    "produces": "One payment-failed email per failed invoice, one win-back per churned subscription, and the retry owner named.",
+    "recipe": "workflow:recover-failed-payments-and-win-back",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"After the sale. Added by this meta-workflow (not in the original list): payment-failure dunning and churn win-back. Live tools: stripe-events-read_money_since, list-ended-stripe-subscriptions, send-an-email-with-resend. The retry schedule lives in the Stripe account; no live Trillion tool sets it.\"}",
+    "title": "Recover failed payments and win back churned buyers"
+   }
+  },
+  {
+   "id": "retention-and-referral",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Find buyers who went quiet, follow them up with the existing follow-up workflow, make and count referral codes, apply the person's reward rule, withdraw abused codes, and ask consenting buyers for a testimonial.",
+    "produces": "Quiet buyers followed up, referral codes counted, rewards recorded in the person's words, and testimonial asks sent only with consent.",
+    "recipe": "workflow:retention-and-referral",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"After the sale. Newly built stage (not in the original list; brief said it is clearly missing). Live tools: see-where-each-customer-is, make-a-referral-code, work-out-referral-codes, withdraw-a-referral-code, send-an-email-with-resend, start-a-recipe-run. referral-codes-and-rewards and testimonials are not live tools; reward and testimonial stores are named as gaps.\"}",
+    "title": "Retention and referral"
+   }
+  },
+  {
+   "id": "run-a-community",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Check a community exists, advance its matchmaker, answer members in the person's words, and record what no live tool gives (creating a community and removing a member).",
+    "produces": "A community checked for existence, a matchmaker advance, answered members, and a gap list for what the tools do not do.",
+    "recipe": "workflow:run-a-community",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Bottom of funnel. Live tools: read-my-community-matches, advance-a-community-matchmaker, answer-in-a-community. run-a-community is not a live tool (its folder has port records only), so the stage records gaps for creating a community.\"}",
+    "title": "Run a community"
+   }
+  },
+  {
+   "id": "run-a-course-from-list-rows",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Write five lessons as rows, check them, test one sign-up with the owner's own consent, send lessons on their days, read where a learner stands, and stop a learner who asks.",
+    "produces": "A five-day course held in rows, tested with one real sign-up, sent on its days, and stoppable per learner.",
+    "recipe": "workflow:run-a-course-from-list-rows",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Bottom of funnel. Live tools: sign-someone-up-for-an-email-course-with-resend, send-due-email-lessons-with-resend, work-out-where-a-learner-stands, stop-an-email-course, check-copy. The course is a list of lesson rows; no separate course tool is named.\"}",
+    "title": "Run a course from list rows"
+   }
+  },
+  {
+   "id": "set-up-a-business-on-trillion",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "input_schema": "{\"type\": \"object\", \"required\": [\"business_name\", \"owner_name\", \"owner_email\", \"first_offer_name\", \"first_offer_price_text\", \"channels\", \"posts_per_day\", \"currency\"], \"properties\": {\"business_name\": {\"type\": \"string\", \"minLength\": 1, \"description\": \"The business's public name, in the person's words\"}, \"owner_name\": {\"type\": \"string\", \"minLength\": 1, \"description\": \"The person who owns the business and approves its posts\"}, \"owner_email\": {\"type\": \"string\", \"minLength\": 3, \"description\": \"The owner's own email address, used for tests\"}, \"first_offer_name\": {\"type\": \"string\", \"minLength\": 1, \"description\": \"The first thing the business sells\"}, \"first_offer_price_text\": {\"type\": \"string\", \"minLength\": 1, \"description\": \"The first offer's price in the person's words, for example '$49 once'\"}, \"channels\": {\"type\": \"array\", \"minItems\": 1, \"items\": {\"type\": \"string\", \"enum\": [\"instagram\", \"facebook\", \"youtube\", \"tiktok\", \"threads\", \"x\", \"linkedin\"]}, \"description\": \"The social channels the business posts to\"}, \"posts_per_day\": {\"type\": \"integer\", \"minimum\": 1, \"maximum\": 5, \"description\": \"How many posts a day, from 1 to 5\"}, \"currency\": {\"type\": \"string\", \"minLength\": 3, \"maxLength\": 3, \"description\": \"Three-letter currency code, for example USD\"}, \"domain\": {\"type\": \"string\", \"description\": \"The domain the person owns, optional until bought\"}, \"country_code\": {\"type\": \"string\", \"description\": \"Two-letter country code for the Stripe seller account\"}, \"seller_return_url\": {\"type\": \"string\", \"description\": \"The address Stripe returns the seller to, one of the person's own pages\"}, \"seller_refresh_url\": {\"type\": \"string\", \"description\": \"The address Stripe sends the seller to when onboarding must restart\"}, \"email_sending_domain\": {\"type\": \"string\", \"description\": \"The domain the business sends email from\"}, \"support_email\": {\"type\": \"string\", \"description\": \"The address buyers write to for support\"}, \"newsletter_platform\": {\"type\": \"string\", \"enum\": [\"substack\", \"beehiiv\", \"ghost\", \"none\"]}, \"community_id\": {\"type\": \"string\", \"description\": \"The community id, when the business has a community\"}, \"trillion_account_id\": {\"type\": \"string\", \"description\": \"The 64 hex Trillion account id from the person's connections list\"}, \"referral_reward\": {\"type\": \"string\", \"description\": \"The reward for a referral, in the person's words\"}, \"payee_account_ref\": {\"type\": \"string\", \"description\": \"Set only when an offer pays another seller\"}}}",
+    "job": "Set up a business to run entirely on Trillion, top, middle and bottom of the funnel and after the sale, from one facts row and one checklist, with each stage's own recipe, and close the gaps each run finds.",
+    "produces": "A business with its accounts checked, its funnel stages built or run, a checklist that says what is done and not done, and a gap list the next run closes.",
+    "recipe": "workflow:set-up-a-business-on-trillion",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Synthetic example data only. Stage recipes: recipes/business-on-trillion-*.json. Reused live workflows: workflow:get-found-in-search-and-answer-engines, workflow:test-prices-and-change-a-page-for-each-visitor, workflow:give-paid-buyers-access, make-a-brand-book-and-decks, follow-up-with-people-who-engaged. Tools named in the stages that the live catalog lacks: resolve-a-brand (source-only); no live tool for: YouTube connection check, DM reply sending, support inbox, community creation, referral reward store, testimonials, send-follow-up-emails-after-sign-up, billing page for one purchase, dunning retry schedule (set in Stripe). The first instance is the person's own list, not this repository.\"}",
+    "title": "Set up a business to run entirely on Trillion"
+   }
+  },
+  {
+   "id": "set-up-brand-and-branded-emails",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Run the brand book job, resolve the brand (source-only tool, gap if absent), send one test email to the owner from the verified domain, and have the owner confirm it reached the inbox.",
+    "produces": "A brand book job, a test email the owner confirmed in an inbox, and a gap for each source-only dependency.",
+    "recipe": "workflow:set-up-brand-and-branded-emails",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Middle of funnel. Live tools: send-an-email-with-resend, start-a-recipe-run. resolve-a-brand is source-only (not in the live catalog). make-a-brand-book-and-decks is an existing live workflow, run by reference.\"}",
+    "title": "Set up brand and branded emails"
+   }
+  },
+  {
+   "id": "take-payments-with-stripe",
+   "values": {
+    "flags": [
+     "public"
+    ],
+    "job": "Create the payment links from the person's offers, prove one purchase in Stripe test mode, find the completed checkout, reconcile the money, and handle an offer that pays another seller.",
+    "produces": "Payment links for each price option, one proven test purchase, and a money reconciliation.",
+    "recipe": "workflow:take-payments-with-stripe",
+    "source": "{\"from\": \"business-on-trillion meta-workflow, generic and public\", \"note\": \"Bottom of funnel. Live tools: set-up-stripe-payment-links, find-a-completed-stripe-checkout, stripe-events-read_money_since, start-a-stripe-checkout-that-pays-someone-else. Live route for a buyer is the payment link; start-a-stripe-checkout is live for in-app checkout. take-payments is not a live tool and is not named.\"}",
+    "title": "Take payments with Stripe"
    }
   }
  ]
