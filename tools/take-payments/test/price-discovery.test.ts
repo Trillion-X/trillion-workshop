@@ -91,3 +91,79 @@ describe('price discovery', () => {
     } as never)).toThrow(/derives min_cents/);
   });
 });
+
+const listedOffer = (policy: Record<string, unknown>) => ({
+  records: [{
+    id: 'offer:membership', kind: 'commercial-offer', label: 'Membership',
+    price_options: [{
+      id: 'price:membership:monthly', label: 'Monthly', amount_cents: 5000, currency: 'usd',
+      interval: 'month', payment_timing: 'recurring', voluntary_amount_policy: policy,
+    }],
+  }],
+});
+const multiplesList = 'list:membership-multiples';
+const multiplesRows = { list: multiplesList, value_field: 'multiple', shown_field: 'shown' };
+const listsWith = (rows: unknown[]) => new Map([[multiplesList, rows]]);
+const discovery = { start_cents: 5000, sales_to_double: 1, target_win_rate: 0.05, sales: 0, reached_price: 0 };
+
+describe('price discovery ceiling and fixed price', () => {
+  it('caps the discovered price at ceiling_cents, and the option follows the cap', () => {
+    const option = policyOf({ ...base, ceiling_cents: 15000, sales: 3, reached_price: 3 });
+    expect(option.voluntary_amount_policy?.min_cents).toBe(15000);
+    expect(option.amount_cents).toBe(15000);
+  });
+
+  it('a floor equal to the ceiling is a fixed price, whatever sales or refusals happen', () => {
+    for (const [sales, reached] of [[0, 0], [1, 1], [5, 5], [0, 300]]) {
+      const option = policyOf({ ...base, floor_cents: 9900, ceiling_cents: 9900, sales, reached_price: reached });
+      expect(option.voluntary_amount_policy?.min_cents).toBe(9900);
+      expect(option.amount_cents).toBe(9900);
+    }
+  });
+
+  it.each([
+    [{ ...base, floor_cents: 6000, ceiling_cents: 5000 }, /ceiling_cents must be at least floor_cents/],
+    [{ ...base, ceiling_cents: -1 }, /ceiling_cents must be a non-negative safe integer/],
+    [{ ...base, ceiling_cents: '5000' }, /ceiling_cents must be a non-negative safe integer/],
+    [{ ...base, ceiling_cents: 1.5 }, /ceiling_cents must be a non-negative safe integer/],
+  ])('refuses an invalid ceiling: %j', (rule, message) => {
+    expect(() => policyOf({ ...rule, sales: 0, reached_price: 0 })).toThrow(message as RegExp);
+  });
+});
+
+describe('suggested amounts named by a list of rows', () => {
+  it('a row with shown false keeps its multiple out of the suggestions, and the rest are offered in order', () => {
+    const [offer] = readCheckoutOffers(listedOffer({
+      allow_custom: true, currency: 'usd', price_discovery: discovery, suggestion_rows: multiplesRows,
+    }) as never, { suggestionLists: listsWith([
+      { multiple: 4, shown: true }, { multiple: 2, shown: false }, { multiple: 1, shown: true },
+    ]) });
+    expect(offer.price_options[0].voluntary_amount_policy?.suggested_cents).toEqual([5000, 20000]);
+  });
+
+  it('with every suggestion off, the buyer still sees the custom amount when allow_custom is on', () => {
+    const [offer] = readCheckoutOffers(listedOffer({
+      allow_custom: true, currency: 'usd', price_discovery: discovery, suggestion_rows: multiplesRows,
+    }) as never, { suggestionLists: listsWith([{ multiple: 1, shown: false }]) });
+    expect(offer.price_options[0].voluntary_amount_policy?.suggested_cents).toEqual([]);
+    expect(offer.price_options[0].voluntary_amount_policy?.allow_custom).toBe(true);
+  });
+
+  it('refuses a policy with every suggestion off and no custom amount', () => {
+    expect(() => readCheckoutOffers(listedOffer({
+      allow_custom: false, currency: 'usd', price_discovery: discovery, suggestion_rows: multiplesRows,
+    }) as never, { suggestionLists: listsWith([{ multiple: 1, shown: false }]) })).toThrow(/selectable amount/);
+  });
+
+  it('refuses a list the reader was not given, a row without a shown switch, and inline suggestions beside a list', () => {
+    expect(() => readCheckoutOffers(listedOffer({
+      allow_custom: true, currency: 'usd', price_discovery: discovery, suggestion_rows: multiplesRows,
+    }) as never)).toThrow(/were not read/);
+    expect(() => readCheckoutOffers(listedOffer({
+      allow_custom: true, currency: 'usd', price_discovery: discovery, suggestion_rows: multiplesRows,
+    }) as never, { suggestionLists: listsWith([{ multiple: 1 }]) })).toThrow(/shown/);
+    expect(() => readCheckoutOffers(listedOffer({
+      allow_custom: true, currency: 'usd', price_discovery: { ...discovery, suggested_multiples: [1] }, suggestion_rows: multiplesRows,
+    }) as never, { suggestionLists: listsWith([{ multiple: 1, shown: true }]) })).toThrow(/state one/);
+  });
+});

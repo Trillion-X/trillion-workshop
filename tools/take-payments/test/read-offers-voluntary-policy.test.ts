@@ -92,3 +92,28 @@ describe('readCheckoutOffers voluntary amount policy', () => {
       .toThrow(message as RegExp);
   });
 });
+
+describe('readCheckoutOffers fixed suggested amounts named by a list of rows', () => {
+  const amountRows = { list: 'list:tip-amounts', value_field: 'cents', shown_field: 'shown' };
+  const lists = (rows: unknown[]) => new Map([['list:tip-amounts', rows]]);
+  const policy = (extra: Record<string, unknown>) => ({ allow_custom: true, currency: 'usd', min_cents: 100, suggestion_rows: amountRows, ...extra });
+
+  it('offers the rows that are shown, and keeps a hidden amount out of suggested_cents', () => {
+    const [offer] = readCheckoutOffers(offerWithPolicy(policy({})) as never, { suggestionLists: lists([
+      { cents: 500, shown: true }, { cents: 1000, shown: false }, { cents: 2500, shown: true },
+    ]) });
+    expect(offer.price_options[0].voluntary_amount_policy).toEqual({
+      allow_custom: true, currency: 'usd', min_cents: 100, suggested_cents: [500, 2500],
+    });
+  });
+
+  it('refuses a hidden amount outside the policy range, a highlight on a hidden amount, and inline amounts beside a list', () => {
+    expect(() => readCheckoutOffers(offerWithPolicy(policy({})) as never, { suggestionLists: lists([{ cents: 50, shown: false }]) }))
+      .toThrow(/within the policy range/);
+    expect(() => readCheckoutOffers(offerWithPolicy(policy({ highlighted_cents: 1000, highlight_label: 'Most picked' })) as never, { suggestionLists: lists([
+      { cents: 500, shown: true }, { cents: 1000, shown: false },
+    ]) })).toThrow(/highlighted_cents must match/);
+    expect(() => readCheckoutOffers(offerWithPolicy(policy({ suggested_cents: [500] })) as never, { suggestionLists: lists([{ cents: 500, shown: true }]) }))
+      .toThrow(/state one/);
+  });
+});

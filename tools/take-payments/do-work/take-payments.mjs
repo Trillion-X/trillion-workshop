@@ -18,6 +18,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { readCheckoutOffers } from '../../funnels-and-offers/read-data/read-offers.ts';
+import { resolveOfferVariants } from '../../funnels-and-offers/read-data/offer-variants.mjs';
 import { readCheckoutCodeAdjustments } from '../read-data/read-code-adjustments.ts';
 import { buildCheckoutMaterialQuote, buildCheckoutQuote } from '../read-data/checkout-quote.ts';
 import { applyOfferEligibility } from '../read-data/offer-eligibility.ts';
@@ -65,10 +66,31 @@ async function recordsOf(door, type, kind = type) {
   return values;
 }
 
+/** The rows of each suggestion list an offer names (`voluntary_amount_policy.suggestion_rows.list`), read through the
+ *  person's records door. A list's definition gives its row type; its rows are the records of that type under the row
+ *  prefix. This is the one place a list is read: the offer reader takes these rows as given and reads no records. */
+export async function suggestionListsOf(rows, door) {
+  const lists = new Map();
+  for (const offer of resolveOfferVariants(rows)) {
+    for (const option of Array.isArray(offer?.price_options) ? offer.price_options : []) {
+      const address = option?.voluntary_amount_policy?.suggestion_rows?.list;
+      if (typeof address !== 'string' || lists.has(address)) continue;
+      if (!door) throw new Error(`${address} is named by an offer, and the offers' suggestions are read through the records door.`);
+      const definition = await door.read('list', address);
+      if (!object(definition) || typeof definition.row_type !== 'string') throw new Error(`${address} is not a list the person keeps.`);
+      const type = `record:${definition.row_type}`;
+      const values = [];
+      for await (const record of door.list({ type, prefix: `${type}:` })) values.push(record.value);
+      lists.set(address, values);
+    }
+  }
+  return lists;
+}
+
 /** The offers: the request's own `offers` rows when it carries them, else the rows of the person's offers list. */
 async function offersOf(input, context, options) {
   const rows = Array.isArray(input.offers) ? input.offers : await recordsOf(context.door, OFFER_ROWS.type, OFFER_ROWS.kind);
-  return readCheckoutOffers(rows, options);
+  return readCheckoutOffers(rows, { ...options, suggestionLists: await suggestionListsOf(rows, context.door) });
 }
 
 async function adjustmentsOf(input, context) {
