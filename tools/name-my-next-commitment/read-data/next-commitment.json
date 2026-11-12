@@ -1,0 +1,8 @@
+{
+  "_what": "The next commitment's countdown for the Mac menu bar item (src/workspace/next-commitment.ts): which Calendar items count, how far ahead, and the words. `look_ahead_minutes` is the most the Calendar is read ahead (the widest the person can choose); `default_within_hours` is how far ahead counts until the person chooses (the menu bar setting, macos/App/menu-bar-panel.json settings), 0 meaning the rest of today only. `{what}` is the item's title and `{when}` is the countdown.",
+  "look_ahead_minutes": 1440,
+  "default_within_hours": 12,
+  "refresh_seconds": 60,
+  "line": "{what} · {when}",
+  "when": { "now": "now", "minutes": "in {minutes} min", "hours": "in {hours} h", "hours_minutes": "in {hours} h {minutes} min" }
+}

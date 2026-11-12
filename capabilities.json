@@ -1091,6 +1091,24 @@
       "distinct_from": [{"job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "that folder keeps the device facts a checklist reads; this one plans the setup run and the installs"}]
     },
     {
+      "capability": "say the timed calendar item now or next as a countdown line for the Mac menu bar",
+      "owner": [
+        "tools/name-my-next-commitment/"
+      ],
+      "entry": "tools/name-my-next-commitment/tool-rows.json",
+      "evidence": "old trillion src/workspace/next-commitment.ts and src/workspace/next-commitment.json at commit cdb3894b25 (the menu bar countdown line), now the Workshop's read-data/ copy; trillion-apps web/src/workspace/keep-next-commitment.ts calls it",
+      "distinct_from": [
+        {
+          "job": "show everything dated that I can see between two times in one calendar: meetings of my spaces, my posts and events on my own connected calendar",
+          "why": "that lists every dated item between two times; this names the one timed item now or next, with a countdown, for the menu bar line"
+        },
+        {
+          "job": "read the Mac menu bar item settings: each setting with the value it shows, and whether a change asked for is one its setting allows",
+          "why": "that reads and validates the menu bar's settings rows; this names the one calendar item now or next with a countdown"
+        }
+      ]
+    },
+    {
       "capability": "read the Mac menu bar item settings: each setting with the value it shows, and whether a change asked for is one its setting allows",
       "owner": [
         "tools/read-the-menu-bar-settings/"

@@ -1,0 +1,181 @@
+{
+ "kind": "tool-rows",
+ "record_set": "name-my-next-commitment-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/name-my-next-commitment: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::name-my-next-commitment::tool::name-my-next-commitment",
+   "address": "package::name-my-next-commitment::tool::name-my-next-commitment",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:name-my-next-commitment",
+    "label": "Name my next commitment for the menu bar",
+    "status": "active",
+    "job": "Say what is happening now or next on my calendar, with a countdown, as the line the Mac menu bar shows",
+    "description": "Give the timed calendar items (each with its title, its start and end, whether it is all day, and the calendar it came from) the caller read from the person's own records, and optionally the time to count from, how many hours ahead counts (0 for the rest of today) and how each calendar counts (within, always or never). Returns the one line the menu bar shows (\"Design review · in 12 min\") for the commitment now or next inside the reach, or null when there is none, the reach's end, how far ahead the calendar is read (look_ahead_minutes) and how often the line refreshes. Only timed items count; an item with no title is skipped; nothing is read or written here.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "items"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "items": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "starts_at"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "source": {
+          "type": "string"
+         },
+         "starts_at": {
+          "type": "string",
+          "description": "ISO time"
+         },
+         "ends_at": {
+          "type": "string",
+          "description": "ISO time"
+         },
+         "all_day": {
+          "type": "boolean"
+         }
+        }
+       }
+      },
+      "now": {
+       "type": "string",
+       "description": "The time to count from (ISO); the clock when left out"
+      },
+      "within_hours": {
+       "type": "integer",
+       "minimum": 0,
+       "description": "How far ahead counts; 0 for the rest of today"
+      },
+      "counting": {
+       "type": "object",
+       "description": "Per calendar source: within, always or never",
+       "additionalProperties": {
+        "enum": [
+         "within",
+         "always",
+         "never"
+        ]
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "line",
+        "within_hours",
+        "reach_ends_at",
+        "refresh_seconds",
+        "look_ahead_minutes"
+       ],
+       "properties": {
+        "line": {
+         "type": [
+          "string",
+          "null"
+         ]
+        },
+        "within_hours": {
+         "type": "integer"
+        },
+        "reach_ends_at": {
+         "type": "string"
+        },
+        "refresh_seconds": {
+         "type": "integer"
+        },
+        "look_ahead_minutes": {
+         "type": "integer"
+        }
+       }
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "name-my-next-commitment",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/name-my-next-commitment"
+       }
+      ]
+     },
+     "workdir": "/opt/name-my-next-commitment",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/name-my-next-commitment/do-work/name-my-next-commitment.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 2,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:name-my-next-commitment",
+    "provenance": {
+     "source": "trillion src/workspace/next-commitment.ts and src/workspace/next-commitment.json at commit cdb3894b25 (the menu bar item's countdown line); moved as bytes, read-data/next-commitment.ts and read-data/next-commitment.json"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "now": "2026-01-01T10:00:00.000Z",
+       "within_hours": 2,
+       "items": [
+        {
+         "title": "Design review",
+         "source": "work",
+         "starts_at": "2026-01-01T10:12:00.000Z",
+         "ends_at": "2026-01-01T10:50:00.000Z"
+        }
+       ]
+      },
+      "output_selector": "$.result.line",
+      "contains": "Design review"
+     }
+    ]
+   }
+  }
+ ]
+}
