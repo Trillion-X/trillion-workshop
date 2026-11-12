@@ -39,3 +39,7 @@ Each tool script reads the run's input as JSON on standard input and prints its 
 **Depends on:** nothing (Node 24 in the tool container runs the scripts).
 
 **Depended on by:** `tool-rows.json` (the tool rows), `test/lessons-and-learning-paths.test.mjs`.
+
+## The learning page
+
+`do-work/show-the-courses-a-learner-is-on.mjs` is `tool:show-the-courses-a-learner-is-on`, the learning page's own read: each course as its lessons in order, with how many are done, the lesson the learner is on now (active), the rest (locked) and each lesson's words. Ported from old trillion `src/community-activity.mjs` `coursesFor` (the path statuses from `src/community-logic/project-progress-to-path.ts`). A lesson's interactive module is marked `interactive` but not carried, since the old module was shared only inside one relay. Tested in `test/show-the-courses-a-learner-is-on.test.mjs`.

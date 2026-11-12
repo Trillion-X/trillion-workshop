@@ -924,6 +924,208 @@
      }
     ]
    }
+  },
+  {
+   "id": "package::lessons-and-learning-paths::tool::show-the-courses-a-learner-is-on",
+   "address": "package::lessons-and-learning-paths::tool::show-the-courses-a-learner-is-on",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:show-the-courses-a-learner-is-on",
+    "label": "Show the courses a learner is on, lesson by lesson",
+    "status": "active",
+    "job": "Show the learning page for one learner: each course as its lessons in order, how many are done, the lesson they are on now, and each lesson's words",
+    "description": "Give the courses (each with its id, title, about and lessons with id, title and body) and the lessons this learner has finished as { course_id, lesson_id }. Returns each course with how many lessons are done, and each lesson with its status: complete when done, active for the first lesson not done, locked for the rest, plus its words. A lesson with an interactive module is marked interactive. Nothing is read or written here.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "courses"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "courses": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "id",
+         "title",
+         "lessons"
+        ],
+        "properties": {
+         "id": {
+          "type": "string"
+         },
+         "title": {
+          "type": "string"
+         },
+         "about": {
+          "type": "string"
+         },
+         "lessons": {
+          "type": "array",
+          "items": {
+           "type": "object",
+           "required": [
+            "id",
+            "title"
+           ],
+           "properties": {
+            "id": {
+             "type": "string"
+            },
+            "title": {
+             "type": "string"
+            },
+            "body": {
+             "type": "string"
+            },
+            "module": {
+             "type": "object"
+            }
+           }
+          }
+         }
+        }
+       }
+      },
+      "done": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "course_id",
+         "lesson_id"
+        ],
+        "properties": {
+         "course_id": {
+          "type": "string"
+         },
+         "lesson_id": {
+          "type": "string"
+         }
+        }
+       }
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "courses"
+       ]
+      }
+     }
+    },
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": {
+       "package": "lessons-and-learning-paths",
+       "paths": [
+        "do-work"
+       ],
+       "at": "/opt/lessons-and-learning-paths",
+       "exclude": [
+        "__tests__"
+       ]
+      }
+     },
+     "workdir": "/opt/lessons-and-learning-paths",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/lessons-and-learning-paths/do-work/show-the-courses-a-learner-is-on.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "needs": {
+     "expected_seconds": 20,
+     "network_egress": false,
+     "memory_mb": 256
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:lessons-and-learning-paths",
+    "provenance": {
+     "source": "bitfield-packages packages/learning-progress and packages/learning-path"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "courses": [
+        {
+         "id": "course:bread",
+         "title": "Baking bread",
+         "lessons": [
+          {
+           "id": "knead",
+           "title": "Knead",
+           "body": "Work the dough."
+          },
+          {
+           "id": "proof",
+           "title": "Proof"
+          }
+         ]
+        }
+       ],
+       "done": [
+        {
+         "course_id": "course:bread",
+         "lesson_id": "knead"
+        }
+       ]
+      },
+      "output_selector": "$.result.courses",
+      "contains": "Baking bread"
+     }
+    ],
+    "record_model": {
+     "_what": "Moved here from tools/keep-a-record-library-valid, where they were held unchanged after the engine's one record model left it (old trillion src/record-model.json and src/record-indexes.json): the kinds this tool's job keeps, each as old trillion declared it.",
+     "kinds": [
+      {
+       "type": "record:program-application",
+       "guard_properties": {
+        "accepted_at": "text",
+        "answers": "object",
+        "applicant_ref": "text",
+        "applied_at": "text",
+        "program_id": "text",
+        "state": "text"
+       }
+      },
+      {
+       "type": "record:program-client",
+       "guard_properties": {
+        "client_ref": "text",
+        "name": "text",
+        "program_id": "text",
+        "since": "text",
+        "space_id": "text"
+       }
+      }
+     ]
+    }
+   }
   }
  ]
 }
