@@ -607,6 +607,18 @@ test('a verdict confirmation on a step flagged to be asked again takes its verdi
   assert.equal(root.answered_steps[2].needs_recheck, true, 'the step after it is still to be asked again');
 });
 
+test('two evidence adds to one case at the same time both land: the case changed under the first is read again and written under a fresh key', async () => {
+  const door = account();
+  const { case_id: id } = await startADecision(opened, { door });
+  const [first, second] = await Promise.all([
+    addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e3', claim: 'Two families asked for a lower price' }] }, { door }),
+    addDecisionEvidence({ decision_id: id, evidence: [{ ref: 'e4', claim: 'The seller agreed to a trial week' }] }, { door }),
+  ]);
+  assert.equal(first.added.length + second.added.length, 2);
+  const refs = caseView(door, id).input.evidence.map(row => row.ref);
+  assert.ok(refs.includes('e3') && refs.includes('e4'), `both rows are kept: ${refs}`);
+});
+
 test('evidence added at any time is kept with when it came in, the same start still opens that decision, and an answer may cite the new evidence', async () => {
   const door = account();
   const { case_id: id } = await startADecision(opened, { door });
@@ -1256,12 +1268,12 @@ test('a write made from an older read of the case is refused as changed, and not
   const door = account();
   const id = await answered(door);
   const read = door.read.bind(door);
-  let bumped = false;
+  let bumps = 0;
   door.read = async (type, key) => {
     const value = await read(type, key);
-    if (!bumped && type === 'decision-revision') {
-      bumped = true;
-      door.put(`decision-revision:${id}`, 'decision-revision', { revision: 99 });
+    if (type === 'decision-revision') {
+      bumps += 1;
+      door.put(`decision-revision:${id}`, 'decision-revision', { revision: 99 + bumps });
     }
     return value;
   };
@@ -1291,12 +1303,12 @@ test('a write too large for one message, made from an older read of the case, la
   const door = account();
   const id = await answered(door);
   const read = door.read.bind(door);
-  let bumped = false;
+  let bumps = 0;
   door.read = async (type, key) => {
     const value = await read(type, key);
-    if (!bumped && type === 'decision-revision') {
-      bumped = true;
-      door.put(`decision-revision:${id}`, 'decision-revision', { revision: 99 });
+    if (type === 'decision-revision') {
+      bumps += 1;
+      door.put(`decision-revision:${id}`, 'decision-revision', { revision: 99 + bumps });
     }
     return value;
   };

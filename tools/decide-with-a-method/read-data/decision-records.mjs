@@ -315,6 +315,25 @@ export async function readDecision(door, id, steps = []) {
 /** The revision record of a decision as the door holds it now (null when none): read with the root, expected by its write. */
 export const readRevision = (door, id) => door.read(REVISION, revisionKey(id));
 
+/** The case changed under a write that expected it unchanged (the door's original_command_conflict). */
+export const CASE_CHANGED = 'original_command_conflict';
+
+/**
+ * Runs `attempt(n)` (n counts from 1) again when the case changed under it: each attempt reads the case afresh and writes
+ * under its own key, so the same request is never replayed with the stale expectation the door already answered. Up to
+ * `settings.conflict.reads` attempts in all; then the answer says the case was re-read and retried.
+ */
+export async function retriedOnConflict(attempt) {
+  for (let n = 1; ; n += 1) {
+    try {
+      return await attempt(n);
+    } catch (error) {
+      if (error?.code !== CASE_CHANGED) throw error;
+      if (n >= settings.conflict.reads) throw Object.assign(new Error('The case changed while this answer was being kept. It was re-read and retried, and it changed again. Read it again and answer again.'), { code: CASE_CHANGED });
+    }
+  }
+}
+
 /** Records that `record` was read with this revision, so the write made from it expects that revision to still hold. */
 export function markRead(record, revision) {
   ROOT_READ.set(record, { revision: structuredClone(revision ?? null) });
@@ -394,7 +413,7 @@ export async function writeDecision(door, list, key) {
     const moved = { id: revision.id, type: revision.type, value: { revision: revision.value.revision + 1 }, ...(CHECK_REVISION ? { expected: { type: revision.type, value: revision.value } } : {}) };
     return await door.write([root, moved], { key: named });
   } catch (error) {
-    if (error?.code === 'original_command_conflict') throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: 'original_command_conflict' });
+    if (error?.code === CASE_CHANGED) throw Object.assign(new Error('The case changed while this answer was being kept. Read it again and answer again.'), { code: CASE_CHANGED });
     throw error;
   }
 }

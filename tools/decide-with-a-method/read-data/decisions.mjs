@@ -37,7 +37,7 @@ import { takeCallerVerdicts } from './verdicts.mjs';
 import { currentDecisionOutcome, decisionGeneration, decisionStatus, outcomeIsCurrent } from './decision-outcome.mjs';
 import { similarDecisions } from './similar-decisions.mjs';
 import { makeHashCodeHexFromBytes } from '../../content-identity/read-data/identity.mjs';
-import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, versionKey, writeDecision } from './decision-records.mjs';
+import { canonical, inputIdentity, laidTogether, markRead, readDecision, readRevision, readStep, recordsOf, retriedOnConflict, versionKey, writeDecision } from './decision-records.mjs';
 import { writeBatches } from '../../records-door/read-data/write-batches.mjs';
 import { linksOf } from '../../check-against-a-persons-rules-and-verdicts/do-work/branch.mjs';
 
@@ -449,14 +449,17 @@ export async function addDecisionEvidence(input, { door }) {
   const id = decisionId(input);
   const items = input.evidence;
   if (!Array.isArray(items) || items.length < 1 || items.length > EVIDENCE.most_per_call) refuse('evidence_count', { count: EVIDENCE.most_per_call });
-  const record = await decisionOrRefuse(door, id);
-  const rows = await evidenceRows(door, record, items, new Date().toISOString());
-  const before = record.input.evidence.length;
-  takeEvidence(record, rows);
-  const added = record.input.evidence.slice(before);
-  if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length };
-  await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${added.map(row => row.ref).join(',')}`);
-  return { case_id: id, added, evidence: record.input.evidence.length };
+  // A changed case is read again and the rows are taken again on the new read; the row that lands keeps the time of that attempt.
+  return retriedOnConflict(async attempt => {
+    const record = await decisionOrRefuse(door, id);
+    const rows = await evidenceRows(door, record, items, new Date().toISOString());
+    const before = record.input.evidence.length;
+    takeEvidence(record, rows);
+    const added = record.input.evidence.slice(before);
+    if (!added.length) return { case_id: id, added: [], replayed: true, evidence: record.input.evidence.length };
+    await writeDecision(door, recordsOf(record), `add-decision-evidence:${id}:${added.map(row => row.ref).join(',')}:${attempt}`);
+    return { case_id: id, added, evidence: record.input.evidence.length };
+  });
 }
 
 // A confirmation: the answer a re-asked step already has stands unchanged. Nothing is answered again and no version is made.

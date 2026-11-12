@@ -235,6 +235,10 @@
   },
   "writes": 256,
   "write_bytes": 48000,
+  "conflict": {
+    "reads": 4,
+    "_why": "A case write refused as changed (original_command_conflict) is read again and written again under a fresh key, up to this many reads in all. The tool process is not given the run deadline, so this is not derived from it: it is four attempts, each one read and one write, where a write answers within the door's write bound (5 s, the bound writes are measured under in the decision-case notes)."
+  },
   "record_bytes": 32000,
   "candidates": {
     "about": "A decision may open from its goal and evidence (its facts and every non-negotiable constraint) with no options, so no option list written in advance biases it. Then the answer list `field` of whichever method step asks it (the universal method's rule_out) is what still stands; each item becomes an option `id_prefix` + its position (or keeps its own { id, label }), and the decision chooses among those.",
