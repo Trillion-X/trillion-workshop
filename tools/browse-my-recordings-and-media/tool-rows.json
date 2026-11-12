@@ -259,14 +259,14 @@
                   "namespace-name-counts.mjs",
                   "workspace"
                 ],
-                "at": "/opt/src"
+                "at": "/opt/recently-deleted-and-storage"
               },
               {
                 "package": "keep-and-wake-ai-sessions-on-this-computer",
                 "paths": [
                   "src/table-generation.mjs"
                 ],
-                "at": "/opt"
+                "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
               },
               {
                 "package": "decide-with-a-method",
