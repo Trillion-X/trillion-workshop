@@ -1,0 +1,291 @@
+{
+ "kind": "tool-rows",
+ "record_set": "walk-a-new-person-through-first-setup-tool-rows",
+ "what_this_is": "The Workshop rows for the tools in tools/walk-a-new-person-through-first-setup: what each tool does, what it takes and gives back, and how it runs.",
+ "records": [
+  {
+   "id": "package::walk-a-new-person-through-first-setup::tool::walk-a-new-person-through-first-setup",
+   "address": "package::walk-a-new-person-through-first-setup::tool::walk-a-new-person-through-first-setup",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:walk-a-new-person-through-first-setup",
+    "label": "Walk a new person through first setup",
+    "status": "active",
+    "job": "Walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
+    "description": "Give the setup plan for one person's account from what the caller reads and hands over: the saved setup run and what it does next (its next calls, the workflow's steps), the access prerequisites still open, what the account already has (pursuits, connections, profile, devices), the computers it can reach and their tool cards, the person's pursuit lens and the entry point they came from. Returns the plan: the apps to install on their devices (with the public links or the honest not-yet words), the local harness installer's download, inspect, apply and remove commands per supported AI host, the MCP registration preview commands, the instructions the AI follows, and the setup policy. view 'state' returns the run and its next calls only; view 'full' adds the installs, the policy and the lens. Nothing is read from storage and nothing is written: starting or resuming the saved run is not yet ported, so next calls that name start_setup are not run by this tool.",
+    "input_schema": {
+     "type": "object",
+     "required": [
+      "origin"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "view": {
+       "type": "string",
+       "enum": [
+        "state",
+        "full"
+       ],
+       "description": "state: the run and its next calls; full (default): also the installs, the policy and the pursuit lens"
+      },
+      "origin": {
+       "type": "string",
+       "description": "The service address the setup files are served from (an https address serves the harness files)"
+      },
+      "runtime": {
+       "type": "object",
+       "description": "The saved setup run: { workflow: { exists, state, run_id?, withdrawn?, failed?, stuck? }, next_calls? }"
+      },
+      "prerequisites": {
+       "type": "object",
+       "description": "The account's current access prerequisites: { requirements, setup_access, next_calls, setup_complete, workspace_ready, setup_paused }"
+      },
+      "known": {
+       "type": "object",
+       "description": "What the account already has: { pursuits, connections, profile, devices }"
+      },
+      "native": {
+       "type": "object",
+       "description": "The account's computers: { computers: [{computer_id, reported_at}], cards: {agent_id: card}, truncated? }"
+      },
+      "lens": {
+       "type": "object",
+       "description": "The person's pursuit lens: { opening, parts, closing, rows }"
+      },
+      "entry": {
+       "type": "string",
+       "description": "The entry point id the person started from"
+      },
+      "came_from": {
+       "type": "object",
+       "description": "The page recorded when the account was made: { from }"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object",
+     "required": [
+      "result"
+     ],
+     "properties": {
+      "result": {
+       "type": "object",
+       "required": [
+        "schema",
+        "workflow",
+        "read_call"
+       ],
+       "properties": {
+        "schema": {
+         "const": "trillion.setup-plan/v1"
+        },
+        "workflow": {
+         "type": "object"
+        },
+        "read_call": {
+         "type": "object"
+        },
+        "next_calls": {
+         "type": "array"
+        },
+        "install": {
+         "type": "object"
+        },
+        "entry_point": {
+         "type": "object"
+        }
+       }
+      }
+     }
+    },
+    "result_selector": "$.result",
+    "invoke": {
+     "kind": "container",
+     "files": {
+      "package_files": [
+       {
+        "package": "walk-a-new-person-through-first-setup",
+        "paths": [
+         "do-work",
+         "read-data"
+        ],
+        "at": "/opt/walk-a-new-person-through-first-setup"
+       },
+       {
+        "package": "shared-code",
+        "paths": [
+         "src/server-instruction-paragraphs.mjs",
+         "src/renamed-tools.mjs",
+         "src/agent-delivery.mjs"
+        ],
+        "at": "/opt/shared-code"
+       },
+       {
+        "package": "keep-and-wake-ai-sessions-on-this-computer",
+        "paths": [
+         "harness/setup.json",
+         "src/renamed-tools.json",
+         "src/server-instructions.json"
+        ],
+        "at": "/opt/keep-and-wake-ai-sessions-on-this-computer"
+       },
+       {
+        "package": "see-a-pursuit-through-the-lens",
+        "paths": [
+         "src/pursuit-lens.mjs"
+        ],
+        "at": "/opt/see-a-pursuit-through-the-lens"
+       },
+       {
+        "package": "start-from-any-landing-page",
+        "paths": [
+         "src/entry-points.json",
+         "src/entry-points.mjs",
+         "src/sign-in-email.json",
+         "src/sign-in-email.mjs",
+         "src/sign-in-phone.mjs",
+         "src/worker-secrets.json",
+         "src/worker-secrets.mjs"
+        ],
+        "at": "/opt/start-from-any-landing-page"
+       },
+       {
+        "package": "set-up-my-devices-and-cameras",
+        "paths": [
+         "src/devices.json",
+         "src/devices.mjs",
+         "src/device-distribution.mjs"
+        ],
+        "at": "/opt/set-up-my-devices-and-cameras"
+       },
+       {
+        "package": "set-up-my-account",
+        "paths": [
+         "read-data/site-icon-url.mjs",
+         "read-data/conflicts.mjs"
+        ],
+        "at": "/opt/set-up-my-account"
+       },
+       {
+        "package": "pick-where-one-piece-of-work-runs-the-device",
+        "paths": [
+         "records/workshop-placement-records.json"
+        ],
+        "at": "/opt/pick-where-one-piece-of-work-runs-the-device"
+       },
+       {
+        "package": "hand-off-jobs-between-agents",
+        "paths": [
+         "src/agent-tool-runs.mjs"
+        ],
+        "at": "/opt/hand-off-jobs-between-agents"
+       },
+       {
+        "package": "http-client",
+        "paths": [
+         "do-work/same-origin.mjs"
+        ],
+        "at": "/opt/http-client"
+       },
+       {
+        "package": "refuse-requests-to-private-addresses",
+        "paths": [
+         "public-address.mjs",
+         "public-address.json"
+        ],
+        "at": "/opt/refuse-requests-to-private-addresses"
+       },
+       {
+        "module": "@noble/hashes",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "blake3.js",
+         "blake2.js",
+         "_blake.js",
+         "_md.js",
+         "_u64.js",
+         "utils.js"
+        ],
+        "at": "/opt/node_modules/@noble/hashes"
+       },
+       {
+        "module": "tldts",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist/cjs"
+        ],
+        "at": "/opt/node_modules/tldts"
+       },
+       {
+        "module": "tldts-core",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist"
+        ],
+        "at": "/opt/node_modules/tldts-core"
+       },
+       {
+        "module": "uqr",
+        "paths": [
+         "LICENSE",
+         "package.json",
+         "dist/index.mjs"
+        ],
+        "at": "/opt/node_modules/uqr"
+       }
+      ]
+     },
+     "workdir": "/opt/walk-a-new-person-through-first-setup",
+     "internet": false,
+     "stdout": "json",
+     "argv": [
+      "node",
+      "/opt/walk-a-new-person-through-first-setup/do-work/walk-a-new-person-through-first-setup.mjs"
+     ],
+     "stdin": {
+      "fill": {
+       "from": "input"
+      }
+     }
+    },
+    "needs": {
+     "expected_seconds": 5,
+     "network_egress": false,
+     "memory_mb": 128
+    },
+    "licence_class": "licence:maker-own",
+    "placements": [
+     "placement:small-container"
+    ],
+    "maker": "maker:walk-a-new-person-through-first-setup",
+    "provenance": {
+     "source": "trillion src/setup-plan.mjs (setupPlan, setupInstructions) and src/setup-installs.mjs (setupInstalls, nativeHarnessSetup, harnessSetup) at tag old-trillion-before-worker-retire (b6ae0ebf81), with src/setup-policy.json copied to read-data; setupTools' HTTP reads are the caller's input here"
+    },
+    "verify": [
+     {
+      "kind": "sample-run",
+      "input": {
+       "origin": "https://app.example.test",
+       "view": "state",
+       "runtime": {
+        "workflow": {
+         "exists": false,
+         "state": "not_started"
+        }
+       }
+      },
+      "output_selector": "$.result.schema",
+      "contains": "trillion.setup-plan/v1"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,5 +1,3 @@
 {
-  "imported_by": [
-    "Trillion-X/trillion"
-  ]
+  "public": ["do-work/setup-plan.mjs", "do-work/setup-installs.mjs"]
 }

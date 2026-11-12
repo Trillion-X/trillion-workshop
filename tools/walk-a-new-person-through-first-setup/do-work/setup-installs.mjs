@@ -5,11 +5,11 @@
 // their computer, each with its public link or its honest not-yet words), plus the executable local harness setup.
 // Its manifest owns the published pair, supported hosts and hook inventory. This is a setup plan, not evidence that
 // a person's computer has run it. The current AI executes the plan and reads the installer's checked report.
-import harness from '../../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.json' with { type: 'json' };
-import { devicesStep } from '../../../set-up-my-devices-and-cameras/src/devices.mjs';
-import placements from '../records/workshop-placement-records.json' with { type: 'json' };
-import { agentForTool } from '../../../hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
-import { formerAgentIds } from '../../../shared-code/src/renamed-tools.mjs';
+import harness from '../../keep-and-wake-ai-sessions-on-this-computer/harness/setup.json' with { type: 'json' };
+import { devicesStep } from '../../set-up-my-devices-and-cameras/src/devices.mjs';
+import placements from '../../pick-where-one-piece-of-work-runs-the-device/records/workshop-placement-records.json' with { type: 'json' };
+import { agentForTool } from '../../hand-off-jobs-between-agents/src/agent-tool-runs.mjs';
+import { formerAgentIds } from '../../shared-code/src/renamed-tools.mjs';
 
 export const nativeHarnessPlacement = placements.records.find(row => row.payload.settings?.computer_scope)?.payload;
 export const nativeHarnessTool = nativeHarnessPlacement.settings.computer_scope.tool_ids[0];

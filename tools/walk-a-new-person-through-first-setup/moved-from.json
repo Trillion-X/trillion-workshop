@@ -1,5 +1,5 @@
 {
-  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt.",
+  "about": "Files of old trillion's port backlog (docs/worker-retirement-port-backlog.json) whose job is this tool's, moved here byte for byte from the tag old-trillion-before-worker-retire (commit), under their old paths so they import each other as they did. Only import paths differ: a request for a file this repository already holds names that file. A file that cannot load or pass here yet is held: its name ends in .held (the same bytes), and the README says what it waits for. Nothing here is wired into tool-rows.json: wiring a file is adapting it, in a commit that names this receipt. Ported files (adapted: true or copied) are wired into do-work/ and read-data/ by the row in tool-rows.json; see README.md for what was not carried.",
   "source": "Trillion-X/trillion",
   "package": "trillion-workshop",
   "calls": [],
@@ -7,18 +7,20 @@
     {
       "from": "src/setup-installs.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-installs.mjs.held",
+      "to": "tools/walk-a-new-person-through-first-setup/do-work/setup-installs.mjs",
       "source_identity": "1f:031e17e6786ea7b757e5c824d63db7a3e980d03ff5afc0add964227bfcbbf22a",
-      "identity": "1f:d2a7946ca17266435f456c86ef627aac0094fd7f625142a8df46ee49ba4999b1",
-      "held": true
+      "held": false,
+      "adapted": true,
+      "identity_as_held": "1f:d2a7946ca17266435f456c86ef627aac0094fd7f625142a8df46ee49ba4999b1"
     },
     {
       "from": "src/setup-plan.mjs",
       "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
-      "to": "tools/walk-a-new-person-through-first-setup/from-old-trillion/src/setup-plan.mjs.held",
+      "to": "tools/walk-a-new-person-through-first-setup/do-work/setup-plan.mjs",
       "source_identity": "1f:8060483a09b822549fd7517667929731e2735a7224a4bc9f33f847f7331d2ca0",
-      "identity": "1f:32123b394289738717881b0c5fb84bcaec5a0023096b9830f924f7300c550aa0",
-      "held": true
+      "held": false,
+      "adapted": true,
+      "identity_as_held": "1f:32123b394289738717881b0c5fb84bcaec5a0023096b9830f924f7300c550aa0"
     },
     {
       "from": "src/setup-runtime.mjs",
@@ -43,6 +45,13 @@
       "source_identity": "1f:4d1b931e0e22e24a07c609aa0f7d108c521dab76c6632bf783b4a425e888ab6b",
       "identity": "1f:4d1b931e0e22e24a07c609aa0f7d108c521dab76c6632bf783b4a425e888ab6b",
       "held": true
+    },
+    {
+      "from": "src/setup-policy.json",
+      "commit": "b6ae0ebf815f2f5271eed34e6e023c7e1767ec04",
+      "to": "tools/walk-a-new-person-through-first-setup/read-data/setup-policy.json",
+      "held": false,
+      "adapted": false
     }
   ]
 }

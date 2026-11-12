@@ -1084,6 +1084,13 @@
       "source_still_in": {"repo_kind": "retired bitfield-packages repository", "paths": ["bitfield-packages/packages/learning-path/", "bitfield-packages/packages/learning-progress/"]}
     },
     {
+      "capability": "walk a new person through first setup: the apps to install on their devices, the AIs to connect, and the one saved run that resumes where they stopped",
+      "owner": ["tools/walk-a-new-person-through-first-setup/"],
+      "entry": "tools/walk-a-new-person-through-first-setup/tool-rows.json",
+      "evidence": "old trillion src/setup-plan.mjs (setupPlan, setupInstructions) and src/setup-installs.mjs (setupInstalls) at b6ae0ebf81, receipt in tools/walk-a-new-person-through-first-setup/from-old-trillion/ and moved-from.json; the plan is a projection over what the caller hands in",
+      "distinct_from": [{"job": "keep the facts a new person's devices report about themselves so a setup checklist can tick itself from them", "why": "that folder keeps the device facts a checklist reads; this one plans the setup run and the installs"}]
+    },
+    {
       "capability": "practise with due reviews and guided drills: spaced repetition, decision practice, tactics",
       "owner": ["tools/practice-and-review/"],
       "entry": "tools/practice-and-review/tool-rows.json",

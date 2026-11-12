@@ -4,8 +4,8 @@ Files of old trillion whose job is this tool's (walk a new person through first 
 
 | Old path | Here | Status |
 |---|---|---|
-| `src/setup-installs.mjs` | `src/setup-installs.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports records/workshop-placement-records.json (at the tag, not moved here yet) |
-| `src/setup-plan.mjs` | `src/setup-plan.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/setup-policy.json (at the tag, not moved here yet), methods/pursuit-lens.json (at the tag, not moved here yet) |
+| `src/setup-installs.mjs` | moved to `do-work/setup-installs.mjs` (adapted, wired into `tool-rows.json`) | ported |
+| `src/setup-plan.mjs` | moved to `do-work/setup-plan.mjs` (adapted, wired into `tool-rows.json`) | ported in part; the HTTP `setupTools` surface is not carried (see `../README.md`) |
 | `src/setup-runtime.mjs` | `src/setup-runtime.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/work-results.mjs (at the tag, not moved here yet) |
 | `test/setup-plan.test.mjs` | `test/setup-plan.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/ai-app-guides.mjs (at the tag, not moved here yet), test/setup-fixtures.mjs (at the tag, not moved here yet) |
 | `test/setup-runtime.test.mjs` | `test/setup-runtime.test.mjs.held` | held: ERR_MODULE_NOT_FOUND; imports src/shipped-defaults.mjs (at the tag, not moved here yet), records/starting-rules.json (at the tag, not moved here yet) |
