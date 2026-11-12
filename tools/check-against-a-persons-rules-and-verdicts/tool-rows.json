@@ -2054,7 +2054,8 @@
     "needs": {
      "expected_seconds": 60,
      "network_egress": false,
-     "memory_mb": 128
+     "memory_mb": 128,
+     "_what": "memory_mb is the run's peak resident memory at the largest list the row reads, the 40,707-row Checks list (39,088 pieces, 324 pages) measured by at-the-size-of-a-real-list.test.mjs: 118, 116 and 117 MB on three runs (Nov 12, 2026), under the test's heap cap of memory_mb less 80 (48 MB). 128 is the next container step above the largest measured peak; the test asserts the peak stays under memory_mb."
     },
     "licence_class": "licence:maker-own",
     "placements": [
