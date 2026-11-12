@@ -39,7 +39,6 @@
      "repository": "https://github.com/ggml-org/whisper.cpp",
      "get_it": [
       "git clone https://github.com/ggml-org/whisper.cpp.git",
-      "git clone https://github.com/ggml-org/whisper.cpp.git",
       "cd whisper.cpp",
       "sh ./models/download-ggml-model.sh base.en",
       "cmake -B build",
@@ -61,9 +60,9 @@
      "repository": "https://github.com/ggml-org/whisper.cpp",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for ggml-org/whisper.cpp",
-     "read_on": "2026-09-29",
-     "stars": 54017,
-     "last_pushed_at": "2026-09-28T18:35:46Z",
+     "read_on": "2026-11-12",
+     "stars": 55119,
+     "last_pushed_at": "2026-11-10T12:09:38Z",
      "default_branch": "master",
      "readme_quote": "./build/bin/whisper-cli -m models/ggml-base.en.bin -f samples/jfk.wav"
     }
@@ -121,9 +120,9 @@
      "repository": "https://github.com/m-bain/whisperX",
      "licence_spdx": "BSD-2-Clause",
      "licence_read_from": "GitHub's licence field for m-bain/whisperX",
-     "read_on": "2026-09-29",
-     "stars": 24303,
-     "last_pushed_at": "2026-09-26T20:53:59Z",
+     "read_on": "2026-11-12",
+     "stars": 25225,
+     "last_pushed_at": "2026-10-22T14:53:44Z",
      "default_branch": "main",
      "readme_quote": "whisperx path/to/audio.wav --compute_type int8 --device cpu"
     }
@@ -180,9 +179,9 @@
      "repository": "https://github.com/SYSTRAN/faster-whisper",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for SYSTRAN/faster-whisper",
-     "read_on": "2026-09-29",
-     "stars": 25627,
-     "last_pushed_at": "2025-11-19T14:40:46Z",
+     "read_on": "2026-11-12",
+     "stars": 26684,
+     "last_pushed_at": "2026-11-11T23:54:15Z",
      "default_branch": "master",
      "readme_quote": "model = WhisperModel(model_size, device=\"cpu\", compute_type=\"int8\")"
     }
@@ -239,9 +238,9 @@
      "repository": "https://github.com/danielgatis/rembg",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for danielgatis/rembg",
-     "read_on": "2026-09-29",
-     "stars": 24922,
-     "last_pushed_at": "2026-09-20T17:16:21Z",
+     "read_on": "2026-11-12",
+     "stars": 25434,
+     "last_pushed_at": "2026-11-06T01:18:29Z",
      "default_branch": "main",
      "readme_quote": "rembg i path/to/input.png path/to/output.png"
     }
@@ -299,9 +298,9 @@
      "repository": "https://github.com/yt-dlp/yt-dlp",
      "licence_spdx": "Unlicense",
      "licence_read_from": "GitHub's licence field for yt-dlp/yt-dlp",
-     "read_on": "2026-09-29",
-     "stars": 194350,
-     "last_pushed_at": "2026-09-27T22:09:13Z",
+     "read_on": "2026-11-12",
+     "stars": 207057,
+     "last_pushed_at": "2026-11-04T07:16:27Z",
      "default_branch": "master",
      "readme_quote": "yt-dlp [OPTIONS] [--] URL [URL...]"
     }
@@ -356,9 +355,9 @@
      "repository": "https://github.com/FFmpeg/FFmpeg",
      "licence_spdx": "LGPL-2.1-or-later",
      "licence_read_from": "https://raw.githubusercontent.com/FFmpeg/FFmpeg/master/LICENSE.md",
-     "read_on": "2026-09-29",
-     "stars": 64645,
-     "last_pushed_at": "2026-09-29T20:20:09Z",
+     "read_on": "2026-11-12",
+     "stars": 67096,
+     "last_pushed_at": "2026-11-12T04:15:32Z",
      "default_branch": "master",
      "readme_quote": "ffmpeg is a command line toolbox to manipulate, convert and stream multimedia content."
     }
@@ -416,8 +415,8 @@
      "repository": "https://github.com/facebookresearch/demucs",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for facebookresearch/demucs",
-     "read_on": "2026-09-29",
-     "stars": 10361,
+     "read_on": "2026-11-12",
+     "stars": 10407,
      "last_pushed_at": "2024-04-24T20:25:19Z",
      "default_branch": "main",
      "readme_quote": "demucs --two-stems=vocals myfile.mp3",
@@ -477,9 +476,9 @@
      "repository": "https://github.com/OHF-Voice/piper1-gpl",
      "licence_spdx": "GPL-3.0",
      "licence_read_from": "GitHub's licence field for OHF-Voice/piper1-gpl",
-     "read_on": "2026-09-29",
-     "stars": 5716,
-     "last_pushed_at": "2026-09-28T20:17:35Z",
+     "read_on": "2026-11-12",
+     "stars": 6256,
+     "last_pushed_at": "2026-11-11T17:24:06Z",
      "default_branch": "main",
      "readme_quote": "python3 -m piper -m en_US-lessac-medium -f test.wav -- 'This is a test.'"
     }
@@ -536,9 +535,9 @@
      "repository": "https://github.com/microsoft/markitdown",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for microsoft/markitdown",
-     "read_on": "2026-09-29",
-     "stars": 187613,
-     "last_pushed_at": "2026-09-21T21:03:34Z",
+     "read_on": "2026-11-12",
+     "stars": 194999,
+     "last_pushed_at": "2026-11-07T00:14:01Z",
      "default_branch": "main",
      "readme_quote": "markitdown path-to-file.pdf -o document.md"
     }
@@ -595,9 +594,9 @@
      "repository": "https://github.com/docling-project/docling",
      "licence_spdx": "MIT",
      "licence_read_from": "GitHub's licence field for docling-project/docling",
-     "read_on": "2026-09-29",
-     "stars": 68185,
-     "last_pushed_at": "2026-09-29T15:59:12Z",
+     "read_on": "2026-11-12",
+     "stars": 70464,
+     "last_pushed_at": "2026-11-12T06:49:10Z",
      "default_branch": "main",
      "readme_quote": "docling https://arxiv.org/pdf/2206.01062"
     }
@@ -655,9 +654,9 @@
      "repository": "https://github.com/Breakthrough/PySceneDetect",
      "licence_spdx": "BSD-3-Clause",
      "licence_read_from": "GitHub's licence field for Breakthrough/PySceneDetect",
-     "read_on": "2026-09-29",
-     "stars": 5209,
-     "last_pushed_at": "2026-09-21T04:44:36Z",
+     "read_on": "2026-11-12",
+     "stars": 5437,
+     "last_pushed_at": "2026-11-10T03:04:50Z",
      "default_branch": "main",
      "readme_quote": "scenedetect -i video.mp4 split-video"
     }
@@ -712,8 +711,8 @@
      "repository": "https://github.com/xinntao/Real-ESRGAN",
      "licence_spdx": "BSD-3-Clause",
      "licence_read_from": "GitHub's licence field for xinntao/Real-ESRGAN",
-     "read_on": "2026-09-29",
-     "stars": 36943,
+     "read_on": "2026-11-12",
+     "stars": 37468,
      "last_pushed_at": "2024-08-06T13:15:18Z",
      "default_branch": "master",
      "readme_quote": "./realesrgan-ncnn-vulkan.exe -i input.jpg -o output.png -n model_name"
@@ -769,9 +768,9 @@
      "repository": "https://github.com/tesseract-ocr/tesseract",
      "licence_spdx": "Apache-2.0",
      "licence_read_from": "GitHub's licence field for tesseract-ocr/tesseract",
-     "read_on": "2026-09-29",
-     "stars": 76756,
-     "last_pushed_at": "2026-09-28T07:40:38Z",
+     "read_on": "2026-11-12",
+     "stars": 77479,
+     "last_pushed_at": "2026-11-11T11:29:16Z",
      "default_branch": "main",
      "readme_quote": "tesseract imagename outputbase [-l lang] [--oem ocrenginemode] [--psm pagesegmode] [configfiles...]"
     }
@@ -829,11 +828,71 @@
      "repository": "https://github.com/ocrmypdf/OCRmyPDF",
      "licence_spdx": "MPL-2.0",
      "licence_read_from": "GitHub's licence field for ocrmypdf/OCRmyPDF",
-     "read_on": "2026-09-29",
-     "stars": 34903,
-     "last_pushed_at": "2026-09-29T07:55:13Z",
+     "read_on": "2026-11-12",
+     "stars": 35295,
+     "last_pushed_at": "2026-11-09T21:41:04Z",
      "default_branch": "main",
      "readme_quote": "ocrmypdf input.jpg output.pdf"
+    }
+   }
+  },
+  {
+   "id": "package::ai-tool-catalog::github-index::coreyhaines31-marketingskills",
+   "address": "package::ai-tool-catalog::github-index::coreyhaines31-marketingskills",
+   "path": [
+    "current-item",
+    "published-record"
+   ],
+   "payload": {
+    "kind": "ai-tool-descriptor",
+    "id": "tool:github:coreyhaines31-marketingskills",
+    "label": "marketingskills (open source, runs on your computer)",
+    "job": "Collect free, dated evidence of how a company grows from its public footprint: page families in its sitemap and when each appeared, the month each ad pixel, analytics, testing, referral or email tool first showed on its site, the months its pricing and homepage headline changed, who sends its email and which tools it verified in DNS, its subdomains by first certificate date, its open roles from public job boards, its app reviews by month, a side-by-side of three to five competitors, the lift of each cluster of dated moves against its traffic, and the moves new since the last look",
+    "description": "Marketing skills for Claude Code and AI agents. CRO, copywriting, SEO, analytics, and growth engineering. Open source on GitHub under MIT. It runs on the person's own computer: run_tool hands back how to get it and run it.",
+    "status": "active",
+    "input_schema": {
+     "type": "object",
+     "properties": {
+      "input": {
+       "type": "string",
+       "description": "The file or web address on the person's computer to work on, put where {input} is in the command"
+      },
+      "output": {
+       "type": "string",
+       "description": "Where the result goes on the person's computer, put where {output} is in the command"
+      }
+     }
+    },
+    "output_schema": {
+     "type": "object"
+    },
+    "invoke": {
+     "kind": "on-your-computer",
+     "repository": "https://github.com/coreyhaines31/marketingskills",
+     "get_it": [
+      "git clone https://github.com/coreyhaines31/marketingskills.git",
+      "cd marketingskills"
+     ],
+     "run": "node skills/reverse-engineer-marketing/scripts/teardown.mjs {input}",
+     "needs": [
+      "git",
+      "node 18 or later"
+     ],
+     "say": "This runs on the person's own computer, never on Trillion. If you can run commands where they are: check whether it is already installed, install it with get_it if not, run `run` with their files in place of {input} and {output}, show them the result, then report_result on this task. If you cannot run commands, give them these steps."
+    },
+    "licence_class": "licence:permissive",
+    "placements": [
+     "placement:caller-sandbox"
+    ],
+    "provenance": {
+     "repository": "https://github.com/coreyhaines31/marketingskills",
+     "licence_spdx": "MIT",
+     "licence_read_from": "GitHub's licence field for coreyhaines31/marketingskills",
+     "read_on": "2026-11-12",
+     "stars": 59826,
+     "last_pushed_at": "2026-11-11T17:49:23Z",
+     "default_branch": "main",
+     "readme_quote": "git clone https://github.com/coreyhaines31/marketingskills.git"
     }
    }
   }

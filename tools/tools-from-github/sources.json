@@ -5,7 +5,6 @@
    "repo": "ggml-org/whisper.cpp",
    "job": "Transcribe speech in an audio or video file to text on your own computer, fast and offline",
    "install": [
-    "git clone https://github.com/ggml-org/whisper.cpp.git",
     "cd whisper.cpp",
     "sh ./models/download-ggml-model.sh base.en",
     "cmake -B build",
@@ -177,6 +176,19 @@
     "ghostscript"
    ],
    "readme_quote": "ocrmypdf input.jpg output.pdf"
+  },
+  {
+   "repo": "coreyhaines31/marketingskills",
+   "job": "Collect free, dated evidence of how a company grows from its public footprint: page families in its sitemap and when each appeared, the month each ad pixel, analytics, testing, referral or email tool first showed on its site, the months its pricing and homepage headline changed, who sends its email and which tools it verified in DNS, its subdomains by first certificate date, its open roles from public job boards, its app reviews by month, a side-by-side of three to five competitors, the lift of each cluster of dated moves against its traffic, and the moves new since the last look",
+   "install": [
+    "cd marketingskills"
+   ],
+   "run": "node skills/reverse-engineer-marketing/scripts/teardown.mjs {input}",
+   "needs": [
+    "git",
+    "node 18 or later"
+   ],
+   "readme_quote": "git clone https://github.com/coreyhaines31/marketingskills.git"
   }
  ]
 }
